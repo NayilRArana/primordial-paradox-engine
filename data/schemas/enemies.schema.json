@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://primordial-paradox.local/schemas/enemies.schema.json",
+  "title": "Primordial Paradox enemies file",
+  "description": "Every enemy the battle director can start. Numbers here are the whole of the balance: no enemy stat lives in GML. Ranges mirror the constants in tools/check_data.py and tests/test_schemas.py compares the two.",
+  "type": "object",
+  "required": ["format", "kind", "enemies"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": 1 },
+    "kind": { "const": "enemies" },
+    "enemies": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/enemy" } }
+  },
+  "$defs": {
+    "attack": {
+      "type": "object",
+      "description": "Damage range of a plain hit, inclusive. min above max is refused by the checker.",
+      "required": ["min", "max"],
+      "additionalProperties": false,
+      "properties": {
+        "min": { "type": "integer", "minimum": 1, "maximum": 99 },
+        "max": { "type": "integer", "minimum": 1, "maximum": 99 }
+      }
+    },
+    "reward": {
+      "type": "object",
+      "description": "What the fight gives. kind item and power name an id in those tables; health gives a flat amount and names nothing.",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["item", "power", "health"] },
+        "id": { "type": "string", "minLength": 1 },
+        "count": { "type": "integer", "minimum": 1, "maximum": 99 }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "enum": ["item", "power"] } }, "required": ["kind"] },
+          "then": { "required": ["id", "count"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "health" } }, "required": ["kind"] },
+          "then": { "required": ["count"], "not": { "required": ["id"] } }
+        }
+      ]
+    },
+    "enemy": {
+      "type": "object",
+      "required": ["id", "name", "max_hp", "attack", "sprite", "element", "patterns", "trust_to_spare", "spare_hp_percent", "rewards"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string", "minLength": 1 },
+        "max_hp": { "type": "integer", "minimum": 1, "maximum": 9999 },
+        "attack": { "$ref": "#/$defs/attack" },
+        "sprite": { "type": "string", "minLength": 1, "description": "Sprite resource name. Placeholder until the 8 bit look pass." },
+        "element": { "type": "string", "minLength": 1, "description": "Free form damage element tag, sea, fire, veil and so on." },
+        "route_kind": { "enum": ["regular", "boss"], "description": "Boss fights count toward the route ledger differently. Defaults to regular when absent." },
+        "patterns": {
+          "type": "array",
+          "description": "The bullet patterns this enemy may use, by id in data/patterns/all.json.",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "talk_dialogue": { "type": "string", "minLength": 1, "description": "Dialogue id played by the TALK command." },
+        "trust_to_spare": { "type": "integer", "minimum": 1, "maximum": 10, "description": "TALK count that reaches the spare threshold." },
+        "spare_hp_percent": { "type": "integer", "minimum": 1, "maximum": 100, "description": "HP percentage at or below which SPARE is allowed." },
+        "rewards": { "type": "array", "minItems": 0, "items": { "$ref": "#/$defs/reward" } }
+      }
+    }
+  }
+}

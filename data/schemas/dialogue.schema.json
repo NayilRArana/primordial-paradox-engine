@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://primordial-paradox.local/schemas/dialogue.schema.json",
+  "title": "Primordial Paradox dialogue file",
+  "description": "Every line the game can print, by dialogue id. A scene, a TALK command or a fight result names an id here. A long sentence may wrap; a single word longer than a 30 character line cannot, so that is what the line pattern refuses. Three pages of three lines is the box limit, so 9 lines is the cap. The 30 and 9 numbers mirror tools/check_data.py and tests/test_schemas.py compares them.",
+  "type": "object",
+  "required": ["format", "kind", "dialogue"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": 1 },
+    "kind": { "const": "dialogues" },
+    "dialogue": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/entry" } }
+  },
+  "$defs": {
+    "line": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!.*\\S{31,}).+$",
+      "description": "One line as typed into the box. No run of more than 30 non space characters, because the box wraps on spaces."
+    },
+    "entry": {
+      "type": "object",
+      "required": ["id", "speaker", "lines"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "speaker": { "type": "string", "minLength": 1, "description": "Who is talking, for the name plate. narrator is the no name case." },
+        "lines": { "type": "array", "minItems": 1, "maxItems": 9, "items": { "$ref": "#/$defs/line" } }
+      }
+    }
+  }
+}

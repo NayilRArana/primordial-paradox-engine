@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://primordial-paradox.local/schemas/cutscenes.schema.json",
+  "title": "Primordial Paradox cutscene file",
+  "description": "A cutscene is a list of commands run in order by pp_scene.gml: no code, no loops, one command per entry. branch is the only control flow, and every branch target must exist. Two rules JSON Schema cannot express live in tools/check_data.py: a scene must END with the end command, and a branch chain must not cycle. Numeric bounds mirror that checker.",
+  "type": "object",
+  "required": ["format", "kind", "scenes"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": 1 },
+    "kind": { "const": "scenes" },
+    "scenes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/scene" } }
+  },
+  "$defs": {
+    "say": {
+      "type": "object",
+      "required": ["cmd", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "say" },
+        "id": { "type": "string", "minLength": 1, "description": "Dialogue id in data/dialogue/all.json." }
+      }
+    },
+    "music": {
+      "type": "object",
+      "required": ["cmd", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "music" },
+        "id": { "type": "string", "minLength": 1, "description": "Sound id of kind music in data/audio.json." }
+      }
+    },
+    "sfx": {
+      "type": "object",
+      "required": ["cmd", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "sfx" },
+        "id": { "type": "string", "minLength": 1, "description": "Sound id in data/audio.json." }
+      }
+    },
+    "move": {
+      "type": "object",
+      "required": ["cmd", "dir", "tiles"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "move" },
+        "actor": { "type": "string", "minLength": 1 },
+        "dir": { "enum": ["up", "down", "left", "right"] },
+        "tiles": { "type": "integer", "minimum": 1, "maximum": 8 }
+      }
+    },
+    "face": {
+      "type": "object",
+      "required": ["cmd"],
+      "properties": {
+        "cmd": { "const": "face" }
+      }
+    },
+    "wait": {
+      "type": "object",
+      "required": ["cmd", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "wait" },
+        "steps": { "type": "integer", "minimum": 0, "maximum": 600 }
+      }
+    },
+    "fade": {
+      "type": "object",
+      "required": ["cmd", "mode"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "fade" },
+        "mode": { "enum": ["out", "in"] }
+      }
+    },
+    "camera": {
+      "type": "object",
+      "required": ["cmd"],
+      "properties": {
+        "cmd": { "const": "camera" }
+      }
+    },
+    "shake": {
+      "type": "object",
+      "required": ["cmd", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "shake" },
+        "steps": { "type": "integer", "minimum": 1, "maximum": 60 },
+        "strength": { "type": "integer", "minimum": 1, "maximum": 2 }
+      }
+    },
+    "spawn": {
+      "type": "object",
+      "required": ["cmd", "actor"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "spawn" },
+        "actor": { "type": "string", "minLength": 1 },
+        "x": { "type": "integer", "minimum": 0, "maximum": 999 },
+        "y": { "type": "integer", "minimum": 0, "maximum": 999 }
+      }
+    },
+    "destroy": {
+      "type": "object",
+      "required": ["cmd", "actor"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "destroy" },
+        "actor": { "type": "string", "minLength": 1 }
+      }
+    },
+    "battle": {
+      "type": "object",
+      "required": ["cmd", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "battle" },
+        "id": { "type": "string", "minLength": 1, "description": "Encounter id in data/encounters/all.json." }
+      }
+    },
+    "setflag": {
+      "type": "object",
+      "required": ["cmd", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "setflag" },
+        "name": { "type": "string", "minLength": 1, "description": "Flag name in data/flags.json." },
+        "value": { "type": "boolean", "description": "Defaults to true." }
+      }
+    },
+    "branch": {
+      "type": "object",
+      "required": ["cmd", "flag", "scene"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "branch" },
+        "flag": { "type": "string", "minLength": 1 },
+        "scene": { "type": "string", "minLength": 1, "description": "Scene id to continue at when the flag is set." }
+      }
+    },
+    "end": {
+      "type": "object",
+      "required": ["cmd"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "end" }
+      }
+    },
+    "command": {
+      "description": "Exactly one command shape, chosen by cmd.",
+      "oneOf": [
+        { "$ref": "#/$defs/say" },
+        { "$ref": "#/$defs/music" },
+        { "$ref": "#/$defs/sfx" },
+        { "$ref": "#/$defs/move" },
+        { "$ref": "#/$defs/face" },
+        { "$ref": "#/$defs/wait" },
+        { "$ref": "#/$defs/fade" },
+        { "$ref": "#/$defs/camera" },
+        { "$ref": "#/$defs/shake" },
+        { "$ref": "#/$defs/spawn" },
+        { "$ref": "#/$defs/destroy" },
+        { "$ref": "#/$defs/battle" },
+        { "$ref": "#/$defs/setflag" },
+        { "$ref": "#/$defs/branch" },
+        { "$ref": "#/$defs/end" }
+      ]
+    },
+    "scene": {
+      "type": "object",
+      "required": ["id", "name", "map", "start", "commands"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string", "minLength": 1 },
+        "map": { "type": "string", "minLength": 1, "description": "Map id in data/maps/all.json." },
+        "start": {
+          "type": "object",
+          "required": ["x", "y"],
+          "additionalProperties": false,
+          "properties": {
+            "x": { "type": "integer", "minimum": 0 },
+            "y": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "commands": { "type": "array", "minItems": 1, "maxItems": 256, "items": { "$ref": "#/$defs/command" } }
+      }
+    }
+  }
+}

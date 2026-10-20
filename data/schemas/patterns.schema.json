@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://primordial-paradox.local/schemas/patterns.schema.json",
+  "title": "Primordial Paradox bullet pattern recipes",
+  "description": "A bullet pattern is data, not code: one emitter in pp_dodge_recipe.gml interprets these frames. Every frame is one spawn group, so a fight is tuned by editing numbers. Simulation rules (terminating inside the arena step cap, never spawning inside the exclusion radius, never exceeding max_concurrent) are proven by tools/check_data.py. Bounds mirror the constants in that file; tests/test_schemas.py compares them.",
+  "type": "object",
+  "required": ["format", "kind", "patterns"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": 1 },
+    "kind": { "const": "patterns" },
+    "patterns": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/pattern" } }
+  },
+  "$defs": {
+    "origin": {
+      "description": "A named edge, or an explicit point in the 256 by 240 frame.",
+      "oneOf": [
+        { "enum": ["top", "bottom", "left", "right", "centre", "corner"] },
+        {
+          "type": "object",
+          "required": ["x", "y"],
+          "additionalProperties": false,
+          "properties": {
+            "x": { "type": "number", "minimum": 0, "maximum": 256 },
+            "y": { "type": "number", "minimum": 0, "maximum": 240 }
+          }
+        }
+      ]
+    },
+    "wobble": {
+      "type": "object",
+      "description": "Sideways drift. amp 0 means the bullet travels straight.",
+      "required": ["amp", "period"],
+      "additionalProperties": false,
+      "properties": {
+        "amp": { "type": "number", "minimum": 0, "maximum": 8 },
+        "period": { "type": "number", "minimum": 10, "maximum": 120 }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "description": "One spawn group at step at, repeated count times with delay steps between each.",
+      "required": ["at", "count", "spread", "origin", "speed", "angle", "accel", "curve", "life", "size", "delay", "jitter_angle", "wobble"],
+      "additionalProperties": false,
+      "properties": {
+        "at": { "type": "integer", "minimum": 0, "maximum": 899, "description": "Step inside the pattern when the first bullet spawns." },
+        "count": { "type": "integer", "minimum": 1, "maximum": 24 },
+        "spread": { "type": "number", "minimum": 0, "maximum": 360, "description": "Degrees fanned around angle. 0 is a single line." },
+        "origin": { "$ref": "#/$defs/origin" },
+        "speed": { "type": "number", "minimum": 0.25, "maximum": 4.0, "description": "Pixels per step." },
+        "angle": { "type": "number", "minimum": 0, "maximum": 359, "description": "GameMaker direction: 0 is right, 90 is down." },
+        "accel": { "type": "number", "minimum": -0.05, "maximum": 0.05 },
+        "curve": { "type": "number", "minimum": -6, "maximum": 6, "description": "Degrees of turn per step." },
+        "life": { "type": "integer", "minimum": 30, "maximum": 900 },
+        "size": { "enum": [8, 16], "description": "Bullet sprite edge in pixels. 8 is the normal bullet, 16 is the big one." },
+        "delay": { "type": "number", "minimum": 0, "maximum": 12, "description": "Steps between the bullets of one count." },
+        "jitter_angle": { "type": "number", "minimum": 0, "maximum": 180, "description": "Random degrees added per bullet, seeded so a fight replays the same." },
+        "wobble": { "$ref": "#/$defs/wobble" }
+      }
+    },
+    "pattern": {
+      "type": "object",
+      "required": ["id", "name", "shape", "length", "aim", "max_concurrent", "frames"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string", "minLength": 1 },
+        "shape": { "enum": ["rain", "wall", "ring", "fan", "spiral", "sweep", "pincer", "lob"], "description": "The family the emitter builds the group shape from." },
+        "length": { "type": "integer", "minimum": 1, "maximum": 900, "description": "Steps the pattern runs for, and the arena cap." },
+        "aim": { "enum": ["fixed", "at_marker"], "description": "fixed uses angle as given, at_marker turns the group toward the player marker." },
+        "max_concurrent": { "type": "integer", "minimum": 1, "maximum": 4, "description": "Bullets alive at once allowed before the emitter waits." },
+        "frames": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/frame" } }
+      }
+    }
+  }
+}

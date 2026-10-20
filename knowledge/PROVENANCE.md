@@ -4,22 +4,29 @@ Rule: a subsystem cannot be committed until it has an entry here. Each entry nam
 learned in plain language, and the concrete ways our implementation differs. "Copied expression: none" is a claim
 about this repository, and it is checked by tools\check_provenance.py plus the clean-room scan described below.
 
-The study copy lives at knowledge\study\deltamodkit (gitignored, never committed, never shipped, never read at
-runtime by anything in game\). Repository: https://github.com/deltamodders/deltamodkit, read 2026-10-19, project file
-records IDE version 2024.1400.0.911. Files read are named per entry. Nothing from it was copied, quoted or renamed
-into this repository.
+THE STUDY COPY IS GONE AND OUT OF BOUNDS. It lived at knowledge\study\deltamodkit, a decompilation of a commercial
+Deltarune mod project, cloned by card P1-A on 2026-10-19. The manager found that read to be a clean-room breach and
+moved the folder to <workspace>\Private\quarantine-decomp-2026-10-19. Nothing in this repository may read,
+open, search, download or reason from it, or from any other decompiled, ripped or fan ported copy of Undertale or
+Deltarune, GitHub repositories included. The subsystem entries below were written from that read before the notice and
+are therefore MARKED PENDING re-review, not trusted: card t_ec0fb8be (code-review) either confirms each one from public
+genre design and the official GameMaker manual, or rewrites it, and records the outcome in
+knowledge\CLEANROOM-REVIEW.md. The file names in the entries are historical record of what was read; they are not a
+permission and not a source.
 
 How the no-copy claim is checked, mechanically, on every commit:
-1. `tools\check_cleanroom.py`: fails if anything under game\ or data\ names the study copies, fails on a foreign
-   character or game name as a whole word, fails if any comment (GML) or string value (JSON) of 20 characters or more
-   here appears word for word in the study copy, and fails if any `pp_` identifier exists there. Measured on
-   2026-10-19: 237 of our comments and strings compared against 650 study .gml files, 0 matches.
+1. `tools\check_cleanroom.py`: fails if anything under game\ or data\ names a study copy, the quarantine folder or the
+   decompilation repository; fails on a foreign character or game name as a whole word; fails on a listed distinctive
+   phrase from those games; fails on a GML module with no row in knowledge\CLEANROOM-REVIEW.md or a row that claims a
+   review with no reviewer or no date. It does NOT compare our text against theirs, because that comparison requires
+   reading the thing we refuse to read. The corpus comparison it replaced is gone with the corpus.
 2. `tools\check_provenance.py`: fails if any module file is missing from the module map below, or if any entry is
    missing a field or the line "Copied expression: none".
 3. `tools\check_project.py`: fails if the .yyp, the .yy files and the folders on disk disagree, and fails if any file
    under game\ references knowledge\study.
-4. A human read of each new module against the study files named in its entry, recorded in DEVLOG.md, and every module
-   is written from a spec in specs\, not from a studied file.
+4. The human step: a reviewer named on each row of knowledge\CLEANROOM-REVIEW.md reads that module against the public
+   record and a spec in specs\, and every module is written from a spec, not from a studied file. A row that still says
+   pending is printed by name on every checker run until it is ruled on.
 
 ## module map (which entry owns which file)
 

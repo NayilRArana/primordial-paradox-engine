@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://primordial-paradox.local/schemas/maps.schema.json",
+  "title": "Primordial Paradox maps file",
+  "description": "A tile map the overworld module reads. One file holds every map, each identified by id. Width and height are in tiles and must agree with the length of every tiles and collision row; that cross-row rule is enforced by tools/check_data.py, because JSON Schema cannot express it. Numeric bounds here mirror the constants at the top of tools/check_data.py and tests/test_schemas.py compares the two so they cannot drift apart.",
+  "type": "object",
+  "required": ["format", "kind", "tile_size", "maps"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": 1, "description": "File format version. The engine reads 1." },
+    "kind": { "const": "maps" },
+    "tile_size": { "type": "integer", "minimum": 8, "maximum": 32, "description": "Pixels per tile edge. 16 in this game." },
+    "maps": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/map" } }
+  },
+  "$defs": {
+    "point": {
+      "type": "object",
+      "description": "A tile coordinate, not a pixel coordinate.",
+      "required": ["x", "y"],
+      "additionalProperties": false,
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "description": "A tile the player steps on to make something happen. kind names the table the id is looked up in, except map, whose id is another map.",
+      "required": ["x", "y", "kind", "id", "once"],
+      "additionalProperties": false,
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "kind": { "enum": ["scene", "battle", "map", "say", "flag", "marker"] },
+        "id": { "type": "string", "minLength": 1 },
+        "once": { "type": "boolean" },
+        "condition": { "type": "string", "description": "A flag name that must be set, or the empty string for no condition." },
+        "spawn": { "type": "string", "minLength": 1, "description": "Required when kind is map: the spawn point on the destination map." }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "map" } }, "required": ["kind"] },
+          "then": { "required": ["spawn"] }
+        }
+      ]
+    },
+    "rail": {
+      "type": "object",
+      "description": "A corridor the player can be walked along by a cutscene. Every step has to land on a walkable tile; tools/check_data.py walks it to prove that.",
+      "required": ["start", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "start": { "$ref": "#/$defs/point" },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["dir", "tiles"],
+            "additionalProperties": false,
+            "properties": {
+              "dir": { "enum": ["up", "down", "left", "right"] },
+              "tiles": { "type": "integer", "minimum": 1, "maximum": 64 }
+            }
+          }
+        }
+      }
+    },
+    "map": {
+      "type": "object",
+      "required": ["id", "name", "width", "height", "tile_legend", "tiles", "collision", "palette_indices", "spawns", "triggers"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string", "minLength": 1 },
+        "width": { "type": "integer", "minimum": 16, "maximum": 256 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 256 },
+        "tile_legend": {
+          "type": "object",
+          "description": "Maps each character that may appear in tiles to a tile kind.",
+          "minProperties": 1,
+          "propertyNames": { "minLength": 1, "maxLength": 1 },
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        },
+        "tiles": {
+          "type": "array",
+          "description": "One string per row, height rows of width characters, each character in tile_legend.",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "collision": {
+          "type": "array",
+          "description": "One string per row, height rows of width characters: 0 walkable, 1 blocked, 2 blocked until a story flag changes it.",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1, "pattern": "^[012]+$" }
+        },
+        "music": { "type": "string", "minLength": 1, "description": "A sound id of kind music in data/audio.json." },
+        "story_flag": { "type": "string", "description": "The flag that clears tiles marked 2 in collision. Empty string means this map has no story gate." },
+        "palette_indices": {
+          "type": "array",
+          "description": "The colours this map may use, as indices into data/palette.json.",
+          "maxItems": 16,
+          "items": { "type": "integer", "minimum": 0, "maximum": 53 }
+        },
+        "spawns": {
+          "type": "object",
+          "description": "Named entry points. Every spawn must sit on a walkable tile.",
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "#/$defs/point" }
+        },
+        "triggers": { "type": "array", "items": { "$ref": "#/$defs/trigger" } },
+        "rails": { "type": "array", "items": { "$ref": "#/$defs/rail" } }
+      }
+    }
+  }
+}

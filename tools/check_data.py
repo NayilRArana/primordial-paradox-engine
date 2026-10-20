@@ -79,6 +79,73 @@ AUDIO_KINDS = {"music", "sfx", "ui"}
 
 HEX_DIGITS = set("0123456789abcdefABCDEF")
 
+# The JSON Schema documents in data/schemas, one per data file that holds a table of things. The schema is the
+# published shape of the file, readable by an editor or another tool; this checker enforces it and then goes on to the
+# ranges, the cross references and the pattern simulation that a schema cannot express.
+SCHEMA_FILES = {
+    "maps/all.json": "maps.schema.json",
+    "enemies/all.json": "enemies.schema.json",
+    "patterns/all.json": "patterns.schema.json",
+    "dialogue/all.json": "dialogue.schema.json",
+    "scenes/all.json": "cutscenes.schema.json",
+}
+
+
+def _dot_path(parts) -> str:
+    out = ""
+    for part in parts:
+        out += "[%d]" % part if isinstance(part, int) else ("." + str(part) if out else str(part))
+    return out or "<root>"
+
+
+def schema_failures(root: str) -> list[str]:
+    """Validate each table file against its JSON Schema in data/schemas.
+
+    jsonschema is a dev tool of this repository, not a runtime dependency of the game: the engine never reads a schema.
+    It is reported as a failure rather than skipped when absent, because a schema nobody enforces is a document that
+    rots while the data it describes moves on.
+    """
+    try:
+        import jsonschema
+    except ImportError:
+        return ["data/schemas: jsonschema is not installed, so the JSON Schemas cannot be enforced "
+                "(python -m pip install jsonschema)"]
+
+    errors: list[str] = []
+    schema_dir = os.path.join(root, "data", "schemas")
+    for rel, schema_name in sorted(SCHEMA_FILES.items()):
+        schema_path = os.path.join(schema_dir, schema_name)
+        data_path = os.path.join(root, "data", rel)
+        try:
+            with open(schema_path, "r", encoding="utf-8") as handle:
+                schema = json.load(handle)
+        except OSError:
+            errors.append("data/schemas/%s: missing, but data/%s is validated against it" % (schema_name, rel))
+            continue
+        except ValueError as exc:
+            errors.append("data/schemas/%s: is not valid JSON: %s" % (schema_name, exc))
+            continue
+        try:
+            jsonschema.Draft202012Validator.check_schema(schema)
+        except jsonschema.SchemaError as exc:
+            errors.append("data/schemas/%s: is not a valid 2020-12 schema: %s" % (schema_name, exc.message))
+            continue
+        if not os.path.exists(data_path):
+            continue
+        with open(data_path, "r", encoding="utf-8") as handle:
+            data = json.load(handle)
+
+        shown = 0
+        for problem in sorted(jsonschema.Draft202012Validator(schema).iter_errors(data),
+                              key=lambda e: list(e.absolute_path)):
+            errors.append("data/%s: %s: %s (schema %s)"
+                          % (rel, _dot_path(list(problem.absolute_path)), problem.message, schema_name))
+            shown += 1
+            if shown >= 6:
+                errors.append("data/%s: more schema errors in %s not shown" % (rel, schema_name))
+                break
+    return errors
+
 
 class Checker:
     def __init__(self, root: str):
@@ -1223,6 +1290,8 @@ def check_simulations(checker: Checker) -> None:
 def check(root: str) -> list[str]:
     checker = Checker(root)
     checker.dangling = {}
+    schema_problems = schema_failures(root)
+    checker.errors.extend(schema_problems)
     errors = checker.run()
     check_simulations(checker)
     return checker.errors

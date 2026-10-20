@@ -31,7 +31,12 @@ def source_files() -> list[str]:
         for name in sorted(filenames):
             if name.lower().endswith(".json"):
                 full = os.path.join(dirpath, name)
-                found.append(os.path.relpath(full, SRC).replace("\\", "/"))
+                rel = os.path.relpath(full, SRC).replace("\\", "/")
+                # data/schemas is documentation for editors and for tools/check_data.py. The game never reads a schema,
+                # so it is not a runtime data file and does not belong in the build bundle.
+                if rel.startswith("schemas/"):
+                    continue
+                found.append(rel)
     return sorted(found)
 
 
