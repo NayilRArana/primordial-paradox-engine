@@ -8,7 +8,10 @@ Files in this folder, and what each one is for. Read the file you need, not the 
 | gamemaker-project-format.md | What the .yyp, .yy and .gml files are, what the manual does and does not guarantee, the safe hand edit procedure, and what stays unverified until GameMaker is installed. | written 2026-10-19 |
 | igor-cli.md | Command line build with Igor: the login precondition, the runtime path, the options we use, the Windows commands, and what tools\run.ps1 must do. | written 2026-10-19 |
 | genre-design.md | How turn based battles with a dodge phase, TALK options, spare and kill routes, no EXP progression, FF3 style overworlds and Castlevania style sprites work as genre mechanics. Public descriptions only. | written 2026-10-19 |
-| LICENSES.md | Every open-source library considered, its licence read from the repository, what we may reuse, what is rejected and why, and the attribution plan. | written 2026-10-19 |
+| LICENSES.md | Every open-source library considered, its licence read from the repository, what we may reuse, what is rejected and why, and the attribution plan. | written 2026-10-19, licences re-read 2026-10-19 |
+| PROVENANCE.md | One entry per subsystem studied from a reference build: what was read, the mechanic learned in plain words, and how our implementation differs. A subsystem with no entry cannot be committed. | live, appended per subsystem |
+| SPEC-DELTAS.md | The pass that read all thirteen specs against a reference architecture and recorded 21 deltas, so a thin spec is caught before code is written from it. | written 2026-10-19 |
+| study\ | Study copies of decompiled projects, read only. Gitignored, never committed, never shipped, never read at runtime. | local only, not in git |
 
 Related, outside this folder:
 - Plan and architecture: ..\PLAN.md

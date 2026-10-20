@@ -7,6 +7,37 @@ GPL library would force the whole game open. No licence, no use, even if the cod
 
 Every licence below was read from the repository's own licence file or license sidebar on 2026-10-19.
 
+## How each licence was confirmed (verification pass, 2026-10-19)
+
+Method: the raw licence file was fetched from each repository and its header read, and the repository metadata was
+checked through the GitHub API (which reports an SPDX identifier) or the Codeberg API. Nothing was cloned and no
+package was downloaded. Results, with the exact holder line found in the file:
+
+| Library | Licence file header, as read | What the API detector said |
+| --- | --- | --- |
+| Scribble | MIT License, Copyright (c) 2023 Julian Adams | MIT |
+| Input | MIT License, Copyright (c) 2023 Julian Adams (codeberg.org/offalynne/Input, LICENSE) | MIT |
+| PictureFrame | MIT License, Copyright (c) 2024 Juju Adams | MIT |
+| BeadyEye | MIT License, Copyright (c) 2024 Juju Adams | MIT |
+| gmdialogue | MIT License, Copyright (c) 2026 danielpancake (LICENSE.txt) | MIT |
+| crispy | MIT License, Copyright (c) 2020 Brent Frymire | MIT |
+| GMAssert2 | MIT License, Copyright (c) 2019 Dickson Law | MIT |
+| GM-TestFramework | Copyright 2021-2022, YoYo Games Ltd. Licensed under the Apache License, Version 2.0 | NOASSERTION |
+| TurboGML | MIT License, Copyright (c) 2022 Mozart Junior (FoxyOfJungle) | MIT |
+| cbDataGUI | The MIT License (MIT), Copyright (c) 2017 Cem Baspinar | MIT |
+
+Two notes on that table, both worth keeping:
+
+- GM-TestFramework is the one case where the detector and the file disagree. GitHub's detector reports NOASSERTION,
+  which would read as "unlicensed, do not touch". Its own LICENSE file is the Apache License 2.0 text. The file is the
+  authority and the row above follows the file. This is exactly the reason the rule at the top of this document says
+  to read the licence, not a badge.
+- gmdialogue's copyright year is 2026, not an earlier year. Recorded so nobody "tidies" it back to a guess.
+
+None of the ten repositories was archived as of 2026-10-19, so none is a dead dependency yet. That will be re-checked
+when a library is actually about to be imported, because an archived MIT library is still safe to use, but a fork
+becomes the better link.
+
 ## Approved for use if we need them
 
 | Library | What it does | Licence | Link | What we may reuse |

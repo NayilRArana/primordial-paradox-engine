@@ -1,6 +1,10 @@
 # Command line build with Igor (what is needed once GameMaker is installed)
 
-Source: https://manual.gamemaker.io/monthly/en/Settings/Building_via_Command_Line.htm (checked 2026-10-19)
+Source: https://manual.gamemaker.io/monthly/en/Settings/Building_via_Command_Line.htm (checked 2026-10-19), and the
+Long Term Support copy of the same page, https://manual.gamemaker.io/lts/en/Settings/Building_via_Command_Line.htm
+(checked 2026-10-19). The two copies are not identical: /jsonErrors and the verbose flag /v are listed in the LTS
+option table and are absent from the Monthly page, so those two rows come from LTS. Everything else below appears on
+both.
 
 ## The hard precondition
 

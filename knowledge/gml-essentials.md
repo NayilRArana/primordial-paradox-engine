@@ -55,7 +55,9 @@ Source: https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Overview/M
 
 - A method variable is a variable that holds a function, binding that function to an instance or a struct, so the
   variable can be called like a built in function.
-- Two creation forms are documented: `name = function(a, b) { ... };` and `function name(a, b) { ... }`.
+- This page documents the assignment form, `name = function(a, b) { ... };`, with examples at local, instance and
+  global scope. The named declaration form, `function name(a, b) { ... }`, is the script function form; the related
+  page below states that a script function and a method are not interchangeable in every context.
 - Variable functions documented for methods: method, method_get_self, method_get_index, method_call.
 - Related page: https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Overview/Script_Functions_vs_Methods.htm
   (checked 2026-10-19), which states a script function and a method are not interchangeable in every context.
@@ -96,8 +98,9 @@ Source: https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/
   available.
 - The regular Draw events (Draw Begin, Draw, Draw End) draw to it by default. Pre-Draw, Post-Draw and Draw GUI do NOT
   draw on it.
-- The manual's own example resizes it: surface_resize(application_surface, cam_width * scale, cam_height * scale),
-  which sets the game's output resolution from the camera size times an integer scale.
+- The manual's own example resizes it, with its own local variable names:
+  surface_resize(application_surface, _cam_width * _resolution_scale, _cam_height * _resolution_scale), which sets the
+  game's output resolution from the camera size times an integer scale.
 
 DECISION for PP: camera view is 256x240; application surface is resized to 256 * scale by 240 * scale with scale an
 integer from 1 to 6; the window is sized to the same numbers. See specs/03-camera-and-scaling.md.
@@ -214,3 +217,23 @@ flags for one step so a held confirm cannot leak into the next room.
   gamemaker-project-format.md.
 - Anything that can only be measured in a running build: frame cost of the dodge arena, real audio latency, real
   async save timing on this PC. These are marked UNVERIFIED until GameMaker is installed and a build runs.
+
+## 14. Verification pass, 2026-10-19
+
+A second read of every page above was run the same day, before this file was called done, because a link that returns
+200 proves nothing about the words next to it.
+
+- All 21 manual links cited across knowledge\ and specs\ were requested again: 21 of 21 returned HTTP 200.
+- The manual pages carry no "last updated" date, so the date recorded in each section is the date the page was read,
+  not a page revision date. Re-reading is the only way to catch a change.
+- Claims re-read in the page text, word for word, in this pass: json_parse (maximum nesting limit 128, null parsed as
+  undefined, invalid JSON throws); Data Structures (six types, and the manual's own recommendation to use arrays and
+  structs, which are garbage collected); Cameras And Viewports (8 viewports numbered 0 to 7, unlimited cameras, 8
+  active at once, one is normally enough); Tile Map Elements (one tile map per layer in the Room Editor, multiple when
+  assigned in code; index in bits 0 to 18, mirror 28, flip 29, rotate 30); audio_play_sound (priority any real number,
+  higher wins; pitch at or below zero clipped to the lowest positive number); Event Order (Instance Creation Order);
+  application_surface (Draw Begin, Draw and Draw End draw to it by default, Pre/Post Draw and Draw GUI do not; the
+  manual's resize example uses _cam_width and _resolution_scale); room_goto (the room does not change until the end of
+  the event, code after the call still runs, Room End triggers, a persistent object is the one creation exception).
+- Two lines were corrected by this pass: the surface_resize example now quotes the manual's own variable names, and the
+  method section no longer credits the named `function name()` declaration to the method variables page.
