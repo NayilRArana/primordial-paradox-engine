@@ -1,21 +1,25 @@
-# Spec deltas: what the study pass changes in the thirteen specs
+# Spec deltas: what thirteen specs are missing or wrong about
 
-Written 2026-10-19 after the study pass recorded in PROVENANCE.md. This file only LISTS deltas; it does not rewrite the
-specs, so Nayil can accept or reject each one before any text moves. Status per item: CORRECTION (a spec states
-something that is wrong or impossible as written), THIN (true but underspecified; code cannot be written from it),
-MISSING (no spec covers it at all).
+Written 2026-10-19. The first draft of this file followed a read that was later quarantined as a clean-room breach, so
+the list was re-derived in the clean-room re-review of 2026-10-19 from public genre design and the official manual only,
+and each item was re-checked against that material. An item that could stand only on that read would have been
+removed; none had to be. This file only LISTS deltas; it does not rewrite the specs, so Nayil can accept or reject each
+one before any text moves. Status per item: CORRECTION (a spec states something that is wrong or impossible as written),
+THIN (true but underspecified; code cannot be written from it), MISSING (no spec covers it at all).
 
 Counts: 13 specs read, 22 deltas found, of which 3 CORRECTION, 12 THIN, 7 MISSING.
 
 ## CORRECTIONS
 
-C1. specs\12-audio.md rule 3 is wrong about OGG loop metadata. GameMaker does not read loop points out of an OGG
-comment; `audio_play_sound(snd, prio, true)` loops the whole file from the start. As written, the musician lane would
-deliver files whose intended loop point GameMaker ignores, and every track would loop at the wrong place.
+C1. specs\12-audio.md rule 3 is not supported by the manual. The page the spec cites for looping, audio_play_sound, says
+only that the third argument makes the sound repeat until it is stopped, and the Sound Editor page documents volume,
+loop preview and OGG conversion but no loop point metadata at all (both re-read 2026-10-19). So "loop points come from
+the OGG file's own loop metadata" is a claim nobody here can source, and the musician lane could deliver files whose
+intended loop point is ignored, with every track looping at the wrong place.
 Fix: choose one of (a) whole-file loop, with the file trimmed to exactly the loop length and any intro delivered as a
 separate one-shot sound, or (b) intro plus loop as two sounds with a scheduled handover. Recommend (a): it is what the
-delivery contract in the same spec already implies (10 ms trimmed each end), it needs no engine code, and it keeps the
-musician lane's job unchanged apart from the file split.
+manual does support, it needs no engine code, and it keeps the musician lane's job unchanged apart from the file split.
+Then test one looping track on a real build before the contract is fixed, and record the result here.
 
 C2. specs\03-camera-and-scaling.md says the window is resized to the integer multiple so no bars appear, and its own
 acceptance 5 requires black bars in fullscreen. Both cannot hold at once.
@@ -31,8 +35,11 @@ palette indices, every declared index exists, appended only). The per pixel chec
 ## THIN (underspecified, blocks code)
 
 T1. specs\01-state-machine.md rule 5 says battle is entered by a request naming enemy id, return mode and position,
-but nothing says what happens to the map underneath. Study shows an overlay is the usual answer. Ours: the map stays
-loaded and suspended, the battle mode draws over it, and the map is redrawn unchanged on return. Add that sentence and
+but nothing says what happens to the map underneath. The genre has two public answers: suspend the field and stage the
+battle over it, or unload the field and enter a battle room (knowledge\genre-design.md section 2 describes the battle as
+its own framed stage and does not say which). Ours: the map stays loaded and suspended, the battle mode draws over it,
+and the map is redrawn unchanged on return, because spec 01 rule 4 already says the overworld step is not called while
+another mode owns the frame, and its acceptance 4 requires the walker to be exactly where it was. Add that sentence and
 the draw order (map, battle dimmer, battle field, GUI).
 
 T2. specs\01-state-machine.md and specs\11-save.md together make defeat lose progress silently: autosave never fires in

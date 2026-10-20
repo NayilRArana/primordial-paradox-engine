@@ -1,8 +1,9 @@
 /// pp_map: one loaded tile map, its collision grid, its triggers and its rendering (spec 04).
 /// Collision is a separate byte grid from the tile art on purpose, so walls change without redrawing tiles.
 /// Telling 0 walkable, 1 blocked, 2 story blocked (blocked until the map's story flag is set).
-/// Provenance: knowledge\PROVENANCE.md, entry "room and object conventions across a whole game" (their room and tile
-/// layer data compared with this data driven map that the checker validates before the game runs).
+/// Provenance: knowledge\PROVENANCE.md, entry "room and object conventions across a whole game", written before the
+/// notice of 2026-10-19 and re-confirmed by the clean-room re-review of the same date. The three data pieces are spec
+/// 04: tile art, collision grid and trigger list, validated by the checker before the game runs.
 
 /// Load one map by id. Returns undefined and reports in plain words when the id is missing, so a bad slice names itself.
 function pp_map_load(_map_id) {

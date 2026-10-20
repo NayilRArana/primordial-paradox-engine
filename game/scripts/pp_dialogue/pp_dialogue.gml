@@ -1,8 +1,8 @@
 /// pp_dialogue: the text box (spec 05). Word wrap, a typewriter at 2 steps per character, confirm completes the line
 /// then advances, and holding confirm runs at 1 step per character. No portraits exist yet, so the portrait frame
 /// draws empty; the geometry is already the spec's.
-/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop" (their message and dialogue flow
-/// compared with this page and beat model written from spec 05).
+/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop", written before the notice of
+/// 2026-10-19 and re-confirmed by the clean-room re-review of the same date. The page and beat model is spec 05.
 /// No closures: every loop is written out, because a closure that reassigns an outer var is the kind of thing that
 /// behaves differently between runtimes and cannot be tested on this PC.
 

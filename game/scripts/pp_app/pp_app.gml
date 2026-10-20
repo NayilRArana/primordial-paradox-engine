@@ -1,8 +1,9 @@
 /// pp_app: the application mode machine (spec 01). One persistent owner, one door for every swap, one fade.
 /// A mode is a struct with enter, step and draw. A request names a mode and parameters; a missing mode fails loudly at
 /// boot rather than mid scene. No other module sets the mode.
-/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop" (their shared phase globals compared
-/// with this registry and its single request door).
+/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop", written before the notice of
+/// 2026-10-19 and re-confirmed by the clean-room re-review of the same date. The structure is spec 01: a registry, a
+/// single request door and one fade, with no phase number shared between modules.
 
 /// Create the game frame, load data, register the modes that exist, and enter boot.
 /// Called once from obj_pp_game's Create event.

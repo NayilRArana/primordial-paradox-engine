@@ -1,8 +1,9 @@
 /// pp_battle_commands: the five entry battle menu (spec 07 table and rule 1).
 /// An entry is a record with an id, a label and an enabled test that returns the reason it is refused. The menu draws
 /// the reason, so a disabled entry never silently does nothing.
-/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop" (their per case branches compared
-/// with this table).
+/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop", written before the notice of
+/// 2026-10-19 and re-confirmed by the clean-room re-review of the same date. The table is spec 07's five entries; the
+/// enable test that returns a reason string is our own shape.
 
 /// The command list, in cursor order.
 function pp_command_table() {

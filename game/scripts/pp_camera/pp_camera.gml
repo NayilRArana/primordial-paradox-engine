@@ -1,7 +1,8 @@
 /// pp_camera: integer scaling and a whole pixel camera (spec 03).
 /// One place computes the scale and one place maps world to screen, so no object carries its own offset.
-/// Provenance: knowledge\PROVENANCE.md; our camera lives in a struct and recomputes from the window each step
-/// instead of listening for an event index we have not verified against the IDE.
+/// Provenance: knowledge\PROVENANCE.md, entry "room and object conventions across a whole game", written before the
+/// notice of 2026-10-19 and re-confirmed by the clean-room re-review of the same date. Scale and layout are spec 03;
+/// the window is polled each step, so nothing here assumes an event number the IDE has not confirmed.
 
 /// Create the camera state. Called once from pp_app_boot.
 function pp_camera_init() {

@@ -1,8 +1,9 @@
 /// pp_overworld: the walker, the triggers, the markers and the scene that plays over the map (spec 04).
 /// One tile per press, always centred; rail walk at 8 steps per tile, free walk at 12; triggers inert for 20 steps after
 /// a scene or battle; story blocked tiles open with a flag. Nothing here reads a key directly, only pp_input.
-/// Provenance: knowledge\PROVENANCE.md, entry "room and object conventions across a whole game" (their room flow and
-/// their overlay battle start compared with this single map state that carries the walker, the scene and the fade).
+/// Provenance: knowledge\PROVENANCE.md, entry "room and object conventions across a whole game", written before the
+/// notice of 2026-10-19 and re-confirmed by the clean-room re-review of the same date. One map state carries the
+/// walker, the scene and the fade; a battle is a mode swap asked for here and performed by pp_app (specs 01 and 04).
 
 /// A fresh overworld on a map and spawn point.
 function pp_overworld_new(_map_id, _spawn_name) {

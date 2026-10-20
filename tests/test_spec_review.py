@@ -26,10 +26,20 @@ def _make_root(tmp_path, rows: str):
     return str(tmp_path)
 
 
-def test_current_repository_passes_with_pending_debt_reported(capsys):
-    assert check_spec_review.check(ROOT) == []
-    assert check_spec_review.PENDING > 0
-    assert check_spec_review.TOTAL_SPECS == len(os.listdir(os.path.join(ROOT, "specs")))
+def test_pending_debt_is_reported_and_is_not_an_error(tmp_path, capsys):
+    """The gate reports debt loudly without failing the run.
+
+    Built on a fixture root on purpose: the live repository's own debt must not be pinned here, because paying that
+    debt is the point of the gate, and a test that asserts PENDING > 0 on the real repository breaks exactly when the
+    review lands.
+    """
+    root = _make_root(tmp_path,
+                      "| specs/01-state-machine.md | pending | code-review | - | - |\n"
+                      "| specs/02-input.md | confirmed | code-review | 2026-10-20 | ok |\n")
+    assert check_spec_review.check(root) == []
+    assert check_spec_review.PENDING == 1
+    assert check_spec_review.TOTAL_SPECS == 2
+    assert check_spec_review.main(["--root", root]) == 0
     output = capsys.readouterr().out
     assert "PENDING spec review: specs/01-state-machine.md" in output
 

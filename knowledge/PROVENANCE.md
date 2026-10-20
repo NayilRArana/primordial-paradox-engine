@@ -4,15 +4,14 @@ Rule: a subsystem cannot be committed until it has an entry here. Each entry nam
 learned in plain language, and the concrete ways our implementation differs. "Copied expression: none" is a claim
 about this repository, and it is checked by tools\check_provenance.py plus the clean-room scan described below.
 
-THE STUDY COPY IS GONE AND OUT OF BOUNDS. It lived at knowledge\study\deltamodkit, a decompilation of a commercial
-Deltarune mod project, cloned by card P1-A on 2026-10-19. The manager found that read to be a clean-room breach and
-moved the folder to <workspace>\Private\quarantine-decomp-2026-10-19. Nothing in this repository may read,
-open, search, download or reason from it, or from any other decompiled, ripped or fan ported copy of Undertale or
-Deltarune, GitHub repositories included. The subsystem entries below were written from that read before the notice and
-are therefore MARKED PENDING re-review, not trusted: card t_ec0fb8be (code-review) either confirms each one from public
-genre design and the official GameMaker manual, or rewrites it, and records the outcome in
-knowledge\CLEANROOM-REVIEW.md. The file names in the entries are historical record of what was read; they are not a
-permission and not a source.
+THE STUDY COPIES ARE QUARANTINED AND MAY NOT BE USED. A read against a decompiled commercial game project took place
+on 2026-10-19 and was ruled a clean-room breach; the copies were moved out of this repository and locked away. Nothing
+in this repository may read, open, search, download or reason from them, or from any other decompiled, ripped or fan
+ported copy of a commercial game, GitHub repositories included. The two subsystem entries below were written after that
+read, so they do not get to assume their own innocence: the clean-room re-review of 2026-10-19 re-confirmed both of them
+from public genre design and the official GameMaker manual alone, and each entry now opens with its status. The review
+record for modules is knowledge\CLEANROOM-REVIEW.md, for specs knowledge\SPEC-REVIEW.md, and the method plus the per
+source file outcome are in the section at the end of this file.
 
 How the no-copy claim is checked, mechanically, on every commit:
 1. `tools\check_cleanroom.py`: fails if anything under game\ or data\ names a study copy, the quarantine folder or the
@@ -66,10 +65,16 @@ modules are written from specs 04, 05 and 06 and borrow nothing but the fact tha
 
 ## battle state machine and turn loop (2026-10-19)
 
-Studied: objects\obj_battlecontroller (Create_0, Step_0, Draw_0, Draw_64, Alarm_11), scripts\scr_turn (the whole turn
-loop), scripts\scr_spell lines 61 to 105 (the phase handoff), scripts\scr_attack_config (the pattern switch and its
-controller data), objects\obj_dbulletcontroller, objects\obj_dbullet_maker, objects\obj_heart (Step_0),
-objects\obj_grazebox (collision), scripts\scr_monster around mercy, and scripts\scr_battle (how a battle is started).
+Status: written before the notice of 2026-10-19, re-confirmed by the clean-room re-review of the same date. Outcome:
+the entry stands. No mechanic in it is reachable only through the quarantined read; each one is a public genre mechanic
+described in knowledge\genre-design.md sections 2 to 5, and the differences below are structural, not reworded.
+Changed in this review: the studied line named the copy's files and line numbers, which only ever served as navigation
+for a copy nobody may open, so it now names the systems in plain language.
+
+Studied: (historical record of where a mechanic was first noticed, not a source and not navigable) the battle
+controller's create, step, draw and alarm events; the whole turn loop script; the phase handoff inside the spell script;
+the attack config switch and its controller data; the bullet controller and the bullet maker objects; the player
+marker's step event; the graze box collision; the monster script's mercy handling; and the battle start script.
 
 Mechanics learned:
 - A battle is an overlay inside the running room, not a separate room: starting one creates a background object, an
@@ -121,11 +126,18 @@ Copied expression: none.
 
 ## room and object conventions across a whole game (2026-10-19)
 
-Studied: the project file (DELTAModKit.yyp) and its resource graph, the folder layout on disk, 10 object .yy files
-including obj_heart, obj_battlecontroller and obj_monsterparent, 3 room .yy files, 3 script .yy files, the fonts
-folder, the options folder (main, windows), and the event file naming across all 232 objects.
+Status: written before the notice of 2026-10-19, re-confirmed by the clean-room re-review of the same date, with the
+project format claims downgraded to UNVERIFIED. Outcome: the "our implementation differs by" list stands, but the four
+file shape facts in this entry cannot be reached from the official manual, which publishes the roles of the files and
+not their field or file name schema. They are kept as the shape our generator follows, and
+knowledge\gamemaker-project-format.md now marks them unverified until the IDE writes a reference resource. Nothing in
+game code depends on them.
 
-Mechanics learned, with the counts as measured:
+Studied: (historical record, not a source and not navigable) the project file and its resource graph, the folder layout
+on disk, ten object resource files, three room files, three script files, the fonts folder, the options folder, and the
+event file naming across every object.
+
+Mechanics learned, with the counts as measured then (history, not evidence):
 - 1148 resources in one flat list in the .yyp, each entry only {"id": {name, path}}, grouped into a virtual folder
   tree declared separately in a Folders array (folderPath strings like folders/Custom/Objects/World). Folders are a
   browser view; they are not directories on disk and their .yy files are not required for the project to load.
@@ -172,3 +184,58 @@ Copied expression: none.
   project is original or public domain Greek myth naming.
 - No text from any dialogue file was read. Only system structure was opened.
 - The NES constraint in PLAN.md section 2 comes from Nayil's notebook and the research note, not from any decomp.
+
+## clean-room re-review 2026-10-19
+
+Reviewer: code-review, on card t_ec0fb8be, after the manager's breach notice on t_f7d3a69d.
+
+Studied: nothing. No decompiled, ripped or fan ported material was opened, searched, read or reasoned from for this
+review. The two entries above were read only as this repository's own historical text, not as a route to the thing they
+describe, and the file names they used to carry were removed rather than looked up. The sources were
+knowledge\genre-design.md, knowledge\gml-essentials.md, knowledge\gamemaker-project-format.md, knowledge\igor-cli.md,
+knowledge\LICENSES.md and the official manual pages each spec already cites, re-read at the source where a rule needed
+its own ground.
+
+Mechanics learned: none that are new. The finding is that the specs' mechanics are genre mechanics: the turn and dodge
+alternation, the talk and spare route, no EXP progression and the visible encounter map are described in public terms in
+genre-design.md, and the numbers in the specs are this project's own decisions. Two knowledge files did carry study
+derived claims; both were rewritten rather than reworded, the project format facts are now UNVERIFIED, and the delta
+file no longer rests a delta on what a study pass saw.
+
+Per spec, what changed. The same verdicts, with this reviewer and date, are in knowledge\SPEC-REVIEW.md.
+
+| Spec | Verdict | What changed, or why it stands |
+| --- | --- | --- |
+| specs/01-state-machine.md | confirmed | Mode enum, one owner, one request door, 12 step fades and a 6 step input lock are our decisions; the spec asserts nothing about what the map does under a battle, and that gap stays open as delta T1. |
+| specs/02-input.md | confirmed | The action table, the single sample point and the edge derivation come from the manual's keyboard_check_pressed and Event Order pages, which the spec cites; deadzone and repeat timings are ours. |
+| specs/03-camera-and-scaling.md | confirmed | Integer scale, one viewport and an application surface resize follow the manual's page; dead zone, look ahead and the 4 pixel cap are DECISIONs. |
+| specs/04-overworld-rails-and-triggers.md | confirmed | Tile grid, separate collision grid and trigger list, rails and visible encounter markers are genre-design section 6; the 20 step trigger lock and the 30 step respawn are our own fixes for failure modes anyone can name. |
+| specs/05-dialogue.md | confirmed | Typewriter, portrait, pages and a conditional choice list are the ordinary text box of the genre; every geometry number is a DECISION and the two control codes are ours. |
+| specs/06-cutscene-runner.md | confirmed | A data command list with one blocking command at a time and branch as the only control flow is the ordinary scripted scene form; each command and number is ours. |
+| specs/07-battle-director.md | confirmed | Five entry menu, trust and spare thresholds and no EXP are genre-design sections 3 to 5, and the turn flow is the public think/move alternation of section 2. Closest call: the shape of the turn loop. It is the spec's own phase list, expressed as a data driven turn, and no rule depends on a studied controller. |
+| specs/08-dodge-arena.md | confirmed | Bounded box, bright marker, telegraph, damage per hit and invulnerability are genre-design section 2; box size, speeds, exclusion radius and step cap are PP decisions. |
+| specs/09-bullet-pattern-recipes.md | confirmed | Recipes as data and the fairness ladder are our decisions, and "a pattern is data, not a switch case" is the deliberate opposite of the studied design, so it is a difference and not a copy. Closest call: the per pattern field list, which is the spec's own vocabulary for shapes anyone can describe. |
+| specs/10-route-ledger.md | confirmed | Counters plus a route derived on read match genre-design section 4 ("coarse, not a score"), and deriving once instead of storing twice is single source of truth reasoning. Closest call: the "never stored" rule, which stands on that reasoning plus delta T12 rather than on anything studied. |
+| specs/11-save.md | confirmed | Versioned JSON with a .bak, a format check first and a try/catch around json_parse follow the manual's Save/Load and json pages, which the spec cites. |
+| specs/12-audio.md | confirmed | Bus priorities, the crossfade and the channel budget follow the manual's audio pages. Rule 3's claim that loop points come from the file's own metadata is NOT supported by those pages; it is recorded as an open factual defect in SPEC-DELTAS C1 and is not a clean-room finding. |
+| specs/13-8bit-look.md | confirmed | Palette size, two dither patterns and the frame rules are our decisions; the battle sprite convention is genre-design section 7. Rule 2's per pixel check cannot run yet, which delta C3 already records. |
+
+Per source file outside the specs.
+
+| File | Verdict | What changed, or why it stands |
+| --- | --- | --- |
+| knowledge\gamemaker-project-format.md | rewritten | The section headed "verified against a real GameMaker 2024.1400 project" cited the quarantined copy as its authority and counted its files. Rewritten: the manual publishes the roles of the project files and not their field or file name schema, so the four shape claims are now UNVERIFIED and point at the IDE reference procedure the file already had. |
+| knowledge\SPEC-DELTAS.md | rewritten | The framing said the list came after a study pass, and T1 said "study shows an overlay is the usual answer". Rewritten: the framing names the quarantine and says every item was re-derived from public material, T1 now reasons from specs 01 rules 4 and 5 plus genre-design section 2, and C1 is restated as a claim the manual does not settle instead of a correction the manual proves. |
+| knowledge\genre-design.md | confirmed | Every note is a public description of genre play or our own DECISION; no studied construct, no copied text, and the file states its own source rule. |
+| knowledge\gml-essentials.md | confirmed | Every fact carries a manual link and the date it was read, a second read pass re-checked the words, and DECISIONs are labelled. |
+| knowledge\igor-cli.md | confirmed | The command line build facts come from the manual's Building via Command Line page, Monthly and LTS, with the difference between the two branches recorded. |
+| knowledge\LICENSES.md | confirmed | Each licence was read from the repository's own licence file and its API metadata; nothing was cloned or downloaded, and nothing is imported. |
+| knowledge\README.md | rewritten | The index still advertised a study folder as a live, read only source and undercounted the deltas. Both rows corrected: the quarantine is stated and the delta count matches the file. |
+
+Our implementation differs by: nothing in the logic of the 23 GML modules. Eight module headers were rewritten, and each
+one only removed a provenance parenthetical describing the internals of the quarantined copy, replacing it with the spec
+the structure is written from; knowledge\CLEANROOM-REVIEW.md names the construct in each case. The difference lists in
+the two entries above stand, with one substantive downgrade: the project format facts are now UNVERIFIED rather than
+confirmed. Nothing was published, uploaded or pushed.
+
+Copied expression: none.

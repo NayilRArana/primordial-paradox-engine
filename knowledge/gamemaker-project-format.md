@@ -61,28 +61,33 @@ is community knowledge, not a contract, and it drifts between GameMaker versions
 - Sprite: a folder with a .yy plus PNG frames named frame-0.png upward and a layers subfolder. We generate sprites
   with our own art tooling later and import them in the IDE the first time.
 
-## CORRECTION, 2026-10-19: verified against a real GameMaker 2024.1400 project
+## CORRECTION, 2026-10-19: rewritten in the clean-room re-review
 
-The study pass (knowledge\PROVENANCE.md, entry "room and object conventions across a whole game") read a real
-GameMaker 2024.1400.0.911 project's files. Four things stated above or assumed earlier are now corrected, and our
-generator follows the observed shape:
+This section used to be headed "verified against a real GameMaker 2024.1400 project" and it cited a project the study
+pass read as its authority, with counts taken from that project. Those copies were quarantined on 2026-10-19 and may not
+be used, so that citation is gone and the four points below are marked UNVERIFIED. What still stands is the reason the
+section exists: this file previously said one .yy per layer, and that was wrong on its own terms, because the manual
+states that a .yy stores the information for one asset "and any other files belonging to that asset", and a room's
+layers are part of the room. Community writing on the format agrees with the shape below, but community writing is not
+the manual, so our rule does not change: the IDE writes the reference resource and we diff ours against it.
 
-1. A room is ONE .yy. There are no per layer .yy files. Layers are an array inside the room .yy; instance layers carry
-   their instances inline, tile layers carry a tile serialisation blob. This file previously said one .yy per layer,
-   which would have produced a project the IDE cannot open.
-2. .yy and .yyp files are JSON WITH TRAILING COMMAS and per kind version tags ("$GMObject", "$GMRoom", "$GMScript",
-   "$GMMainOptions", "$GMRInstance"). GameMaker reads strict JSON as well, so every file we write is strict JSON, which
-   is what lets tools\check_project.py parse the project with the Python standard library.
-3. Event files are named exactly: Create_0, Step_0, Step_1 (begin step), Step_2 (end step), Draw_0, Draw_64 (draw gui),
-   Draw_76, Alarm_<n>, Destroy_0, CleanUp_0, Other_<n> for user events 0 to 15 as Other_10 upward, and
-   Collision_<object>. Observed across 525 event files over 232 objects in that project.
-4. Folder entries in the .yyp are a browser view only: a Folders array of folderPath strings. No folder .yy files exist
-   on disk in that project and it loads. Our generator writes the Folders array and points each resource at a folder
-   path, and creates no folder files.
+1. A room is ONE .yy, with layers as an array inside it; instance layers carry their instances inline and tile layers
+   carry a tile blob. UNVERIFIED until the IDE check below. Our generator already writes this shape.
+2. .yy and .yyp files use a JSON dialect with trailing commas and per kind version tags ("$GMObject", "$GMRoom",
+   "$GMScript", "$GMMainOptions"). UNVERIFIED. It does not matter for us: GameMaker reads strict JSON too, and every
+   file we write is strict JSON, which is what lets tools\check_project.py parse the project with the standard library.
+3. Event files are named by event type and number: Create_0, Step_0, Step_1 (begin step), Step_2 (end step), Draw_0,
+   Draw_64 (draw gui), Draw_76, Alarm_<n>, Destroy_0, CleanUp_0, Other_<n>, Collision_<object>. UNVERIFIED. The
+   manual's Event Order and Object Events pages document the event types and their order, and neither names the file
+   per event, so this is exactly what the IDE check has to settle.
+4. Folder entries in the .yyp are a browser view only: a Folders array of folderPath strings, with no folder files on
+   disk. UNVERIFIED. Our generator writes the Folders array and points each resource at a folder path.
 
-Still unverified on THIS PC: that the IDE opens our project with no errors, that event files attach to the intended
-event numbers, and that a room draws its layers in the intended order. Those three are open items in DEVLOG.md and are
-answered the first time Nayil opens the project.
+Still unverified on THIS PC, as one list rather than three separate items: that the IDE opens our project with no
+errors, that event files attach to the intended event numbers, that a room draws its layers in the intended order, and
+that the four shapes above match what the IDE writes. The procedure under "What the manual does NOT state" above
+answers all four the first time Nayil opens the project, which is also when this section gets a "verified against IDE
+version X" note with the date.
 
 ## What we can and cannot verify today
 

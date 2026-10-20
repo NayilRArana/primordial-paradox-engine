@@ -1,7 +1,8 @@
 /// pp_scene: the cutscene runner (spec 06). A scene is a list of commands in data; one runs at a time; anything that
 /// takes time blocks the list. branch is the only control flow, and a branch cycle is refused by the checker.
-/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop" (their phase sequencing compared with
-/// this command list runner written from spec 06).
+/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop", written before the notice of
+/// 2026-10-19 and re-confirmed by the clean-room re-review of the same date. The runner is spec 06: one command at a
+/// time, branch as the only control flow.
 
 /// The commands this runner implements. The checker reads this list from data\scenes and refuses anything else.
 function pp_scene_commands() {

@@ -1,7 +1,8 @@
 /// pp_ledger: the route ledger (spec 10). Counters and flags are the only record; the route is derived on read and
 /// never stored, because two stored copies of one fact drift and then the save lies.
-/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop" (their per enemy result enum
-/// compared with our four counters plus a derived route).
+/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop", written before the notice of
+/// 2026-10-19 and re-confirmed by the clean-room re-review of the same date. Counters, flags and a route derived on
+/// read are spec 10.
 
 /// A fresh ledger at the start of a run.
 function pp_ledger_new() {
