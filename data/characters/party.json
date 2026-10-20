@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "kind": "characters",
+  "characters": [
+    {
+      "id": "hero",
+      "name": "Aeson",
+      "max_hp": 20,
+      "will_max": 3,
+      "power_multiplier": 1.0,
+      "sprite": "spr_pp_hero",
+      "starting_items": [
+        { "id": "salve", "count": 2 }
+      ]
+    }
+  ]
+}

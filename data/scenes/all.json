@@ -1,0 +1,20 @@
+{
+  "format": 1,
+  "kind": "scenes",
+  "scenes": [
+    {
+      "id": "ship_boarding",
+      "name": "Ship boarding",
+      "map": "ship_small",
+      "start": { "x": 2, "y": 7 },
+      "commands": [
+        { "cmd": "music", "id": "ship_ambient" },
+        { "cmd": "say", "id": "ship_rail_note" },
+        { "cmd": "move", "actor": "hero", "dir": "up", "tiles": 3 },
+        { "cmd": "wait", "steps": 20 },
+        { "cmd": "setflag", "name": "ship_deck_seen", "value": true },
+        { "cmd": "end" }
+      ]
+    }
+  ]
+}

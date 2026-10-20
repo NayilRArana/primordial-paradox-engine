@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "kind": "powers",
+  "powers": [
+    {
+      "id": "tide_step",
+      "name": "Tide Step",
+      "cost": 1,
+      "power": 6,
+      "effect": "attack",
+      "element": "sea"
+    }
+  ]
+}

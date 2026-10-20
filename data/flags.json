@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "kind": "flags",
+  "flags": [
+    "met_prometheus",
+    "ship_door_open",
+    "ship_deck_seen",
+    "percy_spared",
+    "percy_killed",
+    "dc_gate_hacked",
+    "prison_entered",
+    "kronos_spared"
+  ]
+}

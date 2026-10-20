@@ -1,0 +1,11 @@
+# Study copies of decompiled projects. Read only. Never committed, never shipped, never read at runtime.
+knowledge/study/
+
+# Generated from data\ by tools\sync_data.py. The source of truth is data\, not this mirror.
+game/datafiles/
+
+# Build output and per user IDE state.
+build/
+*.yyz
+*.resource_order
+game/.resource_order

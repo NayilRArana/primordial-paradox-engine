@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "kind": "project",
+  "title": "Primordial Paradox",
+  "base_frame": [256, 240],
+  "steps_per_second": 60,
+  "prison_stage": 3,
+  "start_map": "ship_small",
+  "route_labels": ["undecided", "mercy", "blooded", "genocide"]
+}

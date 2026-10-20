@@ -1,0 +1,8 @@
+{
+  "format": 1,
+  "kind": "slice",
+  "map": "ship_small",
+  "spawn": "start",
+  "scene": "ship_boarding",
+  "encounter": "tutorial_sailors"
+}

@@ -1,0 +1,93 @@
+{
+  "format": 1,
+  "kind": "dialogues",
+  "dialogue": [
+    {
+      "id": "ship_rail_note",
+      "speaker": "narrator",
+      "lines": [
+        "* The deck tilts.",
+        "* A sailor blocks the hatch.",
+        "* He will not move."
+      ]
+    },
+    {
+      "id": "battle_intro_sailors",
+      "speaker": "narrator",
+      "lines": [
+        "* A Navy Sailor squares up.",
+        "* TALK can calm this.",
+        "* FIGHT can end it faster."
+      ]
+    },
+    {
+      "id": "talk_navy_sailor",
+      "speaker": "sailor",
+      "lines": [
+        "* \"You are not on the list.\"",
+        "* \"The bridge sees all.\"",
+        "* \"Go on. I hate the watch.\""
+      ]
+    },
+    {
+      "id": "navy_win_kill",
+      "speaker": "narrator",
+      "lines": [
+        "* The sailor does not get up.",
+        "* The deck is very quiet."
+      ]
+    },
+    {
+      "id": "navy_win_spare",
+      "speaker": "narrator",
+      "lines": [
+        "* He steps aside.",
+        "* His eyes stay on the sea.",
+        "* \"Bridge is that way.\""
+      ]
+    },
+    {
+      "id": "percy_entry",
+      "speaker": "percy",
+      "lines": [
+        "* \"A stowaway with a god.\"",
+        "* \"The sea does not care.\"",
+        "* Percy lifts the trident."
+      ]
+    },
+    {
+      "id": "talk_percy",
+      "speaker": "percy",
+      "lines": [
+        "* \"You still talk. How dull.\"",
+        "* \"Ask what the veil is.\"",
+        "* \"Ask it plainly.\""
+      ]
+    },
+    {
+      "id": "percy_win_kill",
+      "speaker": "narrator",
+      "lines": [
+        "* The trident falls first.",
+        "* Then the man.",
+        "* The sea goes flat."
+      ]
+    },
+    {
+      "id": "percy_win_spare",
+      "speaker": "percy",
+      "lines": [
+        "* \"Keep your fire, then.\"",
+        "* \"Do not ask me for water.\""
+      ]
+    },
+    {
+      "id": "battle_lose",
+      "speaker": "narrator",
+      "lines": [
+        "* The deck rises to meet you.",
+        "* Your last save still stands."
+      ]
+    }
+  ]
+}

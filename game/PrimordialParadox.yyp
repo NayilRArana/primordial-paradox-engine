@@ -1,0 +1,316 @@
+{
+  "$GMProject": "v1",
+  "%Name": "PrimordialParadox",
+  "AudioGroups": [
+    {
+      "$GMAudioGroup": "v1",
+      "%Name": "audiogroup_default",
+      "exportDir": "",
+      "name": "audiogroup_default",
+      "resourceType": "GMAudioGroup",
+      "resourceVersion": "2.0",
+      "targets": -1
+    }
+  ],
+  "configs": {
+    "children": [
+      {
+        "children": [],
+        "name": "Debug"
+      }
+    ],
+    "name": "Default"
+  },
+  "defaultScriptType": 1,
+  "Folders": [
+    {
+      "$GMFolder": "",
+      "%Name": "Primordial Paradox",
+      "folderPath": "folders/Primordial Paradox.yy",
+      "name": "Primordial Paradox",
+      "resourceType": "GMFolder",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMFolder": "",
+      "%Name": "Scripts",
+      "folderPath": "folders/Primordial Paradox/Scripts.yy",
+      "name": "Scripts",
+      "resourceType": "GMFolder",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMFolder": "",
+      "%Name": "Objects",
+      "folderPath": "folders/Primordial Paradox/Objects.yy",
+      "name": "Objects",
+      "resourceType": "GMFolder",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMFolder": "",
+      "%Name": "Rooms",
+      "folderPath": "folders/Primordial Paradox/Rooms.yy",
+      "name": "Rooms",
+      "resourceType": "GMFolder",
+      "resourceVersion": "2.0"
+    }
+  ],
+  "ForcedPrefabProjectReferences": [],
+  "IncludedFiles": [
+    {
+      "$GMIncludedFile": "",
+      "%Name": "audio.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "audio.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "flags.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "flags.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "items.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "items.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "palette.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "palette.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "powers.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "powers.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "project.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "project.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "slice.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "slice.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "party.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/characters",
+      "name": "party.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "all.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/dialogue",
+      "name": "all.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "all.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/encounters",
+      "name": "all.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "all.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/enemies",
+      "name": "all.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "all.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps",
+      "name": "all.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "all.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/patterns",
+      "name": "all.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "all.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/scenes",
+      "name": "all.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    }
+  ],
+  "isEcma": false,
+  "LibraryEmitters": [],
+  "MetaData": {
+    "IDEVersion": "2024.1400.0.911"
+  },
+  "name": "PrimordialParadox",
+  "resources": [
+    {
+      "id": {
+        "name": "pp_app",
+        "path": "scripts/pp_app/pp_app.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_battle_commands",
+        "path": "scripts/pp_battle_commands/pp_battle_commands.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_battle_director",
+        "path": "scripts/pp_battle_director/pp_battle_director.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_battle_text",
+        "path": "scripts/pp_battle_text/pp_battle_text.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_camera",
+        "path": "scripts/pp_camera/pp_camera.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_config",
+        "path": "scripts/pp_config/pp_config.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_data",
+        "path": "scripts/pp_data/pp_data.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_dodge_arena",
+        "path": "scripts/pp_dodge_arena/pp_dodge_arena.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_dodge_recipe",
+        "path": "scripts/pp_dodge_recipe/pp_dodge_recipe.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_input",
+        "path": "scripts/pp_input/pp_input.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_ledger",
+        "path": "scripts/pp_ledger/pp_ledger.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_rng",
+        "path": "scripts/pp_rng/pp_rng.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "obj_pp_debug_overlay",
+        "path": "objects/obj_pp_debug_overlay/obj_pp_debug_overlay.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "obj_pp_game",
+        "path": "objects/obj_pp_game/obj_pp_game.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "rm_pp_boot",
+        "path": "rooms/rm_pp_boot/rm_pp_boot.yy"
+      }
+    }
+  ],
+  "resourceType": "GMProject",
+  "resourceVersion": "2.0",
+  "RoomOrderNodes": [
+    {
+      "roomId": {
+        "name": "rm_pp_boot",
+        "path": "rooms/rm_pp_boot/rm_pp_boot.yy"
+      }
+    }
+  ],
+  "templateType": "game",
+  "TextureGroups": [
+    {
+      "$GMTextureGroup": "",
+      "%Name": "Default",
+      "autocrop": true,
+      "border": 2,
+      "compressFormat": "bz2",
+      "customOptions": "",
+      "directory": "",
+      "groupParent": null,
+      "isScaled": true,
+      "loadType": "default",
+      "mipsToGenerate": 0,
+      "name": "Default",
+      "resourceType": "GMTextureGroup",
+      "resourceVersion": "2.0",
+      "targets": -1
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "format": 1,
+  "kind": "enemies",
+  "enemies": [
+    {
+      "id": "navy_sailor",
+      "name": "Navy Sailor",
+      "max_hp": 15,
+      "attack": { "min": 2, "max": 2 },
+      "sprite": "spr_pp_sailor",
+      "element": "sea",
+      "route_kind": "regular",
+      "patterns": ["tutorial_slow_rain"],
+      "talk_dialogue": "talk_navy_sailor",
+      "trust_to_spare": 3,
+      "spare_hp_percent": 25,
+      "rewards": [
+        { "kind": "item", "id": "salve", "count": 1 }
+      ]
+    },
+    {
+      "id": "percy",
+      "name": "Percy",
+      "max_hp": 120,
+      "attack": { "min": 3, "max": 6 },
+      "sprite": "spr_pp_percy",
+      "element": "sea",
+      "route_kind": "boss",
+      "patterns": ["percy_rain", "percy_wall", "percy_fan"],
+      "talk_dialogue": "talk_percy",
+      "trust_to_spare": 3,
+      "spare_hp_percent": 25,
+      "rewards": [
+        { "kind": "power", "id": "tide_step", "count": 1 }
+      ]
+    }
+  ]
+}

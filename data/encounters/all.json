@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "kind": "encounters",
+  "encounters": [
+    {
+      "id": "tutorial_sailors",
+      "name": "Deck Watch",
+      "enemies": ["navy_sailor"],
+      "seed": 20261019,
+      "music": "battle_tutorial",
+      "intro_dialogue": "battle_intro_sailors",
+      "win_dialogue_kill": "navy_win_kill",
+      "win_dialogue_spare": "navy_win_spare",
+      "lose_dialogue": "battle_lose",
+      "trust_per_talk": 1
+    },
+    {
+      "id": "percy",
+      "name": "Percy",
+      "enemies": ["percy"],
+      "seed": 771,
+      "music": "battle_percy",
+      "intro_dialogue": "percy_entry",
+      "win_dialogue_kill": "percy_win_kill",
+      "win_dialogue_spare": "percy_win_spare",
+      "lose_dialogue": "battle_lose",
+      "trust_per_talk": 1
+    }
+  ]
+}

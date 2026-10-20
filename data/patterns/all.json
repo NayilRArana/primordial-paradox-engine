@@ -1,0 +1,58 @@
+{
+  "format": 1,
+  "kind": "patterns",
+  "patterns": [
+    {
+      "id": "tutorial_slow_rain",
+      "name": "Slow Rain",
+      "shape": "rain",
+      "length": 240,
+      "aim": "fixed",
+      "max_concurrent": 2,
+      "frames": [
+        { "at": 30,  "count": 1, "spread": 0, "origin": "top", "speed": 1.2, "angle": 90, "accel": 0.0, "curve": 0, "life": 100, "size": 8, "delay": 0, "jitter_angle": 20, "wobble": { "amp": 0, "period": 60 } },
+        { "at": 90,  "count": 1, "spread": 0, "origin": "top", "speed": 1.2, "angle": 90, "accel": 0.0, "curve": 0, "life": 100, "size": 8, "delay": 0, "jitter_angle": 20, "wobble": { "amp": 0, "period": 60 } },
+        { "at": 150, "count": 1, "spread": 0, "origin": "top", "speed": 1.3, "angle": 90, "accel": 0.0, "curve": 0, "life": 100, "size": 8, "delay": 0, "jitter_angle": 20, "wobble": { "amp": 0, "period": 60 } },
+        { "at": 210, "count": 1, "spread": 0, "origin": "top", "speed": 1.3, "angle": 90, "accel": 0.0, "curve": 0, "life": 100, "size": 8, "delay": 0, "jitter_angle": 20, "wobble": { "amp": 0, "period": 60 } }
+      ]
+    },
+    {
+      "id": "percy_rain",
+      "name": "Tide Rain",
+      "shape": "rain",
+      "length": 340,
+      "aim": "fixed",
+      "max_concurrent": 2,
+      "frames": [
+        { "at": 30,  "count": 2, "spread": 24, "origin": "top", "speed": 1.7, "angle": 90, "accel": 0.0, "curve": 0, "life": 80, "size": 8, "delay": 0, "jitter_angle": 10, "wobble": { "amp": 0, "period": 60 } },
+        { "at": 120, "count": 2, "spread": 24, "origin": "top", "speed": 1.8, "angle": 90, "accel": 0.0, "curve": 0, "life": 80, "size": 8, "delay": 0, "jitter_angle": 10, "wobble": { "amp": 0, "period": 60 } },
+        { "at": 210, "count": 2, "spread": 24, "origin": "top", "speed": 1.8, "angle": 90, "accel": 0.0, "curve": 0, "life": 80, "size": 8, "delay": 0, "jitter_angle": 10, "wobble": { "amp": 0, "period": 60 } },
+        { "at": 300, "count": 2, "spread": 24, "origin": "top", "speed": 1.9, "angle": 90, "accel": 0.0, "curve": 0, "life": 80, "size": 8, "delay": 0, "jitter_angle": 10, "wobble": { "amp": 0, "period": 60 } }
+      ]
+    },
+    {
+      "id": "percy_wall",
+      "name": "Breakwater",
+      "shape": "wall",
+      "length": 380,
+      "aim": "fixed",
+      "max_concurrent": 3,
+      "frames": [
+        { "at": 40,  "count": 3, "spread": 0, "origin": "right", "speed": 1.6, "angle": 180, "accel": 0.0, "curve": 0, "life": 120, "size": 8, "delay": 4, "jitter_angle": 0, "wobble": { "amp": 0, "period": 60 } },
+        { "at": 210, "count": 3, "spread": 0, "origin": "right", "speed": 1.7, "angle": 180, "accel": 0.0, "curve": 0, "life": 120, "size": 8, "delay": 4, "jitter_angle": 0, "wobble": { "amp": 0, "period": 60 } }
+      ]
+    },
+    {
+      "id": "percy_fan",
+      "name": "Trident Fan",
+      "shape": "fan",
+      "length": 380,
+      "aim": "at_marker",
+      "max_concurrent": 3,
+      "frames": [
+        { "at": 40,  "count": 3, "spread": 44, "origin": "right", "speed": 2.0, "angle": 180, "accel": 0.0, "curve": 0, "life": 120, "size": 8, "delay": 2, "jitter_angle": 0, "wobble": { "amp": 0, "period": 60 } },
+        { "at": 210, "count": 3, "spread": 44, "origin": "right", "speed": 2.1, "angle": 180, "accel": 0.0, "curve": 0, "life": 120, "size": 8, "delay": 2, "jitter_angle": 0, "wobble": { "amp": 0, "period": 60 } }
+      ]
+    }
+  ]
+}

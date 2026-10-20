@@ -1,0 +1,7 @@
+{
+  "format": 1,
+  "kind": "items",
+  "items": [
+    { "id": "salve", "name": "Salt Salve", "heal": 6, "max_carry": 8 }
+  ]
+}
