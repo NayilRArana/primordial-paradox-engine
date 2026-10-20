@@ -35,8 +35,9 @@ Design consequences worth copying at the genre level:
 3. Hazard count should climb with the fight, not with time: a boss's third attack may be denser than its first.
 4. The player must always be able to see their own marker. Highest contrast object on screen.
 
-DECISION for PP: arena box 160x100 pixels, marker 8x8, marker speed 2 pixels per step on keyboard, 1.6 on analog
-stick with an 8 direction clamp. Every pattern has a telegraph of at least 12 steps.
+DECISION for PP: arena box 160x100 pixels, marker 8x8, marker speed 2 pixels per step, with the keyboard vector
+quantised to 8 directions and the analog stick read raw, both corrected on 2026-10-19 to match specs\02-input.md, which
+wins where this file and a spec disagree (section 8 below). Every pattern has a telegraph of at least 12 steps.
 
 ## 3. ACT style talk options (our name: TALK)
 

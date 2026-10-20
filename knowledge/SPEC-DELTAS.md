@@ -7,7 +7,10 @@ removed; none had to be. This file only LISTS deltas; it does not rewrite the sp
 one before any text moves. Status per item: CORRECTION (a spec states something that is wrong or impossible as written),
 THIN (true but underspecified; code cannot be written from it), MISSING (no spec covers it at all).
 
-Counts: 13 specs read, 22 deltas found, of which 3 CORRECTION, 12 THIN, 7 MISSING.
+Counts: 13 specs read, 24 deltas found, of which 4 CORRECTION, 13 THIN, 7 MISSING.
+
+C4 and C5 were added in the gate pass of the same day (card t_e78500a3) after reading the specs against each other and
+against the same manual pages once more. C1 and C3 were re-read at source in that pass and stand as written.
 
 ## CORRECTIONS
 
@@ -31,6 +34,26 @@ indices". There are no sprites yet, no image tooling in this repo, and that chec
 sprite importer.
 Fix: for now the checker validates the data side (palette has exactly 54 entries, every room declares at most 16
 palette indices, every declared index exists, appended only). The per pixel check moves to the importer ticket.
+
+C4. specs\05-dialogue.md cannot fit its own line length. The text area runs from x 72 to x 240, so it is 168 pixels
+wide, and the font is 8x8 with fixed cells (specs\13-8bit-look.md), so an 8 pixel advance fits 21 characters and a 6
+pixel advance fits 28. The spec says 30 characters per line, which needs a 5.6 pixel advance, and it calls a 40
+character line a checker error. Dialogue is the slice's main visible output, so this is one of the first things the
+slice code would hit.
+Fix: state the glyph advance explicitly and make the line length follow from it. Recommend a 6 pixel advance inside the
+8 pixel cell, which stays legible at 1x and gives 28 characters, so the checker error becomes a word longer than 28
+characters. The 3 line page still fits the 48 pixel text height at a 16 pixel pitch. Do not widen the text area: the
+portrait and the box frame are already fixed by spec 05 and spec 13.
+
+C5. specs\09-bullet-pattern-recipes.md states `angle` as "0 is right, 90 is down". That is the screen convention,
+clockwise with y growing downward. The engine's own angle maths is the other one: a positive quarter turn points up,
+because a positive y is downward and the angle is measured the other way round. The manual text I could read today (the
+lengthdir and point_direction pages) states the convention in a picture, not in words, so a recipe driven straight
+through lengthdir_x and lengthdir_y with a data angle of 90 sends its hazard up when the author read "down", and every
+mirrored pattern is wrong without any error being raised.
+Fix: keep the data convention, which is how an artist reads a box on screen, and require one named conversion
+(`pp_angle_to_gm`) used by the arena and nowhere else, plus one test that a 90 degree emitter at origin top moves its
+hazard toward the bottom of the box. Add the same sentence to the geometry section of specs\08-dodge-arena.md.
 
 ## THIN (underspecified, blocks code)
 

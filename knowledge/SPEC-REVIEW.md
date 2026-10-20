@@ -14,24 +14,25 @@ This file is the ledger for that gate. `tools/check_spec_review.py` reads it:
 A row may only say `confirmed` or `rewritten` when it names a reviewer and a date. `rewritten` means the spec text was
 changed in that same change; the note says what changed and why. A row may not say `reviewed`, `checked` or `ok`.
 
-Reviewer: code-review. Date: 2026-10-19. Card: t_ec0fb8be. The full reasoning, including the three closest calls, is
-in the "clean-room re-review 2026-10-19" section of `knowledge\PROVENANCE.md`; the module rows are in
-`knowledge\CLEANROOM-REVIEW.md`.
+Reviewer: code-review. Date: 2026-10-19. Cards: t_ec0fb8be did the review and t_e78500a3 was the gate pass after it,
+which re-read the manual pages the specs cite and added the two findings listed at the end of this file. The full
+reasoning, including the three closest calls, is in the "clean-room re-review 2026-10-19" section of
+`knowledge\PROVENANCE.md`; the module rows are in `knowledge\CLEANROOM-REVIEW.md`.
 
 | Spec | Status | Reviewer | Date | Note |
 | --- | --- | --- | --- | --- |
 | specs/01-state-machine.md | confirmed | code-review | 2026-10-19 | Mode enum, one owner, one request door, fades and input lock are our decisions. What happens to the map under a battle is not asserted here and stays open as delta T1. |
 | specs/02-input.md | confirmed | code-review | 2026-10-19 | Action table, one sample point and edge derivation from the manual's keyboard_check_pressed and Event Order pages; deadzone and repeat are ours. |
-| specs/03-camera-and-scaling.md | confirmed | code-review | 2026-10-19 | Integer scale, one viewport and an application surface resize from the manual's page; dead zone, look ahead and the 4 pixel cap are ours. |
+| specs/03-camera-and-scaling.md | confirmed | code-review | 2026-10-19 | Integer scale, one viewport and an application surface resize from the manual's page, whose own example is camera size times a resolution scale (re-read 2026-10-19). The page also states that Draw events draw to that surface while Draw GUI does not, which is what lets `display_set_gui_size(256, 240)` stand beside a scaled surface. Dead zone, look ahead and the 4 pixel cap are ours. |
 | specs/04-overworld-rails-and-triggers.md | confirmed | code-review | 2026-10-19 | Tile grid, separate collision grid, trigger list, rails and visible markers are genre-design section 6; the trigger lock and marker respawn are our fixes. |
-| specs/05-dialogue.md | confirmed | code-review | 2026-10-19 | Typewriter, portrait, pages and conditional choices are the ordinary text box of the genre; the geometry and the two control codes are ours. |
+| specs/05-dialogue.md | confirmed | code-review | 2026-10-19 | Typewriter, portrait, pages and conditional choices are the ordinary text box of the genre; the geometry and the two control codes are ours. Its own text metrics do not fit its line length: 168 pixels of text area fits 21 characters at an 8 pixel advance, not the 30 it states. That is delta C4, a number for Nayil, not a clean-room finding. |
 | specs/06-cutscene-runner.md | confirmed | code-review | 2026-10-19 | A data command list with one blocking command at a time and branch as the only control flow is the ordinary scripted scene form. |
 | specs/07-battle-director.md | confirmed | code-review | 2026-10-19 | Five entry menu, trust and spare thresholds and no EXP are genre-design sections 3 to 5. Closest call: the turn loop shape, which is the spec's own phase list. |
 | specs/08-dodge-arena.md | confirmed | code-review | 2026-10-19 | Box, marker, telegraph, damage per hit and invulnerability are genre-design section 2; every number is a PP decision. |
-| specs/09-bullet-pattern-recipes.md | confirmed | code-review | 2026-10-19 | Data recipes and the fairness ladder are ours; pattern-as-data is the deliberate opposite of the studied design, so a difference not a copy. |
+| specs/09-bullet-pattern-recipes.md | confirmed | code-review | 2026-10-19 | Data recipes and the fairness ladder are ours and need no public source: the emitter fields are our own generalisation, asked for by authoring needs. The angle convention is stated in screen terms while the engine's own maths runs the other way, which is delta C5 and is named there rather than settled here. |
 | specs/10-route-ledger.md | confirmed | code-review | 2026-10-19 | Counters plus a route derived on read match genre-design section 4 and single source of truth reasoning. Closest call: the never-stored rule. |
-| specs/11-save.md | confirmed | code-review | 2026-10-19 | Versioned JSON, a .bak, a format check first and a try/catch around json_parse follow the manual's Save/Load and json pages. |
-| specs/12-audio.md | confirmed | code-review | 2026-10-19 | Bus priorities and crossfade follow the manual's audio pages. Rule 3's loop point claim is unsupported by them and is an open defect in SPEC-DELTAS C1, not a clean-room finding. |
+| specs/11-save.md | confirmed | code-review | 2026-10-19 | Versioned JSON, a .bak, a format check first and a try/catch around json_parse follow the manual's Save/Load and json pages (all three re-read 2026-10-19): the async event does carry `id` and `status`, json_parse does throw on invalid JSON, and json_stringify does store an asset handle whose index changes between runs. |
+| specs/12-audio.md | confirmed | code-review | 2026-10-19 | Bus priorities follow the manual's audio_play_sound page (re-read 2026-10-19): the priority argument decides which sound is stopped when the channel limit is reached, and the third argument is a whole file loop. Crossfade is ours, built on the gain functions, not a manual feature. Rule 3's loop point claim is unsupported by that page and is open defect C1 in SPEC-DELTAS, not a clean-room finding. |
 | specs/13-8bit-look.md | confirmed | code-review | 2026-10-19 | Palette size, dither and frame rules are ours; the sprite convention is genre-design section 7. The per pixel check in rule 2 cannot run yet, as delta C3 records. |
 
 ## What a confirmed row does and does not claim
@@ -41,3 +42,40 @@ not open the quarantined copies. It does not claim the spec is correct: two fact
 `knowledge\SPEC-DELTAS.md` (C1 on audio loop points, C3 on the sprite pixel check), and both are recorded where they
 belong rather than hidden inside a clean-room verdict. It also does not claim a text comparison against the quarantined
 copy was made, because that comparison is the one thing the rule forbids.
+
+## Gate pass, card t_e78500a3
+
+The first pass read the specs against public material. This pass read them against each other and against the manual
+pages again, and ran the arithmetic the specs state as if it were the acceptance test.
+
+Pages re-read at the source today, all public, all five agreeing with the spec text:
+
+- application_surface: the page's own example is camera size multiplied by a resolution scale, which is the pattern
+  spec 03 uses, and it separates Draw events (this surface) from Draw GUI (not this surface), which is what makes
+  `display_set_gui_size(256, 240)` correct next to a surface already scaled by the same factor.
+- audio_play_sound: the priority argument decides which sound is stopped when `audio_channel_num` is reached, the
+  third argument is a whole file loop, and the call returns a unique index. This confirms spec 12 rules 1 and 2 and
+  leaves rule 3's loop point claim exactly as unsupported as C1 says.
+- json_parse: an invalid value throws. Confirms spec 11 rule 6.
+- Save/Load async event: `id` and `status`, on buffer_save_async and buffer_load_async. Confirms spec 11's file rule.
+- json_stringify: an asset is stored as an internal handle whose index changes between runs, and assets are saved by
+  name. Confirms spec 11's rule that ids are names, never indexes.
+
+Arithmetic checked and found sound: 1080p at scale 4 is 1024x960 as acceptance 5 says; 256x240 is 16 by 15 tiles of
+16 pixels; 900 steps is 15 seconds and 30 steps is half a second; 9 hues by 6 levels is 54; the FIGHT mapping in delta
+T7 lands inside the 2 to 12 the spec promises.
+
+Two findings, both new, both recorded rather than fixed inside a verdict, because each is a decision number and not a
+traceability problem:
+
+- C4, specs\05-dialogue.md: the stated 30 characters per line needs a 5.6 pixel advance, and the 168 pixel text area at
+  an 8 pixel advance holds 21. Dialogue is the slice's main visible output, so this would have been found the hard way.
+- C5, specs\09-bullet-pattern-recipes.md: the data says 90 degrees is down, the engine's own angle maths turns the
+  other way, and the manual states that in a picture rather than in words. The fix is a named conversion in one place
+  and one test, not a change to the authored data.
+
+One conflict between a knowledge file and a spec was corrected here: `knowledge\genre-design.md` section 2 gave the
+stick speed as 1.6 with an 8 direction clamp, while specs\02-input.md reads the stick raw and quantises only the
+keyboard, and specs\08-dodge-arena.md takes its vector from spec 02. Section 8 of that file says the spec wins and the
+file is corrected, so it now says 2 pixels per step with the keyboard quantised and the stick read raw.
+
