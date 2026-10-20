@@ -7,11 +7,17 @@ about this repository, and it is checked by tools\check_provenance.py plus the c
 THE STUDY COPIES ARE QUARANTINED AND MAY NOT BE USED. A read against a decompiled commercial game project took place
 on 2026-10-19 and was ruled a clean-room breach; the copies were moved out of this repository and locked away. Nothing
 in this repository may read, open, search, download or reason from them, or from any other decompiled, ripped or fan
-ported copy of a commercial game, GitHub repositories included. The two subsystem entries below were written after that
-read, so they do not get to assume their own innocence: the clean-room re-review of 2026-10-19 re-confirmed both of them
-from public genre design and the official GameMaker manual alone, and each entry now opens with its status. The review
-record for modules is knowledge\CLEANROOM-REVIEW.md, for specs knowledge\SPEC-REVIEW.md, and the method plus the per
-source file outcome are in the section at the end of this file.
+ported copy of a commercial game, GitHub repositories included.
+
+The two subsystem entries that were written after that read are now WITHDRAWN. On 2026-10-19 (card t_bfaff47b) the
+manager's rule was applied to the last two documents that still leaned on the read: documentation in this repository
+has to stand on public sources, so anything that only the read supported is withdrawn rather than softened. Both
+entries are kept below as an incident record of what was studied, each opens with its status, and each says in one line
+that no current module descends from it. The module map now points every module at one entry, "modules written from the
+specs alone", which names no studied source at all.
+
+The review record for modules is knowledge\CLEANROOM-REVIEW.md, for specs knowledge\SPEC-REVIEW.md, and the method plus
+the per source file outcome are in the section at the end of this file.
 
 How the no-copy claim is checked, mechanically, on every commit:
 1. `tools\check_cleanroom.py`: fails if anything under game\ or data\ names a study copy, the quarantine folder or the
@@ -31,45 +37,68 @@ How the no-copy claim is checked, mechanically, on every commit:
 
 Every file that ships is listed here, and tools\check_provenance.py refuses a module that is not.
 
-| File | Subsystem entry | Spec |
+| File | Entry | Spec |
 | --- | --- | --- |
-| game/scripts/pp_app/pp_app.gml | room and object conventions across a whole game | 01 |
-| game/scripts/pp_battle_commands/pp_battle_commands.gml | battle state machine and turn loop | 07 |
-| game/scripts/pp_battle_director/pp_battle_director.gml | battle state machine and turn loop | 07 |
-| game/scripts/pp_battle_text/pp_battle_text.gml | battle state machine and turn loop | 05, 07 |
-| game/scripts/pp_camera/pp_camera.gml | room and object conventions across a whole game | 03 |
-| game/scripts/pp_config/pp_config.gml | battle state machine and turn loop | 01, 07, 08 |
-| game/scripts/pp_data/pp_data.gml | room and object conventions across a whole game | 14 (proposed) |
-| game/scripts/pp_dodge_arena/pp_dodge_arena.gml | battle state machine and turn loop | 08 |
-| game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | battle state machine and turn loop | 09 |
-| game/scripts/pp_dialogue/pp_dialogue.gml | battle state machine and turn loop | 05 |
-| game/scripts/pp_map/pp_map.gml | room and object conventions across a whole game | 04 |
-| game/scripts/pp_overworld/pp_overworld.gml | room and object conventions across a whole game | 04 |
-| game/scripts/pp_scene/pp_scene.gml | battle state machine and turn loop | 06 |
-| game/scripts/pp_input/pp_input.gml | room and object conventions across a whole game | 02 |
-| game/scripts/pp_ledger/pp_ledger.gml | battle state machine and turn loop | 10 |
-| game/scripts/pp_rng/pp_rng.gml | battle state machine and turn loop | 09 |
-| game/objects/obj_pp_game | room and object conventions across a whole game | 01, 02 |
-| game/objects/obj_pp_debug_overlay | room and object conventions across a whole game | 10 |
-| game/rooms/rm_pp_boot | room and object conventions across a whole game | 01 |
-| tools/gen_project.py | room and object conventions across a whole game | 14 (proposed) |
-| tools/check_project.py | room and object conventions across a whole game | 14 (proposed) |
-| tools/check_data.py | battle state machine and turn loop | 08, 09, 14 (proposed) |
+| game/scripts/pp_app/pp_app.gml | specs alone | 01 |
+| game/scripts/pp_battle_commands/pp_battle_commands.gml | specs alone | 07 |
+| game/scripts/pp_battle_director/pp_battle_director.gml | specs alone | 07 |
+| game/scripts/pp_battle_text/pp_battle_text.gml | specs alone | 05, 07 |
+| game/scripts/pp_camera/pp_camera.gml | specs alone | 03 |
+| game/scripts/pp_config/pp_config.gml | specs alone | 01, 03, 07, 08, 10, 13 |
+| game/scripts/pp_data/pp_data.gml | specs alone | 14 (proposed) |
+| game/scripts/pp_dodge_arena/pp_dodge_arena.gml | specs alone | 08 |
+| game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | specs alone | 09 |
+| game/scripts/pp_dialogue/pp_dialogue.gml | specs alone | 05 |
+| game/scripts/pp_map/pp_map.gml | specs alone | 04 |
+| game/scripts/pp_overworld/pp_overworld.gml | specs alone | 04 |
+| game/scripts/pp_scene/pp_scene.gml | specs alone | 06 |
+| game/scripts/pp_input/pp_input.gml | specs alone | 02 |
+| game/scripts/pp_ledger/pp_ledger.gml | specs alone | 10 |
+| game/scripts/pp_rng/pp_rng.gml | specs alone | 09 |
+| game/objects/obj_pp_game | specs alone | 01, 02 |
+| game/objects/obj_pp_debug_overlay | specs alone | 10 |
+| game/rooms/rm_pp_boot | specs alone | 01 |
+| tools/gen_project.py | specs alone | 14 (proposed) |
+| tools/check_project.py | specs alone | 14 (proposed) |
+| tools/check_data.py | specs alone | 08, 09, 14 (proposed) |
 | tools/check_cleanroom.py | this file | PLAN 1 |
 | tools/check_provenance.py | this file | PLAN 1 |
 
-Not studied, written from the specs alone: `pp_camera`, `pp_input`, `pp_ledger`, `pp_battle_text`, `pp_map`, `pp_dialogue`, `pp_scene`, `pp_overworld`, `tools/run.ps1`.
-They carry an entry here only because the module map is a completeness check, not a claim that a study happened. The two
-studied systems are the battle state machine and the room and object conventions; the overworld, dialogue and cutscene
-modules are written from specs 04, 05 and 06 and borrow nothing but the fact that a game has phases and a room tree.
+Every "specs alone" row is owned by the entry "modules written from the specs alone" below. That entry, not either
+withdrawn entry, is what a new module must be written from.
 
-## battle state machine and turn loop (2026-10-19)
+## modules written from the specs alone (2026-10-19)
 
-Status: written before the notice of 2026-10-19, re-confirmed by the clean-room re-review of the same date. Outcome:
-the entry stands. No mechanic in it is reachable only through the quarantined read; each one is a public genre mechanic
-described in knowledge\genre-design.md sections 2 to 5, and the differences below are structural, not reworded.
-Changed in this review: the studied line named the copy's files and line numbers, which only ever served as navigation
-for a copy nobody may open, so it now names the systems in plain language.
+Status: this entry exists because the two study entries further down are withdrawn. Every row of the module map above is
+owned here. It is the entry a new module is written from.
+
+Studied: nothing. No decompiled, ripped or fan ported material was read, opened, searched or reasoned from for this
+entry, and it names no studied source at all. Each module was written from its spec in specs\, and each spec was
+confirmed against public genre design and the official manual in the reviews recorded in knowledge\SPEC-REVIEW.md and
+knowledge\CLEANROOM-REVIEW.md.
+
+Mechanics learned: none that a study supplied. The behaviours the modules implement are the specs' own decisions: a mode
+registry with one request door and one fade (spec 01), an action table sampled once per step (spec 02), integer scaling
+from the manual's own application surface resizing example (spec 03), a tile grid with a separate collision grid and a
+trigger list (spec 04), a command table resolved by id (spec 07), a bounded arena with hazards as structs in one array
+(spec 08), data recipes interpreted by one emitter (spec 09), counters with the route derived on read (spec 10), async
+save behind a small state machine (spec 11). Those are public mechanics and our numbers, and the manual links for each
+are in knowledge\gml-essentials.md.
+
+Our implementation differs by: there is nothing to differ from, because nothing was studied. What the withdrawn entries
+recorded as differences still stands as our design, with one downgrade: the project file shapes in
+knowledge\gamemaker-project-format.md are unsourced and UNVERIFIED, and the modules are written so that nothing in game
+code depends on them.
+
+Copied expression: none.
+
+## WITHDRAWN incident record: battle state machine and turn loop (2026-10-19)
+
+Status: WITHDRAWN on 2026-10-19 by card t_bfaff47b, at the manager's order that documentation in this repository stand
+on public sources only. This entry described the internals of a decompiled commercial game project. Anything that only
+that read supported is withdrawn rather than softened, and this entry is no longer a source for any module: no current
+module descends from it, and the module map above points every module at "modules written from the specs alone". It is
+kept so the incident of what was studied stays on the record, and so nobody re-learns it by accident.
 
 Studied: (historical record of where a mechanic was first noticed, not a source and not navigable) the battle
 controller's create, step, draw and alarm events; the whole turn loop script; the phase handoff inside the spell script;
@@ -99,8 +128,9 @@ Mechanics learned:
 - The end of a fight is a message object plus a timer, then a single cleanup script that destroys every battle object
   by name (controller, marker, arena, writers, faces, delayed script objects) and returns to the overworld.
 
-Our implementation differs by (files: game\scripts\pp_battle_director, pp_battle_turn, pp_battle_commands,
-pp_dodge_arena, pp_dodge_recipe, pp_route_ledger):
+Our implementation differs by (files: game\scripts\pp_battle_director, pp_battle_commands, pp_dodge_arena,
+pp_dodge_recipe, pp_ledger. The names pp_battle_turn and pp_route_ledger in an earlier draft were the plan's working
+names and do not exist):
 - A battle is a MODE owned by pp_app (specs\01), drawn over the suspended map, so the overworld is never destroyed and
   never rebuilt. There is no battle room and no global phase number.
 - The director is one enum state machine (`PPBattlePhase`) with explicit enter/step/exit per state, held in a struct
@@ -124,14 +154,16 @@ pp_dodge_arena, pp_dodge_recipe, pp_route_ledger):
 
 Copied expression: none.
 
-## room and object conventions across a whole game (2026-10-19)
+## WITHDRAWN incident record: room and object conventions across a whole game (2026-10-19)
 
-Status: written before the notice of 2026-10-19, re-confirmed by the clean-room re-review of the same date, with the
-project format claims downgraded to UNVERIFIED. Outcome: the "our implementation differs by" list stands, but the four
-file shape facts in this entry cannot be reached from the official manual, which publishes the roles of the files and
-not their field or file name schema. They are kept as the shape our generator follows, and
-knowledge\gamemaker-project-format.md now marks them unverified until the IDE writes a reference resource. Nothing in
-game code depends on them.
+Status: WITHDRAWN on 2026-10-19 by card t_bfaff47b, for the same reason as the entry above, and with the same effect.
+Its file shape facts were never in the official manual, which publishes the role of each project file and not its field
+or file name schema. No current module descends from it: the module map points every module at "modules written from the
+specs alone", and knowledge\gamemaker-project-format.md marks the shapes unsourced and UNVERIFIED. The historical body
+is kept below as the incident record, and the counts in it are history, not evidence. One artefact of that copy is
+still visible in the repo: the .yyp carries `IDEVersion 2024.1400.0.911`. Nothing reads it, no check asserts it and
+GameMaker rewrites it on the first save, so it is inert; it is named here rather than quietly replaced with a number
+nobody here has seen.
 
 Studied: (historical record, not a source and not navigable) the project file and its resource graph, the folder layout
 on disk, ten object resource files, three room files, three script files, the fonts folder, the options folder, and the
@@ -161,20 +193,25 @@ Mechanics learned, with the counts as measured then (history, not evidence):
   group by feature with no namespaces. Several config scripts are 30 to 50 KB switch tables of content.
 
 Our implementation differs by (files: game\PrimordialParadox.yyp, game\objects\*, game\rooms\*, game\scripts\*):
-- Same on-disk contract (one directory per resource, one .yy per resource, one .gml per event) because that is the
-  format, but our naming scheme is our own: every script is a `pp_` module (`pp_input`, `pp_app_modes`,
-  `pp_battle_director`, `pp_dodge_arena`), every object is `obj_pp_*`, every room is `rm_pp_*`.
-- We use NO object inheritance. There are four objects at all (boot, input sampler, frame presenter, battle
-  presenter); behaviour lives in functions that take a struct, so a parent object hierarchy is unnecessary and the
-  logic is testable without instances.
+NOTE, 2026-10-19: this list was written when the plan had four objects, two rooms and a module called pp_app_modes.
+The project today has two objects (obj_pp_game, obj_pp_debug_overlay), one room (rm_pp_boot) and sixteen scripts, and
+the module is pp_app. The list is kept as the withdrawn record says, with the counts corrected here rather than there.
+- Same on-disk contract (one directory per resource, one .yy per resource, one .gml per event) because that is what our
+  generator writes and it is all we can say: the manual publishes the role of a .yy and not a layout, so this is
+  unsourced in knowledge\gamemaker-project-format.md. Our naming scheme is our own: every script is a `pp_` module
+  (`pp_input`, `pp_app`, `pp_battle_director`, `pp_dodge_arena`), every object is `obj_pp_*`, every room is `rm_pp_*`.
+- We use NO object inheritance. There are two objects at all; behaviour lives in functions that take a struct, so a
+  parent object hierarchy is unnecessary and the logic is testable without instances.
 - Content never lives in a config script. Every table that their project writes as a GML switch (items, spells,
   enemies, patterns) is a JSON file in data\ validated by tools\check_data.py before it can be loaded.
 - Rooms are generated from data too: one battle presenter room and one boot room, so adding a map does not add a
   room, it adds a data file. This is the opposite of a room per screen.
 - Every .yy we write is strict JSON (no trailing commas) so that tools\check_project.py can parse it with the Python
-  standard library; GameMaker reads both forms, so we keep the stricter one as the machine checkable one.
-- Folder view is a single `Primordial Paradox` folder tree in the .yyp, and it is generated by tools\check_project.py
-  so the resource list, the folder list and the disk can never disagree.
+  standard library. The manual calls the format JSON-like and does not define it further, so strict JSON is our
+  reading of "JSON-like", not a documented equivalence.
+- Folder view is a single `Primordial Paradox` folder tree in the .yyp, and it is generated by tools\gen_project.py
+  so the resource list, the folder list and the disk can never disagree. The folder entries are unsourced: the manual
+  does not publish them.
 
 Copied expression: none.
 
@@ -239,3 +276,28 @@ the two entries above stand, with one substantive downgrade: the project format 
 confirmed. Nothing was published, uploaded or pushed.
 
 Copied expression: none.
+
+### Withdrawal pass, 2026-10-19 (card t_bfaff47b)
+
+Same reviewer, same day, after the manager's order that this repository's own documentation stand on public sources
+only. What changed, and why it is not a re-review of the specs:
+
+- The two study entries above are now WITHDRAWN incident records. They were re-confirmed earlier in the day from
+  public material, but the manager's rule is stricter than that: the entry itself was written from the quarantined
+  read, so it is withdrawn rather than softened. Each carries one line saying no current module descends from it.
+- A new entry, "modules written from the specs alone", owns every row of the module map. It names no studied source.
+- knowledge\SPEC-DELTAS.md: every one of the 24 deltas now carries an explicit source line, and the file carries a
+  source index a reader can audit without reading the detail. Totals by script: 3 `manual`, 4 `genre`, 17 `internal`,
+  0 `withdrawn`. The `internal` form is a fourth form the card did not name: those items are spec against spec or
+  arithmetic over our own numbers, and labelling them manual or genre would be an invented citation.
+- knowledge\gamemaker-project-format.md: re-derived from the Project Format page read today. The page publishes the
+  role of each file and not one field name, so the shapes our generator writes are now labelled unsourced rather than
+  described as what a real project contained, and the honest cannot-verify list is kept.
+- Counts in the withdrawn room entry that were true when it was written and are not true now (four objects, two rooms,
+  a module called pp_app_modes) are corrected in a NOTE inside that entry rather than silently edited.
+- Not touched: any GML or data file, any spec, and the substance of any delta. Eleven module headers still cite the two
+  withdrawn entries by name (pp_app, pp_battle_commands, pp_battle_director, pp_camera, pp_config, pp_dialogue,
+  pp_dodge_arena, pp_ledger, pp_map, pp_overworld, pp_scene), and pp_input cites this file without naming an entry.
+  They are named in the card's completion summary for a gamedev rewrite card, because this card is documentation only.
+
+Checks run on this machine for this pass are recorded in DEVLOG.md, top entry.
