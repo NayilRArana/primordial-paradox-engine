@@ -5,11 +5,14 @@ GameMaker. This step is the part a unit test cannot reach: Igor compiling the .y
 to be honest about the difference between "the build passed" and "the build was never measured":
 
     exit 0 and "BUILD PASS"        Igor compiled and launched the game
-    exit 0 and "SKIP ... not a pass"  GameMaker, Igor or the licence folder is absent (run.ps1 exit 2)
+    exit 3 and "BUILD UNMEASURED"  GameMaker, Igor or the licence folder is absent (run.ps1 exit 2)
     exit 1                        anything else, including a data check failing inside run.ps1
 
-A skip is a loud line in the CI output, not a green tick. It stays a skip until Nayil installs GameMaker and logs in
-once, which is his step and not the bot's.
+A skip is a third outcome, not a quiet pass: exit 3 is declared as this step's unmeasured result in
+suite_config.json, where the gate prints it as "UNMEASURED (GameMaker not installed)" and never as
+PASS. Exit 0 here for a skip is what made the push output read "integration primordial-paradox-build:
+PASS ... BUILD SKIP" on 2026-10-19, an unmeasured step reported as measured. It stays unmeasured until
+Nayil installs GameMaker and logs in once, which is his step and not the bot's.
 
 Usage:
     python tools/integration_build.py
@@ -43,9 +46,9 @@ def main() -> int:
         print("BUILD PASS: Igor compiled the project and launched the game")
         return 0
     if completed.returncode == 2:
-        print("BUILD SKIP: GameMaker is not installed on this machine, so no build was measured. "
+        print("BUILD UNMEASURED: GameMaker is not installed on this machine, so no build was measured. "
               "This is NOT a pass, it is an unmeasured integration step.")
-        return 0
+        return 3
 
     print("BUILD FAIL: run.ps1 exited %d" % completed.returncode)
     return 1
