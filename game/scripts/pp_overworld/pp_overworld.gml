@@ -259,6 +259,17 @@ function pp_overworld_step(_world) {
         pp_scene_step(_world.scene, _world);
         pp_world_move_step(_world);
         pp_overworld_clock_step(_world);
+
+        // A scene command can ask for a fight, and the scene then waits for battle_done. The request has to be drained
+        // here, inside the scene branch: the app is the only thing that swaps modes, and the older drain below is
+        // unreachable while a scene runs, which would leave the scene waiting for a battle nobody starts.
+        if (_world.battle_request != "") {
+            var _scene_battle = _world.battle_request;
+            _world.battle_request = "";
+            pp_app_request(PPMode.battle, { encounter_id: _scene_battle, from_world: true });
+            return;
+        }
+
         if (!pp_scene_running(_world.scene)) {
             _world.scene = undefined;
             _world.trigger_lock = PP_TRIGGER_LOCK_STEPS;

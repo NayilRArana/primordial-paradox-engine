@@ -333,6 +333,14 @@ function pp_battle_record(_battle) {
     var _kind = "regular";
     if (variable_struct_exists(_battle.enemy, "route_kind")) _kind = _battle.enemy.route_kind;
     if (!_battle.defeated) pp_ledger_record_result(_battle.ledger, _kind, _battle.result);
+
+    // A defeat is an explicit decision, not a side effect (knowledge\SPEC-DELTAS.md, C7). There is no title mode and
+    // no save yet, so the party wakes up at full health and the app returns to the overworld. Writing the 0 that the
+    // fight ended on would make every later fight start at 0 hp with nothing to restore it, which is the bug this
+    // replaces. When the title mode lands, this is the line that changes to the save restore.
+    if (_battle.defeated) {
+        _battle.actor.hp = _battle.actor.max_hp;
+    }
     _battle.ledger.hp = _battle.actor.hp;
     _battle.recorded = true;
     return _battle;

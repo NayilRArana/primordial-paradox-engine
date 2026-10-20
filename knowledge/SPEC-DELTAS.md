@@ -11,9 +11,10 @@ This file only LISTS deltas; it does not rewrite the specs, so Nayil can accept 
 moves. Status per item: CORRECTION (a spec states something that is wrong or impossible as written), THIN (true but
 underspecified; code cannot be written from it), MISSING (no spec covers it at all).
 
-Counts: 13 specs read, 24 deltas found, of which 5 CORRECTION, 12 THIN, 7 MISSING. (The previous line in this file said
-4, 13 and 7, which added to 24 but did not match the items: C5 and T12 were added in the gate pass and the three numbers
-were not carried forward. Counted from the headings in this file on 2026-10-19.)
+Counts: 13 specs read, 26 deltas found, of which 6 CORRECTION, 12 THIN, 8 MISSING. Counted from the headings in this
+file on 2026-10-19 after the review fix pass added C6 and M8. (An earlier line said 4, 13 and 7, then 5, 12 and 7;
+neither matched the headings once more items landed, so the numbers are counted from the headings, not carried
+forward.)
 
 ## How to read a source line
 
@@ -133,6 +134,21 @@ both re-read 2026-10-19. Neither page states the turn direction in words; it is 
 the delta asks for a named conversion and one directional test: the test is what settles the turn, and if it shows the
 opposite, the conversion's sign flips and nothing else in the design changes. Recorded as a manual reading of a
 picture, not as a quotable sentence.
+Implemented 2026-10-19: `pp_angle_to_gm` lives in game\scripts\pp_dodge_arena, the recipe emitter calls it once at
+spawn, a data curve is negated in the same place, and tests\test_check_data.py proves that a 90 degree emitter at
+origin top crosses the box and that a positive curve bends clockwise on screen. tools\check_data.py mirrors the same
+maths, including the negated sine in lengthdir_y. specs\08 has not been edited, so the geometry sentence this delta
+asks for is still owed to the spec text.
+
+C6. specs\02-input.md binds Enter to two actions. `confirm` lists "Z, Space, Enter" and `menu` lists "Enter, Tab", so
+one key fires both. The gamepad column has the same shape: Start is listed under confirm "in menus" and under menu
+always. pp_input's table is the thing a later options screen reads, so a duplicate binding is a bug waiting for a
+screen to show it.
+Fix as implemented: confirm keeps Z, Space and Enter; menu keeps Tab and Start. "Start acts as confirm inside a menu"
+is a context rule that a one row per action table cannot express, so it is not in the table at all; if it is wanted it
+becomes a menu-local accept stated in the spec. No module reads `menu` yet, so today this changes no behaviour.
+Source: internal: specs\02-input.md action table against game\scripts\pp_input\pp_input.gml, checked 2026-10-19.
+tests\test_project.py now fails if any key or pad button is bound to more than one action.
 
 ## THIN (underspecified, blocks code)
 
@@ -273,6 +289,17 @@ battle can always be won without items, and the pool is not carried on the route
 `will`, with `will_max` on the character and `cost` on the power, and records it here because the spec does not.
 Source: internal: specs\07-battle-director.md (POWER cost from data) with no cost resource in any of the thirteen
 specs, checked in this pass (2026-10-19).
+
+M8. No spec says what happens to party health after a defeat. Spec 07 records the fight result and spec 01 sends the
+player to the title (rule 6), but nothing says whether hp is restored, and a ledger written with the hp the fight ended
+on would carry 0 into the next battle.
+Fix as implemented for the slice: a defeat does not record a result and does not write the hp the fight ended on. The
+party is restored to max hp and the app returns to the overworld, because the title and save modes that spec 01 names
+do not exist yet; when they do, this becomes the save restore point and rule 6 is implemented as written.
+game\scripts\pp_battle_director.gml carries the decision at pp_battle_record, and tests\test_project.py pins the order:
+restore first, ledger write second.
+Source: internal: specs\01-state-machine.md rules 5 and 6, specs\07-battle-director.md result recording, and
+specs\11-save.md 11.4, none of which name post defeat health. Checked 2026-10-19.
 
 ## What this pass did NOT touch
 

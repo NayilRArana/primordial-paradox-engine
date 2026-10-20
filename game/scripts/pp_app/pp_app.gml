@@ -224,6 +224,8 @@ function pp_mode_battle() {
             if (pp_battle_finished(_battle)) {
                 if (pp_pressed("confirm")) {
                     // The ledger was written inside the battle; the overworld only takes the result and the flags.
+                    // Defeat returns to the overworld with the party restored, which is the decision recorded as C7 in
+                    // knowledge\SPEC-DELTAS.md, because the title and save modes that spec 01 rule 6 names do not exist.
                     var _outcome = pp_battle_outcome(_battle);
                     var _enc_id = global.pp.battle_encounter;
                     global.pp.battle = undefined;

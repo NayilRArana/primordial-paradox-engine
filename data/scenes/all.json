@@ -15,6 +15,17 @@
         { "cmd": "setflag", "name": "ship_deck_seen", "value": true },
         { "cmd": "end" }
       ]
+    },
+    {
+      "id": "percy_lore_stop",
+      "name": "Cabin: Percy",
+      "map": "ship_cabin",
+      "start": { "x": 7, "y": 3 },
+      "commands": [
+        { "cmd": "say", "id": "percy_lore_stop" },
+        { "cmd": "battle", "id": "percy" },
+        { "cmd": "end" }
+      ]
     }
   ]
 }

@@ -7,11 +7,13 @@
 #macro PP_REPEAT_EVERY 8
 
 /// The action table (spec 02 table). A later options screen reads this, so keys are data here and nowhere else.
+/// A key or a pad button belongs to one action only: two actions on one key is a silent double fire, and the table is
+/// what an options screen will show. tests\test_project.py pins that rule.
 function pp_input_table() {
     return [
         { id: "confirm", keys: [ord("Z"), vk_space, vk_enter], pads: [gp_face1], axis: "" },
         { id: "cancel",  keys: [ord("X"), vk_escape, vk_backspace], pads: [gp_face2], axis: "" },
-        { id: "menu",    keys: [vk_enter, vk_tab], pads: [gp_start], axis: "" },
+        { id: "menu",    keys: [vk_tab], pads: [gp_start], axis: "" },
         { id: "up",      keys: [vk_up, ord("W")], pads: [gp_padu], axis: "y" },
         { id: "down",    keys: [vk_down, ord("S")], pads: [gp_padd], axis: "y" },
         { id: "left",    keys: [vk_left, ord("A")], pads: [gp_padl], axis: "x" },

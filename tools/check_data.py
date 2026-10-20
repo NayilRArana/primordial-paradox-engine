@@ -8,9 +8,11 @@ This is the gate that runs on a machine with no GameMaker installed. It answers 
      real thing? A dangling id is the failure that would otherwise appear as a silent wrong fight at runtime.
 
 It also SIMULATES every bullet pattern with the same recipe rules the engine uses (same linear congruential seed, same
-origin and aim order, same 24 pixel spawn exclusion) and asserts that each pattern terminates inside the 900 step cap,
-never spawns inside the exclusion radius, and never exceeds its declared concurrent hazard count. That simulation is a
-second implementation of pp_dodge_recipe.gml and pp_dodge_arena.gml; when one changes, the other changes with it.
+origin and aim order, same 24 pixel spawn exclusion, the same pp_angle_to_gm mirror of a data angle, the same negated
+curve, and the same GameMaker lengthdir, whose y component is negative because a direction of 90 points up) and asserts
+that each pattern terminates inside the 900 step cap, never spawns inside the exclusion radius, and never exceeds its
+declared concurrent hazard count. That simulation is a second implementation of pp_dodge_recipe.gml and
+pp_dodge_arena.gml; when one changes, the other changes with it.
 
 Every message names the file and the field path, because "data invalid" is not actionable.
 
@@ -1120,8 +1122,10 @@ def lengthdir_x(length, direction):
 
 
 def lengthdir_y(length, direction):
+    """GameMaker directions run 0 right, 90 up, 180 left, 270 down, and positive y is down, so the y component is the
+    NEGATED sine. This mirrors the engine, not the screen convention a data recipe is written in."""
     import math
-    return length * math.sin(math.radians(direction))
+    return -length * math.sin(math.radians(direction))
 
 
 def point_distance(x1, y1, x2, y2):
@@ -1130,8 +1134,15 @@ def point_distance(x1, y1, x2, y2):
 
 
 def point_direction(x1, y1, x2, y2):
+    """The GameMaker direction from one point to another: the mirrored cosine/sine of lengthdir, so also negated."""
     import math
-    return math.degrees(math.atan2(y2 - y1, x2 - x1))
+    return math.degrees(math.atan2(-(y2 - y1), x2 - x1)) % 360.0
+
+
+def angle_to_gm(data_angle):
+    """Mirror of pp_angle_to_gm in pp_dodge_arena.gml. A data recipe angle is a screen angle (0 right, 90 down,
+    clockwise); a GameMaker direction is the mirror of it. Every data degree passes through here once, at spawn."""
+    return (360 - (data_angle % 360)) % 360
 
 
 def origin_point(origin, rng, size):
@@ -1168,8 +1179,14 @@ def fit_spawn(x, y, size, marker_x, marker_y):
             marker_y + lengthdir_y(SPAWN_EXCLUSION, direction) - size / 2)
 
 
-def simulate(pattern: dict, seed: int = 1) -> dict:
-    """Run one recipe with the marker parked at the arena centre and report what happened."""
+def simulate(pattern: dict, seed: int = 1, trace: bool = False) -> dict:
+    """Run one recipe with the marker parked at the arena centre and report what happened.
+
+    The movement maths is the engine's: a data angle is mirrored once by angle_to_gm (or read straight from the marker
+    for an aimed frame), a data curve is negated, and both then move through lengthdir, whose y component is negative
+    because a GameMaker direction of 90 points up. With trace on, the result also carries one position list per hazard,
+    in spawn order, so a test can assert where a hazard actually went.
+    """
     rng = rng_new(seed)
     events = []
     for frame in pattern["frames"]:
@@ -1190,13 +1207,15 @@ def simulate(pattern: dict, seed: int = 1) -> dict:
                 "jitter": frame["jitter_angle"],
                 "wobble_amp": frame["wobble"]["amp"],
                 "wobble_period": frame["wobble"]["period"],
-                "aim": pattern["aim"] == "at_marker",
+                # pp_dodge_recipe.gml honours a per frame aim as well as the pattern level one; so must this mirror.
+                "aim": pattern["aim"] == "at_marker" or frame.get("aim") is True,
                 "index": member,
             })
     events.sort(key=lambda e: (e["at"], e["index"]))
 
     marker_x, marker_y = float(ARENA_CX), float(ARENA_CY)
     hazards = []
+    paths: list[list[tuple[float, float]]] = []
     cursor = 0
     peak = 0
     exclusion_violations = 0
@@ -1210,20 +1229,21 @@ def simulate(pattern: dict, seed: int = 1) -> dict:
             event = events[cursor]
             cursor += 1
             px, py = origin_point(event["origin"], rng, event["size"])
-            angle = event["angle"]
+            direction = angle_to_gm(event["angle"])
             if event["aim"]:
-                angle = point_direction(px, py, marker_x, marker_y)
+                direction = point_direction(px, py, marker_x, marker_y)
             if event["jitter"] > 0:
-                angle += rng_range(rng, -event["jitter"], event["jitter"])
+                direction += rng_range(rng, -event["jitter"], event["jitter"])
             px, py = fit_spawn(px, py, event["size"], marker_x, marker_y)
             if point_distance(marker_x, marker_y,
                               px + event["size"] / 2, py + event["size"] / 2) < SPAWN_EXCLUSION - 0.01:
                 exclusion_violations += 1
             hazards.append({
-                "x": px, "y": py, "angle": angle, "speed": event["speed"],
-                "accel": event["accel"], "curve": event["curve"], "life": event["life"],
-                "age": 0, "size": event["size"], "alive": True, "outside": 0,
+                "x": px, "y": py, "dir": direction, "speed": event["speed"],
+                "accel": event["accel"], "curve": -event["curve"], "life": event["life"],
+                "age": 0, "size": event["size"], "alive": True, "outside": 0, "path": len(paths),
             })
+            paths.append([(px, py)])
             spawns += 1
 
         alive = []
@@ -1231,10 +1251,11 @@ def simulate(pattern: dict, seed: int = 1) -> dict:
             if not hazard["alive"]:
                 continue
             hazard["speed"] = max(0, hazard["speed"] + hazard["accel"])
-            hazard["angle"] += hazard["curve"]
-            hazard["x"] += lengthdir_x(hazard["speed"], hazard["angle"])
-            hazard["y"] += lengthdir_y(hazard["speed"], hazard["angle"])
+            hazard["dir"] += hazard["curve"]
+            hazard["x"] += lengthdir_x(hazard["speed"], hazard["dir"])
+            hazard["y"] += lengthdir_y(hazard["speed"], hazard["dir"])
             hazard["age"] += 1
+            paths[hazard["path"]].append((hazard["x"], hazard["y"]))
             outside = (hazard["x"] + hazard["size"] < ARENA_X1 or hazard["x"] > ARENA_X2
                        or hazard["y"] + hazard["size"] < ARENA_Y1 or hazard["y"] > ARENA_Y2)
             hazard["outside"] = hazard["outside"] + 1 if outside else 0
@@ -1250,13 +1271,16 @@ def simulate(pattern: dict, seed: int = 1) -> dict:
             finished = True
             break
 
-    return {
+    result = {
         "spawns": spawns,
         "peak": peak,
         "exclusion_violations": exclusion_violations,
         "finished": finished,
         "steps": elapsed,
     }
+    if trace:
+        result["paths"] = paths
+    return result
 
 
 def check_simulations(checker: Checker) -> None:

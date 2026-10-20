@@ -10,6 +10,19 @@ function pp_arena_geometry() {
     return { x1: _x1, y1: _y1, x2: _x1 + PP_ARENA_W, y2: _y1 + PP_ARENA_H };
 }
 
+/// The one conversion from a data recipe angle to a GameMaker direction, and the only place either handedness is named.
+/// A data recipe is written the way an artist reads the box on the screen: 0 right, 90 down, 180 left, 270 up, so a
+/// positive turn is clockwise. GameMaker directions run the other way: 0 right, 90 up, 180 left, 270 down (the manual's
+/// direction page states it, checked 2026-10-19), so the two differ by a mirror. Every degree a recipe states passes
+/// through here exactly once, at spawn:
+/// - frame.angle (plus spread) is converted here,
+/// - frame.curve is negated here, because a positive curve means clockwise on screen while adding to a GameMaker
+///   direction turns counter-clockwise. The hazard carries the already converted curve.
+/// `aim` is exempt: point_direction reads screen coordinates and already returns a GameMaker direction.
+function pp_angle_to_gm(_data_angle) {
+    return ((360 - (_data_angle mod 360)) mod 360);
+}
+
 /// A fresh arena for one pattern. The marker starts centred every phase (spec 08 geometry).
 function pp_arena_new(_pattern, _seed, _attack_value) {
     var _g = pp_arena_geometry();
@@ -66,12 +79,14 @@ function pp_arena_fit_spawn(_arena, _x, _y, _size) {
 }
 
 /// Effective position of a hazard, including its wobble. Collision and drawing both use this, never the raw position.
+/// The wobble offset is perpendicular to travel; a sine swings both ways, so the sign of the quarter turn does not
+/// change the path and `dir + 90` stays in GameMaker terms.
 function pp_arena_hazard_pos(_hz) {
     if (_hz.wobble_amp <= 0 || _hz.wobble_period <= 0) return { x: _hz.x, y: _hz.y };
     var _wob = sin(_hz.age * 360 / _hz.wobble_period) * _hz.wobble_amp;
     return {
-        x: _hz.x + lengthdir_x(_wob, _hz.angle + 90),
-        y: _hz.y + lengthdir_y(_wob, _hz.angle + 90)
+        x: _hz.x + lengthdir_x(_wob, _hz.dir + 90),
+        y: _hz.y + lengthdir_y(_wob, _hz.dir + 90)
     };
 }
 
@@ -136,9 +151,10 @@ function pp_arena_move_hazards(_arena) {
         if (!_hz.alive) continue;
 
         _hz.speed = max(0, _hz.speed + _hz.accel);
-        _hz.angle += _hz.curve;
-        _hz.x += lengthdir_x(_hz.speed, _hz.angle);
-        _hz.y += lengthdir_y(_hz.speed, _hz.angle);
+        // dir and curve are already in GameMaker terms: pp_recipe_spawn converted them once (pp_angle_to_gm).
+        _hz.dir += _hz.curve;
+        _hz.x += lengthdir_x(_hz.speed, _hz.dir);
+        _hz.y += lengthdir_y(_hz.speed, _hz.dir);
         _hz.age += 1;
 
         // A hazard leaves when its life runs out, or when it has been fully off the arena for 12 steps.

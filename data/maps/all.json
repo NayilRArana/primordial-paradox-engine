@@ -108,7 +108,7 @@
       },
       "triggers": [
         { "x": 1, "y": 7, "kind": "map", "id": "ship_small", "spawn": "from_cabin", "once": false, "condition": "" },
-        { "x": 7, "y": 3, "kind": "battle", "id": "percy", "once": true, "condition": "ship_deck_seen" }
+        { "x": 7, "y": 3, "kind": "scene", "id": "percy_lore_stop", "once": true, "condition": "ship_deck_seen" }
       ],
       "rails": []
     }

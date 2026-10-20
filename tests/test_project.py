@@ -177,3 +177,104 @@ def test_gml_does_not_read_keys_outside_the_input_module():
             if re.search(r"\b(keyboard_check|gamepad_button_check|gamepad_axis_value)", text):
                 offenders.append(rel)
     assert offenders == [], "raw input reads outside pp_input: %s" % offenders
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Defects that the text can prove without an engine. Each of these pins a bug that would only surface at the first run,
+# so a later edit that brings the bug back fails here instead of mid fight.
+
+def read_gml(relative):
+    with open(os.path.join(ROOT, "game", "scripts", relative), "r", encoding="utf-8-sig") as fh:
+        return gml_code_only(fh.read())
+
+
+def brace_block(text, marker):
+    """The brace balanced block that starts at the first '{' after marker."""
+    start = text.index(marker)
+    open_index = text.index("{", start)
+    depth = 0
+    for index in range(open_index, len(text)):
+        if text[index] == "{":
+            depth += 1
+        elif text[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[open_index:index + 1]
+    raise AssertionError("unbalanced block after %r" % marker)
+
+
+def test_scene_battle_request_is_drained_while_a_scene_runs():
+    """A scene `battle` command used to deadlock: pp_scene set battle_request and waited for battle_done, but the test
+    for pp_scene_running returned before the only drain, and only the overworld could start the fight."""
+    code = read_gml("pp_overworld/pp_overworld.gml")
+    branch = brace_block(code, "if (pp_scene_running(_world.scene)) {")
+    drain = "pp_app_request(PPMode.battle"
+    assert drain in branch, "the scene branch must drain battle_request itself"
+    assert branch.index(drain) < branch.index("return;"), "the drain must run before the scene branch returns"
+    assert code.count("pp_app_request(PPMode.battle") == 2, "one drain for a scene and one for free walking"
+
+
+def test_recipe_angle_is_mirrored_once_by_pp_angle_to_gm():
+    """Delta C5: recipes are written as screen angles (0 right, 90 down) and GameMaker directions point the other way,
+    so the emitter converts exactly once and the arena never sees a raw data angle again."""
+    arena = read_gml("pp_dodge_arena/pp_dodge_arena.gml")
+    recipe = read_gml("pp_dodge_recipe/pp_dodge_recipe.gml")
+    assert "function pp_angle_to_gm(_data_angle)" in arena
+
+    spawn = recipe[recipe.index("function pp_recipe_spawn"):]
+    assert "pp_angle_to_gm(_ev.angle)" in spawn
+    assert "dir: _dir" in spawn
+    assert "curve: -_ev.curve" in spawn
+    assert "_ev.angle" not in spawn[spawn.index("pp_angle_to_gm(_ev.angle)") + len("pp_angle_to_gm(_ev.angle)"):], \
+        "the raw data angle must be used once, by the conversion"
+
+    move = arena[arena.index("function pp_arena_move_hazards"):]
+    assert "lengthdir_x(_hz.speed, _hz.dir)" in move
+    assert "_hz.angle" not in arena, "the arena works in GameMaker directions only"
+
+
+def test_pp_angle_to_gm_formula_matches_the_checker():
+    """The engine cannot be run here, so the sign is pinned where it lives: the function body is read out of the GML,
+    its `mod` translated to Python's `%`, and every value compared with tools/check_data.py's mirror. Flip the sign in
+    either place and this fails."""
+    arena = read_gml("pp_dodge_arena/pp_dodge_arena.gml")
+    body = arena[arena.index("function pp_angle_to_gm"):]
+    match = re.search(r"return\s+(.+?);", body, re.S)
+    assert match is not None, "pp_angle_to_gm must have a single return expression"
+    python_expression = match.group(1).replace(" mod ", " % ")
+    for data_angle in (0, 30, 90, 180, 270, 359, 450, -90):
+        engine = eval(python_expression, {"__builtins__": {}}, {"_data_angle": data_angle})
+        assert engine == check_data.angle_to_gm(data_angle), \
+            "pp_angle_to_gm(%s) is %s in GML but %s in the checker" % (
+                data_angle, engine, check_data.angle_to_gm(data_angle))
+
+
+def test_no_key_or_button_belongs_to_two_input_actions():
+    """One key firing two actions is a silent double fire, and this table is what a later options screen reads."""
+    table = read_gml("pp_input/pp_input.gml")
+    table = table[table.index("function pp_input_table"):]
+    table = table[:table.index("\n}")]
+    owners = {}
+    for row in re.findall(r"\{[^{}]*\}", table):
+        action = re.search(r'id:\s*"([a-z_]+)"', row)
+        if action is None:
+            continue
+        for field in ("keys", "pads"):
+            group = re.search(r"%s:\s*\[([^\]]*)\]" % field, row)
+            if group is None:
+                continue
+            for token in [part.strip() for part in group.group(1).split(",") if part.strip()]:
+                owners.setdefault(token, []).append(action.group(1))
+    shared = {token: users for token, users in owners.items() if len(users) > 1}
+    assert shared == {}, "a key or button bound to more than one action: %s" % shared
+
+
+def test_defeat_restores_health_before_it_reaches_the_ledger():
+    """A defeat used to write hp 0 into the ledger, and the next fight starts from the ledger."""
+    director = read_gml("pp_battle_director/pp_battle_director.gml")
+    body = director[director.index("function pp_battle_record"):]
+    body = body[:body.index("\n}")]
+    assert "_battle.defeated" in body
+    restore = body.index("_battle.actor.hp = _battle.actor.max_hp;")
+    write = body.index("_battle.ledger.hp = _battle.actor.hp;")
+    assert restore < write, "restore on defeat must happen before the ledger write"

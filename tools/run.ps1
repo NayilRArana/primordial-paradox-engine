@@ -27,9 +27,11 @@ $game  = Join-Path $root 'game'
 $yyp   = Join-Path $game 'PrimordialParadox.yyp'
 $build = Join-Path $root 'build'
 $log   = Join-Path $build 'last-build.log'
+$igorLog = Join-Path $build 'last-igor.log'
 
 New-Item -ItemType Directory -Force -Path $build | Out-Null
 if (Test-Path $log) { Remove-Item $log -Force }
+if (Test-Path $igorLog) { Remove-Item $igorLog -Force }
 
 function Say([string]$message) {
     Write-Host $message
@@ -123,15 +125,18 @@ $arguments = @(
 
 Say "building with $igor"
 Say "game: $yyp"
-Say "log:  $log"
+Say "gate log:  $log"
+Say "build log: $igorLog"
 
+# Igor writes to its own file. Redirecting it onto the gate log would truncate the check output a user needs most when
+# a build fails, and Start-Process truncates a redirect target.
 $process = Start-Process -FilePath $igor -ArgumentList $arguments -NoNewWindow -PassThru -Wait `
-    -RedirectStandardOutput $log -RedirectStandardError (Join-Path $build 'last-build-error.log')
+    -RedirectStandardOutput $igorLog -RedirectStandardError (Join-Path $build 'last-build-error.log')
 
 if ($process.ExitCode -ne 0) {
-    $tail = Get-Content -Path $log -Tail 20 -ErrorAction SilentlyContinue
+    $tail = Get-Content -Path $igorLog -Tail 20 -ErrorAction SilentlyContinue
     foreach ($line in $tail) { Write-Host $line }
-    Fail 3 "Igor returned $($process.ExitCode). The last 20 lines are above. Full log: $log"
+    Fail 3 "Igor returned $($process.ExitCode). The last 20 lines are above. Build log: $igorLog. Gate log: $log"
 }
 
 Say 'Igor finished. The game window is the only window that opened.'

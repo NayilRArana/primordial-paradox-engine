@@ -47,6 +47,15 @@
       ]
     },
     {
+      "id": "percy_lore_stop",
+      "speaker": "narrator",
+      "lines": [
+        "* Percy fills the cabin doorway.",
+        "* \"The sea hears you,\" he says.",
+        "* \"Show me what the veil gave you.\""
+      ]
+    },
+    {
       "id": "percy_entry",
       "speaker": "percy",
       "lines": [

@@ -6,7 +6,9 @@
 ///   { id, name, shape, length, aim (fixed|at_marker), max_concurrent,
 ///     frames: [ { at, count, spread, origin, speed, angle, accel, curve, life, size, delay,
 ///                 jitter_angle, wobble: {amp, period} } ] }
-/// Angles are degrees, 0 right, 90 down. Speed is pixels per step. Times are steps.
+/// Angles and curve are degrees in screen terms: 0 right, 90 down, and a positive curve turns clockwise on screen.
+/// pp_dodge_arena converts both to GameMaker directions exactly once, at spawn (pp_angle_to_gm), and nothing else in the
+/// project mirrors an angle. Speed is pixels per step. Times are steps.
 
 /// Compile a recipe into an emitter bound to one rng stream.
 function pp_recipe_begin(_recipe, _seed) {
@@ -137,13 +139,17 @@ function pp_recipe_step(_emitter, _arena) {
 function pp_recipe_spawn(_emitter, _arena, _ev) {
     var _rng = _emitter.rng;
     var _pt = pp_recipe_origin_point(_ev.origin, _rng, _ev.size);
-    var _angle = _ev.angle;
+    var _m = pp_arena_marker_centre(_arena);
 
+    // Data angle to GameMaker direction, once. aim is different: point_direction already returns a GameMaker direction
+    // from screen coordinates, so it is not converted again. jitter is symmetric, so adding it after the mirror leaves
+    // the same spread of outcomes.
+    var _dir = pp_angle_to_gm(_ev.angle);
     if (_ev.aim) {
-        _angle = point_direction(_pt.x, _pt.y, _arena.marker.x + PP_MARKER_SIZE * 0.5, _arena.marker.y + PP_MARKER_SIZE * 0.5);
+        _dir = point_direction(_pt.x, _pt.y, _m.x, _m.y);
     }
     if (_ev.jitter > 0) {
-        _angle += pp_rng_range(_rng, -_ev.jitter, _ev.jitter);
+        _dir += pp_rng_range(_rng, -_ev.jitter, _ev.jitter);
     }
 
     _pt = pp_arena_fit_spawn(_arena, _pt.x, _pt.y, _ev.size);
@@ -151,10 +157,10 @@ function pp_recipe_spawn(_emitter, _arena, _ev) {
     pp_arena_add_hazard(_arena, {
         x: _pt.x,
         y: _pt.y,
-        angle: _angle,
+        dir: _dir,
+        curve: -_ev.curve,
         speed: _ev.speed,
         accel: _ev.accel,
-        curve: _ev.curve,
         life: _ev.life,
         age: 0,
         size: _ev.size,

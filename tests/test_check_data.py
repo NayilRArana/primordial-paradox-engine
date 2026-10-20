@@ -232,3 +232,57 @@ def test_branch_cycle_is_refused(data_root, read_json, write_json):
 
     errors = failures(data_root)
     assert any("branch cycle" in e for e in errors), errors
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Angle handedness (delta C5). These are the tests the delta asks for: a data angle of 90 has to travel down the
+# screen, and a positive curve has to turn clockwise, because those are the words the recipes are written in.
+
+def one_frame_pattern(**overrides):
+    frame = {
+        "at": 0, "count": 1, "spread": 0, "origin": "top", "speed": 4.0, "angle": 90,
+        "accel": 0, "curve": 0, "life": 40, "size": 8, "delay": 0, "jitter_angle": 0,
+        "wobble": {"amp": 0, "period": 10},
+    }
+    frame.update(overrides)
+    return {"id": "test_recipe", "aim": "fixed", "length": 60, "max_concurrent": 4, "frames": [frame]}
+
+
+def test_data_angle_90_at_origin_top_reaches_the_bottom_of_the_box():
+    """Passing a data angle straight into a GameMaker direction sends 90 upward, so the hazard would leave the box at
+    the top and the phase would have nothing to dodge. The path must cross the whole box instead."""
+    result = check_data.simulate(one_frame_pattern(), trace=True)
+    path = result["paths"][0]
+    assert path[0][1] < check_data.ARENA_Y1, "hazard must start above the box"
+    assert path[-1][1] > check_data.ARENA_Y2, "a 90 degree emitter at origin top must reach the bottom edge"
+    assert all(later[1] >= earlier[1] for earlier, later in zip(path, path[1:])), "downward travel must be monotonic"
+
+
+def test_positive_curve_turns_clockwise_on_screen():
+    """A recipe is written in screen terms, so from angle 0 (right) a positive curve bends toward the bottom of the
+    screen. In GameMaker terms that is a decreasing direction, which is why the curve is negated once at spawn."""
+    result = check_data.simulate(
+        one_frame_pattern(origin="centre", angle=0, speed=1.0, curve=6, life=90), trace=True)
+    path = result["paths"][0]
+    assert path[3][0] > path[0][0], "the hazard must still be travelling right after three steps"
+    assert path[3][1] > path[0][1], "a positive curve must bend the path downward on screen"
+
+
+def test_per_frame_aim_is_simulated_like_the_emitter():
+    """pp_dodge_recipe.gml honours `aim` on a frame as well as on the pattern, so the checker has to as well. The
+    frame angle points up and away from the marker, so only an aimed frame can send the hazard downward."""
+    per_frame = check_data.simulate(one_frame_pattern(angle=270, aim=True), trace=True)
+    assert per_frame["paths"][0][-1][1] > per_frame["paths"][0][0][1]
+
+    pattern_level = one_frame_pattern(angle=270)
+    pattern_level["aim"] = "at_marker"
+    aimed = check_data.simulate(pattern_level, trace=True)
+    assert aimed["paths"][0][-1][1] > aimed["paths"][0][0][1]
+
+
+def test_angle_to_gm_mirrors_and_wraps():
+    assert check_data.angle_to_gm(0) == 0
+    assert check_data.angle_to_gm(90) == 270
+    assert check_data.angle_to_gm(270) == 90
+    assert check_data.angle_to_gm(450) == 270
+    assert check_data.angle_to_gm(-90) == 90
