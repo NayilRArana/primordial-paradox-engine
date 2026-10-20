@@ -12,7 +12,9 @@
       "win_dialogue_kill": "navy_win_kill",
       "win_dialogue_spare": "navy_win_spare",
       "lose_dialogue": "battle_lose",
-      "trust_per_talk": 1
+      "trust_per_talk": 1,
+      "flags_on_kill": ["ship_door_open"],
+      "flags_on_spare": ["ship_door_open"]
     },
     {
       "id": "percy",
@@ -24,7 +26,9 @@
       "win_dialogue_kill": "percy_win_kill",
       "win_dialogue_spare": "percy_win_spare",
       "lose_dialogue": "battle_lose",
-      "trust_per_talk": 1
+      "trust_per_talk": 1,
+      "flags_on_kill": ["percy_killed"],
+      "flags_on_spare": ["percy_spared"]
     }
   ]
 }

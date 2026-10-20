@@ -36,6 +36,10 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_data/pp_data.gml | room and object conventions across a whole game | 14 (proposed) |
 | game/scripts/pp_dodge_arena/pp_dodge_arena.gml | battle state machine and turn loop | 08 |
 | game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | battle state machine and turn loop | 09 |
+| game/scripts/pp_dialogue/pp_dialogue.gml | battle state machine and turn loop | 05 |
+| game/scripts/pp_map/pp_map.gml | room and object conventions across a whole game | 04 |
+| game/scripts/pp_overworld/pp_overworld.gml | room and object conventions across a whole game | 04 |
+| game/scripts/pp_scene/pp_scene.gml | battle state machine and turn loop | 06 |
 | game/scripts/pp_input/pp_input.gml | room and object conventions across a whole game | 02 |
 | game/scripts/pp_ledger/pp_ledger.gml | battle state machine and turn loop | 10 |
 | game/scripts/pp_rng/pp_rng.gml | battle state machine and turn loop | 09 |
@@ -48,8 +52,10 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | tools/check_cleanroom.py | this file | PLAN 1 |
 | tools/check_provenance.py | this file | PLAN 1 |
 
-Not studied, written from the specs alone: `pp_camera`, `pp_input`, `pp_ledger`, `pp_battle_text`, `tools/run.ps1`.
-They carry an entry here only because the module map is a completeness check, not a claim that a study happened.
+Not studied, written from the specs alone: `pp_camera`, `pp_input`, `pp_ledger`, `pp_battle_text`, `pp_map`, `pp_dialogue`, `pp_scene`, `pp_overworld`, `tools/run.ps1`.
+They carry an entry here only because the module map is a completeness check, not a claim that a study happened. The two
+studied systems are the battle state machine and the room and object conventions; the overworld, dialogue and cutscene
+modules are written from specs 04, 05 and 06 and borrow nothing but the fact that a game has phases and a room tree.
 
 ## battle state machine and turn loop (2026-10-19)
 

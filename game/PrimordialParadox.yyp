@@ -236,6 +236,12 @@
     },
     {
       "id": {
+        "name": "pp_dialogue",
+        "path": "scripts/pp_dialogue/pp_dialogue.yy"
+      }
+    },
+    {
+      "id": {
         "name": "pp_dodge_arena",
         "path": "scripts/pp_dodge_arena/pp_dodge_arena.yy"
       }
@@ -260,8 +266,26 @@
     },
     {
       "id": {
+        "name": "pp_map",
+        "path": "scripts/pp_map/pp_map.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_overworld",
+        "path": "scripts/pp_overworld/pp_overworld.yy"
+      }
+    },
+    {
+      "id": {
         "name": "pp_rng",
         "path": "scripts/pp_rng/pp_rng.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_scene",
+        "path": "scripts/pp_scene/pp_scene.yy"
       }
     },
     {

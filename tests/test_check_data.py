@@ -173,3 +173,62 @@ def test_pattern_that_never_ends_is_refused(data_root, read_json, write_json):
 
     errors = failures(data_root)
     assert any("step cap" in e for e in errors), errors
+
+
+def test_story_flag_with_no_blocked_tile_is_refused(data_root, read_json, write_json):
+    path = data_root / "data" / "maps" / "all.json"
+    data = read_json(path)
+    data["maps"][1]["story_flag"] = "ship_door_open"   # the cabin has no story blocked tile
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("no tile is story blocked" in e for e in errors), errors
+
+
+def test_map_trigger_must_name_a_spawn_point(data_root, read_json, write_json):
+    path = data_root / "data" / "maps" / "all.json"
+    data = read_json(path)
+    for trigger in data["maps"][0]["triggers"]:
+        if trigger["kind"] == "map":
+            trigger.pop("spawn", None)
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("must name the spawn point" in e for e in errors), errors
+
+
+def test_map_trigger_spawn_must_exist_on_the_target_map(data_root, read_json, write_json):
+    path = data_root / "data" / "maps" / "all.json"
+    data = read_json(path)
+    for trigger in data["maps"][0]["triggers"]:
+        if trigger["kind"] == "map":
+            trigger["spawn"] = "not_a_spawn"
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("is not a spawn point of map" in e for e in errors), errors
+
+
+def test_encounter_must_declare_its_result_flags(data_root, read_json, write_json):
+    path = data_root / "data" / "encounters" / "all.json"
+    data = read_json(path)
+    data["encounters"][0].pop("flags_on_spare", None)
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("flags_on_spare" in e and "missing" in e for e in errors), errors
+
+
+def test_branch_cycle_is_refused(data_root, read_json, write_json):
+    path = data_root / "data" / "scenes" / "all.json"
+    data = read_json(path)
+    # A second scene that branches to the first, and the first branches back: a cutscene that never ends.
+    loop_a = {"id": "loop_a", "name": "A", "map": "ship_small", "start": {"x": 2, "y": 7},
+              "commands": [{"cmd": "branch", "flag": "ship_deck_seen", "scene": "loop_b"}, {"cmd": "end"}]}
+    loop_b = {"id": "loop_b", "name": "B", "map": "ship_small", "start": {"x": 2, "y": 7},
+              "commands": [{"cmd": "branch", "flag": "ship_deck_seen", "scene": "loop_a"}, {"cmd": "end"}]}
+    data["scenes"].extend([loop_a, loop_b])
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("branch cycle" in e for e in errors), errors

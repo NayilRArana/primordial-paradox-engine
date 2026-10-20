@@ -644,6 +644,13 @@ class Checker:
             trust = self.require(row, "trust_per_talk", "int", filename, path)
             if trust is not None:
                 self.in_range(trust, 1, 5, filename, path + ".trust_per_talk")
+            for flag_field in ("flags_on_kill", "flags_on_spare"):
+                flags = self.want(row, flag_field, "list", filename, path)
+                if not isinstance(flags, list):
+                    self.error(filename, path + "." + flag_field, "missing required field")
+                    continue
+                for flag_index, flag_name in enumerate(flags):
+                    self.ref(ids, "flag", flag_name, filename, "%s.%s[%d]" % (path, flag_field, flag_index))
             if isinstance(name, str):
                 if name in ids["encounter"] and ids["encounter"][name] is not row:
                     self.error(filename, path + ".id", "duplicate id %r" % name)
@@ -711,6 +718,13 @@ class Checker:
             if music is not None:
                 self.ref(ids, "sound", music, filename, path + ".music")
 
+            story_flag = self.want(row, "story_flag", "str", filename, path)
+            if story_flag:
+                self.ref(ids, "flag", story_flag, filename, path + ".story_flag")
+                if isinstance(collision, list) and not any("2" in line for line in collision if isinstance(line, str)):
+                    self.error(filename, path + ".story_flag",
+                               "names a flag but no tile is story blocked, so the flag would do nothing")
+
             spawns = self.require(row, "spawns", "dict", filename, path)
             if spawns is not None:
                 for spawn_name, point in spawns.items():
@@ -742,6 +756,18 @@ class Checker:
                     condition = self.want(trigger, "condition", "str", filename, trigger_path)
                     if condition:
                         self.ref(ids, "flag", condition, filename, trigger_path + ".condition")
+                    if kind == "map":
+                        entry_spawn = self.want(trigger, "spawn", "str", filename, trigger_path)
+                        if entry_spawn is None:
+                            self.error(filename, trigger_path + ".spawn",
+                                       "a map trigger must name the spawn point to arrive at")
+                        else:
+                            destination = ids["map"].get(target) if isinstance(target, str) else None
+                            if isinstance(destination, dict):
+                                points = destination.get("spawns", {})
+                                if not isinstance(points, dict) or entry_spawn not in points:
+                                    self.error(filename, trigger_path + ".spawn",
+                                               "%r is not a spawn point of map %r" % (entry_spawn, target))
 
             if tile_size is not None and isinstance(width, int):
                 span = width * tile_size
@@ -906,6 +932,38 @@ class Checker:
                     if strength is not None:
                         self.in_range(strength, 1, 2, filename, command_path + ".strength")
             del battle_seen
+
+        # branch is the only control flow, so a cycle of branches would be a cutscene that never ends (spec 06 rule 3).
+        edges = {}
+        for row in rows:
+            if not isinstance(row, dict) or not isinstance(row.get("id"), str):
+                continue
+            targets = []
+            commands = row.get("commands")
+            if isinstance(commands, list):
+                for command in commands:
+                    if isinstance(command, dict) and command.get("cmd") == "branch":
+                        target = command.get("scene")
+                        if isinstance(target, str):
+                            targets.append(target)
+            edges[row["id"]] = targets
+
+        state = {}
+
+        def visit(node, trail):
+            mark = state.get(node, 0)
+            if mark == 1:
+                self.error(filename, "scenes", "branch cycle: %s" % " -> ".join(trail + [node]))
+                return
+            if mark == 2:
+                return
+            state[node] = 1
+            for target in edges.get(node, []):
+                visit(target, trail + [node])
+            state[node] = 2
+
+        for scene_id in edges:
+            visit(scene_id, [])
 
         # Scene moves are checked against the map's collision grid, because a rail that walks into a wall is a soft lock.
         map_cache = {}

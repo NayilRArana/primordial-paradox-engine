@@ -33,6 +33,7 @@ function pp_app_boot() {
     global.pp.app = _app;
 
     pp_app_register(PPMode.boot, pp_mode_boot());
+    pp_app_register(PPMode.overworld, pp_mode_overworld());
     pp_app_register(PPMode.battle, pp_mode_battle());
 
     pp_app_enter(PPMode.boot, {});
@@ -122,6 +123,12 @@ function pp_app_step() {
     if (!is_undefined(_mode) && variable_struct_exists(_mode, "step")) {
         _mode.step(_app.mode_params);
     }
+
+    // A request that arrived while a fade was running is kept in pending; once the screen is settled its own fade out
+    // starts here, otherwise the newest request would be silently dropped (spec 01 rule 2).
+    if (_app.fade_dir == 0 && !is_undefined(_app.pending)) {
+        pp_app_fade_out();
+    }
     return _app;
 }
 
@@ -162,10 +169,7 @@ function pp_mode_boot() {
             if (!pp_data_ok()) return;
             if (_app.boot_steps > 60 || pp_pressed("confirm")) {
                 var _slice = global.pp_data.slice;
-                var _enc = pp_data_find(global.pp_data.encounters.encounters, _slice.encounter);
-                if (!is_undefined(_enc)) {
-                    pp_app_request(PPMode.battle, { encounter_id: _enc.id });
-                }
+                pp_app_request(PPMode.overworld, { map_id: _slice.map, spawn: _slice.spawn, scene: _slice.scene });
             }
         },
         draw: function(_params) {
@@ -199,8 +203,10 @@ function pp_mode_battle() {
     return {
         enter: function(_params) {
             var _battle = undefined;
+            global.pp.battle_encounter = "";
             var _enc = pp_data_find(global.pp_data.encounters.encounters, _params.encounter_id);
             if (!is_undefined(_enc)) {
+                global.pp.battle_encounter = _enc.id;
                 var _enemy_id = _enc.enemies[0];
                 var _enemy = pp_data_find(global.pp_data.enemies.enemies, _enemy_id);
                 var _party = global.pp_data.party.characters[0];
@@ -216,7 +222,12 @@ function pp_mode_battle() {
 
             if (pp_battle_finished(_battle)) {
                 if (pp_pressed("confirm")) {
-                    pp_app_request(PPMode.boot, { message: "last fight: " + pp_battle_outcome(_battle) });
+                    // The ledger was written inside the battle; the overworld only takes the result and the flags.
+                    var _outcome = pp_battle_outcome(_battle);
+                    var _enc_id = global.pp.battle_encounter;
+                    global.pp.battle = undefined;
+                    pp_overworld_battle_finished(global.pp.world, _enc_id, _outcome);
+                    pp_app_request(PPMode.overworld, { resumed: true });
                 }
                 return;
             }
@@ -240,6 +251,54 @@ function pp_mode_battle() {
                 draw_text(PP_FRAME_W * 0.5, 126, "press Z");
                 draw_set_halign(fa_left);
             }
+        }
+    };
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Mode: overworld. The map, the walker, the scene over it and the dialogue box. A battle is requested from here and
+// hands control back here, which is what makes the slice a loop rather than a one way trip.
+
+function pp_mode_overworld() {
+    return {
+        enter: function(_params) {
+            var _resumed = is_struct(_params) && variable_struct_exists(_params, "resumed") && _params.resumed;
+            if (_resumed && !is_undefined(global.pp.world)) return;
+
+            var _slice = global.pp_data.slice;
+            var _map_id = _slice.map;
+            var _spawn = _slice.spawn;
+            if (is_struct(_params) && variable_struct_exists(_params, "map_id")) {
+                _map_id = _params.map_id;
+                _spawn = _params.spawn;
+            }
+            global.pp.world = pp_overworld_new(_map_id, _spawn);
+            if (is_undefined(global.pp.world)) {
+                show_debug_message("PP: the slice names a map that does not load, staying in boot");
+                pp_app_request(PPMode.boot, { message: "map did not load: " + string(_map_id) });
+                return;
+            }
+
+            // The slice's opening scene plays once, then the player walks.
+            var _scene_id = "";
+            if (is_struct(_params) && variable_struct_exists(_params, "scene")) {
+                _scene_id = _params.scene;
+            } else if (variable_struct_exists(_slice, "scene")) {
+                _scene_id = _slice.scene;
+            }
+            if (_scene_id != "" && !_resumed) {
+                var _flag = "scene_" + string(_scene_id);
+                if (!pp_ledger_flag(global.pp_ledger, _flag)) {
+                    pp_overworld_start_scene(global.pp.world, _scene_id);
+                    pp_ledger_set_flag(global.pp_ledger, _flag, true);
+                }
+            }
+        },
+        step: function(_params) {
+            pp_overworld_step(global.pp.world);
+        },
+        draw: function(_params) {
+            pp_overworld_draw(global.pp.world);
         }
     };
 }
