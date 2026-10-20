@@ -10,8 +10,9 @@ Files in this folder, and what each one is for. Read the file you need, not the 
 | genre-design.md | How turn based battles with a dodge phase, TALK options, spare and kill routes, no EXP progression, FF3 style overworlds and Castlevania style sprites work as genre mechanics. Public descriptions only. | written 2026-10-19 |
 | LICENSES.md | Every open-source library considered, its licence read from the repository, what we may reuse, what is rejected and why, and the attribution plan. | written 2026-10-19, licences re-read 2026-10-19 |
 | PROVENANCE.md | One entry per subsystem studied from a reference build: what was read, the mechanic learned in plain words, and how our implementation differs. A subsystem with no entry cannot be committed. | live, appended per subsystem |
-| SPEC-DELTAS.md | The pass that read all thirteen specs against a reference architecture and recorded 21 deltas, so a thin spec is caught before code is written from it. | written 2026-10-19 |
-| study\ | Study copies of decompiled projects, read only. Gitignored, never committed, never shipped, never read at runtime. | local only, not in git |
+| SPEC-DELTAS.md | The pass that compared all thirteen specs against a reference architecture and recorded 21 deltas. Written after the breach notice, so every delta is being re-sourced from public material only (card t_bfaff47b). | pending re-derivation |
+| SPEC-REVIEW.md | One row per spec: confirmed or rewritten, by which reviewer, when. `tools\check_spec_review.py --strict` refuses implementation work while any row is pending. | live, seeded pending 2026-10-19 |
+| study\ | QUARANTINED by the manager on 2026-10-19 and moved outside this repository. Nothing may read it, and nothing in this repository may be written from it. The entry stays only as a record that it must not be used. | quarantined, never read |
 
 Related, outside this folder:
 - Plan and architecture: ..\PLAN.md

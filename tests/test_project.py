@@ -108,6 +108,19 @@ def test_no_em_or_en_dashes_anywhere():
     assert bad == []
 
 
+def gml_code_only(text):
+    """Drop // and /// comments so the static checks read code, not prose.
+
+    A comment that names a module ("performed by pp_app") is not a call. This used to trip the call audit, so the
+    stripping lives here, in one place, and both audits use it.
+    """
+    lines = []
+    for line in text.split("\n"):
+        cut = line.find("//")
+        lines.append(line if cut == -1 else line[:cut])
+    return "\n".join(lines)
+
+
 def test_gml_calls_only_defined_pp_functions():
     """A compile-lite check: every pp_ function called somewhere is defined somewhere."""
     defined = set()
@@ -119,11 +132,17 @@ def test_gml_calls_only_defined_pp_functions():
                 files.append(os.path.join(dirpath, name))
     for path in files:
         with open(path, "r", encoding="utf-8-sig") as fh:
-            text = fh.read()
+            text = gml_code_only(fh.read())
         defined.update(re.findall(r"^function\s+([A-Za-z_]\w*)\s*\(", text, re.MULTILINE))
         called.update(re.findall(r"\b(pp_[a-z0-9_]+)\s*\(", text))
     missing = sorted(called - defined)
     assert missing == [], "called but never defined: %s" % missing
+
+
+def test_comment_mention_of_a_module_is_not_a_call():
+    """The audit above must not read prose as code."""
+    prose = "/// a battle is a mode swap performed by pp_app (specs 01 and 04).\n"
+    assert re.findall(r"\b(pp_[a-z0-9_]+)\s*\(", gml_code_only(prose)) == []
 
 
 def test_gml_uses_only_defined_macros_and_enums():
