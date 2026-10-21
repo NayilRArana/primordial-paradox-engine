@@ -39,7 +39,8 @@ function pp_app_boot() {
     pp_app_register(PPMode.overworld, pp_mode_overworld());
     pp_app_register(PPMode.battle, pp_mode_battle());
 
-    pp_app_enter(PPMode.boot, {});
+    // The title screen is the first thing the player sees. A data problem still lands on the boot card, which says it in words.
+    pp_app_enter(pp_data_ok() ? PPMode.title : PPMode.boot, {});
     return _app;
 }
 

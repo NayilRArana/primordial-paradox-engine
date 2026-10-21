@@ -20,7 +20,7 @@ function pp_audio_available() {
 /// not arrived yet. Every request is recorded, so the log shows what the screen asked for.
 function pp_audio_play(_cue) {
     if (!is_struct(global.pp)) return false;
-    if (!is_struct(global.pp.audio)) {
+    if (!variable_struct_exists(global.pp, "audio") || !is_struct(global.pp.audio)) {
         global.pp.audio = { last_cue: "", asked: 0, played: 0 };
     }
     global.pp.audio.last_cue = _cue;
@@ -33,6 +33,24 @@ function pp_audio_play(_cue) {
     }
     if (!_is_cue) {
         show_debug_message("PP audio: unknown cue " + string(_cue));
+        return false;
+    }
+
+    // The title theme is an external OGG stream shipped as an included file (streams	itle_theme.ogg), looped. A missing
+    // file leaves the screen silent, and nothing here can throw.
+    if (_cue == "title_theme") {
+        if (!variable_struct_exists(global.pp.audio, "theme_inst")) {
+            var _file = working_directory + "streams/title_theme.ogg";
+            if (file_exists(_file)) {
+                var _stream = audio_create_stream(_file);
+                global.pp.audio.theme_stream = _stream;
+                global.pp.audio.theme_inst = audio_play_sound(_stream, 1, true);
+                show_debug_message("PP audio: title_theme streaming, instance " + string(global.pp.audio.theme_inst));
+                global.pp.audio.played += 1;
+                return true;
+            }
+            show_debug_message("PP audio: title_theme file missing at " + _file);
+        }
         return false;
     }
 

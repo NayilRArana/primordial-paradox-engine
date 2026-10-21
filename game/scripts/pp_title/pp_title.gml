@@ -155,6 +155,9 @@ function pp_title_state_new() {
 /// Enter the screen. The theme and the engine are asked for by cue name; the bus stays silent until the
 /// music lane delivers the files (spec 12 rule 1, and the addendum's silence until then).
 function pp_title_enter(_params) {
+    if (!variable_struct_exists(global.pp, "art") || !is_struct(global.pp.art)) global.pp.art = pp_art_init();
+    // The slot is asked once, when the title appears, so CONTINUE knows whether a run exists (same call the boot card makes).
+    if (pp_data_ok()) pp_save_title_start();
     global.pp.title = pp_title_state_new();
     pp_audio_play("title_theme");
     pp_audio_play("car_engine_loop");
@@ -378,7 +381,7 @@ function pp_title_draw_words(_s, _d) {
     }
     if (_s.phase == "prompt") {
         if (floor(_s.steps / PP_TITLE_BLINK_STEPS) mod 2 == 0) {
-            pp_font_draw_centre("PRESS Z OR ENTER", PP_FRAME_W / 2, PP_TITLE_PROMPT_Y, pp_role_colour("bright"), 1);
+            pp_font_draw_centre("PRESS Z OR ENTER", PP_FRAME_W / 2, PP_TITLE_PROMPT_Y, c_white, 1);
         }
         return;
     }
@@ -386,8 +389,8 @@ function pp_title_draw_words(_s, _d) {
     var _has_save = pp_title_has_save();
     for (var i = 0; i < array_length(_d.menu); i += 1) {
         var _label = _d.menu[i];
-        var _colour = pp_role_colour("bright");
-        if (_label == "CONTINUE" && !_has_save) _colour = pp_role_colour("faint");
+        var _colour = c_white;
+        if (_label == "CONTINUE" && !_has_save) _colour = make_colour_rgb(120, 120, 140);
         pp_font_draw(_label, PP_TITLE_MENU_X, PP_TITLE_MENU_Y + i * PP_TITLE_MENU_STEP, _colour, 1);
     }
     if (pp_art_has("spr_pp_menu_cursor")) {
@@ -400,12 +403,12 @@ function pp_title_draw_words(_s, _d) {
 function pp_title_draw_settings(_s) {
     draw_set_colour(pp_role_colour("ink"));
     draw_rectangle(24, 76, PP_FRAME_W - 24, 150, false);
-    draw_set_colour(pp_role_colour("bright"));
+    draw_set_colour(c_white);
     draw_rectangle(24, 76, PP_FRAME_W - 24, 150, false);
     draw_set_alpha(1);
-    pp_font_draw_centre("SETTINGS", PP_FRAME_W / 2, 92, pp_role_colour("bright"), 1);
-    pp_font_draw_centre("NOTHING HERE YET", PP_FRAME_W / 2, 110, pp_role_colour("faint"), 1);
-    pp_font_draw_centre("BACK", PP_FRAME_W / 2, 130, pp_role_colour("bright"), 1);
+    pp_font_draw_centre("SETTINGS", PP_FRAME_W / 2, 92, c_white, 1);
+    pp_font_draw_centre("NOTHING HERE YET", PP_FRAME_W / 2, 110, make_colour_rgb(120, 120, 140), 1);
+    pp_font_draw_centre("BACK", PP_FRAME_W / 2, 130, c_white, 1);
     if (pp_art_has("spr_pp_menu_cursor")) {
         var _cursor = floor(_s.steps / PP_TITLE_CURSOR_PERIOD) mod 2;
         pp_art_draw("spr_pp_menu_cursor", _cursor, PP_FRAME_W / 2 - 40, 130, c_white, 1);
@@ -420,10 +423,10 @@ function pp_title_draw_intro(_s, _d) {
     if (_index >= _count) _index = _count - 1;
     var _within = _s.drive - _index * PP_TITLE_DRIVE_LINE_STEPS;
     var _y = 210 - _within * 2;
-    pp_font_draw_centre(_d.intro[_index], PP_FRAME_W / 2, _y, pp_role_colour("bright"), 1);
+    pp_font_draw_centre(_d.intro[_index], PP_FRAME_W / 2, _y, c_white, 1);
     if (_index + 1 < _count) {
         var _next_y = 210 + (PP_TITLE_DRIVE_LINE_STEPS - _within) * 2;
-        pp_font_draw_centre(_d.intro[_index + 1], PP_FRAME_W / 2, _next_y, pp_role_colour("bright"), 1);
+        pp_font_draw_centre(_d.intro[_index + 1], PP_FRAME_W / 2, _next_y, c_white, 1);
     }
 }
 

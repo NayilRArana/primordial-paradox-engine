@@ -50,4 +50,7 @@ exception_unhandled_handler(function(_ex) {
     return 0;
 });
 
+// The window opens at 3x (768x720), integer scaled, so the pixels are readable on a desktop monitor.
+window_set_size(PP_FRAME_W * 3, PP_FRAME_H * 3);
+window_set_position(max(0, (display_get_width() - PP_FRAME_W * 3) div 2), max(0, (display_get_height() - PP_FRAME_H * 3 - 90) div 2));
 pp_app_boot();

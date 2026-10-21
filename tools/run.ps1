@@ -58,7 +58,7 @@ foreach ($candidate in @('python', 'py')) {
 if ($null -eq $python) { Fail 1 'Python is not on PATH, so the data checks cannot run. Install Python or run the checks by hand.' }
 
 if (-not $SkipChecks) {
-    foreach ($script in @('sync_data.py', 'check_data.py', 'gen_project.py', 'check_project.py', 'check_cleanroom.py', 'check_provenance.py')) {
+    foreach ($script in @('sync_data.py', 'sync_art.py', 'check_data.py', 'gen_project.py', 'check_project.py', 'check_cleanroom.py', 'check_provenance.py')) {
         $path = Join-Path $root "tools\$script"
         Say "running $script"
         $output = & $python $path 2>&1

@@ -27,7 +27,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "game", "sprites_src", "title")
-DST = os.path.join(ROOT, "game", "art")
+DST = os.path.join(ROOT, "game", "datafiles", "art")
 INDEX = "title_manifest.json"
 
 
@@ -109,5 +109,15 @@ def main() -> int:
     return 0
 
 
+def mirror_streams() -> None:
+    """The title theme stream: copy title_theme.ogg from assets/audio/title_theme into game/datafiles/streams."""
+    src = os.path.join(ROOT, "assets", "audio", "title_theme", "title_theme.ogg")
+    dst_dir = os.path.join(ROOT, "game", "datafiles", "streams")
+    if os.path.isfile(src):
+        os.makedirs(dst_dir, exist_ok=True)
+        shutil.copy2(src, os.path.join(dst_dir, "title_theme.ogg"))
+
+
 if __name__ == "__main__":
+    mirror_streams()
     sys.exit(main())

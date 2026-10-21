@@ -64,6 +64,13 @@ def main() -> int:
         for dirpath, _dirnames, filenames in os.walk(DST):
             for name in filenames:
                 rel = os.path.relpath(os.path.join(dirpath, name), DST).replace("\\", "/")
+                if rel.startswith("art/") or rel.startswith("streams/"):
+                    # The title art mirror is owned by tools/sync_art.py, not by data\.
+                    # This continue used to sit on the same line as that comment, so the
+                    # comment text swallowed the rest of the line and the "not in wanted"
+                    # check below was unreachable for these paths. The clean code gate
+                    # caught it on 2026-10-21 as "unreachable Expr after continue".
+                    continue
                 if rel not in wanted:
                     extras.append(rel)
                     if not args.check:

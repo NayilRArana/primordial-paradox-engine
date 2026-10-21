@@ -123,6 +123,186 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "spr_pp_font8.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_pp_font8.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_pp_menu_cursor.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_pp_menu_cursor.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_pp_title_logo.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_pp_title_logo.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_bubble.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_bubble.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_car.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_car.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_cloud.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cloud.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_cone.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cone.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_exhaust.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_exhaust.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_ronan.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_ronan.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_sign.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_sign.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_theo.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_theo.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_wheel.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_wheel.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L1_sky.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L1_sky.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L2_clouds.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L2_clouds.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L3_downs.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L3_downs.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L4_fields.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L4_fields.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L5_verge.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L5_verge.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L6_road.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L6_road.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L7_fg.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L7_fg.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_manifest.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_manifest.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "party.json",
       "CopyToMask": -1,
       "filePath": "datafiles/characters",
@@ -181,6 +361,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/scenes",
       "name": "all.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_theme.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "title_theme.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     }
