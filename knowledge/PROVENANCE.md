@@ -44,7 +44,7 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_battle_director/pp_battle_director.gml | specs alone | 07 |
 | game/scripts/pp_battle_text/pp_battle_text.gml | specs alone | 05, 07 |
 | game/scripts/pp_camera/pp_camera.gml | specs alone | 03 |
-| game/scripts/pp_config/pp_config.gml | specs alone | 01, 03, 07, 08, 10, 13 |
+| game/scripts/pp_config/pp_config.gml | specs alone | 01, 03, 06, 07, 08, 10, 11, 13 |
 | game/scripts/pp_data/pp_data.gml | specs alone | 14 (proposed) |
 | game/scripts/pp_dodge_arena/pp_dodge_arena.gml | specs alone | 08 |
 | game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | specs alone | 09 |
@@ -55,6 +55,7 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_input/pp_input.gml | specs alone | 02 |
 | game/scripts/pp_ledger/pp_ledger.gml | specs alone | 10 |
 | game/scripts/pp_rng/pp_rng.gml | specs alone | 09 |
+| game/scripts/pp_save/pp_save.gml | save, load and resume | 01, 10, 11 |
 | game/objects/obj_pp_game | specs alone | 01, 02 |
 | game/objects/obj_pp_debug_overlay | specs alone | 10 |
 | game/rooms/rm_pp_boot | specs alone | 01 |
@@ -89,6 +90,41 @@ Our implementation differs by: there is nothing to differ from, because nothing 
 recorded as differences still stands as our design, with one downgrade: the project file shapes in
 knowledge\gamemaker-project-format.md are unsourced and UNVERIFIED, and the modules are written so that nothing in game
 code depends on them.
+
+Copied expression: none.
+
+## save, load and resume (2026-10-20)
+
+Status: the live entry for card t_a311bdff: the save slot in game\scripts\pp_save, the Save/Load event at
+game\objects\obj_pp_game\Other_72.gml that forwards async_load to it, and the save point trigger in data\maps\all.json.
+It owns the pp_save row of the module map above and no other row. It names no studied source.
+
+Studied: nothing. No decompiled, ripped or fan ported material was read, opened, searched, fetched, downloaded or reasoned
+from for this entry. The sources were this repository's specs\11-save.md, specs\10-route-ledger.md and
+specs\01-state-machine.md, plus these official manual pages, each read at the source on 2026-10-20: the Save/Load
+asynchronous event page, buffer_save_async, buffer_load_async, buffer_create, buffer_write, buffer_read, buffer_tell,
+buffer_seek, buffer_delete, buffer_get_size, json_stringify, json_parse, date_current_datetime and
+date_datetime_string.
+
+Mechanics learned (public mechanics and our own decisions, not a studied design):
+- An asynchronous buffer save and load report back through one event carrying "id" (the value the function returned) and
+  "status" (true when the transfer worked), which is what keeps a save from blocking a frame.
+- A relative filename given to those two functions lands in the save area's "default" folder, and every other file
+  function would need that folder in the path. Existence is therefore answered by a load attempt and not by a path guess,
+  which is also why the title asks the slot once at boot instead of probing a file.
+- buffer_string writes and reads a null terminated string while buffer_text does not, and buffer_tell is the number of
+  bytes a buffer holds after writing, which is what hands the exact byte count to the write.
+- json_parse throws on invalid text and json_stringify stores an asset's handle rather than its name, so every parse
+  sits in a try/catch and every id in the document is a name.
+- Our own rules from the specs: the format number is checked before any other field, the last good file is rotated to
+  .bak, a load validates every field and then applies nothing, and the route ledger is saved as its four counters plus
+  its named flags with the route derived on read.
+
+Our implementation differs by: there is nothing to differ from, because nothing was studied. The shape is a 4 byte
+byte-count followed by the JSON text in a fixed 64 KB buffer, a state enum (PPSaveState) in pp_config, bounds and message
+timings as macros in pp_config, a save point as a trigger of kind "save" in map data, and the map, spawn, item and power
+ids all coming from data\. The title line, the backup rotation, the panel timing and the save point are spec 11's own
+decisions.
 
 Copied expression: none.
 

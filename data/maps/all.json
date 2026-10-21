@@ -52,6 +52,7 @@
         "from_cabin": { "x": 17, "y": 7 }
       },
       "triggers": [
+        { "x": 2, "y": 5, "kind": "save", "id": "deck_save", "once": false, "condition": "" },
         { "x": 4, "y": 7, "kind": "battle", "id": "tutorial_sailors", "once": true, "condition": "" },
         { "x": 14, "y": 8, "kind": "flag", "id": "ship_deck_seen", "once": true, "condition": "" },
         { "x": 2, "y": 2, "kind": "say", "id": "ship_rail_note", "once": true, "condition": "" },

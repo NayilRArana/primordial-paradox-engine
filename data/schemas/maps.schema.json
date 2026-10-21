@@ -25,13 +25,13 @@
     },
     "trigger": {
       "type": "object",
-      "description": "A tile the player steps on to make something happen. kind names the table the id is looked up in, except map, whose id is another map.",
+      "description": "A tile the player steps on to make something happen. kind names the table the id is looked up in, except map, whose id is another map, and save, whose id is only a label for the save point.",
       "required": ["x", "y", "kind", "id", "once"],
       "additionalProperties": false,
       "properties": {
         "x": { "type": "integer", "minimum": 0 },
         "y": { "type": "integer", "minimum": 0 },
-        "kind": { "enum": ["scene", "battle", "map", "say", "flag", "marker"] },
+        "kind": { "enum": ["scene", "battle", "map", "say", "flag", "marker", "save"] },
         "id": { "type": "string", "minLength": 1 },
         "once": { "type": "boolean" },
         "condition": { "type": "string", "description": "A flag name that must be set, or the empty string for no condition." },

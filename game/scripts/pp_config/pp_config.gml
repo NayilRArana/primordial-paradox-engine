@@ -1,5 +1,5 @@
 /// pp_config: the constants and enums every other module reads.
-/// Written from specs\01, 03, 07, 08, 10, 13. No magic numbers live outside this file and data\.
+/// Written from specs\01, 03, 06, 07, 08, 10, 11, 13. No magic numbers live outside this file and data\.
 /// Provenance: knowledge\PROVENANCE.md, entries "battle state machine and turn loop" and
 /// "room and object conventions across a whole game".
 
@@ -90,6 +90,21 @@ enum PPRoute {
     genocide = 3
 }
 
+/// The save slot's asynchronous states (spec 11). Every transfer is one state and pp_save_async_event is the only
+/// thing that moves it on.
+enum PPSaveState {
+    idle = 0,
+    reading = 1,
+    retrying = 2,
+    backing = 3,
+    backing_write = 4,
+    writing = 5,
+    ready = 6,
+    saved = 7,
+    absent = 8,
+    failed = 9
+}
+
 /// Element names are data; this enum only exists so a typo in code is a compile error.
 enum PPElement {
     none = 0,
@@ -136,3 +151,18 @@ enum PPElement {
 #macro PP_SHAKE_MAX_STEPS 60
 #macro PP_SHAKE_PERIOD 2
 #macro PP_SCENE_WARN_COMMANDS 256
+
+// Save slot (spec 11). One file, one backup, a 64 KB buffer, and the format number the loader checks before anything
+// else. The bounds are what the validator reads; a number outside them is a refused file, not a clamped one.
+#macro PP_SAVE_FORMAT 1
+#macro PP_SAVE_GAME_VERSION "0.1.0-slice"
+#macro PP_SAVE_SLOT "pp_save_01.json"
+#macro PP_SAVE_BACKUP "pp_save_01.json.bak"
+#macro PP_SAVE_BUFFER 65536
+#macro PP_SAVE_PANEL_STEPS 20
+#macro PP_SAVE_ERROR_STEPS 150
+#macro PP_SAVE_MAX_COUNTER 9999
+#macro PP_SAVE_MAX_PLAY_SECONDS 360000
+#macro PP_SAVE_MAX_HP 999
+#macro PP_SAVE_MAX_ITEM_COUNT 99
+#macro PP_SAVE_MAX_FLAG_CHARS 64

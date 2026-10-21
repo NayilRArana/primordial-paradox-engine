@@ -71,7 +71,13 @@ PATTERN_SHAPES = {"rain", "wall", "ring", "fan", "spiral", "sweep", "pincer", "l
 PATTERN_AIM = {"fixed", "at_marker"}
 ORIGIN_NAMES = {"top", "bottom", "left", "right", "centre", "corner"}
 
-TRIGGER_KINDS = {"scene", "battle", "map", "say", "flag", "marker"}
+TRIGGER_KINDS = {"scene", "battle", "map", "say", "flag", "marker", "save"}
+# The id table each trigger kind names, for the cross reference. "save" is absent on purpose: a save point's id is a
+# label for the player's sake (spec 11), not a row in any table, so there is nothing to resolve it against.
+TRIGGER_ID_TABLES = {
+    "scene": "scene", "battle": "encounter", "map": "map",
+    "say": "dialogue", "flag": "flag", "marker": "encounter",
+}
 SCENE_COMMANDS = {
     "say", "move", "face", "wait", "fade", "music", "sfx", "camera",
     "shake", "spawn", "destroy", "battle", "setflag", "branch", "end",
@@ -817,9 +823,9 @@ class Checker:
                     if kind not in TRIGGER_KINDS:
                         self.error(filename, trigger_path + ".kind", "must be one of %s" % sorted(TRIGGER_KINDS))
                     else:
-                        table = {"scene": "scene", "battle": "encounter", "map": "map",
-                                 "say": "dialogue", "flag": "flag", "marker": "encounter"}[kind]
-                        self.ref(ids, table, target, filename, trigger_path + ".id")
+                        table = TRIGGER_ID_TABLES.get(kind)
+                        if table is not None:
+                            self.ref(ids, table, target, filename, trigger_path + ".id")
                     once = self.require(trigger, "once", "bool", filename, trigger_path)
                     del once
                     condition = self.want(trigger, "condition", "str", filename, trigger_path)

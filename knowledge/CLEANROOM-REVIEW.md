@@ -26,6 +26,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_debug_overlay/Step_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_game/Create_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_game/Draw_0.gml | confirmed | code-review | 2026-10-19 |
+| game/objects/obj_pp_game/Other_72.gml | pending | code-review | 2026-10-20 |
 | game/objects/obj_pp_game/Step_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_game/Step_1.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_app/pp_app.gml | rewritten | code-review | 2026-10-19 |
@@ -43,7 +44,12 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_map/pp_map.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
+| game/scripts/pp_save/pp_save.gml | pending | code-review | 2026-10-20 |
 | game/scripts/pp_scene/pp_scene.gml | rewritten | code-review | 2026-10-19 |
+
+Two rows are `pending`: `game/scripts/pp_save/pp_save.gml` and `game/objects/obj_pp_game/Other_72.gml`, both added by card
+t_a311bdff on 2026-10-20 (the save slot, spec 11). They are listed by `tools/check_cleanroom.py` on every run until
+code-review rules on them, and a pending row is not a pass.
 
 `rewritten` means the file text changed in this review. All eight rewrites are comment only: each one removed a
 provenance parenthetical that described the internals of the quarantined copy, and replaced it with the spec the

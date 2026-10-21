@@ -20,6 +20,7 @@ function pp_app_boot() {
     global.pp_camera = pp_camera_init();
     global.pp_data = pp_data_load();
     global.pp_ledger = pp_ledger_new();
+    pp_save_init();
 
     var _app = {
         mode: -1,
@@ -120,6 +121,12 @@ function pp_app_step() {
         }
     }
 
+    // Play time counts overworld and battle steps only (spec 11 numbers: never paused time, and the title is not play).
+    if (_app.mode == PPMode.overworld || _app.mode == PPMode.battle) {
+        if (is_struct(global.pp.save)) global.pp.save.ticks += 1;
+    }
+    pp_save_panel_step();
+
     var _mode = _app.modes[$ string(_app.mode)];
     if (!is_undefined(_mode) && variable_struct_exists(_mode, "step")) {
         _mode.step(_app.mode_params);
@@ -140,6 +147,8 @@ function pp_app_draw() {
     if (!is_undefined(_mode) && variable_struct_exists(_mode, "draw")) {
         _mode.draw(_app.mode_params);
     }
+    // The save panel sits over the mode and under the fade, so a save never flashes through a transition (spec 11).
+    pp_save_draw_panel();
     if (_app.fade_alpha > 0) {
         draw_set_alpha(_app.fade_alpha);
         draw_set_colour(c_black);
@@ -153,7 +162,8 @@ function pp_app_mode() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// Mode: boot. Shows the title card and any data problem in plain words, then enters the slice encounter.
+// Mode: boot. The title card, the save line and any data problem in plain words. A save that read back cleanly
+// continues with Z and starts a new run with X; with no save the slice starts on its own timer, as it always has.
 
 function pp_mode_boot() {
     return {
@@ -163,30 +173,69 @@ function pp_mode_boot() {
             if (is_struct(_params) && variable_struct_exists(_params, "message")) {
                 global.pp.app.boot_message = _params.message;
             }
+            // The slot is asked once, when the title appears (spec 11 goal: the title says where the player is). It is
+            // only asked when the data loaded, because validation needs the map, item, power and flag lists.
+            if (pp_data_ok()) pp_save_title_start();
         },
         step: function(_params) {
             var _app = global.pp.app;
             _app.boot_steps += 1;
             if (!pp_data_ok()) return;
-            if (_app.boot_steps > 60 || pp_pressed("confirm")) {
-                var _slice = global.pp_data.slice;
-                pp_app_request(PPMode.overworld, { map_id: _slice.map, spawn: _slice.spawn, scene: _slice.scene });
+
+            // A mode swap is under way: the title is leaving, so it must not start a second run on the way out.
+            if (_app.fade_dir != 0 || !is_undefined(_app.pending)) return;
+
+            // Nothing is decided until the asynchronous read answers.
+            if (pp_save_busy()) return;
+            if (pp_save_ready()) {
+                if (pp_pressed("confirm")) {
+                    pp_save_apply();
+                    return;
+                }
+                if (pp_pressed("cancel")) {
+                    pp_save_new_game();
+                    return;
+                }
+                return;
             }
+
+            // No usable save. The slice still starts by itself, except after a refused file: that one waits for the
+            // player to read the sentence and press a key (spec 11 rule 3, acceptance 3).
+            var _refused = (global.pp.save.state == PPSaveState.failed);
+            if (pp_pressed("confirm") || (!_refused && _app.boot_steps > 60)) pp_save_new_game();
         },
         draw: function(_params) {
             draw_set_colour(pp_role_colour("paper"));
             draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
             draw_set_colour(pp_role_colour("ink"));
             draw_set_halign(fa_center);
-            draw_text(PP_FRAME_W * 0.5, 100, "PRIMORDIAL PARADOX");
+            draw_text(PP_FRAME_W * 0.5, 84, "PRIMORDIAL PARADOX");
             draw_set_halign(fa_left);
 
             if (!pp_data_ok()) {
                 draw_set_colour(pp_role_colour("hazard"));
-                draw_text_ext(16, 128, pp_data_error_text(), 10, PP_FRAME_W - 32);
-            } else if (global.pp.app.boot_message != "") {
-                draw_set_colour(pp_role_colour("accent"));
-                draw_text(16, 128, global.pp.app.boot_message);
+                draw_text_ext(16, 112, pp_data_error_text(), 10, PP_FRAME_W - 32);
+            } else {
+                var _save_line = pp_save_status_line();
+                var _note = pp_save_title_note();
+                if (_save_line != "") {
+                    draw_set_colour(pp_role_colour("accent"));
+                    draw_text_ext(16, 116, _save_line, 10, PP_FRAME_W - 32);
+                }
+                if (_note != "") {
+                    draw_set_colour(pp_role_colour("hazard"));
+                    draw_text_ext(16, 134, _note, 10, PP_FRAME_W - 32);
+                }
+                draw_set_colour(pp_role_colour("ink"));
+                if (pp_save_ready()) {
+                    draw_text(16, 160, "Z continue     X new game");
+                } else if (!pp_save_busy()) {
+                    draw_text(16, 160, "Z start");
+                }
+                if (global.pp.app.boot_message != "") {
+                    draw_set_colour(pp_role_colour("accent"));
+                    draw_text_ext(16, 178, global.pp.app.boot_message, 10, PP_FRAME_W - 32);
+                }
             }
 
             if (PP_DEBUG) {

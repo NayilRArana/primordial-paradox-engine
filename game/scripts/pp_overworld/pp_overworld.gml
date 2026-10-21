@@ -207,6 +207,12 @@ function pp_overworld_fire(_world, _trigger) {
             pp_ledger_set_flag(global.pp_ledger, _trigger.id, true);
             break;
 
+        // A save point (spec 11 rule 4). The data says where one is; pp_save refuses everything except the overworld,
+        // so a save can never happen mid battle, mid scene or mid dialogue.
+        case "save":
+            pp_save_write("point");
+            break;
+
         case "marker":
             pp_overworld_start_encounter(_world, _trigger.id);
             break;

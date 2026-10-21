@@ -284,6 +284,12 @@
     },
     {
       "id": {
+        "name": "pp_save",
+        "path": "scripts/pp_save/pp_save.yy"
+      }
+    },
+    {
+      "id": {
         "name": "pp_scene",
         "path": "scripts/pp_scene/pp_scene.yy"
       }
