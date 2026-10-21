@@ -561,6 +561,24 @@ def test_a_save_shaped_document_with_an_unknown_id_is_rejected():
     assert any("carries a flag this build does not know: no_such_flag" in p for p in problems), problems
 
 
+def test_a_json_fixture_file_with_an_unknown_id_is_rejected(tmp_path):
+    """The fixture is a real file on disk, read back as JSON, so the shape a player would see is tested.
+
+    The runtime validator is GML and cannot run without GameMaker, so the file is checked by the
+    Python mirror. The mirror is pinned to the GML by test_the_mirror_agrees_with_the_gml_validator.
+    """
+    path = tmp_path / "pp_save_01.json"
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        json.dump(_save_document(map="no_such_map"), fh, indent=2)
+        fh.write("\n")
+
+    with open(path, "r", encoding="utf-8") as fh:
+        document = json.load(fh)
+
+    problems = save_document_errors(document)
+    assert any("names a map this build does not have: no_such_map" in p for p in problems), problems
+
+
 def test_a_save_shaped_document_with_an_unknown_field_or_a_missing_one_is_rejected():
     document = _save_document()
     document["mystery"] = 1
