@@ -50,9 +50,9 @@
       "id": "percy_lore_stop",
       "speaker": "narrator",
       "lines": [
-        "* Percy fills the cabin doorway.",
-        "* \"The sea hears you,\" he says.",
-        "* \"Show me what the veil gave you.\""
+        "* Percy fills the doorway.",
+        "* \"The sea hears you.\"",
+        "* \"Show me the veil.\""
       ]
     },
     {
@@ -71,6 +71,63 @@
         "* \"You still talk. How dull.\"",
         "* \"Ask what the veil is.\"",
         "* \"Ask it plainly.\""
+      ]
+    },
+    {
+      "id": "talk_percy_phase2",
+      "speaker": "percy",
+      "lines": [
+        "* \"The tide turns anyway.\"",
+        "* \"You asked about the veil.\"",
+        "* \"That is the veil.\""
+      ]
+    },
+    {
+      "id": "percy_phase2_line",
+      "speaker": "percy",
+      "lines": [
+        "* Percy plants the trident.",
+        "* \"So. You have hurt me.\"",
+        "* The water answers him."
+      ]
+    },
+    {
+      "id": "percy_interrupt_line",
+      "speaker": "percy",
+      "lines": [
+        "* \"Wait. Who says my name?\"",
+        "* The trident dips an inch."
+      ]
+    },
+    {
+      "id": "prometheus_veil_line",
+      "speaker": "prometheus",
+      "lines": [
+        "* \"Peace, tide-bitten.\"",
+        "* \"I am the fire's name.\"",
+        "* \"Mortals walk behind a veil.\"",
+        "* \"It hides gods, not knives.\"",
+        "* \"End this here.\"",
+        "* \"The dead rise in London.\"",
+        "* \"They rise for what sleeps.\""
+      ]
+    },
+    {
+      "id": "percy_epilogue_spare",
+      "speaker": "narrator",
+      "lines": [
+        "* Percy sits against the mast.",
+        "* \"The fire-carrier took you.\"",
+        "* \"The hatch is yours.\""
+      ]
+    },
+    {
+      "id": "percy_epilogue_kill",
+      "speaker": "narrator",
+      "lines": [
+        "* The trident lies in two.",
+        "* Percy does not move.",
+        "* \"The veil thins tonight.\""
       ]
     },
     {

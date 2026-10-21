@@ -22,16 +22,25 @@
       "id": "percy",
       "name": "Percy",
       "max_hp": 120,
-      "attack": { "min": 3, "max": 6 },
+      "attack": { "min": 3, "max": 5 },
       "sprite": "spr_pp_percy",
       "element": "sea",
       "route_kind": "boss",
-      "patterns": ["percy_rain", "percy_wall", "percy_fan"],
+      "patterns": ["percy_rain", "percy_wall"],
       "talk_dialogue": "talk_percy",
       "trust_to_spare": 3,
       "spare_hp_percent": 25,
       "rewards": [
         { "kind": "power", "id": "tide_step", "count": 1 }
+      ],
+      "phases": [
+        {
+          "hp_at_or_below": 60,
+          "pattern_id": "percy_fan",
+          "talk_set": "talk_percy_phase2",
+          "line_id": "percy_phase2_line",
+          "attack": { "min": 4, "max": 6 }
+        }
       ]
     }
   ]

@@ -22,6 +22,19 @@
         "max": { "type": "integer", "minimum": 1, "maximum": 99 }
       }
     },
+    "phase": {
+      "type": "object",
+      "description": "One enemy phase, read by the battle director when current hp first falls to hp_at_or_below. The director adds pattern_id to the enemy's pattern pool, switches the TALK set to talk_set, plays line_id once at the crossing and swaps in the attack range, all from this row and never from a code branch on the enemy name. A raised attack must stay inside the spec 07 boss band, which the checker pins with PHASE_ATTACK_BAND.",
+      "required": ["hp_at_or_below", "pattern_id", "talk_set", "line_id"],
+      "additionalProperties": false,
+      "properties": {
+        "hp_at_or_below": { "type": "integer", "minimum": 0, "maximum": 9999 },
+        "pattern_id": { "type": "string", "minLength": 1, "description": "Pattern id to add to the pool at this crossing. The enemy's own patterns list is the pool above the first threshold." },
+        "talk_set": { "type": "string", "minLength": 1, "description": "Dialogue id the TALK command plays from this phase on." },
+        "line_id": { "type": "string", "minLength": 1, "description": "Dialogue id the director plays once when the crossing happens." },
+        "attack": { "$ref": "#/$defs/attack" }
+      }
+    },
     "reward": {
       "type": "object",
       "description": "What the fight gives. kind item and power name an id in those tables; health gives a flat amount and names nothing.",
@@ -64,6 +77,12 @@
         "talk_dialogue": { "type": "string", "minLength": 1, "description": "Dialogue id played by the TALK command." },
         "trust_to_spare": { "type": "integer", "minimum": 1, "maximum": 10, "description": "TALK count that reaches the spare threshold." },
         "spare_hp_percent": { "type": "integer", "minimum": 1, "maximum": 100, "description": "HP percentage at or below which SPARE is allowed." },
+        "phases": {
+          "type": "array",
+          "description": "Optional ordered phase crossings. The director applies the FIRST phase whose hp_at_or_below the enemy's current hp has reached, so thresholds must descend and each must be below max_hp; tools/check_data.py enforces the order and the band.",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/phase" }
+        },
         "rewards": { "type": "array", "minItems": 0, "items": { "$ref": "#/$defs/reward" } }
       }
     }

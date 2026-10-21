@@ -5,6 +5,7 @@
     { "id": "ship_ambient", "kind": "music", "file": "ship_ambient.ogg" },
     { "id": "battle_tutorial", "kind": "music", "file": "battle_tutorial.ogg" },
     { "id": "battle_percy", "kind": "music", "file": "battle_percy.ogg" },
+    { "id": "pp_07_prometheus", "kind": "music", "file": "pp_07_prometheus_explains.ogg" },
     { "id": "ui_blip", "kind": "ui", "file": "ui_blip.ogg" },
     { "id": "hit", "kind": "sfx", "file": "hit.ogg" },
     { "id": "chime", "kind": "sfx", "file": "chime.ogg" }

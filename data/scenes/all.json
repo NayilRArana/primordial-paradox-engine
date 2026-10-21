@@ -26,6 +26,42 @@
         { "cmd": "battle", "id": "percy" },
         { "cmd": "end" }
       ]
+    },
+    {
+      "id": "prometheus_interrupt",
+      "name": "Cabin: the interruption",
+      "map": "ship_cabin",
+      "start": { "x": 7, "y": 7 },
+      "commands": [
+        { "cmd": "say", "id": "percy_interrupt_line" },
+        { "cmd": "say", "id": "prometheus_veil_line" },
+        { "cmd": "setflag", "name": "met_prometheus", "value": true },
+        { "cmd": "music", "id": "pp_07_prometheus" },
+        { "cmd": "fade", "mode": "out" },
+        { "cmd": "fade", "mode": "in" },
+        { "cmd": "end" }
+      ]
+    },
+    {
+      "id": "percy_aftermath",
+      "name": "Cabin: after Percy",
+      "map": "ship_cabin",
+      "start": { "x": 7, "y": 7 },
+      "commands": [
+        { "cmd": "branch", "flag": "percy_killed", "scene": "percy_aftermath_kill" },
+        { "cmd": "say", "id": "percy_epilogue_spare" },
+        { "cmd": "end" }
+      ]
+    },
+    {
+      "id": "percy_aftermath_kill",
+      "name": "Cabin: Percy down",
+      "map": "ship_cabin",
+      "start": { "x": 7, "y": 7 },
+      "commands": [
+        { "cmd": "say", "id": "percy_epilogue_kill" },
+        { "cmd": "end" }
+      ]
     }
   ]
 }

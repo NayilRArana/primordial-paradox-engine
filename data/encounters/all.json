@@ -28,7 +28,10 @@
       "lose_dialogue": "battle_lose",
       "trust_per_talk": 1,
       "flags_on_kill": ["percy_killed"],
-      "flags_on_spare": ["percy_spared"]
+      "flags_on_spare": ["percy_spared"],
+      "interrupt": { "hp_at_or_below": 60, "unless_flag": "met_prometheus", "scene": "prometheus_interrupt" },
+      "epilogue_scene": "percy_aftermath",
+      "spare_refuses_on_route": "genocide"
     }
   ]
 }
