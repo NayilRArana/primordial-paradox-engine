@@ -36,6 +36,7 @@
         { "cmd": "say", "id": "percy_interrupt_line" },
         { "cmd": "say", "id": "prometheus_veil_line" },
         { "cmd": "setflag", "name": "met_prometheus", "value": true },
+        { "cmd": "setflag", "name": "percy_standing", "value": true },
         { "cmd": "music", "id": "pp_07_prometheus" },
         { "cmd": "fade", "mode": "out" },
         { "cmd": "fade", "mode": "in" },

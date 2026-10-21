@@ -76,10 +76,13 @@ enum PPCommand {
 }
 
 /// Encounter result for one enemy (spec 10). Recorded once, never inferred afterwards.
+/// interrupt is the third ending a fight can have: the encounter data stops the fight without a win and without a
+/// loss, and a scene takes over. It is never a kill and never a spare, so the ledger counts nothing for it.
 enum PPResult {
     none = 0,
     kill = 1,
-    spare = 2
+    spare = 2,
+    interrupt = 3
 }
 
 /// Route derived from the ledger on read (spec 10).

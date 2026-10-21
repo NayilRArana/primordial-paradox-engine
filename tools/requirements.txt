@@ -1,0 +1,15 @@
+# Interpreter contract for the Primordial Paradox tooling.
+#
+# tools\check_data.py enforces the JSON Schemas with jsonschema. Without it the checker
+# fails closed with "jsonschema is not installed", which is correct behaviour, but it
+# means the gate's verdict depends on WHICH python ran it. The manager found exactly
+# that on 2026-10-19: the same suite failed under one project venv and passed under
+# another. Pin the interpreter, do not inherit it.
+#
+# Create and use a venv for this project:
+#   python -m venv .venv
+#   .venv\Scripts\python -m pip install -r tools\requirements.txt
+# Then run every checker and run.ps1 with .venv\Scripts\python.
+#
+# .venv is already gitignored at the repo root (**/.venv/), so it never lands in git.
+jsonschema>=4.20

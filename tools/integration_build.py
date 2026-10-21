@@ -37,7 +37,11 @@ def main() -> int:
         "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
         "-File", RUN_PS1, "-SkipChecks",
     ]
-    completed = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+    # stdin=DEVNULL on purpose: with no stdin given, CPython hands the child this process's own
+    # STD_INPUT_HANDLE and duplicates it, which raises OSError [WinError 6] if that handle is already
+    # invalid. The build reads no stdin, so DEVNULL costs nothing.
+    completed = subprocess.run(command, cwd=ROOT, text=True, capture_output=True,
+                                stdin=subprocess.DEVNULL)
     output = (completed.stdout or "") + (completed.stderr or "")
     for line in output.splitlines():
         print(line)

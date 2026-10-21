@@ -1,0 +1,158 @@
+{
+  "animations": [
+    {
+      "file": "spr_pp_font8.png",
+      "fps": 0.0,
+      "frame_h": 8,
+      "frame_w": 8,
+      "frames": 44,
+      "name": "spr_pp_font8"
+    },
+    {
+      "file": "spr_pp_menu_cursor.png",
+      "fps": 4.0,
+      "frame_h": 8,
+      "frame_w": 8,
+      "frames": 2,
+      "name": "spr_pp_menu_cursor"
+    },
+    {
+      "file": "spr_pp_title_logo.png",
+      "fps": 0.25,
+      "frame_h": 56,
+      "frame_w": 224,
+      "frames": 2,
+      "name": "spr_pp_title_logo"
+    },
+    {
+      "file": "spr_title_bubble.png",
+      "fps": 6.0,
+      "frame_h": 10,
+      "frame_w": 14,
+      "frames": 3,
+      "name": "spr_title_bubble"
+    },
+    {
+      "file": "spr_title_car.png",
+      "fps": 15.0,
+      "frame_h": 32,
+      "frame_w": 64,
+      "frames": 3,
+      "name": "spr_title_car"
+    },
+    {
+      "file": "spr_title_cloud.png",
+      "fps": 0.0,
+      "frame_h": 12,
+      "frame_w": 24,
+      "frames": 3,
+      "name": "spr_title_cloud"
+    },
+    {
+      "file": "spr_title_cone.png",
+      "fps": 0.0,
+      "frame_h": 40,
+      "frame_w": 90,
+      "frames": 1,
+      "name": "spr_title_cone"
+    },
+    {
+      "file": "spr_title_exhaust.png",
+      "fps": 12.0,
+      "frame_h": 10,
+      "frame_w": 12,
+      "frames": 4,
+      "name": "spr_title_exhaust"
+    },
+    {
+      "file": "spr_title_ronan.png",
+      "fps": 8.0,
+      "frame_h": 12,
+      "frame_w": 12,
+      "frames": 8,
+      "name": "spr_title_ronan"
+    },
+    {
+      "file": "spr_title_sign.png",
+      "fps": 0.0,
+      "frame_h": 16,
+      "frame_w": 89,
+      "frames": 4,
+      "name": "spr_title_sign"
+    },
+    {
+      "file": "spr_title_theo.png",
+      "fps": 8.0,
+      "frame_h": 12,
+      "frame_w": 12,
+      "frames": 8,
+      "name": "spr_title_theo"
+    },
+    {
+      "file": "spr_title_wheel.png",
+      "fps": 12.0,
+      "frame_h": 10,
+      "frame_w": 10,
+      "frames": 4,
+      "name": "spr_title_wheel"
+    },
+    {
+      "file": "title_L1_sky.png",
+      "fps": 2.0,
+      "frame_h": 120,
+      "frame_w": 512,
+      "frames": 2,
+      "name": "title_L1_sky"
+    },
+    {
+      "file": "title_L2_clouds.png",
+      "fps": 0.0,
+      "frame_h": 120,
+      "frame_w": 512,
+      "frames": 1,
+      "name": "title_L2_clouds"
+    },
+    {
+      "file": "title_L3_downs.png",
+      "fps": 0.0,
+      "frame_h": 48,
+      "frame_w": 512,
+      "frames": 1,
+      "name": "title_L3_downs"
+    },
+    {
+      "file": "title_L4_fields.png",
+      "fps": 0.0,
+      "frame_h": 56,
+      "frame_w": 512,
+      "frames": 1,
+      "name": "title_L4_fields"
+    },
+    {
+      "file": "title_L5_verge.png",
+      "fps": 0.0,
+      "frame_h": 92,
+      "frame_w": 512,
+      "frames": 1,
+      "name": "title_L5_verge"
+    },
+    {
+      "file": "title_L6_road.png",
+      "fps": 0.0,
+      "frame_h": 44,
+      "frame_w": 512,
+      "frames": 1,
+      "name": "title_L6_road"
+    },
+    {
+      "file": "title_L7_fg.png",
+      "fps": 0.0,
+      "frame_h": 44,
+      "frame_w": 512,
+      "frames": 1,
+      "name": "title_L7_fg"
+    }
+  ],
+  "format": 1,
+  "kind": "title_art"
+}

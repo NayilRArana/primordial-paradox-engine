@@ -16,7 +16,15 @@ function pp_dialogue_items(_text) {
     while (_i <= _len) {
         var _ch = string_char_at(_text, _i);
         if (_ch == "{") {
-            var _close = string_pos("}", _text, _i);
+            var _close = -1;
+            var _scan = _i + 1;
+            while (_scan <= _len) {
+                if (string_char_at(_text, _scan) == "}") {
+                    _close = _scan;
+                    break;
+                }
+                _scan += 1;
+            }
             if (_close > _i) {
                 var _body = string_copy(_text, _i + 1, _close - _i - 1);
                 if (string_copy(_body, 1, 6) == "pause:") {

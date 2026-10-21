@@ -3,8 +3,8 @@
 /// with portraits and choice panels is spec 05 and is not in this pass.
 
 #macro PP_TEXT_STEPS_PER_CHAR 2
-#macro PP_TEXT_PAUSE_STOP 8
-#macro PP_TEXT_PAUSE_COMMA 3
+// PP_TEXT_PAUSE_STOP and PP_TEXT_PAUSE_COMMA are defined in pp_config. Macros are global, so a second
+// definition here is a compile error.
 
 /// Build a board from an array of lines.
 function pp_text_board(_lines) {

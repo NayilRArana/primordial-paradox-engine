@@ -35,6 +35,7 @@ function pp_app_boot() {
     global.pp.app = _app;
 
     pp_app_register(PPMode.boot, pp_mode_boot());
+    pp_app_register(PPMode.title, pp_title_mode());
     pp_app_register(PPMode.overworld, pp_mode_overworld());
     pp_app_register(PPMode.battle, pp_mode_battle());
 

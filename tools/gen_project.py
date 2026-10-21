@@ -44,9 +44,23 @@ ROOMS = {
             ("obj_pp_debug_overlay", 0, 0),
         ],
     },
+    "rm_pp_title": {
+        "size": (256, 240),
+        "background": 4278190080,  # opaque black, ARGB
+        "instances": [
+            ("obj_pp_title", 0, 0),
+            ("obj_pp_debug_overlay", 0, 0),
+        ],
+    },
 }
 
-ROOM_ORDER = ["rm_pp_boot"]
+ROOM_ORDER = ["rm_pp_boot", "rm_pp_title"]
+
+# Per object settings the generated .yy carries. obj_pp_game is persistent because it owns the app mode machine,
+# the input sample and the save panel, and all three must survive the move from the boot room to the title room.
+OBJECT_SETTINGS = {
+    "obj_pp_game": {"persistent": True},
+}
 
 # Event file name -> (eventType, eventNum). Names follow what the IDE writes.
 EVENT_PATTERNS = [
@@ -157,6 +171,7 @@ def read_events(object_dir: str, name: str) -> list:
 
 def object_yy(name: str) -> dict:
     obj_dir = os.path.join(GAME, "objects", name)
+    settings = OBJECT_SETTINGS.get(name, {})
     return {
         "$GMObject": "",
         "%Name": name,
@@ -166,7 +181,7 @@ def object_yy(name: str) -> dict:
         "overriddenProperties": [],
         "parent": folder_ref("Objects"),
         "parentObjectId": None,
-        "persistent": False,
+        "persistent": bool(settings.get("persistent", False)),
         "physicsAngularDamping": 0.1,
         "physicsDensity": 0.5,
         "physicsFriction": 0.2,

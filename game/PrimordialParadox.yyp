@@ -200,6 +200,18 @@
     },
     {
       "id": {
+        "name": "pp_art",
+        "path": "scripts/pp_art/pp_art.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_audio",
+        "path": "scripts/pp_audio/pp_audio.yy"
+      }
+    },
+    {
+      "id": {
         "name": "pp_battle_commands",
         "path": "scripts/pp_battle_commands/pp_battle_commands.yy"
       }
@@ -254,6 +266,12 @@
     },
     {
       "id": {
+        "name": "pp_font",
+        "path": "scripts/pp_font/pp_font.yy"
+      }
+    },
+    {
+      "id": {
         "name": "pp_input",
         "path": "scripts/pp_input/pp_input.yy"
       }
@@ -296,6 +314,12 @@
     },
     {
       "id": {
+        "name": "pp_title",
+        "path": "scripts/pp_title/pp_title.yy"
+      }
+    },
+    {
+      "id": {
         "name": "obj_pp_debug_overlay",
         "path": "objects/obj_pp_debug_overlay/obj_pp_debug_overlay.yy"
       }
@@ -308,8 +332,20 @@
     },
     {
       "id": {
+        "name": "obj_pp_title",
+        "path": "objects/obj_pp_title/obj_pp_title.yy"
+      }
+    },
+    {
+      "id": {
         "name": "rm_pp_boot",
         "path": "rooms/rm_pp_boot/rm_pp_boot.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "rm_pp_title",
+        "path": "rooms/rm_pp_title/rm_pp_title.yy"
       }
     }
   ],
@@ -320,6 +356,12 @@
       "roomId": {
         "name": "rm_pp_boot",
         "path": "rooms/rm_pp_boot/rm_pp_boot.yy"
+      }
+    },
+    {
+      "roomId": {
+        "name": "rm_pp_title",
+        "path": "rooms/rm_pp_title/rm_pp_title.yy"
       }
     }
   ],
