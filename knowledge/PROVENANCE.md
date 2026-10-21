@@ -119,12 +119,20 @@ Mechanics learned (public mechanics and our own decisions, not a studied design)
 - Our own rules from the specs: the format number is checked before any other field, the last good file is rotated to
   .bak, a load validates every field and then applies nothing, and the route ledger is saved as its four counters plus
   its named flags with the route derived on read.
+- MEASURED on this runtime on 2026-10-20 while fixing the save crash (card t_b72efa81), by printing the values from a
+  running game rather than by reading the manual: the request id is 0 for the first async call in the process, so an
+  `id <= 0` test wrongly calls a good first request a refusal; a buffer handle has typeof "ref" and is_real false, so
+  is_real must not be used to test one; a number read with buffer_read(buffer_u32) is an int64 with is_real false and
+  is_numeric true, so is_numeric is the test for a number that came out of a file; and a buffer handed to the async
+  pair cannot be deleted until the event has reported back. These are runtime facts about the engine, not a design
+  taken from anywhere, and they are written up in knowledge\gml-essentials.md section 8.
 
 Our implementation differs by: there is nothing to differ from, because nothing was studied. The shape is a 4 byte
 byte-count followed by the JSON text in a fixed 64 KB buffer, a state enum (PPSaveState) in pp_config, bounds and message
 timings as macros in pp_config, a save point as a trigger of kind "save" in map data, and the map, spawn, item and power
 ids all coming from data\. The title line, the backup rotation, the panel timing and the save point are spec 11's own
-decisions.
+decisions. The buffer fields hold a handle or undefined and never a number, the existence test is the async pair's own
+status rather than a path guess, and the length prefix is read with is_numeric.
 
 Copied expression: none.
 

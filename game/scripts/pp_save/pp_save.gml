@@ -23,12 +23,18 @@
 /// error, never a silent truncation).
 
 /// The state of the slot. Every async step is a state, and pp_save_async_event is the only thing that moves it on.
+///
+/// The two buffer fields hold a buffer handle or undefined, never a number. That is not a style choice: in this
+/// runtime a buffer handle is a reference, not a number (measured 2026-10-20: typeof is "ref" and is_real is false),
+/// so the old -1 sentinel made every "is there a buffer" test compare a reference against a number, and the
+/// is_real guard in pp_save_payload_text refused every valid buffer. undefined is the one value that means
+/// "no buffer" and is safe to test with is_undefined.
 function pp_save_init() {
     global.pp.save = {
         state: PPSaveState.idle,
-        payload: -1,
-        spare: -1,
-        request: 0,
+        payload: undefined,
+        spare: undefined,
+        request: -1,
         purpose: "",
         source: "main",
         main_loaded: false,
@@ -173,16 +179,19 @@ function pp_save_write(_purpose) {
     // Rotate the file only when this session read it as a good save. A corrupt file is never copied over the last
     // good backup, which is the one property spec 11 rule 2 exists for.
     if (_s.present) {
-        var _copy = buffer_create(PP_SAVE_BUFFER, buffer_fixed, 1);
-        _s.spare = _copy;
-        var _id = buffer_load_async(_copy, pp_save_name_main(), 0, PP_SAVE_BUFFER);
-        if (_id > 0) {
+        // Rotate by reading the current file back through the async pair, so there is no synchronous copy and no path
+        // guess. The request id is 0 for the first asynchronous transfer in a process (measured 2026-10-20), so the
+        // test for "the transfer did not start" is a negative id, never "less than or equal to zero".
+        _s.spare = buffer_create(PP_SAVE_BUFFER, buffer_fixed, 1);
+        var _id = buffer_load_async(_s.spare, pp_save_name_main(), 0, PP_SAVE_BUFFER);
+        if (_id >= 0) {
             _s.request = _id;
             _s.state = PPSaveState.backing;
             return true;
         }
-        buffer_delete(_copy);
-        _s.spare = -1;
+        // The runtime refused the transfer, so nothing will report back. The buffer is abandoned rather than freed:
+        // the runtime may still be holding it, and buffer_delete would raise "in use" (see pp_save_read).
+        _s.spare = undefined;
     }
 
     pp_save_start_write();
@@ -193,7 +202,10 @@ function pp_save_write(_purpose) {
 function pp_save_start_write() {
     var _s = global.pp.save;
     var _id = buffer_save_async(_s.payload, pp_save_name_main(), 0, buffer_tell(_s.payload));
-    if (_id <= 0) {
+    if (_id < 0) {
+        // The runtime refused to start the transfer, so nothing will ever report back and it may still be holding
+        // this buffer. Abandon it rather than free it: one lost 64 KB is cheaper than the player's window.
+        _s.payload = undefined;
         pp_save_fail("the save could not be started");
         return false;
     }
@@ -207,6 +219,12 @@ function pp_save_start_write() {
 
 /// Read the slot. On a failed or invalid main file the backup is tried once (spec 11 rule 3), and only then is the
 /// player told, in plain words, that the save could not be read.
+///
+/// There is no existence test before the buffer is made. A relative name given to buffer_load_async lands in the
+/// save area's "default" folder, while file_exists resolves the same name against the save area root, so a
+/// file_exists check cannot see the slot this module writes (measured 2026-10-20: file_exists("pp_save_01.json")
+/// was false while file_exists("default/pp_save_01.json") was true, and the slot lived in the latter). The async
+/// load's own "status" is the honest existence test, which is also what the manual describes.
 function pp_save_read(_from) {
     var _s = global.pp.save;
     if (is_undefined(_s) || !is_struct(_s)) return false;
@@ -219,31 +237,38 @@ function pp_save_read(_from) {
     _s.panel = 0;
     _s.main_loaded = false;
 
-    var _buf = buffer_create(PP_SAVE_BUFFER, buffer_fixed, 1);
-    _s.spare = _buf;
-    var _id = buffer_load_async(_buf, pp_save_name_main(), 0, PP_SAVE_BUFFER);
-    if (_id <= 0) {
-        pp_save_read_backup();
-        return true;
+    _s.spare = buffer_create(PP_SAVE_BUFFER, buffer_fixed, 1);
+    // The request id is 0 for the first asynchronous transfer in a process (measured 2026-10-20), so the test for
+    // "the transfer did not start" is a negative id. The old test took the zero id as a refusal, and then
+    // pp_save_read_backup deleted a buffer the runtime was still holding: "Cannot delete buffer, it's in use by
+    // 1 others", which is the crash this card was raised for.
+    var _id = buffer_load_async(_s.spare, pp_save_name_main(), 0, PP_SAVE_BUFFER);
+    if (_id < 0) {
+        // The runtime refused to start the transfer, so nothing will ever report back. The buffer is abandoned
+        // rather than freed: the runtime may still be holding it, and one lost 64 KB is cheaper than the window.
+        _s.spare = undefined;
+        return pp_save_read_backup();
     }
     _s.request = _id;
     _s.state = PPSaveState.reading;
     return true;
 }
 
+/// Try the backup once. Only ever deletes a buffer that a transfer has already reported back, which is the one moment
+/// the runtime no longer holds it.
 function pp_save_read_backup() {
     var _s = global.pp.save;
-    if (_s.spare >= 0) {
+    if (!is_undefined(_s.spare)) {
         buffer_delete(_s.spare);
-        _s.spare = -1;
+        _s.spare = undefined;
     }
-    var _buf = buffer_create(PP_SAVE_BUFFER, buffer_fixed, 1);
-    _s.spare = _buf;
     _s.source = "backup";
-    var _id = buffer_load_async(_buf, pp_save_name_backup(), 0, PP_SAVE_BUFFER);
-    if (_id <= 0) {
-        pp_save_absent();
-        return false;
+    _s.spare = buffer_create(PP_SAVE_BUFFER, buffer_fixed, 1);
+    var _id = buffer_load_async(_s.spare, pp_save_name_backup(), 0, PP_SAVE_BUFFER);
+    if (_id < 0) {
+        // Refused, so nothing will report back and the runtime may still be holding this buffer. Abandon it.
+        _s.spare = undefined;
+        return pp_save_absent();
     }
     _s.request = _id;
     _s.state = PPSaveState.retrying;
@@ -253,14 +278,14 @@ function pp_save_read_backup() {
 /// No file at all, both names refused to load. Not an error: a player who has never saved sees a plain title.
 function pp_save_absent() {
     var _s = global.pp.save;
-    if (_s.spare >= 0) {
+    if (!is_undefined(_s.spare)) {
         buffer_delete(_s.spare);
-        _s.spare = -1;
+        _s.spare = undefined;
     }
     _s.state = PPSaveState.absent;
     _s.data = undefined;
     _s.error = "";
-    _s.request = 0;
+    _s.request = -1;
     return true;
 }
 
@@ -269,7 +294,7 @@ function pp_save_fail(_message) {
     _s.state = PPSaveState.failed;
     _s.error = _message;
     _s.panel = 0;
-    _s.request = 0;
+    _s.request = -1;
     // Nothing is in flight when this is called: a transfer that cannot start, or one that has already reported. So the
     // buffers can be released here and a failed save never leaves 64 KB behind.
     pp_save_free();
@@ -282,10 +307,10 @@ function pp_save_fail(_message) {
 function pp_save_free() {
     var _s = global.pp.save;
     if (is_undefined(_s)) return false;
-    if (_s.payload >= 0) buffer_delete(_s.payload);
-    _s.payload = -1;
-    if (_s.spare >= 0) buffer_delete(_s.spare);
-    _s.spare = -1;
+    if (!is_undefined(_s.payload)) buffer_delete(_s.payload);
+    _s.payload = undefined;
+    if (!is_undefined(_s.spare)) buffer_delete(_s.spare);
+    _s.spare = undefined;
     return true;
 }
 
@@ -299,7 +324,9 @@ function pp_save_async_event() {
     if (is_undefined(_s) || !is_struct(_s)) return false;
     var _id = ds_map_find_value(async_load, "id");
     var _ok = ds_map_find_value(async_load, "status");
-    if (is_undefined(_id) || _s.request <= 0 || _id != _s.request) return false;
+    // The request id is 0 for the first asynchronous transfer in a process (measured 2026-10-20), so the guard is
+    // "no request" as a negative number, not "less than or equal to zero".
+    if (is_undefined(_id) || _s.request < 0 || _id != _s.request) return false;
 
     switch (_s.state) {
         case PPSaveState.backing:
@@ -308,46 +335,48 @@ function pp_save_async_event() {
             if (_ok) {
                 var _text = pp_save_payload_text(_s.spare);
                 if (is_string(_text)) {
-                    if (_s.spare >= 0) buffer_delete(_s.spare);
-                    _s.spare = -1;
+                    if (!is_undefined(_s.spare)) buffer_delete(_s.spare);
+                    _s.spare = undefined;
                     var _bak = buffer_create(PP_SAVE_BUFFER, buffer_fixed, 1);
                     var _b1 = buffer_write(_bak, buffer_u32, string_byte_length(_text));
                     var _b2 = buffer_write(_bak, buffer_string, _text);
                     if (_b1 == 0 && _b2 == 0) {
                         var _wid = buffer_save_async(_bak, pp_save_name_backup(), 0, buffer_tell(_bak));
-                        if (_wid > 0) {
+                        if (_wid >= 0) {
                             _s.spare = _bak;
                             _s.request = _wid;
                             _s.state = PPSaveState.backing_write;
                             return true;
                         }
                     }
-                    buffer_delete(_bak);
+                    // The backup write could not be started, so nothing will report back and the runtime may still be
+                    // holding this buffer. Abandon it rather than free it.
+                    _s.spare = undefined;
                 }
             }
             // No usable current file: write the new one anyway. A save that does not happen because a backup could not
             // be made would be the worse failure.
-            if (_s.spare >= 0) {
+            if (!is_undefined(_s.spare)) {
                 buffer_delete(_s.spare);
-                _s.spare = -1;
+                _s.spare = undefined;
             }
             return pp_save_start_write();
 
         case PPSaveState.backing_write:
             if (!_ok) _s.error = "the backup was not written";
-            if (_s.spare >= 0) {
+            if (!is_undefined(_s.spare)) {
                 buffer_delete(_s.spare);
-                _s.spare = -1;
+                _s.spare = undefined;
             }
             return pp_save_start_write();
 
         case PPSaveState.writing:
-            if (_s.payload >= 0) {
+            if (!is_undefined(_s.payload)) {
                 buffer_delete(_s.payload);
-                _s.payload = -1;
+                _s.payload = undefined;
             }
             _s.panel = 0;
-            _s.request = 0;
+            _s.request = -1;
             if (_ok) {
                 _s.state = PPSaveState.saved;
                 _s.present = true;
@@ -359,13 +388,13 @@ function pp_save_async_event() {
         case PPSaveState.reading:
             _s.main_loaded = _ok;
             if (_ok && pp_save_parse(_s.spare)) {
-                if (_s.spare >= 0) {
+                if (!is_undefined(_s.spare)) {
                     buffer_delete(_s.spare);
-                    _s.spare = -1;
+                    _s.spare = undefined;
                 }
                 _s.state = PPSaveState.ready;
                 _s.present = true;
-                _s.request = 0;
+                _s.request = -1;
                 _s.panel = 0;
                 return true;
             }
@@ -373,23 +402,23 @@ function pp_save_async_event() {
 
         case PPSaveState.retrying:
             if (_ok && pp_save_parse(_s.spare)) {
-                if (_s.spare >= 0) {
+                if (!is_undefined(_s.spare)) {
                     buffer_delete(_s.spare);
-                    _s.spare = -1;
+                    _s.spare = undefined;
                 }
                 _s.state = PPSaveState.ready;
                 // The main file is the damaged one here, so present stays false: the next write must not rotate that
                 // file over the backup that just proved itself.
-                _s.request = 0;
+                _s.request = -1;
                 _s.panel = 0;
                 _s.note = "the save was damaged, so the backup was loaded";
                 return true;
             }
-            if (_s.spare >= 0) {
+            if (!is_undefined(_s.spare)) {
                 buffer_delete(_s.spare);
-                _s.spare = -1;
+                _s.spare = undefined;
             }
-            _s.request = 0;
+            _s.request = -1;
             if (!_s.main_loaded && !_ok) {
                 return pp_save_absent();
             }
@@ -405,11 +434,19 @@ function pp_save_async_event() {
 
 /// The JSON text out of a file buffer, or undefined when the header does not agree with the bytes. The length prefix is
 /// what turns a truncated file into a clear error instead of a half parsed document.
+///
+/// The buffer handle is not a number in this runtime (measured 2026-10-20: typeof is "ref" and is_real is false), so
+/// the old "is it a number, and is it non negative" guard refused every valid buffer and made every load fail with
+/// "the save file is not whole". The only test that is true of a real buffer and false of nothing is is_undefined,
+/// and the byte count and the string are checked afterwards, so a wrong buffer still cannot slip through.
 function pp_save_payload_text(_buf) {
-    if (is_undefined(_buf) || !is_real(_buf) || _buf < 0) return undefined;
+    if (is_undefined(_buf)) return undefined;
     buffer_seek(_buf, buffer_seek_start, 0);
     var _size = buffer_read(_buf, buffer_u32);
-    if (!is_real(_size) || _size <= 0 || _size > PP_SAVE_BUFFER - 5) return undefined;
+    // A number read out of a buffer is an int64 in this runtime (measured 2026-10-20: typeof is "int64" and is_real
+    // is false, while is_numeric is true), so is_real would refuse a perfectly good length prefix. is_numeric is the
+    // test that is true of every number and false of a string.
+    if (!is_numeric(_size) || _size <= 0 || _size > PP_SAVE_BUFFER - 5) return undefined;
     var _text = buffer_read(_buf, buffer_string);
     if (!is_string(_text)) return undefined;
     if (string_byte_length(_text) != _size) return undefined;

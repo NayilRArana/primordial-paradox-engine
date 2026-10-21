@@ -12,13 +12,16 @@
       2  GameMaker is not installed, or Igor is there but no licence folder exists yet
       3  Igor ran and returned an error (the last 20 lines are printed)
 
-  Status: UNVERIFIED. As of 2026-10-19 there is no GameMaker install, runtime or licence on this PC, so this script
-  has never reached step 4. Every path it looks for comes from knowledge\igor-cli.md.
+  Status: VERIFIED 2026-10-20. GameMaker LTS2026 is installed on this PC: runtime-2026.0.0.23, Igor shipping inside the
+  runtime at bin\igor\windows\x64\Igor.exe, and the account folder at %APPDATA%\GameMakerStudio2-LTS2026. Those folder
+  names are not the 2024 ones this script was first written against, so the discovery below matches both lines.
+  -Compile builds and stops; -SkipChecks skips the Python gates.
 #>
 
 [CmdletBinding()]
 param(
-    [switch]$SkipChecks
+    [switch]$SkipChecks,
+    [switch]$Compile
 )
 
 $ErrorActionPreference = 'Stop'
@@ -73,11 +76,20 @@ if (-not $SkipChecks) {
 
 $runtime = $env:PP_RUNTIME
 if ([string]::IsNullOrWhiteSpace($runtime)) {
-    $runtimeRoot = Join-Path $env:ProgramData 'GameMakerStudio2\Cache\runtimes'
-    if (Test-Path $runtimeRoot) {
-        $runtime = Get-ChildItem -Path $runtimeRoot -Directory -Filter 'runtime-*' -ErrorAction SilentlyContinue |
-            Sort-Object Name -Descending |
-            Select-Object -First 1 -ExpandProperty FullName
+    # Two folder names exist in the wild: "GameMakerStudio2" for the 2024 line and "GameMakerStudio2-LTS2026" for the LTS
+    # line installed here. Match either, and take the newest runtime by name.
+    $runtimes = @()
+    foreach ($wildcard in @('GameMakerStudio2', 'GameMakerStudio2-*')) {
+        $productRoots = Get-ChildItem -Path $env:ProgramData -Directory -Filter $wildcard -ErrorAction SilentlyContinue
+        foreach ($product in $productRoots) {
+            $runtimeRoot = Join-Path $product.FullName 'Cache\runtimes'
+            if (Test-Path $runtimeRoot) {
+                $runtimes += Get-ChildItem -Path $runtimeRoot -Directory -Filter 'runtime-*' -ErrorAction SilentlyContinue
+            }
+        }
+    }
+    if ($runtimes.Count -gt 0) {
+        $runtime = $runtimes | Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty FullName
     }
 }
 if ([string]::IsNullOrWhiteSpace($runtime)) {
@@ -93,12 +105,23 @@ foreach ($relative in @('bin\igor\windows\x64\Igor.exe', 'bin\igor\windows\x86\I
 if ($null -eq $igor) { Fail 2 "The runtime at $runtime has no Igor.exe, so the command line build cannot run. Open GameMaker once and let it finish installing the runtime." }
 
 $userFolder = $null
-$userRoot = Join-Path $env:APPDATA 'GameMakerStudio2'
-if (Test-Path $userRoot) {
-    $userFolder = Get-ChildItem -Path $userRoot -Directory -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -match '_\d+$' } |
-        Sort-Object LastWriteTime -Descending |
-        Select-Object -First 1 -ExpandProperty FullName
+foreach ($wildcard in @('GameMakerStudio2', 'GameMakerStudio2-*')) {
+    if ($null -ne $userFolder) { break }
+    $productRoots = Get-ChildItem -Path $env:APPDATA -Directory -Filter $wildcard -ErrorAction SilentlyContinue
+    foreach ($product in $productRoots) {
+        # A named account lives in a subfolder ending in _<digits>. That is the folder the 2024 line wants.
+        $account = Get-ChildItem -Path $product.FullName -Directory -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match '_\d+$' } |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+        if ($null -ne $account) { $userFolder = $account.FullName; break }
+        # The LTS line keeps um.json in the product folder itself and takes that folder as the user folder. Only trust
+        # this for the '-suffix' product folder, never for the 2024 one, where a missing account must still stop the build.
+        if ($product.Name -ne 'GameMakerStudio2' -and (Test-Path (Join-Path $product.FullName 'um.json'))) {
+            $userFolder = $product.FullName
+            break
+        }
+    }
 }
 if ([string]::IsNullOrWhiteSpace($userFolder)) {
     Fail 2 'Igor needs a licence folder and there is none yet. Open GameMaker Studio once, log in, then run this again. (That login is your step, not the bot''s.)'
@@ -109,18 +132,18 @@ if (-not (Test-Path $yyp)) { Fail 1 "The project file is missing: $yyp" }
 # ---------------------------------------------------------------------------------------------------------------
 # 3. Build and run.
 
-$cache = Join-Path $build 'cache'
-$temp  = Join-Path $build 'temp'
-New-Item -ItemType Directory -Force -Path $cache | Out-Null
-New-Item -ItemType Directory -Force -Path $temp  | Out-Null
+$mode = 'Run'
+if ($Compile) { $mode = 'Compile' }
 
+# The flag forms below are the ones measured working against runtime-2026.0.0.23 on 2026-10-20. /cache and /temp are
+# deliberately not passed: they were never proven on this runtime, and an unproven flag here would fail the build in a way
+# that reads as the project being broken.
 $arguments = @(
-    "/project=`"$yyp`"",
-    "/rp=`"$runtime`"",
-    "/uf=`"$userFolder`"",
-    "/cache=`"$cache`"",
-    "/temp=`"$temp`"",
-    '--', 'Windows', 'Run'
+    "--project=`"$yyp`"",
+    "--runtimePath=`"$runtime`"",
+    "--uf=`"$userFolder`"",
+    '--config=Default',
+    '--', 'Windows', $mode
 )
 
 Say "building with $igor"
@@ -130,7 +153,12 @@ Say "build log: $igorLog"
 
 # Igor writes to its own file. Redirecting it onto the gate log would truncate the check output a user needs most when
 # a build fails, and Start-Process truncates a redirect target.
-$process = Start-Process -FilePath $igor -ArgumentList $arguments -NoNewWindow -PassThru -Wait `
+#
+# -WorkingDirectory is not optional. Igor resolves its cache and temp folders against the CURRENT directory, not
+# against the project, so run from anywhere else it tries to create them under that folder and stops with
+# "UnauthorizedAccessException: Access to the path '<current folder>\cache\PrimordialParadox' is denied" (measured
+# 2026-10-20). The project root is the folder that holds the cache and output folders the build writes into.
+$process = Start-Process -FilePath $igor -ArgumentList $arguments -WorkingDirectory $root -NoNewWindow -PassThru -Wait `
     -RedirectStandardOutput $igorLog -RedirectStandardError (Join-Path $build 'last-build-error.log')
 
 if ($process.ExitCode -ne 0) {

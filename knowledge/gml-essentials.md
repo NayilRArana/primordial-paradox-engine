@@ -152,6 +152,27 @@ DECISION for PP: saves are written with buffer_save_async from a buffer holding 
 event flips a small state machine (saving, saved, failed). The player never sees a frozen frame; the "Saving" label
 is drawn while the async is in flight. See specs/11-save.md.
 
+MEASURED on this runtime (runtime-2026.0.0.23, 2026-10-20, card t_b72efa81), all four found by running the game
+and printing the values, not by reading the manual:
+
+- The request id is **0 for the first async call in the process**, then 1, 2, 3. A test of `id <= 0` for "the
+  transfer refused to start" therefore rejects a perfectly good first request, and a test of `id > 0` for "the
+  transfer started" rejects it too. Compare the id against the one you stored, and treat a negative id (if it ever
+  happens) as the failure case.
+- A buffer handle is not a number. `typeof(buffer)` is `"ref"` and `is_real(buffer)` is **false**. A buffer id
+  must not be tested with `is_real`, and must not be compared against a number with `<` or `>=`. Use `undefined` as
+  the "no buffer" sentinel and `is_undefined` as the test.
+- A number read from a buffer with `buffer_read(buffer, buffer_u32)` is an **int64**: `typeof` says `"int64"`,
+  `is_real` is false, and `is_numeric` is true. `is_int` does not exist in this runtime. A number that came out of
+  a file must be tested with `is_numeric`, never `is_real`.
+- The save area is `<save area>\default\` for a relative name. `file_exists("pp_save_01.json")` is false while
+  `file_exists("default/pp_save_01.json")` is true, and the async pair reads and writes the `default` folder. A
+  relative name must not be checked with `file_exists` on the bare name, and the async pair's own status is the
+  only trustworthy existence test.
+- A buffer handed to `buffer_load_async` or `buffer_save_async` must not be deleted until the event has reported
+  back. Deleting it while the transfer is in flight raises `Cannot delete buffer, it's in use by 1 others`. If a
+  transfer is abandoned, drop the handle instead of freeing it.
+
 ## 9. JSON
 
 Source: https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/File_Handling/Encoding_And_Hashing/json_parse.htm (checked 2026-10-19)
