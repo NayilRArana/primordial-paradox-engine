@@ -9,3 +9,9 @@ build/
 *.yyz
 *.resource_order
 game/.resource_order
+
+# Igor build products and its cache. Measured 2026-10-21: output/ held 17 untracked files
+# including PrimordialParadox.exe (7.9 MB) and PrimordialParadox.win, and the repo root
+# .gitignore did not cover them, so a build would have committed 8 MB of binary.
+output/
+cache/
