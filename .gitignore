@@ -3,6 +3,13 @@ knowledge/study/
 
 # Generated from data\ by tools\sync_data.py. The source of truth is data\, not this mirror.
 game/datafiles/
+# The title art mirror, before it moved under game\datafiles\art\ (tools\sync_art.py now
+# writes there). These files are the old location's copies of the same tracked sprites in
+# game\sprites_src\title\, and the committed .yyp does not reference them: it lists the
+# 20 sprites as datafiles/art. Measured 2026-10-21: the live tree still held all 20 copies
+# at the old path, and committing them a second time under the old name is what put a
+# tracked file in the tree that nothing reads.
+game/art/
 
 # Build output and per user IDE state.
 build/
