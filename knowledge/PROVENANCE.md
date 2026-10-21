@@ -62,6 +62,7 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_save/pp_save.gml | save, load and resume | 01, 10, 11 |
 | game/objects/obj_pp_game | specs alone | 01, 02 |
 | game/objects/obj_pp_debug_overlay | specs alone | 10 |
+| game/objects/obj_pp_title | specs alone | 14 (proposed) |
 | game/rooms/rm_pp_boot | specs alone | 01 |
 | tools/art/make_title_ui.py | title art generator | 14 (proposed) |
 | tools/gen_project.py | specs alone | 14 (proposed) |

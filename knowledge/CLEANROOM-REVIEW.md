@@ -29,6 +29,10 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_game/Other_72.gml | reviewed | gamedev | 2026-10-21 |
 | game/objects/obj_pp_game/Step_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_game/Step_1.gml | confirmed | code-review | 2026-10-19 |
+| game/objects/obj_pp_title/Create_0.gml | reviewed | gamedev | 2026-10-21 |
+| game/objects/obj_pp_title/Draw_0.gml | reviewed | gamedev | 2026-10-21 |
+| game/objects/obj_pp_title/Draw_64.gml | reviewed | gamedev | 2026-10-21 |
+| game/objects/obj_pp_title/Step_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_app/pp_app.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_art/pp_art.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_audio/pp_audio.gml | reviewed | gamedev | 2026-10-21 |
@@ -92,6 +96,20 @@ someone's expression". A module that leaned on a studied detail has the exact co
   the reason this object can be the only Step in the game (gml-essentials section 1).
 - `game/objects/obj_pp_game/Step_1.gml`: confirmed. The single Begin Step input sample of spec 02; the manual states
   Begin Step runs before every Step, which is why the sample lives here rather than in a Step.
+- `game/objects/obj_pp_title/Create_0.gml`: reviewed. Three calls in a fixed order: load the art index, make the
+  screen's state, enter the screen. The art index comes first because the screen draws from it, so the order is a
+  dependency and not a preference. The sources are spec 14 and the manual's object event pages. A title screen as one
+  object that owns its own state is the ordinary shape, and the three calls are this project's own functions.
+- `game/objects/obj_pp_title/Step_0.gml`: reviewed. One guard and one call. The guard is the app's mode: the screen
+  stops acting the moment the app machine leaves the title mode, so the overworld is never drawn over the title.
+  That is spec 01's rule that one mode owns the frame, applied at the object rather than in the app, and the guard is
+  the ordinary way to keep an object honest about who owns the screen.
+- `game/objects/obj_pp_title/Draw_0.gml`: reviewed. One guard and one call, the mirror of the Step event: the screen
+  draws itself only while the app machine is in the title mode, so the app's title mode draws nothing and there is
+  still one owner of the frame. The sources are spec 14 and spec 01.
+- `game/objects/obj_pp_title/Draw_64.gml`: reviewed. An empty event on purpose. The Draw GUI event draws over the
+  room, and the title screen is drawn in the room rather than over it, so there is nothing to do here. The comment
+  says so, because an empty event with no explanation reads as an oversight.
 - `game/scripts/pp_app/pp_app.gml`: rewritten. Construct named and removed: the provenance parenthetical citing the
   studied controller's "shared phase globals". The logic is a mode registry with one request door, one fade and explicit
   enter/step/draw methods, which is spec 01 rules 1 to 3; a state machine with one owner is the ordinary shape for a game
