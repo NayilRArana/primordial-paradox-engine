@@ -550,12 +550,16 @@ def sha256(path: str) -> str:
     return digest.hexdigest()
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    default_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    parser.add_argument("--root", default=default_root, help="repository root (default: two levels above this file)")
-    args = parser.parse_args()
-    root = os.path.abspath(args.root)
+def generate(root: str) -> int:
+    """Write the title art into a repository root and check it. Returns 0 when every sprite passes.
+
+    This is the whole job, separated from the command line so that a caller can run it in process. The test suite
+    calls this directly, because a child process spawn is the one step that can fail for reasons that have nothing to
+    do with the art: a Windows spawn can fail with "The request is not supported" (WinError 50) when another test has
+    left the process in an odd state, and the failure then looks like a fault in the art when it is a fault in the
+    harness.
+    """
+    root = os.path.abspath(root)
 
     colours = load_palette(root)
     palette_hex = {"#%02x%02x%02x" % (r, g, b) for r, g, b, _ in colours}
@@ -604,6 +608,14 @@ def main() -> int:
         return 1
     print("\nevery sprite uses at most 16 colours and every colour is an exact data/palette.json entry")
     return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    default_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    parser.add_argument("--root", default=default_root, help="repository root (default: two levels above this file)")
+    args = parser.parse_args()
+    return generate(args.root)
 
 
 if __name__ == "__main__":

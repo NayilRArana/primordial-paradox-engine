@@ -1,24 +1,51 @@
 /// obj_pp_game: the one controller instance in the boot room.
 /// Create builds the game frame (data, input, camera, ledger, app modes) exactly once. Nothing else in the project
 /// sets any of it up, so there is one order and it is this one.
+//
 // Crash log, installed before anything that can throw. The default behaviour on Windows is a modal error box, which no
-// script, no build and no unattended run can read, so an unhandled exception is written to pp_crash.log in the save area
-// and the game closes. Read that file; do not infer a result from an exit code.
-// Fields are the ones the runtime documents for the handler: message, longMessage, script, line, stacktrace.
+// script, no build and no unattended run can read, so an unhandled exception is reported and the game closes.
+//
+// Two channels, because either one alone can be lost:
+//   1. show_debug_message, which the runtime prints into the Igor run log. This is the channel that is known to work
+//      on this machine (measured 2026-10-20), so it comes first and it touches nothing that can fail.
+//   2. pp_crash.log in the save area, for a human reading the machine later.
+//
+// The handler must not itself throw, because an exception inside the handler loses the error entirely. So every field
+// is read defensively, and the callstack is only walked if the field is really an array.
 exception_unhandled_handler(function(_ex) {
-    var _text = "message: " + string(_ex.message) + "\n";
-    _text += "where: " + string(_ex.script) + " line " + string(_ex.line) + "\n";
-    _text += string(_ex.longMessage) + "\n";
-    _text += "callstack:\n";
-    var _frames = array_length(_ex.stacktrace);
-    for (var _i = 0; _i < _frames; _i += 1) {
-        _text += "  " + string(_ex.stacktrace[_i]) + "\n";
+    var _message = "";
+    var _script = "";
+    var _line = "";
+    if (is_struct(_ex)) {
+        if (variable_struct_exists(_ex, "message")) _message = string(_ex.message);
+        if (variable_struct_exists(_ex, "script")) _script = string(_ex.script);
+        if (variable_struct_exists(_ex, "line")) _line = string(_ex.line);
     }
-    var _file = file_text_open_write("pp_crash.log");
+    var _head = "PP CRASH: " + _message + " | at " + _script + " line " + _line;
+    show_debug_message(_head);
+
+    var _text = _head + "\n";
+    if (is_struct(_ex) && variable_struct_exists(_ex, "longMessage")) {
+        _text += string(_ex.longMessage) + "\n";
+    }
+    if (is_struct(_ex) && variable_struct_exists(_ex, "stacktrace")) {
+        var _frames = _ex.stacktrace;
+        if (is_array(_frames)) {
+            _text += "callstack:\n";
+            for (var _i = 0; _i < array_length(_frames); _i += 1) {
+                _text += "  " + string(_frames[_i]) + "\n";
+            }
+        }
+    }
+
+    // The file write is the part that can fail, so it is last and it is guarded.
+    var _file = -1;
+    _file = file_text_open_write("pp_crash.log");
     if (_file != -1) {
         file_text_write_string(_file, _text);
         file_text_close(_file);
     }
+
     game_end();
     return 0;
 });

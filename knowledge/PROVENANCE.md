@@ -40,6 +40,8 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | File | Entry | Spec |
 | --- | --- | --- |
 | game/scripts/pp_app/pp_app.gml | specs alone | 01 |
+| game/scripts/pp_art/pp_art.gml | specs alone | 14 (proposed) |
+| game/scripts/pp_audio/pp_audio.gml | specs alone | 12, 14 (proposed) |
 | game/scripts/pp_battle_commands/pp_battle_commands.gml | specs alone | 07 |
 | game/scripts/pp_battle_director/pp_battle_director.gml | specs alone | 07 |
 | game/scripts/pp_battle_text/pp_battle_text.gml | specs alone | 05, 07 |
@@ -53,12 +55,14 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_overworld/pp_overworld.gml | specs alone | 04 |
 | game/scripts/pp_scene/pp_scene.gml | specs alone | 06 |
 | game/scripts/pp_input/pp_input.gml | specs alone | 02 |
+| game/scripts/pp_font/pp_font.gml | specs alone | 13, 14 (proposed) |
 | game/scripts/pp_ledger/pp_ledger.gml | specs alone | 10 |
 | game/scripts/pp_rng/pp_rng.gml | specs alone | 09 |
 | game/scripts/pp_save/pp_save.gml | save, load and resume | 01, 10, 11 |
 | game/objects/obj_pp_game | specs alone | 01, 02 |
 | game/objects/obj_pp_debug_overlay | specs alone | 10 |
 | game/rooms/rm_pp_boot | specs alone | 01 |
+| tools/art/make_title_ui.py | title art generator | 14 (proposed) |
 | tools/gen_project.py | specs alone | 14 (proposed) |
 | tools/check_project.py | specs alone | 14 (proposed) |
 | tools/check_data.py | specs alone | 08, 09, 14 (proposed) |
@@ -90,6 +94,37 @@ Our implementation differs by: there is nothing to differ from, because nothing 
 recorded as differences still stands as our design, with one downgrade: the project file shapes in
 knowledge\gamemaker-project-format.md are unsourced and UNVERIFIED, and the modules are written so that nothing in game
 code depends on them.
+
+Copied expression: none.
+
+## the title art generator and its test (2026-10-21)
+
+Studied: nothing. No decompiled, ripped or fan ported material was read, opened, searched, fetched, downloaded or
+reasoned from for this entry. The sources were this repository's own data\palette.json, the art contract in
+TITLE-COORD.md, the game\sprites_src\title\spr_pp_title_logo.png, spr_pp_font8.png and spr_pp_menu_cursor.png that
+the generator writes, and the Pillow documentation for the drawing primitives used.
+
+Mechanics learned (public mechanics and our own decisions, not a studied design):
+- A sprite sheet of a pixel font is one frame per glyph, laid out left to right in a fixed order, so a glyph is
+  addressed by index rather than by name. The contract is that the strip is 8x8 per frame and 44 frames long, and the
+  test checks the frame count and the strip's pixel width against it.
+- A sprite sheet of an animated sprite holds its frames side by side, so a frame is a horizontal slice of one image and
+  the strip's width is the frame count times the frame width.
+- A pixel art file is a PNG whose every visible pixel is an exact entry of the master palette, and a room has a colour
+  cap, so a generator can be checked by comparing the set of colours it used against the palette and counting them.
+- Two runs of the same generator over the same input must produce byte identical files, so the generator is
+  deterministic by construction: no clock, no randomness, no dict ordering that depends on insertion order.
+- A child process spawn is the fragile part of a test harness, not the work. The generator's job was moved into a
+  function so the test can call it in process, which removes the whole class of failure where the child fails to start
+  (measured on this machine as "The request is not supported", WinError 50) and the failure is misread as a fault in
+  the art.
+
+Our implementation differs by: the generator lives in tools\art\make_title_ui.py, is a pure function of a root
+directory, writes into game\sprites_src\title\ and produces output\title_ui_preview.png as a contact sheet at 3x. The
+test writes into a throwaway copy of the data tree and never into the live tree, and it proves the properties above
+rather than asserting them in a comment: byte identical reruns, every pixel in the palette, the colour cap, the
+contract sizes and frame counts, the logo reading PRIMORDIAL over PARADOX, the crack crossing the O of PARADOX, the
+cursor being an outlined arrow that changes state, and the committed PNGs matching what a fresh run produces.
 
 Copied expression: none.
 

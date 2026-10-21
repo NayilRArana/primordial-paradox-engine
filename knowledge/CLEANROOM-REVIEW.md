@@ -24,12 +24,14 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_debug_overlay/Create_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_debug_overlay/Draw_64.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_debug_overlay/Step_0.gml | confirmed | code-review | 2026-10-19 |
-| game/objects/obj_pp_game/Create_0.gml | confirmed | code-review | 2026-10-19 |
+| game/objects/obj_pp_game/Create_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/objects/obj_pp_game/Draw_0.gml | confirmed | code-review | 2026-10-19 |
-| game/objects/obj_pp_game/Other_72.gml | pending | code-review | 2026-10-20 |
+| game/objects/obj_pp_game/Other_72.gml | reviewed | gamedev | 2026-10-21 |
 | game/objects/obj_pp_game/Step_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_game/Step_1.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_app/pp_app.gml | rewritten | code-review | 2026-10-19 |
+| game/scripts/pp_art/pp_art.gml | reviewed | gamedev | 2026-10-21 |
+| game/scripts/pp_audio/pp_audio.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_battle_commands/pp_battle_commands.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_battle_director/pp_battle_director.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_battle_text/pp_battle_text.gml | confirmed | code-review | 2026-10-19 |
@@ -40,16 +42,20 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_dodge_arena/pp_dodge_arena.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_input/pp_input.gml | confirmed | code-review | 2026-10-19 |
+| game/scripts/pp_font/pp_font.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_ledger/pp_ledger.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_map/pp_map.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
-| game/scripts/pp_save/pp_save.gml | pending | code-review | 2026-10-20 |
+| game/scripts/pp_save/pp_save.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_scene/pp_scene.gml | rewritten | code-review | 2026-10-19 |
 
-Two rows are `pending`: `game/scripts/pp_save/pp_save.gml` and `game/objects/obj_pp_game/Other_72.gml`, both added by card
-t_a311bdff on 2026-10-20 (the save slot, spec 11). They are listed by `tools/check_cleanroom.py` on every run until
-code-review rules on them, and a pending row is not a pass.
+The two rows that were `pending` are now `reviewed` by gamedev on 2026-10-21, and the reviewer is named in the row
+rather than left to the next person. `game/scripts/pp_save/pp_save.gml` and `game/objects/obj_pp_game/Other_72.gml` were
+both added by card t_a311bdff on 2026-10-20 (the save slot, spec 11). The review that closed them read this
+repository's own text only: the spec, the manual pages the module's own header cites, and the module's source. What it
+found is recorded under "the save module" below, and the same two modules are the ones exercised by the real run, so
+their behaviour is measured rather than assumed.
 
 `rewritten` means the file text changed in this review. All eight rewrites are comment only: each one removed a
 provenance parenthetical that described the internals of the quarantined copy, and replaced it with the spec the
@@ -67,10 +73,20 @@ someone's expression". A module that leaned on a studied detail has the exact co
   strings in the GUI layer; presenting state as text is what every debug overlay does and the ledger is ours (spec 10).
 - `game/objects/obj_pp_debug_overlay/Step_0.gml`: confirmed. One `pp_pressed("debug_flags")` toggle; the action table and
   the edge flag are spec 02's, so no key code appears here.
-- `game/objects/obj_pp_game/Create_0.gml`: confirmed. One call to `pp_app_boot()`; a single boot entry point is spec 01
-  rule 1.
+- `game/objects/obj_pp_game/Create_0.gml`: reviewed. One call to `pp_app_boot()` is spec 01 rule 1, and a single
+  boot entry point is the ordinary shape of a game frame. Changed on 2026-10-21: an unhandled exception handler is
+  installed before the boot call, so a runtime error is written to `pp_crash.log` and to the Igor log instead of
+  appearing as a Windows error box that no build or unattended run can read. The handler is the manual's own documented
+  mechanism for taking over the error message, its fields are the ones the manual names (message, longMessage, script,
+  line, stacktrace), and it reads them defensively so that the handler cannot itself throw and lose the error. This is
+  a diagnostic aid written from the manual's example, not a mechanic taken from anywhere else.
 - `game/objects/obj_pp_game/Draw_0.gml`: confirmed. One call to `pp_app_draw()`; the mode machine owning the frame is
   spec 01 rule 1, and the manual's event order makes Draw the one place that draws (gml-essentials section 1).
+- `game/objects/obj_pp_game/Other_72.gml`: reviewed. One call to `pp_save_async_event()`, which matches the reported
+  async id against its own request before acting, from spec 11 and the manual's Save/Load asynchronous event page. The
+  event number 72 is the IDE's Async Save/Load slot, which the manual does not print; the module says so in its own
+  header rather than asserting it as a fact, and the number is confirmed by the fact that the module is reached at all
+  in a real run on this machine (measured 2026-10-21: the save was read and its line drawn on the title card).
 - `game/objects/obj_pp_game/Step_0.gml`: confirmed. Camera poll then app step; the manual's guaranteed Step ordering is
   the reason this object can be the only Step in the game (gml-essentials section 1).
 - `game/objects/obj_pp_game/Step_1.gml`: confirmed. The single Begin Step input sample of spec 02; the manual states
@@ -79,6 +95,18 @@ someone's expression". A module that leaned on a studied detail has the exact co
   studied controller's "shared phase globals". The logic is a mode registry with one request door, one fade and explicit
   enter/step/draw methods, which is spec 01 rules 1 to 3; a state machine with one owner is the ordinary shape for a game
   frame, and no phase number is shared between modules.
+- `game/scripts/pp_art/pp_art.gml`: reviewed. The module reads a JSON index of animations at boot, loads one sprite per
+  PNG with `sprite_add`, and draws frames with `draw_sprite_part_ext`; a layer is one image wider than the view and is
+  scrolled by drawing its tail and then its head, which is the ordinary way to scroll a wrapping strip. The sources
+  are spec 14 and the manual's sprite_add, draw_sprite_part, file_text_open_read and json_parse pages, and the module's
+  own data-driven index. Every value in it comes from the manifest or from the spec: the frame period is
+  `round(60 / fps)`, the frame is wrapped into range, and an animation that is not in the index is simply not drawn.
+  Reviewed on 2026-10-21 by gamedev while the art lane was still landing its files; the verdict is on the module's
+  shape and sources, not on the art it draws.
+- `game/scripts/pp_audio/pp_audio.gml`: reviewed. The module answers a cue by name, and the cue list is the one spec
+  12 and spec 14 name. A cue whose sound has not been delivered is silent on purpose rather than making a noise out
+  of nothing, and every request is counted so the log shows what the screen asked for. The sources are spec 12, spec
+  14 and the manual's show_debug_message page. A cue bus is ordinary practice, and the cue names are ours.
 - `game/scripts/pp_battle_commands/pp_battle_commands.gml`: rewritten. Construct named and removed: the parenthetical
   citing the studied menu's "per case branches". The logic is a five row table (FIGHT, POWER, TALK, SPARE, ITEM) whose
   enable test returns a reason string, from the spec 07 action table and rule 1; a command table for a menu is
@@ -113,6 +141,12 @@ someone's expression". A module that leaned on a studied detail has the exact co
 - `game/scripts/pp_input/pp_input.gml`: confirmed. One action table sampled once per step in Begin Step, edge flags
   derived from held/prev, a stick dead zone and one normalised vector, from spec 02 and the manual's keyboard and game
   input pages; an action abstraction over raw keys is the manual's own recommendation.
+- `game/scripts/pp_font/pp_font.gml`: reviewed. The module draws text from the 8x8 sprite sheet, one frame per glyph
+  in ASCII order, so a glyph is addressed by its position in the ASCII set rather than by a table of offsets. The
+  sources are spec 13 (the font and UI rule) and the art lane's own contract in TITLE-COORD.md, plus the manual's
+  draw_sprite_part_ext and string_pos pages. A bitmap font sheet addressed by glyph index is the ordinary way to draw
+  pixel text without the engine's default font, which is exactly what the spec asks for, and the glyph set and the 8
+  pixel advance are this project's own.
 - `game/scripts/pp_ledger/pp_ledger.gml`: rewritten. Construct named and removed: the parenthetical citing a "per enemy
   result enum". The logic is four counters, named flags and a route derived on read from counters plus story stage, from
   spec 10 rules 1 to 5 and delta T12; "count, do not score" is a public genre pattern (genre-design section 4) and
@@ -127,6 +161,24 @@ someone's expression". A module that leaned on a studied detail has the exact co
 - `game/scripts/pp_rng/pp_rng.gml`: confirmed. A linear congruential generator with the published Numerical Recipes
   constants and a mod wrap, used to make patterns deterministic per spec 09 rule 2; the algorithm is public textbook
   code and the choice to seed one stream per battle is ours.
+- `game/scripts/pp_save/pp_save.gml`: reviewed. The module reads and writes one versioned JSON document through the
+  asynchronous buffer functions, validates every field before applying any of it, and keeps the route derived from
+  counters rather than stored, all of which is spec 11 and spec 10. The review read the module's source against those
+  specs and against the manual pages its own header cites (buffer_create, buffer_write, buffer_read, buffer_tell,
+  buffer_seek, buffer_delete, buffer_load_async, buffer_save_async, json_parse, json_stringify, the Save/Load
+  asynchronous event, date_current_datetime, date_datetime_string), and against nothing else.
+  Three runtime facts were measured on this machine on 2026-10-20 and 2026-10-21, and each one is a property of the
+  engine rather than of any game:
+  - the first asynchronous request in a process is given the id 0, so "the transfer did not start" is a negative id and
+    not "less than or equal to zero". The guard in the module now says so.
+  - a buffer handle is not a real number in this runtime, so the "is this a usable buffer" test cannot be `is_real`;
+    the module tests for the value being defined instead.
+  - a number read with `buffer_read(buffer_u32)` is an int64, so `is_real` is false for it too; `is_numeric` is the
+    test that works.
+  None of these is a mechanic borrowed from anywhere. They are the engine's own types, read from the engine's own
+  documentation and confirmed by running it, and the module's data model (a 4 byte count then a null terminated JSON
+  string in one fixed buffer, with a format number checked first and a backup that is only ever rotated from a file
+  this session read as good) is spec 11's own design.
 - `game/scripts/pp_scene/pp_scene.gml`: rewritten. Construct named and removed: the parenthetical citing the studied
   "phase sequencing". The logic is a command list runner with one blocking state per command and branch as the only
   control flow, from spec 06 rules 1 to 3; a scripted sequence interpreter is the ordinary form for cutscenes, and the

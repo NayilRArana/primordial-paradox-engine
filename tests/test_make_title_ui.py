@@ -18,14 +18,12 @@ import hashlib
 import json
 import os
 import shutil
-import subprocess
 import sys
 
 import pytest
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCRIPT = os.path.join(ROOT, "tools", "art", "make_title_ui.py")
 SPRITES = os.path.join(ROOT, "game", "sprites_src", "title")
 
 INK = (11, 11, 15, 255)
@@ -48,21 +46,24 @@ def sha256(path: str) -> str:
 
 @pytest.fixture(scope="module")
 def generated(tmp_path_factory):
-    """Run the generator twice in two throwaway roots and return both output trees."""
+    """Run the generator twice in two throwaway roots and return both output trees.
+
+    The generator is imported and called in process, not run as a child process. That is deliberate: spawning a child
+    was the one step in this test that could fail for a reason that has nothing to do with the art. On Windows the
+    spawn can fail with "The request is not supported" (WinError 50) or with a stale inherited handle (WinError 6)
+    when an earlier test has left the process in an odd state, and then the failure reads like a fault in the logo when
+    it is a fault in the harness. Calling the generator directly removes that whole failure class.
+    """
+    sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
+    import make_title_ui as gen
+
     runs = []
     for name in ("run_a", "run_b"):
         root = tmp_path_factory.mktemp(name)
         shutil.copytree(os.path.join(ROOT, "data"), root / "data")
         (root / "game" / "sprites_src" / "title").mkdir(parents=True)
         (root / "output").mkdir(parents=True)
-        result = subprocess.run(
-            [sys.executable, SCRIPT, "--root", str(root)],
-            capture_output=True, text=True, timeout=300,
-            # stdin is not inherited: under pytest's capture in a full suite run the inherited
-            # handle can be a stale one and Popen then fails with WinError 6 before the script runs.
-            stdin=subprocess.DEVNULL,
-        )
-        assert result.returncode == 0, result.stdout + result.stderr
+        assert gen.generate(str(root)) == 0, "the generator reported a failure"
         runs.append(root)
     return runs
 
