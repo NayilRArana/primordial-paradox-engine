@@ -49,6 +49,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_save/pp_save.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_scene/pp_scene.gml | rewritten | code-review | 2026-10-19 |
+| game/scripts/pp_title/pp_title.gml | reviewed | gamedev | 2026-10-21 |
 
 The two rows that were `pending` are now `reviewed` by gamedev on 2026-10-21, and the reviewer is named in the row
 rather than left to the next person. `game/scripts/pp_save/pp_save.gml` and `game/objects/obj_pp_game/Other_72.gml` were
@@ -147,6 +148,18 @@ someone's expression". A module that leaned on a studied detail has the exact co
   draw_sprite_part_ext and string_pos pages. A bitmap font sheet addressed by glyph index is the ordinary way to draw
   pixel text without the engine's default font, which is exactly what the spec asks for, and the glyph set and the 8
   pixel advance are this project's own.
+- `game/scripts/pp_title/pp_title.gml`: reviewed. The module holds the state of the title screen in one struct and
+  draws seven seamless layers at the scroll speeds TITLE-COORD.md fixes, then the car, the sign, the logo and the
+  menu. The sources are specs\14-title-screen-drive.md with its night drive addendum, TITLE-COORD.md, the manual's
+  draw_sprite_part_ext, draw_set_colour, draw_rectangle, draw_set_alpha and draw_set_font pages, and the project's own
+  data\title.json. The scene is original: the two reincarnations driving from London to Southampton, the counting down
+  sign and the night drive are this project's own story, and every number in the file is a macro in the file itself
+  with the reason in the comment beside it.
+  The one thing worth recording here is a defect the review found and fixed, because it is the kind that a read-through
+  cannot catch and only a compile can: the four draw_sprite_part_ext calls in pp_art and pp_font passed ten arguments
+  where the runtime's own GmlSpec.xml declares twelve, and had the source rectangle and the destination position
+  swapped. The fix is in the runtime's parameter order (sprite, subimg, left, top, width, height, x, y, xscale, yscale,
+  colour, alpha), and the title now renders with the source rectangle on the sprite and the destination on the screen.
 - `game/scripts/pp_ledger/pp_ledger.gml`: rewritten. Construct named and removed: the parenthetical citing a "per enemy
   result enum". The logic is four counters, named flags and a route derived on read from counters plus story stage, from
   spec 10 rules 1 to 5 and delta T12; "count, do not score" is a public genre pattern (genre-design section 4) and

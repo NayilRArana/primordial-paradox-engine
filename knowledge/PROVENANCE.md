@@ -54,6 +54,7 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_map/pp_map.gml | specs alone | 04 |
 | game/scripts/pp_overworld/pp_overworld.gml | specs alone | 04 |
 | game/scripts/pp_scene/pp_scene.gml | specs alone | 06 |
+| game/scripts/pp_title/pp_title.gml | specs alone | 14 (proposed) |
 | game/scripts/pp_input/pp_input.gml | specs alone | 02 |
 | game/scripts/pp_font/pp_font.gml | specs alone | 13, 14 (proposed) |
 | game/scripts/pp_ledger/pp_ledger.gml | specs alone | 10 |
