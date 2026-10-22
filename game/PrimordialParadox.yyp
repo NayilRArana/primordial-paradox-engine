@@ -186,6 +186,24 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "sprite_recipes.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "sprite_recipes.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "sprite_redraw_queue.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "sprite_redraw_queue.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title.json",
       "CopyToMask": -1,
       "filePath": "datafiles",
@@ -249,6 +267,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "hadrian_ow_v2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "hadrian_ow_v2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "konrad_battle.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -271,6 +298,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "konrad_ow.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "konrad_ow_v2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "konrad_ow_v2.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -303,6 +339,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "percy_ow_v2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "percy_ow_v2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "sailor_battle.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -316,6 +361,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "sailor_ow.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "sailor_ow_v2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "sailor_ow_v2.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -1095,6 +1149,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "zander_ow_v2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "zander_ow_v2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "party.json",
       "CopyToMask": -1,
       "filePath": "datafiles/characters",
@@ -1216,6 +1279,33 @@
       "CopyToMask": -1,
       "filePath": "datafiles/maps/osm",
       "name": "winchester_high_street.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "action_recipes.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/mechanics",
+      "name": "action_recipes.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "jrpg_recipes.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/mechanics",
+      "name": "jrpg_recipes.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pacing_recipes.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/mechanics",
+      "name": "pacing_recipes.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },

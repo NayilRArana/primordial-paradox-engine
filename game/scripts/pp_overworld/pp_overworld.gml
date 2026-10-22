@@ -516,8 +516,8 @@ function pp_overworld_draw(_world) {
 // same silhouette is drawn from blocks at the same size, which is the card's stated fallback and keeps the
 // walk cycle, the facing and the dialogue reach working before any art lands.
 
-#macro PP_HERO_SHEET "zander_ow"
-#macro PP_SAILOR_SHEET "sailor_ow"
+#macro PP_HERO_SHEET "zander_ow_v2"
+#macro PP_SAILOR_SHEET "sailor_ow_v2"
 
 /// Row of a direction inside an overworld sheet. The sheet the character lane draws is 128x16, eight frames in
 /// one row: down 0, down 1, up 0, up 1, right 0, right 1, left 0, left 1. So the direction order is down, up,
