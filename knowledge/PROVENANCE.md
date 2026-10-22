@@ -4,17 +4,31 @@ Rule: a subsystem cannot be committed until it has an entry here. Each entry nam
 learned in plain language, and the concrete ways our implementation differs. "Copied expression: none" is a claim
 about this repository, and it is checked by tools\check_provenance.py plus the clean-room scan described below.
 
-THE STUDY COPIES ARE QUARANTINED AND MAY NOT BE USED. A read against a decompiled commercial game project took place
-on 2026-10-19 and was ruled a clean-room breach; the copies were moved out of this repository and locked away. Nothing
-in this repository may read, open, search, download or reason from them, or from any other decompiled, ripped or fan
-ported copy of a commercial game, GitHub repositories included.
+## What is allowed, and what is not
 
-The two subsystem entries that were written after that read are now WITHDRAWN. On 2026-10-19 (card t_bfaff47b) the
-manager's rule was applied to the last two documents that still leaned on the read: documentation in this repository
-has to stand on public sources, so anything that only the read supported is withdrawn rather than softened. Both
-entries are kept below as an incident record of what was studied, each opens with its status, and each says in one line
-that no current module descends from it. The module map now points every module at one entry, "modules written from the
-specs alone", which names no studied source at all.
+Nayil's order of 2026-10-19, recorded in PLAN.md section 1, permits READING a decompiled copy of a commercial
+GameMaker game in order to understand its architecture, and states that this order supersedes the earlier no-study
+rule. That is the current rule and it is not the one this file was originally written under.
+
+Three buckets decide every case, in one second:
+
+- FREE, take it whole: architecture, state machines, room and event flow, data layout, menu structure, battle flow,
+  save shape, system design. Ideas are not protected. Take them.
+- RENAME, take the shape and change the skin: GML patterns, function structure, event layout, variable roles. Same
+  machine, our names.
+- REWRITE, write fresh: the actual code text, assets, names, dialogue. Never paste their text. Retype from a
+  dossier.
+
+What stays forbidden, and this is the part that keeps a takedown notice away: their code text or a reworded copy of
+it, their sprites, fonts, sounds, music or data tables, their character names, dialogue or item names, and a module
+whose structure traces one to one onto one of their objects.
+
+The study copies live under `knowledge/study/`, which is gitignored, and they are never shipped, published or
+committed. The dossiers distilled from them are under `knowledge/study/DOSSIER/`, prose only, no code text. The
+committed doctrine that every future system derives from is `knowledge/FOX-STYLE.md`.
+
+The 2026-10-19 entries below that were written under the older rule are kept as history. They are not a
+prohibition; they are the record of what that read covered.
 
 The review record for modules is knowledge\CLEANROOM-REVIEW.md, for specs knowledge\SPEC-REVIEW.md, and the method plus
 the per source file outcome are in the section at the end of this file.
@@ -452,3 +466,22 @@ Mechanic learned: a hardware fade rewrites each palette entry to a darker row of
 darkest row the entry is black, which is why a four step fade ends on a black screen instead of a dark blue one.
 Ours differs: the fade is pre-drawn into named strips beside each art strip and picked by name at runtime, so the
 shot costs no per-pixel work and every strip is checked against the 55 usable PPU entries.
+
+## SFX-WIRE: the effects bus (2026-10-22)
+
+Source studied: none outside this repo. The cue bus, the buffer sound load and the blip rule are written from our
+own specs 05 (dialogue: blip every three characters, never on a space), 12 (audio) and 14 (title). The effect WAVs
+are synthesised by tools/sfx.py from the 2A03 voice set with a manifest of their own; no audio and no code was
+taken from anywhere.
+
+Mechanic learned: a cue is a name. The bus looks the name up in a manifest measured from the file header, loads the
+data chunk once into a fixed buffer and plays it with audio_play_sound as a buffer sound. A cue with no file, no
+manifest entry, or a measurement that does not fit stays silent and says so in the log; nothing throws.
+
+How ours differs: the manifest numbers are measured by tools/sync_art.py (mirror_sfx) from each WAV header instead
+of assumed, the three blip pitches are chosen per speaker by pp_audio_blip_cue, and the theme stays an external
+OGG stream while the effects are buffer sounds, so a 60 ms tick never decodes from disk.
+
+Verified by log on the 2026-10-21 23:40 build: menu_move, menu_select and menu_cancel from a scripted title menu,
+and text_blip_a from the intro crawl, with no PP CRASH. footstep, door_hatch and encounter_swoosh are wired in
+pp_overworld and pp_app but are not yet proven in a scripted run.
