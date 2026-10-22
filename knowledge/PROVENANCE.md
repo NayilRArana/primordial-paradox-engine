@@ -4,7 +4,7 @@ Rule: a subsystem cannot be committed until it has an entry here. Each entry nam
 learned in plain language, and the concrete ways our implementation differs. "Copied expression: none" is a claim
 about this repository, and it is checked by tools\check_provenance.py plus the clean-room scan described below.
 
-## What is allowed, and what is not
+### What is allowed, and what is not
 
 Nayil's order of 2026-10-19, recorded in PLAN.md section 1, permits READING a decompiled copy of a commercial
 GameMaker game in order to understand its architecture, and states that this order supersedes the earlier no-study
@@ -462,26 +462,282 @@ Checks run on this machine for this pass are recorded in DEVLOG.md, top entry.
 
 ## INTRO-1 intro shot (2026-10-22)
 Studied: the NES fade rule as documented in knowledge/ART-BIBLE.md and the 2C02 table in data/nes_palette.json.
-Mechanic learned: a hardware fade rewrites each palette entry to a darker row of the same hue, and past the
+Mechanics learned: a hardware fade rewrites each palette entry to a darker row of the same hue, and past the
 darkest row the entry is black, which is why a four step fade ends on a black screen instead of a dark blue one.
-Ours differs: the fade is pre-drawn into named strips beside each art strip and picked by name at runtime, so the
-shot costs no per-pixel work and every strip is checked against the 55 usable PPU entries.
+Our implementation differs by: the fade is pre-drawn into named strips beside each art strip and picked by name at
+runtime, so the shot costs no per-pixel work and every strip is checked against the 55 usable PPU entries.
+Copied expression: none.
 
 ## SFX-WIRE: the effects bus (2026-10-22)
 
-Source studied: none outside this repo. The cue bus, the buffer sound load and the blip rule are written from our
+Studied: none outside this repo. The cue bus, the buffer sound load and the blip rule are written from our
 own specs 05 (dialogue: blip every three characters, never on a space), 12 (audio) and 14 (title). The effect WAVs
 are synthesised by tools/sfx.py from the 2A03 voice set with a manifest of their own; no audio and no code was
 taken from anywhere.
 
-Mechanic learned: a cue is a name. The bus looks the name up in a manifest measured from the file header, loads the
+Mechanics learned: a cue is a name. The bus looks the name up in a manifest measured from the file header, loads the
 data chunk once into a fixed buffer and plays it with audio_play_sound as a buffer sound. A cue with no file, no
 manifest entry, or a measurement that does not fit stays silent and says so in the log; nothing throws.
 
-How ours differs: the manifest numbers are measured by tools/sync_art.py (mirror_sfx) from each WAV header instead
-of assumed, the three blip pitches are chosen per speaker by pp_audio_blip_cue, and the theme stays an external
-OGG stream while the effects are buffer sounds, so a 60 ms tick never decodes from disk.
+Our implementation differs by: the manifest numbers are measured by tools/sync_art.py (mirror_sfx) from each WAV
+header instead of assumed, the three blip pitches are chosen per speaker by pp_audio_blip_cue, and the theme stays an
+external OGG stream while the effects are buffer sounds, so a 60 ms tick never decodes from disk.
+
+Copied expression: none.
 
 Verified by log on the 2026-10-21 23:40 build: menu_move, menu_select and menu_cancel from a scripted title menu,
 and text_blip_a from the intro crawl, with no PP CRASH. footstep, door_hatch and encounter_swoosh are wired in
 pp_overworld and pp_app but are not yet proven in a scripted run.
+
+---
+
+# Subsystem study, 2026-10-22 (twelve dossiers, doctrine and audit)
+
+Read: the Deltarune decompilation (TeamBlossomDevs/DeltaruneDecomp) and the Undertale decompilation
+(kittibyte/UndertaleDecomp), cloned read-only into knowledge/study/, which is gitignored. Deltarune is the source for
+all twelve entries below; Undertale was read for confirmation of the same engine patterns and did not change any
+conclusion. Each entry names the dossier under knowledge/study/DOSSIER/ that the next implementer codes from, and the
+committed doctrine each derives into is knowledge/FOX-STYLE.md.
+
+No code text, identifier, sprite, font, sound, music, data table, name or line of prose from either repository is in
+this project. The dossiers are prose only. Verified by tools/check_cleanroom.py.
+
+## 1. battle state machine
+
+Studied: the Deltarune battle controller object (create, step, draw) and its submenu branching. Dossier
+01-battle-state-machine.md, doctrine section 1.
+
+Mechanics learned: one controller object owns the whole battle and its mode is a menu index plus three flags, not a
+state graph. Submenus are index values with per-character cursor memory in a small 2D array. Input is edge triggered
+through four counters that must go negative before a press counts. After each committed action one shared call
+advances the turn. The dodge phase is a timer that, at zero, destroys bullets and generators in one frame, un-darkens
+the arena, returns the player marker and arms a 15 frame hand-back alarm.
+
+Our implementation differs by: keeping one owner but making the mode a named phase value in a battle struct rather
+than interacting globals, so the battle can be instantiated and tested twice. Turn order is a queue built at round
+start, not a fixed three slot index. Bullets are cleared by a typed owned list rather than an empty parent object, so
+the guarantee survives while the mechanism is testable. Our command set and our recover slot naming are ours.
+
+Copied expression: none.
+
+## 2. morality and no-EXP routing
+
+Studied: the monster defeat path, the mercy accumulator, the monster setup table and the battle aggregate flags.
+Dossier 02-morality-and-no-exp.md, doctrine section 2.
+
+Mechanics learned: every monster's experience field is assigned zero in every branch of the setup table, so the
+running total is always zero and money is the only reward axis. Each enemy gets an outcome flag when it leaves the
+fight (killed, spared, pacified, or a fourth kind), defaulting to spared and overridden to killed only when health
+actually reached zero. When the last enemy leaves, the fight computes a verdict that is generous: pacified beats
+spared beats killed. Four durable counters, incremented at the same moment as the per-enemy flag, are what the story
+reads later. Separately, a per-enemy mercy accumulator with a per-monster cap gates whether spare will work.
+
+Our implementation differs by: recording each enemy's exit as one of our three named states plus a fight verdict, and
+deriving the route on read rather than storing a second copy. Our vocabulary is our own. We deliberately carry no
+experience field at all, not even a zeroed one, so a future contributor cannot make it non-zero and break the
+premise. Resolve pressure is data driven from the enemy row rather than a setup switch.
+
+Copied expression: none.
+
+## 3. bullet pattern system
+
+Studied: the empty bullet and generator parent objects, several concrete projectile objects, the player marker and
+its collision event, and the dodge phase teardown. Dossier 03-bullet-patterns.md, doctrine section 3.
+
+Mechanics learned: two empty parent objects with no events exist only so the controller can mass destroy every
+bullet and every generator in two calls at the end of a phase, which is why nothing leaks into the command menu.
+Concrete patterns are one hand-written object each, with their own timers, that spawn bullet children. Collision is
+handled on the player marker rather than on each bullet, so damage, invulnerability and the hit sound live in one
+place.
+
+Our implementation differs by: keeping the guarantee and inverting the ownership. A pattern is a validated data
+recipe compiled once into a stable sorted spawn list and interpreted by one runner that owns every projectile, so
+clearing the arena is one call that cannot be forgotten and works in a unit test with no room running. Pattern
+authoring is data, which is a deliberate divergence: the studied game hard-codes each pattern as an object.
+
+Copied expression: none.
+
+## 4. battlefield layout and turn flow
+
+Studied: the encounter setup that places actors, the controller's layout constants, battle text placement and the
+turn advance call. Dossier 04-battlefield-layout-and-turn-flow.md, doctrine section 4.
+
+Mechanics learned: all placement is view relative. Party on the left at a fixed x, enemies on the right at a fixed x,
+with three explicit party size cases that recentre the group vertically. The arena is a band between two y values,
+and the narration writer and its portrait are created at fixed offsets from the view origin, the portrait four
+pixels inside the text corner. A round is intro, command in slot order, resolve, dodge, apply, then next round or
+victory, and there is no fallback where enemies simply deal numbers.
+
+Our implementation differs by: putting every one of those constants in one layout module overridable per encounter,
+expressing the party size cases as data rows rather than branches, and building the turn order as a queue. Our
+numbers are derived from our own 256 by 240 frame, not reused.
+
+Copied expression: none.
+
+## 5. room and event flow
+
+Studied: room files and their layered instance lists, a door object's create, collision and alarm events, the marker
+helper, depth-from-y, and the story progress global. Dossier 05-room-and-event-flow.md, doctrine section 5.
+
+Mechanics learned: transitions are door objects, not a transition manager. The collision event deactivates overworld
+projectiles, sets a busy interaction state, spawns a fade out, and arms an 8 frame alarm exactly once thanks to a
+touched guard that makes the transition idempotent. The alarm sets an entrance value, spawns a persistent fade in and
+moves to the next room, so the fade survives the room change and the next room knows which door was used. Story
+scenes are one bespoke object per scene with a fractional counter, branching on one story number, and dialogue
+completion is detected by polling that the dialogue object no longer exists.
+
+Our implementation differs by: keeping the door, the touch guard and the entrance flag, but routing them through one
+transition module that owns the fade and the room change so no scene can implement half a transition. Scenes are
+validated command lists interpreted by one runner rather than one object each. Story progress is one named value in
+the save payload, not an index into a shared flag array.
+
+Copied expression: none.
+
+## 6. save layout
+
+Studied: the save entry point, the per-slot save process, the async buffer save and load functions, the summary ini
+writer and the key config writer. Dossier 06-save-layout.md, doctrine section 6.
+
+Mechanics learned: a save is three artifacts. A JSON payload written through an async buffer; a small summary ini the
+file select reads without decoding the payload; and a per-slot key config. Every save first writes the same state to a
+reserved backup slot, then restores the chosen slot and writes that, so a primary write interrupted mid-flight still
+leaves a consistent previous generation. Both the save and the load refuse to start while an operation id is live or
+a load is in progress, and the buffer is created grow sized from the encoded JSON rather than a guessed capacity.
+
+Our implementation differs by: keeping the three way split and the backup-before-primary ordering, but writing the
+summary as JSON because we already have a JSON reader, gating on idle being negative because a valid async id can be
+zero, verifying the written payload length before the summary claims the slot, saving input bindings globally once
+rather than per slot, and storing a start timestamp instead of incrementing a play time counter everywhere.
+
+Copied expression: none.
+
+## 7. text, dialogue and typewriter
+
+Studied: the writer object's create, alarm and draw events, the text setup helper, the message advance helper, the
+battle text entry point and the portrait pairing. Dossier 07-text-dialogue-typewriter.md, doctrine section 7.
+
+Mechanics learned: one writer object renders every piece of text in the game, created with a parameter block and
+advanced by an alarm whose period is the character rate, drawing from an array of pre-loaded message strings. The
+advance routine has a five behaviour control grammar: a three character style escape, a one character skip, a halt
+that waits for the player with an auto-advancing variant, a two character escape, and a caret plus digit that adds a
+measured delay of 5, 10, 15, 20, 30, 40, 60, 90 or 150 frames. Typing sound is paced by its own alarm, not the
+character alarm. The spoken marker is writer state, not part of the string, and the portrait is a sibling object
+positioned relative to the text.
+
+Our implementation differs by: using our own brace codes with our own pause values rather than the studied
+punctuation family, reading the spoken marker and portrait from data rows rather than writer defaults, and keeping
+our reveal logic in a module so it can be tested without a room. Our line width is computed from our own font
+metrics, not a hard-coded character count. None of their prose exists anywhere in our project.
+
+Copied expression: none.
+
+## 8. menu systems
+
+Studied: the recursive menu drawing helper, the item appender, the selection decoration, and the battle command menu
+for contrast. Dossier 08-menu-systems.md, doctrine section 8.
+
+Mechanics learned: the general menu is a flat list read in triples of type, nested list and display name, rendered by
+recursion over an array of selection indices indexed by depth, so cursor position at every nesting level is one small
+integer and the renderer is a pure function of that array. The deepest depth reached is recorded into globals so a
+caller can draw a detail pane. The battle menu, by contrast, is hand-coded branches with a per-submenu per-character
+cursor array, which is why its clamping logic is repeated three times.
+
+Our implementation differs by: using the data shaped approach for every menu including battle, rows as validated
+structs rather than a flat tripled list so a row naming a missing action fails a unit test, and our own selection
+decoration at our own palette. Recorded gap: the title menu is currently inline in pp_title, and extracting a shared
+renderer is the first task of whichever card adds the second menu.
+
+Copied expression: none.
+
+## 9. audio routing
+
+Studied: the music play and loop helpers, the volume and pitch helpers, the audio group loader, the group gain on
+load, the sound name map and the stream teardown object. Dossier 09-audio-routing.md, doctrine section 9.
+
+Mechanics learned: sound effects resolve by name through a global map, so a call site never names an asset id. Music
+is played at a high fixed priority so effects cannot steal it, with a loop flag distinguishing a loop from a one
+shot, and the volume is multiplied by the saved user setting at that single entry point rather than at each call.
+A fade length in frames is converted to milliseconds in one place by multiplying by a thousand and dividing by the
+room speed. Audio groups load through an idempotent loader. A tiny object exists only to hold a stream handle and
+destroy it on its own destroy event.
+
+Our implementation differs by: resolving cues through a generated manifest so an unknown name is a check failure
+rather than silence, keeping the frame to millisecond conversion inside one function, using no audio groups yet with
+a no-op loader so adding them later touches one place, and storing music volume in our own save key rather than a
+shared flag index.
+
+Copied expression: none.
+
+## 10. cutscene and scripted sequences
+
+Studied: several scene objects and their create and step events, the dialogue object's existence as a wait signal,
+and the story progress global. Dossier 10-cutscene-and-scripted-sequences.md, doctrine section 10.
+
+Mechanics learned: there is no scene engine. A scene is an object whose step event is a chain of independent counter
+comparisons, which lets a branch jump forward by assigning a later counter value, with fractional values used for
+part frame states. Waiting for dialogue is done by polling that the dialogue object no longer exists, so the running
+thing is its own wait condition. A scene branches on one story number at the top of its create event, which selects
+one of several variants of the scene.
+
+Our implementation differs by: replacing the authoring model entirely. A scene is a validated command list in JSON
+interpreted by one runner with a cursor and a wait value, which makes the story editable, diffable and testable
+without a room. We keep three ideas as commands: staging actors by name rather than pre-placement, branching on one
+named progress value, and a first class wait-for-dialogue command instead of chained frame counts. No scene is ever
+an object.
+
+Copied expression: none.
+
+## 11. data-driven content pipeline
+
+Studied: per-language JSON files, the language lookup helper, the JSON map loader, the sound name map, the monster
+setup table and the encounter setup switch. Dossier 11-data-driven-content-pipeline.md, doctrine section 11.
+
+Mechanics learned: text is genuinely data, held in flat per-language maps keyed by a name generated from the source
+location, resolved through one helper, with control codes living inside the translated string. Map data can be loaded
+from JSON through a four line helper that loads a buffer, reads it, deletes the buffer and decodes. Everything else
+that makes a fight what it is, including the enemy table and the encounter table, is a branch per type in code, and
+there is no schema validation anywhere, so a mistyped key resolves to nothing and a missing file returns nothing
+silently.
+
+Our implementation differs by: making the enemy and encounter tables data as well, choosing meaningful key names
+rather than generated ones, validating every file against a schema and resolving every reference at check time so
+broken content stops the build, and treating a missing or malformed file as an error rather than a silence.
+
+Copied expression: none.
+
+## 12. project organisation
+
+Studied: the project file's resource list, the folder per resource convention, a representative script, object and
+room folder. Dossier 12-project-organisation.md, doctrine section 12.
+
+Mechanics learned: the project file is a flat list of resources with a name, a path and an order, so the editor tree
+is derived from paths and the whole list can be generated and verified. Each resource is its own directory holding
+its definition plus one file per event, so every resource is text and every event is a separate file. The
+decompilation does not preserve localisation strings, build settings or comments, so a dossier written from one can
+describe a mechanism but never a rationale.
+
+Our implementation differs by: generating the resource list and the event stubs while never overwriting a
+hand-written event body, checking the list against disk in both directions so an orphan folder or a dangling entry
+both fail, and adding the layer the studied project has no analogue for: specs, schemas, checks, tests and this
+provenance record. Our naming is our own and is reviewed by the clean room check.
+
+Copied expression: none.
+
+## 13. screen ownership: one room and one object per screen
+
+Studied: no new decompilation was read for this entry. It applies the room and event flow of section 5 and the project
+organisation of section 12 to the one screen that had two possible owners. The source of truth is this repository:
+`game\scripts\pp_app\pp_app.gml`, `game\scripts\pp_title\pp_title.gml` and `game\objects\obj_pp_title\`.
+
+Mechanics learned: a screen drawn by a persistent frame controller can move its content into its own room without
+splitting ownership, but only if the mode machine stops running the same screen once the room exists. Two owners on one
+screen do not fail loudly: they advance one state twice per step, so the scroll runs at double speed and a looping
+track is started twice. The guard that fixes it is a single instance check in the mode's enter, step and draw, placed
+where the room's object is the only thing that can satisfy it.
+
+Our implementation differs by: giving the hand over its own door (`pp_app_enter_room`) rather than letting the mode
+machine set the mode directly, keeping the boot card in the boot room for a data failure, and proving the frame with a
+capture the game writes from inside its own draw event instead of a screen copy of whatever window is on top.
+
+Copied expression: none.
+

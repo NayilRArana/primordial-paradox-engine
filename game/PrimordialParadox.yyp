@@ -1095,6 +1095,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "scene_icons.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_icons.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "scene_ship.json",
       "CopyToMask": -1,
       "filePath": "datafiles/palettes",
