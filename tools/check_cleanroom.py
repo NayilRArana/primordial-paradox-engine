@@ -15,6 +15,17 @@ What it does instead is three blacklist checks and one bookkeeping check:
    and a date. A row that says reviewed without a reviewer or a date is an error. A row that says pending is reported
    loudly on every run and is not a pass: it is visible debt, waiting for the reviewer named in it.
 
+ONE NARROW EXCEPTION, FOR DOWNLOADED MAP DATA. data\\osm_cache\\ and game\\datafiles\\osm_cache\\ hold Overpass API
+downloads: third party geography carrying real place names ("Queen's Park" in Southampton), which the foreign name
+scan would refuse as if we had written them. Renaming a downloaded place would falsify the data and break the
+attribution the file carries, so such a file is skipped, but only on EVIDENCE INSIDE THE FILE, never on its path:
+   - it sits under one of those two cache folders, AND
+   - it parses as JSON, AND
+   - its own "generator" starts with "Overpass API", AND
+   - its osm3s block's "copyright" contains "openstreetmap.org".
+A hand written file dropped into the same folder fails the second, third or fourth test and is scanned normally, and
+the run line always reports how many files were skipped, so a skip can never be silent.
+
 The comparison that used to live here (our strings against a study corpus) is gone with the corpus. Its replacement is
 the blacklist plus the human review row, which is what a repository can honestly claim when it refuses to read the
 thing it is being compared to.
@@ -27,6 +38,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -64,6 +76,11 @@ FORBIDDEN_PATHS = [
 REVIEW_FILE = os.path.join("knowledge", "CLEANROOM-REVIEW.md")
 REVIEWED_WORDS = {"reviewed", "confirmed", "rewritten"}
 
+# Downloaded geography, never authored text. Path alone is not evidence enough: see overpass_download().
+OSM_CACHE_DIRS = ("data/osm_cache/", "game/datafiles/osm_cache/")
+OSM_GENERATOR_PREFIX = "Overpass API"
+OSM_COPYRIGHT_MARK = "openstreetmap.org"
+
 TEXT_SUFFIXES = (".gml", ".json", ".yy", ".yyp", ".md", ".ps1", ".py")
 ROW_RE = re.compile(r"^\|\s*`?([^|`]+?)`?\s*\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|")
 
@@ -90,6 +107,61 @@ def read(path: str) -> str:
 
 def normalise(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip().lower()
+
+
+def overpass_download(rel: str, text: str) -> bool:
+    """True only for a file that proves, from its own bytes, that OpenStreetMap downloaded it.
+
+    Path prefix is necessary and never sufficient: the other three conditions are what separate a real Overpass
+    download from a hand written file someone parked in the cache folder to dodge the scan.
+    """
+    if not rel.replace("\\", "/").startswith(OSM_CACHE_DIRS):
+        return False
+    try:
+        payload = json.loads(text)
+    except ValueError:
+        return False
+    if not isinstance(payload, dict):
+        return False
+    generator = payload.get("generator")
+    if not isinstance(generator, str) or not generator.startswith(OSM_GENERATOR_PREFIX):
+        return False
+    osm3s = payload.get("osm3s")
+    if not isinstance(osm3s, dict):
+        return False
+    copyright_text = osm3s.get("copyright")
+    return isinstance(copyright_text, str) and OSM_COPYRIGHT_MARK in copyright_text
+
+
+def text_hits(root: str) -> tuple[list[str], int, int]:
+    """The blacklist pass: (errors, files scanned, downloaded files skipped)."""
+    errors: list[str] = []
+    root = os.path.abspath(root)
+
+    name_re = re.compile(r"\b(" + "|".join(re.escape(n) for n in FORBIDDEN_NAMES) + r")\b", re.IGNORECASE)
+    scanned = 0
+    skipped = 0
+    for base in (os.path.join(root, "game"), os.path.join(root, "data")):
+        if not os.path.isdir(base):
+            continue
+        for path in text_files(base):
+            rel = os.path.relpath(path, root).replace("\\", "/")
+            text = read(path)
+            if overpass_download(rel, text):
+                skipped += 1
+                continue
+            scanned += 1
+            for marker in FORBIDDEN_PATHS:
+                if marker in text:
+                    errors.append("%s: names a study copy or its folder (%s)" % (rel, marker))
+            for match in name_re.finditer(text):
+                line = text.count("\n", 0, match.start()) + 1
+                errors.append("%s:%d: foreign name %r" % (rel, line, match.group(0)))
+            flat = normalise(text)
+            for phrase in FORBIDDEN_PHRASES:
+                if phrase in flat:
+                    errors.append("%s: foreign phrase %r" % (rel, phrase))
+    return errors, scanned, skipped
 
 
 def gml_modules(root: str) -> list[str]:
@@ -122,29 +194,10 @@ def review_rows(root: str) -> dict[str, tuple[str, str, str]]:
 
 
 def check(root: str = ".") -> list[str]:
-    global PENDING, MODULES
-    errors: list[str] = []
+    global PENDING, MODULES, SKIPPED
     root = os.path.abspath(root)
-
-    name_re = re.compile(r"\b(" + "|".join(re.escape(n) for n in FORBIDDEN_NAMES) + r")\b", re.IGNORECASE)
-    scanned = 0
-    for base in (os.path.join(root, "game"), os.path.join(root, "data")):
-        if not os.path.isdir(base):
-            continue
-        for path in text_files(base):
-            scanned += 1
-            text = read(path)
-            rel = os.path.relpath(path, root).replace("\\", "/")
-            for marker in FORBIDDEN_PATHS:
-                if marker in text:
-                    errors.append("%s: names a study copy or its folder (%s)" % (rel, marker))
-            for match in name_re.finditer(text):
-                line = text.count("\n", 0, match.start()) + 1
-                errors.append("%s:%d: foreign name %r" % (rel, line, match.group(0)))
-            flat = normalise(text)
-            for phrase in FORBIDDEN_PHRASES:
-                if phrase in flat:
-                    errors.append("%s: foreign phrase %r" % (rel, phrase))
+    errors, scanned, skipped = text_hits(root)
+    SKIPPED = skipped
 
     modules = gml_modules(root)
     rows = review_rows(root)
@@ -164,8 +217,9 @@ def check(root: str = ".") -> list[str]:
         else:
             pending.append(module)
 
-    print("check_cleanroom: %d files scanned for %d names and %d phrases, %d GML modules, %d awaiting review"
-          % (scanned, len(FORBIDDEN_NAMES), len(FORBIDDEN_PHRASES), len(modules), len(pending)))
+    print("check_cleanroom: %d files scanned for %d names and %d phrases, %d GML modules, %d awaiting review, "
+          "%d downloaded map file(s) skipped"
+          % (scanned, len(FORBIDDEN_NAMES), len(FORBIDDEN_PHRASES), len(modules), len(pending), skipped))
     PENDING, MODULES = len(pending), len(modules)
     for module in pending:
         print("PENDING clean-room review: %s" % module)
@@ -174,6 +228,7 @@ def check(root: str = ".") -> list[str]:
 
 PENDING = 0
 MODULES = 0
+SKIPPED = 0
 
 
 def main() -> int:
