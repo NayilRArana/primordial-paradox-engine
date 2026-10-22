@@ -33,8 +33,8 @@ and a new hazard shape at the same moment.
 8. Spec 09's determinism (one seed per battle), its 900 step cap and its concurrency ladder are inherited unchanged.
    A phase never reseeds and never resets a pattern's length.
 9. The interruption is not triggered by an hp crossing (A18-1). This is a change of mechanism from the study's own
-   wording, and section 4 carries the arithmetic that forces it: a 120 hp boss with an interrupt anywhere above 9
-   percent cannot be killed at all.
+   wording, and section 4 carries the arithmetic that forces it: a 120 hp boss with an interrupt above 9 percent of its
+   hp cannot be killed by FIGHT at all, and 14 percent is the same wall once `tide_step` is spent.
 
 ## 1. The phase skeleton
 
@@ -210,11 +210,11 @@ Resolution order, evaluated one step at a time with the first match winning:
 Why the trigger is a refused SPARE and not an hp crossing (A18-1). Rule 3 can only win on a blow that takes the bar
 from above the threshold all the way to 0, because a blow that stops short crosses the threshold and rule 4 fires
 first. Percy is 120 hp and the biggest legal blow is 12 (spec 07's FIGHT ceiling), or 18 with `tide_step`, so a kill
-needs a standing hp of at most 18 and therefore an interrupt threshold of at most 11 hp, which is 9 percent. At 40
-percent, or at the 25 percent Q18-1 suggested as the fix, no sequence of legal inputs can ever kill him: the fight is
-unwinnable by damage on every route. The spec's own acceptance 6 asked for a 49 damage blow that does not exist. A
-crossing trigger and a kill are therefore mutually exclusive above 9 percent, and 9 percent is far too low to carry a
-story beat. So the interruption is moved to the one thing a 120 hp boss can always offer: a player asking for mercy
+needs the interrupt threshold at most 11 hp with FIGHT alone (9 percent of 120) or at most 17 hp with the power (14
+percent). At 40 percent, or at the 25 percent Q18-1 suggested as the fix, no sequence of legal inputs can ever kill
+him: the fight is unwinnable by damage on every route. The spec's own acceptance 6 asked for a 49 damage blow that does
+not exist. A crossing trigger and a kill are therefore mutually exclusive above 14 percent, and a story beat cannot
+live below it. So the interruption is moved to the one thing a 120 hp boss can always offer: a player asking for mercy
 that Percy will not take.
 
 Nothing is shared: rule 4 is a player action, rule 5 is an hp crossing, so a phase row and an interrupt may carry the
@@ -420,12 +420,12 @@ A18-1 (phase 3 against the interruption). Answered by moving the trigger off the
 "spare_refused"`, with `hp_at_or_below` as the gate on the request, so the fight is interrupted when the player presses
 SPARE at or below the threshold and SPARE is unmet. All three options on the card are refused, each for a measured
 reason. Option 1 (interrupt at 25 percent) and option 2 (keep 40) both leave Percy unkillable: rule 3 only wins when
-one blow takes the bar to 0, the biggest legal blow is 12 (18 with `tide_step`), so a kill needs a standing hp of at
-most 18 and therefore a threshold of at most 9 percent. Option 3 (hook unset) takes the only non-committal exit away
-from a player who will neither kill nor TALK, and that player then owns a kill they did not choose, which is the one
-thing the route ledger exists to make honest. With the trigger on the SPARE press, phase 3 is entered on the 40 percent
-crossing exactly as authored, the fan plays for as long as the player keeps fighting, and the story exit is a
-deliberate act rather than a timer. The study's line "all three shapes have been seen once" is now true for every
+one blow takes the bar to 0, the biggest legal blow is 12 (18 with `tide_step`), so a kill needs the threshold at most
+11 hp on FIGHT alone (9 percent) or at most 17 hp with the power (14 percent). Option 3 (hook unset) takes the only
+non-committal exit away from a player who will neither kill nor TALK, and that player then owns a kill they did not
+choose, which is the one thing the route ledger exists to make honest. With the trigger on the SPARE press, phase 3 is
+entered on the 40 percent crossing exactly as authored, the fan plays for as long as the player keeps fighting, and the
+story exit is a deliberate act rather than a timer. The study's line "all three shapes have been seen once" is now true for every
 player who fights through phase 3, and unavailable only to the player who asks for mercy there, which is the correct
 trade.
 
