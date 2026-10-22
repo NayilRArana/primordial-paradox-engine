@@ -17,17 +17,17 @@
 // Beat macros derived from data\title_timing.json by tools\apply_title_timing.py: edit the json, not these.
 #macro PP_TITLE_BPM 126
 #macro PP_TITLE_BEAT_STEPS 29
-#macro PP_TITLE_BAR_STEPS 86
+#macro PP_TITLE_BAR_STEPS 87
 #macro PP_TITLE_SCROLL_PX_PER_STEP 0.552
 #macro PP_TITLE_BOB_PX 1
 #macro PP_TITLE_BOB_STEPS 29
 #macro PP_TITLE_EXHAUST_STEPS 58
-#macro PP_TITLE_TWINKLE_PERIOD 86
+#macro PP_TITLE_TWINKLE_PERIOD 87
 #macro PP_TITLE_FLASH_STEPS 2
-#macro PP_TITLE_FLASH_MIN_STEPS 688
-#macro PP_TITLE_FLASH_MAX_STEPS 688
+#macro PP_TITLE_FLASH_MIN_STEPS 696
+#macro PP_TITLE_FLASH_MAX_STEPS 696
 #macro PP_TITLE_SHIMMER_STEPS 24
-#macro PP_TITLE_SHIMMER_PERIOD 344
+#macro PP_TITLE_SHIMMER_PERIOD 348
 #macro PP_TITLE_BLINK_STEPS 29
 #macro PP_TITLE_CURSOR_PERIOD 14
 // The intro after NEW GAME (card INTRO-1): the camera pans up out of the road over three seconds with an ease
@@ -43,6 +43,13 @@
 // The intro step the self check's mid crawl frame is written on (card TEXT-REVEAL-2): 360 steps into the crawl, which
 // is six seconds of typing, so the frame shows rows filling rather than a finished or an empty screen.
 #macro PP_TITLE_CRAWL_CAPTURE_MID 900
+// The three steps the scroll self check's own frames are written on (card TEMPO-1, review round 1): ten beats in, then
+// a half beat and a whole beat after it. Ten beats clears the opening shot and the logo fade on either a first boot or
+// a later one, and the gaps are what make the measurement honest: half a beat is 0.25 s, which at 126 bpm is 8 px of
+// road, comfortably inside the 16 px dash period, and three frames on one lattice also cover the card's half second
+// (two gaps) without ever asking a correlation to resolve a shift the art repeats every 16 px.
+#macro PP_TITLE_SCROLL_CAPTURE_FIRST (PP_TITLE_BEAT_STEPS * 10)
+#macro PP_TITLE_SCROLL_CAPTURE_GAP (PP_TITLE_BEAT_STEPS div 2)
 #macro PP_TITLE_INTRO_COLUMNS 32
 #macro PP_TITLE_INTRO_LINES 6
 #macro PP_TITLE_INTRO_LINE_H 12
@@ -52,8 +59,10 @@
 #macro PP_TITLE_TEXT_CPS 18
 #macro PP_TITLE_TEXT_PAUSE 72
 #macro PP_TITLE_TEXT_BLIP_EVERY 3
-// The star twinkle period is PP_TITLE_TWINKLE_PERIOD in the beat group above (one bar, three beats of the theme);
-// data\title_timing.json can override it at runtime, which is why the value is also read into the state at enter.
+// The star twinkle is one bar, and a bar is the only number it has: PP_TITLE_TWINKLE_PERIOD in the beat group above
+// is data\title_timing.json's stars.steps, which tools\apply_title_timing.py refuses to write unless it equals
+// PP_TITLE_BAR_STEPS. The intro's stars and the title card's own sky both turn over on that one number, so there is
+// no second twinkle rate anywhere in the file (card TEMPO-1, review round 1).
 // The theme ducks this far under the crawl, and comes back up when the crawl ends or is skipped.
 #macro PP_TITLE_DUCK_DB 6
 // Where the logo, the prompt, the window and its rows sit, in frame pixels. The window is the classic NES JRPG
@@ -79,8 +88,10 @@
 #macro PP_TITLE_OPEN_STEPS 180
 #macro PP_TITLE_OPEN_PAN 24
 #macro PP_TITLE_OPEN_FADE 45
-// Lightning: the scene swaps to the flash palette for two frames, every 8 to 12 seconds (480 to 720 steps). The
-// wait is drawn from the title's own seeded stream, so the same launch flashes at the same moments.
+// Lightning: the scene swaps to the flash palette for PP_TITLE_FLASH_STEPS frames (two, so a 60th of a second twice)
+// every 8 bars of the theme, which is 696 steps, 11.6 s at 126 bpm in three four time. FLASH_MIN and FLASH_MAX are
+// both that number, so the wait is the tempo and not a random 8 to 12 seconds any more. The wait is still drawn from
+// the title's own seeded stream, so the same launch flashes at the same moments.
 #macro PP_TITLE_FLASH_SEED 20261021
 // The marker that says the opening has been seen. It lands in the save area beside the slot, so nothing here
 // writes outside the sandbox.
@@ -422,6 +433,20 @@ function pp_title_draw(_params) {
     pp_title_draw_words(_s, _d);
 }
 
+/// The frame an animation is drawn on. Every layer but the sky is on the art index's own fps. The sky's two frames are
+/// the star field and its twinkle variant, and a twinkle is on the bar, so the sky turns over on PP_TITLE_BAR_STEPS
+/// rather than on the index's 2 fps, which is a 30 step turn and lands on no beat of the theme at all: 60 steps for the
+/// pair, against a bar of 87 (review round 1, card TEMPO-1). The two fade twins and the flash twin carry the same two
+/// frames, so they are matched by prefix.
+function pp_title_layer_frame(_name, _steps) {
+    if (string_pos("title_L1_sky", _name) == 1) {
+        var _frames = pp_art_frames(_name);
+        if (_frames > 1) return floor(_steps / PP_TITLE_BAR_STEPS) mod _frames;
+        return 0;
+    }
+    return pp_art_frame_at(_name, _steps);
+}
+
 /// The seven night layers, each scrolled at its own speed. A layer is one image wider than the view, so the
 /// wrap is drawn as a tail and then a head (the art lane's own technique). A flash swaps a layer for its
 /// flash palette twin when the art lane has drawn one.
@@ -432,7 +457,7 @@ function pp_title_draw_layers(_s, _d, _flash) {
         var _info = pp_art_info(_name);
         if (is_undefined(_info)) continue;
         var _offset = round(_s.scroll * _layer.speed);
-        pp_art_layer(_name, pp_art_frame_at(_name, _s.steps), _layer.y, _offset, PP_FRAME_W, _info.frame_h);
+        pp_art_layer(_name, pp_title_layer_frame(_name, _s.steps), _layer.y, _offset, PP_FRAME_W, _info.frame_h);
     }
 }
 
@@ -524,7 +549,8 @@ function pp_title_draw_cloud(_s, _d, _flash) {
     pp_art_draw("spr_title_cloud", _index, _d.car_x + 64, 80, PP_UNTINTED, 1);
 }
 
-/// The logo: it fades in over a second, then a gold shimmer passes over it every four seconds.
+/// The logo: it fades in over a second, then a gold shimmer passes over it once every four bars (PP_TITLE_SHIMMER_PERIOD
+/// steps, 5.7 s at 126 bpm, not the four seconds the comment here used to claim).
 function pp_title_draw_logo(_s) {
     if (!pp_art_has("spr_pp_title_logo")) return;
     var _index = 0;
@@ -634,14 +660,18 @@ function pp_title_intro_timing() {
     var _d = pp_title_read_any(["datafiles/title_timing.json", "title_timing.json"]);
     if (!is_struct(_d)) return _out;
     if (variable_struct_exists(_d, "bpm") && _d.bpm > 0) _out.bpm = _d.bpm;
-    // The card's number: one twinkle pass every four beats of the theme at 126 bpm, which is 1.9 s.
-    var _beats = 4;
-    if (variable_struct_exists(_d, "intro") && is_struct(_d.intro)
-        && variable_struct_exists(_d.intro, "twinkle_beats") && _d.intro.twinkle_beats > 0) {
-        _beats = _d.intro.twinkle_beats;
+    // The twinkle is on the bar, and the bar is the only source: stars.steps is what
+    // tools\apply_title_timing.py writes as PP_TITLE_TWINKLE_PERIOD, and that script refuses to write it unless it
+    // equals bar_steps, so reading either one gives the same value. Reading stars.steps first means a json edit
+    // needs no rebuild of the macro to take effect, and there is no second twinkle rate for the two to disagree on.
+    // Review round 1 found this branch computing four beats (114 steps) from intro.twinkle_beats while the card's own
+    // stars.steps said 86; that key is gone from the file.
+    if (variable_struct_exists(_d, "bar_steps") && _d.bar_steps > 0) _out.twinkle_period = _d.bar_steps;
+    if (variable_struct_exists(_d, "stars") && is_struct(_d.stars)
+        && variable_struct_exists(_d.stars, "steps") && _d.stars.steps > 0) {
+        _out.twinkle_period = _d.stars.steps;
     }
-    // One twinkle pass per N beats, in steps at 60 a second.
-    _out.twinkle_period = max(1, round(_beats * (60 / _out.bpm) * 60));
+    _out.twinkle_period = max(1, round(_out.twinkle_period));
     if (variable_struct_exists(_d, "text") && is_struct(_d.text)) {
         var _t = _d.text;
         if (variable_struct_exists(_t, "chars_per_second") && _t.chars_per_second > 0) {
@@ -828,7 +858,7 @@ function pp_title_draw_intro_scene(_s, _d) {
     var _sky = pp_title_fade_name("title_L1_sky", _s.intro_sky);
     var _sky_info = pp_art_info(_sky);
     if (!is_undefined(_sky_info)) {
-        var _sky_frame = pp_art_frame_at(_sky, _s.steps);
+        var _sky_frame = pp_title_layer_frame(_sky, _s.steps);
         var _sky_offset = round(_s.scroll * 0.02);
         for (var r = 0; r < 2; r += 1) {
             pp_art_layer(_sky, _sky_frame, r * _sky_info.frame_h, _sky_offset, PP_FRAME_W, _sky_info.frame_h);
@@ -844,7 +874,7 @@ function pp_title_draw_intro_scene(_s, _d) {
         var _info = pp_art_info(_name);
         if (is_undefined(_info)) continue;
         var _offset = round(_s.scroll * _layer.speed);
-        pp_art_layer(_name, pp_art_frame_at(_name, _s.steps), _layer.y + _pan, _offset, PP_FRAME_W, _info.frame_h);
+        pp_art_layer(_name, pp_title_layer_frame(_name, _s.steps), _layer.y + _pan, _offset, PP_FRAME_W, _info.frame_h);
     }
 
     var _car = pp_title_fade_name("spr_title_car", _s.intro_world);
@@ -933,10 +963,29 @@ function pp_title_layer_named(_d, _name) {
 /// capture uses the same escape for the same reason. The two files are the crawl six seconds in, and the first draw
 /// after the last beat is typed (inside the one second hold, before the run starts). Unset, which is every real
 /// launch, this costs one environment read per draw and writes nothing.
+///
+/// The same escape carries the scroll check of card TEMPO-1: on the title card (any phase but the intro) three frames
+/// are written PP_TITLE_SCROLL_CAPTURE_GAP steps apart, and each one logs the step it was taken on. The frames are the
+/// game's own pixels, so the shift between them is the tempo and not the desktop's scaling, which is what the window
+/// copies could never show (review round 1 of TEMPO-1: two copies 10 s apart, resampled, with no measurable scroll).
 function pp_title_capture_frames() {
     if (environment_get_variable(PP_TITLE_CAPTURE) == "") return;
     var _s = global.pp.title;
-    if (!is_struct(_s) || _s.phase != "intro") return;
+    if (!is_struct(_s)) return;
+    if (_s.phase != "intro") {
+        for (var _i = 0; _i < 3; _i += 1) {
+            if (_s.steps != PP_TITLE_SCROLL_CAPTURE_FIRST + _i * PP_TITLE_SCROLL_CAPTURE_GAP) continue;
+            var _file = "pp_title_scroll_" + string(_i + 1) + ".png";
+            screen_save(_file);
+            if (file_exists(_file)) {
+                show_debug_message("PP title: wrote " + _file + " at step " + string(_s.steps) + ", scroll "
+                                   + string(_s.scroll) + ", phase " + string(_s.phase));
+            } else {
+                show_debug_message("PP title: screen_save wrote nothing for " + _file);
+            }
+        }
+        return;
+    }
     if (_s.intro == PP_TITLE_CRAWL_CAPTURE_MID) {
         screen_save("pp_crawl_mid.png");
         show_debug_message("PP title: wrote pp_crawl_mid.png at intro step " + string(_s.intro));

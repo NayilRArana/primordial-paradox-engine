@@ -32,6 +32,7 @@ import ctypes.wintypes as wt
 import glob
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -2289,14 +2290,62 @@ def run_selftest():
             kill_tree(process)
 
 
-def run_scroll_capture():
-    """Capture two frames of the running title exactly half a second apart, with no key pressed (card TEMPO-1).
+# Where the game writes its own frames. GameMaker's screen_save lands beside the game's save area, which is the
+# folder the runtime derives from the project name under the user's local AppData, not the folder the runner was
+# started in. Measured 2026-10-22 for the ship room's frames, and the title's frames land in the same place.
+SCROLL_SELF_DIR = os.path.join(os.environ.get("LOCALAPPDATA", ""), "PrimordialParadox")
+SCROLL_SELF_NAMES = ("pp_title_scroll_1.png", "pp_title_scroll_2.png", "pp_title_scroll_3.png")
+# How long the three frames are given to appear after the title is up. The first one is written ten beats in (about
+# five seconds) and the last a beat after that, so twenty seconds is generous and still bounded.
+SCROLL_FRAME_TIMEOUT_S = 30.0
+SCROLL_TOOL = os.path.join(TOOLS_DIR, "measure_title_scroll_native.py")
+NES_CHECK = os.path.join(TOOLS_DIR, "nes_composite_check.py")
+SCROLL_STAMP = re.compile(r"wrote (pp_title_scroll_\d\.png) at step (\d+), scroll ([0-9.]+)")
 
-    The check the card asks for is arithmetic on the captures: the road layer travels
-    scroll_px_per_step * 60 * elapsed pixels, and two frames 0.5 s apart should differ by that much. So the
-    harness has to know the elapsed time rather than assume it, which is why the timestamps are taken around
-    the two screen copies and printed. The world is not touched between them: this run never presses a key,
-    so the title stays on PRESS START and the only thing that changes is the scene's own clock.
+
+def scroll_self_paths():
+    """The three files the game writes for this check, in the order it writes them."""
+    return [os.path.join(SCROLL_SELF_DIR, name) for name in SCROLL_SELF_NAMES]
+
+
+def native_screen(source_path, out_path):
+    """Cut the 256x240 game screen out of a screen_save, and say what the cut was.
+
+    screen_save writes this window at 768x720, which is the exact 3x of the game's own 256x240 screen, so the frame is
+    sampled every third pixel rather than resized: a filter would blend neighbouring game pixels and the lane dashes
+    this check follows would lose the edges the measurement needs. The result is the game's own pixels, which is also
+    what makes the picture a legal NES frame for tools\\nes_composite_check.py (a window copy of the same scene measured
+    111 colours and 65 palette violations, none of which were the art's).
+    """
+    try:
+        from PIL import Image
+    except Exception as exc:
+        return None, "PIL missing: %s" % exc
+    try:
+        image = Image.open(source_path).convert("RGB")
+    except (OSError, ValueError) as exc:
+        return None, "the frame could not be read: %s" % exc
+    if image.width % 256 or image.height % 240:
+        return None, "the frame is %dx%d, which is not a whole multiple of 256x240" % (image.width, image.height)
+    factor = max(1, image.width // 256)
+    native = image.resize((image.width // factor, image.height // factor),
+                          Image.Resampling.NEAREST) if factor > 1 else image
+    native.save(out_path, "PNG")
+    return native, "%dx%d at %dx -> %dx%d native" % (image.width, image.height, factor,
+                                                     native.width, native.height)
+
+
+def run_scroll_capture():
+    """Capture the title's own three frames a half beat apart and measure the scroll they show (card TEMPO-1).
+
+    The card asks for two frames 0.5 s apart whose scroll difference is the tempo's own number. Review round 1 found
+    that the window copies this harness used to take cannot answer it: one PowerShell copy costs about 7.5 s, the pair
+    landed 10 s apart, the copy carried the desktop's scaling (111 colours, 104 of them not palette entries), and an
+    independent cross correlation found no scroll at all. So the frames are now the GAME'S OWN, written by screen_save
+    inside the title's draw when PP_TITLE_CAPTURE is set (pp_title_capture_frames), three of them on one lattice: ten
+    beats in, then a half beat and a beat after that. The gap is a step count the game logs, not a stopwatch, so
+    0.25 s and 0.5 s are exact; and half a beat of road is 8 px, which stays inside the 16 px dash period the art
+    repeats on, so the correlation is never asked to resolve an aliased shift.
 
     Usage: python tools\\capture_title.py --scroll
     """
@@ -2305,18 +2354,24 @@ def run_scroll_capture():
         print("no built game found under %s" % GAME_OUTPUT_DIR)
         return 1
     exe_path, win_path = build
-    print("launching %s -game %s" % (exe_path, win_path))
+    print("launching %s -game %s with PP_TITLE_CAPTURE=1" % (exe_path, win_path))
+    for stale in scroll_self_paths():
+        if os.path.exists(stale):
+            os.remove(stale)
 
     os.makedirs(BUILD_DIR, exist_ok=True)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     game_log_path = os.path.join(BUILD_DIR, "capture-scroll-game.log")
     game_log = open(game_log_path, "wb")
+    child_env = dict(os.environ)
+    child_env["PP_TITLE_CAPTURE"] = "1"
     process = subprocess.Popen(
         [exe_path, "-game", win_path],
         cwd=os.path.dirname(exe_path),
         stdin=subprocess.DEVNULL,
         stdout=game_log,
         stderr=subprocess.STDOUT,
+        env=child_env,
     )
     start_watchdog(process, WATCHDOG_S)
     try:
@@ -2332,40 +2387,18 @@ def run_scroll_capture():
         hwnd = match[0]
         image_name = process_image_name(match[1])
         if image_name.lower() != GAME_EXE_NAME.lower():
-            print("the window belongs to %r, not to %s" % (image_name, GAME_EXE_NAME))
+            print("the window belongs to %r, not to %s, so it is not the game window" % (image_name, GAME_EXE_NAME))
             return 1
         print("game window found: %s (hwnd %s)" % (match[2], hwnd))
-
         time.sleep(GAME_SETTLE_S)
-        first_path = os.path.join(OUTPUT_DIR, "title_scroll_1.png")
-        second_path = os.path.join(OUTPUT_DIR, "title_scroll_2.png")
-        t0 = time.time()
-        rect, written, note = capture_window(hwnd, first_path)
-        if rect is None or written is None:
-            print("scroll capture 1 failed: %s" % note)
-            return 1
-        real, why = frame_is_real(first_path)
-        if not real:
-            print("scroll capture 1 rejected: %s" % why)
-            discard(first_path)
-            return 1
-        print("captured %s %sx%s via %s (%s)" % (first_path, rect[2], rect[3], note, why))
 
-        remaining = t0 + SCROLL_GAP_S - time.time()
-        if remaining > 0:
-            time.sleep(remaining)
-        t1 = time.time()
-        rect, written, note = capture_window(hwnd, second_path)
-        if rect is None or written is None:
-            print("scroll capture 2 failed: %s" % note)
-            return 1
-        real, why = frame_is_real(second_path)
-        if not real:
-            print("scroll capture 2 rejected: %s" % why)
-            discard(second_path)
-            return 1
-        print("captured %s %sx%s via %s (%s)" % (second_path, rect[2], rect[3], note, why))
-        print("elapsed between the two frames: %.3f s" % (t1 - t0))
+        wanted = scroll_self_paths()
+        deadline = time.time() + SCROLL_FRAME_TIMEOUT_S
+        while time.time() < deadline and not all(os.path.isfile(path) for path in wanted):
+            time.sleep(0.25)
+        written = [path for path in wanted if os.path.isfile(path)]
+        print("the game wrote %d of %d of its own frames: %s"
+              % (len(written), len(wanted), ", ".join(os.path.basename(path) for path in written)))
 
         close_window(hwnd)
         deadline = time.time() + CLOSE_GRACE_S
@@ -2382,14 +2415,72 @@ def run_scroll_capture():
         with open(game_log_path, "r", encoding="utf-8", errors="replace") as handle:
             log_text = handle.read()
         theme = [line for line in log_text.splitlines() if "title_theme streaming" in line]
-        if theme:
-            print("audio: %s" % theme[0].strip())
-        else:
-            print("audio: no theme stream line in %s" % game_log_path)
+        print("audio: %s" % (theme[0].strip() if theme else "no theme stream line in %s" % game_log_path))
         if "PP CRASH" in log_text:
             print("the game reported a crash")
             return 1
-        print("elapsed %.3f" % (t1 - t0))
+        if len(written) != len(wanted):
+            print("the game did not write all three frames, so the scroll cannot be measured")
+            return 1
+
+        # The game's own account of when each frame was drawn: a step count and the scroll value it drew with.
+        stamps = {}
+        for line in log_text.splitlines():
+            found = SCROLL_STAMP.search(line)
+            if found:
+                stamps[found.group(1)] = (int(found.group(2)), float(found.group(3)))
+        missing = [name for name in SCROLL_SELF_NAMES if name not in stamps]
+        if missing:
+            print("the game's log has no step count for %s, so the frames cannot be timestamped" % ", ".join(missing))
+            return 1
+
+        copies, natives, steps, scrolls = [], [], [], []
+        for index, name in enumerate(SCROLL_SELF_NAMES, start=1):
+            step, scroll = stamps[name]
+            source = os.path.join(SCROLL_SELF_DIR, name)
+            copy_path = os.path.join(OUTPUT_DIR, "title_scroll_%d.png" % index)
+            native_path = os.path.join(OUTPUT_DIR, "title_scroll_%d_native.png" % index)
+            shutil.copyfile(source, copy_path)
+            native, note = native_screen(source, native_path)
+            if native is None:
+                print("frame %d could not be cut to the game screen: %s" % (index, note))
+                return 1
+            copies.append(copy_path)
+            natives.append(native_path)
+            steps.append(step)
+            scrolls.append(scroll)
+            print("frame %d: %s, step %d, scroll %.3f, %s" % (index, os.path.basename(source), step, scroll, note))
+
+        # The measurement: every band's shift against every layer's expected shift, computed from the same scroll
+        # values the game drew with, so the arithmetic and the pixels are compared directly.
+        command = [sys.executable, SCROLL_TOOL,
+                   "--frames"] + natives + ["--steps"] + [str(step) for step in steps] \
+                  + ["--scroll"] + ["%.3f" % scroll for scroll in scrolls] \
+                  + ["--json", os.path.join(OUTPUT_DIR, "title_scroll_measure.json")]
+        print("")
+        result = subprocess.run(command, capture_output=True, text=True, timeout=180, stdin=subprocess.DEVNULL)
+        print((result.stdout or "").strip())
+        if result.stderr:
+            print((result.stderr or "").strip()[-1200:])
+
+        # The NES frame check on the game's own picture: 256x240 of the game's pixels is a legal 2C02 frame, so a
+        # failure here is the art and not the capture path (which is what review round 1 measured).
+        print("")
+        nes = subprocess.run([sys.executable, NES_CHECK, natives[0], "--crop", "1"],
+                             capture_output=True, text=True, timeout=180, stdin=subprocess.DEVNULL)
+        nes_text = (nes.stdout or "") + (nes.stderr or "")
+        for line in nes_text.splitlines():
+            if line.strip():
+                print(line.strip())
+        print("")
+
+        if result.returncode != 0:
+            print("the scroll measurement did not match the tempo")
+            return 1
+        if nes.returncode != 0:
+            print("the game's own frame is not a legal NES picture")
+            return 1
+        print("frames: %s" % ", ".join(os.path.basename(path) for path in natives))
         return 0
     finally:
         kill_tree(process)

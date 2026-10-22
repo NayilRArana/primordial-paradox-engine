@@ -40,7 +40,62 @@ def load_timing(path: str = TIMING) -> dict:
     for key in ("bpm", "beat_steps", "bar_steps", "scroll", "car", "exhaust", "stars", "lightning", "shimmer"):
         if key not in data:
             raise SystemExit("title_timing.json has no %r, so the title cannot be timed" % key)
+    check_consistent(data, path)
     return data
+
+
+def check_consistent(timing: dict, path: str = TIMING) -> None:
+    """Refuse a timing file that contradicts itself, so one number cannot mean two rates.
+
+    Review round 1 of card TEMPO-1 found exactly that: stars.steps said 86 (a bar) while intro.twinkle_beats said 4,
+    so the intro's stars ran on 114 steps and the title card's sky on 60, and none of the three agreed. The numbers
+    here are therefore checked against one another rather than trusted, and the check runs before anything is written,
+    so a bad file stops the run instead of patching a bad macro into the game.
+
+    The three rules, each of which the file has to satisfy:
+    1. beat_steps and bar_steps are the same tempo the fractions describe (a bar is beats_per_bar beats);
+    2. the scroll moves exactly one lane dash a beat, because that is what "one dash passes a beat" means;
+    3. there is exactly one twinkle rate and it is the bar: stars.steps equals bar_steps, and no intro.twinkle_beats
+       (or any other rival key) exists to disagree with it.
+    """
+    where = os.path.basename(path)
+    beats_per_bar = timing.get("beats_per_bar")
+    beat_steps = timing.get("beat_steps")
+    bar_steps = timing.get("bar_steps")
+    if beats_per_bar and beat_steps and bar_steps:
+        want = round(float(beat_steps) * float(beats_per_bar))
+        if int(bar_steps) != want:
+            raise SystemExit("%s: bar_steps %d is not beat_steps %s times beats_per_bar %d (%d)"
+                             % (where, int(bar_steps), beat_steps, int(beats_per_bar), want))
+    scroll = timing["scroll"]
+    if all(k in scroll for k in ("px_per_step", "dash_px")) and beat_steps:
+        travel = float(scroll["px_per_step"]) * float(beat_steps)
+        if abs(travel - float(scroll["dash_px"])) > 0.05:
+            raise SystemExit("%s: a beat of scroll is %.3f px but the lane dash is %s px, so the dashes do not pass "
+                             "once a beat" % (where, travel, scroll["dash_px"]))
+    stars = timing["stars"]
+    if "steps" not in stars:
+        raise SystemExit("%s: stars.steps is missing, so the twinkle has no rate" % where)
+    if bar_steps and int(stars["steps"]) != int(bar_steps):
+        raise SystemExit("%s: stars.steps %s is not bar_steps %s, so the twinkle is not on the bar"
+                         % (where, stars["steps"], bar_steps))
+    intro = timing.get("intro", {})
+    for rival in ("twinkle_beats", "twinkle_steps", "twinkle_seconds"):
+        if isinstance(intro, dict) and rival in intro:
+            raise SystemExit("%s: intro.%s is a second twinkle rate; the twinkle is on the bar, so delete it"
+                             % (where, rival))
+    if "beats_per_bar" in timing and "beats" in stars and int(stars["beats"]) != int(beats_per_bar):
+        raise SystemExit("%s: stars.beats %s is not beats_per_bar %s" % (where, stars["beats"], beats_per_bar))
+    # The two multi bar clocks are bars too, so they are held to the same lattice as the twinkle: a flash "every
+    # eight bars" whose steps are not eight bars is a number that will drift away from the music it was named for.
+    if bar_steps:
+        for name in ("lightning", "shimmer"):
+            block = timing[name]
+            if "bars" in block and "steps" in block:
+                want = int(block["bars"]) * int(bar_steps)
+                if int(block["steps"]) != want:
+                    raise SystemExit("%s: %s.steps %s is not %s bars of %s steps (%d)"
+                                     % (where, name, block["steps"], block["bars"], bar_steps, want))
 
 
 def derived(timing: dict) -> list[tuple[str, str]]:

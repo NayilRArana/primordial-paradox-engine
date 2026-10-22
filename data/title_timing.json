@@ -1,5 +1,6 @@
 {
   "_note": "Timing for the title card and the intro. Every animation constant on the title is derived from the theme's tempo here, so the car bobs, the lane dashes pass and the logo shimmers on the music rather than on a wall clock. The theme is the 2026-10-21 waltz rendered at 126 bpm (assets\\audio\\title_theme_v3\\title_theme_v3_126.ogg); 126 is the card's number and is the value a musician counts against it. tools\\apply_title_timing.py turns this file into the macros of game\\scripts\\pp_title\\pp_title.gml, so this file is the source of truth and the macros are the copy.",
+  "_integer_note": "Two sets of numbers, both here on purpose. steps_per_beat 28.571 and steps_per_bar 85.714 are what 126 bpm is at 60 steps a second, and they are the measured values. beat_steps 29 and bar_steps 87 are the integers the frame counters actually run on, and 87 is three times 29: rounding the bar on its own gave 86, which is not three beats, so a bar derived twinkle (86) and a beat derived bob (29) would slip a step against each other every bar. One lattice, three beats a bar, is what makes the twinkle land on a bar start that the bob can also count. The cost of the integer bar is 1.5 percent of tempo, 87 steps against 85.714, which is nothing a listener can hear, and it is spent once rather than drifting.",
   "format": 1,
   "kind": "title_timing",
   "bpm": 126,
@@ -8,8 +9,7 @@
   "steps_per_beat": 28.571,
   "steps_per_bar": 85.714,
   "beat_steps": 29,
-  "bar_steps": 86,
-  "beats_per_twinkle": 3,
+  "bar_steps": 87,
   "scroll": {
     "_note": "One lane dash per beat: the road art draws a 16 px dash every 16 px (tools/art/make_title_world.py, build_road), so a beat of road travel is 16 px. At 60 steps a second that is 16 / 29 = 0.552 px a step for the road layer. The card asked for at least 1.6 times the old 0.2 px a step; the tempo lock needs 2.76 times, which is the faster number and the one the music sets, so the 1.6 is exceeded rather than missed.",
     "dash_px": 16,
@@ -29,16 +29,18 @@
   },
   "stars": {
     "twinkles_on": "bar",
-    "steps": 86
+    "beats": 3,
+    "_note": "The one twinkle rate in the file, and it is the bar: stars.steps must equal bar_steps, which tools\\apply_title_timing.py enforces, and both the intro's twenty four stars and the title card's own sky (title_L1_sky, whose two frames are the star field and its twinkle variant) turn over on it. There is deliberately no twinkle_beats or other second rate anywhere: review round 1 of card TEMPO-1 found intro.twinkle_beats 4 making the stars run on 114 steps while this said 86, so that key was removed and the script now refuses to write a file whose stars rate and bar disagree.",
+    "steps": 87
   },
   "lightning": {
     "bars": 8,
-    "steps": 688,
+    "steps": 696,
     "flash_steps": 2
   },
   "shimmer": {
     "bars": 4,
-    "steps": 344,
+    "steps": 348,
     "length_steps": 24
   },
   "prompt": {
@@ -49,7 +51,6 @@
   },
   "intro": {
     "pan_seconds": 3.0,
-    "twinkle_beats": 4,
     "world_fade_steps_per_palette_step": 18,
     "sky_fade_steps_per_palette_step": 18,
     "star_hold_seconds": 3.6,
