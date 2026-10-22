@@ -42,6 +42,22 @@
           "attack": { "min": 4, "max": 6 }
         }
       ]
+    },
+    {
+      "id": "deck_hound",
+      "name": "Deck Hound",
+      "max_hp": 2,
+      "attack": { "min": 2, "max": 2 },
+      "sprite": "spr_pp_hound",
+      "element": "earth",
+      "route_kind": "regular",
+      "patterns": ["tutorial_slow_rain"],
+      "talk_dialogue": "talk_deck_hound",
+      "trust_to_spare": 3,
+      "spare_hp_percent": 25,
+      "rewards": [
+        { "kind": "item", "id": "salve", "count": 1 }
+      ]
     }
   ]
 }

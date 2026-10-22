@@ -154,6 +154,41 @@
         "* The deck rises to meet you.",
         "* Your last save still stands."
       ]
+    },
+    {
+      "id": "battle_intro_hound",
+      "speaker": "narrator",
+      "lines": [
+        "* Something moves by the rope.",
+        "* A hound on the deck. It is thin.",
+        "* FIGHT ends this in one blow."
+      ]
+    },
+    {
+      "id": "talk_deck_hound",
+      "speaker": "hound",
+      "lines": [
+        "* A low growl. Then a thump.",
+        "* It sniffs the salt on your hands.",
+        "* It waits for you to move first."
+      ]
+    },
+    {
+      "id": "hound_win_kill",
+      "speaker": "narrator",
+      "lines": [
+        "* One blow. The hound is still.",
+        "* You step over the rope."
+      ]
+    },
+    {
+      "id": "hound_win_spare",
+      "speaker": "narrator",
+      "lines": [
+        "* The hound rolls over.",
+        "* It lets you pass the rope.",
+        "* Its eyes follow the water."
+      ]
     }
   ]
 }

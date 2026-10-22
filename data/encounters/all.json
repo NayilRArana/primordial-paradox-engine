@@ -14,7 +14,75 @@
       "lose_dialogue": "battle_lose",
       "trust_per_talk": 1,
       "flags_on_kill": ["ship_door_open"],
-      "flags_on_spare": ["ship_door_open"]
+      "flags_on_spare": ["ship_door_open"],
+      "beat": 28,
+      "beat_id": "hold_encounter_talk",
+      "pacing": {
+        "turns": 3,
+        "seconds_fixed": 27,
+        "seconds_per_turn": 21,
+        "seconds": 90,
+        "source": "PACING-AND-CUTSCENES.md section 9 beat 28 is 90 s, and beats 23 and 28 together give 21 s a turn and 27 s fixed (90 minus 48 is 42 over two extra turns)"
+      },
+      "talk": {
+        "card": "navy_sailor",
+        "card_home": "the card content is carried in data/enemies/roster.json; specs/16-talk-command.md section 10 puts the shipping copy in data/talk_cards.json, which no card has written yet",
+        "options_dialogue": "talk_navy_sailor",
+        "option_count": 3,
+        "mercy_per_option": 20,
+        "mercy_to_spare": 60,
+        "talks_to_spare": 3,
+        "fallback_line": "Say what you came to say.",
+        "fallback_delta": 0,
+        "fallback_mood": "guarded",
+        "fallback_pool": [
+          "You are not on the list.",
+          "The watch is long. That is all.",
+          "Say what you came to say."
+        ],
+        "fallback_rule": "index = (fnv1a32(normalised line) + mercy before the change) modulo the pool length, no RNG anywhere, so a replay says the same words (specs/16-talk-command.md section 9 step 5)"
+      }
+    },
+    {
+      "id": "deck_hound",
+      "name": "Deck Hound",
+      "enemies": ["deck_hound"],
+      "seed": 20261022,
+      "music": "PP-04",
+      "intro_dialogue": "battle_intro_hound",
+      "win_dialogue_kill": "hound_win_kill",
+      "win_dialogue_spare": "hound_win_spare",
+      "lose_dialogue": "battle_lose",
+      "trust_per_talk": 1,
+      "flags_on_kill": [],
+      "flags_on_spare": [],
+      "beat": 23,
+      "beat_id": "first_encounter_hound",
+      "pacing": {
+        "turns": 1,
+        "seconds_fixed": 27,
+        "seconds_per_turn": 21,
+        "seconds": 48,
+        "band_seconds": [45, 60],
+        "source": "PACING-AND-CUTSCENES.md section 9 beat 23 is 48 s at one turn, and data/mechanics/pacing_recipes.json PAC-26 sets first_fight_seconds 45 to 60 with one command win and no loss possible; the 48 s is the FIGHT path, and the TALK path runs to 3 turns for a player who will not press it"
+      },
+      "talk": {
+        "card": "deck_hound",
+        "options_dialogue": "talk_deck_hound",
+        "option_count": 3,
+        "mercy_per_option": 20,
+        "mercy_to_spare": 60,
+        "talks_to_spare": 3,
+        "fallback_line": "It waits for you to move first.",
+        "fallback_delta": 0,
+        "fallback_mood": "guarded",
+        "fallback_pool": [
+          "* A low growl. Then a thump.",
+          "* It sniffs the salt on your hands.",
+          "* It waits for you to move first."
+        ],
+        "fallback_rule": "index = (fnv1a32(normalised line) + mercy before the change) modulo the pool length, no RNG anywhere, so a replay says the same words (specs/16-talk-command.md section 9 step 5)"
+      }
     },
     {
       "id": "percy",
