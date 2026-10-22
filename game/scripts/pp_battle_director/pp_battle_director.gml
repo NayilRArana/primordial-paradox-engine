@@ -8,6 +8,9 @@ function pp_battle_new(_encounter, _enemy, _party, _ledger) {
     var _hp = _party.max_hp;
     if (variable_struct_exists(_ledger, "hp")) _hp = _ledger.hp;
 
+    // A new fight starts with a clean exit record (spec 10 rule 6). The run's counters above it are untouched.
+    pp_ledger_begin_fight(_ledger);
+
     var _battle = {
         encounter: _encounter,
         enemy: _enemy,
@@ -332,7 +335,11 @@ function pp_battle_enter_result(_battle) {
 function pp_battle_record(_battle) {
     var _kind = "regular";
     if (variable_struct_exists(_battle.enemy, "route_kind")) _kind = _battle.enemy.route_kind;
-    if (!_battle.defeated) pp_ledger_record_result(_battle.ledger, _kind, _battle.result);
+    // One call, one door (spec 10 rule 1): the ledger writes the enemy's exit row, settles the fight verdict and
+    // moves the counter itself. Nothing here reads or writes a counter, so the row and the counter cannot disagree.
+    if (!_battle.defeated) {
+        pp_ledger_record_exit(_battle.ledger, _battle.enemy.id, _kind, _battle.result, _battle.turn);
+    }
 
     // A defeat is an explicit decision, not a side effect (knowledge\SPEC-DELTAS.md, C7). There is no title mode and
     // no save yet, so the party wakes up at full health and the app returns to the overworld. Writing the 0 that the

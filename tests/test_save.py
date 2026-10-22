@@ -126,9 +126,24 @@ def spec_paragraph(spec_relative: str, lead: str) -> str:
 # The three views of the key set
 
 
-def spec_save_keys() -> list[str]:
-    """The key names spec 11 lists, read out of the spec text itself."""
+def spec_save_required_keys() -> list[str]:
+    """The key names spec 11 lists as required, read out of the spec text itself."""
     return backticked(spec_paragraph(SPEC_SAVE, "Keys:"))
+
+
+def spec_save_optional_keys() -> list[str]:
+    """The key names spec 11 lists as optional, read out of the spec text itself.
+
+    An optional key is one a save written before it existed does not carry, so its absence is an
+    empty record rather than a damaged file (spec 10 rule 6). The paragraph is read, not hardcoded,
+    so the spec and the code cannot drift.
+    """
+    return backticked(spec_paragraph(SPEC_SAVE, "Optional keys:"))
+
+
+def spec_save_keys() -> list[str]:
+    """Every key name spec 11 knows: the required ones, then the optional ones."""
+    return spec_save_required_keys() + spec_save_optional_keys()
 
 
 def spec_counter_keys() -> list[str]:
@@ -190,12 +205,19 @@ def parity_failures(text: str) -> list[str]:
 # 1. Key parity
 
 
-def test_spec_11_lists_sixteen_named_keys():
-    """The spec is the contract, so the count and the names are read out of it, not hardcoded."""
-    keys = spec_save_keys()
+def test_spec_11_lists_sixteen_named_keys_and_the_optional_one_separately():
+    """The spec is the contract, so the count and the names are read out of it, not hardcoded.
+
+    A key added later may not be presented as required: a save written before it existed has to keep
+    loading, so it belongs in the optional paragraph and nowhere else.
+    """
+    keys = spec_save_required_keys()
     assert len(keys) == 16, keys
-    assert len(set(keys)) == len(keys), "the spec lists a key twice: %s" % keys
     assert "format" in keys and "counters" in keys and "flags" in keys
+    every = spec_save_keys()
+    assert len(set(every)) == len(every), "the spec lists a key twice: %s" % every
+    assert spec_save_optional_keys() == ["fight_exits"], spec_save_optional_keys()
+    assert "fight_exits" not in keys, "the exit rows must not be a required key, or an older save is refused"
 
 
 def test_written_keys_and_read_keys_are_the_spec_set():
@@ -250,16 +272,44 @@ def test_an_unknown_format_is_refused_with_a_plain_message():
 # 3. Names, not indexes
 
 
-def test_the_save_module_never_names_an_asset_or_a_sprite():
-    """json_stringify stores a handle for an asset, and a handle changes between runs (spec 11)."""
-    forbidden = [
+def test_no_save_path_reads_an_asset_or_a_sprite():
+    """json_stringify stores a handle for an asset, and a handle changes between runs (spec 11).
+
+    The card asks for a grep of the module and no hit at all, but the module holds one asset call that
+    has nothing to do with the document: pp_save_new_game turns the room constant into a room id for
+    room_goto. Editing it out is forbidden by this card and wrong on the merits, so the test names the
+    save path exactly, proves it is clean, and pins the one exception so it cannot quietly grow a save
+    key built from a handle.
+    """
+    forbidden = (
         "asset_get_index", "asset_get_assets", "asset_get_id",
         "sprite_get_id", "sprite_get_number", "sprite_get_sprite", "sprite_index",
-    ]
+    )
     text = read_code(SAVE_GML)
-    found = [name for name in forbidden if name in text]
-    assert found == [], "the save module names an asset: %s" % found
-    assert "sprite" not in text, "the save module mentions a sprite"
+
+    save_path = (
+        "pp_save_key_list", "pp_save_snapshot", "pp_save_snapshot_powers", "pp_save_snapshot_items",
+        "pp_save_snapshot_flags", "pp_save_snapshot_scenes", "pp_save_write", "pp_save_start_write",
+        "pp_save_read", "pp_save_read_backup", "pp_save_async_event", "pp_save_payload_text",
+        "pp_save_parse", "pp_save_validate", "pp_save_apply",
+    )
+    hits = []
+    for name in save_path:
+        body = function_body(text, name)
+        for bad in forbidden:
+            if bad in body:
+                hits.append((name, bad))
+    assert hits == [], "a save path reads an asset or a sprite: %s" % hits
+
+    # Exactly one asset call exists in the module, and it is the room lookup in pp_save_new_game.
+    assert text.count("asset_get_index") == 1, \
+        "the module has %d asset_get_index calls, and only the room lookup is accounted for" \
+        % text.count("asset_get_index")
+    new_game = function_body(text, "pp_save_new_game")
+    assert "asset_get_index(PP_NEW_GAME_ROOM)" in new_game
+    assert "room_goto(_room)" in new_game, "the room id is not used for a room change, so pin it"
+
+    assert "sprite" not in text.lower(), "the save module mentions a sprite"
 
 
 def test_the_write_function_stores_names():
@@ -451,8 +501,18 @@ def save_document_errors(document: dict) -> list[str]:
     for name in sorted(document):
         if name not in known:
             problems.append("the save has a field this build does not know: %s" % name)
-    for name in sorted(known - set(document)):
+    # Only the required keys have to be there. An optional key is one a save written before it
+    # existed does not carry, and its absence is an empty record rather than a refused file.
+    for name in sorted(set(spec_save_required_keys()) - set(document)):
         problems.append("the save is missing the field %s" % name)
+
+    if "fight_exits" in document:
+        for row in document["fight_exits"]:
+            if not isinstance(row, dict) or sorted(row) != ["exit", "id", "round"]:
+                problems.append("a saved fight exit is not a record of an id, an exit and a round")
+            elif not isinstance(row["exit"], int) or isinstance(row["exit"], bool) \
+                    or not 0 <= row["exit"] <= 2:
+                problems.append("a saved fight exit is not one of the three exits")
 
     maps = {row["id"]: row for row in _load_json("maps/all.json")["maps"]}
     if isinstance(document.get("map"), str):
@@ -499,12 +559,19 @@ def save_document_errors(document: dict) -> list[str]:
 
     counters = document.get("counters") or {}
     wanted = spec_counter_keys()
-    for name in sorted(wanted):
-        value = counters.get(name)
-        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
-            problems.append("the counter %s is out of range" % name)
-    for name in sorted(set(counters) - set(wanted)):
-        problems.append("the save counters carry a name the route does not read: %s" % name)
+    if not isinstance(counters, dict):
+        problems.append("the save counters are not a table")
+    elif len(counters) != len(wanted):
+        # The game refuses a wrong count before it ever looks at a name, so the mirror must say the
+        # same thing for the same input or it is testing a game that does not exist.
+        problems.append("the save counters are not the four the route reads")
+    else:
+        for name in sorted(set(counters) - set(wanted)):
+            problems.append("the save counters carry a name the route does not read: %s" % name)
+        for name in sorted(wanted):
+            value = counters.get(name)
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                problems.append("the counter %s is out of range" % name)
     return problems
 
 
@@ -524,6 +591,8 @@ def test_the_mirror_agrees_with_the_gml_validator():
         "the save carries a flag this build does not know: ",
         "the save names music this build does not have: ",
         "the save names a sound that is not music: ",
+        "the save counters are not a table",
+        "the save counters are not the four the route reads",
         "the save counters carry a name the route does not read: ",
         "the counter ",
     ):
@@ -599,13 +668,30 @@ def test_the_format_is_refused_before_the_other_fields():
     assert "format 2" in problems[0], problems
 
 
-def test_a_counter_the_route_does_not_read_is_rejected():
-    """Spec 10 records four counters. A fifth name in the file is a file this build did not write."""
+def test_a_fifth_counter_is_refused_by_count_before_any_name_is_read():
+    """Spec 10 records four counters, and the game refuses a wrong count before it reads a name.
+
+    The game's own order is the contract here: pp_save_validate compares the lengths first, so a fifth
+    counter never reaches the name loop. Asserting the name message for this input would assert a
+    sentence the game cannot say.
+    """
     counters = {
         "bosses_killed": 0,
         "bosses_spared": 0,
         "regulars_killed": 0,
         "regulars_spared": 0,
+        "enemies_killed": 0,
+    }
+    problems = save_document_errors(_save_document(counters=counters))
+    assert problems == ["the save counters are not the four the route reads"], problems
+
+
+def test_a_counter_renamed_away_from_the_four_is_refused_by_name():
+    """With the count right, a swapped name is caught by name, which is the game's second test."""
+    counters = {
+        "bosses_killed": 0,
+        "bosses_spared": 0,
+        "regulars_killed": 0,
         "enemies_killed": 0,
     }
     problems = save_document_errors(_save_document(counters=counters))

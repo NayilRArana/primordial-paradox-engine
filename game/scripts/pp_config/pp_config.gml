@@ -85,6 +85,23 @@ enum PPResult {
     interrupt = 3
 }
 
+/// The three ways an enemy can leave a fight (spec 10 rule 6). One row per enemy carries one of these, and the fight
+/// verdict is computed from them. down is the only one that moves a kill counter; turned is an enemy who walked away
+/// because the fight stopped, so it is neither a kill nor a spare.
+enum PPExit {
+    down = 0,
+    spared = 1,
+    turned = 2
+}
+
+/// What a whole fight reads as, from the rows under it (spec 10 rule 6). Generous in the player's favour: quiet means
+/// nothing was put down, mixed means something was, violent means nothing left standing.
+enum PPFightVerdict {
+    quiet = 0,
+    mixed = 1,
+    violent = 2
+}
+
 /// Route derived from the ledger on read (spec 10).
 enum PPRoute {
     undecided = 0,
@@ -181,3 +198,7 @@ enum PPElement {
 #macro PP_SAVE_MAX_HP 999
 #macro PP_SAVE_MAX_ITEM_COUNT 99
 #macro PP_SAVE_MAX_FLAG_CHARS 64
+// The per-fight exit rows (spec 10 rule 6): a fight holds a handful of enemies, so a file claiming hundreds is a
+// foreign file. The round bound matches the counter bound.
+#macro PP_SAVE_MAX_EXIT_ROWS 32
+#macro PP_SAVE_MAX_ROUND 9999

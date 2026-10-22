@@ -22,7 +22,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | Module | Status | Reviewer | Date |
 | --- | --- | --- | --- |
 | game/objects/obj_pp_debug_overlay/Create_0.gml | confirmed | code-review | 2026-10-19 |
-| game/objects/obj_pp_debug_overlay/Draw_64.gml | confirmed | code-review | 2026-10-19 |
+| game/objects/obj_pp_debug_overlay/Draw_64.gml | reviewed | gamedev | 2026-10-22 |
 | game/objects/obj_pp_debug_overlay/Step_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_game/Create_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/objects/obj_pp_game/Draw_0.gml | confirmed | code-review | 2026-10-19 |
@@ -37,22 +37,23 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_art/pp_art.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_audio/pp_audio.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_battle_commands/pp_battle_commands.gml | rewritten | code-review | 2026-10-19 |
-| game/scripts/pp_battle_director/pp_battle_director.gml | confirmed | code-review | 2026-10-19 |
-| game/scripts/pp_battle_text/pp_battle_text.gml | confirmed | code-review | 2026-10-19 |
+| game/scripts/pp_battle_director/pp_battle_director.gml | reviewed | gamedev | 2026-10-22 |
+| game/scripts/pp_battle_text/pp_battle_text.gml | rewritten | gamedev | 2026-10-22 |
 | game/scripts/pp_camera/pp_camera.gml | rewritten | code-review | 2026-10-19 |
-| game/scripts/pp_config/pp_config.gml | confirmed | code-review | 2026-10-19 |
+| game/scripts/pp_config/pp_config.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_data/pp_data.gml | confirmed | code-review | 2026-10-19 |
-| game/scripts/pp_dialogue/pp_dialogue.gml | rewritten | code-review | 2026-10-19 |
+| game/scripts/pp_dialogue/pp_dialogue.gml | rewritten | gamedev | 2026-10-22 |
 | game/scripts/pp_dodge_arena/pp_dodge_arena.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_input/pp_input.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_font/pp_font.gml | reviewed | gamedev | 2026-10-21 |
-| game/scripts/pp_ledger/pp_ledger.gml | rewritten | code-review | 2026-10-19 |
+| game/scripts/pp_ledger/pp_ledger.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_map/pp_map.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
-| game/scripts/pp_save/pp_save.gml | reviewed | gamedev | 2026-10-21 |
+| game/scripts/pp_save/pp_save.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_scene/pp_scene.gml | rewritten | code-review | 2026-10-19 |
+| game/scripts/pp_text/pp_text.gml | rewritten | gamedev | 2026-10-22 |
 | game/scripts/pp_title/pp_title.gml | reviewed | gamedev | 2026-10-21 |
 
 The two rows that were `pending` are now `reviewed` by gamedev on 2026-10-21, and the reviewer is named in the row
@@ -134,9 +135,14 @@ someone's expression". A module that leaned on a studied detail has the exact co
   function per phase and a single transition door, from the spec 07 turn flow; a turn loop written as a phase machine is
   the ordinary implementation of "player phase, message, enemy telegraph, dodge, repeat", and every number comes from
   data or pp_config.
-- `game/scripts/pp_battle_text/pp_battle_text.gml`: confirmed. A reveal counter, a per character step count and a
-  punctuation pause, from spec 05 text rules 1 to 2; typewriter presentation is genre standard and the parameters are
-  ours.
+- `game/scripts/pp_battle_text/pp_battle_text.gml`: rewritten, 2026-10-22 (card TEXT-REVEAL-1). The module no longer
+  holds a reveal: it builds one unit per line with `pp_text_items`, hands them to one `pp_text_reveal_begin`, and keeps
+  only where the lines are drawn. What is left is board geometry and a call into the shared machine, which is our own
+  layout code from spec 07 rule 6.
+- `game/scripts/pp_text/pp_text.gml`: rewritten, 2026-10-22 (card TEXT-REVEAL-1). The reveal machine itself: an item
+  list, a step accumulator, a hold value, the punctuation pauses from spec 05 rule 2, a blip interval, a skip and a done
+  predicate, plus one boolean that says whether a unit end advances by itself. Every number it uses is a macro in
+  pp_config and every rule is a line of spec 05; no text, identifier or expression comes from anywhere else.
 - `game/scripts/pp_camera/pp_camera.gml`: rewritten. Construct named and removed: the parenthetical citing a window
   resize "event index we have not verified", a detail of the studied project's event wiring. The logic is an integer
   scale from the window size, an application surface resize, a dead zone follow and a whole pixel clamp, from spec 03 and
@@ -146,10 +152,10 @@ someone's expression". A module that leaned on a studied detail has the exact co
 - `game/scripts/pp_data/pp_data.gml`: confirmed. A JSON loader with a try/catch, an id index and a plain error list, from
   the manual's json_parse and json_stringify pages and spec delta M1; loading data by id is ordinary practice and the
   file deliberately holds no content.
-- `game/scripts/pp_dialogue/pp_dialogue.gml`: rewritten. Construct named and removed: the parenthetical citing the
-  studied "message and dialogue flow". The logic is control code parsing, greedy word wrap, page splitting and a reveal
-  clock, from spec 05 rules 1 to 6; text presentation with pages and pauses is genre level, and the box geometry is the
-  spec's decision.
+- `game/scripts/pp_dialogue/pp_dialogue.gml`: rewritten, 2026-10-22 (card TEXT-REVEAL-1). Construct named and removed:
+  the parenthetical citing the studied "message and dialogue flow". The module now holds the box and nothing else: word
+  wrap, pages, the portrait frame, the name plate and the arrow. The reveal it used to own lives once in pp_text. The
+  geometry is the spec's decision and the wrap is a greedy fill over the shared item list.
 - `game/scripts/pp_dodge_arena/pp_dodge_arena.gml`: confirmed. A bounded box, a clamped marker, an AABB hit test with a
   two pixel inset, an invulnerability counter and a step cap, from spec 08's geometry and fairness rules; the physics of
   a bounded playfield is the genre mechanic itself (genre-design section 2), and every number is a PP decision.
@@ -214,6 +220,27 @@ someone's expression". A module that leaned on a studied detail has the exact co
   "phase sequencing". The logic is a command list runner with one blocking state per command and branch as the only
   control flow, from spec 06 rules 1 to 3; a scripted sequence interpreter is the ordinary form for cutscenes, and the
   no-loops rule is ours.
+
+## Review, 2026-10-22: the exit rows and the fight verdict (card t_48020b30)
+
+Five files were reviewed on this date because the card changed them: `game/scripts/pp_ledger/pp_ledger.gml`,
+`game/scripts/pp_battle_director/pp_battle_director.gml`, `game/scripts/pp_config/pp_config.gml`,
+`game/scripts/pp_save/pp_save.gml` and `game/objects/obj_pp_debug_overlay/Draw_64.gml`.
+
+- `pp_ledger.gml`: one row per enemy in a plain array, an exit state read from the existing result enum, and a verdict
+  computed from the rows. This is `knowledge\FOX-STYLE.md` section 2, which is this project's own doctrine, and spec 10
+  rule 6 as refreshed the same day. The construct is a record plus a roll up, which is the oldest shape in the genre and
+  is not text from anywhere.
+- `pp_config.gml`: two enums of three names each, `PPExit` and `PPFightVerdict`, plus two save bounds. Names and
+  numbers are spec 10's.
+- `pp_battle_director.gml`: one call site, `pp_ledger_record_exit`, and one call to `pp_ledger_begin_fight` in the
+  battle constructor. The director still writes no counter.
+- `pp_save.gml`: one optional key, `fight_exits`, a shape check on each row, and a verdict recomputed on load. Every
+  required key, the format check, the backup rotation and the validation order are untouched, so the 2026-10-21 review
+  of the module stands and this review covers the addition only.
+- `Draw_64.gml`: the F3 box sizes itself from a line count the ledger reports, so no row can draw outside it.
+
+Nothing outside this repository was read for any of the five, and no sentence in them was taken from anywhere.
 
 ## What the rows do not claim
 

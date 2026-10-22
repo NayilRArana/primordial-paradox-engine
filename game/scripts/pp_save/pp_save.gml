@@ -1,7 +1,8 @@
 /// pp_save: one save slot (spec 11). The game writes a versioned JSON document into a 64 KB buffer and hands it to the
 /// asynchronous buffer functions, so no step ever waits on the disk, and it reads it back the same way and validates
-/// every field before a single value is applied. The route ledger (spec 10) is saved as its four counters and its named
-/// flags only; the route name is never stored, it is derived on read by pp_ledger_route.
+/// every field before a single value is applied. The route ledger (spec 10) is saved as its four counters, its named
+/// flags and the last fight's exit rows; the route name and the fight verdict are never stored, they are derived on read
+/// by pp_ledger_route and pp_ledger_verdict_of.
 /// Provenance: knowledge\PROVENANCE.md, entry "save, load and resume". Sources are specs\11, 10 and 01 plus the manual
 /// pages named below, all read on 2026-10-20. Nothing was studied for this module.
 ///
@@ -58,11 +59,20 @@ function pp_save_name_backup() {
 
 /// Every key of the document, in the order spec 11 lists them. A save with a key outside this list, or without one of
 /// them, is refused rather than partially read: a missing field is not a default, it is a file this build did not write.
+/// The one exception is the optional key below, which pp_save_optional_keys names and which a save written before it
+/// existed simply does not carry.
 function pp_save_key_list() {
     return [
         "format", "game_version", "saved_at", "play_seconds", "map", "spawn", "x", "y",
-        "hp", "max_hp", "powers", "items", "flags", "counters", "seen_scenes", "music"
+        "hp", "max_hp", "powers", "items", "flags", "counters", "seen_scenes", "music",
+        "fight_exits"
     ];
+}
+
+/// A key this build writes but a save written before it existed does not have (spec 10 rule 6). Absent means empty,
+/// not damaged, so a player's older save keeps loading and the ledger starts with no rows.
+function pp_save_optional_keys() {
+    return ["fight_exits"];
 }
 
 /// Play time as a plain clock, because the title shows it to the player (spec 11 goal).
@@ -541,6 +551,35 @@ function pp_save_counter_keys() {
     return ["bosses_killed", "bosses_spared", "regulars_killed", "regulars_spared"];
 }
 
+/// One exit row of the last fight, checked as strictly as every other record in the file (spec 10 rule 6). The enemy
+/// id is checked for shape and not resolved against data\enemies, because a row is a record of what already happened:
+/// a later balance change that retires an enemy must not make a player's save unreadable.
+function pp_save_exit_row_problem(_row) {
+    var _shape = "a saved fight exit is not a record of an id, an exit and a round";
+    if (!is_struct(_row)) return _shape;
+    if (array_length(variable_struct_get_names(_row)) != 3) return _shape;
+    if (!variable_struct_exists(_row, "id") || !variable_struct_exists(_row, "exit")
+        || !variable_struct_exists(_row, "round")) return _shape;
+    if (!is_string(_row.id) || _row.id == "") return "a saved fight exit id is not a name";
+    if (string_length(_row.id) > PP_SAVE_MAX_FLAG_CHARS) return "a saved fight exit id is too long";
+    if (string_pos(" ", _row.id) > 0) return "a saved fight exit id is not a name";
+    if (is_undefined(pp_save_number(_row.exit, PPExit.down, PPExit.turned))) {
+        return "a saved fight exit is not one of the three exits";
+    }
+    if (is_undefined(pp_save_number(_row.round, 0, PP_SAVE_MAX_ROUND))) return "a saved fight exit round is out of range";
+    return "";
+}
+
+function pp_save_exit_rows_problem(_rows) {
+    if (!is_array(_rows)) return "the save fight exits are not a list";
+    if (array_length(_rows) > PP_SAVE_MAX_EXIT_ROWS) return "the save records more fight exits than one fight holds";
+    for (var i = 0; i < array_length(_rows); i++) {
+        var _problem = pp_save_exit_row_problem(_rows[i]);
+        if (_problem != "") return _problem;
+    }
+    return "";
+}
+
 /// The whole contract of the file, checked in the order the player would notice it: format first, so an unknown file is
 /// refused before any other field is looked at, then the key set, then every id and every number.
 function pp_save_validate(_d) {
@@ -560,7 +599,11 @@ function pp_save_validate(_d) {
         if (!pp_save_strings_have(_keys, _names[i])) return "the save has a field this build does not know: " + string(_names[i]);
     }
     for (var j = 0; j < array_length(_keys); j++) {
-        if (!variable_struct_exists(_d, _keys[j])) return "the save is missing the field " + string(_keys[j]);
+        if (!variable_struct_exists(_d, _keys[j])) {
+            // The optional key is here so a save written before it existed still loads. Absent means empty.
+            if (pp_save_strings_have(pp_save_optional_keys(), _keys[j])) continue;
+            return "the save is missing the field " + string(_keys[j]);
+        }
     }
 
     if (!is_string(_d.game_version) || _d.game_version == "") return "the save has no game version";
@@ -629,6 +672,12 @@ function pp_save_validate(_d) {
     for (var k = 0; k < array_length(_counter_keys); k++) {
         var _count = pp_save_number(_d.counters[$ _counter_keys[k]], 0, PP_SAVE_MAX_COUNTER);
         if (is_undefined(_count)) return "the counter " + string(_counter_keys[k]) + " is out of range";
+    }
+
+    // The last fight's exit rows (spec 10 rule 6). The key is optional, so an older save has none and starts empty.
+    if (variable_struct_exists(_d, "fight_exits")) {
+        var _exits_problem = pp_save_exit_rows_problem(_d.fight_exits);
+        if (_exits_problem != "") return _exits_problem;
     }
 
     if (!is_array(_d.seen_scenes)) return "the save seen scenes are not a list";
@@ -705,9 +754,23 @@ function pp_save_snapshot() {
             regulars_killed: _ledger.counters.regulars_killed,
             regulars_spared: _ledger.counters.regulars_spared
         },
+        fight_exits: pp_save_snapshot_exits(_ledger),
         seen_scenes: pp_save_snapshot_scenes(_ledger),
         music: _w.music
     };
+}
+
+/// The last fight's exit rows, as an id, an exit number and a round (spec 10 rule 6). The fight verdict is not written:
+/// it is a function of these rows, so it is recomputed on load rather than kept as a second copy that could disagree.
+function pp_save_snapshot_exits(_ledger) {
+    var _out = [];
+    if (!variable_struct_exists(_ledger, "exits") || !is_array(_ledger.exits)) return _out;
+    for (var i = 0; i < array_length(_ledger.exits); i++) {
+        var _row = _ledger.exits[i];
+        if (!is_struct(_row)) continue;
+        array_push(_out, { id: _row.id, exit: _row.exit, round: _row.round });
+    }
+    return _out;
 }
 
 /// Power ids only. The full row is rebuilt from data on load, so a balance change lands on the next load instead of
@@ -795,6 +858,19 @@ function pp_save_apply() {
         _ledger.flags[$ _name] = (_d.flags[$ _name] != 0);
     }
     _ledger.hp = _d.hp;
+
+    // The last fight's rows come back, and the verdict is recomputed from them by the ledger's own rule, so a loaded
+    // ledger reads exactly like the one that was saved (spec 10 rule 6). A save written before the rows existed has
+    // none, which is an empty record and a quiet verdict, not an error.
+    _ledger.exits = [];
+    _ledger.verdict = PPFightVerdict.quiet;
+    if (variable_struct_exists(_d, "fight_exits")) {
+        for (var e = 0; e < array_length(_d.fight_exits); e++) {
+            var _exit_row = _d.fight_exits[e];
+            array_push(_ledger.exits, { id: _exit_row.id, exit: _exit_row.exit, round: _exit_row.round });
+        }
+        _ledger.verdict = pp_ledger_verdict_of(_ledger.exits);
+    }
 
     var _powers = [];
     for (var p = 0; p < array_length(_d.powers); p++) {

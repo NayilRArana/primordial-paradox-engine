@@ -68,6 +68,7 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_map/pp_map.gml | specs alone | 04 |
 | game/scripts/pp_overworld/pp_overworld.gml | specs alone | 04 |
 | game/scripts/pp_scene/pp_scene.gml | specs alone | 06 |
+| game/scripts/pp_text/pp_text.gml | specs alone | 05 |
 | game/scripts/pp_title/pp_title.gml | specs alone | 14 (proposed) |
 | game/scripts/pp_input/pp_input.gml | specs alone | 02 |
 | game/scripts/pp_font/pp_font.gml | specs alone | 13, 14 (proposed) |
@@ -743,12 +744,12 @@ Copied expression: none.
 
 
 ## NES-PALETTES, 2026-10-22: scene palettes for the title and the ship
-Source studied: published NES hardware behaviour (Ricoh 2C02 PPU palettes and attribute tables: four background
+Studied: published NES hardware behaviour (Ricoh 2C02 PPU palettes and attribute tables: four background
 palettes of three plus a shared backdrop, four sprite palettes of three plus transparency, one attribute entry per
 16x16 area) and the manager's 2026-10-21 research note on how NES artists worked inside it (transparent as an
 apparent colour, stacked sprites for a fourth colour, tiled variation, flicker to hide the 8 per scanline limit).
 Those sources are documented technique and public hardware facts, not art.
-Mechanic learned: the budget is a property of the composed frame, not of each layer, so the palette must be decided
+Mechanics learned: the budget is a property of the composed frame, not of each layer, so the palette must be decided
 before the art and enforced at the moment each asset is written.
 Our implementation differs by: making the scene palette a data file per scene (data/palettes/scene_title.json,
 scene_ship.json) with a solver that picks the four triples from the art, an enforcement pass that runs inside the
@@ -771,3 +772,40 @@ pipe 18, grate 3) read from the index's column count; the figures are frame math
 frames per direction measured at runtime; and the proof of the room is the room's own screen_save frame written from
 inside its draw, not a copy of the desktop.
 Copied expression: none. No sprite, tile, font, sound or code text from any published game is in this change.
+
+## TEXT-REVEAL-1, 2026-10-22: one reveal machine, two layouts
+Studied: this repository's own two typewriter modules (pp_dialogue and pp_battle_text) and FOX-STYLE.md section 7, which
+already fixed the shape in prose: one writer per message, advanced by a per character tick, with the punctuation pauses
+owned by the writer and not by the caller. No decompiled text was read for this card and none is needed, because section
+7 exists so the answer does not have to be looked up again.
+Mechanics learned: a character reveal is four things and nothing more. An item list built once from the source text, a
+step counter that turns frames into revealed characters, a hold value that punctuation and control codes add to, and a
+predicate that says the current unit is finished. Everything else a text box does, wrapping, pagination, a portrait, the
+place the lines sit, is a layout and belongs to the layout.
+Our implementation differs by: keeping the item list, the hold, the speed, the skip and the done predicate in one module
+(pp_text) and leaving pp_dialogue and pp_battle_text with their geometry only; naming the pause values PP_TEXT_PAUSE_STOP
+and PP_TEXT_PAUSE_COMMA in pp_config exactly as spec 05 rule 2 gives them; carrying the reveal in a plain struct with no
+closures; and expressing the one behavioural difference between the two layouts, that the battle board advances by itself
+at the end of a line while the dialogue box waits for confirm, as a single boolean on the machine instead of as a second
+revealer.
+Copied expression: none
+
+## LEDGER-2, 2026-10-22: each enemy's exit, and a generous fight verdict
+Studied: this repository's own doctrine and specs only. `knowledge\FOX-STYLE.md` section 2 already fixed the shape in
+prose: one row per enemy carrying one of three exit states, rolled up into a fight verdict that flatters the player
+while the rows stay exact, and no experience field anywhere. Spec 10 as refreshed on this date and spec 11 carry the
+rest. No decompiled material was read for this card.
+Mechanics learned: a morality record needs two resolutions, not one. The counters answer "how many", which is what the
+prison branch and the final room read, and the rows answer "which one, and when", which is what any summary, any per
+enemy line and any later scene needs. The verdict is a third thing and the cheapest of the three, because it is a
+function of the rows: quiet when nothing was put down, violent when everything was, mixed in between. Writing the rows
+and the counters in the same call, in that order, is what stops the two from ever disagreeing.
+Our implementation differs by: keeping the four counters and the derived route exactly as they were, so the story
+reading does not change; adding `exits` and `verdict` to the ledger struct and clearing them at the start of a fight
+rather than at the end, so the record survives to be looked at; naming the states `PPExit.down`, `PPExit.spared`,
+`PPExit.turned` and the verdicts `PPFightVerdict.quiet`, `mixed`, `violent`, which are the doctrine's own words; making
+the door `pp_ledger_record_exit` the only place a counter is written, replacing `pp_ledger_record_result`, which took
+no enemy and no round; storing only the rows in the save under an optional `fight_exits` key and recomputing the
+verdict on load, so a save written before this card still loads with an empty record; and refusing to count a turned
+enemy, which keeps the counters the coarse instrument spec 10 says they are.
+Copied expression: none. No code text, sprite, font, sound or line of prose from any published game is in this change.
