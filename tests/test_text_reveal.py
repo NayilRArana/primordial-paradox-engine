@@ -1,0 +1,177 @@
+"""TEXT-REVEAL-1: prove the character reveal has exactly one implementation and that both layouts use it.
+
+What this file can honestly prove from pytest: the source text. GameMaker is not callable from the Python suite, so
+this file does not pretend to run the machine. It proves the property the card is about at the level where a second
+implementation would appear, which is the level where the defect lived in the first place (two modules, two loops).
+
+1. TIMING FINGERPRINT. Everything that decides WHEN a character appears (a per character step count, a punctuation
+   hold, the blip interval) is named in exactly one module: game/scripts/pp_text/pp_text.gml. If a layout grows its own
+   reveal again, its file names one of those tokens and this file fails with the file named.
+2. WIRING. Both layouts hand their reveal to the one machine: pp_dialogue_step and pp_text_board_step call
+   pp_text_reveal_step, both build their items with pp_text_items (so the same input is parsed once, in one order, with
+   one pause table), and neither keeps reveal state of its own.
+3. SELF CHECK. The auditor is run over a synthetic second reveal, so a broken auditor cannot pass this file silently.
+"""
+
+from __future__ import annotations
+
+import os
+import re
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OWNER = "game/scripts/pp_text/pp_text.gml"
+
+# A token here means: this module decides when a character appears. pp_config defines the pause macros as values, which
+# is content, so a #macro line is not counted as reveal logic.
+TIMING_TOKENS = {
+    "PP_TEXT_STEPS_SLOW": "a slow per character step count",
+    "PP_TEXT_STEPS_FAST": "a fast per character step count",
+    "PP_TEXT_PAUSE_STOP": "a full stop, question or exclamation hold",
+    "PP_TEXT_PAUSE_COMMA": "a comma hold",
+    "PP_TEXT_BLIP_EVERY": "a blip interval",
+    "PP_TEXT_STEPS_PER_CHAR": "a per character step count of its own",
+}
+
+REVEAL_FIELDS = ("revealed", "acc", "wait", "steps")
+
+
+def gml_files():
+    found = []
+    for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, "game")):
+        dirnames[:] = [d for d in dirnames if d not in ("__pycache__",)]
+        for name in filenames:
+            if name.endswith(".gml"):
+                found.append(os.path.relpath(os.path.join(dirpath, name), ROOT).replace("\\", "/"))
+    return sorted(found)
+
+
+def code_of(path):
+    """The file with its comments removed, so prose that names a macro is not read as a use of it."""
+    with open(os.path.join(ROOT, path), "r", encoding="utf-8-sig") as handle:
+        text = handle.read()
+    lines = []
+    for line in text.split("\n"):
+        cut = line.find("//")
+        code = line if cut == -1 else line[:cut]
+        if code.strip().startswith("#macro"):
+            code = ""
+        lines.append(code)
+    return "\n".join(lines)
+
+
+def timing_logic(code):
+    """The timing tokens a piece of GML decides with, as (token, why) pairs."""
+    return [(token, why) for token, why in TIMING_TOKENS.items() if token in code]
+
+
+def function_body(code, name):
+    """The brace balanced body of one function, or an empty string when it is not defined here."""
+    match = re.search(r"^function\s+%s\s*\(" % re.escape(name), code, re.MULTILINE)
+    if match is None:
+        return ""
+    start = code.index("{", match.end())
+    depth = 0
+    for index in range(start, len(code)):
+        if code[index] == "{":
+            depth += 1
+        elif code[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return code[start:index + 1]
+    raise AssertionError("unbalanced body for %s" % name)
+
+
+def test_the_reveal_timing_exists_in_one_module_only():
+    """One revealer for the game. A second one fails here, by file name and token."""
+    offenders = []
+    for path in gml_files():
+        if path == OWNER:
+            continue
+        for token, why in timing_logic(code_of(path)):
+            offenders.append("%s decides %s (%s)" % (path, why, token))
+    assert offenders == [], "a second reveal implementation: %s" % offenders
+
+
+def test_the_auditor_catches_a_second_reveal():
+    """The audit above must fail on the defect it exists for, not pass because it reads nothing."""
+    second_reveal = "\n".join([
+        "function pp_text_board_step(_board, _fast) {",
+        "    _board.timer += 1;",
+        "    if (_board.timer >= PP_TEXT_STEPS_PER_CHAR) {",
+        "        _board.revealed += 1;",
+        "        if (_board.lines[_board.index] == \".\") _board.pause = PP_TEXT_PAUSE_STOP;",
+        "    }",
+        "}",
+    ])
+    found = [token for token, _why in timing_logic(second_reveal)]
+    assert "PP_TEXT_STEPS_PER_CHAR" in found
+    assert "PP_TEXT_PAUSE_STOP" in found
+
+    one_machine = "\n".join([
+        "function pp_dialogue_step(_d) {",
+        "    pp_text_reveal_step(_d.reveal, pp_action(\"confirm\"));",
+        "}",
+    ])
+    assert timing_logic(one_machine) == []
+
+
+def test_both_layouts_step_the_one_machine():
+    """Each layout's step, skip and done must be a call into pp_text, not a loop of its own."""
+    dialogue = function_body(code_of("game/scripts/pp_dialogue/pp_dialogue.gml"), "pp_dialogue_step")
+    battle = function_body(code_of("game/scripts/pp_battle_text/pp_battle_text.gml"), "pp_text_board_step")
+    assert "pp_text_reveal_step(" in dialogue, "the dialogue box must step the shared reveal"
+    assert "pp_text_reveal_step(" in battle, "the battle board must step the shared reveal"
+
+    skip = function_body(code_of("game/scripts/pp_battle_text/pp_battle_text.gml"), "pp_text_board_skip_line")
+    assert "pp_text_reveal_complete(" in skip and "pp_text_reveal_next(" in skip
+
+    advance = function_body(code_of("game/scripts/pp_dialogue/pp_dialogue.gml"), "pp_dialogue_advance")
+    assert "pp_text_reveal_complete(" in advance and "pp_text_reveal_next(" in advance
+
+    done = function_body(code_of("game/scripts/pp_battle_text/pp_battle_text.gml"), "pp_text_board_done")
+    assert "pp_text_reveal_done(" in done
+
+
+def test_neither_layout_keeps_reveal_state_of_its_own():
+    """A layout may read the machine's fields to draw. It may not own a reveal counter, a hold or an accumulator."""
+    assignments = re.compile(r"\.\s*(%s)\s*(=|\+=|-=)" % "|".join(REVEAL_FIELDS))
+    offenders = []
+    for path in ("game/scripts/pp_dialogue/pp_dialogue.gml", "game/scripts/pp_battle_text/pp_battle_text.gml"):
+        for line_number, line in enumerate(code_of(path).split("\n"), start=1):
+            if assignments.search(line):
+                offenders.append("%s:%d %s" % (path, line_number, line.strip()))
+    assert offenders == [], "a layout is running its own reveal: %s" % offenders
+
+
+def test_both_layouts_build_their_items_with_the_one_parser():
+    """Same input, same order: one item parser, so a pause lands at the same item in either layout."""
+    parser_owners = []
+    for path in gml_files():
+        if "function pp_text_items(" in code_of(path):
+            parser_owners.append(path)
+    assert parser_owners == [OWNER], "one item parser, not %s" % parser_owners
+
+    rows = function_body(code_of("game/scripts/pp_dialogue/pp_dialogue.gml"), "pp_dialogue_rows")
+    board = function_body(code_of("game/scripts/pp_battle_text/pp_battle_text.gml"), "pp_text_board")
+    assert "pp_text_items(" in rows, "the dialogue box must parse its text with the shared parser"
+    assert "pp_text_items(" in board, "the battle board must parse its text with the shared parser"
+
+
+def test_both_layouts_begin_the_same_machine():
+    """The reveal struct has exactly one constructor, and both layouts call it."""
+    owners = [path for path in gml_files() if "function pp_text_reveal_begin(" in code_of(path)]
+    assert owners == [OWNER], "one reveal constructor, not %s" % owners
+
+    open_body = function_body(code_of("game/scripts/pp_dialogue/pp_dialogue.gml"), "pp_dialogue_open")
+    board_body = function_body(code_of("game/scripts/pp_battle_text/pp_battle_text.gml"), "pp_text_board")
+    assert "pp_text_reveal_begin(" in open_body
+    assert "pp_text_reveal_begin(" in board_body
+
+
+def test_punctuation_pauses_are_the_spec_numbers_and_live_in_config():
+    """Spec 05 rule 2: 8 steps after a full stop, question or exclamation, 3 after a comma. One definition, unchanged."""
+    config = os.path.join(ROOT, "game", "scripts", "pp_config", "pp_config.gml")
+    with open(config, "r", encoding="utf-8-sig") as handle:
+        text = handle.read()
+    values = dict(re.findall(r"#macro\s+(PP_TEXT_PAUSE_[A-Z]+)\s+(\d+)", text))
+    assert values == {"PP_TEXT_PAUSE_STOP": "8", "PP_TEXT_PAUSE_COMMA": "3"}, values

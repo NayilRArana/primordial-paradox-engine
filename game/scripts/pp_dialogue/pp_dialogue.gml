@@ -1,53 +1,16 @@
-/// pp_dialogue: the text box (spec 05). Word wrap, a typewriter at 2 steps per character, confirm completes the line
-/// then advances, and holding confirm runs at 1 step per character. No portraits exist yet, so the portrait frame
-/// draws empty; the geometry is already the spec's.
-/// Provenance: knowledge\PROVENANCE.md, entry "battle state machine and turn loop", written before the notice of
-/// 2026-10-19 and re-confirmed by the clean-room re-review of the same date. The page and beat model is spec 05.
+/// pp_dialogue: the text box layout (spec 05) over the one reveal machine in pp_text.
+/// This module owns the words' shape and place: word wrap, pages, the box, the portrait frame, the name plate and the
+/// page arrow. It owns no reveal: the character timing, the holds, the punctuation pauses, the blip and the done
+/// predicate belong to pp_text (law 8, one renderer per thing).
+/// Provenance: knowledge\PROVENANCE.md, entry "text reveal machine: one implementation, two layouts", and the older
+/// entry "battle state machine and turn loop". The page and beat model is spec 05.
 /// No closures: every loop is written out, because a closure that reassigns an outer var is the kind of thing that
 /// behaves differently between runtimes and cannot be tested on this PC.
-
-/// Split one source line into items: {ch, wait, speed}. A control code becomes either a wait only item or a speed
-/// change, so the revealer can honour it without the wrapper knowing the codes exist.
-function pp_dialogue_items(_text) {
-    var _items = [];
-    var _len = string_length(_text);
-    var _i = 1;
-    var _speed = -1;
-    while (_i <= _len) {
-        var _ch = string_char_at(_text, _i);
-        if (_ch == "{") {
-            var _close = -1;
-            var _scan = _i + 1;
-            while (_scan <= _len) {
-                if (string_char_at(_text, _scan) == "}") {
-                    _close = _scan;
-                    break;
-                }
-                _scan += 1;
-            }
-            if (_close > _i) {
-                var _body = string_copy(_text, _i + 1, _close - _i - 1);
-                if (string_copy(_body, 1, 6) == "pause:") {
-                    array_push(_items, { ch: "", wait: real(string_delete(_body, 1, 6)), speed: -1 });
-                } else if (string_copy(_body, 1, 6) == "speed:") {
-                    _speed = real(string_delete(_body, 1, 6));
-                } else {
-                    show_debug_message("PP: unknown dialogue control code " + _body);
-                }
-                _i = _close + 1;
-                continue;
-            }
-        }
-        array_push(_items, { ch: _ch, wait: 0, speed: _speed });
-        _i += 1;
-    }
-    return _items;
-}
 
 /// Wrap one source line into rows of at most PP_TEXT_CHARS characters, by word. A word that does not fit moves whole
 /// to the next row; a word that cannot fit in a row at all is split and reported, because dropping it is worse.
 function pp_dialogue_rows(_text) {
-    var _items = pp_dialogue_items(_text);
+    var _items = pp_text_items(_text);
 
     // First pass: group items into words, remembering a pause that followed each word.
     var _words = [];
@@ -135,34 +98,25 @@ function pp_dialogue_build(_row) {
     return _pages;
 }
 
-function pp_dialogue_page_length(_rows) {
-    var _n = 0;
-    var _i = 0;
-    while (_i < array_length(_rows)) {
-        _n += array_length(_rows[_i]);
-        _i += 1;
-    }
-    return _n;
-}
-
-/// The item at a flat index on a page, or undefined past the end.
-function pp_dialogue_item_at(_rows, _index) {
-    var _seen = 0;
+/// One page's rows as the single item list the reveal machine advances through. The rows stay separate because the box
+/// draws them at their own y, but the reveal walks the page as one run of characters, which is what a page is.
+function pp_dialogue_page_unit(_rows) {
+    var _unit = [];
     var _r = 0;
     while (_r < array_length(_rows)) {
-        var _row_items = _rows[_r];
+        var _row = _rows[_r];
         var _c = 0;
-        while (_c < array_length(_row_items)) {
-            if (_seen == _index) return _row_items[_c];
-            _seen += 1;
+        while (_c < array_length(_row)) {
+            array_push(_unit, _row[_c]);
             _c += 1;
         }
         _r += 1;
     }
-    return undefined;
+    return _unit;
 }
 
-/// Open a dialogue by id: {id, speaker, pages, page, revealed, total, acc, wait, steps, blips, closed}.
+/// Open a dialogue by id: {id, speaker, pages, reveal, closed}. The reveal is the one in pp_text; this module holds no
+/// cursor, no hold and no step count of its own.
 function pp_dialogue_open(_dialogue_id) {
     var _row = pp_data_find(global.pp_data.dialogue.dialogue, _dialogue_id);
     if (is_undefined(_row)) {
@@ -172,94 +126,46 @@ function pp_dialogue_open(_dialogue_id) {
     var _pages = pp_dialogue_build(_row);
     if (array_length(_pages) == 0) return undefined;
 
+    var _units = [];
+    var _p = 0;
+    while (_p < array_length(_pages)) {
+        array_push(_units, pp_dialogue_page_unit(_pages[_p]));
+        _p += 1;
+    }
+
+    // The box waits for confirm at the end of a page, so the machine advances only when this layout says so.
     return {
         id: _row.id,
         speaker: _row.speaker,
         pages: _pages,
-        page: 0,
-        revealed: 0,
-        total: pp_dialogue_page_length(_pages[0]),
-        acc: 0,
-        wait: 0,
-        steps: 0,
-        blips: 0,
+        reveal: pp_text_reveal_begin(_units, _row.speaker, false),
         closed: false
     };
 }
 
-/// One step: the typewriter, the punctuation pauses, the {pause:N} and {speed:N} codes, and the blink clock.
+/// One step of the box: the machine types, the box draws whatever it has revealed.
 function pp_dialogue_step(_d) {
     if (is_undefined(_d) || _d.closed) return;
-    _d.steps += 1;
-    if (_d.wait > 0) {
-        _d.wait -= 1;
-        return;
-    }
-    if (_d.revealed >= _d.total) return;
-
-    var _rows = _d.pages[_d.page];
-    var _item = pp_dialogue_item_at(_rows, _d.revealed);
-
-    var _steps_per_char = pp_action("confirm") ? PP_TEXT_STEPS_FAST : PP_TEXT_STEPS_SLOW;
-    if (!is_undefined(_item) && _item.speed > 0 && !pp_action("confirm")) {
-        _steps_per_char = max(PP_TEXT_STEPS_FAST, _item.speed);
-    }
-    _d.acc += 1;
-    if (_d.acc < _steps_per_char) return;
-    _d.acc = 0;
-
-    _d.revealed += 1;
-    if (is_undefined(_item)) return;
-    if (_item.wait > 0) {
-        _d.wait += _item.wait;
-        return;
-    }
-    if (_item.ch == "." || _item.ch == "!" || _item.ch == "?") {
-        _d.wait += PP_TEXT_PAUSE_STOP;
-    } else if (_item.ch == ",") {
-        _d.wait += PP_TEXT_PAUSE_COMMA;
-    }
-    if (_item.ch != " " && _d.revealed mod PP_TEXT_BLIP_EVERY == 0) {
-        _d.blips += 1;
-        // Card SFX-WIRE: one blip every three revealed characters, never on a space, pitched by speaker.
-        pp_audio_play(pp_audio_blip_cue(_d.speaker));
-    }
+    pp_text_reveal_step(_d.reveal, pp_action("confirm"));
 }
 
 /// Confirm: complete the page if it is still typing, otherwise turn the page or close. Returns true when it closed.
 function pp_dialogue_advance(_d) {
     if (is_undefined(_d) || _d.closed) return true;
-    if (_d.revealed < _d.total) {
-        _d.revealed = _d.total;
-        _d.wait = 0;
+    if (_d.reveal.revealed < pp_text_unit_length(_d.reveal)) {
+        pp_text_reveal_complete(_d.reveal);
         return false;
     }
-    _d.page += 1;
-    if (_d.page >= array_length(_d.pages)) {
+    if (pp_text_reveal_next(_d.reveal)) {
         _d.closed = true;
         return true;
     }
-    _d.revealed = 0;
-    _d.total = pp_dialogue_page_length(_d.pages[_d.page]);
-    _d.acc = 0;
-    _d.wait = 0;
     return false;
 }
 
 function pp_dialogue_closed(_d) {
     if (is_undefined(_d)) return true;
     return _d.closed;
-}
-
-/// Build the visible string for a row given how many of its items are revealed.
-function pp_dialogue_row_text(_row_items, _budget) {
-    var _text = "";
-    var _i = 0;
-    while (_i < array_length(_row_items) && _i < _budget) {
-        if (_row_items[_i].ch != "") _text += _row_items[_i].ch;
-        _i += 1;
-    }
-    return _text;
 }
 
 /// Draw the box, the name plate, the visible rows and the arrow. Two inks only: text and highlight (rule 6).
@@ -287,23 +193,24 @@ function pp_dialogue_draw(_d) {
         draw_text(PP_BOX_X + 8, PP_BOX_Y - 4, string_upper(_d.speaker));
     }
 
-    var _rows = _d.pages[_d.page];
-    var _budget = _d.revealed;
+    var _page = _d.reveal.unit;
+    var _rows = _d.pages[_page];
+    var _budget = _d.reveal.revealed;
     var _r = 0;
     draw_set_colour(pp_role_colour("ink"));
     while (_r < array_length(_rows)) {
-        var _text = pp_dialogue_row_text(_rows[_r], _budget);
+        var _text = pp_text_visible(_rows[_r], _budget);
         draw_text(PP_TEXT_X, PP_TEXT_Y + _r * PP_TEXT_LINE_H, _text);
         _budget -= array_length(_rows[_r]);
         if (_budget < 0) _budget = 0;
         _r += 1;
     }
 
-    var _phase = _d.steps mod (PP_ARROW_ON + PP_ARROW_OFF);
+    var _phase = _d.reveal.steps mod (PP_ARROW_ON + PP_ARROW_OFF);
     if (_phase < PP_ARROW_ON) {
         draw_set_colour(pp_role_colour("accent"));
         draw_rectangle(236, 222, 241, 227, false);
-        if (_d.page + 1 < array_length(_d.pages)) {
+        if (_page + 1 < array_length(_d.pages)) {
             draw_rectangle(230, 222, 235, 227, false);
         }
     }
