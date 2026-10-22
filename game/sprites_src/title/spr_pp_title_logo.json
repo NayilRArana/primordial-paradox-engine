@@ -1,7 +1,7 @@
 {
-  "name": "spr_pp_title_logo",
+  "fps": 0.25,
+  "frame_h": 64,
   "frame_w": 224,
-  "frame_h": 56,
   "frames": 2,
-  "fps": 0.25
+  "name": "spr_pp_title_logo"
 }

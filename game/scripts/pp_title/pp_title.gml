@@ -1,9 +1,12 @@
-/// pp_title: the title screen, the night drive and the menu (spec 14 and its night drive addendum).
+/// pp_title: the title screen, the night drive and the menu (spec 14, its night drive addendum and plan v2 section 2).
 ///
 /// The screen is one scene drawn from the title art: seven seamless night layers that scroll at the speeds
 /// TITLE-COORD.md fixes, the battered hatchback with its two passengers, Theo's storm cloud, the counting down
-/// road sign, the logo, and then the menu. The state of the screen lives here, in one struct, and the app mode
-/// machine owns the frame (spec 01).
+/// road sign, the logo, and then the menu inside the FF1 style window. The state of the screen lives here, in one
+/// struct, and the app mode machine owns the frame (spec 01).
+///
+/// The opening shot pans down from Big Ben into the drive and plays once, on the first boot only; a marker file in
+/// the save area records that it has been seen, so every later launch goes straight to the title card.
 ///
 /// Everything is written from specs\14-title-screen-drive.md, its addendum, TITLE-COORD.md and the manual pages
 /// named in each function. The art is this project's own; nothing is copied from any existing game.
@@ -22,14 +25,35 @@
 // The drive out before the map: the intro text scrolls over the road for four seconds.
 #macro PP_TITLE_DRIVE_STEPS 240
 #macro PP_TITLE_DRIVE_LINE_STEPS 70
-// Where the logo, the prompt and the menu sit, in frame pixels.
+// Where the logo, the prompt, the window and its rows sit, in frame pixels. The window is the classic NES JRPG
+// box, low and centred, with the four rows inside it and the cursor against its left edge.
 #macro PP_TITLE_LOGO_X 16
 #macro PP_TITLE_LOGO_Y 2
 #macro PP_TITLE_PROMPT_Y 72
-#macro PP_TITLE_MENU_X 16
-#macro PP_TITLE_MENU_Y 66
+#macro PP_TITLE_MENU_WIN_X 56
+#macro PP_TITLE_MENU_WIN_Y 92
+#macro PP_TITLE_MENU_WIN_W 144
+#macro PP_TITLE_MENU_WIN_H 76
+#macro PP_TITLE_MENU_ROW_Y 106
 #macro PP_TITLE_MENU_STEP 12
-#macro PP_TITLE_CURSOR_X 6
+#macro PP_TITLE_CURSOR_X 10
+// The copyright line: one quiet row at the very bottom of the frame.
+#macro PP_TITLE_COPY_TEXT "(c) 2026 NAYILINIST"
+#macro PP_TITLE_COPY_Y 228
+// The opening shot: a three second pan down out of the Big Ben frame, and a dissolve over the last three quarters
+// of a second. Any key skips it.
+#macro PP_TITLE_OPEN_STEPS 180
+#macro PP_TITLE_OPEN_PAN 24
+#macro PP_TITLE_OPEN_FADE 45
+// Lightning: the scene swaps to the flash palette for two frames, every 8 to 12 seconds (480 to 720 steps). The
+// wait is drawn from the title's own seeded stream, so the same launch flashes at the same moments.
+#macro PP_TITLE_FLASH_STEPS 2
+#macro PP_TITLE_FLASH_MIN_STEPS 480
+#macro PP_TITLE_FLASH_MAX_STEPS 720
+#macro PP_TITLE_FLASH_SEED 20261021
+// The marker that says the opening has been seen. It lands in the save area beside the slot, so nothing here
+// writes outside the sandbox.
+#macro PP_TITLE_SEEN_FILE "pp_title_seen.txt"
 // The car sits at the left of the road, and the headlight cone is on the tarmac ahead of it.
 #macro PP_TITLE_CAR_X 76
 #macro PP_TITLE_CAR_Y 186
@@ -110,25 +134,28 @@ function pp_title_data() {
         for (var i = 0; i < array_length(_f.layers); i += 1) {
             var _row = _f.layers[i];
             if (!is_struct(_row) || !variable_struct_exists(_row, "name")) continue;
-            _rows.push({
+            // array_push, not the method form: array.push(struct) reaches the runtime as an I32 and throws
+            // "I32 argument is array", which killed the title the first time title.json carried layers.
+            var _clean = {
                 name: _row.name,
                 y: (variable_struct_exists(_row, "y") ? _row.y : 0),
                 speed: (variable_struct_exists(_row, "speed") ? _row.speed : 0)
-            });
+            };
+            array_push(_rows, _clean);
         }
         if (array_length(_rows) > 0) _d.layers = _rows;
     }
     if (variable_struct_exists(_f, "menu") && is_array(_f.menu) && array_length(_f.menu) > 0) {
         var _menu = [];
         for (var m = 0; m < array_length(_f.menu); m += 1) {
-            if (is_string(_f.menu[m])) _menu.push(_f.menu[m]);
+            if (is_string(_f.menu[m])) array_push(_menu, _f.menu[m]);
         }
         if (array_length(_menu) > 0) _d.menu = _menu;
     }
     if (variable_struct_exists(_f, "intro") && is_array(_f.intro) && array_length(_f.intro) > 0) {
         var _intro = [];
         for (var n = 0; n < array_length(_f.intro); n += 1) {
-            if (is_string(_f.intro[n])) _intro.push(_f.intro[n]);
+            if (is_string(_f.intro[n])) array_push(_intro, _f.intro[n]);
         }
         if (array_length(_intro) > 0) _d.intro = _intro;
     }
@@ -137,19 +164,43 @@ function pp_title_data() {
     return _d;
 }
 
-/// A fresh screen. The logo starts invisible and the prompt is up.
-function pp_title_state_new() {
-    return {
+/// The marker file that says the opening shot has played. It is relative, so the sandbox puts it in the save
+/// area next to the slot; nothing outside that folder is written.
+function pp_title_seen_read() {
+    return file_exists(PP_TITLE_SEEN_FILE);
+}
+
+function pp_title_seen_write() {
+    var _f = file_text_open_write(PP_TITLE_SEEN_FILE);
+    if (_f < 0) {
+        show_debug_message("PP title: could not write the opening marker " + PP_TITLE_SEEN_FILE);
+        return false;
+    }
+    file_text_write_string(_f, "1");
+    file_text_close(_f);
+    return true;
+}
+
+/// A fresh screen. The logo starts invisible, the lightning clock starts on its first wait, and the phase is the
+/// opening on a first boot or the prompt on every later launch.
+function pp_title_state_new(_phase) {
+    var _s = {
         steps: 0,
-        phase: "prompt",
+        phase: _phase,
         menu_index: 0,
         scroll: 0,
         logo_alpha: 0,
         drive: 0,
         drive_line: 0,
-        flash: false,
+        open: 0,
+        flash_left: 0,
+        flash_wait: 0,
+        flash_count: 0,
+        rng: pp_rng_new(PP_TITLE_FLASH_SEED),
         data: pp_title_data()
     };
+    _s.flash_wait = pp_rng_int(_s.rng, PP_TITLE_FLASH_MIN_STEPS, PP_TITLE_FLASH_MAX_STEPS);
+    return _s;
 }
 
 /// Enter the screen. The theme and the engine are asked for by cue name; the bus stays silent until the
@@ -158,7 +209,9 @@ function pp_title_enter(_params) {
     if (!variable_struct_exists(global.pp, "art") || !is_struct(global.pp.art)) global.pp.art = pp_art_init();
     // The slot is asked once, when the title appears, so CONTINUE knows whether a run exists (same call the boot card makes).
     if (pp_data_ok()) pp_save_title_start();
-    global.pp.title = pp_title_state_new();
+    var _first_boot = !pp_title_seen_read();
+    global.pp.title = pp_title_state_new(_first_boot ? "open" : "prompt");
+    if (_first_boot) show_debug_message("PP title: first boot, playing the opening shot, any key skips it");
     pp_audio_play("title_theme");
     pp_audio_play("car_engine_loop");
 }
@@ -171,6 +224,20 @@ function pp_title_step(_params) {
     _s.scroll += PP_TITLE_SCROLL_PX_PER_STEP;
     if (_s.logo_alpha < 1) {
         _s.logo_alpha = min(1, _s.logo_alpha + (1 / PP_TITLE_FADE_STEPS));
+    }
+
+    // The storm flashes on its own clock in every phase, so the title card breathes while the menu is up.
+    pp_title_step_lightning(_s);
+
+    if (_s.phase == "open") {
+        _s.open += 1;
+        if (pp_input_any_pressed() || _s.open >= PP_TITLE_OPEN_STEPS) {
+            // Skipping is as final as letting it run: either way this boot has seen the shot.
+            _s.open = PP_TITLE_OPEN_STEPS;
+            _s.phase = "prompt";
+            pp_title_seen_write();
+        }
+        return;
     }
 
     if (_s.phase == "prompt") {
@@ -213,6 +280,26 @@ function pp_title_step(_params) {
     }
 }
 
+/// The lightning clock. A flash is two frames of the flash palette and one soft thunder cue; the wait after it is
+/// drawn from the state's own seeded stream, so no two waits are the same and none is shorter than 8 seconds.
+function pp_title_step_lightning(_s) {
+    if (_s.flash_left > 0) {
+        _s.flash_left -= 1;
+        return;
+    }
+    _s.flash_wait -= 1;
+    if (_s.flash_wait > 0) return;
+    _s.flash_left = PP_TITLE_FLASH_STEPS;
+    _s.flash_wait = pp_rng_int(_s.rng, PP_TITLE_FLASH_MIN_STEPS, PP_TITLE_FLASH_MAX_STEPS);
+    _s.flash_count += 1;
+    pp_audio_play("thunder_soft");
+}
+
+/// True on the step a flash is on screen.
+function pp_title_flashing(_s) {
+    return is_struct(_s) && _s.flash_left > 0;
+}
+
 /// What the chosen row does.
 function pp_title_select(_s) {
     var _row = _s.menu_index;
@@ -251,39 +338,58 @@ function pp_title_has_save() {
     return pp_save_ready();
 }
 
-/// The scene, back to front, and then the logo and the words on top of it.
+/// The scene, back to front, and then the logo and the words on top of it. During the opening the Big Ben frame
+/// sits over the drive and drifts up out of it, so the cut into the title card is a camera move and not a jump.
 function pp_title_draw(_params) {
     var _s = global.pp.title;
     if (is_undefined(_s)) return;
     var _d = _s.data;
+    var _flash = pp_title_flashing(_s);
 
     draw_set_colour(pp_role_colour("ink"));
     draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
 
-    pp_title_draw_layers(_s, _d);
-    pp_title_draw_sign(_s, _d);
-    pp_title_draw_cone(_s, _d);
+    pp_title_draw_layers(_s, _d, _flash);
+    pp_title_draw_sign(_s, _d, _flash);
+    pp_title_draw_cone(_s, _d, _flash);
     pp_title_draw_car(_s, _d);
-    pp_title_draw_cloud(_s, _d);
+    pp_title_draw_cloud(_s, _d, _flash);
+
+    if (_s.phase == "open") {
+        pp_title_draw_opening(_s);
+        return;
+    }
+
     pp_title_draw_logo(_s);
     pp_title_draw_words(_s, _d);
 }
 
 /// The seven night layers, each scrolled at its own speed. A layer is one image wider than the view, so the
-/// wrap is drawn as a tail and then a head (the art lane's own technique).
-function pp_title_draw_layers(_s, _d) {
+/// wrap is drawn as a tail and then a head (the art lane's own technique). A flash swaps a layer for its
+/// flash palette twin when the art lane has drawn one.
+function pp_title_draw_layers(_s, _d, _flash) {
     for (var i = 0; i < array_length(_d.layers); i += 1) {
         var _layer = _d.layers[i];
-        var _info = pp_art_info(_layer.name);
+        var _name = pp_title_flash_name(_layer.name, _flash);
+        var _info = pp_art_info(_name);
         if (is_undefined(_info)) continue;
         var _offset = round(_s.scroll * _layer.speed);
-        pp_art_layer(_layer.name, pp_art_frame_at(_layer.name, _s.steps), _layer.y, _offset, PP_FRAME_W, _info.frame_h);
+        pp_art_layer(_name, pp_art_frame_at(_name, _s.steps), _layer.y, _offset, PP_FRAME_W, _info.frame_h);
     }
 }
 
+/// The flash twin of an animation name, or the name itself when the twin is not in the build.
+function pp_title_flash_name(_name, _flash) {
+    if (!_flash) return _name;
+    var _twin = _name + "_flash";
+    if (pp_art_has(_twin)) return _twin;
+    return _name;
+}
+
 /// The road sign, drawn over the plate the verge tile carries, so the miles to Southampton count down.
-function pp_title_draw_sign(_s, _d) {
-    if (!pp_art_has("spr_title_sign")) return;
+function pp_title_draw_sign(_s, _d, _flash) {
+    var _name = pp_title_flash_name("spr_title_sign", _flash);
+    if (!pp_art_has(_name)) return;
     var _verge = pp_title_layer_named(_d, "title_L5_verge");
     if (is_undefined(_verge)) return;
     var _offset = (round(_s.scroll * _verge.speed) mod 512);
@@ -291,15 +397,28 @@ function pp_title_draw_sign(_s, _d) {
     for (var shift = -512; shift <= 512; shift += 512) {
         var _x = PP_TITLE_SIGN_X - _offset + shift;
         if (_x > -100 && _x < PP_FRAME_W) {
-            pp_art_draw("spr_title_sign", _index, _x, _verge.y + PP_TITLE_SIGN_Y, c_white, 1);
+            pp_art_draw(_name, _index, _x, _verge.y + PP_TITLE_SIGN_Y, c_white, 1);
         }
     }
 }
 
 /// The headlight cone on the tarmac ahead of the car.
-function pp_title_draw_cone(_s, _d) {
-    if (!pp_art_has("spr_title_cone")) return;
-    pp_art_draw("spr_title_cone", 0, _d.cone_x, PP_TITLE_CONE_Y, c_white, 1);
+function pp_title_draw_cone(_s, _d, _flash) {
+    var _name = pp_title_flash_name("spr_title_cone", _flash);
+    if (!pp_art_has(_name)) return;
+    pp_art_draw(_name, 0, _d.cone_x, PP_TITLE_CONE_Y, c_white, 1);
+}
+
+/// The opening shot: the Big Ben frame drifts up out of the drive and dissolves, over three seconds. The drive
+/// underneath is already running, so the pan lands on a moving road rather than a still.
+function pp_title_draw_opening(_s) {
+    if (!pp_art_has("title_BG_bigben")) return;
+    var _t = min(1, _s.open / PP_TITLE_OPEN_STEPS);
+    var _y = -round(PP_TITLE_OPEN_PAN * _t);
+    var _left = PP_TITLE_OPEN_STEPS - _s.open;
+    var _alpha = 1;
+    if (_left < PP_TITLE_OPEN_FADE) _alpha = max(0, _left / PP_TITLE_OPEN_FADE);
+    pp_art_draw("title_BG_bigben", 0, 0, _y, c_white, _alpha);
 }
 
 /// The car, its wheels, its exhaust and the two people in it.
@@ -314,44 +433,20 @@ function pp_title_draw_car(_s, _d) {
         pp_art_draw("spr_title_exhaust", _puff, _x, _y + 14, c_white, 1);
     }
 
-    // The wheels turn, and the body bobs over them.
-    if (pp_art_has("spr_title_wheel")) {
-        var _wheel = floor(_s.steps / 5) mod pp_art_frames("spr_title_wheel");
-        pp_art_draw("spr_title_wheel", _wheel, _x + PP_TITLE_ARCH_NEAR - 5, _y + 22, c_white, 1);
-        pp_art_draw("spr_title_wheel", _wheel, _x + PP_TITLE_ARCH_FAR - 5, _y + 22, c_white, 1);
-    }
+    // The v2 car carries its own wheels, baked into the sprite so each one sits in its arch and cannot drift,
+    // and the frames turn those spokes. There is no separate wheel sprite on the title any more.
     var _body = floor(_s.steps / 10) mod pp_art_frames("spr_title_car");
     pp_art_draw("spr_title_car", _body, _x, _y, c_white, 1);
 
-    // The two heads, in the two windows: the passenger on the left, the driver on the right.
-    var _bust_y = _y + max(0, floor((PP_TITLE_BAND_TOP + PP_TITLE_BAND_BOTTOM) / 2) - 3 - 1);
-    var _index = floor(_s.steps * 2 / 15);
-    if (pp_art_has("spr_title_theo")) {
-        var _theo = _index mod pp_art_frames("spr_title_theo");
-        var _theo_x = _x + floor((PP_TITLE_WINDOW_A + PP_TITLE_WINDOW_A_END) / 2) - 6;
-        pp_art_draw("spr_title_theo", _theo, _theo_x, _bust_y, c_white, 1);
-    }
-    if (pp_art_has("spr_title_ronan")) {
-        var _ronan = _index mod pp_art_frames("spr_title_ronan");
-        var _ronan_x = _x + floor((PP_TITLE_WINDOW_B + PP_TITLE_WINDOW_B_END) / 2) - 6;
-        pp_art_draw("spr_title_ronan", _ronan, _ronan_x, _bust_y, c_white, 1);
-    }
-
-    // The speech bubble, once per loop, when Theo turns to say something.
-    var _phase = _s.steps mod 600;
-    if (_phase >= 360 && _phase < 420 && pp_art_has("spr_title_bubble")) {
-        var _bubble = floor(_s.steps / 10) mod pp_art_frames("spr_title_bubble");
-        pp_art_draw("spr_title_bubble", _bubble, _x + PP_TITLE_WINDOW_A - 1, _y - 10, c_white, 1);
-    }
+    // The cast is off the title as of TS2-ART-A (Nayil: the car shows only its exterior, no faces). The
+    // sprites spr_title_theo, spr_title_ronan and spr_title_bubble stay in game\sprites_src\title for the
+    // interior scenes later; the title simply does not draw them.
 }
 
-/// Theo's storm cloud, which follows the car, with a soft flash every ten seconds.
-function pp_title_draw_cloud(_s, _d) {
+/// Theo's storm cloud, which follows the car. The lightning itself is the screen's clock (pp_title_step_lightning);
+/// the cloud simply lights up while a flash is on.
+function pp_title_draw_cloud(_s, _d, _flash) {
     if (!pp_art_has("spr_title_cloud")) return;
-    var _phase = _s.steps mod 600;
-    var _flash = (_phase >= 540 && _phase < 564);
-    if (_flash && !_s.flash) pp_audio_play("thunder_soft");
-    _s.flash = _flash;
     var _index = 0;
     if (_flash) {
         _index = 2;
@@ -369,7 +464,7 @@ function pp_title_draw_logo(_s) {
     pp_art_draw("spr_pp_title_logo", _index, PP_TITLE_LOGO_X, PP_TITLE_LOGO_Y, c_white, _s.logo_alpha);
 }
 
-/// The words: the prompt, the menu, the settings placeholder, or the intro text over the road.
+/// The words: the prompt, the menu in its window, the settings placeholder, or the intro text over the road.
 function pp_title_draw_words(_s, _d) {
     if (_s.phase == "drive") {
         pp_title_draw_intro(_s, _d);
@@ -381,38 +476,75 @@ function pp_title_draw_words(_s, _d) {
     }
     if (_s.phase == "prompt") {
         if (floor(_s.steps / PP_TITLE_BLINK_STEPS) mod 2 == 0) {
-            pp_font_draw_centre("PRESS Z OR ENTER", PP_FRAME_W / 2, PP_TITLE_PROMPT_Y, c_white, 1);
+            pp_font_draw_centre("PRESS START", PP_FRAME_W / 2, PP_TITLE_PROMPT_Y, pp_role_colour("paper"), 1);
         }
+        pp_title_draw_copy();
         return;
     }
-    // The menu. CONTINUE is greyed when the slot holds no run.
+    // The menu, inside the window. CONTINUE is greyed when the slot holds no run.
+    pp_title_draw_menu_window();
     var _has_save = pp_title_has_save();
     for (var i = 0; i < array_length(_d.menu); i += 1) {
         var _label = _d.menu[i];
-        var _colour = c_white;
-        if (_label == "CONTINUE" && !_has_save) _colour = make_colour_rgb(120, 120, 140);
-        pp_font_draw(_label, PP_TITLE_MENU_X, PP_TITLE_MENU_Y + i * PP_TITLE_MENU_STEP, _colour, 1);
+        var _colour = pp_role_colour("paper");
+        if (_label == "CONTINUE" && !_has_save) _colour = pp_role_colour("dim");
+        pp_font_draw_centre(_label, PP_TITLE_MENU_WIN_X + PP_TITLE_MENU_WIN_W / 2,
+                            PP_TITLE_MENU_ROW_Y + i * PP_TITLE_MENU_STEP, _colour, 1);
     }
     if (pp_art_has("spr_pp_menu_cursor")) {
         var _cursor = floor(_s.steps / PP_TITLE_CURSOR_PERIOD) mod 2;
-        pp_art_draw("spr_pp_menu_cursor", _cursor, PP_TITLE_CURSOR_X, PP_TITLE_MENU_Y + _s.menu_index * PP_TITLE_MENU_STEP, c_white, 1);
+        pp_art_draw("spr_pp_menu_cursor", _cursor, PP_TITLE_MENU_WIN_X + PP_TITLE_CURSOR_X,
+                    PP_TITLE_MENU_ROW_Y + _s.menu_index * PP_TITLE_MENU_STEP, c_white, 1);
     }
+    pp_title_draw_copy();
+}
+
+/// The menu window: the classic NES JRPG box, a dark blue field inside two pale borders. When the art lane ships
+/// spr_pp_window it is drawn stretched over the same rectangle instead, so the frame becomes art without any code
+/// change; until then the box below is drawn from the palette roles, which keeps the title complete either way.
+function pp_title_draw_menu_window() {
+    var _x = PP_TITLE_MENU_WIN_X;
+    var _y = PP_TITLE_MENU_WIN_Y;
+    var _w = PP_TITLE_MENU_WIN_W;
+    var _h = PP_TITLE_MENU_WIN_H;
+
+    if (pp_art_has("spr_pp_window")) {
+        var _info = pp_art_info("spr_pp_window");
+        draw_sprite_part_ext(_info.sprite, 0, 0, 0, _info.frame_w, _info.frame_h,
+                             _x, _y, _w / _info.frame_w, _h / _info.frame_h, c_white, 1);
+        return;
+    }
+
+    draw_set_colour(pp_role_colour("window"));
+    draw_rectangle(_x + 2, _y + 2, _x + _w - 2, _y + _h - 2, false);
+    draw_set_colour(pp_role_colour("window_shadow"));
+    draw_rectangle(_x, _y, _x + _w - 1, _y + _h - 1, true);
+    draw_set_colour(pp_role_colour("window_edge"));
+    draw_rectangle(_x + 1, _y + 1, _x + _w - 2, _y + _h - 2, true);
+}
+
+/// The copyright line: one quiet row at the bottom of the frame, on every phase but the opening.
+function pp_title_draw_copy() {
+    pp_font_draw_centre(PP_TITLE_COPY_TEXT, PP_FRAME_W / 2, PP_TITLE_COPY_Y, pp_role_colour("dim"), 1);
 }
 
 /// The settings placeholder: a title and one row, BACK.
 function pp_title_draw_settings(_s) {
-    draw_set_colour(pp_role_colour("ink"));
+    draw_set_colour(pp_role_colour("window"));
     draw_rectangle(24, 76, PP_FRAME_W - 24, 150, false);
-    draw_set_colour(c_white);
-    draw_rectangle(24, 76, PP_FRAME_W - 24, 150, false);
+    draw_set_colour(pp_role_colour("window_edge"));
+    draw_rectangle(24, 76, PP_FRAME_W - 24, 150, true);
+    draw_set_colour(pp_role_colour("window_shadow"));
+    draw_rectangle(25, 77, PP_FRAME_W - 25, 149, true);
     draw_set_alpha(1);
-    pp_font_draw_centre("SETTINGS", PP_FRAME_W / 2, 92, c_white, 1);
-    pp_font_draw_centre("NOTHING HERE YET", PP_FRAME_W / 2, 110, make_colour_rgb(120, 120, 140), 1);
-    pp_font_draw_centre("BACK", PP_FRAME_W / 2, 130, c_white, 1);
+    pp_font_draw_centre("SETTINGS", PP_FRAME_W / 2, 92, pp_role_colour("paper"), 1);
+    pp_font_draw_centre("NOTHING HERE YET", PP_FRAME_W / 2, 110, pp_role_colour("dim"), 1);
+    pp_font_draw_centre("BACK", PP_FRAME_W / 2, 130, pp_role_colour("paper"), 1);
     if (pp_art_has("spr_pp_menu_cursor")) {
         var _cursor = floor(_s.steps / PP_TITLE_CURSOR_PERIOD) mod 2;
         pp_art_draw("spr_pp_menu_cursor", _cursor, PP_FRAME_W / 2 - 40, 130, c_white, 1);
     }
+    pp_title_draw_copy();
 }
 
 /// The intro text over the road, one line at a time, each line scrolling up as it goes.
@@ -423,11 +555,12 @@ function pp_title_draw_intro(_s, _d) {
     if (_index >= _count) _index = _count - 1;
     var _within = _s.drive - _index * PP_TITLE_DRIVE_LINE_STEPS;
     var _y = 210 - _within * 2;
-    pp_font_draw_centre(_d.intro[_index], PP_FRAME_W / 2, _y, c_white, 1);
+    pp_font_draw_centre(_d.intro[_index], PP_FRAME_W / 2, _y, pp_role_colour("paper"), 1);
     if (_index + 1 < _count) {
         var _next_y = 210 + (PP_TITLE_DRIVE_LINE_STEPS - _within) * 2;
-        pp_font_draw_centre(_d.intro[_index + 1], PP_FRAME_W / 2, _next_y, c_white, 1);
+        pp_font_draw_centre(_d.intro[_index + 1], PP_FRAME_W / 2, _next_y, pp_role_colour("paper"), 1);
     }
+    pp_title_draw_copy();
 }
 
 /// The layer with this name, or undefined.

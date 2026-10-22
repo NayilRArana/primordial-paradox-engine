@@ -1,0 +1,55 @@
+{
+  "bars": 52,
+  "bpm": 104,
+  "duration_seconds": 90.0,
+  "loop_start_bar": 5,
+  "max_simultaneous_notes": 8,
+  "melody_bar_numbers": [
+    5,
+    6
+  ],
+  "melody_bars_1_2": [
+    "A4",
+    "C5",
+    "E5",
+    "F5",
+    "E5"
+  ],
+  "midi": "<repo>\\assets\\audio\\title_theme_v2\\title_theme_v2.mid",
+  "midi_bytes": 12825,
+  "midi_division": 480,
+  "midi_ntracks": 9,
+  "midi_tracks": [
+    "meta",
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "notes": {
+    "dpcm": 32,
+    "noise": 102,
+    "pulse 1": 221,
+    "pulse 2": 136,
+    "triangle": 120,
+    "vrc6 pulse a": 136,
+    "vrc6 pulse b": 48,
+    "vrc6 saw": 196
+  },
+  "out_of_range": [],
+  "score": "<repo>\\assets\\audio\\title_theme_v2\\score.yaml",
+  "tracks": [
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ]
+}

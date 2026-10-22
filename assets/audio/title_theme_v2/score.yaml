@@ -1,0 +1,73 @@
+# Title theme v2, cue title_theme. Composed by the Claude manager 2026-10-21 from Nayil's notes:
+# A minor waltz, Kronos family leitmotif (A C E F E = 1 b3 5 b6 5), "slightly faster", richer harmony and voices.
+# Durations are in eighth notes; a 3/4 bar holds 6. Chord "X|Y" = X on beats 1-2, Y on beat 3.
+meta:
+  key: A minor
+  time: 3/4
+  bpm: 104
+  loop_start_bar: 5          # the intro plays once, the loop is bars 5 to 52
+  bars: 52                   # about 90 s
+  chip: NES 2A03 + Konami VRC6 (the expansion Akumajou Densetsu used): 2 pulse, triangle, noise, DPCM + 2 VRC6 pulse, 1 VRC6 saw
+
+chords:
+  intro: [Am, Fmaj7, Dm9, "E7sus4|E7"]
+  A:  [Am, Am/G, Fmaj7, E7, Dm7, G7, Cmaj7, E7/G#, Fmaj7, Dm7, Bm7b5, E7, Am, C/G, D/F#, "Fmaj7|E7"]
+  B:  [Cmaj7, Em7, Fmaj7, G6, Am7, Dm7, G7sus4, G7, Cmaj7, E7/B, Am7, "Gm7|C7", Fmaj7, Fm6, "Em7|A7", "Dm7|E7"]
+  A2: [Am, Am/G, Fmaj7, E7, Dm7, G7, Cmaj7, E7/G#, Fmaj7, Dm7, Bm7b5, E7, Am, Fmaj7, Bm7b5, E7b9]
+
+# Melody, VRC6 pulse A. Each bar is a list of [note, eighths]; "r" is a rest.
+melody:
+  intro: [[[r, 6]], [[r, 6]], [[r, 6]], [[r, 4], [E4, 2]]]
+  A:
+    - [[A4, 3], [C5, 1], [E5, 2]]        # the leitmotif cell, stated plainly
+    - [[F5, 4], [E5, 2]]                 # the b6 lean and its fall
+    - [[E5, 1], [D5, 1], [C5, 2], [A4, 2]]
+    - [[B4, 3], [G#4, 1], [B4, 2]]
+    - [[A4, 2], [D5, 2], [F5, 2]]
+    - [[G5, 3], [F5, 1], [D5, 2]]
+    - [[E5, 4], [B4, 2]]                 # the maj7 colour on Cmaj7
+    - [[C5, 2], [B4, 2], [G#4, 2]]
+    - [[A4, 3], [C5, 1], [E5, 2]]        # same cell, now heard as Fmaj7 (reharmonised)
+    - [[F5, 2], [E5, 2], [D5, 2]]
+    - [[D5, 3], [C5, 1], [B4, 2]]
+    - [[E5, 2], [D5, 1], [C5, 1], [B4, 2]]
+    - [[A4, 3], [C5, 1], [E5, 2]]
+    - [[G5, 4], [E5, 2]]
+    - [[F#5, 3], [E5, 1], [D5, 2]]       # borrowed Dorian F#: the first light
+    - [[C5, 2], [B4, 2], [G#4, 2]]
+  B:
+    - [[G5, 4], [E5, 2]]
+    - [[D5, 2], [E5, 2], [G5, 2]]
+    - [[A5, 3], [G5, 1], [F5, 2]]
+    - [[E5, 4], [D5, 2]]
+    - [[C5, 3], [D5, 1], [E5, 2]]
+    - [[F5, 3], [E5, 1], [D5, 2]]
+    - [[C5, 6]]
+    - [[B4, 2], [D5, 2], [F5, 2]]
+    - [[E5, 3], [G5, 1], [B5, 2]]
+    - [[G#5, 4], [E5, 2]]
+    - [[A5, 3], [G5, 1], [E5, 2]]
+    - [[F5, 2], [D5, 2], [E5, 2]]
+    - [[A5, 4], [G5, 2]]
+    - [[Ab5, 4], [F5, 2]]                # borrowed minor iv (Fm6): the ache
+    - [[G5, 3], [E5, 1], [C#5, 2]]
+    - [[D5, 2], [F5, 2], [G#5, 2]]
+  A2: "repeat A bars 1 to 12, then the four ending bars below"
+  A2_ending:
+    - [[A4, 3], [C5, 1], [E5, 2]]
+    - [[F5, 4], [E5, 2]]
+    - [[D5, 2], [C5, 2], [B4, 2]]
+    - [[G#4, 2], [B4, 2], [F5, 2]]       # the b9 over E7 leans back into bar 5
+
+# Accompaniment recipes the arranger implements (rules, not notes).
+voices:
+  vrc6_pulse_a:   {role: melody, duty: {intro: 0.25, A: 0.25, B: 0.5, A2: 0.25}, vibrato: {after_eighths: 1, min_note_eighths: 3, depth_cents: 15, rate_hz: 5.5}}
+  vrc6_pulse_b:   {role: "A2 only: guide-tone countermelody (3rd or 7th of each chord, stepwise, quarter notes, contrary motion to the melody where possible, below the melody)"}
+  pulse_1:        {role: "intro and A: broken-chord arpeggio in eighths over the voiced chord in octave 4 (root-3-5-7 up then down, Uematsu prelude style); B: parallel thirds or sixths under the melody; A2: arpeggio again", duty: 0.125}
+  pulse_2:        {role: "echo of the melody delayed one eighth, 40 percent volume, duty 0.125 (the classic NES echo)"}
+  vrc6_saw:       {role: "intro: sustained chords; A and A2: oom-pah-pah stabs on beats 2 and 3 with shell voicing (3rd and 7th) in octave 3 to 4; B: soft sustained pad, whole bar"}
+  triangle:       {role: "waltz bass: root on beat 1, rest beat 2, beat 3 is the fifth or a chromatic or diatonic approach note into the next bar's root when the root changes; B: walking quarters root, third, approach"}
+  noise:          {role: "from A on: soft closed hat on beats 2 and 3; three note snare fill (eighths) on the last beat of bars 20, 36 and 52; silent in the intro"}
+  dpcm_kick:      {role: "synth kick on beat 1 in B and A2 only"}
+dynamics: {intro: pp, A: mp, B: mf, A2: f}
+originality: "the melody is new; the arranger must run the similarity guard against the reference set before delivery (see PLAN-V2 section 2)"
