@@ -497,6 +497,10 @@ function pp_save_parse(_buf) {
     }
     _s.data = _parsed;
     _s.error = "";
+    // A read that is accepted prints one line, the mirror of the failure line in pp_save_fail. Silence cannot tell
+    // "the slot was read and accepted" from "the slot was never asked", which is exactly how a killed runtime run was
+    // read as a clean load on 2026-10-22.
+    show_debug_message("PP: save read and accepted, music " + string(_parsed.music));
     return true;
 }
 

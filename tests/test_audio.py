@@ -451,6 +451,21 @@ def test_the_theme_plays_at_the_music_level_and_a_duck_multiplies_it():
     assert "audio_sound_gain(_a.theme_inst, 1, 0)" not in _code(module), "the theme can never jump to 1.0"
 
 
+def test_the_theme_can_start_again_once_a_cue_has_released_it():
+    """pp_audio_theme_release hands the theme to the fade and then leaves theme_inst in the state at
+    -1, so a guard that only asks whether the key exists answers "a theme is already playing" for
+    the rest of the run. That is what pp_audio_play_theme did while duck and unduck in the same
+    module already tested <= -1, so a return to the title after a cue would have been silent and
+    logged nothing at all. Absent and released are the same answer, in all three functions."""
+    module = _text(MODULE)
+    released = _function(module, "pp_audio_theme_release")
+    assert "_a.theme_inst = -1;" in released, "a released theme is left in the state at -1"
+    for name in ("pp_audio_play_theme", "pp_audio_duck_db", "pp_audio_unduck"):
+        body = _function(module, name)
+        assert 'variable_struct_exists(_a, "theme_inst") || _a.theme_inst <= -1' in body, \
+            "%s must treat an absent theme and a released theme the same way" % name
+
+
 # --- item 7: a fast change cannot orphan a stream ---------------------------------------------------------------
 
 def test_a_second_fade_finishes_the_first_so_no_stream_is_orphaned():

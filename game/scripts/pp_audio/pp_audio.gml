@@ -418,7 +418,10 @@ function pp_audio_sound(_a, _cue, _entry) {
 /// The title theme: an external OGG stream shipped as an included file, looped, and played at the music level. The
 /// newest render is asked for first and older ones stay as fallbacks, so a new render lands with no code change.
 function pp_audio_play_theme(_a) {
-    if (!variable_struct_exists(_a, "theme_inst")) {
+    // The key is absent until the first ask and left at -1 by pp_audio_theme_release once a cue takes the music
+    // source, so the test is the same one duck and unduck make: absent or released. Testing existence alone would
+    // make the theme unstartable for the rest of the run after the first cue.
+    if (!variable_struct_exists(_a, "theme_inst") || _a.theme_inst <= -1) {
         var _candidates = pp_audio_theme_streams();
         for (var t = 0; t < array_length(_candidates); t += 1) {
             var _rel = _candidates[t];
