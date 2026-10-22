@@ -501,6 +501,12 @@ function pp_overworld_draw(_world) {
             screen_save("pp_ship_frame_2.png");
             show_debug_message("PP ship: wrote pp_ship_frame_2.png from the room itself at draw " + string(global.pp_ship_draws));
         }
+        // The third file is after the harness has pressed confirm next to the sailor, so the dialogue box in the window
+        // frame is in the room's own pixels rather than inferred from the code path.
+        if (global.pp_ship_draws == 460) {
+            screen_save("pp_ship_frame_3.png");
+            show_debug_message("PP ship: wrote pp_ship_frame_3.png from the room itself at draw " + string(global.pp_ship_draws));
+        }
     }
 }
 

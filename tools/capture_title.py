@@ -125,6 +125,7 @@ WM_KEYDOWN = 0x0100
 WM_KEYUP = 0x0101
 VK_RETURN = 0x0D
 VK_RIGHT = 0x27
+VK_Z = 0x5A
 # The ship room capture (card ASSEMBLE): the wait covers NEW GAME's 240 step drive (4 s at 60 steps) and the fade,
 # the walk is the card's eight Right presses, and the minimum difference rejects two copies of one still frame.
 SHIP_DRIVE_WAIT_S = 40.0
@@ -139,7 +140,7 @@ TITLE_INTRO_PRESS_CAP = 5
 TITLE_PRESS_GAP_S = 0.9
 SHIP_WALK_STEPS = 8
 SHIP_KEY_GAP_S = 0.18
-SHIP_AFTER_WALK_S = 2.0
+SHIP_AFTER_WALK_S = 4.0
 SHIP_MIN_DIFF = 0.001
 # The intro capture (card INTRO-1): the opening shot lasts 3 s on a first boot and any key skips it, so the first
 # wait covers it either way; then Enter opens the menu and Enter again chooses NEW GAME. The four timestamps are the
@@ -1443,7 +1444,8 @@ def self_frame_paths():
     the files land in %LOCALAPPDATA%\\PrimordialParadox while the runner runs from output\\PrimordialParadox.
     """
     base = os.path.join(os.environ.get("LOCALAPPDATA", ""), "PrimordialParadox")
-    return [os.path.join(base, "pp_ship_frame.png"), os.path.join(base, "pp_ship_frame_2.png")]
+    return [os.path.join(base, "pp_ship_frame.png"), os.path.join(base, "pp_ship_frame_2.png"),
+            os.path.join(base, "pp_ship_frame_3.png")]
 
 
 def run_ship_capture():
@@ -1562,6 +1564,9 @@ def run_ship_capture():
                 sent += 1
             time.sleep(SHIP_KEY_GAP_S)
         print("right key sent %d times" % sent)
+        # The sailor stands on the tile the hero has just walked up against, so one confirm opens the dialogue box in
+        # the spr_pp_window frame. The third self frame is taken after this press.
+        print("confirm at the sailor %s" % press(VK_Z))
         time.sleep(SHIP_AFTER_WALK_S)
 
         window_second = os.path.join(OUTPUT_DIR, "ship_window_2.png")
@@ -1594,7 +1599,7 @@ def run_ship_capture():
 
         first_path = os.path.join(OUTPUT_DIR, "ship_run_1.png")
         second_path = os.path.join(OUTPUT_DIR, "ship_run_2.png")
-        self_first, self_second = ship_self_paths
+        self_first, self_second, self_third = ship_self_paths
         missing = [p for p in (self_first, self_second) if not os.path.isfile(p)]
         if missing:
             print("the room wrote no frame at %s, so the run cannot be proven from the game's own pixels" % missing[0])
@@ -1602,6 +1607,12 @@ def run_ship_capture():
         shutil.copyfile(self_first, first_path)
         shutil.copyfile(self_second, second_path)
         print("the pair is the room's own frames: %s and %s" % (first_path, second_path))
+        dialogue_path = os.path.join(OUTPUT_DIR, "ship_dialogue.png")
+        if os.path.isfile(self_third):
+            shutil.copyfile(self_third, dialogue_path)
+            print("the dialogue frame is the room's own: %s" % dialogue_path)
+        else:
+            print("the room wrote no dialogue frame, so the box is not proven on screen")
 
         # The walker really walked: pp_overworld plays one footstep cue per tile it starts. A key pressed while the
         # walker is between tiles is correctly ignored, so the count is five or so out of eight presses, never zero.
