@@ -70,7 +70,7 @@ def generated(tmp_path_factory):
 
 def sprite_paths(root) -> dict:
     out = {}
-    for name in ("spr_pp_title_logo", "spr_pp_font8", "spr_pp_menu_cursor"):
+    for name in ("spr_pp_font8", "spr_pp_menu_cursor"):
         out[name] = (
             os.path.join(root, "game", "sprites_src", "title", name + ".png"),
             os.path.join(root, "game", "sprites_src", "title", name + ".json"),
@@ -96,7 +96,7 @@ def nes_palette_hexes() -> set:
 
 def test_two_runs_produce_identical_bytes(generated):
     run_a, run_b = generated
-    names = ("spr_pp_title_logo", "spr_pp_font8", "spr_pp_menu_cursor")
+    names = ("spr_pp_font8", "spr_pp_menu_cursor")
     for name in names:
         png_a, json_a = sprite_paths(run_a)[name]
         png_b, json_b = sprite_paths(run_b)[name]
@@ -109,12 +109,12 @@ def test_two_runs_produce_identical_bytes(generated):
 # ---------------------------------------------------------------------------------------------------------------
 # The palette rules.
 
-@pytest.mark.parametrize("name", ["spr_pp_title_logo", "spr_pp_font8", "spr_pp_menu_cursor"])
+@pytest.mark.parametrize("name", ["spr_pp_font8", "spr_pp_menu_cursor"])
 def test_every_pixel_is_a_master_palette_colour(generated, name):
     root = generated[0]
     png_path, _ = sprite_paths(root)[name]
     # The font strip is the text the title screen draws, so its pixels must be 2C02 outputs (tools/nes_check.py
-    # enforces that too). The logo and cursor still come from the project palette until TS2-ART-B repaints them.
+    # enforces that too). The cursor still comes from the project palette.
     allowed = nes_palette_hexes() if name == "spr_pp_font8" else palette_hexes()
     source = "data/nes_palette.json" if name == "spr_pp_font8" else "data/palette.json"
     with Image.open(png_path) as img:
@@ -133,16 +133,20 @@ def test_every_pixel_is_a_master_palette_colour(generated, name):
 # ---------------------------------------------------------------------------------------------------------------
 # The interface contract: name, size, frame count.
 
-def test_logo_matches_the_contract(generated):
+def test_this_generator_writes_no_logo(generated):
+    """One generator owns one asset name: spr_pp_title_logo belongs to tools/art/title_logo_v2.py.
+
+    While this generator still wrote a 224x56 logo under that name, running it put the v1 art back over
+    the v2 sheet and the title screen drew the wrong wordmark. The check is on the generated tree, so it
+    fails the moment the write comes back.
+    """
     root = generated[0]
-    png_path, json_path = sprite_paths(root)["spr_pp_title_logo"]
-    with open(json_path, "r", encoding="utf-8") as handle:
-        meta = json.load(handle)
-    assert meta["name"] == "spr_pp_title_logo"
-    assert (meta["frame_w"], meta["frame_h"]) == (224, 56), "the contract says about 224x56"
-    assert meta["frames"] == 2, "frame 0 normal, frame 1 gold shimmer"
-    with Image.open(png_path) as img:
-        assert img.size == (224 * 2, 56), "the strip is the frames side by side"
+    sprite_dir = os.path.join(root, "game", "sprites_src", "title")
+    assert not os.path.exists(os.path.join(sprite_dir, "spr_pp_title_logo.png")), \
+        "make_title_ui wrote a logo; the 224x56 v1 art would overwrite the v2 sprite"
+    assert not os.path.exists(os.path.join(sprite_dir, "spr_pp_title_logo.json"))
+    with Image.open(os.path.join(SPRITES, "spr_pp_title_logo.png")) as img:
+        assert img.size == (224 * 2, 64), "the shipped logo is the v2 sheet, 224x64 by two frames"
 
 
 def test_font_matches_the_contract(generated):
@@ -213,16 +217,21 @@ def test_font_strip_carries_every_contract_glyph_in_ascii_order(generated):
 # ---------------------------------------------------------------------------------------------------------------
 # The logo.
 
-def logo_frame(root, index: int) -> Image.Image:
-    png_path, _ = sprite_paths(root)["spr_pp_title_logo"]
-    with Image.open(png_path) as img:
-        sheet = img.convert("RGBA")
-    return sheet.crop((index * 224, 0, (index + 1) * 224, 56))
+def logo_frame(index: int) -> Image.Image:
+    """The v1 layout logo, drawn in process.
+
+    make_title_ui no longer writes spr_pp_title_logo (tools/art/title_logo_v2.py owns that name), so the
+    logo the layout preview shows is drawn through the generator instead of read from a sprite file.
+    """
+    sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
+    import make_title_ui as gen
+
+    return gen.logo_frame(index, gen.load_palette(ROOT))
 
 
 def test_logo_reads_primordial_over_paradox(generated):
     root = generated[0]
-    frame = logo_frame(root, 0)
+    frame = logo_frame(0)
     pixels = frame.load()
     # The gold inlay is part of a letter, so a column of a letter counts when it holds stone, lit stone or gold.
     stone = {STONE, STONE_LIT, GOLD}
@@ -240,7 +249,7 @@ def test_logo_reads_primordial_over_paradox(generated):
 
 def test_logo_carries_stone_gold_and_a_dark_outline(generated):
     root = generated[0]
-    frame = logo_frame(root, 0)
+    frame = logo_frame(0)
     pixels = frame.load()
     seen = set()
     for y in range(56):
@@ -257,7 +266,7 @@ def test_logo_carries_stone_gold_and_a_dark_outline(generated):
 def test_the_crack_crosses_the_o_of_paradox(generated):
     """The lightning crack has to break the O of PARADOX, not just sit next to it."""
     root = generated[0]
-    frame = logo_frame(root, 0)
+    frame = logo_frame(0)
     pixels = frame.load()
     sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
     import make_title_ui as gen
@@ -278,8 +287,8 @@ def test_the_crack_crosses_the_o_of_paradox(generated):
 
 def test_frame_one_is_a_shimmer_and_not_a_second_drawing(generated):
     root = generated[0]
-    frame0 = logo_frame(root, 0)
-    frame1 = logo_frame(root, 1)
+    frame0 = logo_frame(0)
+    frame1 = logo_frame(1)
     differing = sum(
         1
         for y in range(56)
@@ -362,8 +371,8 @@ def test_preview_holds_the_logo_the_font_and_the_cursor(generated):
                     return False
         return True
 
-    logo = logo_frame(root, 0)
-    shimmer = logo_frame(root, 1)
+    logo = logo_frame(0)
+    shimmer = logo_frame(1)
     png_path, _ = sprite_paths(root)["spr_pp_font8"]
     with Image.open(png_path) as img:
         font = img.convert("RGBA")
@@ -383,7 +392,7 @@ def test_preview_holds_the_logo_the_font_and_the_cursor(generated):
 def test_the_committed_sprites_match_a_fresh_run(generated):
     """The PNGs in the repository must be the ones the script writes, not an edited copy."""
     root = generated[0]
-    for name in ("spr_pp_title_logo", "spr_pp_font8", "spr_pp_menu_cursor"):
+    for name in ("spr_pp_font8", "spr_pp_menu_cursor"):
         fresh_png, fresh_json = sprite_paths(root)[name]
         live_png = os.path.join(SPRITES, name + ".png")
         live_json = os.path.join(SPRITES, name + ".json")

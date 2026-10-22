@@ -6,7 +6,7 @@ This supersedes the body and the wheels of tools/art/make_title_car.py. What cha
     shell on a night road instead of a lit room with people in it;
   - no faces, no busts, no steering wheel: the card says the car shows its exterior only, and the
     cast sprites (spr_title_ronan, spr_title_theo, spr_title_bubble) are moved out of the title;
-  - the wheels are baked into the car sprite, so a wheel always sits in its arch and cannot drift.
+  - the wheels are baked into the car sprite, so a wheel always sits in its arch band and cannot drift.
 
 Clean room: every shape is a row table or a distance function written in this file. Nothing is traced,
 copied or imported from any existing game, and no external image is read.
@@ -211,7 +211,8 @@ def build_body(colours) -> Image.Image:
         for x in range(8, 56):
             put(x, y, INK)
 
-    # The wheel arches, cut up into the body, and dark inside.
+    # The wheel arches: a dark half circle painted into the bottom of the body above each tyre. The body is
+    # not cut through: the tyre and the arch are both ink, so the shape reads as an arch around the wheel.
     for cx, radius in ARCHES:
         for x in range(cx - radius, cx + radius + 1):
             top = arch_top(cx, radius, x)
@@ -353,6 +354,23 @@ def main() -> int:
     with open(os.path.join(sprite_dir, CAR_NAME + ".json"), "w", encoding="utf-8", newline="\n") as handle:
         json.dump(meta, handle, indent=2, sort_keys=True)
         handle.write("\n")
+
+    # NES-PALETTES: the scene owns the four sprite palettes, so the sheet leaves this file already
+    # inside one of them. The per tile rule above is not enough: four colours in a tile can each be
+    # legal 2C02 entries and still not be a palette the scene declares. Without this pass here, any
+    # regeneration (a test that runs this script, a rerun for a tweak) silently undoes the
+    # enforcement that tools/art/scene_palette.py did afterwards, which is exactly what happened on
+    # 2026-10-22. tools/check_scene_palettes.py is the judge, not this comment.
+    try:
+        import scene_palette
+        scene = scene_palette.load_scene(root, "title")
+        image = Image.open(png_path).convert("RGBA")
+        stats = scene_palette.enforce_sprites(image, scene, CAR_W, CAR_H)
+        image.save(png_path, "PNG")
+        print("  %-20s scene title sprites: %d tiles, %d pixels rewritten, worst %d colours"
+              % (CAR_NAME, stats["tiles"], stats["pixels_moved"], stats["worst_colours"]))
+    except Exception as exc:                                    # a scene file that is not there yet
+        print("  %-20s scene palette pass skipped (%s)" % (CAR_NAME, exc))
 
     used = set()
     for frame in frames:

@@ -12,10 +12,14 @@ codeman38), whose licence text is in knowledge/licences/PressStart2P-OFL.txt, by
 Nothing is copied, traced or imported from any commercial game, and nothing outside this repository is read.
 
 Outputs, one horizontal strip plus one JSON per animation, in game/sprites_src/title/:
-    spr_pp_title_logo.png    224x56, 2 frames: frame 0 normal, frame 1 gold shimmer
     spr_pp_font8.png         8x8, 46 frames in ASCII order: space ! ' ( ) , - . 0-9 : ? A-Z
     spr_pp_menu_cursor.png   8x8, 2 frames: frame 0 lit, frame 1 unlit
-Preview: output/title_ui_preview.png, everything at 3x, the logo and the cursor and the font strip alike.
+Preview: output/title_ui_preview.png, everything at 3x, the layout logo and the cursor and the font strip alike.
+
+The shipped logo is NOT one of these outputs. tools/art/title_logo_v2.py owns the name spr_pp_title_logo
+since TS2-ART-A (224x64, two lines, the crossed emblem, four NES colours), and one generator owns one
+asset name, so this file must never write that sprite: it would put the 224x56 v1 art back under the
+v2 name. logo_frame() here draws the v1 letters for the layout preview only.
 
 The second O of the logo: PRIMORDIAL holds the first O and PARADOX the second, so the crack is carved across the O of
 PARADOX, which is the only reading in which that letter exists.
@@ -489,7 +493,7 @@ def build_preview(logo: list[Image.Image], font_sheet: Image.Image, cursor: list
     canvas = Image.new("RGBA", (1152, 784), colours[6])
     draw_text(canvas, "PRIMORDIAL PARADOX TITLE UI TS-A AT 3X", 24, 16, 2, colours[PAPER])
     canvas.paste(colours[DIM], (24, 44, 1128, 45))
-    draw_text(canvas, "SPR PP TITLE LOGO 224X56 FRAME 0 NORMAL", 24, 54, 2, colours[GOLD])
+    draw_text(canvas, "LAYOUT LOGO 224X56 FRAME 0 NOT SHIPPED SEE TITLE LOGO V2", 24, 54, 2, colours[GOLD])
     canvas.alpha_composite(upscale(logo[0], 3), (48, 76))
     draw_text(canvas, "FRAME 1 GOLD SHIMMER", 24, 248, 2, colours[GOLD])
     canvas.alpha_composite(upscale(logo[1], 3), (48, 268))
@@ -599,7 +603,6 @@ def generate(root: str) -> int:
         raise SystemExit("logo frame is %s, contract says 224x56" % (logo[0].size,))
 
     written = [
-        write_sprite(out_dir, "spr_pp_title_logo", logo, 0.25),
         write_sprite(out_dir, "spr_pp_font8", font_frames, 0.0),
         write_sprite(out_dir, "spr_pp_menu_cursor", cursor, 4.0),
     ]

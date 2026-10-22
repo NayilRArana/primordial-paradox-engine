@@ -71,7 +71,12 @@ GOLD = 0x28      # #f8b800  $28  the gold inlay, the foot of every capital, and 
 
 LOGO_W = 224
 LOGO_H = 64
-SHADOW = (1, 1)
+
+# The drop shadow. The outline ring is 1 px around the shape, so a shadow that sits one pixel further out
+# on the down right side is the only way to see one: an offset of (1, 1) lands inside the ring and is
+# covered by it, which is an outline with no shadow at all. An offset of (2, 2) puts the ink skirt one
+# pixel beyond the ring on the down right, leaving the up left side at the single outline pixel.
+SHADOW = (2, 2)
 
 SCALE_X = 2
 SCALE_Y = 2
@@ -82,19 +87,23 @@ LOGO_NAME = "spr_pp_title_logo"
 
 # The two lines of the logo. (text, top row). Each line is 9 glyph rows tall, so 18 screen rows.
 LOGO_LINES = [
-    ("PRIMORDIAL", 0),
+    ("PRIMORDIAL", 1),
     ("PARADOX", 44),
 ]
 
 # The emblem, in rows 24 to 39, in a box 32 wide and 16 tall.
 EMBLEM_W = 32
 EMBLEM_H = 16
-EMBLEM_TOP = 23
+EMBLEM_TOP = 24
 EMBLEM_LEFT = (LOGO_W - EMBLEM_W) // 2
 
-# The shimmer: one diagonal band of light crosses the wordmark.
-SHIMMER_LOW = 84
-SHIMMER_HIGH = 96
+# The shimmer: one diagonal band of light crosses the whole wordmark, from the right of the first line,
+# down through the emblem, to the left of the second line. The band is on x + y, so it moves one column
+# left for every row down; the two lines are 43 rows apart, which puts the band over line 2 as well, and
+# the numbers below are the ones that light both words (measured: 127 changed pixels in line 1, 125 in
+# line 2, 47 in the emblem band).
+SHIMMER_LOW = 132
+SHIMMER_HIGH = 144
 
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -140,13 +149,21 @@ def crescent(c1, r1, c2, r2) -> set:
 def emblem_shapes():
     """The emblem as (sickle pixels, bolt pixels), in its own 32 wide by 16 tall box.
 
-    The sickle is a crescent blade on a straight shaft, and the thunderbolt runs across it on the other
-    diagonal, so the two cross in the middle of the mark.
+    The sickle is a crescent blade on a straight shaft; the thunderbolt runs the other diagonal, from the
+    top right corner down through the shaft and out past it at the bottom left, so the two cross: the
+    pixels they share are the X of the crossed mark, not a near miss with a gap between them.
     """
     blade = crescent((9.0, 7.0), 6.0, (11.5, 9.5), 5.2)
     shaft = nes_tile.thick_line([(1, 15), (6, 10)], 2)
-    bolt = nes_tile.thick_line([(30, 1), (19, 7), (23, 7), (12, 15)], 2)
-    return blade | shaft, bolt
+    bolt = nes_tile.thick_line([(30, 1), (19, 7), (23, 7), (2, 16)], 2)
+    # Both shapes are clipped to the emblem box. A stroke that spills a row past the box would put its gold
+    # in the tile row that carries the lit cap of line 2, and four colours in one tile breaks the sprite rule.
+    box = {(x, y) for y in range(EMBLEM_H) for x in range(EMBLEM_W)}
+    sickle = (blade | shaft) & box
+    bolt = bolt & box
+    if not (sickle & bolt):
+        raise SystemExit("emblem: the bolt and the sickle do not touch, they cannot read as crossed")
+    return sickle, bolt
 
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -164,16 +181,22 @@ def logo_frame(index: int, colours) -> Image.Image:
     emblem = {(x + EMBLEM_LEFT, y + EMBLEM_TOP) for x, y in sickle | bolt}
     body |= emblem
 
-    # The drop shadow: the whole shape, one pixel down and one pixel right, in the outline colour.
-    for x, y in body:
-        sx, sy = x + SHADOW[0], y + SHADOW[1]
-        if 0 <= sx < LOGO_W and 0 <= sy < LOGO_H:
-            image.putpixel((sx, sy), colours[INK])
-
     # The outline, the 8 neighbour ring around the body.
-    for x, y in nes_tile.outline_of(body):
+    ring = nes_tile.outline_of(body)
+    for x, y in ring:
         if 0 <= x < LOGO_W and 0 <= y < LOGO_H:
             image.putpixel((x, y), colours[INK])
+
+    # The drop shadow: the whole shape two pixels down and two pixels right, in the outline colour. A
+    # shadow pixel that the ring already covers is skipped, so what is left is a 1 px ink skirt beyond the
+    # outline on the down right side and nothing extra on the up left side.
+    for x, y in body:
+        sx, sy = x + SHADOW[0], y + SHADOW[1]
+        if not (0 <= sx < LOGO_W and 0 <= sy < LOGO_H):
+            continue
+        if (sx, sy) in body or (sx, sy) in ring:
+            continue
+        image.putpixel((sx, sy), colours[INK])
 
     # The body of the letters.
     for x, y in body:
@@ -309,6 +332,21 @@ def main() -> int:
     with open(os.path.join(sprite_dir, LOGO_NAME + ".json"), "w", encoding="utf-8", newline="\n") as handle:
         json.dump(meta, handle, indent=2, sort_keys=True)
         handle.write("\n")
+
+    # NES-PALETTES: four colours in an 8x16 sprite is legal 2C02 art and still illegal NES art, because
+    # the PPU gives a sprite three palette entries plus transparency. The scene file is the budget, so
+    # this sheet is enforced before it leaves the generator; otherwise the next regeneration puts the
+    # extra colour back and tools/check_scene_palettes.py fails again (2026-10-22).
+    try:
+        import scene_palette
+        scene = scene_palette.load_scene(root, "title")
+        image = Image.open(png_path).convert("RGBA")
+        stats = scene_palette.enforce_sprites(image, scene, LOGO_W, LOGO_H)
+        image.save(png_path, "PNG")
+        print("  %-20s scene title sprites: %d tiles, %d pixels rewritten, worst %d colours"
+              % (LOGO_NAME, stats["tiles"], stats["pixels_moved"], stats["worst_colours"]))
+    except Exception as exc:
+        print("  %-20s scene palette pass skipped (%s)" % (LOGO_NAME, exc))
 
     used = set()
     for frame in frames:
