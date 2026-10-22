@@ -1,2008 +1,3039 @@
 {
- "format": 1,
- "kind": "sprite_redraw_queue",
- "card": "t_039ec0db SPRITE-STUDY-2",
- "written_by": "research-assistant",
- "written_on": "2026-10-22",
- "snapshot_note": "the five *_ow_v2.png sheets and three *_god_battle.png sheets were measured at 08:36 on 2026-10-22; a redraw lane is active, so re-measure before dispatching anything from this file",
- "source_documents": [
-  "knowledge/SPRITE-CRITIQUE.md",
-  "knowledge/SPRITE-CRAFT.md",
-  "knowledge/ART-BIBLE.md",
-  "knowledge/CHARACTER-BIBLE.md (REVISION 2)"
- ],
- "rule": "one entry per sprite sheet in the game, highest priority first; an entry is done when every check in its check block passes",
- "priority_legend": {
-  "P0": "the sprite fails on the ground it stands on (contrast 1.00) or is the white blob; fix before any scene is restaged",
-  "P1": "the sprite reads as the wrong figure or has no interior structure; fix before the battle scenes are captured",
-  "P2": "structure or animation is broken but the sprite is legible; fix before the hackathon build",
-  "P3": "cosmetic; fix when the lane is idle"
- },
- "count": 28,
- "entries": [
-  {
-   "id": "sprite_percy_battle",
-   "name": "Percy, battle",
-   "path": "game/sprites_src/chars/percy_battle.png",
-   "frame_w": 24,
-   "frame_h": 32,
-   "frames": 7,
-   "kind": "battle",
-   "priority": "P0",
-   "priority_reason": "the trident shaft is the deck grey (contrast 1.00) so the character's weapon vanishes on the ship, and the jacket is the road colour",
-   "brief": "Royal Navy lieutenant in the wardroom: white shirt, dark tie, shoulder rank, full length trident in $0F shaft with $10 prongs.",
-   "pixel_fixes": [
-    "trident shaft columns 20 to 22: replace $bcbcbc with $10 prongs and a $0F shaft; $bcbcbc is the deck grey (1.00)",
-    "jacket: replace the $0000bc fill with $02 only on the shade side; the lit plane becomes $12 or $10",
-    "add the collar V in $0F at rows 12 to 13 and a 2 px $28 rank slide at the shoulder",
-    "close the 35% of the silhouette that has no dark boundary"
-   ],
-   "palette_plan": {
-    "head": [
-     "$0F",
-     "$17",
-     "$36"
-    ],
-    "body": [
-     "$0F",
-     "$10",
-     "$30"
-    ],
-    "trident": [
-     "$0F",
-     "$10"
-    ],
-    "palettes_used": 3
-   },
-   "measured_now": {
-    "colours": 8,
-    "entries": 8,
-    "palettes_needed": 3,
-    "jacket_px": 129,
-    "jacket_vs_road": 1.0,
-    "trident_colour": "$bcbcbc",
-    "trident_vs_deck": 1.0,
-    "outline_coverage": 0.652,
-    "black_share_pc": 33
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
-    },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
+  "format": 1,
+  "kind": "sprite_redraw_queue",
+  "card": "t_039ec0db SPRITE-STUDY-2",
+  "written_by": "research-assistant",
+  "written_on": "2026-10-22",
+  "snapshot_note": "the five *_ow_v2.png sheets and three *_god_battle.png sheets were measured at 08:36 on 2026-10-22; a redraw lane is active, so re-measure before dispatching anything from this file",
+  "source_documents": [
+    "knowledge/SPRITE-CRITIQUE.md",
+    "knowledge/SPRITE-CRAFT.md",
+    "knowledge/ART-BIBLE.md",
+    "knowledge/CHARACTER-BIBLE.md (REVISION 2)"
+  ],
+  "rule": "one entry per sprite sheet in the game, highest priority first; an entry is done when every check in its check block passes",
+  "priority_legend": {
+    "P0": "the sprite fails on the ground it stands on (contrast 1.00) or is the white blob; fix before any scene is restaged",
+    "P1": "the sprite reads as the wrong figure or has no interior structure; fix before the battle scenes are captured",
+    "P2": "structure or animation is broken but the sprite is legible; fix before the hackathon build",
+    "P3": "cosmetic; fix when the lane is idle"
   },
-  {
-   "id": "sprite_percy_ow",
-   "name": "Percy Skye, overworld",
-   "path": "game/sprites_src/chars/percy_ow.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P0",
-   "priority_reason": "the jacket is the road colour, so on the night road Percy has no torso and no legs; symmetry 1.000 and outline coverage 0.174",
-   "brief": "Royal Navy lieutenant, white shirt order, with the trident. Head 7 rows, body 8 rows, the collar V in dark, a 2 px gold shoulder rank, the trident outside the body outline.",
-   "pixel_fixes": [
-    "row 3: 2 px eyes at (5,3),(6,3) and (9,3),(10,3); column 4 skin so the outline is omitted on the lit side only",
-    "rows 8 to 9: strip $0000bc entirely; collar V in $0F at columns 5 to 8 narrowing to 6 on a $30 shirt",
-    "(3,8): 1 px $28 gold rank mark",
-    "rows 10 to 12: shirt $30 columns 3 to 8, shadow $10 column 9, arm outline $0F columns 2 and 10",
-    "row 13: belt $0F; row 14 legs $0F at 4,5 and 8,9; row 15 empty",
-    "columns 12 to 14: prongs $10 at (12,8),(14,8),(12,9),(14,9), centre prong $0F at (13,8),(13,9), crossbar $0F at (12,10),(13,10),(14,10), shaft $0F at (13,11) to (13,14)",
-    "break the 1.000 mirror: the trident on the right only, and the left eye 1 px further from the outline than the right"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "$17",
-     "$36"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "$10",
-     "$30"
-    ],
-    "night_road_variant": "slot 1 becomes $10 (6.41 : 1) because $0F on $02 is 1.73"
-   },
-   "measured_now": {
-    "colours": 5,
-    "navy_fill_px": 42,
-    "navy_share_pc": 37,
-    "navy_vs_road": 1.0,
-    "outline_coverage": 0.174,
-    "symmetry": 1.0,
-    "head_rows": 8,
-    "black_rows_of_16": 8
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+  "count": 28,
+  "entries": [
+    {
+      "id": "sprite_percy_battle",
+      "name": "Percy, battle",
+      "path": "game/sprites_src/chars/percy_battle.png",
+      "frame_w": 24,
+      "frame_h": 32,
+      "frames": 7,
+      "kind": "battle",
+      "priority": "P0",
+      "priority_reason": "the trident shaft is the deck grey (contrast 1.00) so the character's weapon vanishes on the ship, and the jacket is the road colour",
+      "brief": "Royal Navy lieutenant in the wardroom: white shirt, dark tie, shoulder rank, full length trident in $0F shaft with $10 prongs.",
+      "pixel_fixes": [
+        "trident shaft columns 20 to 22: replace $bcbcbc with $10 prongs and a $0F shaft; $bcbcbc is the deck grey (1.00)",
+        "jacket: replace the $0000bc fill with $02 only on the shade side; the lit plane becomes $12 or $10",
+        "add the collar V in $0F at rows 12 to 13 and a 2 px $28 rank slide at the shoulder",
+        "close the 35% of the silhouette that has no dark boundary"
+      ],
+      "palette_plan": {
+        "head": [
+          "$0F",
+          "$17",
+          "$36"
+        ],
+        "body": [
+          "$0F",
+          "$10",
+          "$30"
+        ],
+        "trident": [
+          "$0F",
+          "$10"
+        ],
+        "palettes_used": 3
+      },
+      "measured_now": {
+        "colours": 8,
+        "entries": 8,
+        "palettes_needed": 3,
+        "jacket_px": 129,
+        "jacket_vs_road": 1.0,
+        "trident_colour": "$bcbcbc",
+        "trident_vs_deck": 1.0,
+        "outline_coverage": 0.652,
+        "black_share_pc": 33
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued",
-   "ascii_mock": "SPRITE-CRITIQUE.md section 5.1"
-  },
-  {
-   "id": "sprite_percy_ow_v2",
-   "name": "percy ow v2",
-   "path": "game/sprites_src/chars/percy_ow_v2.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P0",
-   "priority_reason": "second fill $0058f8 at 1.34 : 1 on the deck; still no trident",
-   "brief": "v2 fixed the blob and the outline coverage but not the trident and not the deck fill",
-   "pixel_fixes": [
-    "replace $0058f8 (52 px) with $31 on the lit plane or $10; $0058f8 is 1.34 : 1 on the deck",
-    "add the trident at columns 12 to 14 per SPRITE-CRITIQUE section 5.1",
-    "remap the outline tone per map: $0F on the deck, $10 on the road (1.73 becomes 6.41)"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
-   },
-   "measured_now": {
-    "colours": 5,
-    "rows_with_no_dark": 0,
-    "largest_entry": "10%",
-    "outline_vs_road": 1.73,
-    "outline_vs_deck": 5.03,
-    "measured": "2026-10-22 08:36 snapshot"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_percy_ow",
+      "name": "Percy Skye, overworld",
+      "path": "game/sprites_src/chars/percy_ow.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P0",
+      "priority_reason": "the jacket is the road colour, so on the night road Percy has no torso and no legs; symmetry 1.000 and outline coverage 0.174",
+      "brief": "Royal Navy lieutenant, white shirt order, with the trident. Head 7 rows, body 8 rows, the collar V in dark, a 2 px gold shoulder rank, the trident outside the body outline.",
+      "pixel_fixes": [
+        "row 3: 2 px eyes at (5,3),(6,3) and (9,3),(10,3); column 4 skin so the outline is omitted on the lit side only",
+        "rows 8 to 9: strip $0000bc entirely; collar V in $0F at columns 5 to 8 narrowing to 6 on a $30 shirt",
+        "(3,8): 1 px $28 gold rank mark",
+        "rows 10 to 12: shirt $30 columns 3 to 8, shadow $10 column 9, arm outline $0F columns 2 and 10",
+        "row 13: belt $0F; row 14 legs $0F at 4,5 and 8,9; row 15 empty",
+        "columns 12 to 14: prongs $10 at (12,8),(14,8),(12,9),(14,9), centre prong $0F at (13,8),(13,9), crossbar $0F at (12,10),(13,10),(14,10), shaft $0F at (13,11) to (13,14)",
+        "break the 1.000 mirror: the trident on the right only, and the left eye 1 px further from the outline than the right"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "$17",
+          "$36"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "$10",
+          "$30"
+        ],
+        "night_road_variant": "slot 1 becomes $10 (6.41 : 1) because $0F on $02 is 1.73"
+      },
+      "measured_now": {
+        "colours": 5,
+        "navy_fill_px": 42,
+        "navy_share_pc": 37,
+        "navy_vs_road": 1.0,
+        "outline_coverage": 0.174,
+        "symmetry": 1.0,
+        "head_rows": 8,
+        "black_rows_of_16": 8
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued",
+      "ascii_mock": "SPRITE-CRITIQUE.md section 5.1"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_sailor_ow",
-   "name": "Navy rating (the sailor), overworld",
-   "path": "game/sprites_src/chars/sailor_ow.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P0",
-   "priority_reason": "Nayil's white blob: 2 colours, 83% of the sprite is one white, no face, outline in a background colour, and frames 0 to 3 disagree about the costume",
-   "brief": "A Navy rating: cap with a dark peak, white shirt, horizontal dark collar band, black silk knot, light grey shadow. Head 7 rows, body 8 rows.",
-   "pixel_fixes": [
-    "row 0 to 1: cap cover $10 with a $0F outline at (4,0),(9,0),(3,1),(10,1); row 2 the peak $0F across columns 3 to 10",
-    "rows 3 to 6: face $36, 2 px eyes at (5,4),(6,4) and (8,4),(9,4), jaw $0F at row 6",
-    "row 7: horizontal $0F collar band across columns 2 to 11 (this shape is the rating; the officer gets the V)",
-    "rows 8 to 12: shirt $30 columns 3 to 10, shadow $10 on the right 2 columns, black silk knot $0F at (7,9),(7,10), cuff $0F at (9,11), shirt hem $0F at row 12 columns 5 to 8",
-    "row 13 trouser break $0F; row 14 legs $0F at 4,5 and 8,9; row 15 empty",
-    "make frames 0 to 7 one costume; delete the 2 costume variants currently alternating"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "$10",
-     "$36"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "$10",
-     "$30"
-    ],
-    "night_road_variant": "slot 1 becomes $10; the $0000bc outline is forbidden on both maps (1.00 and 2.91)"
-   },
-   "measured_now": {
-    "colours": 2,
-    "white_px": 90,
-    "white_share_pc": 83,
-    "outline": "$0000bc",
-    "outline_vs_road": 1.0,
-    "outline_vs_deck": 2.91,
-    "rows_with_no_dark": 9,
-    "interior_dark": 0,
-    "head_rows": 14,
-    "costume_variants": 2
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_percy_ow_v2",
+      "name": "percy ow v2",
+      "path": "game/sprites_src/chars/percy_ow_v2.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P0",
+      "priority_reason": "second fill $0058f8 at 1.34 : 1 on the deck; still no trident",
+      "brief": "v2 fixed the blob and the outline coverage but not the trident and not the deck fill",
+      "pixel_fixes": [
+        "replace $0058f8 (52 px) with $31 on the lit plane or $10; $0058f8 is 1.34 : 1 on the deck",
+        "add the trident at columns 12 to 14 per SPRITE-CRITIQUE section 5.1",
+        "remap the outline tone per map: $0F on the deck, $10 on the road (1.73 becomes 6.41)"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
+      },
+      "measured_now": {
+        "colours": 5,
+        "rows_with_no_dark": 0,
+        "largest_entry": "10%",
+        "outline_vs_road": 1.73,
+        "outline_vs_deck": 5.03,
+        "measured": "2026-10-22 08:36 snapshot"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued",
-   "ascii_mock": "SPRITE-CRITIQUE.md section 5.2"
-  },
-  {
-   "id": "sprite_sailor_ow_v2",
-   "name": "sailor ow v2",
-   "path": "game/sprites_src/chars/sailor_ow_v2.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P0",
-   "priority_reason": "33 px of $0000bc at 1.00 : 1 on the night road (the collar band)",
-   "brief": "v2 fixed the white blob (83 percent to 23) and gave the sailor a face; the collar is still an invisible colour on the road",
-   "pixel_fixes": [
-    "replace the $0000bc collar band (33 px) with the dark slot: $0F on the deck, $10 on the road",
-    "keep the white shirt at 23 percent; it now passes the blob ceiling",
-    "remap the outline tone per map"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
-   },
-   "measured_now": {
-    "colours": 4,
-    "rows_with_no_dark": 0,
-    "largest_entry": "23%",
-    "outline_vs_road": 1.73,
-    "outline_vs_deck": 5.03,
-    "measured": "2026-10-22 08:36 snapshot"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_sailor_ow",
+      "name": "Navy rating (the sailor), overworld",
+      "path": "game/sprites_src/chars/sailor_ow.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P0",
+      "priority_reason": "Nayil's white blob: 2 colours, 83% of the sprite is one white, no face, outline in a background colour, and frames 0 to 3 disagree about the costume",
+      "brief": "A Navy rating: cap with a dark peak, white shirt, horizontal dark collar band, black silk knot, light grey shadow. Head 7 rows, body 8 rows.",
+      "pixel_fixes": [
+        "row 0 to 1: cap cover $10 with a $0F outline at (4,0),(9,0),(3,1),(10,1); row 2 the peak $0F across columns 3 to 10",
+        "rows 3 to 6: face $36, 2 px eyes at (5,4),(6,4) and (8,4),(9,4), jaw $0F at row 6",
+        "row 7: horizontal $0F collar band across columns 2 to 11 (this shape is the rating; the officer gets the V)",
+        "rows 8 to 12: shirt $30 columns 3 to 10, shadow $10 on the right 2 columns, black silk knot $0F at (7,9),(7,10), cuff $0F at (9,11), shirt hem $0F at row 12 columns 5 to 8",
+        "row 13 trouser break $0F; row 14 legs $0F at 4,5 and 8,9; row 15 empty",
+        "make frames 0 to 7 one costume; delete the 2 costume variants currently alternating"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "$10",
+          "$36"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "$10",
+          "$30"
+        ],
+        "night_road_variant": "slot 1 becomes $10; the $0000bc outline is forbidden on both maps (1.00 and 2.91)"
+      },
+      "measured_now": {
+        "colours": 2,
+        "white_px": 90,
+        "white_share_pc": 83,
+        "outline": "$0000bc",
+        "outline_vs_road": 1.0,
+        "outline_vs_deck": 2.91,
+        "rows_with_no_dark": 9,
+        "interior_dark": 0,
+        "head_rows": 14,
+        "costume_variants": 2
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued",
+      "ascii_mock": "SPRITE-CRITIQUE.md section 5.2"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_zander_ow",
-   "name": "Zander Skye, overworld",
-   "path": "game/sprites_src/chars/zander_ow.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P0",
-   "priority_reason": "4 black pixels in the whole sprite, 14 of 16 rows with no dark pixel, and 3 of its 7 colours are exact background entries",
-   "brief": "First year student, messy blond hair, oversized light blue bomber with a zip and a pocket, earbud touching the hair outline.",
-   "pixel_fixes": [
-    "give the head a $0F outline on every row (it currently has none); row 0 $0F at (4,0),(9,0); row 1 $0F at (3,1),(10,1)",
-    "row 2: $0F hairline at (6,2),(10,2) so the hair mass has an interior line",
-    "row 3: 2 px eyes at (5,3),(6,3) and (9,3),(10,3); rows 4 to 6 skin $36 with a $0F jaw at row 6",
-    "bomber: replace $3cbcfc as the main fill with $31 on the lit 3 columns (3.00 : 1 on the deck, 8.74 : 1 on the road), $21 on the right, $0F outline all round",
-    "rows 8 to 11: zip $0F at column 7; (4,11),(5,11) a 2 px $0F pocket flap; row 12 hem $0F",
-    "row 13 waistband $0F; row 14 legs $0F at 4,5 and 8,9",
-    "(12,4): 1 px $0F earbud touching the hair outline, never floating"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "$38",
-     "$36"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "$21",
-     "$31"
-    ],
-    "night_road_variant": "slot 1 becomes $10; $3cbcfc and $a4e4fc are forbidden as fills because they are declared background entries"
-   },
-   "measured_now": {
-    "colours": 7,
-    "black_px": 4,
-    "rows_with_no_dark": 14,
-    "interior_dark": 0,
-    "fill": "$3cbcfc",
-    "fill_share_pc": 30,
-    "fill_vs_road": 1.0,
-    "fill_vs_deck": 1.95,
-    "bg_entry_collisions_px": 50,
-    "head_rows": 8
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_sailor_ow_v2",
+      "name": "sailor ow v2",
+      "path": "game/sprites_src/chars/sailor_ow_v2.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P0",
+      "priority_reason": "33 px of $0000bc at 1.00 : 1 on the night road (the collar band)",
+      "brief": "v2 fixed the white blob (83 percent to 23) and gave the sailor a face; the collar is still an invisible colour on the road",
+      "pixel_fixes": [
+        "replace the $0000bc collar band (33 px) with the dark slot: $0F on the deck, $10 on the road",
+        "keep the white shirt at 23 percent; it now passes the blob ceiling",
+        "remap the outline tone per map"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
+      },
+      "measured_now": {
+        "colours": 4,
+        "rows_with_no_dark": 0,
+        "largest_entry": "23%",
+        "outline_vs_road": 1.73,
+        "outline_vs_deck": 5.03,
+        "measured": "2026-10-22 08:36 snapshot"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued",
-   "ascii_mock": "SPRITE-CRITIQUE.md section 5.3"
-  },
-  {
-   "id": "sprite_hadrian_battle",
-   "name": "Hadrian, battle",
-   "path": "game/sprites_src/chars/hadrian_battle.png",
-   "frame_w": 24,
-   "frame_h": 32,
-   "frames": 7,
-   "kind": "battle",
-   "priority": "P1",
-   "priority_reason": "82% of the sprite is one black tone, the highest in the project, and the gems are 3 single pixels",
-   "brief": "Black tailored suit in three tones, pale face with dark circles, gem tie pin as a 2 x 2, bident in the god sheet.",
-   "pixel_fixes": [
-    "split rows 12 to 31 into $0F outline, $2D suit, $10 shirt front and shoulder light",
-    "the face: $36 skin, not $fcfcfc; 2 px eyes and 1 px $13 dark circles",
-    "the gems: one 2 x 2 $2D pin on a $28 tie at (11,18)-(12,19), and delete the single pixels at rows 16, 17, 19",
-    "animate the legs only"
-   ],
-   "palette_plan": {
-    "body": [
-     "$0F",
-     "$2D",
-     "$10",
-     "$36"
-    ],
-    "palettes_used": 2
-   },
-   "measured_now": {
-    "colours": 6,
-    "black_px": 299,
-    "black_share_pc": 82,
-    "white_face_px": 47
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_zander_ow",
+      "name": "Zander Skye, overworld",
+      "path": "game/sprites_src/chars/zander_ow.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P0",
+      "priority_reason": "4 black pixels in the whole sprite, 14 of 16 rows with no dark pixel, and 3 of its 7 colours are exact background entries",
+      "brief": "First year student, messy blond hair, oversized light blue bomber with a zip and a pocket, earbud touching the hair outline.",
+      "pixel_fixes": [
+        "give the head a $0F outline on every row (it currently has none); row 0 $0F at (4,0),(9,0); row 1 $0F at (3,1),(10,1)",
+        "row 2: $0F hairline at (6,2),(10,2) so the hair mass has an interior line",
+        "row 3: 2 px eyes at (5,3),(6,3) and (9,3),(10,3); rows 4 to 6 skin $36 with a $0F jaw at row 6",
+        "bomber: replace $3cbcfc as the main fill with $31 on the lit 3 columns (3.00 : 1 on the deck, 8.74 : 1 on the road), $21 on the right, $0F outline all round",
+        "rows 8 to 11: zip $0F at column 7; (4,11),(5,11) a 2 px $0F pocket flap; row 12 hem $0F",
+        "row 13 waistband $0F; row 14 legs $0F at 4,5 and 8,9",
+        "(12,4): 1 px $0F earbud touching the hair outline, never floating"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "$38",
+          "$36"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "$21",
+          "$31"
+        ],
+        "night_road_variant": "slot 1 becomes $10; $3cbcfc and $a4e4fc are forbidden as fills because they are declared background entries"
+      },
+      "measured_now": {
+        "colours": 7,
+        "black_px": 4,
+        "rows_with_no_dark": 14,
+        "interior_dark": 0,
+        "fill": "$3cbcfc",
+        "fill_share_pc": 30,
+        "fill_vs_road": 1.0,
+        "fill_vs_deck": 1.95,
+        "bg_entry_collisions_px": 50,
+        "head_rows": 8
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued",
+      "ascii_mock": "SPRITE-CRITIQUE.md section 5.3"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_hadrian_ow",
-   "name": "Hadrian Skye, overworld",
-   "path": "game/sprites_src/chars/hadrian_ow.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P1",
-   "priority_reason": "61% of the sprite is one black machine, the face is 32 px of pure white, and frame 2 blinks the head out of existence",
-   "brief": "Data centre CEO, 27: black tailored suit with a mid tone and a light shoulder, gem tie pin as a 2 x 2, pale skin with dark circles, no white face.",
-   "pixel_fixes": [
-    "split the suit into $0F outline, $2D mid and $10 light; 61% black becomes at most 25%",
-    "rows 2 to 5: skin $36 columns 5 to 10, never $fcfcfc",
-    "row 3: 2 px eyes at (5,3),(6,3) and (8,3),(9,3) with a 1 px bridge at (7,3); row 4 dark circles $13 at (5,4),(9,4)",
-    "tie pin: a 2 x 2 $2D gem at (7,8) on a $28 tie, or drop it; the current 3 single pixels at rows 16, 17, 19 are noise",
-    "row 13 belt $0F; row 14 legs $0F with a 1 px $10 shoe highlight at (4,14),(9,14)",
-    "stop the frame 2 face blink"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "$2D",
-     "$36"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "$2D",
-     "$10"
-    ],
-    "night_road_variant": "slot 1 becomes $10"
-   },
-   "measured_now": {
-    "colours": 5,
-    "black_px": 65,
-    "black_share_pc": 61,
-    "white_face_px": 32,
-    "white_share_pc": 30,
-    "white_vs_sky": 1.0,
-    "rows_with_no_dark": 2,
-    "dark_runs": 3,
-    "interior_dark": 19,
-    "head_rows": 9
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_hadrian_battle",
+      "name": "Hadrian, battle",
+      "path": "game/sprites_src/chars/hadrian_battle.png",
+      "frame_w": 24,
+      "frame_h": 32,
+      "frames": 7,
+      "kind": "battle",
+      "priority": "P1",
+      "priority_reason": "82% of the sprite is one black tone, the highest in the project, and the gems are 3 single pixels",
+      "brief": "Black tailored suit in three tones, pale face with dark circles, gem tie pin as a 2 x 2, bident in the god sheet.",
+      "pixel_fixes": [
+        "split rows 12 to 31 into $0F outline, $2D suit, $10 shirt front and shoulder light",
+        "the face: $36 skin, not $fcfcfc; 2 px eyes and 1 px $13 dark circles",
+        "the gems: one 2 x 2 $2D pin on a $28 tie at (11,18)-(12,19), and delete the single pixels at rows 16, 17, 19",
+        "animate the legs only"
+      ],
+      "palette_plan": {
+        "body": [
+          "$0F",
+          "$2D",
+          "$10",
+          "$36"
+        ],
+        "palettes_used": 2
+      },
+      "measured_now": {
+        "colours": 6,
+        "black_px": 299,
+        "black_share_pc": 82,
+        "white_face_px": 47
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_hadrian_ow_v2",
-   "name": "hadrian ow v2",
-   "path": "game/sprites_src/chars/hadrian_ow_v2.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P1",
-   "priority_reason": "122 of 152 px is $000000, 80 percent black",
-   "brief": "v2 cleaned the face and the row structure but the figure is still one black slab with a white face",
-   "pixel_fixes": [
-    "split $000000 into an outline plus a $2D suit mid tone and a $10 light; 80 percent black must fall under 25",
-    "remap the outline tone per map"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
-   },
-   "measured_now": {
-    "colours": 3,
-    "rows_with_no_dark": 0,
-    "largest_entry": "14%",
-    "outline_vs_road": 1.73,
-    "outline_vs_deck": 5.03,
-    "measured": "2026-10-22 08:36 snapshot"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_hadrian_ow",
+      "name": "Hadrian Skye, overworld",
+      "path": "game/sprites_src/chars/hadrian_ow.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P1",
+      "priority_reason": "61% of the sprite is one black machine, the face is 32 px of pure white, and frame 2 blinks the head out of existence",
+      "brief": "Data centre CEO, 27: black tailored suit with a mid tone and a light shoulder, gem tie pin as a 2 x 2, pale skin with dark circles, no white face.",
+      "pixel_fixes": [
+        "split the suit into $0F outline, $2D mid and $10 light; 61% black becomes at most 25%",
+        "rows 2 to 5: skin $36 columns 5 to 10, never $fcfcfc",
+        "row 3: 2 px eyes at (5,3),(6,3) and (8,3),(9,3) with a 1 px bridge at (7,3); row 4 dark circles $13 at (5,4),(9,4)",
+        "tie pin: a 2 x 2 $2D gem at (7,8) on a $28 tie, or drop it; the current 3 single pixels at rows 16, 17, 19 are noise",
+        "row 13 belt $0F; row 14 legs $0F with a 1 px $10 shoe highlight at (4,14),(9,14)",
+        "stop the frame 2 face blink"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "$2D",
+          "$36"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "$2D",
+          "$10"
+        ],
+        "night_road_variant": "slot 1 becomes $10"
+      },
+      "measured_now": {
+        "colours": 5,
+        "black_px": 65,
+        "black_share_pc": 61,
+        "white_face_px": 32,
+        "white_share_pc": 30,
+        "white_vs_sky": 1.0,
+        "rows_with_no_dark": 2,
+        "dark_runs": 3,
+        "interior_dark": 19,
+        "head_rows": 9
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_konrad_battle",
-   "name": "Konrad, battle",
-   "path": "game/sprites_src/chars/konrad_battle.png",
-   "frame_w": 24,
-   "frame_h": 32,
-   "frames": 7,
-   "kind": "battle",
-   "priority": "P1",
-   "priority_reason": "68% of the sprite is one black tone and the whole figure is redrawn per frame instead of the legs",
-   "brief": "Same person as the overworld: blazer $2E, lab lanyard, blond head, sickle in the god sheet. Interior lines at the lapel, belt, knee and cuff.",
-   "pixel_fixes": [
-    "rows 13 to 31: replace the flat $000000 body with $0F outline plus $2E blazer plus $1C shade on the right column",
-    "add a 1 px $0F lapel line from (12,14) to (12,22) and a belt at row 23",
-    "close the transparent hole at (16,23)",
-    "animate the legs only: rows 24 to 31 change between frames; rows 1 to 23 stay byte identical"
-   ],
-   "palette_plan": {
-    "body": [
-     "$0F",
-     "$2E",
-     "$1C",
-     "$38",
-     "$36"
-    ],
-    "palettes_used": 2
-   },
-   "measured_now": {
-    "colours": 6,
-    "black_px": 255,
-    "black_share_pc": 68,
-    "transparent_holes": [
-     [
-      16,
-      23
-     ]
-    ],
-    "frame_diff_f0_f2": 50
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_hadrian_ow_v2",
+      "name": "hadrian ow v2",
+      "path": "game/sprites_src/chars/hadrian_ow_v2.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P1",
+      "priority_reason": "122 of 152 px is $000000, 80 percent black",
+      "brief": "v2 cleaned the face and the row structure but the figure is still one black slab with a white face",
+      "pixel_fixes": [
+        "split $000000 into an outline plus a $2D suit mid tone and a $10 light; 80 percent black must fall under 25",
+        "remap the outline tone per map"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
+      },
+      "measured_now": {
+        "colours": 3,
+        "rows_with_no_dark": 0,
+        "largest_entry": "14%",
+        "outline_vs_road": 1.73,
+        "outline_vs_deck": 5.03,
+        "measured": "2026-10-22 08:36 snapshot"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_konrad_ow",
-   "name": "Konrad Skye, overworld",
-   "path": "game/sprites_src/chars/konrad_ow.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P1",
-   "priority_reason": "1.8 heads tall, 46% of the sprite is one flat blond, 8 rows with no dark pixel, 1 dark run, and frame 2 replaces the face with hair",
-   "brief": "AI research scientist, 47: charcoal blazer over an open collar, lanyard, wristwatch, sickle keyring, long blond hair with a white streak, close one row beard.",
-   "pixel_fixes": [
-    "head rows 0 to 6 only (it runs to row 8 today); row 0 hair with $0F at (4,0),(11,0); row 1 $18 shade at (10,1)",
-    "row 2 hairline $0F at (4,2),(5,2); rows 2 to 4 skin $36 columns 6 to 9; row 3 2 px eyes at (5,3),(6,3) and (9,3),(10,3)",
-    "row 5 beard $38 columns 5 to 10; row 6 chin $0F at (4,6),(5,6),(10,6),(11,6)",
-    "replace the black torso rows 9 to 12 with blazer $2E columns 4 to 11, open collar V $0F at (7,8),(6,9),(8,9), lanyard $30 at (9,8) to (9,10), shade $1C column 11",
-    "close the two transparent holes at (5,8) and (10,8); remove the stray skin pixel at (5,1)",
-    "row 13 belt $0F; row 14 legs with a 1 px $2E boot; (4,11) 1 px $28 wristwatch",
-    "redraw the walk as 2 poses, 6 to 10 changed pixels, all in rows 13 and 14; the torso must be byte identical between them"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "$38",
-     "$36"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "$2E",
-     "$1C"
-    ],
-    "night_road_variant": "slot 1 becomes $10"
-   },
-   "measured_now": {
-    "colours": 6,
-    "hair_px": 55,
-    "hair_share_pc": 46,
-    "rows_with_no_dark": 8,
-    "dark_runs": 1,
-    "interior_dark": 16,
-    "head_rows": 9,
-    "transparent_holes": [
-     [
-      5,
-      8
-     ],
-     [
-      10,
-      8
-     ]
-    ],
-    "stray_px": [
-     [
-      5,
-      1
-     ]
-    ],
-    "frame_diffs": [
-     8,
-     49,
-     8,
-     55,
-     8,
-     64,
-     8
-    ]
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_konrad_battle",
+      "name": "Konrad, battle",
+      "path": "game/sprites_src/chars/konrad_battle.png",
+      "frame_w": 24,
+      "frame_h": 32,
+      "frames": 7,
+      "kind": "battle",
+      "priority": "P1",
+      "priority_reason": "68% of the sprite is one black tone and the whole figure is redrawn per frame instead of the legs",
+      "brief": "Same person as the overworld: blazer $2E, lab lanyard, blond head, sickle in the god sheet. Interior lines at the lapel, belt, knee and cuff.",
+      "pixel_fixes": [
+        "rows 13 to 31: replace the flat $000000 body with $0F outline plus $2E blazer plus $1C shade on the right column",
+        "add a 1 px $0F lapel line from (12,14) to (12,22) and a belt at row 23",
+        "close the transparent hole at (16,23)",
+        "animate the legs only: rows 24 to 31 change between frames; rows 1 to 23 stay byte identical"
+      ],
+      "palette_plan": {
+        "body": [
+          "$0F",
+          "$2E",
+          "$1C",
+          "$38",
+          "$36"
+        ],
+        "palettes_used": 2
+      },
+      "measured_now": {
+        "colours": 6,
+        "black_px": 255,
+        "black_share_pc": 68,
+        "transparent_holes": [
+          [
+            16,
+            23
+          ]
+        ],
+        "frame_diff_f0_f2": 50
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_konrad_ow_v2",
-   "name": "konrad ow v2",
-   "path": "game/sprites_src/chars/konrad_ow_v2.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P1",
-   "priority_reason": "40 px of $7c7c7c, the deck grey, at 1.00 : 1",
-   "brief": "v2 fixed the flat blond mass and the missing outline; the blazer is now exactly the deck colour",
-   "pixel_fixes": [
-    "replace $7c7c7c (40 px) with $2D or $10; $7c7c7c is the deck ground colour",
-    "remap the outline tone per map"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
-   },
-   "measured_now": {
-    "colours": 5,
-    "rows_with_no_dark": 0,
-    "largest_entry": "22%",
-    "outline_vs_road": 1.73,
-    "outline_vs_deck": 5.03,
-    "measured": "2026-10-22 08:36 snapshot"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_konrad_ow",
+      "name": "Konrad Skye, overworld",
+      "path": "game/sprites_src/chars/konrad_ow.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P1",
+      "priority_reason": "1.8 heads tall, 46% of the sprite is one flat blond, 8 rows with no dark pixel, 1 dark run, and frame 2 replaces the face with hair",
+      "brief": "AI research scientist, 47: charcoal blazer over an open collar, lanyard, wristwatch, sickle keyring, long blond hair with a white streak, close one row beard.",
+      "pixel_fixes": [
+        "head rows 0 to 6 only (it runs to row 8 today); row 0 hair with $0F at (4,0),(11,0); row 1 $18 shade at (10,1)",
+        "row 2 hairline $0F at (4,2),(5,2); rows 2 to 4 skin $36 columns 6 to 9; row 3 2 px eyes at (5,3),(6,3) and (9,3),(10,3)",
+        "row 5 beard $38 columns 5 to 10; row 6 chin $0F at (4,6),(5,6),(10,6),(11,6)",
+        "replace the black torso rows 9 to 12 with blazer $2E columns 4 to 11, open collar V $0F at (7,8),(6,9),(8,9), lanyard $30 at (9,8) to (9,10), shade $1C column 11",
+        "close the two transparent holes at (5,8) and (10,8); remove the stray skin pixel at (5,1)",
+        "row 13 belt $0F; row 14 legs with a 1 px $2E boot; (4,11) 1 px $28 wristwatch",
+        "redraw the walk as 2 poses, 6 to 10 changed pixels, all in rows 13 and 14; the torso must be byte identical between them"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "$38",
+          "$36"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "$2E",
+          "$1C"
+        ],
+        "night_road_variant": "slot 1 becomes $10"
+      },
+      "measured_now": {
+        "colours": 6,
+        "hair_px": 55,
+        "hair_share_pc": 46,
+        "rows_with_no_dark": 8,
+        "dark_runs": 1,
+        "interior_dark": 16,
+        "head_rows": 9,
+        "transparent_holes": [
+          [
+            5,
+            8
+          ],
+          [
+            10,
+            8
+          ]
+        ],
+        "stray_px": [
+          [
+            5,
+            1
+          ]
+        ],
+        "frame_diffs": [
+          8,
+          49,
+          8,
+          55,
+          8,
+          64,
+          8
+        ]
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_sailor_battle",
-   "name": "Navy rating, battle",
-   "path": "game/sprites_src/chars/sailor_battle.png",
-   "frame_w": 24,
-   "frame_h": 32,
-   "frames": 7,
-   "kind": "battle",
-   "priority": "P1",
-   "priority_reason": "the head is 54 px of #503000 dark brown at 1.02 contrast against the deck, so the crew's head vanishes on the ship",
-   "brief": "The same rating as sprite_sailor_ow at 24 x 32: cap, white shirt, horizontal collar band, black silk, 3 tones from the 8.2 split.",
-   "pixel_fixes": [
-    "replace the #503000 head with $17 hair plus a $0F outline; #503000 is 1.02 : 1 on the deck",
-    "give the shirt the same collar band and knot as the overworld rating",
-    "stop the frame 2 costume change (the body goes from #0000bc to #fcfcfc)"
-   ],
-   "palette_plan": {
-    "head": [
-     "$0F",
-     "$17",
-     "$36"
-    ],
-    "body": [
-     "$0F",
-     "$10",
-     "$30"
-    ],
-    "palettes_used": 2
-   },
-   "measured_now": {
-    "colours": 7,
-    "head_colour": "#503000",
-    "head_vs_deck": 1.02,
-    "costume_variants": 2
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_konrad_ow_v2",
+      "name": "konrad ow v2",
+      "path": "game/sprites_src/chars/konrad_ow_v2.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P1",
+      "priority_reason": "40 px of $7c7c7c, the deck grey, at 1.00 : 1",
+      "brief": "v2 fixed the flat blond mass and the missing outline; the blazer is now exactly the deck colour",
+      "pixel_fixes": [
+        "replace $7c7c7c (40 px) with $2D or $10; $7c7c7c is the deck ground colour",
+        "remap the outline tone per map"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
+      },
+      "measured_now": {
+        "colours": 5,
+        "rows_with_no_dark": 0,
+        "largest_entry": "22%",
+        "outline_vs_road": 1.73,
+        "outline_vs_deck": 5.03,
+        "measured": "2026-10-22 08:36 snapshot"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_zander_battle",
-   "name": "Zander, battle",
-   "path": "game/sprites_src/chars/zander_battle.png",
-   "frame_w": 24,
-   "frame_h": 32,
-   "frames": 7,
-   "kind": "battle",
-   "priority": "P1",
-   "priority_reason": "the bomber is 114 px of a colour that is an exact background entry, and the highlight is 1 px",
-   "brief": "Light blue bomber with $31 on the lit plane and $21 on the shade side, a 2 px zip, blond head with 2 px eyes.",
-   "pixel_fixes": [
-    "replace the $3cbcfc fill with $31 on the lit plane and $21 on the shade side; $3cbcfc is a declared background entry (1.00)",
-    "widen the $a4e4fc highlight from 1 px to a 3 to 6 px plane on the left shoulder",
-    "2 px eyes in the 24 x 32 head, not 1 px"
-   ],
-   "palette_plan": {
-    "body": [
-     "$0F",
-     "$21",
-     "$31",
-     "$38",
-     "$36"
-    ],
-    "palettes_used": 2
-   },
-   "measured_now": {
-    "colours": 8,
-    "blue_px": 114,
-    "blue_share_pc": 31,
-    "blue_vs_road": 1.0,
-    "blue_vs_deck": 1.95
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_sailor_battle",
+      "name": "Navy rating, battle",
+      "path": "game/sprites_src/chars/sailor_battle.png",
+      "frame_w": 24,
+      "frame_h": 32,
+      "frames": 7,
+      "kind": "battle",
+      "priority": "P1",
+      "priority_reason": "the head is 54 px of #503000 dark brown at 1.02 contrast against the deck, so the crew's head vanishes on the ship",
+      "brief": "The same rating as sprite_sailor_ow at 24 x 32: cap, white shirt, horizontal collar band, black silk, 3 tones from the 8.2 split.",
+      "pixel_fixes": [
+        "replace the #503000 head with $17 hair plus a $0F outline; #503000 is 1.02 : 1 on the deck",
+        "give the shirt the same collar band and knot as the overworld rating",
+        "stop the frame 2 costume change (the body goes from #0000bc to #fcfcfc)"
+      ],
+      "palette_plan": {
+        "head": [
+          "$0F",
+          "$17",
+          "$36"
+        ],
+        "body": [
+          "$0F",
+          "$10",
+          "$30"
+        ],
+        "palettes_used": 2
+      },
+      "measured_now": {
+        "colours": 7,
+        "head_colour": "#503000",
+        "head_vs_deck": 1.02,
+        "costume_variants": 2
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_zander_ow_v2",
-   "name": "zander ow v2",
-   "path": "game/sprites_src/chars/zander_ow_v2.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "overworld",
-   "priority": "P1",
-   "priority_reason": "$0058f8 39 px at 1.34 : 1 on the deck",
-   "brief": "v2 gave Zander an outline on every row; the jacket's second tone still vanishes on the ship",
-   "pixel_fixes": [
-    "replace $0058f8 with $31 (3.00 on the deck) or $21 on the shade side only",
-    "remap the outline tone per map"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
-   },
-   "measured_now": {
-    "colours": 5,
-    "rows_with_no_dark": 0,
-    "largest_entry": "14%",
-    "outline_vs_road": 1.73,
-    "outline_vs_deck": 5.03,
-    "measured": "2026-10-22 08:36 snapshot"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_zander_battle",
+      "name": "Zander, battle",
+      "path": "game/sprites_src/chars/zander_battle.png",
+      "frame_w": 24,
+      "frame_h": 32,
+      "frames": 7,
+      "kind": "battle",
+      "priority": "P1",
+      "priority_reason": "the bomber is 114 px of a colour that is an exact background entry, and the highlight is 1 px",
+      "brief": "Light blue bomber with $31 on the lit plane and $21 on the shade side, a 2 px zip, blond head with 2 px eyes.",
+      "pixel_fixes": [
+        "replace the $3cbcfc fill with $31 on the lit plane and $21 on the shade side; $3cbcfc is a declared background entry (1.00)",
+        "widen the $a4e4fc highlight from 1 px to a 3 to 6 px plane on the left shoulder",
+        "2 px eyes in the 24 x 32 head, not 1 px"
+      ],
+      "palette_plan": {
+        "body": [
+          "$0F",
+          "$21",
+          "$31",
+          "$38",
+          "$36"
+        ],
+        "palettes_used": 2
+      },
+      "measured_now": {
+        "colours": 8,
+        "blue_px": 114,
+        "blue_share_pc": 31,
+        "blue_vs_road": 1.0,
+        "blue_vs_deck": 1.95
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_enemy_gull",
-   "name": "Enemy: gull",
-   "path": "game/sprites_src/enemies/gull.png",
-   "frame_w": 32,
-   "frame_h": 32,
-   "frames": 3,
-   "kind": "enemy",
-   "priority": "P2",
-   "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
-   "brief": "white 144 px blob, 38% of the frame, and only 3 colours.",
-   "pixel_fixes": [
-    "keep every colour off the declared background entries of the scene it appears in",
-    "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
-   ],
-   "palette_plan": {
-    "body": "per scene palette"
-   },
-   "measured_now": {
-    "colours": "see SPRITE-CRITIQUE.md section 3"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_zander_ow_v2",
+      "name": "zander ow v2",
+      "path": "game/sprites_src/chars/zander_ow_v2.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "overworld",
+      "priority": "P1",
+      "priority_reason": "$0058f8 39 px at 1.34 : 1 on the deck",
+      "brief": "v2 gave Zander an outline on every row; the jacket's second tone still vanishes on the ship",
+      "pixel_fixes": [
+        "replace $0058f8 with $31 (3.00 on the deck) or $21 on the shade side only",
+        "remap the outline tone per map"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "night_road_variant": "the outline slot must be $10 on the road; $0F on the deck"
+      },
+      "measured_now": {
+        "colours": 5,
+        "rows_with_no_dark": 0,
+        "largest_entry": "14%",
+        "outline_vs_road": 1.73,
+        "outline_vs_deck": 5.03,
+        "measured": "2026-10-22 08:36 snapshot"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_enemy_navy_sailor",
-   "name": "Crew enemy: navy_sailor",
-   "path": "game/sprites_src/enemies/navy_sailor.png",
-   "frame_w": 32,
-   "frame_h": 32,
-   "frames": 3,
-   "kind": "enemy",
-   "priority": "P2",
-   "priority_reason": "3 colours, a costume change on frame 2, and it is a near duplicate of the other crew enemy",
-   "brief": "give it the horizontal collar band and the cap peak, 3 tones, and stop the frame 2 costume change; on the deck palette $0F, $10, $30 only.",
-   "pixel_fixes": [
-    "stop the costume change on frame 2 (white 201 px against navy 114 px on frame 0)",
-    "add 1 px interior lines: collar, cuff, belt",
-    "keep 3 opaque colours per tile"
-   ],
-   "palette_plan": {
-    "body": [
-     "$0F",
-     "$10",
-     "$30"
-    ],
-    "palettes_used": 1
-   },
-   "measured_now": {
-    "colours": 3,
-    "opaque_px_frame0": 336,
-    "costume_variants": 2
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_enemy_gull",
+      "name": "Enemy: gull",
+      "path": "game/sprites_src/enemies/gull.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 3,
+      "kind": "enemy",
+      "priority": "P2",
+      "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
+      "brief": "white 144 px blob, 38% of the frame, and only 3 colours.",
+      "pixel_fixes": [
+        "keep every colour off the declared background entries of the scene it appears in",
+        "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
+      ],
+      "palette_plan": {
+        "body": "per scene palette"
+      },
+      "measured_now": {
+        "colours": "see SPRITE-CRITIQUE.md section 3"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_enemy_petty_officer",
-   "name": "Crew enemy: petty_officer",
-   "path": "game/sprites_src/enemies/petty_officer.png",
-   "frame_w": 32,
-   "frame_h": 32,
-   "frames": 3,
-   "kind": "enemy",
-   "priority": "P2",
-   "priority_reason": "3 colours, a costume change on frame 2, and it is a near duplicate of the other crew enemy",
-   "brief": "it is 4 px away from navy_sailor: give it the collar V, a 2 px $28 gold shoulder mark and a 2 px $0F cap peak so the two are different drawings; on the deck palette $0F, $10, $30 only.",
-   "pixel_fixes": [
-    "stop the costume change on frame 2 (white 201 px against navy 114 px on frame 0)",
-    "add 1 px interior lines: collar, cuff, belt",
-    "keep 3 opaque colours per tile"
-   ],
-   "palette_plan": {
-    "body": [
-     "$0F",
-     "$10",
-     "$30"
-    ],
-    "palettes_used": 1
-   },
-   "measured_now": {
-    "colours": 3,
-    "opaque_px_frame0": 340,
-    "costume_variants": 2
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_enemy_navy_sailor",
+      "name": "Crew enemy: navy_sailor",
+      "path": "game/sprites_src/enemies/navy_sailor.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 3,
+      "kind": "enemy",
+      "priority": "P2",
+      "priority_reason": "3 colours, a costume change on frame 2, and it is a near duplicate of the other crew enemy",
+      "brief": "give it the horizontal collar band and the cap peak, 3 tones, and stop the frame 2 costume change; on the deck palette $0F, $10, $30 only.",
+      "pixel_fixes": [
+        "stop the costume change on frame 2 (white 201 px against navy 114 px on frame 0)",
+        "add 1 px interior lines: collar, cuff, belt",
+        "keep 3 opaque colours per tile"
+      ],
+      "palette_plan": {
+        "body": [
+          "$0F",
+          "$10",
+          "$30"
+        ],
+        "palettes_used": 1
+      },
+      "measured_now": {
+        "colours": 3,
+        "opaque_px_frame0": 336,
+        "costume_variants": 2
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_enemy_rogue_wave",
-   "name": "Enemy: rogue_wave",
-   "path": "game/sprites_src/enemies/rogue_wave.png",
-   "frame_w": 32,
-   "frame_h": 32,
-   "frames": 3,
-   "kind": "enemy",
-   "priority": "P2",
-   "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
-   "brief": "frame 2 goes to 469 px of one white: the crest loses all structure.",
-   "pixel_fixes": [
-    "keep every colour off the declared background entries of the scene it appears in",
-    "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
-   ],
-   "palette_plan": {
-    "body": "per scene palette"
-   },
-   "measured_now": {
-    "colours": "see SPRITE-CRITIQUE.md section 3"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_enemy_petty_officer",
+      "name": "Crew enemy: petty_officer",
+      "path": "game/sprites_src/enemies/petty_officer.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 3,
+      "kind": "enemy",
+      "priority": "P2",
+      "priority_reason": "3 colours, a costume change on frame 2, and it is a near duplicate of the other crew enemy",
+      "brief": "it is 4 px away from navy_sailor: give it the collar V, a 2 px $28 gold shoulder mark and a 2 px $0F cap peak so the two are different drawings; on the deck palette $0F, $10, $30 only.",
+      "pixel_fixes": [
+        "stop the costume change on frame 2 (white 201 px against navy 114 px on frame 0)",
+        "add 1 px interior lines: collar, cuff, belt",
+        "keep 3 opaque colours per tile"
+      ],
+      "palette_plan": {
+        "body": [
+          "$0F",
+          "$10",
+          "$30"
+        ],
+        "palettes_used": 1
+      },
+      "measured_now": {
+        "colours": 3,
+        "opaque_px_frame0": 340,
+        "costume_variants": 2
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_hadrian_god_battle",
-   "name": "hadrian god battle",
-   "path": "game/sprites_src/chars/hadrian_god_battle.png",
-   "frame_w": 24,
-   "frame_h": 32,
-   "frames": 7,
-   "kind": "god_battle",
-   "priority": "P2",
-   "priority_reason": "383 of 430 px is $000000, 89 percent, the blackest sheet in the project",
-   "brief": "The god form is the normal outfit plus the weapon, with at most a faint effect (CHARACTER-BIBLE REVISION 2); no ancient armour.",
-   "pixel_fixes": [
-    "split into $0F outline, $2D suit and $10 light; 89 percent black must fall under 25",
-    "the bident is 4 px of $6844fc: draw it as a 1 px $0F shaft with a 2 prong $10 head, outside the silhouette",
-    "the helm of invisibility must be a plain dark helm, not a mask"
-   ],
-   "palette_plan": {
-    "body": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "palettes_used": 2
-   },
-   "measured_now": {
-    "colours": 6,
-    "measured": "2026-10-22 08:36 snapshot"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_enemy_rogue_wave",
+      "name": "Enemy: rogue_wave",
+      "path": "game/sprites_src/enemies/rogue_wave.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 3,
+      "kind": "enemy",
+      "priority": "P2",
+      "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
+      "brief": "frame 2 goes to 469 px of one white: the crest loses all structure.",
+      "pixel_fixes": [
+        "keep every colour off the declared background entries of the scene it appears in",
+        "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
+      ],
+      "palette_plan": {
+        "body": "per scene palette"
+      },
+      "measured_now": {
+        "colours": "see SPRITE-CRITIQUE.md section 3"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_konrad_god_battle",
-   "name": "konrad god battle",
-   "path": "game/sprites_src/chars/konrad_god_battle.png",
-   "frame_w": 24,
-   "frame_h": 32,
-   "frames": 7,
-   "kind": "god_battle",
-   "priority": "P2",
-   "priority_reason": "the sickle is 6 px of $fcfcfc and the body is 245 px of $000000 (65 percent)",
-   "brief": "The god form is the normal outfit plus the weapon, with at most a faint effect (CHARACTER-BIBLE REVISION 2); no ancient armour.",
-   "pixel_fixes": [
-    "split the black body into $0F outline plus $2E blazer plus $1C shade",
-    "draw the sickle as a 9 px shaft plus a 2 to 3 px blade so the god form reads as the weapon, per CHARACTER-BIBLE REVISION 2"
-   ],
-   "palette_plan": {
-    "body": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "palettes_used": 3
-   },
-   "measured_now": {
-    "colours": 9,
-    "measured": "2026-10-22 08:36 snapshot"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_hadrian_god_battle",
+      "name": "hadrian god battle",
+      "path": "game/sprites_src/chars/hadrian_god_battle.png",
+      "frame_w": 24,
+      "frame_h": 32,
+      "frames": 7,
+      "kind": "god_battle",
+      "priority": "P2",
+      "priority_reason": "383 of 430 px is $000000, 89 percent, the blackest sheet in the project",
+      "brief": "The god form is the normal outfit plus the weapon, with at most a faint effect (CHARACTER-BIBLE REVISION 2); no ancient armour.",
+      "pixel_fixes": [
+        "split into $0F outline, $2D suit and $10 light; 89 percent black must fall under 25",
+        "the bident is 4 px of $6844fc: draw it as a 1 px $0F shaft with a 2 prong $10 head, outside the silhouette",
+        "the helm of invisibility must be a plain dark helm, not a mask"
+      ],
+      "palette_plan": {
+        "body": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "palettes_used": 2
+      },
+      "measured_now": {
+        "colours": 6,
+        "measured": "2026-10-22 08:36 snapshot"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_percy_god_battle",
-   "name": "Percy, god form battle",
-   "path": "game/sprites_src/chars/percy_god_battle.png",
-   "frame_w": 24,
-   "frame_h": 32,
-   "frames": 7,
-   "kind": "god_battle",
-   "priority": "P2",
-   "priority_reason": "11 distinct entries need all 4 sprite palettes, leaving none for the enemy line, and the sea aura is 2 stray pixels",
-   "brief": "The trident plus a real sea spray aura: 4 to 8 px of $31 spray around the prongs, not 2 violet dots at the left edge.",
-   "pixel_fixes": [
-    "reduce 11 entries to 9 or fewer so 3 palettes suffice, leaving 1 for the enemies",
-    "delete the stray $6844fc pixels at (2,12) and (4,12); draw the aura as $31 spray around the trident prongs",
-    "inherits every fix from sprite_percy_battle"
-   ],
-   "palette_plan": {
-    "head": [
-     "$0F",
-     "$17",
-     "$36"
-    ],
-    "body": [
-     "$0F",
-     "$10",
-     "$30"
-    ],
-    "aura": [
-     "$0F",
-     "$10",
-     "$31"
-    ],
-    "palettes_used": 3,
-    "palette_budget": "4 total, 1 must remain for the enemy line"
-   },
-   "measured_now": {
-    "colours": 11,
-    "entries": 11,
-    "palettes_needed": 4,
-    "stray_px": [
-     [
-      2,
-      12
-     ],
-     [
-      4,
-      12
-     ]
-    ]
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_konrad_god_battle",
+      "name": "konrad god battle",
+      "path": "game/sprites_src/chars/konrad_god_battle.png",
+      "frame_w": 24,
+      "frame_h": 32,
+      "frames": 7,
+      "kind": "god_battle",
+      "priority": "P2",
+      "priority_reason": "the sickle is 6 px of $fcfcfc and the body is 245 px of $000000 (65 percent)",
+      "brief": "The god form is the normal outfit plus the weapon, with at most a faint effect (CHARACTER-BIBLE REVISION 2); no ancient armour.",
+      "pixel_fixes": [
+        "split the black body into $0F outline plus $2E blazer plus $1C shade",
+        "draw the sickle as a 9 px shaft plus a 2 to 3 px blade so the god form reads as the weapon, per CHARACTER-BIBLE REVISION 2"
+      ],
+      "palette_plan": {
+        "body": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "palettes_used": 3
+      },
+      "measured_now": {
+        "colours": 9,
+        "measured": "2026-10-22 08:36 snapshot"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_ronan_title",
-   "name": "Ronan, title sheet",
-   "path": "game/sprites_src/title/spr_title_ronan.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "title",
-   "priority": "P2",
-   "priority_reason": "5 of 8 frames are byte identical, the figure uses rows 8 to 15 only, and row 15 clips it",
-   "brief": "Use the full 16 rows, give the figure one interior line and one 2 px stride.",
-   "pixel_fixes": [
-    "move the figure up so it uses rows 1 to 15, not 8 to 15",
-    "add a 1 px $0F interior line (belt or lapel) so no row is a flat fill",
-    "give the sheet 2 genuinely different frames, 10 to 16 changed pixels, in the leg rows only"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "$28",
-     "$36"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "$28",
-     "$10"
-    ]
-   },
-   "measured_now": {
-    "colours": 3,
-    "bbox_rows": [
-     8,
-     15
-    ],
-    "frame_diffs": [
-     0,
-     0,
-     0,
-     0,
-     2,
-     3,
-     4
-    ],
-    "identical_pairs": 10
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_percy_god_battle",
+      "name": "Percy, god form battle",
+      "path": "game/sprites_src/chars/percy_god_battle.png",
+      "frame_w": 24,
+      "frame_h": 32,
+      "frames": 7,
+      "kind": "god_battle",
+      "priority": "P2",
+      "priority_reason": "11 distinct entries need all 4 sprite palettes, leaving none for the enemy line, and the sea aura is 2 stray pixels",
+      "brief": "The trident plus a real sea spray aura: 4 to 8 px of $31 spray around the prongs, not 2 violet dots at the left edge.",
+      "pixel_fixes": [
+        "reduce 11 entries to 9 or fewer so 3 palettes suffice, leaving 1 for the enemies",
+        "delete the stray $6844fc pixels at (2,12) and (4,12); draw the aura as $31 spray around the trident prongs",
+        "inherits every fix from sprite_percy_battle"
+      ],
+      "palette_plan": {
+        "head": [
+          "$0F",
+          "$17",
+          "$36"
+        ],
+        "body": [
+          "$0F",
+          "$10",
+          "$30"
+        ],
+        "aura": [
+          "$0F",
+          "$10",
+          "$31"
+        ],
+        "palettes_used": 3,
+        "palette_budget": "4 total, 1 must remain for the enemy line"
+      },
+      "measured_now": {
+        "colours": 11,
+        "entries": 11,
+        "palettes_needed": 4,
+        "stray_px": [
+          [
+            2,
+            12
+          ],
+          [
+            4,
+            12
+          ]
+        ]
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_theo_title",
-   "name": "Theo, title sheet",
-   "path": "game/sprites_src/title/spr_title_theo.png",
-   "frame_w": 16,
-   "frame_h": 16,
-   "frames": 8,
-   "kind": "title",
-   "priority": "P2",
-   "priority_reason": "2 colours, 48% one gold, 3 floating single pixels, and rows 0 to 7 empty",
-   "brief": "Use the full 16 rows, 3 tones, and no isolated pixel.",
-   "pixel_fixes": [
-    "move the figure up so it uses rows 1 to 15",
-    "delete the floating pixels at (3,8) and (13,8) and the detached black pixel at (12,12)",
-    "add a mid tone so the gold mass has a shade side: $0F outline, $28 mid, $10 light",
-    "frames 0 and 2, 1 and 3, 6 and 7 are duplicates; make 2 real poses"
-   ],
-   "palette_plan": {
-    "head_rows_0_7": [
-     "$0F",
-     "$28",
-     "$10"
-    ],
-    "body_rows_8_15": [
-     "$0F",
-     "$28",
-     "$10"
-    ]
-   },
-   "measured_now": {
-    "colours": 2,
-    "gold_share_pc": 48,
-    "bbox_rows": [
-     8,
-     15
-    ],
-    "floating_px": [
-     [
-      3,
-      8
-     ],
-     [
-      13,
-      8
-     ],
-     [
-      12,
-      12
-     ]
-    ],
-    "identical_pairs": 3
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_konrad_title",
+      "name": "Konrad, title sheet",
+      "path": "game/sprites_src/title/spr_title_konrad.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "title",
+      "priority": "P2",
+      "priority_reason": "5 of 8 frames are byte identical, the figure uses rows 8 to 15 only, and row 15 clips it",
+      "brief": "Use the full 16 rows, give the figure one interior line and one 2 px stride.",
+      "design_note": "The costume must follow CHARACTER-BIBLE, not the bust it replaces: 47, long blond hair streaked white and grey, close beard, charcoal blazer or dark knit over an open collar shirt, ID lanyard, wristwatch. No flat cap, no tweed, no driving gloves. The wristwatch glance in frames 5 to 7 stays; it is Konrad's own tell.",
+      "pixel_fixes": [
+        "move the figure up so it uses rows 1 to 15, not 8 to 15",
+        "add a 1 px $0F interior line (belt or lapel) so no row is a flat fill",
+        "give the sheet 2 genuinely different frames, 10 to 16 changed pixels, in the leg rows only"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "$28",
+          "$36"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "$28",
+          "$10"
+        ]
+      },
+      "measured_now": {
+        "colours": 3,
+        "bbox_rows": [
+          8,
+          15
+        ],
+        "frame_diffs": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          3,
+          4
+        ],
+        "identical_pairs": 10
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_zander_god_battle",
-   "name": "zander god battle",
-   "path": "game/sprites_src/chars/zander_god_battle.png",
-   "frame_w": 24,
-   "frame_h": 32,
-   "frames": 7,
-   "kind": "god_battle",
-   "priority": "P2",
-   "priority_reason": "$3cbcfc 112 px at 1.95 : 1 on the deck and $0078f8 at 1.39 : 1 on the road",
-   "brief": "The god form is the normal outfit plus the weapon, with at most a faint effect (CHARACTER-BIBLE REVISION 2); no ancient armour.",
-   "pixel_fixes": [
-    "replace $3cbcfc as the main fill with $31; keep $3cbcfc on the shade side only",
-    "the thunderbolt is 7 px of $fca044; make it 2 to 3 px of $30 plus a $31 glow so it reads as a spark"
-   ],
-   "palette_plan": {
-    "body": [
-     "$0F",
-     "mid",
-     "light"
-    ],
-    "palettes_used": 3
-   },
-   "measured_now": {
-    "colours": 8,
-    "measured": "2026-10-22 08:36 snapshot"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_zander_title",
+      "name": "Zander, title sheet",
+      "path": "game/sprites_src/title/spr_title_zander.png",
+      "frame_w": 16,
+      "frame_h": 16,
+      "frames": 8,
+      "kind": "title",
+      "priority": "P2",
+      "priority_reason": "2 colours, 48% one gold, 3 floating single pixels, and rows 0 to 7 empty",
+      "brief": "Use the full 16 rows, 3 tones, and no isolated pixel.",
+      "design_note": "The bomber is LIGHT BLUE, not the olive in the bust it replaces (CHARACTER-BIBLE: light blue, not green). Messy blond hair, wired earbuds and the four frame turn to speak stay.",
+      "pixel_fixes": [
+        "move the figure up so it uses rows 1 to 15",
+        "delete the floating pixels at (3,8) and (13,8) and the detached black pixel at (12,12)",
+        "add a mid tone so the gold mass has a shade side: $0F outline, $28 mid, $10 light",
+        "frames 0 and 2, 1 and 3, 6 and 7 are duplicates; make 2 real poses"
+      ],
+      "palette_plan": {
+        "head_rows_0_7": [
+          "$0F",
+          "$28",
+          "$10"
+        ],
+        "body_rows_8_15": [
+          "$0F",
+          "$28",
+          "$10"
+        ]
+      },
+      "measured_now": {
+        "colours": 2,
+        "gold_share_pc": 48,
+        "bbox_rows": [
+          8,
+          15
+        ],
+        "floating_px": [
+          [
+            3,
+            8
+          ],
+          [
+            13,
+            8
+          ],
+          [
+            12,
+            12
+          ]
+        ],
+        "identical_pairs": 3
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_enemy_bilge_slime",
-   "name": "Enemy: bilge_slime",
-   "path": "game/sprites_src/enemies/bilge_slime.png",
-   "frame_w": 32,
-   "frame_h": 32,
-   "frames": 3,
-   "kind": "enemy",
-   "priority": "P3",
-   "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
-   "brief": "reads as a mass of one green; add a light plane and a dark interior line.",
-   "pixel_fixes": [
-    "keep every colour off the declared background entries of the scene it appears in",
-    "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
-   ],
-   "palette_plan": {
-    "body": "per scene palette"
-   },
-   "measured_now": {
-    "colours": "see SPRITE-CRITIQUE.md section 3"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_zander_god_battle",
+      "name": "zander god battle",
+      "path": "game/sprites_src/chars/zander_god_battle.png",
+      "frame_w": 24,
+      "frame_h": 32,
+      "frames": 7,
+      "kind": "god_battle",
+      "priority": "P2",
+      "priority_reason": "$3cbcfc 112 px at 1.95 : 1 on the deck and $0078f8 at 1.39 : 1 on the road",
+      "brief": "The god form is the normal outfit plus the weapon, with at most a faint effect (CHARACTER-BIBLE REVISION 2); no ancient armour.",
+      "pixel_fixes": [
+        "replace $3cbcfc as the main fill with $31; keep $3cbcfc on the shade side only",
+        "the thunderbolt is 7 px of $fca044; make it 2 to 3 px of $30 plus a $31 glow so it reads as a spark"
+      ],
+      "palette_plan": {
+        "body": [
+          "$0F",
+          "mid",
+          "light"
+        ],
+        "palettes_used": 3
+      },
+      "measured_now": {
+        "colours": 8,
+        "measured": "2026-10-22 08:36 snapshot"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_enemy_deck_rat",
-   "name": "Enemy: deck_rat",
-   "path": "game/sprites_src/enemies/deck_rat.png",
-   "frame_w": 32,
-   "frame_h": 32,
-   "frames": 3,
-   "kind": "enemy",
-   "priority": "P3",
-   "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
-   "brief": "the same: one tone plus outline, 1 px eye.",
-   "pixel_fixes": [
-    "keep every colour off the declared background entries of the scene it appears in",
-    "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
-   ],
-   "palette_plan": {
-    "body": "per scene palette"
-   },
-   "measured_now": {
-    "colours": "see SPRITE-CRITIQUE.md section 3"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_enemy_bilge_slime",
+      "name": "Enemy: bilge_slime",
+      "path": "game/sprites_src/enemies/bilge_slime.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 3,
+      "kind": "enemy",
+      "priority": "P3",
+      "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
+      "brief": "reads as a mass of one green; add a light plane and a dark interior line.",
+      "pixel_fixes": [
+        "keep every colour off the declared background entries of the scene it appears in",
+        "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
+      ],
+      "palette_plan": {
+        "body": "per scene palette"
+      },
+      "measured_now": {
+        "colours": "see SPRITE-CRITIQUE.md section 3"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  },
-  {
-   "id": "sprite_enemy_rope_knot",
-   "name": "Enemy: rope_knot",
-   "path": "game/sprites_src/enemies/rope_knot.png",
-   "frame_w": 32,
-   "frame_h": 32,
-   "frames": 3,
-   "kind": "enemy",
-   "priority": "P3",
-   "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
-   "brief": "the two thin lines are 1 px and the highlight is 1 px; give the knot a light plane.",
-   "pixel_fixes": [
-    "keep every colour off the declared background entries of the scene it appears in",
-    "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
-   ],
-   "palette_plan": {
-    "body": "per scene palette"
-   },
-   "measured_now": {
-    "colours": "see SPRITE-CRITIQUE.md section 3"
-   },
-   "check": {
-    "order": [
-     "python tools/nes_check.py {png} --type sprite",
-     "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
-     "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
-    ],
-    "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
-    "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
-    "contrast_2_palette_steps": {
-     "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
-     "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
-     "ground_luminance": {
-      "deck_$00": 0.202,
-      "night_road_$02": 0.036
-     },
-     "known_entries": {
-      "$0F": 0.0,
-      "$02": 0.036,
-      "$01": 0.07,
-      "$12": 0.138,
-      "$00": 0.202,
-      "$17": 0.242,
-      "$21": 0.44,
-      "$10": 0.503,
-      "$28": 0.542,
-      "$36": 0.668,
-      "$31": 0.704,
-      "$38": 0.704,
-      "$30": 0.973
-     }
+    {
+      "id": "sprite_enemy_deck_rat",
+      "name": "Enemy: deck_rat",
+      "path": "game/sprites_src/enemies/deck_rat.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 3,
+      "kind": "enemy",
+      "priority": "P3",
+      "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
+      "brief": "the same: one tone plus outline, 1 px eye.",
+      "pixel_fixes": [
+        "keep every colour off the declared background entries of the scene it appears in",
+        "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
+      ],
+      "palette_plan": {
+        "body": "per scene palette"
+      },
+      "measured_now": {
+        "colours": "see SPRITE-CRITIQUE.md section 3"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
     },
-    "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
-   },
-   "status": "queued"
-  }
- ]
+    {
+      "id": "sprite_enemy_rope_knot",
+      "name": "Enemy: rope_knot",
+      "path": "game/sprites_src/enemies/rope_knot.png",
+      "frame_w": 32,
+      "frame_h": 32,
+      "frames": 3,
+      "kind": "enemy",
+      "priority": "P3",
+      "priority_reason": "not one of the character sprites this card names, but it shares the sheets and the palette failures",
+      "brief": "the two thin lines are 1 px and the highlight is 1 px; give the knot a light plane.",
+      "pixel_fixes": [
+        "keep every colour off the declared background entries of the scene it appears in",
+        "apply the SPRITE-CRAFT 8.5 blob test at 32 x 32"
+      ],
+      "palette_plan": {
+        "body": "per scene palette"
+      },
+      "measured_now": {
+        "colours": "see SPRITE-CRITIQUE.md section 3"
+      },
+      "check": {
+        "order": [
+          "python tools/nes_check.py {png} --type sprite",
+          "python tools/nes_composite_check.py {frame} --sprite-mask {png} --overlay {overlay}",
+          "python tools/art/contrast_check.py {png}   (advisory: this tool does not exist yet; the numbers below are the spec it must implement)"
+        ],
+        "nes_check": "must print PASS; it already passes on the current art, so this is the floor",
+        "nes_composite_check": "must pass with the sheet composited on the real ground (bg_battle_deck_night.png for the ship, the road tiles for the night road), not on black",
+        "contrast_2_palette_steps": {
+          "rule": "every opaque colour clears SPRITE-CRAFT 12.1 against the ground: outline >= 3.0 : 1, largest fill >= 2.0 : 1, and no fill equals a declared background entry (1.00)",
+          "grid_rule": "on the 2C02 4x16 grid, |drow| + |dcol| >= 2 from the dominant ground entry",
+          "ground_luminance": {
+            "deck_$00": 0.202,
+            "night_road_$02": 0.036
+          },
+          "known_entries": {
+            "$0F": 0.0,
+            "$02": 0.036,
+            "$01": 0.07,
+            "$12": 0.138,
+            "$00": 0.202,
+            "$17": 0.242,
+            "$21": 0.44,
+            "$10": 0.503,
+            "$28": 0.542,
+            "$36": 0.668,
+            "$31": 0.704,
+            "$38": 0.704,
+            "$30": 0.973
+          }
+        },
+        "blob_test": "SPRITE-CRAFT 8.5: lightest single palette entry < 30% of drawn pixels; 0 drawn rows with no dark pixel; >= 3 dark runs in the body block; >= 8 interior dark pixels"
+      },
+      "status": "queued"
+    }
+  ],
+  "rounds": [
+    {
+      "round": 2,
+      "card": "t_515f6cf3 GEMINI-EYE-R2",
+      "written_by": "assistant",
+      "written_on": "2026-10-22",
+      "source_report": "output/EYE_SPRITES_2026-10-22.md",
+      "rule": "a round 2 entry is one image, not one sprite sheet, because two of the six images are frames (title, intro); a fix marked source=measured is a fact about the pixels, a fix marked source=model is the critic's opinion and needs checking before coding",
+      "ownership": "gamedev and Nayil own the spec and the priority order; these are the eye's ranked suggestions and any conflict with a sprite brief or the queue's own fixes is resolved in gamedev's favour",
+      "model_warning": "the critic is rough: it cannot count pixels, it blamed the art for the window scaling blend #303030 in four frames, it invented a tan star colour #8a7b62 in intro 1, and it read 16 x 16 frames as 16 x 24",
+      "count": 6,
+      "entries": [
+        {
+          "id": "eye_r2_sprites_v2_sheet",
+          "round": 2,
+          "card": "t_515f6cf3 GEMINI-EYE-R2",
+          "priority": "P0",
+          "image": "output/sprites_v2_sheet.png",
+          "about": "the redrawn overworld cast, contact sheet, four rows of five",
+          "source_entries": [
+            "sprite_sailor_ow_v2",
+            "sprite_percy_ow_v2",
+            "sprite_konrad_ow_v2",
+            "sprite_zander_ow_v2",
+            "sprite_hadrian_ow_v2"
+          ],
+          "review_file": "output/eye_reviews/sprites_v2_sheet_20261022T192219Z.md",
+          "reviewed_by": "gemini-3.5-flash",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 7,
+            "readability": 6,
+            "charm": 5,
+            "silhouette": 6,
+            "white_clothing": 4,
+            "weapons": 2,
+            "faces": 5,
+            "proportions": 6
+          },
+          "measured": {
+            "size": "640x648",
+            "colours": 11,
+            "off_palette": 0,
+            "black_share": 0.859,
+            "rows_found": 4,
+            "rows_expected": 5,
+            "missing_row": "HADRIAN (row 5 drawn past the bottom edge, see the canvas height note)",
+            "canvas_height_needed_px": 784,
+            "canvas_height_actual_px": 648
+          },
+          "model_off_notes": [
+            "Hadrian is completely missing from the sheet",
+            "Percy holds a featureless yellow cane instead of a trident",
+            "Konrad has no sickle drawn",
+            "Zander has no thunderbolt or storm cloud",
+            "Sailor cap lacks a top black outline"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                0,
+                648,
+                640,
+                136
+              ],
+              "change": "Regenerate the sheet with the canvas sized from the drawing pitch (about 784 px tall) so the HADRIAN row is drawn instead of falling off the bottom edge",
+              "owner": "tools/art/make_characters_v2.py contact_sheet",
+              "source": "measured"
+            },
+            {
+              "rank": 2,
+              "region": [
+                90,
+                240,
+                12,
+                12
+              ],
+              "change": "Draw three prongs on the top of Percy's existing shaft to read as the trident (queue sprite_percy_ow_v2 already asks for columns 12 to 14)",
+              "owner": "percy_ow_v2.png",
+              "source": "measured+model"
+            },
+            {
+              "rank": 3,
+              "region": [
+                48,
+                68,
+                48,
+                4
+              ],
+              "change": "Close the outline across the top of the sailor's white cap so it does not bleed into a white sky or a white deck",
+              "owner": "sailor_ow_v2.png",
+              "source": "model"
+            },
+            {
+              "rank": 4,
+              "region": [
+                48,
+                88,
+                48,
+                28
+              ],
+              "change": "Put one dark fold or collar line through the white tunic; the shirt sits at the 23 percent blob ceiling exactly, not under it",
+              "owner": "sailor_ow_v2.png",
+              "source": "measured+model"
+            },
+            {
+              "rank": 5,
+              "region": null,
+              "change": "Q for gamedev: decide whether the overworld sheets must carry the sickle (Konrad) and the thunderbolt (Zander) at all; the critic marks both missing, CHARACTER-BIBLE puts them in the god forms, and the queue does not ask for them",
+              "owner": "spec question, do not code around it",
+              "source": "model"
+            }
+          ]
+        },
+        {
+          "id": "eye_r2_title_run_1",
+          "round": 2,
+          "card": "t_515f6cf3 GEMINI-EYE-R2",
+          "priority": "P1",
+          "image": "output/_eye_r2_title_run_1_native.png",
+          "about": "the new title sign, native 256x240 frame cropped from output/title_run_1.png",
+          "source_entries": [
+            "sprite_konrad_title",
+            "sprite_zander_title"
+          ],
+          "review_file": "output/eye_reviews/_eye_r2_title_run_1_native_20261022T193819Z.md",
+          "reviewed_by": "gemini-3.8-flash",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 4,
+            "readability": 5,
+            "charm": 5,
+            "silhouette": 5,
+            "white_clothing": 4,
+            "weapons": 3,
+            "faces": 3,
+            "proportions": 4
+          },
+          "measured": {
+            "size": "256x240",
+            "colours": 18,
+            "off_palette_colours": {
+              "#0B0B0F": 942,
+              "#7B7B7B": 388,
+              "#F9F9F9": 271,
+              "#313130": 1,
+              "#353535": 1
+            },
+            "off_palette_px": 1603,
+            "off_palette_share": 0.026,
+            "nes_check": "FAIL, 28 problems, 5 palette and 23 background_area (areas advisory, sprite layers are exempt)"
+          },
+          "model_off_notes": [
+            "Non-NES grey values in lettering",
+            "Car present instead of 17th-century naval setting",
+            "Headlight beam obscures lower text",
+            "Party roster entirely missing from title screen"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                48,
+                8,
+                160,
+                60
+              ],
+              "change": "Replace #0B0B0F (942 px), #7B7B7B (388 px) and #F9F9F9 (271 px) with palette entries: $0F or $2D for the darks, $00 ($7C7C7C) for the mid grey, $30 ($FCFCFC) for the white",
+              "owner": "title sign art under game/sprites_src/title/",
+              "source": "measured"
+            },
+            {
+              "rank": 2,
+              "region": [
+                140,
+                208,
+                90,
+                32
+              ],
+              "change": "Cut the solid white headlight cone to dither so the copyright line under it is legible (unverified by measurement, verify on the frame first)",
+              "owner": "title scene layers",
+              "source": "model"
+            },
+            {
+              "rank": 3,
+              "region": [
+                88,
+                112,
+                16,
+                12
+              ],
+              "change": "Remove or redraw the white shape on the horizon that reads as an unreadable quadruped",
+              "owner": "title scene layers",
+              "source": "model"
+            },
+            {
+              "rank": 4,
+              "region": [
+                16,
+                24,
+                224,
+                80
+              ],
+              "change": "Regularise the sky stars onto an 8 x 8 rhythm instead of single pixel noise",
+              "owner": "title_L1_sky strip",
+              "source": "model"
+            },
+            {
+              "rank": 5,
+              "region": [
+                84,
+                184,
+                48,
+                32
+              ],
+              "change": "Redraw the car wheel hubs as solid $0F circles instead of dither clusters",
+              "owner": "spr_title_car, spr_title_wheel",
+              "source": "model"
+            }
+          ]
+        },
+        {
+          "id": "eye_r2_intro_1",
+          "round": 2,
+          "card": "t_515f6cf3 GEMINI-EYE-R2",
+          "priority": "P2",
+          "image": "output/_eye_r2_intro_1_native.png",
+          "about": "intro frame 1, the pan, native frame",
+          "source_entries": [],
+          "review_file": "output/eye_reviews/_eye_r2_intro_1_native_20261022T194441Z.md",
+          "reviewed_by": "gemini-3-flash-preview",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 4,
+            "readability": 3,
+            "charm": 2,
+            "silhouette": 1,
+            "white_clothing": 1,
+            "weapons": 1,
+            "faces": 1,
+            "proportions": 1
+          },
+          "measured": {
+            "size": "256x240",
+            "colours": 9,
+            "off_palette": 1,
+            "off_palette_note": "the single #303030 is 2 px of window scaling blend, recorded in output/INTRO-1-PROOF.md, not art"
+          },
+          "model_off_notes": [
+            "non-NES color #303030 used for anti-aliasing",
+            "entire character roster is missing from the frame",
+            "land masses read as horizontal smears or glitches",
+            "star placement ignores 8x8 tile grid logic",
+            "composition lacks a clear horizon line"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                95,
+                219,
+                76,
+                8
+              ],
+              "change": "Raise the landmass silhouette by 4 px and give it a jagged top edge so the last of the world reads as terrain and not as a black smear",
+              "owner": "intro pan art",
+              "source": "model"
+            },
+            {
+              "rank": 2,
+              "region": [
+                0,
+                120,
+                256,
+                16
+              ],
+              "change": "Check the black band the critic reads as a split screen; if it is a real seam, close it so the sky is continuous through the pan",
+              "owner": "intro pan art",
+              "source": "model"
+            },
+            {
+              "rank": 3,
+              "region": [
+                221,
+                56,
+                5,
+                5
+              ],
+              "change": "Align the cross star to a tile boundary instead of straddling four tiles",
+              "owner": "intro star layer",
+              "source": "model"
+            },
+            {
+              "rank": 4,
+              "region": [
+                0,
+                16,
+                256,
+                104
+              ],
+              "change": "Thin the star field to about 3 marks per 16 x 16 so the sky reads as sky",
+              "owner": "intro star layer",
+              "source": "model"
+            },
+            {
+              "rank": 5,
+              "region": null,
+              "change": "Do NOT remove #303030 here: it is 2 px of window scaling blend recorded in INTRO-1-PROOF.md, and it disappears on the native frame",
+              "owner": "none",
+              "source": "measured"
+            }
+          ]
+        },
+        {
+          "id": "eye_r2_intro_2",
+          "round": 2,
+          "card": "t_515f6cf3 GEMINI-EYE-R2",
+          "priority": "P2",
+          "image": "output/_eye_r2_intro_2_native.png",
+          "about": "intro frame 2, sky and stars, native frame",
+          "source_entries": [],
+          "review_file": "output/eye_reviews/_eye_r2_intro_2_native_20261022T194510Z.md",
+          "reviewed_by": "gemini-3-flash-preview",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 3,
+            "readability": 4,
+            "charm": 2,
+            "silhouette": 1,
+            "white_clothing": 1,
+            "weapons": 1,
+            "faces": 1,
+            "proportions": 1
+          },
+          "measured": {
+            "size": "256x240",
+            "colours": 6,
+            "off_palette": 1,
+            "colours_by_share": {
+              "#0000FC": 0.595,
+              "#0000BC": 0.264,
+              "#000000": 0.14
+            }
+          },
+          "model_off_notes": [
+            "vertical mirroring",
+            "illegal color #303030",
+            "missing character roster"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                0,
+                48,
+                256,
+                1
+              ],
+              "change": "Dither the transition between the two blues instead of a hard line; two flat blues trying to be a gradient is what scored 3 for authenticity",
+              "owner": "title_L1_sky fade strips",
+              "source": "model"
+            },
+            {
+              "rank": 2,
+              "region": [
+                0,
+                112,
+                256,
+                16
+              ],
+              "change": "Fill the black void between the blues and the stars with #0000BC",
+              "owner": "intro sky art",
+              "source": "model"
+            },
+            {
+              "rank": 3,
+              "region": [
+                0,
+                120,
+                256,
+                120
+              ],
+              "change": "Verify on the running game whether the lower half is a vertical mirror of the upper half; if it is, break it",
+              "owner": "intro renderer",
+              "source": "model, unverified"
+            },
+            {
+              "rank": 4,
+              "region": [
+                61,
+                107,
+                3,
+                3
+              ],
+              "change": "Simplify the plus star to a 2 x 2 square so it survives 3x scaling",
+              "owner": "intro star layer",
+              "source": "model"
+            },
+            {
+              "rank": 5,
+              "region": null,
+              "change": "Do NOT remove #303030: 2 px of capture blend, see INTRO-1-PROOF.md",
+              "owner": "none",
+              "source": "measured"
+            }
+          ]
+        },
+        {
+          "id": "eye_r2_intro_3",
+          "round": 2,
+          "card": "t_515f6cf3 GEMINI-EYE-R2",
+          "priority": "P2",
+          "image": "output/_eye_r2_intro_3_native.png",
+          "about": "intro frame 3, the star shot, native frame",
+          "source_entries": [],
+          "review_file": "output/eye_reviews/_eye_r2_intro_3_native_20261022T194608Z.md",
+          "reviewed_by": "gemini-3-flash-preview",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 2,
+            "readability": 5,
+            "charm": 2,
+            "silhouette": 1,
+            "white_clothing": 1,
+            "weapons": 1,
+            "faces": 1,
+            "proportions": 1
+          },
+          "measured": {
+            "size": "256x240",
+            "colours": 3,
+            "off_palette": 1,
+            "lit_pixels": 28,
+            "lit_band": "y 21 to 119, top half only"
+          },
+          "model_off_notes": [
+            "illegal background color #303030",
+            "bottom half of screen is empty",
+            "all spec characters are missing"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                0,
+                120,
+                256,
+                120
+              ],
+              "change": "Move about 10 of the 28 lit pixels into the empty lower half so the star shot fills the frame at its one big beat",
+              "owner": "intro star layer",
+              "source": "measured+model"
+            },
+            {
+              "rank": 2,
+              "region": [
+                135,
+                87,
+                3,
+                3
+              ],
+              "change": "Simplify the 9 px cross to a 5 px diamond so it does not read as a glitch",
+              "owner": "intro star layer",
+              "source": "model"
+            },
+            {
+              "rank": 3,
+              "region": [
+                211,
+                20,
+                1,
+                1
+              ],
+              "change": "Move the orphan star at 211,20 down to 211,60 so it joins the field",
+              "owner": "intro star layer",
+              "source": "model"
+            },
+            {
+              "rank": 4,
+              "region": [
+                192,
+                118,
+                2,
+                1
+              ],
+              "change": "Separate the adjacent pixel pair so it does not read as a two pixel dash",
+              "owner": "intro star layer",
+              "source": "model"
+            },
+            {
+              "rank": 5,
+              "region": null,
+              "change": "Accept the black: 61410 px of #000000 with 28 lit pixels is legal NES, and the critic's 2 for authenticity is about having nothing to look at, not about a rule",
+              "owner": "none",
+              "source": "measured"
+            }
+          ]
+        },
+        {
+          "id": "eye_r2_intro_4",
+          "round": 2,
+          "card": "t_515f6cf3 GEMINI-EYE-R2",
+          "priority": "P1",
+          "image": "output/_eye_r2_intro_4_native.png",
+          "about": "intro frame 4, the text crawl, native frame",
+          "source_entries": [],
+          "review_file": "output/eye_reviews/_eye_r2_intro_4_native_20261022T194630Z.md",
+          "reviewed_by": "gemini-3.5-flash-lite",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 9,
+            "readability": 10,
+            "charm": 7,
+            "silhouette": 5,
+            "white_clothing": 5,
+            "weapons": 5,
+            "faces": 5,
+            "proportions": 8
+          },
+          "measured": {
+            "size": "256x240",
+            "colours": 4,
+            "off_palette": 2,
+            "off_palette_colours": {
+              "#F9F9F9": 1773,
+              "#303030": 2
+            },
+            "nes_check": "FAIL, the crawl font is drawn in #F9F9F9"
+          },
+          "model_off_notes": [
+            "non-NES palette hex codes used for text and stars"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                0,
+                0,
+                256,
+                240
+              ],
+              "change": "Draw the crawl font in $30 (#FCFCFC) instead of #F9F9F9: 1773 px of text at a colour the 2C02 cannot output, and nes_check fails the frame on it",
+              "owner": "the 8 x 8 font asset the crawl draws from",
+              "source": "measured"
+            },
+            {
+              "rank": 2,
+              "region": [
+                40,
+                110,
+                4,
+                4
+              ],
+              "change": "Align the four pointed star to the tile grid instead of straddling it",
+              "owner": "intro star layer",
+              "source": "model"
+            },
+            {
+              "rank": 3,
+              "region": [
+                48,
+                192,
+                16,
+                8
+              ],
+              "change": "Trim fringe pixels on the D of DIED so the stem widths match the rest of the row",
+              "owner": "font asset",
+              "source": "model"
+            },
+            {
+              "rank": 4,
+              "region": [
+                152,
+                192,
+                16,
+                8
+              ],
+              "change": "Correct the kerning of FORGOTTEN by one pixel to match the other rows",
+              "owner": "crawl layout",
+              "source": "model"
+            },
+            {
+              "rank": 5,
+              "region": null,
+              "change": "Do NOT remove #303030: 2 px of capture blend, see INTRO-1-PROOF.md",
+              "owner": "none",
+              "source": "measured"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "card": "t_140e3e73 GEMINI-EYE-R3",
+      "written_by": "assistant",
+      "written_on": "2026-10-22",
+      "source_report": "output/EYE_R3_2026-10-22.md",
+      "rule": "a round 3 entry is one contact sheet of six tiles, not one sprite, because the free tier is capped per model per day and tiling is how many images are covered by few requests; a fix marked source=measured is a fact about the pixels, source=model is the critic's opinion and needs checking before coding",
+      "ownership": "gamedev and Nayil own the spec and the priority order; these are the eye's ranked suggestions, and any conflict with a sprite brief or the queue's own fixes is resolved in gamedev's favour",
+      "model_warning": "the critic is rough: it cannot count pixels, it misread the tile tags as art, it invented a horse in the title road tile, and it blamed the art for the 1182 and 1575 colour counts that belong to the window capture path",
+      "count": 4,
+      "entries": [
+        {
+          "id": "eye_r3_sheet_a",
+          "round": 3,
+          "card": "t_140e3e73 GEMINI-EYE-R3",
+          "priority": "P1",
+          "image": "output/_eye_r3_sheet_a.png",
+          "about": "title art after the palette pass, six tiles",
+          "source_entries": [
+            "sailor_ow_v2"
+          ],
+          "review_file": "<repo>\\output\\eye_reviews\\_eye_r3_sheet_a_20261022T232619Z.md",
+          "reviewed_by": "gemini-3-flash-preview",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 3,
+            "readability": 5,
+            "charm": 6,
+            "silhouette": 4,
+            "white_clothing": 2,
+            "weapons": 1,
+            "faces": 3,
+            "proportions": 5
+          },
+          "measured": {
+            "width": 1601,
+            "height": 2402,
+            "colours": 59,
+            "off_palette": 45,
+            "largest_colour_share": 0.375,
+            "width_on_grid": false,
+            "height_on_grid": false
+          },
+          "model_off_notes": [
+            "illegal alpha transparency on headlights",
+            "anti-aliasing on title text",
+            "orphan pixels in sky",
+            "sub-pixel text at bottom",
+            "color count exceeds hardware limit"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                170,
+                182,
+                80,
+                40
+              ],
+              "change": "Replace alpha gradient with 50 percent dithered tiles",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 2,
+              "region": [
+                130,
+                195,
+                16,
+                16
+              ],
+              "change": "Add black outline to dog sprite",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 3,
+              "region": [
+                720,
+                190,
+                8,
+                8
+              ],
+              "change": "Add grey shadow pixels to sailor shirt for structure",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 4,
+              "region": [
+                120,
+                140,
+                32,
+                16
+              ],
+              "change": "Swap car body to NES color 2A for luminance separation",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 5,
+              "region": [
+                0,
+                0,
+                256,
+                100
+              ],
+              "change": "Cluster stars into 2-pixel groups to remove orphan pixels",
+              "source": "model",
+              "owner": "gamedev decides"
+            }
+          ],
+          "measured_report": "output/EYE_R3_2026-10-22.md section 4"
+        },
+        {
+          "id": "eye_r3_sheet_b",
+          "round": 3,
+          "card": "t_140e3e73 GEMINI-EYE-R3",
+          "priority": "P0",
+          "image": "output/_eye_r3_sheet_b.png",
+          "about": "the cast as shipped at 12x, six tiles",
+          "source_entries": [
+            "sprite_sailor_ow_v2",
+            "sprite_percy_ow_v2",
+            "sprite_konrad_ow_v2",
+            "sprite_zander_ow_v2",
+            "sprite_hadrian_ow_v2"
+          ],
+          "review_file": "<repo>\\output\\eye_reviews\\_eye_r3_sheet_b_20261022T232717Z.md",
+          "reviewed_by": "gemini-3-flash-preview",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 5,
+            "readability": 4,
+            "charm": 5,
+            "silhouette": 4,
+            "white_clothing": 2,
+            "weapons": 1,
+            "faces": 3,
+            "proportions": 5
+          },
+          "measured": {
+            "width": 1601,
+            "height": 2402,
+            "colours": 11,
+            "off_palette": 0,
+            "largest_colour_share": 0.891,
+            "width_on_grid": false,
+            "height_on_grid": false
+          },
+          "model_off_notes": [
+            "Hadrian is missing a body",
+            "Percy and Sailor have white-blob torsos",
+            "Color counts per sprite exceed 3",
+            "Konrad's sickle is invisible",
+            "Zander's weapon is a chest decal"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                0,
+                0,
+                16,
+                16
+              ],
+              "change": "Fill the torso area with $10 gray so the character has a connected silhouette.",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 2,
+              "region": [
+                4,
+                11,
+                1,
+                1
+              ],
+              "change": "Change white pixel to $00 gray to define the arm against the chest.",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 3,
+              "region": [
+                1,
+                8,
+                6,
+                6
+              ],
+              "change": "Move yellow pixels from the chest to the hand to represent a held weapon.",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 4,
+              "region": [
+                12,
+                8,
+                3,
+                3
+              ],
+              "change": "Add $30 white pixels to the hand to create a visible sickle blade.",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 5,
+              "region": [
+                5,
+                4,
+                4,
+                3
+              ],
+              "change": "Swap face color from white to $27 tan to define the head.",
+              "source": "model",
+              "owner": "gamedev decides"
+            }
+          ],
+          "measured_report": "output/EYE_R3_2026-10-22.md section 4"
+        },
+        {
+          "id": "eye_r3_sheet_c",
+          "round": 3,
+          "card": "t_140e3e73 GEMINI-EYE-R3",
+          "priority": "P2",
+          "image": "output/_eye_r3_sheet_c.png",
+          "about": "the ship scene captures, six tiles",
+          "source_entries": [
+            "sprite_sailor_ow_v2"
+          ],
+          "review_file": "<repo>\\output\\eye_reviews\\_eye_r3_sheet_c_20261022T232734Z.md",
+          "reviewed_by": "gemini-3-flash-preview",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 2,
+            "readability": 4,
+            "charm": 3,
+            "silhouette": 2,
+            "white_clothing": 2,
+            "weapons": 1,
+            "faces": 1,
+            "proportions": 5
+          },
+          "measured": {
+            "width": 1601,
+            "height": 2402,
+            "colours": 1566,
+            "off_palette": 1552,
+            "largest_colour_share": 0.585,
+            "width_on_grid": false,
+            "height_on_grid": false
+          },
+          "model_off_notes": [
+            "anti-aliased text",
+            "missing sprite outlines",
+            "orphan pixel floor noise",
+            "missing spec weapons",
+            "illegal color count"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                120,
+                120,
+                16,
+                16
+              ],
+              "change": "Add 1px black outline $0F to character",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 2,
+              "region": [
+                40,
+                140,
+                200,
+                60
+              ],
+              "change": "Replace text with 8x8 tile-aligned font",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 3,
+              "region": [
+                0,
+                0,
+                256,
+                240
+              ],
+              "change": "Replace floor dots with structured plank tiles",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 4,
+              "region": [
+                135,
+                125,
+                3,
+                12
+              ],
+              "change": "Draw a 3-prong trident for Percy",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 5,
+              "region": [
+                150,
+                125,
+                8,
+                16
+              ],
+              "change": "Add grey $00 shadow to white sailor suit",
+              "source": "model",
+              "owner": "gamedev decides"
+            }
+          ],
+          "measured_report": "output/EYE_R3_2026-10-22.md section 4"
+        },
+        {
+          "id": "eye_r3_sheet_d",
+          "round": 3,
+          "card": "t_140e3e73 GEMINI-EYE-R3",
+          "priority": "P0",
+          "image": "output/_eye_r3_sheet_d.png",
+          "about": "palette synergy restaging, each sprite over its own ground, six tiles",
+          "source_entries": [
+            "sprite_sailor_ow_v2",
+            "sprite_percy_ow_v2",
+            "sprite_konrad_ow_v2",
+            "sprite_zander_ow_v2",
+            "sprite_hadrian_ow_v2"
+          ],
+          "review_file": "<repo>\\output\\eye_reviews\\_eye_r3_sheet_d_20261022T232752Z.md",
+          "reviewed_by": "gemini-3-flash-preview",
+          "reviewed_on": "2026-10-22",
+          "scores": {
+            "nes_authenticity": 8,
+            "readability": 4,
+            "charm": 6,
+            "silhouette": 5,
+            "white_clothing": 2,
+            "weapons": 2,
+            "faces": 5,
+            "proportions": 7
+          },
+          "measured": {
+            "width": 1601,
+            "height": 2402,
+            "colours": 19,
+            "off_palette": 0,
+            "largest_colour_share": 0.377,
+            "width_on_grid": false,
+            "height_on_grid": false
+          },
+          "model_off_notes": [
+            "white blob clothing",
+            "invisible trident prongs",
+            "perspective clash on road",
+            "detail without structure in background",
+            "insufficient luminance separation in tiles 1-3"
+          ],
+          "pixel_fixes": [
+            {
+              "rank": 1,
+              "region": [
+                200,
+                130,
+                16,
+                24
+              ],
+              "change": "Add a mid-tone belt to break up the white garment mass",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 2,
+              "region": [
+                215,
+                132,
+                3,
+                3
+              ],
+              "change": "Add horizontal pixels to the top of the staff to define trident prongs",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 3,
+              "region": [
+                0,
+                195,
+                256,
+                40
+              ],
+              "change": "Redraw road markings with diagonal perspective lines",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 4,
+              "region": [
+                210,
+                135,
+                5,
+                5
+              ],
+              "change": "Use palette entry $20 to draw a curved blade for the sickle",
+              "source": "model",
+              "owner": "gamedev decides"
+            },
+            {
+              "rank": 5,
+              "region": [
+                212,
+                128,
+                8,
+                8
+              ],
+              "change": "Add a single grey highlight pixel to the helmet silhouette",
+              "source": "model",
+              "owner": "gamedev decides"
+            }
+          ],
+          "measured_report": "output/EYE_R3_2026-10-22.md section 4"
+        }
+      ]
+    }
+  ],
+  "round_2_ref": "output/EYE_SPRITES_2026-10-22.md",
+  "round_3_ref": "output/EYE_R3_2026-10-22.md"
 }

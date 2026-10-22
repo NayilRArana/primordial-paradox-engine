@@ -1,7 +1,7 @@
 /// pp_title: the title screen, the night drive and the menu (spec 14, its night drive addendum and plan v2 section 2).
 ///
 /// The screen is one scene drawn from the title art: seven seamless night layers that scroll at the speeds
-/// TITLE-COORD.md fixes, the battered hatchback with its two passengers, Theo's storm cloud, the counting down
+/// TITLE-COORD.md fixes, the battered hatchback with its two passengers, Zander's storm cloud, the counting down
 /// road sign, the logo, and then the menu inside the FF1 style window. The state of the screen lives here, in one
 /// struct, and the app mode machine owns the frame (spec 01).
 ///
@@ -531,11 +531,12 @@ function pp_title_draw_car(_s, _d) {
     pp_art_draw("spr_title_car", _body, _x, _y - _bob, PP_UNTINTED, 1);
 
     // The cast is off the title as of TS2-ART-A (Nayil: the car shows only its exterior, no faces). The
-    // sprites spr_title_theo, spr_title_ronan and spr_title_bubble stay in game\sprites_src\title for the
-    // interior scenes later; the title simply does not draw them.
+    // sprites spr_title_konrad, spr_title_zander and spr_title_bubble stay in game\sprites_src\title for the
+    // interior scenes later; the title simply does not draw them. Konrad and Zander are the two car figures,
+    // named after the adopted cast (CHARACTER-BIBLE); the retired picks Ronan Harrow and Theo Skye are gone.
 }
 
-/// Theo's storm cloud, which follows the car. The lightning itself is the screen's clock (pp_title_step_lightning);
+/// Zander's storm cloud, which follows the car. The lightning itself is the screen's clock (pp_title_step_lightning);
 /// the cloud simply lights up while a flash is on.
 function pp_title_draw_cloud(_s, _d, _flash) {
     if (!pp_art_has("spr_title_cloud")) return;
@@ -543,7 +544,7 @@ function pp_title_draw_cloud(_s, _d, _flash) {
     if (_flash) {
         _index = 2;
     } else {
-        // Theo's cloud drifts one frame a bar, so it turns over with the storm's own slow clock.
+        // Zander's cloud drifts one frame a bar, so it turns over with the storm's own slow clock.
         _index = floor(_s.steps / PP_TITLE_BAR_STEPS) mod 2;
     }
     pp_art_draw("spr_title_cloud", _index, _d.car_x + 64, 80, PP_UNTINTED, 1);

@@ -534,13 +534,13 @@ TITLE_SPRITES = ["spr_title_car", "spr_pp_title_logo", "spr_title_sign", "spr_ti
                  "spr_title_cloud_fade3", "spr_title_cloud_fade4",
                  "spr_title_exhaust_fade1", "spr_title_exhaust_fade2",
                  "spr_title_exhaust_fade3", "spr_title_exhaust_fade4",
-                 "spr_title_theo", "spr_title_ronan", "spr_title_bubble", "spr_title_wheel"]
+                 "spr_title_konrad", "spr_title_zander", "spr_title_bubble", "spr_title_wheel"]
 
 # The sprites whose frames are 16x16 drawings rather than parts of a bigger object. A face cannot survive being
 # flattened to three colours across an 8x16 sprite, and it does not have to: the PPU's sprite rule is per OAM
 # sprite, 8x8 is one, and each tile may pick its own one of the four sprite palettes. The rest of the list is
 # enforced at 8x16 because those parts are drawn as pairs of tiles and the stricter grouping costs them nothing.
-CAST_SPRITES = ("spr_title_theo", "spr_title_ronan", "spr_title_bubble", "spr_title_wheel")
+CAST_SPRITES = ("spr_title_zander", "spr_title_konrad", "spr_title_bubble", "spr_title_wheel")
 
 
 def master_copy(image: Image.Image, colours, usable, index_of) -> Image.Image:

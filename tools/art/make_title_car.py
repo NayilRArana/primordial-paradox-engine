@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""TS-C: the title car, the cast busts and Theo's storm cloud.
+"""TS-C: the title car, the cast busts and Zander's storm cloud.
 
 Contract: TITLE-COORD.md in the project root and specs\\14-title-screen-drive.md
 plus its night drive addendum. Everything here is original, clean room: no
@@ -8,8 +8,8 @@ reference to, copy of, or trace of any existing game's art.
 What this writes (deterministic: no clock, no randomness, no window, no network):
   game\\sprites_src\\title\\spr_title_wheel.png    16x16 frame, 10x10 art, 4 frames (rotation)
   game\\sprites_src\\title\\spr_title_exhaust.png  16x16 frame, 12x10 art, 4 frames (puff)
-  game\\sprites_src\\title\\spr_title_ronan.png    16x16 frame, 12x12 art, 8 frames (watch glance at 5 to 7)
-  game\\sprites_src\\title\\spr_title_theo.png     16x16 frame, 12x12 art, 8 frames (4 idle bob, 4 turn to speak)
+  game\\sprites_src\\title\\spr_title_konrad.png   16x16 frame, 12x12 art, 8 frames (watch glance at 5 to 7)
+  game\\sprites_src\\title\\spr_title_zander.png   16x16 frame, 12x12 art, 8 frames (4 idle bob, 4 turn to speak)
   game\\sprites_src\\title\\spr_title_bubble.png   16x16 frame, 14x10 art, 3 frames (one dot, two dots, three dots)
   game\\sprites_src\\title\\spr_title_cloud.png    24x16 frame, 24x12 art, 3 frames (2 normal, 1 flash)
   plus one JSON beside each: {"name", "frame_w", "frame_h", "frames", "fps"}
@@ -48,8 +48,8 @@ The 3 body frames differ only by a 1 px vertical bob of the body.
 
 The bust tiles are 12x12. Only the head and the shoulders are drawn, in the
 lower 8 rows of the tile, so that when the tile is pasted at y 4 the face sits
-inside the window band, which is rows 8 to 15. Ronan is the driver, in the front
-window on the right of the frame. Theo is the passenger, in the rear window to
+inside the window band, which is rows 8 to 15. Konrad is the driver, in the front
+window on the right of the frame. Zander is the passenger, in the rear window to
 his left, one pixel column further back.
 
 PLACEMENT (the offsets the composer needs, relative to the car origin)
@@ -58,8 +58,8 @@ PLACEMENT (the offsets the composer needs, relative to the car origin)
   rear wheel   spr_title_wheel    (9, 22)
   front wheel  spr_title_wheel    (41, 22)
   exhaust      spr_title_exhaust  (0, 20)
-  Theo         spr_title_theo     (14, 4)
-  Ronan        spr_title_ronan    (31, 4)
+  Zander       spr_title_zander   (14, 4)
+  Konrad       spr_title_konrad   (31, 4)
 
 Palette: every pixel of every file is a master palette entry from
 data\\palette.json, and no single sprite uses more than 16 of them.
@@ -441,8 +441,8 @@ BUST_TOP = 4
 FRAMES = {
     "spr_title_wheel": (16, 16, 3, 3),
     "spr_title_exhaust": (16, 16, 2, 3),
-    "spr_title_ronan": (16, 16, 2, BUST_TOP),
-    "spr_title_theo": (16, 16, 2, BUST_TOP),
+    "spr_title_konrad": (16, 16, 2, BUST_TOP),
+    "spr_title_zander": (16, 16, 2, BUST_TOP),
     "spr_title_bubble": (16, 16, 1, 3),
     "spr_title_cloud": (24, 16, 0, 0),
 }
@@ -455,8 +455,11 @@ def fit_frame(image: Image.Image, name: str) -> Image.Image:
     out.alpha_composite(image, (x, y))
     return out
 
-# Ronan: flat cap, grey beard, tweed shoulders, a gloved hand on the wheel.
-RONAN_ROWS = [
+# The driver. This bust was drawn for the retired Ronan Harrow design, so the costume on it (flat cap, grey
+# beard, tweed shoulders, a gloved hand on the wheel) is stale against CHARACTER-BIBLE, which has Konrad at 47
+# with long blond hair streaked white and grey, a close beard, a charcoal blazer or dark knit, a lanyard and a
+# wristwatch, and no cap. The pose, the silhouette and the watch glance are right and are kept.
+KONRAD_ROWS = [
     "    NNNNNN    ",   # the flat cap
     "   NNNNNNNNN  ",   # the cap and its peak, pointing forward
     "   SSSSSSSs   ",   # the face
@@ -467,8 +470,11 @@ RONAN_ROWS = [
     " mnnmnnnnmnn  ",   # the tweed check
 ]
 
-# Theo: tall messy blond hair, a wired earbud, an olive bomber collar.
-THEO_ROWS = [
+# The passenger. Drawn for the retired Theo Skye design: tall messy blond hair, a wired earbud and an OLIVE
+# bomber collar. The hair and the earbud are Zander's; the collar is not, because CHARACTER-BIBLE says the
+# bomber is LIGHT BLUE and says so in the negative (not green). The collar is stale and stays stale until the
+# bust is redrawn.
+ZANDER_ROWS = [
     "  h hhhhhh h  ",   # the tall messy hair
     "   hhhhhhhh   ",   # the hair
     "   SSSSSSSs   ",   # the face
@@ -480,13 +486,15 @@ THEO_ROWS = [
 ]
 
 
-def build_ronan(frame: int) -> Image.Image:
-    """Ronan Harrow: late fifties, broad, grey beard, flat cap, tweed, driving gloves.
+def build_konrad(frame: int) -> Image.Image:
+    """Konrad Skye, the driver. The drawing is the retired Ronan Harrow bust: late fifties, grey beard, flat cap,
+    tweed, driving gloves. The costume is stale against CHARACTER-BIBLE (see KONRAD_ROWS); the pose is not.
 
     Frames 5 to 7 are the glance at the wristwatch: the eyes move across the face, the wrist comes
-    up with the watch on it, and the gloved hand stays on the wheel.
+    up with the watch on it, and the gloved hand stays on the wheel. Checking the wristwatch is Konrad's
+    own tell, so this animation belongs to him whichever costume he ends up wearing.
     """
-    rows = [list(row) for row in RONAN_ROWS]
+    rows = [list(row) for row in KONRAD_ROWS]
     wrist = None
     if frame >= 5:
         # The eyes move one pixel to the right, towards the watch.
@@ -508,13 +516,14 @@ def build_ronan(frame: int) -> Image.Image:
     return image
 
 
-def build_theo(frame: int) -> Image.Image:
-    """Theo Skye: nineteen, restless, messy blond hair, bomber jacket, wired earbuds.
+def build_zander(frame: int) -> Image.Image:
+    """Zander Skye, the passenger: nineteen, restless, messy blond hair, wired earbuds, a bomber jacket.
+    The jacket in this drawing is olive, which CHARACTER-BIBLE rejects in favour of light blue (see ZANDER_ROWS).
 
     Frames 0 to 3 are the idle, the head bobbing to the music. Frames 4 to 7 are the turn to say
     something: the head comes round towards the driver and the mouth opens.
     """
-    rows = [list(row) for row in THEO_ROWS]
+    rows = [list(row) for row in ZANDER_ROWS]
     if frame >= 4:
         turn = frame - 4
         # The head comes round towards the driver, on the right of the frame.
@@ -564,7 +573,7 @@ CLOUD_W, CLOUD_H = 24, 12
 
 
 def build_cloud(frame: int) -> Image.Image:
-    """Theo's storm cloud. The third frame is the soft distant flash."""
+    """Zander's storm cloud. The third frame is the soft distant flash."""
     image = new_image(CLOUD_W, CLOUD_H)
     draw = ImageDraw.Draw(image)
     lumps = [(1, 5, 7, 7), (6, 2, 8, 8), (13, 4, 8, 7), (17, 6, 7, 6)]
@@ -673,15 +682,15 @@ def build_preview(parts: dict, out_path: str) -> None:
     scene.alpha_composite(parts["spr_title_wheel"][0], (29, 34))
     scene.alpha_composite(parts["spr_title_wheel"][0], (61, 34))
     scene.alpha_composite(parts["spr_title_exhaust"][0], (20, 32))
-    scene.alpha_composite(parts["spr_title_theo"][0], (34, 16))
-    scene.alpha_composite(parts["spr_title_ronan"][0], (51, 16))
+    scene.alpha_composite(parts["spr_title_zander"][0], (34, 16))
+    scene.alpha_composite(parts["spr_title_konrad"][0], (51, 16))
 
     blocks = [("THE ASSEMBLED CAR ON THE ROAD", scene, scale)]
     for label, name in [("CAR BODY 64X32 3 FRAMES 1 PX BOB", "spr_title_car"),
                         ("WHEEL 16X16 FRAME, 10X10 ART, 4 FRAMES", "spr_title_wheel"),
                         ("EXHAUST 16X16 FRAME, 12X10 ART, 4 FRAMES", "spr_title_exhaust"),
-                        ("RONAN 16X16 FRAME, 12X12 ART, 8 FRAMES WATCH GLANCE AT 5 TO 7", "spr_title_ronan"),
-                        ("THEO 16X16 FRAME, 12X12 ART, 8 FRAMES 4 IDLE 4 TURN", "spr_title_theo"),
+                        ("KONRAD 16X16 FRAME, 12X12 ART, 8 FRAMES WATCH GLANCE AT 5 TO 7", "spr_title_konrad"),
+                        ("ZANDER 16X16 FRAME, 12X12 ART, 8 FRAMES 4 IDLE 4 TURN", "spr_title_zander"),
                         ("SPEECH BUBBLE 16X16 FRAME, 14X10 ART, 3 FRAMES", "spr_title_bubble"),
                         ("STORM CLOUD 24X16 FRAME, 24X12 ART, 2 FRAMES AND A FLASH", "spr_title_cloud")]:
         blocks.append((label, parts[name][0], scale))
@@ -745,8 +754,8 @@ def main() -> int:
         "spr_title_car": [build_car_body(bob) for bob in (0, 1, 0)],
         "spr_title_wheel": [build_wheel(index) for index in range(4)],
         "spr_title_exhaust": [build_exhaust(index) for index in range(4)],
-        "spr_title_ronan": [build_ronan(index) for index in range(8)],
-        "spr_title_theo": [build_theo(index) for index in range(8)],
+        "spr_title_konrad": [build_konrad(index) for index in range(8)],
+        "spr_title_zander": [build_zander(index) for index in range(8)],
         "spr_title_bubble": [build_bubble(index) for index in range(3)],
         "spr_title_cloud": [build_cloud(index) for index in range(3)],
     }
@@ -757,8 +766,8 @@ def main() -> int:
         "spr_title_car": 15.0,
         "spr_title_wheel": 12.0,
         "spr_title_exhaust": 12.0,
-        "spr_title_ronan": 8.0,
-        "spr_title_theo": 8.0,
+        "spr_title_konrad": 8.0,
+        "spr_title_zander": 8.0,
         "spr_title_bubble": 6.0,
         "spr_title_cloud": 0.0,
     }
@@ -784,10 +793,10 @@ def main() -> int:
 
     if args.dump:
         dump(parts["spr_title_car"][0], "car body frame 0")
-        dump(parts["spr_title_ronan"][0], "ronan frame 0")
-        dump(parts["spr_title_ronan"][6], "ronan frame 6, the glance")
-        dump(parts["spr_title_theo"][0], "theo frame 0")
-        dump(parts["spr_title_theo"][5], "theo frame 5, turning to speak")
+        dump(parts["spr_title_konrad"][0], "konrad frame 0")
+        dump(parts["spr_title_konrad"][6], "konrad frame 6, the glance")
+        dump(parts["spr_title_zander"][0], "zander frame 0")
+        dump(parts["spr_title_zander"][5], "zander frame 5, turning to speak")
     # The scene palette pass: every sprite tile is rewritten into one sprite palette of three entries
     # plus transparency, from data/palettes/scene_title.json. Different tiles of one object may use
     # different palettes, which is how a NES character gets more than three colours (a face sprite

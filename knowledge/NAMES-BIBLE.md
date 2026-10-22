@@ -58,6 +58,10 @@ Judgement on the two older picks from specs/14:
 - Theo Skye (Zeus in the old spec). Right domain (sky), wrong letter (Z is the Zeus rule) and "Theo" means god,
   not Zeus; it is also the most common short form of his generation. Keep it only as Zander's nickname if Nayil
   wants it, never as the card name.
+- Where the two retired names survived: the two 16 x 16 car busts were named `spr_title_ronan` and
+  `spr_title_theo`. Settled 2026-10-22 (card t_e4f8bcae): those are Konrad and Zander, renamed to
+  `spr_title_konrad` and `spr_title_zander`, so nothing in the repo carries either retired name as a
+  character any more. Nothing in this file changes; the sprites followed the names, not the other way round.
 
 ---
 

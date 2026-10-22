@@ -147,7 +147,7 @@ def test_car_colours_are_nes_and_the_window_band_is_tinted():
 def test_title_draws_no_cast_but_keeps_the_files():
     script = open(os.path.join(ROOT, "game", "scripts", "pp_title", "pp_title.gml"),
                   encoding="utf-8").read()
-    for name in ("spr_title_theo", "spr_title_ronan", "spr_title_bubble"):
+    for name in ("spr_title_zander", "spr_title_konrad", "spr_title_bubble"):
         assert 'pp_art_draw("%s"' % name not in script, name
         assert os.path.isfile(os.path.join(TITLE_DIR, name + ".png")), name
 

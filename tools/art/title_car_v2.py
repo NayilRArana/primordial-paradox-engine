@@ -5,7 +5,7 @@ This supersedes the body and the wheels of tools/art/make_title_car.py. What cha
   - the glass is one dark tint with a single diagonal moonlight glint, so the car reads as a closed
     shell on a night road instead of a lit room with people in it;
   - no faces, no busts, no steering wheel: the card says the car shows its exterior only, and the
-    cast sprites (spr_title_ronan, spr_title_theo, spr_title_bubble) are moved out of the title;
+    cast sprites (spr_title_konrad, spr_title_zander, spr_title_bubble) are moved out of the title;
   - the wheels are baked into the car sprite, so a wheel always sits in its arch band and cannot drift.
 
 Clean room: every shape is a row table or a distance function written in this file. Nothing is traced,

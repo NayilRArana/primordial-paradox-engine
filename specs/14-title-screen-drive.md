@@ -2,16 +2,17 @@
 
 Director: Claude manager, 2026-10-20, from Nayil's brief: Kronos is driving Zeus from London to Southampton; the car drives across the English countryside; that is the title screen, plus a nice logo. Everything original (clean-room rule). Replaces the night sky and sea plan in TS1-ART.
 
-## The two reincarnations (names picked by the director; Nayil can rename, keep them in data as variables)
-- **Kronos -> Ronan Harrow.** "Ronan" echoes Kronos; a harrow is a farm blade (the Titan's sickle, harvest, time). Late 50s, broad, grey beard, flat cap, tweed jacket, driving gloves. Calm, heavy presence. Tells: checks his wristwatch constantly; a small sickle shaped keyring swings from the ignition.
-- **Zeus -> Theo Skye.** "Theo" (god) and "Skye" (sky). About 19, restless, messy blond hair, oversized bomber jacket, wired earbuds. Tells: tiny static sparks off his hair when annoyed; a small grey storm cloud follows the car the whole way.
-- The irony the scene plays: the father who swallowed his children is now driving his son to the port (Southampton, where the ship of Map 2 leaves). Neither knows who they were. If knowledge\ already names these reincarnations, use those names and post a Q: listing the conflict.
+## The two reincarnations (names settled 2026-10-22, card t_e4f8bcae: they are the cast in knowledge\CHARACTER-BIBLE.md)
+- **Kronos -> Konrad Skye.** 47, AI research scientist. Long blond hair streaked with white and grey, a close beard, a charcoal blazer or dark knit over an open collar shirt, ID lanyard, wristwatch. Calm, heavy presence, and the driver. Tells: checks his wristwatch constantly; a small sickle shaped keyring swings from the ignition.
+- **Zeus -> Zander Skye.** 19, first year student. Messy blond hair, an oversized bomber jacket in LIGHT BLUE (CHARACTER-BIBLE says light blue, not green), wired earbuds. Tells: tiny static sparks off his hair when annoyed; a small grey storm cloud follows the car the whole way.
+- Ronan Harrow and Theo Skye were this spec's own first picks and are retired: NAMES-BIBLE section 2 judged both superseded, and the two busts that carry these roles were renamed `spr_title_konrad` and `spr_title_zander` on 2026-10-22. The roles, the bust geometry, the tells and the watch glance are unchanged; only the names and, in the busts, the costume still to be redrawn.
+- The irony the scene plays: the father who swallowed his children is now driving his son to the port (Southampton, where the ship of Map 2 leaves). Neither knows who they were.
 
 ## Scene layout (side view, car drives left to right, camera follows the car so the world scrolls right to left)
 Base resolution and the 16 colour palette come from spec 13; integer scale, point sampling.
 Parallax layers, back to front, with scroll speed relative to the road:
 1. Sky gradient (static), soft afternoon going to golden hour over the 60 second loop (3 palette steps, no smooth blend).
-2. Clouds, 0.05x, plus Theo's personal storm cloud: a small dark cloud that stays above the car (moves with the camera, not the world), with a 1 frame lightning flicker every 8 to 12 seconds.
+2. Clouds, 0.05x, plus Zander's personal storm cloud: a small dark cloud that stays above the car (moves with the camera, not the world), with a 1 frame lightning flicker every 8 to 12 seconds.
 3. Chalk downs and distant hills, 0.15x, with a white chalk horse figure on one hill (original drawing) and a far church spire.
 4. Mid fields, 0.35x: patchwork fields, hedgerow lines, oak trees, a windmill or a stone farmhouse, sheep that occasionally turn their heads.
 5. Near verge, 0.7x: dry stone wall, hedge, telegraph poles, a red phone box once per loop, a road sign that counts down SOUTHAMPTON 74, 52, 31, 9 across one loop.
@@ -19,9 +20,9 @@ Parallax layers, back to front, with scroll speed relative to the road:
 7. Foreground blur, 1.3x: occasional grass tufts and a fence post passing in front of the car.
 
 ## The car
-- An original small, slightly battered British hatchback (think boxy 1980s family car, not any real model or badge), racing green with one mismatched beige door, roof rack with a suitcase strapped on (Theo's luggage for the ship).
+- An original small, slightly battered British hatchback (think boxy 1980s family car, not any real model or badge), racing green with one mismatched beige door, roof rack with a suitcase strapped on (Zander's luggage for the ship).
 - Animation: 4 frame wheels; body bob of 1 px on a 6 frame cycle; exhaust puff every 20 frames; headlights off until golden hour, then on.
-- Through the windows, two bust sprites: Ronan driving (right side of the car, British), Theo in the passenger seat. Idle loops: Ronan glances at his watch (8 frames, every 6 seconds), Theo bobs his head to music (4 frames) and once per loop turns to say something, a tiny speech bubble with "..." appears and Ronan does not react.
+- Through the windows, two bust sprites: Konrad driving (right side of the car, British), Zander in the passenger seat. Idle loops: Konrad glances at his watch (8 frames, every 6 seconds), Zander bobs his head to music (4 frames) and once per loop turns to say something, a tiny speech bubble with "..." appears and Konrad does not react.
 
 ## Logo
 PRIMORDIAL PARADOX, big chunky pixel letters, two lines, sitting in the sky top centre. Style: weathered stone letters (Titan age) with a thin gold inlay, and a small lightning crack running through the second O of PARADOX; 1 px dark outline; 2 frame gold shimmer every 4 seconds. Under it, small text in our font: PRESS Z OR ENTER (blinking), and after the press the menu NEW GAME, CONTINUE, SETTINGS, QUIT.

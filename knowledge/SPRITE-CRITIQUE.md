@@ -268,15 +268,27 @@ replaced. The trident in `percy_battle` must be redrawn in `$0F` shaft with `$10
 clears 5.03 : 1 on the deck; the shaft being grey is the single most expensive mistake on that sheet
 because the trident is the character.
 
-### 3.8 Ronan and Theo (the two 16 x 16 title sheet characters)
+### 3.8 Konrad and Zander (the two 16 x 16 title sheet characters)
 
-- **Both are cut in half.** `spr_title_ronan` has its content in rows 8 to 15 only, and row 15 carries
-  12 px, so the figure is clipped by the bottom of the cell. `spr_title_theo` has the same: rows 0 to 7
+Naming settled 2026-10-22 (card t_e4f8bcae): the two car figures are **Konrad Skye** (driver, front
+window on the right) and **Zander Skye** (passenger, rear window). The files were `spr_title_ronan.png`
+and `spr_title_theo.png` and are now `spr_title_konrad.png` and `spr_title_zander.png`. Ronan Harrow and
+Theo Skye were the superseded Kronos and Zeus picks, judged not adopted in NAMES-BIBLE section 2, so they
+are retired names and never characters; the pixel art and the two roles stay.
+
+- **Both are cut in half.** `spr_title_konrad` has its content in rows 8 to 15 only, and row 15 carries
+  12 px, so the figure is clipped by the bottom of the cell. `spr_title_zander` has the same: rows 0 to 7
   are empty. A 16 x 16 cell used as 16 x 8 wastes half of the two hardware sprites it costs.
-- **Ronan does not animate.** The pixel differences between consecutive frames are `[0,0,0,0,2,3,4]`:
+- **Konrad does not animate.** The pixel differences between consecutive frames are `[0,0,0,0,2,3,4]`:
   5 of the 8 frames are byte identical and the movement is 4 px in total.
-- **Theo is almost entirely untested geometry**: 2 colours (`$0F` 37 px, `$f8b800` 34 px, 48 percent),
+- **Zander is almost entirely untested geometry**: 2 colours (`$0F` 37 px, `$f8b800` 34 px, 48 percent),
   floating single pixels at (3,8) and (13,8), and one detached black pixel at (12,12).
+- **The costumes are stale even after the rename**, because both busts were drawn for the retired designs:
+  Konrad wears a flat cap, a grey beard, tweed and driving gloves, and CHARACTER-BIBLE has him at 47 with
+  long blond hair streaked white and grey, a close beard and a charcoal blazer or dark knit; Zander wears an
+  olive bomber, and CHARACTER-BIBLE says LIGHT BLUE and says "not green" outright. The roles, the pose and
+  the wristwatch glance (Konrad's own tell) are right, so the fix is the costume only, and each queue entry
+  carries it in its `design_note`.
 - Both are static art that sits on top of a scrolling background, so the fix is not the walk cycle: it is
   the frame height (use the full 16 rows), the silhouette and one interior line each.
 

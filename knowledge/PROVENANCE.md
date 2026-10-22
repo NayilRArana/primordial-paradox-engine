@@ -949,3 +949,23 @@ game begins on the deck that data\slice.json and data\project.json already named
 rather than the other way round by changing one constant, PP_NEW_GAME_MAP, and leaving the lower deck's save, sailors
 and flag trigger in place as the room the hatch leads to.
 Copied expression: none
+
+## NAME-KONRAD-ZANDER, 2026-10-22: the two car figures take the cast names
+Studied: this repository's own sources, all of them read-only for naming: knowledge\NAMES-BIBLE.md section 2 (which judged
+Ronan Harrow and Theo Skye and marked both not adopted), knowledge\CHARACTER-BIBLE.md (the four Skyes, their ages and their
+costume, including the explicit light blue and not green for Zander's bomber), specs\14-title-screen-drive.md, the two bust
+generators tools\art\make_title_car.py and tools\art\compose_title_preview.py, data\sprite_redraw_queue.json, and the
+concept art round 5 notes and prompts in Shared\projects\arananet\compute-2026-10-20\kaggle-concept-art\out_r5. No
+decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: that a stale name survives in more places than the label, and each one keeps working while being wrong.
+The interesting one is the art pipeline: tools\art\scene_palette.py enforces the per tile three colour rule against a
+literal list of sprite names, so a rename that skips that list leaves the two busts silently unenforced while every test
+that only checks the folder still passes. Also that a bust's pose can carry a character role independent of its costume:
+frames 5 to 7 raise a wrist and check a watch, which is Konrad's tell in the bible, so the role was decidable from the
+pixels rather than from memory.
+Our implementation differs by: retiring both names rather than reinstating them, and folding the two sprites into Konrad
+(driver) and Zander (passenger) instead of drawing new art, because the geometry, the pose and the tells are the project's
+own and only the names and the costumes were wrong; then carrying the rename through every place that holds a literal
+sprite name, the .yyp Included Files, the mirror index, the redraw queue ids, the palette enforcement list and the spec, and
+writing the adopted costume into each queue entry as a design_note so the redraw cannot inherit the rejected farmer.
+Copied expression: none

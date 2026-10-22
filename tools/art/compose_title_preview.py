@@ -91,7 +91,7 @@ CURSOR_X, CURSOR_Y = MENU_X - 10, MENU_Y
 # The frame at which the preview shows the menu instead of the prompt.
 MENU_AT = 5.0
 
-# Theo's storm cloud follows the car and hangs in the sky just above the downs.
+# Zander's storm cloud follows the car and hangs in the sky just above the downs.
 CLOUD_DX, CLOUD_DY = 64, 80
 
 # ---------------------------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ def compose_frame(scene: Scene, t: float, camera_x: float,
         frame.alpha_composite(art.frame("spr_title_cone", 0), (scene.cone_x, 200))
 
     # The car and the cast. The timings come from spec 14: the wheels turn, the body bobs on a
-    # frame cycle, the exhaust puffs every 20 frames, Ronan glances at his watch and Theo bobs
+    # frame cycle, the exhaust puffs every 20 frames, Konrad glances at his watch and Zander bobs
     # his head to the music. Frame counts come from the strips themselves.
     car_x = scene.car_x
     body_index = (int(t * 12) // 2) % art.count("spr_title_car")
@@ -448,7 +448,7 @@ def compose_frame(scene: Scene, t: float, camera_x: float,
     if len(scene.windows) == 2:
         left, right = scene.windows
         bust_y = CAR_Y + max(0, (scene.band_top + scene.band_bottom) // 2 - GLYPH_H // 2 - 1)
-        for opening, name in ((left, "spr_title_theo"), (right, "spr_title_ronan")):
+        for opening, name in ((left, "spr_title_zander"), (right, "spr_title_konrad")):
             if name not in art.frames:
                 continue
             index = int(t * 8) % art.count(name)
@@ -456,13 +456,13 @@ def compose_frame(scene: Scene, t: float, camera_x: float,
             x = car_x + (opening[0] + opening[1]) // 2 - bust.width // 2
             frame.alpha_composite(bust, (x, bust_y))
 
-    # The speech bubble, when Theo turns to speak. Once per loop, over the second half.
+    # The speech bubble, when Zander turns to speak. Once per loop, over the second half.
     if "spr_title_bubble" in art.frames and 6.0 <= (t % 10.0) <= 7.0:
         bubble_x = car_x + (scene.windows[0][0] if scene.windows else 18) - 1
         frame.alpha_composite(art.frame("spr_title_bubble", int(t * 6) % 3),
                               (bubble_x, CAR_Y - 10))
 
-    # Theo's storm cloud, which follows the car. A soft flash every 8 to 12 seconds.
+    # Zander's storm cloud, which follows the car. A soft flash every 8 to 12 seconds.
     if "spr_title_cloud" in art.frames:
         cloud_index = 0 if int(t * 2) % 2 == 0 else 1
         if 9.0 <= (t % 10.0) <= 9.4:
@@ -505,8 +505,8 @@ SHEET_ITEMS = [
     ("SPR TITLE CAR 64X32 3 FRAMES", ["spr_title_car"], 3),
     ("SPR TITLE WHEEL 10X10 4 FRAMES", ["spr_title_wheel"], 3),
     ("SPR TITLE EXHAUST 12X10 4 FRAMES", ["spr_title_exhaust"], 3),
-    ("SPR TITLE RONAN 12X12 8 FRAMES", ["spr_title_ronan"], 3),
-    ("SPR TITLE THEO 12X12 8 FRAMES", ["spr_title_theo"], 3),
+    ("SPR TITLE KONRAD 12X12 8 FRAMES", ["spr_title_konrad"], 3),
+    ("SPR TITLE ZANDER 12X12 8 FRAMES", ["spr_title_zander"], 3),
     ("SPR TITLE BUBBLE 14X10 3 FRAMES", ["spr_title_bubble"], 3),
     ("SPR TITLE CLOUD 24X12 3 FRAMES", ["spr_title_cloud"], 3),
     ("SPR TITLE SIGN 89X16 4 FRAMES", ["spr_title_sign"], 3),
@@ -672,8 +672,8 @@ def main() -> int:
     used = set()
     for layer in scene.layers:
         used |= visible_colours(art.frame(layer["name"], 0))
-    for name in ("spr_title_car", "spr_title_wheel", "spr_title_exhaust", "spr_title_ronan",
-                 "spr_title_theo", "spr_title_bubble", "spr_title_cloud", "spr_title_cone",
+    for name in ("spr_title_car", "spr_title_wheel", "spr_title_exhaust", "spr_title_konrad",
+                 "spr_title_zander", "spr_title_bubble", "spr_title_cloud", "spr_title_cone",
                  "spr_title_sign", "spr_pp_title_logo", "spr_pp_menu_cursor"):
         if name in art.frames:
             used |= visible_colours(art.frame(name, 0))
