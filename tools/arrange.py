@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import struct
 import sys
 
@@ -451,16 +452,18 @@ class Voicing:
 class Arrangement:
     """The finished arrangement: one list of notes per track, plus controls."""
 
-    def __init__(self, score, bars):
+    def __init__(self, score, bars, meta=None):
         self.score = score
         self.bars = bars
         self.notes = {name: [] for name in TRACK_NAMES}
         self.controls = {name: [] for name in TRACK_NAMES}
-        self.meta = {
-            "bpm": score["meta"]["bpm"],
-            "beats_per_bar": 3,
-            "loop_start_bar": score["meta"]["loop_start_bar"],
-        }
+        if meta is None:
+            meta = {
+                "bpm": score["meta"]["bpm"],
+                "beats_per_bar": 3,
+                "loop_start_bar": score["meta"]["loop_start_bar"],
+            }
+        self.meta = meta
 
     # helpers -----------------------------------------------------------
     def add(self, track, start_tick, length, pitch, velocity):
@@ -873,11 +876,22 @@ def _varlen(value):
     return bytes(out)
 
 
+def _microseconds_per_quarter(bpm):
+    """The tempo meta unit: microseconds per quarter note, rounded to int."""
+    if bpm <= 0:
+        raise ValueError("bpm must be positive, got %r" % (bpm,))
+    return int(round(60_000_000.0 / float(bpm)))
+
+
 def _meta_track(name, bpm, beats_per_bar):
     body = bytearray()
     body += _varlen(0) + b"\xff\x03" + _varlen(len(name)) + name.encode("latin-1")
     body += _varlen(0) + b"\xff\x58\x04" + bytes((beats_per_bar, 2, 24, 8))
-    body += _varlen(0) + b"\xff\x51\x03" + struct.pack(">I", 500000 * 60 // bpm)[1:]
+    # The tempo meta is microseconds per quarter note: 60,000,000 / bpm. The
+    # earlier 500000 * 60 / bpm wrote half that value, so every render played
+    # at double speed (208 bpm for a score asking 104) and the 90 s cue came
+    # out 45 s long. Keep the exact unit here; the self check re-reads it.
+    body += _varlen(0) + b"\xff\x51\x03" + struct.pack(">I", _microseconds_per_quarter(bpm))[1:]
     body += _varlen(0) + b"\xff\x59\x02" + bytes((0, 0))     # A minor, no accidentals
     body += _varlen(0) + b"\xff\x2f\x00"
     return b"MTrk" + struct.pack(">I", len(body)) + bytes(body)
@@ -929,6 +943,712 @@ def write_midi(arrangement, path):
     return data
 
 
+# ========================================================= version 3: sections
+#
+# The version 3 score (assets/audio/title_theme_v3/score_v3.yaml) is written as
+# a `sections` block in playing order, each section carrying its own bar count,
+# chord list, melody and a texture line in prose. The structured fields (bars,
+# chords, melody) are read from the file; the texture prose is implemented as a
+# recipe keyed by section name here, the same way the version 2 recipes were
+# keyed by section name, because prose cannot be executed.
+#
+# The output is the same eight track names, so the version 2 schema keeps
+# working and one renderer covers both.
+
+V3_TEXTURE_READ_AS = {
+    "intro": "saw triad pad held for the bar, pulse 1 arpeggio, waltz bass, no drums, pp then mp",
+    "A": "lead duty 0.25 with vibrato, Alberti arpeggio, oom pah shell stabs on beats 2 and 3, "
+         "root and fifth bass, echo, soft hats from bar 5, guide tone on pulse b",
+    "A_prime": "as A, melody an octave up in bars 1 to 4, pulse b a diatonic third below, "
+               "kick on beat 1, no echo (the thirds line takes the slot)",
+    "B": "lead duty 0.5, saw shell pad held, walking bass, hats on every beat, guide tone on pulse b, "
+         "no kick (the score gives the kick to A prime, B prime and A return)",
+    "B_prime": "as B with the thirds line instead of the guide tone, kick on beat 1 and snare on beat 3",
+    "C_trio": "bars 1 to 4 sea (triangle on beat 1, long soft washes, arpeggio, oom pah); "
+              "bars 5 to 8 cold (saw drone on D, pulse 2 hum in eighths, kick on beat 1, no hats)",
+    "A_return": "as A with the full band: echo, kick, hats, and the fill on the last bar",
+}
+
+# Registers, in MIDI note numbers. The version 3 melody reaches A6 where the
+# score asks for an octave lift, so the lead register is wider than in v2.
+V3_VOICE_RANGES = {
+    "vrc6 pulse a": (55, 96),
+    "vrc6 pulse b": (45, 84),
+    "vrc6 saw": (43, 67),
+    "pulse 1": (55, 79),
+    "pulse 2": (43, 96),
+    "triangle": (36, 55),
+    "noise": (1, 15),
+    "dpcm": (36, 38),
+}
+
+# The version 3 score has no dynamics block, only adjectives in the texture
+# lines ("pp to mp", "brighter", "full band"). This table is that reading, in
+# 0 to 15 chip levels, as (the first two bars of the section, the rest).
+V3_DYNAMICS = {
+    "intro": (4, 8),
+    "A": (8, 8),
+    "A_prime": (10, 10),
+    "B": (11, 11),
+    "B_prime": (11, 11),
+    "C_trio": (8, 8),
+    "A_return": (13, 13),
+}
+V3_DEFAULT_LEVEL = 8
+
+# The Alberti figure the voices block names for pulse 1: root, fifth, third,
+# fifth, over the six eighths of a bar. The numbers are tone indices.
+ALBERTI = (0, 2, 1, 2, 0, 2)
+
+A_NATURAL_MINOR = frozenset((0, 2, 4, 5, 7, 8, 10))
+A_HARMONIC_MINOR = frozenset((0, 2, 4, 5, 7, 8, 11))
+C_MAJOR = frozenset((0, 2, 4, 5, 7, 9, 11))
+
+HAT_HARD = 6
+HAT_SOFT = 5
+WASH = 3
+FILL_PITCHES = (12, 10, 8)
+
+V3_DUTY_IN_TEXTURE = re.compile(r"pulse a duty ([0-9.]+)")
+V3_BASE_MELODY = (re.compile(r"same notes as (\w+)"), re.compile(r"and the (\w+) melody"))
+V3_OCTAVE_UP_RANGE = re.compile(r"one octave up in bars (\d+) to (\d+)")
+V3_OCTAVE_UP_TWO = re.compile(r"bars (\d+) and (\d+) raise the melody one octave")
+V3_LAST_BAR = re.compile(r"last bar is (\w+#?\d) held")
+
+
+def v3_section_names(score):
+    """The section names, in the order the score lists them."""
+    sections = score.get("sections")
+    if not isinstance(sections, dict) or not sections:
+        raise ValueError("a version 3 score needs a sections block")
+    return list(sections)
+
+
+def v3_section_duty(score, name):
+    """The duty of the melody lead in one section.
+
+    The voices block gives the voice its duty (0.25). A texture line that names
+    another value wins for that section: section B asks for "vrc6 pulse a duty
+    0.5", and B prime is written as "as B".
+    """
+    default = 0.25
+    declared = (score.get("voices") or {}).get("vrc6_pulse_a") or {}
+    if isinstance(declared.get("duty"), (int, float)):
+        default = float(declared["duty"])
+    texture = (score["sections"].get(name) or {}).get("texture") or ""
+    found = V3_DUTY_IN_TEXTURE.findall(texture)
+    if found:
+        return float(found[-1])
+    # B prime is described as "as B", so it inherits the duty of B.
+    if name == "B_prime":
+        return v3_section_duty(score, "B")
+    return default
+
+
+def v3_level(section, bar_offset):
+    """The chip level of a bar, from the section's dynamic reading."""
+    first, rest = V3_DYNAMICS.get(section, (V3_DEFAULT_LEVEL, V3_DEFAULT_LEVEL))
+    return first if bar_offset < 2 else rest
+
+
+def _transpose_bar(entries, semitones):
+    """A bar of the melody moved by semitones, rests left alone."""
+    out = []
+    for entry in entries:
+        note, length = entry[0], entry[1]
+        if note in ("r", "rest", None):
+            out.append([note, length])
+        else:
+            out.append([midi_to_name(note_to_midi(note) + semitones), length])
+    return out
+
+
+def resolve_melody_v3(score, name, resolved):
+    """The melody bars of one section, list or prose directive.
+
+    Three sections of the version 3 score are written as a directive instead of
+    a list: A prime repeats A with the first four bars an octave up, B prime
+    repeats B with bars 5 and 6 an octave up, and A return repeats A with the
+    last bar held on the dominant. Every phrase understood here is listed
+    below; a directive that matches none of them raises, so a new wording
+    cannot silently produce an empty melody.
+    """
+    spec = score["sections"].get(name) or {}
+    raw = spec.get("melody")
+    if isinstance(raw, list):
+        return [list(bar) for bar in raw]
+    if not isinstance(raw, str):
+        raise ValueError("section %r has no melody" % (name,))
+    text = raw
+
+    base_name = None
+    for pattern in V3_BASE_MELODY:
+        found = pattern.search(text)
+        if found:
+            base_name = found.group(1)
+            break
+    if base_name is None:
+        raise ValueError("cannot tell which melody section %r repeats: %r" % (name, text))
+    if base_name not in resolved:
+        raise ValueError("section %r repeats section %r, which is not readable"
+                         % (name, base_name))
+    bars = [list(bar) for bar in resolved[base_name]]
+
+    found = V3_OCTAVE_UP_RANGE.search(text)
+    if found:
+        first, last = int(found.group(1)), int(found.group(2))
+        for index in range(first - 1, min(last, len(bars))):
+            bars[index] = _transpose_bar(bars[index], 12)
+    found = V3_OCTAVE_UP_TWO.search(text)
+    if found:
+        for value in (found.group(1), found.group(2)):
+            index = int(value) - 1
+            if 0 <= index < len(bars):
+                bars[index] = _transpose_bar(bars[index], 12)
+    found = V3_LAST_BAR.search(text)
+    if found:
+        bars[-1] = [[found.group(1), SLOTS]]
+    return bars
+
+
+def build_bars_v3(score):
+    """The bars of the version 3 piece, in playing order."""
+    names = v3_section_names(score)
+    resolved = {}
+    for name in names:
+        melody = (score["sections"].get(name) or {}).get("melody")
+        if isinstance(melody, list):
+            resolved[name] = [list(bar) for bar in melody]
+
+    bars = []
+    for name in names:
+        spec = score["sections"].get(name) or {}
+        count = int(spec.get("bars") or 0)
+        if count <= 0:
+            raise ValueError("section %r declares no bars" % (name,))
+        chords = spec.get("chords") or []
+        if len(chords) != count:
+            raise ValueError("section %s declares %d bars but lists %d chords"
+                             % (name, count, len(chords)))
+        melody = resolve_melody_v3(score, name, resolved)
+        resolved[name] = melody
+        if len(melody) != count:
+            raise ValueError("section %s declares %d bars but its melody has %d"
+                             % (name, count, len(melody)))
+        for offset, symbol in enumerate(chords):
+            bar = Bar(len(bars), name)
+            left, right = split_chord_symbol(symbol)
+            bar.chords = [parse_chord(left), parse_chord(left), parse_chord(right)]
+            slot = 0
+            for entry in melody[offset]:
+                note, length = entry[0], int(entry[1])
+                pitch = None if note in ("r", "rest", None) else note_to_midi(note)
+                bar.melody.append((slot, length, pitch))
+                slot += length
+            if slot != SLOTS:
+                raise ValueError("bar %d of section %s holds %d eighths, not %d"
+                                 % (bar.number, name, slot, SLOTS))
+            bars.append(bar)
+    return bars
+
+
+def v3_section_first_bars(bars):
+    """The first bar index of every section."""
+    first = {}
+    for bar in bars:
+        first.setdefault(bar.section, bar.index)
+    return first
+
+
+def v3_loop_start_bar(score, bars):
+    """The bar the loop returns to: the first bar of meta.loop_start_section."""
+    meta = score.get("meta") or {}
+    name = meta.get("loop_start_section")
+    if not name:
+        return 1
+    first = v3_section_first_bars(bars)
+    if name not in first:
+        raise ValueError("loop section %r is not in the score" % (name,))
+    return first[name] + 1
+
+
+def chord_symbol_of_bar(bar):
+    """The chord symbol of a bar, as written: X, or X|Y for a split bar."""
+    left = bar.chords[0].symbol if bar.chords[0] is not None else ""
+    right = bar.chords[2].symbol if bar.chords[2] is not None else ""
+    return left if left == right else "%s|%s" % (left, right)
+
+
+def diatonic_third_below(pitch, scale_pcs, lo, hi):
+    """The scale note two degrees below a pitch, kept inside [lo, hi]."""
+    steps = [p for p in range(lo - 24, hi + 25) if (p % 12) in scale_pcs]
+    index = None
+    for position, candidate in enumerate(steps):
+        if candidate <= pitch:
+            index = position
+        else:
+            break
+    if index is None or index < 2:
+        return max(lo, min(hi, pitch - 3))
+    third = steps[index - 2]
+    while third < lo:
+        third += 12
+    while third > hi:
+        third -= 12
+    return third
+
+
+def v3_thirds_scale(chord, section):
+    """The scale a third below the melody is drawn from.
+
+    A dominant or major chord raises the seventh of A minor (the score says
+    "E7 bars use G#"), so those bars and the sections built on A minor use the
+    harmonic minor; everything else in a B section is C major.
+    """
+    if chord is not None and len(chord.tones) > 1 and chord.tones[1] == 4:
+        return A_HARMONIC_MINOR
+    if section.startswith("B"):
+        return C_MAJOR
+    return A_NATURAL_MINOR
+
+
+# ---------------------------------------------------------------- the recipes
+
+
+def _v3_melody(out, bars):
+    """The lead: every melody note of the score, with duty and vibrato."""
+    vibrato = (out.score.get("voices") or {}).get("vrc6_pulse_a") or {}
+    vibrato = vibrato.get("vibrato") or {}
+    melody_notes = []
+    seen_sections = set()
+    for bar in bars:
+        start = out.bar_start(bar)
+        if bar.section not in seen_sections:
+            seen_sections.add(bar.section)
+            out.add_control("vrc6 pulse a", start, 12,
+                            vrc6_duty_value(v3_section_duty(out.score, bar.section)))
+        for slot, length, pitch in bar.melody:
+            if pitch is None:
+                continue
+            tick = start + slot * EIGHTH
+            out.add("vrc6 pulse a", tick, length * EIGHTH, pitch, 100)
+            melody_notes.append((tick, length * EIGHTH, pitch, 100))
+
+    if vibrato:
+        depth_cents = float(vibrato.get("depth_cents", 15))
+        after = float(vibrato.get("after_eighths", 1))
+        min_eighths = int(vibrato.get("min_note_eighths", 3))
+        depth_value = max(0, min(127, round(depth_cents / 100.0 / 2.0 * 127)))
+        delay_value = max(0, min(127, round(after)))
+        for tick, length, _pitch, _velocity in melody_notes:
+            if length >= min_eighths * EIGHTH:
+                out.add_control("vrc6 pulse a", tick, 1, depth_value)
+                out.add_control("vrc6 pulse a", tick, 20, delay_value)
+            else:
+                out.add_control("vrc6 pulse a", tick, 1, 0)
+                out.add_control("vrc6 pulse a", tick, 20, 0)
+    return melody_notes
+
+
+def _v3_echo(out, bars, melody_notes, sections=("A", "B", "A_return")):
+    """Pulse 2 repeats the melody one eighth late, at the echo level."""
+    end_of_piece = len(bars) * TICKS_PER_BAR
+    active = set()
+    for bar in bars:
+        if bar.section in sections:
+            active.add(bar.index)
+    for tick, length, pitch, velocity in melody_notes:
+        if (tick // TICKS_PER_BAR) not in active:
+            continue
+        start = tick + EIGHTH
+        if start >= end_of_piece:
+            continue
+        out.add("pulse 2", start, min(length, end_of_piece - start), pitch,
+                max(1, round(velocity * 0.4)))
+
+
+def _v3_hum(out, bars):
+    """The cold half of the trio: pulse 2 repeats one pitch in eighths."""
+    first = v3_section_first_bars(bars).get("C_trio")
+    if first is None:
+        return
+    for bar in bars:
+        if bar.section != "C_trio" or bar.index - first < 4:
+            continue
+        start = out.bar_start(bar)
+        out.add_control("pulse 2", start, 12, 0)
+        for slot in range(SLOTS):
+            out.add("pulse 2", start + slot * EIGHTH, EIGHTH, 62, 55)
+
+
+def _v3_arpeggio(out, bars):
+    """Pulse 1: the Alberti arpeggio, root, fifth, third, fifth in eighths."""
+    lo, hi = V3_VOICE_RANGES["pulse 1"]
+    previous = (lo + hi) // 2
+    for bar in bars:
+        start = out.bar_start(bar)
+        for slot in range(SLOTS):
+            chord = bar.chord_at_slot(slot)
+            if chord is None:
+                continue
+            tones = chord.tones
+            index = ALBERTI[slot] if ALBERTI[slot] < len(tones) else len(tones) - 1
+            pc = (chord.root_pc + tones[index]) % 12
+            options = [p for p in range(lo, hi + 1) if p % 12 == pc]
+            if not options:
+                continue
+            pitch = min(options, key=lambda p: (abs(p - previous), p))
+            previous = pitch
+            out.add("pulse 1", start + slot * EIGHTH, EIGHTH, pitch, 82)
+
+
+def _v3_saw(out, bars):
+    """The VRC6 saw: intro pad, oom pah stabs, the B pad, the trio drone."""
+    voicing = Voicing(*V3_VOICE_RANGES["vrc6 saw"])
+    shell_voicing = Voicing(*V3_VOICE_RANGES["vrc6 saw"])
+    first_trio = v3_section_first_bars(bars).get("C_trio")
+    for bar in bars:
+        start = out.bar_start(bar)
+        chord = bar.first_chord
+        if chord is None:
+            continue
+        if bar.section == "intro":
+            classes = tuple(sorted({(chord.root_pc + t) % 12 for t in chord.tones[:3]}))
+            for pitch in voicing.place(classes, 0):
+                out.add("vrc6 saw", start, BAR, pitch, 62)
+            continue
+        if bar.section == "C_trio" and first_trio is not None and bar.index - first_trio >= 4:
+            # The cold half: one low drone on D.
+            out.add("vrc6 saw", start, BAR, _bass_pitch(2, *_V3_SAW_DRONE_RANGE, None), 58)
+            continue
+        if bar.section in ("B", "B_prime"):
+            # A sustained shell pad for the whole bar. A full triad here would
+            # put nine notes on the downbeat, so the pad keeps the third and
+            # the seventh and the arrangement stays inside eight.
+            offsets = shell_offsets(chord)
+            if not offsets:
+                continue
+            classes = tuple(sorted({(chord.root_pc + t) % 12 for t in offsets}))
+            for pitch in voicing.place(classes, 0):
+                out.add("vrc6 saw", start, BAR, pitch, 62)
+            continue
+        # Every other section: the oom pah, beat 1 rest, beats 2 and 3 a shell.
+        for beat in (1, 2):
+            beat_chord = bar.chords[beat]
+            if beat_chord is None:
+                continue
+            offsets = shell_offsets(beat_chord)
+            if not offsets:
+                continue
+            classes = tuple(sorted({(beat_chord.root_pc + t) % 12 for t in offsets}))
+            for pitch in shell_voicing.place(classes, 0 if beat < 2 else 1):
+                out.add("vrc6 saw", start + beat * 2 * EIGHTH, 2 * EIGHTH, pitch, 72)
+
+
+_V3_SAW_DRONE_RANGE = (43, 55)
+
+
+def _v3_triangle(out, bars):
+    """The waltz bass: root on beat 1, the fifth or an approach on beat 3."""
+    lo, hi = V3_VOICE_RANGES["triangle"]
+    previous_root = None
+    total = len(bars)
+    for position, bar in enumerate(bars):
+        start = out.bar_start(bar)
+        chord = bar.first_chord
+        if chord is None:
+            continue
+        next_chord = bars[(position + 1) % total].first_chord
+        if bar.section in ("B", "B_prime"):
+            # Walking quarters: root, third, then the fifth or an approach.
+            root = _bass_pitch(chord.bass_pc, lo, hi, previous_root)
+            previous_root = root
+            out.add("triangle", start, 2 * EIGHTH, root, 104)
+            third = chord.tones[1] if len(chord.tones) > 1 else 4
+            out.add("triangle", start + 2 * EIGHTH, 2 * EIGHTH,
+                    _bass_pitch((chord.root_pc + third) % 12, lo, hi, root), 100)
+            if next_chord is None:
+                continue
+            next_root = _bass_pitch(next_chord.bass_pc, lo, hi, root)
+            if next_root % 12 == root % 12:
+                fifth = chord.tones[2] if len(chord.tones) > 2 else 7
+                out.add("triangle", start + 4 * EIGHTH, 2 * EIGHTH,
+                        _bass_pitch((chord.root_pc + fifth) % 12, lo, hi, root), 96)
+            else:
+                out.add("triangle", start + 4 * EIGHTH, 2 * EIGHTH,
+                        _approach_pitch(next_root, lo, hi, root), 96)
+            continue
+        root = _bass_pitch(chord.bass_pc, lo, hi, previous_root)
+        previous_root = root
+        out.add("triangle", start, 2 * EIGHTH, root, 104)
+        if next_chord is None:
+            continue
+        next_root = _bass_pitch(next_chord.bass_pc, lo, hi, root)
+        if next_root % 12 == root % 12:
+            fifth = chord.tones[2] if len(chord.tones) > 2 else 7
+            out.add("triangle", start + 4 * EIGHTH, 2 * EIGHTH,
+                    _bass_pitch((chord.root_pc + fifth) % 12, lo, hi, root), 96)
+        else:
+            out.add("triangle", start + 4 * EIGHTH, 2 * EIGHTH,
+                    _approach_pitch(next_root, lo, hi, root), 96)
+
+
+def _v3_noise(out, bars):
+    """Hats, the sea washes of the trio, and a fill on the last bar of a section."""
+    first = v3_section_first_bars(bars)
+    last_bar_numbers = {}
+    for bar in bars:
+        last_bar_numbers[bar.section] = bar.number
+    for bar in bars:
+        if bar.section == "intro":
+            continue
+        start = out.bar_start(bar)
+        if bar.section == "C_trio":
+            offset = bar.index - first["C_trio"]
+            if offset >= 4:
+                # The cold half: no hats, as the texture asks.
+                continue
+            # The sea: one long soft wash on each beat.
+            for beat in (0, 1, 2):
+                out.add("noise", start + beat * 2 * EIGHTH, 2 * EIGHTH, WASH, 40)
+            continue
+        is_fill = bar.number == last_bar_numbers.get(bar.section)
+        if is_fill:
+            out.add("noise", start + 2 * EIGHTH, EIGHTH, HAT_SOFT, 50)
+            for index, pitch in enumerate(FILL_PITCHES):
+                out.add("noise", start + (3 + index) * EIGHTH, EIGHTH, pitch, 92)
+            continue
+        beats = (0, 1, 2) if bar.section in ("B", "B_prime") else (1, 2)
+        for beat in beats:
+            out.add("noise", start + beat * 2 * EIGHTH, EIGHTH, HAT_SOFT, 52)
+
+
+def _v3_dpcm(out, bars):
+    """Kick in A prime, B prime and A return, the snare of B prime, the trio kick."""
+    first_trio = v3_section_first_bars(bars).get("C_trio")
+    for bar in bars:
+        start = out.bar_start(bar)
+        if bar.section in ("A_prime", "B_prime", "A_return"):
+            out.add("dpcm", start, EIGHTH, 36, 112)
+        if bar.section == "B_prime":
+            out.add("dpcm", start + 4 * EIGHTH, EIGHTH, 38, 96)
+        if bar.section == "C_trio" and first_trio is not None and bar.index - first_trio >= 4:
+            out.add("dpcm", start, EIGHTH, 36, 100)
+
+
+def _v3_thirds(out, bars):
+    """Pulse b: a diatonic third below the melody in A prime and B prime."""
+    lo, hi = V3_VOICE_RANGES["vrc6 pulse b"]
+    for bar in bars:
+        if bar.section not in ("A_prime", "B_prime"):
+            continue
+        start = out.bar_start(bar)
+        for slot, length, pitch in bar.melody:
+            if pitch is None:
+                continue
+            chord = bar.chord_at_slot(slot)
+            scale = v3_thirds_scale(chord, bar.section)
+            third = diatonic_third_below(pitch, scale, lo, hi)
+            while third >= pitch:
+                third -= 12
+            out.add("vrc6 pulse b", start + slot * EIGHTH, length * EIGHTH, third, 84)
+
+
+def _v3_guide(out, bars, sections=("A", "B")):
+    """Pulse b: the guide tone counter melody, one note per beat, below the melody."""
+    lo, hi = V3_VOICE_RANGES["vrc6 pulse b"]
+    previous = None
+    previous_melody = None
+    for bar in bars:
+        if bar.section not in sections:
+            continue
+        start = out.bar_start(bar)
+        for beat in (0, 1, 2):
+            slot = beat * 2
+            chord = bar.chords[beat]
+            if chord is None:
+                continue
+            melody_pitch = _melody_pitch_at(bar, slot)
+            if melody_pitch is None:
+                continue
+            offsets = [chord.tones[1]] if len(chord.tones) > 1 else [chord.tones[0]]
+            if len(chord.tones) > 3:
+                offsets.append(chord.tones[3])
+            candidates = []
+            for offset in offsets:
+                pc = (chord.root_pc + offset) % 12
+                for pitch in range(lo, hi + 1):
+                    if pitch % 12 == pc and pitch < melody_pitch:
+                        candidates.append(pitch)
+            if not candidates:
+                continue
+            candidates = sorted(set(candidates))
+            direction = 0
+            if previous_melody is not None:
+                direction = (melody_pitch > previous_melody) - (melody_pitch < previous_melody)
+            best = None
+            for pitch in candidates:
+                if previous is None:
+                    score = (abs(pitch - (melody_pitch - 12)), pitch)
+                else:
+                    step = abs(pitch - previous)
+                    stepwise = 0 if 1 <= step <= 2 else 1
+                    contrary = 0
+                    if direction:
+                        contrary = 0 if (pitch - previous) * direction < 0 else 1
+                    score = (stepwise, contrary, step, abs(pitch - previous),
+                             abs(pitch - (melody_pitch - 12)), pitch)
+                if best is None or score < best[0]:
+                    best = (score, pitch)
+            chosen = best[1]
+            out.add("vrc6 pulse b", start + slot * EIGHTH, 2 * EIGHTH, chosen, 80)
+            previous = chosen
+            previous_melody = melody_pitch
+
+
+def build_arrangement_v3(score):
+    """Turn a version 3 score into the same eight voice lines."""
+    bars = build_bars_v3(score)
+    meta = {
+        "bpm": float(score["meta"]["bpm"]),
+        "beats_per_bar": 3,
+        "loop_start_bar": v3_loop_start_bar(score, bars),
+    }
+    out = Arrangement(score, bars, meta)
+    first = v3_section_first_bars(bars)
+
+    for bar in bars:
+        start = out.bar_start(bar)
+        level = v3_level(bar.section, bar.index - first[bar.section])
+        for track in ("vrc6 pulse a", "vrc6 pulse b", "vrc6 saw", "pulse 1",
+                      "triangle", "noise", "dpcm"):
+            out.add_control(track, start, 11, level)
+        # The echo and the hum sit at 40 percent of the section level.
+        out.add_control("pulse 2", start, 11, max(0, round(level * 0.4)))
+        out.add_control("pulse 1", start, 12, 0)      # 2A03 duty 12.5 percent
+        out.add_control("pulse 2", start, 12, 0)
+
+    melody_notes = _v3_melody(out, bars)
+    _v3_echo(out, bars, melody_notes)
+    _v3_hum(out, bars)
+    _v3_arpeggio(out, bars)
+    _v3_saw(out, bars)
+    _v3_triangle(out, bars)
+    _v3_noise(out, bars)
+    _v3_dpcm(out, bars)
+    _v3_thirds(out, bars)
+    _v3_guide(out, bars)
+    return out
+
+
+def max_simultaneous_by_section(arrangement):
+    """The largest number of notes sounding at once, per section."""
+    bars = arrangement.bars
+    per_section = {}
+    events = []
+    for name in TRACK_NAMES:
+        for start, end, _pitch in note_spans(arrangement.notes[name]):
+            events.append((start, 1))
+            events.append((end, -1))
+    events.sort(key=lambda item: (item[0], item[1]))
+    count = 0
+    for tick, delta in events:
+        count += delta
+        index = min(len(bars) - 1, max(0, tick // TICKS_PER_BAR))
+        section = bars[index].section
+        if count > per_section.get(section, 0):
+            per_section[section] = max(count, 0)
+    return per_section
+
+
+def self_check_v3(arrangement, data=None):
+    """The checks the card names, for a version 3 arrangement."""
+    score = arrangement.score
+    bars = arrangement.bars
+    total_bars = len(bars)
+    bpm = arrangement.meta["bpm"]
+    first = v3_section_first_bars(bars)
+
+    result = {
+        "schema": "v3",
+        "sections": [name for name in score["sections"]],
+        "section_bars": {name: len([b for b in bars if b.section == name])
+                         for name in score["sections"]},
+        "section_first_bar": {name: first[name] + 1 for name in first},
+        "bars": total_bars,
+        "bpm": bpm,
+        "beats_per_bar": arrangement.meta["beats_per_bar"],
+        "key": (score.get("meta") or {}).get("key"),
+        "duration_seconds": round(total_bars * 3 * 60.0 / bpm, 3),
+        "loop_start_bar": arrangement.meta["loop_start_bar"],
+        "loop_end_bar": total_bars,
+        "loop_bars": total_bars - arrangement.meta["loop_start_bar"] + 1,
+        "tracks": list(TRACK_NAMES),
+        "notes": {name: len(arrangement.notes[name]) for name in TRACK_NAMES},
+        "max_simultaneous_notes": max_simultaneous(arrangement),
+        "max_simultaneous_by_section": max_simultaneous_by_section(arrangement),
+        "out_of_range": [],
+    }
+
+    for name in TRACK_NAMES:
+        lo, hi = V3_VOICE_RANGES[name]
+        for start, _end, pitch in note_spans(arrangement.notes[name]):
+            if not (lo <= pitch <= hi):
+                result["out_of_range"].append(
+                    {"track": name, "tick": start, "pitch": pitch,
+                     "note": midi_to_name(pitch), "range": [lo, hi]})
+
+    chords_written = {}
+    for name in score["sections"]:
+        chords_written[name] = [chord_symbol_of_bar(bar) for bar in bars
+                                if bar.section == name]
+    chords_score = {name: list(score["sections"][name]["chords"])
+                    for name in score["sections"]}
+    result["chords_by_section"] = chords_written
+    result["chords_match_score"] = chords_written == chords_score
+
+    def melody_of(section, bar_offset):
+        chosen = [bar for bar in bars if bar.section == section]
+        if bar_offset >= len(chosen):
+            return []
+        return [midi_to_name(pitch) for _slot, _length, pitch in chosen[bar_offset].melody
+                if pitch is not None]
+
+    result["melody_checks"] = {
+        "A_bar_1": melody_of("A", 0),
+        "A_bar_2": melody_of("A", 1),
+        "A_prime_bar_1": melody_of("A_prime", 0),
+        "B_prime_bar_5": melody_of("B_prime", 4),
+        "C_trio_bar_1": melody_of("C_trio", 0),
+        "C_trio_bar_5": melody_of("C_trio", 4),
+        "A_return_bar_8": melody_of("A_return", 7),
+    }
+
+    if data is not None:
+        parsed = read_midi(data)
+        result["midi_tracks"] = [name for name, _notes in parsed["tracks"]]
+        result["midi_ntracks"] = parsed["ntracks"]
+        result["midi_division"] = parsed["division"]
+        tempo_us = parsed["tempo_us"]
+        expected_us = _microseconds_per_quarter(bpm)
+        result["midi_tempo_us_per_qn"] = tempo_us
+        result["midi_bpm"] = round(60_000_000.0 / tempo_us, 3) if tempo_us else None
+        result["midi_time_signature"] = ("%d/%d" % parsed["time_sig"]
+                                         if parsed["time_sig"] else None)
+        result["tempo_meta_matches_score"] = (
+            tempo_us == expected_us
+            and parsed["time_sig"] == (arrangement.meta["beats_per_bar"], 4))
+        result["midi_duration_seconds"] = round(
+            total_bars * TICKS_PER_BAR / PPQ * tempo_us / 1e6, 3)
+    return result
+
+
+def default_out_for(score_path):
+    """The MIDI path for a score: its own folder, named after that folder."""
+    directory = os.path.dirname(os.path.abspath(score_path))
+    return os.path.join(directory, os.path.basename(directory) + ".mid")
+
+
 # --------------------------------------------------------------- the self check
 
 def read_midi(data):
@@ -938,6 +1658,8 @@ def read_midi(data):
     fmt, ntracks, division = struct.unpack(">hhh", data[8:14])
     pos = 14
     tracks = []
+    tempo_us = None
+    time_sig = None
     for _ in range(ntracks):
         if data[pos:pos + 4] != b"MTrk":
             raise ValueError("bad track chunk")
@@ -959,6 +1681,10 @@ def read_midi(data):
                 cursor += size
                 if kind == 0x03:
                     name = payload.decode("latin-1")
+                elif kind == 0x51 and size == 3 and tempo_us is None:
+                    tempo_us = int.from_bytes(payload, "big")
+                elif kind == 0x58 and size >= 2 and time_sig is None:
+                    time_sig = (payload[0], 2 ** payload[1])
             elif status in (0xF0, 0xF7):
                 cursor += 1
                 size, cursor = _read_varlen(body, cursor)
@@ -986,7 +1712,8 @@ def read_midi(data):
                 else:
                     cursor += 2
         tracks.append((name, notes))
-    return {"format": fmt, "ntracks": ntracks, "division": division, "tracks": tracks}
+    return {"format": fmt, "ntracks": ntracks, "division": division,
+            "tracks": tracks, "tempo_us": tempo_us, "time_sig": time_sig}
 
 
 def _read_varlen(data, pos):
@@ -1070,24 +1797,51 @@ def self_check(arrangement, data=None):
         result["midi_tracks"] = [name for name, _notes in parsed["tracks"]]
         result["midi_ntracks"] = parsed["ntracks"]
         result["midi_division"] = parsed["division"]
+        # The tempo meta is the one field a wrong unit can halve the whole
+        # cue without any other check noticing, so read it back and compare.
+        tempo_us = parsed["tempo_us"]
+        expected_us = _microseconds_per_quarter(arrangement.meta["bpm"])
+        result["midi_tempo_us_per_qn"] = tempo_us
+        result["midi_bpm"] = (round(60_000_000.0 / tempo_us, 3)
+                              if tempo_us else None)
+        result["midi_time_signature"] = ("%d/%d" % parsed["time_sig"]
+                                         if parsed["time_sig"] else None)
+        result["midi_bar_ticks"] = arrangement.meta["beats_per_bar"] * PPQ
+        result["tempo_meta_matches_score"] = (
+            tempo_us == expected_us
+            and parsed["time_sig"] == (arrangement.meta["beats_per_bar"], 4)
+            and arrangement.meta["beats_per_bar"] * PPQ == TICKS_PER_BAR)
+        result["midi_duration_seconds"] = round(
+            len(arrangement.bars) * TICKS_PER_BAR / PPQ * tempo_us / 1e6, 3)
     return result
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("score", nargs="?", default=DEFAULT_SCORE)
-    parser.add_argument("-o", "--out", default=DEFAULT_OUT)
+    parser.add_argument("-o", "--out", default=None,
+                        help="output MIDI (default: the score's own folder, named after it)")
     parser.add_argument("--report", default=None)
     parser.add_argument("--self-check", action="store_true")
     args = parser.parse_args(argv)
 
     score = load_score(args.score)
-    arrangement = build_arrangement(score)
-    data = write_midi(arrangement, args.out)
+    # Two schemas, one writer: version 3 is the score with a sections block,
+    # version 2 the score with a chords and melody block.
+    version_3 = isinstance(score.get("sections"), dict)
+    out_path = args.out or default_out_for(args.score)
+    if version_3:
+        arrangement = build_arrangement_v3(score)
+    else:
+        arrangement = build_arrangement(score)
+    data = write_midi(arrangement, out_path)
 
-    report = self_check(arrangement, data)
+    if version_3:
+        report = self_check_v3(arrangement, data)
+    else:
+        report = self_check(arrangement, data)
     report["score"] = os.path.abspath(args.score)
-    report["midi"] = os.path.abspath(args.out)
+    report["midi"] = os.path.abspath(out_path)
     report["midi_bytes"] = len(data)
     report["duration_seconds"] = round(len(arrangement.bars) * TICKS_PER_BAR
                                       / PPQ * 60.0 / arrangement.meta["bpm"], 3)

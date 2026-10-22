@@ -1,0 +1,195 @@
+{
+  "bars": 52,
+  "beats_per_bar": 3,
+  "bpm": 108.0,
+  "chords_by_section": {
+    "A": [
+      "Am",
+      "E7",
+      "Am",
+      "E",
+      "Am",
+      "Dm",
+      "E7",
+      "Am"
+    ],
+    "A_prime": [
+      "Am",
+      "E7",
+      "Am",
+      "E",
+      "Am",
+      "Dm",
+      "E7",
+      "Am"
+    ],
+    "A_return": [
+      "Am",
+      "E7",
+      "Am",
+      "E",
+      "Am",
+      "Dm",
+      "E7",
+      "E7"
+    ],
+    "B": [
+      "C",
+      "G",
+      "C",
+      "G7",
+      "F",
+      "C",
+      "E7",
+      "E7"
+    ],
+    "B_prime": [
+      "C",
+      "G",
+      "C",
+      "G7",
+      "F",
+      "Dm",
+      "E7",
+      "E7"
+    ],
+    "C_trio": [
+      "Em",
+      "Em",
+      "B7",
+      "Em",
+      "Dm",
+      "Dm",
+      "E7",
+      "E7"
+    ],
+    "intro": [
+      "Am",
+      "Am",
+      "E7",
+      "E7"
+    ]
+  },
+  "chords_match_score": true,
+  "duration_seconds": 86.667,
+  "key": "A minor",
+  "loop_bars": 48,
+  "loop_end_bar": 52,
+  "loop_start_bar": 5,
+  "max_simultaneous_by_section": {
+    "A": 8,
+    "A_prime": 7,
+    "A_return": 7,
+    "B": 8,
+    "B_prime": 8,
+    "C_trio": 6,
+    "intro": 6
+  },
+  "max_simultaneous_notes": 8,
+  "melody_checks": {
+    "A_bar_1": [
+      "E5",
+      "C5",
+      "D5",
+      "E5"
+    ],
+    "A_bar_2": [
+      "B4",
+      "G#4",
+      "A4",
+      "B4"
+    ],
+    "A_prime_bar_1": [
+      "E6",
+      "C6",
+      "D6",
+      "E6"
+    ],
+    "A_return_bar_8": [
+      "B4"
+    ],
+    "B_prime_bar_5": [
+      "F6",
+      "A6"
+    ],
+    "C_trio_bar_1": [
+      "E4",
+      "G4",
+      "B4"
+    ],
+    "C_trio_bar_5": [
+      "D5",
+      "C#5"
+    ]
+  },
+  "midi": "<repo>\\assets\\audio\\title_theme_v3\\title_theme_v3.mid",
+  "midi_bpm": 108.0,
+  "midi_bytes": 13218,
+  "midi_division": 480,
+  "midi_duration_seconds": 86.667,
+  "midi_ntracks": 9,
+  "midi_tempo_us_per_qn": 555556,
+  "midi_time_signature": "3/4",
+  "midi_tracks": [
+    "meta",
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "notes": {
+    "dpcm": 36,
+    "noise": 116,
+    "pulse 1": 312,
+    "pulse 2": 93,
+    "triangle": 120,
+    "vrc6 pulse a": 134,
+    "vrc6 pulse b": 90,
+    "vrc6 saw": 160
+  },
+  "out_of_range": [],
+  "schema": "v3",
+  "score": "<repo>\\assets\\audio\\title_theme_v3\\score_v3.yaml",
+  "section_bars": {
+    "A": 8,
+    "A_prime": 8,
+    "A_return": 8,
+    "B": 8,
+    "B_prime": 8,
+    "C_trio": 8,
+    "intro": 4
+  },
+  "section_first_bar": {
+    "A": 5,
+    "A_prime": 13,
+    "A_return": 45,
+    "B": 21,
+    "B_prime": 29,
+    "C_trio": 37,
+    "intro": 1
+  },
+  "sections": [
+    "intro",
+    "A",
+    "A_prime",
+    "B",
+    "B_prime",
+    "C_trio",
+    "A_return"
+  ],
+  "tempo_meta_matches_score": true,
+  "tracks": [
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ]
+}
