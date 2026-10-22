@@ -26,8 +26,8 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_debug_overlay/Step_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_game/Create_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/objects/obj_pp_game/Draw_0.gml | confirmed | code-review | 2026-10-19 |
-| game/objects/obj_pp_game/Other_72.gml | reviewed | gamedev | 2026-10-21 |
-| game/objects/obj_pp_game/Step_0.gml | confirmed | code-review | 2026-10-19 |
+| game/objects/obj_pp_game/Other_72.gml | confirmed | code-review | 2026-10-22 |
+| game/objects/obj_pp_game/Step_0.gml | pending | code-review | 2026-10-22 |
 | game/objects/obj_pp_game/Step_1.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_title/Create_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/objects/obj_pp_title/Draw_0.gml | reviewed | gamedev | 2026-10-21 |
@@ -35,7 +35,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_title/Step_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_app/pp_app.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_art/pp_art.gml | reviewed | gamedev | 2026-10-21 |
-| game/scripts/pp_audio/pp_audio.gml | reviewed | gamedev | 2026-10-21 |
+| game/scripts/pp_audio/pp_audio.gml | pending | code-review | 2026-10-22 |
 | game/scripts/pp_battle_commands/pp_battle_commands.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_battle_director/pp_battle_director.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_battle_text/pp_battle_text.gml | rewritten | gamedev | 2026-10-22 |
@@ -48,20 +48,24 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_input/pp_input.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_font/pp_font.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_ledger/pp_ledger.gml | reviewed | gamedev | 2026-10-22 |
+| game/scripts/pp_look/pp_look.gml | pending | code-review | 2026-10-22 |
 | game/scripts/pp_map/pp_map.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
-| game/scripts/pp_save/pp_save.gml | reviewed | gamedev | 2026-10-22 |
-| game/scripts/pp_scene/pp_scene.gml | rewritten | code-review | 2026-10-19 |
+| game/scripts/pp_save/pp_save.gml | confirmed | code-review | 2026-10-22 |
+| game/scripts/pp_scene/pp_scene.gml | pending | code-review | 2026-10-22 |
 | game/scripts/pp_text/pp_text.gml | rewritten | gamedev | 2026-10-22 |
 | game/scripts/pp_title/pp_title.gml | reviewed | gamedev | 2026-10-21 |
 
-The two rows that were `pending` are now `reviewed` by gamedev on 2026-10-21, and the reviewer is named in the row
-rather than left to the next person. `game/scripts/pp_save/pp_save.gml` and `game/objects/obj_pp_game/Other_72.gml` were
-both added by card t_a311bdff on 2026-10-20 (the save slot, spec 11). The review that closed them read this
-repository's own text only: the spec, the manual pages the module's own header cites, and the module's source. What it
-found is recorded under "the save module" below, and the same two modules are the ones exercised by the real run, so
-their behaviour is measured rather than assumed.
+The two rows that were `pending` were reviewed by gamedev on 2026-10-21 and raised to `confirmed` by code-review on
+2026-10-22 (card t_edf0aafe, the gate on the save work and its tests), so each row names its own reviewer and date
+rather than leaving it to the next person. `game/scripts/pp_save/pp_save.gml` and `game/objects/obj_pp_game/Other_72.gml`
+were both added by card t_a311bdff on 2026-10-20 (the save slot, spec 11). Both reviews read this repository's own text
+only: the specs, the manual pages the module's own header cites, and the module's source. What the first found is
+recorded under "the save module" below. What the run measured is narrower than "this module works": on 2026-10-20 and
+2026-10-21 the game was built and run on this machine, the boot read of the slot was exercised through the Save/Load
+event and the title drew its continue line, so the read path and the event number are measured; the write path through
+a save point reached on foot, the `.bak` rotation and the panel timing are not, and nothing in this file claims they are.
 
 `rewritten` means the file text changed in this review. All eight rewrites are comment only: each one removed a
 provenance parenthetical that described the internals of the quarantined copy, and replaced it with the spec the
@@ -241,6 +245,26 @@ Five files were reviewed on this date because the card changed them: `game/scrip
 - `Draw_64.gml`: the F3 box sizes itself from a line count the ledger reports, so no row can draw outside it.
 
 Nothing outside this repository was read for any of the five, and no sentence in them was taken from anywhere.
+
+## Review, 2026-10-22: the save gate (card t_edf0aafe)
+
+The gate on the save work and its tests read `game/scripts/pp_save/pp_save.gml` in full (955 lines as it stands, which is
+the 834 lines of card t_a311bdff plus the exit rows of card t_48020b30) and `game/objects/obj_pp_game/Other_72.gml` in
+full, and read nothing outside this repository. The two rows above are raised to `confirmed` on that read. This is a
+second pair of eyes on the same two files, not a replacement for the two earlier reviews.
+
+Why the save module is genre level rather than anyone's expression, in one paragraph: the shape is a small asynchronous
+state machine with one callback as its only mover, a fixed size buffer holding a count and a JSON text, a validator that
+refuses a document before it applies any of it, a snapshot that stores names and counters, and a reader that falls back
+once to a backup. Each part is a line of spec 11 or spec 10: the asynchronous pair and its event are the manual's, while
+the format first rule, the backup, the validation order and the derived route are this project's decisions, and the file
+layout follows from the spec's own requirement that a larger save be a clear error and not a truncation. `Other_72.gml`
+is one call into that module. No identifier, sentence or structure in either file reads as anything but that.
+
+What this review did not establish, and does not claim: that the write path works on a running game. A save file this
+module wrote is on disk (`pp_save_01.json`, 314 bytes, a count of 309, the sixteen spec keys and no `fight_exits`), and
+the read path and the event number have been measured on a real run, but the write through a save point reached on foot,
+the `.bak` rotation, the refusal of a document larger than the slot and the panel timing are still unproven by a run.
 
 ## What the rows do not claim
 

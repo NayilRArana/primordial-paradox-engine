@@ -90,15 +90,18 @@ function pp_scene_command_start(_sc, _world) {
             return;
 
         case "music":
-            // No audio module yet (spec 12). The command records the intent so the wiring is proven when audio lands.
+            // The scene names a cue id and the registry decides what that means (spec 12, card G0-2). A cue whose OGG
+            // is not in the build yet stays silent and says so; the scene never blocks on audio.
             _world.music = _cmd.id;
-            show_debug_message("PP: music " + string(_cmd.id) + " requested, playback waits on spec 12");
+            pp_audio_music(_cmd.id, PP_AUDIO_FADE_STEPS);
+            show_debug_message("PP: music " + string(_cmd.id) + " requested");
             pp_scene_advance(_sc, _world);
             return;
 
         case "sfx":
             _world.sfx = _cmd.id;
-            show_debug_message("PP: sfx " + string(_cmd.id) + " requested, playback waits on spec 12");
+            pp_audio_sfx("sfx", _cmd.id);
+            show_debug_message("PP: sfx " + string(_cmd.id) + " requested");
             pp_scene_advance(_sc, _world);
             return;
 

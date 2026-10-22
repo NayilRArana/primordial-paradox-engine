@@ -55,7 +55,7 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | --- | --- | --- |
 | game/scripts/pp_app/pp_app.gml | specs alone | 01 |
 | game/scripts/pp_art/pp_art.gml | specs alone | 14 (proposed) |
-| game/scripts/pp_audio/pp_audio.gml | specs alone | 12, 14 (proposed) |
+| game/scripts/pp_audio/pp_audio.gml | specs alone, plus the G0-2 cue registry entry | 12, 14 (proposed) |
 | game/scripts/pp_battle_commands/pp_battle_commands.gml | specs alone | 07 |
 | game/scripts/pp_battle_director/pp_battle_director.gml | specs alone | 07 |
 | game/scripts/pp_battle_text/pp_battle_text.gml | specs alone | 05, 07 |
@@ -73,6 +73,7 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_input/pp_input.gml | specs alone | 02 |
 | game/scripts/pp_font/pp_font.gml | specs alone | 13, 14 (proposed) |
 | game/scripts/pp_ledger/pp_ledger.gml | specs alone | 10 |
+| game/scripts/pp_look/pp_look.gml | the 8 bit look: one scale, one palette set per room | 03, 13 |
 | game/scripts/pp_rng/pp_rng.gml | specs alone | 09 |
 | game/scripts/pp_save/pp_save.gml | save, load and resume | 01, 10, 11 |
 | game/objects/obj_pp_game | specs alone | 01, 02 |
@@ -468,6 +469,35 @@ darkest row the entry is black, which is why a four step fade ends on a black sc
 Our implementation differs by: the fade is pre-drawn into named strips beside each art strip and picked by name at
 runtime, so the shot costs no per-pixel work and every strip is checked against the 55 usable PPU entries.
 Copied expression: none.
+
+## G0-2: the music cue registry and the crossfade bus (2026-10-22)
+
+Studied: nothing outside this repository. The cue ids, titles, meters and tempos are the musician lane's own cue list
+(note round1\musician.md, PP-01 to PP-16), which is our project's document, and the bus rules are spec 12. Every
+behaviour of every audio call used is cited from the official GameMaker manual page read on 2026-10-22, named in the
+module header: audio_play_sound, audio_sound_gain, audio_pause_sound, audio_resume_sound, audio_stop_sound,
+audio_channel_num, audio_create_stream (with audio_destroy_stream), and window_has_focus.
+
+Mechanics learned: a music bus is three separate things and keeping them apart is what makes it simple. One, a registry
+that turns a stable id into the file to stream, held in data rather than in code, so a new render arrives as a file and
+never as an edit. Two, a crossfade that is only bookkeeping: two instances live for the length of the fade, the outgoing
+one is driven to zero and then stopped, and a step function finishes the job, because a fade that is never followed by a
+stop is a leak or a click. Three, a pause rule that is a poll, not an event: the window's focus is a question that can
+be asked every step, and audio_pause_sound plus audio_resume_sound already keep the play position, so nothing has to
+remember where the music was.
+
+Our implementation differs by: registering the cues under the musician's ids PP-01 to PP-16 in data\audio.json with an
+asset name and an explicit placeholder flag, instead of a code list of file names; keeping the old sounds table as the
+stand-in behind a cue that has one, so the data moves across one room at a time; treating an unknown cue id as a checker
+failure at build time and a silent log line at run time, never a crash; polling window_has_focus from pp_audio_step
+rather than trusting an event number this project has never compiled; and reporting the fade as 30 steps of the spec but
+converting to milliseconds at the one place the manual says the engine wants them.
+
+Copied expression: none. No audio file was generated, downloaded or invented, no sound was heard, and nothing was
+compiled: GameMaker is not installed on this machine, so the module is reviewed text and it is not proven to make a
+noise. What is proven is the data, its cross references and the arithmetic, all by tools\check_data.py and its tests.
+
+---
 
 ## SFX-WIRE: the effects bus (2026-10-22)
 

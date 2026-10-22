@@ -8,7 +8,7 @@
       "map": "ship_small",
       "start": { "x": 2, "y": 7 },
       "commands": [
-        { "cmd": "music", "id": "ship_ambient" },
+        { "cmd": "music", "id": "PP-05" },
         { "cmd": "say", "id": "ship_rail_note" },
         { "cmd": "move", "actor": "hero", "dir": "up", "tiles": 3 },
         { "cmd": "wait", "steps": 20 },
@@ -37,7 +37,7 @@
         { "cmd": "say", "id": "prometheus_veil_line" },
         { "cmd": "setflag", "name": "met_prometheus", "value": true },
         { "cmd": "setflag", "name": "percy_standing", "value": true },
-        { "cmd": "music", "id": "pp_07_prometheus" },
+        { "cmd": "music", "id": "PP-07" },
         { "cmd": "fade", "mode": "out" },
         { "cmd": "fade", "mode": "in" },
         { "cmd": "end" }

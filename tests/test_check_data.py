@@ -286,3 +286,108 @@ def test_angle_to_gm_mirrors_and_wraps():
     assert check_data.angle_to_gm(270) == 90
     assert check_data.angle_to_gm(450) == 270
     assert check_data.angle_to_gm(-90) == 90
+
+
+# --- the music cue registry (spec 12, card G0-2) ----------------------------------------------------------------
+
+CUE_IDS = ["PP-01", "PP-02", "PP-05", "PP-06", "PP-07", "PP-08", "PP-09",
+           "PP-10", "PP-11", "PP-12", "PP-14", "PP-15a", "PP-15b", "PP-16"]
+ROOT_DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+
+
+def test_cue_registry_uses_the_musicians_own_ids_and_count_is_pinned(read_json):
+    """The cue ids come from the musician's list, not from a name invented in code, and there are fourteen of them.
+    Pinning the count means a cue that is quietly dropped from the table fails here instead of failing as silence."""
+    data = read_json(os.path.join(ROOT_DATA, "audio.json"))
+    assert [row["id"] for row in data["cues"]] == CUE_IDS
+    assert len(data["cues"]) == 14
+    for row in data["cues"]:
+        assert row["placeholder"] is True, "no OGG exists yet, so every cue must say so"
+        assert row["loop"] in (True, False)
+        assert row["asset"] and not row["asset"].endswith(".ogg"), "the loader adds the extension itself"
+
+
+def test_the_four_slice_cues_are_registered(read_json):
+    data = read_json(os.path.join(ROOT_DATA, "audio.json"))
+    ids = {row["id"] for row in data["cues"]}
+    assert {"PP-05", "PP-06", "PP-15a", "PP-15b"} <= ids
+    boss = {row["id"] for row in data["cues"] if row.get("boss")}
+    assert boss == {"PP-06", "PP-10", "PP-14"}, "boss music gets priority 12 (spec 12 rule 1)"
+
+
+def test_duplicate_cue_id_is_named(data_root, read_json, write_json):
+    path = data_root / "data" / "audio.json"
+    data = read_json(path)
+    data["cues"][1]["id"] = data["cues"][0]["id"]
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("duplicate cue id" in e for e in errors), errors
+
+
+def test_cue_without_the_placeholder_flag_fails(data_root, read_json, write_json):
+    """A cue that does not say placeholder would claim an OGG the build does not ship."""
+    path = data_root / "data" / "audio.json"
+    data = read_json(path)
+    del data["cues"][0]["placeholder"]
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("cues[0].placeholder" in e and "missing" in e for e in errors), errors
+
+
+def test_missing_slice_cue_is_named(data_root, read_json, write_json):
+    path = data_root / "data" / "audio.json"
+    data = read_json(path)
+    data["cues"] = [row for row in data["cues"] if row["id"] != "PP-15b"]
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("needs cue PP-15b" in e for e in errors), errors
+
+
+def test_unknown_cue_id_in_a_scene_is_named(data_root, read_json, write_json):
+    path = data_root / "data" / "scenes" / "all.json"
+    data = read_json(path)
+    for command in data["scenes"][0]["commands"]:
+        if command.get("cmd") == "music":
+            command["id"] = "PP-99"
+            break
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("unknown sound or cue id" in e and "PP-99" in e for e in errors), errors
+
+
+def test_cue_stand_in_must_be_a_music_entry(data_root, read_json, write_json):
+    path = data_root / "data" / "audio.json"
+    data = read_json(path)
+    for row in data["cues"]:
+        if row["id"] == "PP-05":
+            row["placeholder_sound"] = "ui_blip"
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("placeholder_sound" in e and "not a music entry" in e for e in errors), errors
+
+
+def test_cue_route_must_be_one_of_the_project_routes(data_root, read_json, write_json):
+    path = data_root / "data" / "audio.json"
+    data = read_json(path)
+    for row in data["cues"]:
+        if row["id"] == "PP-15a":
+            row["route"] = "pacifist"
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("cues[11].route" in e and "route labels" in e for e in errors), errors
+
+
+def test_cue_asset_is_a_bare_name(data_root, read_json, write_json):
+    path = data_root / "data" / "audio.json"
+    data = read_json(path)
+    data["cues"][0]["asset"] = "pp_01_wessex_lane.ogg"
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("without the .ogg" in e for e in errors), errors

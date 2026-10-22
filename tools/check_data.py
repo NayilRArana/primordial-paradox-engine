@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -84,6 +85,14 @@ SCENE_COMMANDS = {
 }
 DIRECTIONS = {"up", "down", "left", "right"}
 AUDIO_KINDS = {"music", "sfx", "ui"}
+
+# The music cue registry (spec 12, card G0-2). A cue id is the musician's own label, PP-01 to PP-16, so his OGG drops
+# in under the cue's asset name with no code edit. The id shape is checked because a typo in an id is exactly the kind
+# of mistake that would otherwise make a room silent with no error.
+AUDIO_CUE_RE = re.compile(r"^PP-[0-9]{2}[ab]?$")
+# The four cues the vertical slice cannot ship without: the ship, Percy, and the two endings.
+SLICE_CUES = ("PP-05", "PP-06", "PP-15a", "PP-15b")
+
 
 HEX_DIGITS = set("0123456789abcdefABCDEF")
 
@@ -245,6 +254,7 @@ class Checker:
             ("item", "items.json", "items"),
             ("power", "powers.json", "powers"),
             ("sound", "audio.json", "sounds"),
+            ("cue", "audio.json", "cues"),
         ):
             for row in rows(rel, key):
                 name = row.get("id")
@@ -275,7 +285,7 @@ class Checker:
 
         ids = {
             "enemy": {}, "encounter": {}, "pattern": {}, "map": {}, "scene": {},
-            "dialogue": {}, "item": {}, "power": {}, "sound": {}, "flag": set(),
+            "dialogue": {}, "item": {}, "power": {}, "sound": {}, "flag": set(), "cue": {},
         }
         self.register_ids(ids)
 
@@ -464,6 +474,96 @@ class Checker:
                 if name in ids["sound"] and ids["sound"][name] is not row:
                     self.error(filename, path + ".id", "duplicate id %r" % name)
                 ids["sound"][name] = row
+        # The cue registry comes after the sounds, because a cue's stand-in is one of those sound ids.
+        self.check_cues(data, ids)
+
+    def check_cues(self, data, ids):
+        """The music cue registry: the musician's own ids, one row each, and the four cues the slice needs.
+
+        A cue is a name plus the asset it will be delivered as, so his OGG lands as data\\music\\<asset>.ogg and no code
+        changes. `placeholder` records that the OGG does not exist yet, which is the honest state of every cue today;
+        a row that dropped the flag would claim a file the build does not have.
+        """
+        filename = "data/audio.json"
+        rows = self.require(data, "cues", "list", filename, "")
+        if rows is None:
+            return
+        if len(rows) == 0:
+            self.error(filename, "cues", "the cue registry is empty, so no music cue can be asked for by id")
+
+        route_labels = None
+        project = self.files.get("project.json")
+        if isinstance(project, dict) and isinstance(project.get("route_labels"), list):
+            route_labels = project["route_labels"]
+
+        seen = set()
+        for index, row in enumerate(rows):
+            path = "cues[%d]" % index
+            name = self.require(row, "id", "str", filename, path)
+            title = self.require(row, "title", "str", filename, path)
+            if isinstance(title, str) and title.strip() == "":
+                self.error(filename, path + ".title", "is empty")
+            asset = self.require(row, "asset", "str", filename, path)
+            if isinstance(asset, str):
+                if asset.lower().endswith(".ogg"):
+                    self.error(filename, path + ".asset", "is the asset name without the .ogg, the loader adds it")
+                elif not re.fullmatch(r"[a-z0-9_]+", asset):
+                    self.error(filename, path + ".asset", "must be lowercase letters, digits and underscores")
+            loop = self.require(row, "loop", "bool", filename, path)
+            del loop
+            self.require(row, "placeholder", "bool", filename, path)
+
+            if isinstance(name, str):
+                if not AUDIO_CUE_RE.match(name):
+                    self.error(filename, path + ".id", "must look like PP-01 or PP-15a (spec 12)")
+                if name in seen:
+                    self.error(filename, path + ".id", "duplicate cue id %r" % name)
+                seen.add(name)
+                ids["cue"][name] = row
+
+            if isinstance(row, dict) and row.get("placeholder_sound") is not None:
+                stand_in = row.get("placeholder_sound")
+                if not isinstance(stand_in, str) or stand_in == "":
+                    self.error(filename, path + ".placeholder_sound", "must be a sound id or null")
+                else:
+                    sound = self.ref(ids, "sound", stand_in, filename, path + ".placeholder_sound")
+                    if isinstance(sound, dict) and sound.get("kind") != "music":
+                        self.error(filename, path + ".placeholder_sound",
+                                   "%r is not a music entry in data/audio.json" % stand_in)
+
+            if isinstance(row, dict) and row.get("boss") is not None and not isinstance(row.get("boss"), bool):
+                self.error(filename, path + ".boss", "must be true or false")
+
+            if isinstance(row, dict) and row.get("route") is not None:
+                route = row.get("route")
+                if not isinstance(route, str):
+                    self.error(filename, path + ".route", "must be a route label string")
+                elif route_labels is not None and route not in route_labels:
+                    self.error(filename, path + ".route",
+                               "%r is not one of the route labels %s (spec 10)" % (route, route_labels))
+
+        missing = [cue for cue in SLICE_CUES if cue not in seen]
+        for cue in missing:
+            self.error(filename, "cues", "the vertical slice needs cue %s and it is not registered" % cue)
+
+    def check_music_ref(self, ids, name, filename, path):
+        """A music reference names a cue id or a sound id, and a sound id must be of kind music.
+
+        Two forms on purpose during the handover: a room can be pointed at PP-05 today and the old sound id still
+        works, so the data moves across one room at a time instead of in one break-everything edit.
+        """
+        if not isinstance(name, str) or name == "":
+            self.error(filename, path, "reference must be a non empty string")
+            return None
+        if name in ids["cue"]:
+            return name
+        row = ids["sound"].get(name)
+        if row is None:
+            self.dangling["%s|%s" % (filename, path)] = ("sound or cue", name)
+            return None
+        if row.get("kind") != "music":
+            self.error(filename, path, "%r is not a music entry in data/audio.json" % name)
+        return row
 
     def check_dialogue(self, data, ids):
         filename = "data/dialogue/all.json"
@@ -710,9 +810,7 @@ class Checker:
                 self.in_range(seed, 0, 2 ** 31 - 1, filename, path + ".seed")
             music = self.want(row, "music", "str", filename, path)
             if music is not None:
-                sound = self.ref(ids, "sound", music, filename, path + ".music")
-                if isinstance(sound, dict) and sound.get("kind") != "music":
-                    self.error(filename, path + ".music", "%r is not a music entry in data/audio.json" % music)
+                self.check_music_ref(ids, music, filename, path + ".music")
             for field_name in ("intro_dialogue", "win_dialogue_kill", "win_dialogue_spare", "lose_dialogue"):
                 self.ref(ids, "dialogue", self.want(row, field_name, "str", filename, path),
                          filename, path + "." + field_name)
@@ -791,7 +889,7 @@ class Checker:
 
             music = self.want(row, "music", "str", filename, path)
             if music is not None:
-                self.ref(ids, "sound", music, filename, path + ".music")
+                self.check_music_ref(ids, music, filename, path + ".music")
 
             story_flag = self.want(row, "story_flag", "str", filename, path)
             if story_flag:
@@ -962,8 +1060,13 @@ class Checker:
                     self.ref(ids, "dialogue", self.want(command, "id", "str", filename, command_path),
                              filename, command_path + ".id")
                 elif cmd in ("music", "sfx"):
-                    self.ref(ids, "sound", self.want(command, "id", "str", filename, command_path),
-                             filename, command_path + ".id")
+                    if cmd == "music":
+                        # A scene asks for music by cue id or by sound id; both resolve, a typo does not.
+                        self.check_music_ref(ids, self.want(command, "id", "str", filename, command_path),
+                                             filename, command_path + ".id")
+                    else:
+                        self.ref(ids, "sound", self.want(command, "id", "str", filename, command_path),
+                                 filename, command_path + ".id")
                 elif cmd == "move":
                     direction = self.want(command, "dir", "str", filename, command_path)
                     if direction not in DIRECTIONS:

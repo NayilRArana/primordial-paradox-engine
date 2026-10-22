@@ -21,7 +21,7 @@
       "name": "Percy",
       "enemies": ["percy"],
       "seed": 771,
-      "music": "battle_percy",
+      "music": "PP-06",
       "intro_dialogue": "percy_entry",
       "win_dialogue_kill": "percy_win_kill",
       "win_dialogue_spare": "percy_win_spare",

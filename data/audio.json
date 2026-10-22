@@ -1,6 +1,22 @@
 {
   "format": 1,
   "kind": "audio",
+  "cues": [
+    { "id": "PP-01", "title": "Wessex Lane, Move-In Day", "asset": "pp_01_wessex_lane", "loop": true, "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-02", "title": "High Street", "asset": "pp_02_high_street", "loop": true, "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-05", "title": "Small Ship", "asset": "pp_05_small_ship", "loop": true, "placeholder": true, "placeholder_sound": "ship_ambient" },
+    { "id": "PP-06", "title": "Percy, Tyrant of the Harbor", "asset": "pp_06_percy_tyrant", "loop": true, "placeholder": true, "placeholder_sound": "battle_percy", "boss": true },
+    { "id": "PP-07", "title": "Prometheus Explains", "asset": "pp_07_prometheus_explains", "loop": true, "placeholder": true, "placeholder_sound": "pp_07_prometheus" },
+    { "id": "PP-08", "title": "Dead Rising", "asset": "pp_08_dead_rising", "loop": true, "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-09", "title": "The Data Center", "asset": "pp_09_data_center", "loop": true, "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-10", "title": "Hector, Warden of the Dead", "asset": "pp_10_hector", "loop": true, "placeholder": true, "placeholder_sound": null, "boss": true },
+    { "id": "PP-11", "title": "Rush to Prison", "asset": "pp_11_rush_to_prison", "loop": true, "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-12", "title": "One North Quay", "asset": "pp_12_one_north_quay", "loop": true, "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-14", "title": "Kronos", "asset": "pp_14_kronos", "loop": true, "placeholder": true, "placeholder_sound": null, "boss": true },
+    { "id": "PP-15a", "title": "Entropy", "asset": "pp_15a_entropy", "loop": true, "placeholder": true, "placeholder_sound": null, "route": "genocide" },
+    { "id": "PP-15b", "title": "Mercy", "asset": "pp_15b_mercy", "loop": true, "placeholder": true, "placeholder_sound": null, "route": "mercy" },
+    { "id": "PP-16", "title": "Ouranos", "asset": "pp_16_ouranos", "loop": true, "placeholder": true, "placeholder_sound": null }
+  ],
   "sounds": [
     { "id": "ship_ambient", "kind": "music", "file": "ship_ambient.ogg" },
     { "id": "battle_tutorial", "kind": "music", "file": "battle_tutorial.ogg" },
