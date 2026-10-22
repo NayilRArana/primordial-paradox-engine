@@ -86,7 +86,7 @@ def test_the_star_sprite_is_three_frames_and_nes_legal():
     assert (meta["frames"], meta["frame_w"], meta["frame_h"]) == (3, 8, 8)
     assert Image.open(STAR_PATH).size == (24, 8)
     result = subprocess.run([PY, os.path.join(TOOLS, "nes_check.py"), STAR_PATH, "--type", "sprite"],
-                            capture_output=True, text=True)
+                            capture_output=True, text=True, stdin=subprocess.DEVNULL)
     assert result.returncode == 0, result.stdout + result.stderr
 
 

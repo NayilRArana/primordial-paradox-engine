@@ -59,7 +59,7 @@ def composite_check(frame_path: str, extra: list[str] | None = None) -> tuple[in
     command = [sys.executable, os.path.join(TOOLS_DIR, "nes_composite_check.py"), frame_path]
     if extra:
         command.extend(extra)
-    result = subprocess.run(command, capture_output=True, text=True)
+    result = subprocess.run(command, capture_output=True, text=True, stdin=subprocess.DEVNULL)
     return result.returncode, (result.stdout or "") + (result.stderr or "")
 
 

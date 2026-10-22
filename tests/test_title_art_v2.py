@@ -41,7 +41,7 @@ def v2_sprites():
     the checks see.
     """
     for script in (("tools", "art", "title_logo_v2.py"), ("tools", "art", "title_car_v2.py")):
-        result = subprocess.run([PY, os.path.join(*script)], cwd=ROOT, capture_output=True, text=True)
+        result = subprocess.run([PY, os.path.join(*script)], cwd=ROOT, capture_output=True, text=True, stdin=subprocess.DEVNULL)
         assert result.returncode == 0, result.stdout + result.stderr
     return True
 
@@ -55,7 +55,7 @@ def sha256(path: str) -> str:
 
 
 def run(*args: str) -> subprocess.CompletedProcess:
-    return subprocess.run([PY, *args], cwd=ROOT, capture_output=True, text=True)
+    return subprocess.run([PY, *args], cwd=ROOT, capture_output=True, text=True, stdin=subprocess.DEVNULL)
 
 
 def nes_palette() -> set:

@@ -320,7 +320,7 @@ def test_the_soft_limiter_never_lets_a_loud_mix_clip(tmp_path):
 def test_the_four_bar_demo_renders_to_the_expected_file(tmp_path):
     generator = os.path.join(ROOT, "tools", "gen_render2_demo.py")
     midi = str(tmp_path / "render2_demo.mid")
-    done = subprocess.run([sys.executable, generator, midi], capture_output=True, text=True)
+    done = subprocess.run([sys.executable, generator, midi], capture_output=True, text=True, stdin=subprocess.DEVNULL)
     assert done.returncode == 0, done.stderr
 
     out_wav = str(tmp_path / "render2_demo.wav")
@@ -369,7 +369,7 @@ def test_the_render_preview_png_is_written_and_passes_its_own_check(tmp_path):
     """The manager reviews a picture of the render, so one has to exist."""
     generator = os.path.join(ROOT, "tools", "gen_render2_demo.py")
     midi = str(tmp_path / "render2_demo.mid")
-    done = subprocess.run([sys.executable, generator, midi], capture_output=True, text=True)
+    done = subprocess.run([sys.executable, generator, midi], capture_output=True, text=True, stdin=subprocess.DEVNULL)
     assert done.returncode == 0, done.stderr
 
     wav = str(tmp_path / "render2_demo.wav")
@@ -377,11 +377,11 @@ def test_the_render_preview_png_is_written_and_passes_its_own_check(tmp_path):
 
     png = str(tmp_path / "render2_demo_preview.png")
     preview = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "render_preview.py"),
-                              wav, png, "render2_demo"], capture_output=True, text=True)
+                              wav, png, "render2_demo"], capture_output=True, text=True, stdin=subprocess.DEVNULL)
     assert preview.returncode == 0, preview.stderr
     assert os.path.isfile(png) and os.path.getsize(png) > 5000
 
     checker = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "check_render_preview.py"),
-                              png], capture_output=True, text=True)
+                              png], capture_output=True, text=True, stdin=subprocess.DEVNULL)
     assert checker.returncode == 0, checker.stdout + checker.stderr
     assert "PASS" in checker.stdout

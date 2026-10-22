@@ -16,7 +16,7 @@ ROOT = TOOLS
 
 
 def run(*args):
-    result = subprocess.run([sys.executable] + list(args), capture_output=True, text=True, cwd=ROOT)
+    result = subprocess.run([sys.executable] + list(args), capture_output=True, text=True, cwd=ROOT, stdin=subprocess.DEVNULL)
     return result.returncode, (result.stdout or "") + (result.stderr or "")
 
 
