@@ -150,15 +150,6 @@
     },
     {
       "$GMIncludedFile": "",
-      "%Name": "palette_recipes.json",
-      "CopyToMask": -1,
-      "filePath": "datafiles",
-      "name": "palette_recipes.json",
-      "resourceType": "GMIncludedFile",
-      "resourceVersion": "2.0"
-    },
-    {
-      "$GMIncludedFile": "",
       "%Name": "powers.json",
       "CopyToMask": -1,
       "filePath": "datafiles",
@@ -181,15 +172,6 @@
       "CopyToMask": -1,
       "filePath": "datafiles",
       "name": "room_palettes.json",
-      "resourceType": "GMIncludedFile",
-      "resourceVersion": "2.0"
-    },
-    {
-      "$GMIncludedFile": "",
-      "%Name": "scene_palettes.json",
-      "CopyToMask": -1,
-      "filePath": "datafiles",
-      "name": "scene_palettes.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
