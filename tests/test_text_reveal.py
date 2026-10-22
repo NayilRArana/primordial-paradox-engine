@@ -11,6 +11,9 @@ implementation would appear, which is the level where the defect lived in the fi
    pp_text_reveal_step, both build their items with pp_text_items (so the same input is parsed once, in one order, with
    one pause table), and neither keeps reveal state of its own.
 3. SELF CHECK. The auditor is run over a synthetic second reveal, so a broken auditor cannot pass this file silently.
+4. THE CRAWL (card TEXT-REVEAL-2). pp_title is the third layout, not a third revealer: its crawl is audited by name
+   for the same timing tokens, it hands the machine its own numbers (speed, gap, blip interval) as settings, and the
+   beat pause is the machine's gap at a unit end, never an item hold.
 """
 
 from __future__ import annotations
@@ -20,6 +23,12 @@ import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OWNER = "game/scripts/pp_text/pp_text.gml"
+DIALOGUE = "game/scripts/pp_dialogue/pp_dialogue.gml"
+BATTLE = "game/scripts/pp_battle_text/pp_battle_text.gml"
+TITLE = "game/scripts/pp_title/pp_title.gml"
+# Every layout the audit speaks for, by name, so a renamed or deleted layout fails here instead of quietly leaving the
+# audit with one less module to read.
+AUDITED_LAYOUTS = (DIALOGUE, BATTLE, TITLE)
 
 # A token here means: this module decides when a character appears. pp_config defines the pause macros as values, which
 # is content, so a #macro line is not counted as reveal logic.
@@ -33,6 +42,10 @@ TIMING_TOKENS = {
 }
 
 REVEAL_FIELDS = ("revealed", "acc", "wait", "steps")
+# The fields the old crawl kept for itself: a per line character count, a per character timer, its own pause, and its
+# own blip count. A layout may read the machine's `revealed`, `acc` and `wait`; it may not own a counter of its own.
+CRAWL_FIELDS = ("chars", "timer", "pause", "line_steps", "blips", "revealed", "acc")
+CRAWL_ASSIGN = re.compile(r"\.\s*(%s)\s*(=|\+=|-=)" % "|".join(CRAWL_FIELDS))
 
 
 def gml_files():
@@ -114,6 +127,13 @@ def test_the_auditor_catches_a_second_reveal():
     ])
     assert timing_logic(one_machine) == []
 
+    # The same self check for the crawl audit: a crawl that counts characters and holds its own pause is caught by
+    # the field scan, and a crawl that only reads the machine's count is not.
+    counting = "    _s.crawl.chars += 1;\n    _c.timer = 0;\n    _c.pause = 72;"
+    assert CRAWL_ASSIGN.search(counting), "the crawl counter scan must catch a layout counting its own characters"
+    assert not CRAWL_ASSIGN.search("    var _budget = _c.reveal.revealed;"), \
+        "reading the machine's revealed count is not owning a reveal"
+
 
 def test_both_layouts_step_the_one_machine():
     """Each layout's step, skip and done must be a call into pp_text, not a loop of its own."""
@@ -175,3 +195,60 @@ def test_punctuation_pauses_are_the_spec_numbers_and_live_in_config():
         text = handle.read()
     values = dict(re.findall(r"#macro\s+(PP_TEXT_PAUSE_[A-Z]+)\s+(\d+)", text))
     assert values == {"PP_TEXT_PAUSE_STOP": "8", "PP_TEXT_PAUSE_COMMA": "3"}, values
+
+
+def test_the_crawl_is_audited_by_name():
+    """The third layout is pp_title, and the audit speaks for it by name rather than by whatever the walk finds."""
+    files = gml_files()
+    for path in AUDITED_LAYOUTS:
+        assert path in files, "%s is audited by name but is not a GML file under game/" % path
+        found = timing_logic(code_of(path))
+        assert found == [], "%s decides a reveal timing of its own: %s" % (path, found)
+
+
+def test_the_crawl_steps_the_one_machine_and_keeps_no_counter():
+    """The crawl is a layout: it steps, skips and asks done of pp_text, and owns no character, timer, pause or blip."""
+    crawl = code_of(TITLE)
+    step = function_body(crawl, "pp_title_crawl_step")
+    assert "pp_text_reveal_step(" in step, "the crawl must step the shared reveal"
+
+    new = function_body(crawl, "pp_title_crawl_new")
+    assert "pp_text_reveal_begin(" in new, "the crawl must begin the shared reveal"
+    assert "pp_text_items(" in new, "the crawl must parse its rows with the shared parser"
+
+    finish = function_body(crawl, "pp_title_crawl_finish")
+    assert "pp_text_reveal_finish(" in finish, "the skip must be the machine's own jump to the end"
+
+    done = function_body(crawl, "pp_title_crawl_done")
+    assert "pp_text_reveal_done(" in done, "the crawl must ask the machine whether it is finished"
+
+    intro = function_body(crawl, "pp_title_step_intro")
+    assert "pp_title_crawl_step(" in intro and "pp_title_crawl_finish(" in intro
+
+    offenders = []
+    for line_number, line in enumerate(crawl.split("\n"), start=1):
+        if CRAWL_ASSIGN.search(line):
+            offenders.append("%s:%d %s" % (TITLE, line_number, line.strip()))
+    assert offenders == [], "the crawl is running its own reveal: %s" % offenders
+
+
+def test_the_beat_pause_is_the_machines_gap_and_the_blip_is_a_setting():
+    """A beat is a unit, so its pause is the gap; the three timings are fields the layout sets, not macros it reads."""
+    machine = code_of(OWNER)
+    begin = function_body(machine, "pp_text_reveal_begin")
+    for field in ("speed:", "gap:", "blip:"):
+        assert field in begin, "the reveal struct has no %s to set" % field
+
+    timing = function_body(machine, "pp_text_reveal_timing")
+    for field in ("_rv.speed", "_rv.gap", "_rv.blip"):
+        assert field in timing, "the timing setter does not carry %s" % field
+
+    step = function_body(machine, "pp_text_reveal_step")
+    assert "max(_rv.wait, _rv.gap)" in step, "the gap must be the hold taken at the end of a unit"
+    assert "_rv.revealed mod _rv.blip" in step, "the blip interval must be read from the struct"
+
+    crawl = code_of(TITLE)
+    assert "{pause:" not in crawl, "the beat pause must be the machine's gap, not a {pause:N} item hold"
+    assert "blip_every_chars" in crawl, "the blip interval must still come from data/title_timing.json"
+    assert "pp_text_reveal_timing(" in function_body(crawl, "pp_title_crawl_new"), \
+        "the crawl must hand its own speed, gap and blip interval to the machine"

@@ -15,3 +15,8 @@ if (global.pp.title.steps == 30 && environment_get_variable(PP_TITLE_CAPTURE) !=
         show_debug_message("PP title: screen_save wrote nothing");
     }
 }
+
+// Card TEXT-REVEAL-2 self check: the same escape for the intro crawl, which writes its own mid frame and its own
+// finished frame from inside this draw (pp_title_capture_frames). The crawl cannot be photographed with a screen copy:
+// the last beat is held for one second before the run starts, which is shorter than a copy takes on this host.
+pp_title_capture_frames();

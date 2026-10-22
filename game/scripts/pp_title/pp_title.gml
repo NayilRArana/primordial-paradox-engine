@@ -40,10 +40,15 @@
 #macro PP_TITLE_INTRO_SKY_FADE 252
 #macro PP_TITLE_INTRO_TEXT 540
 #macro PP_TITLE_INTRO_HOLD 60
+// The intro step the self check's mid crawl frame is written on (card TEXT-REVEAL-2): 360 steps into the crawl, which
+// is six seconds of typing, so the frame shows rows filling rather than a finished or an empty screen.
+#macro PP_TITLE_CRAWL_CAPTURE_MID 900
 #macro PP_TITLE_INTRO_COLUMNS 32
 #macro PP_TITLE_INTRO_LINES 6
 #macro PP_TITLE_INTRO_LINE_H 12
 #macro PP_TITLE_INTRO_TEXT_Y 132
+// The crawl's own timing. It is not a reveal: the numbers are handed to pp_text (the one machine) as settings when the
+// crawl starts, so this module keeps the title's values and pp_text keeps the mechanism (spec 14, addendum 2026-10-22).
 #macro PP_TITLE_TEXT_CPS 18
 #macro PP_TITLE_TEXT_PAUSE 72
 #macro PP_TITLE_TEXT_BLIP_EVERY 3
@@ -232,13 +237,13 @@ function pp_title_state_new(_phase) {
         intro_hold: 0,
         ducked: false,
         crawl: undefined,
-        crawl_done: false,
         stars: pp_title_intro_stars(),
         text_beats: pp_title_intro_beats(),
         timing: _timing,
         twinkle_period: _timing.twinkle_period,
         char_steps: _timing.char_steps,
-        beat_pause: _timing.beat_pause
+        beat_pause: _timing.beat_pause,
+        blip_every: _timing.blip_every
     };
     _s.flash_wait = pp_rng_int(_s.rng, PP_TITLE_FLASH_MIN_STEPS, PP_TITLE_FLASH_MAX_STEPS);
     return _s;
@@ -354,7 +359,6 @@ function pp_title_select(_s) {
         _s.intro_sky = 0;
         _s.intro_hold = 0;
         _s.crawl = pp_title_crawl_new(_s);
-        _s.crawl_done = false;
         show_debug_message("PP title: intro started, pan " + string(PP_TITLE_INTRO_PAN_STEPS) + " steps, "
             + string(array_length(_s.stars)) + " stars, " + string(array_length(_s.text_beats)) + " crawl lines");
         return;
@@ -447,10 +451,12 @@ function pp_title_draw_sign(_s, _d, _flash) {
     var _verge = pp_title_layer_named(_d, "title_L5_verge");
     if (is_undefined(_verge)) return;
     var _offset = (round(_s.scroll * _verge.speed) mod 512);
-    // The miles count down one plate a bar, so the sign changes on the music like everything else.
-    var _index = floor(_s.steps / PP_TITLE_BAR_STEPS) mod 4;
+    // A road sign never changes while it is on screen. Each pass of the verge tile is a new sign further down the
+    // M3, so the plate follows the lap: the next sign names the next city and a smaller distance.
+    var _lap = floor((_s.scroll * _verge.speed) / 512);
     for (var shift = -512; shift <= 512; shift += 512) {
         var _x = PP_TITLE_SIGN_X - _offset + shift;
+        var _index = (_lap + (shift div 512) + 400) mod 4;
         if (_x > -100 && _x < PP_FRAME_W) {
             pp_art_draw(_name, _index, _x, _verge.y + PP_TITLE_SIGN_Y, PP_UNTINTED, 1);
         }
@@ -622,6 +628,7 @@ function pp_title_intro_timing() {
         twinkle_period: PP_TITLE_TWINKLE_PERIOD,
         char_steps: 60 / PP_TITLE_TEXT_CPS,
         beat_pause: PP_TITLE_TEXT_PAUSE,
+        blip_every: PP_TITLE_TEXT_BLIP_EVERY,
         lines_on_screen: PP_TITLE_INTRO_LINES
     };
     var _d = pp_title_read_any(["datafiles/title_timing.json", "title_timing.json"]);
@@ -645,6 +652,9 @@ function pp_title_intro_timing() {
         }
         if (variable_struct_exists(_t, "lines_on_screen") && _t.lines_on_screen > 0) {
             _out.lines_on_screen = _t.lines_on_screen;
+        }
+        if (variable_struct_exists(_t, "blip_every_chars") && _t.blip_every_chars > 0) {
+            _out.blip_every = _t.blip_every_chars;
         }
     }
     return _out;
@@ -700,76 +710,51 @@ function pp_title_intro_stars() {
     return _stars;
 }
 
-/// A fresh crawl: which line is being typed, how many of its characters are shown, and the pause between beats.
+/// The crawl as a layout over pp_text (spec 14, addendum 2026-10-22). One beat of the music is one unit of the
+/// reveal, so the beat pause is the machine's gap at a unit end; one line of the beat is one row this module draws.
+/// Nothing here decides when a character appears: the speed, the punctuation holds, the gap and the blip interval are
+/// the title's own numbers, handed to the one machine.
 function pp_title_crawl_new(_s) {
-    return {
-        lines: _s.text_beats,
-        index: 0,
-        chars: 0,
-        timer: 0,
-        pause: 0,
-        line_steps: 0,
-        blips: 0
-    };
-}
-
-/// One step of the crawl: the typewriter, the blip every third letter, and the pause after each beat.
-function pp_title_crawl_step(_s) {
-    var _c = _s.crawl;
-    if (!is_struct(_c)) return;
-    if (_c.index >= array_length(_c.lines)) {
-        _s.crawl_done = true;
-        return;
-    }
-    if (_c.pause > 0) {
-        _c.pause -= 1;
-        return;
-    }
-    var _line = _c.lines[_c.index].text;
-    _c.timer += 1;
-    if (_c.timer < _s.char_steps) return;
-    _c.timer -= _s.char_steps;
-    _c.chars += 1;
-    _c.line_steps += 1;
-    // The blip is every third letter and never on a space, so the sound runs on the words and not on the gaps. The
-    // narrator's pitch, because the crawl is the game speaking and not a character (spec 05 dialogue rule 3).
-    var _ch = string_char_at(_line, _c.chars);
-    if (_ch != " " && _ch != "" && (_c.chars mod PP_TITLE_TEXT_BLIP_EVERY) == 0) {
-        pp_audio_play(pp_audio_blip_cue("narrator"));
-        _c.blips += 1;
-    }
-    if (_c.chars >= string_length(_line)) {
-        var _beat = _c.lines[_c.index].beat;
-        _c.index += 1;
-        _c.chars = 0;
-        _c.timer = 0;
-        _c.line_steps = 0;
-        if (_c.index >= array_length(_c.lines)) {
-            _s.crawl_done = true;
-            return;
+    var _rows = [];
+    var _units = [];
+    var _beat = -1;
+    var _unit = [];
+    for (var i = 0; i < array_length(_s.text_beats); i += 1) {
+        var _row = _s.text_beats[i];
+        if (_row.beat != _beat) {
+            if (_beat >= 0) array_push(_units, _unit);
+            _unit = [];
+            _beat = _row.beat;
         }
-        // A pause marks the end of a beat, which is where a reader stops before the next thought.
-        if (_c.lines[_c.index].beat != _beat) _c.pause = _s.beat_pause;
+        var _items = pp_text_items(_row.text);
+        array_push(_rows, { beat: _row.beat, text: _row.text, count: array_length(_items) });
+        for (var k = 0; k < array_length(_items); k += 1) array_push(_unit, _items[k]);
     }
+    if (_beat >= 0) array_push(_units, _unit);
+    // The narrator's pitch, because the crawl is the game speaking and not a character (spec 05 rule 3), and auto
+    // advance, because a crawl has no confirm to wait for.
+    var _reveal = pp_text_reveal_begin(_units, "narrator", true);
+    pp_text_reveal_timing(_reveal, _s.char_steps, _s.beat_pause, _s.blip_every);
+    return { rows: _rows, reveal: _reveal };
 }
 
-/// Jump the crawl to its end, which is what the start key does: the last line is shown whole, then the shot leaves.
+/// One step of the crawl is one step of the machine. There is no timer and no per line counter here: the reveal's
+/// own fields are the truth, and the duck under the words happens on the first step.
+function pp_title_crawl_step(_s) {
+    if (!is_struct(_s.crawl)) return;
+    pp_text_reveal_step(_s.crawl.reveal, false);
+}
+
+/// True when the last beat has been typed out, or the player skipped to it.
+function pp_title_crawl_done(_s) {
+    if (!is_struct(_s.crawl)) return true;
+    return pp_text_reveal_done(_s.crawl.reveal);
+}
+
+/// Jump the crawl to its end, which is what the start key does: the last beat is shown whole, then the shot leaves.
 function pp_title_crawl_finish(_s) {
-    var _c = _s.crawl;
-    if (!is_struct(_c)) {
-        _s.crawl_done = true;
-        return;
-    }
-    var _last = array_length(_c.lines) - 1;
-    if (_last >= 0) {
-        _c.index = _last;
-        _c.chars = string_length(_c.lines[_last].text);
-    } else {
-        _c.index = 0;
-    }
-    _c.pause = 0;
-    _c.timer = 0;
-    _s.crawl_done = true;
+    if (!is_struct(_s.crawl)) return;
+    pp_text_reveal_finish(_s.crawl.reveal);
 }
 
 /// One step of the intro: the pan, the two four step fades, the held stars, the crawl, and the skip.
@@ -788,7 +773,7 @@ function pp_title_step_intro(_s) {
         _s.intro_sky = min(4, 1 + floor((_s.intro - PP_TITLE_INTRO_SKY_FADE) / PP_TITLE_INTRO_FADE_STEP_STEPS));
     }
 
-    if (_s.intro >= PP_TITLE_INTRO_TEXT && !_s.crawl_done) {
+    if (_s.intro >= PP_TITLE_INTRO_TEXT && !pp_title_crawl_done(_s)) {
         if (!_s.ducked) {
             // The theme keeps playing and drops under the words, then comes back for the run.
             pp_audio_duck_db(PP_TITLE_DUCK_DB);
@@ -800,13 +785,13 @@ function pp_title_step_intro(_s) {
     // The start key skips to the end of the crawl. The pad's start is the menu action, and Z or X work too, which is
     // how a cutscene of this kind is skipped on the hardware this game is written for.
     if (pp_pressed("menu") || pp_pressed("cancel") || pp_pressed("confirm")) {
-        if (!_s.crawl_done) {
+        if (!pp_title_crawl_done(_s)) {
             pp_title_crawl_finish(_s);
             show_debug_message("PP title: intro skipped, the crawl jumped to its end");
         }
     }
 
-    if (_s.crawl_done) {
+    if (pp_title_crawl_done(_s)) {
         if (_s.ducked) {
             pp_audio_unduck();
             _s.ducked = false;
@@ -898,21 +883,38 @@ function pp_title_draw_stars(_s) {
 }
 
 /// The crawl: the lines already typed stack upward, the line being typed sits at the bottom, and when the stack is
-/// full the oldest line scrolls off the top.
+/// full the oldest line scrolls off the top. How many characters are on screen is the machine's revealed count, spent
+/// across the rows of the beat being typed; this function only decides which rows are in the window and where they sit.
 function pp_title_draw_crawl(_s) {
     var _c = _s.crawl;
     if (!is_struct(_c)) return;
+    var _rv = _c.reveal;
     var _visible = _s.timing.lines_on_screen;
-    var _total = array_length(_c.lines);
+    var _total = array_length(_c.rows);
     if (_total == 0) return;
-    var _last = min(_c.index, _total - 1);
-    var _first = max(0, _last - (_visible - 1));
-    for (var i = _first; i <= _last; i += 1) {
-        var _text = _c.lines[i].text;
-        if (i == _c.index) _text = string_copy(_text, 1, floor(_c.chars));
+
+    // The row being typed, and how much of it is shown. The reveal counts items over the current beat, so the beat's
+    // rows are walked and the count is spent on each until the row it stops in.
+    var _row = 0;
+    while (_row < _total && _c.rows[_row].beat < _rv.unit) _row += 1;
+    var _budget = _rv.revealed;
+    while (_row < _total && _c.rows[_row].beat == _rv.unit && _budget > _c.rows[_row].count) {
+        _budget -= _c.rows[_row].count;
+        _row += 1;
+    }
+    if (_row >= _total) {
+        _row = _total - 1;
+        _budget = _c.rows[_row].count;
+    }
+    if (_budget > _c.rows[_row].count) _budget = _c.rows[_row].count;
+
+    var _first = max(0, _row - (_visible - 1));
+    for (var i = _first; i <= _row; i += 1) {
+        var _text = _c.rows[i].text;
+        if (i == _row) _text = string_copy(_text, 1, floor(_budget));
         if (_text == "") continue;
-        var _row = i - _first;
-        pp_font_draw_centre(_text, PP_FRAME_W / 2, PP_TITLE_INTRO_TEXT_Y + _row * PP_TITLE_INTRO_LINE_H,
+        var _at = i - _first;
+        pp_font_draw_centre(_text, PP_FRAME_W / 2, PP_TITLE_INTRO_TEXT_Y + _at * PP_TITLE_INTRO_LINE_H,
                             PP_TITLE_WHITE, 1);
     }
 }
@@ -923,6 +925,28 @@ function pp_title_layer_named(_d, _name) {
         if (_d.layers[i].name == _name) return _d.layers[i];
     }
     return undefined;
+}
+
+/// The self check for the crawl (card TEXT-REVEAL-2). With PP_TITLE_CAPTURE set in the environment the game writes its
+/// own frames from inside the draw, which is the only copy of this window this host can be trusted with: a screen
+/// rectangle copy of the DirectX11 window has measured the desktop's colours in this session, and the ship room's
+/// capture uses the same escape for the same reason. The two files are the crawl six seconds in, and the first draw
+/// after the last beat is typed (inside the one second hold, before the run starts). Unset, which is every real
+/// launch, this costs one environment read per draw and writes nothing.
+function pp_title_capture_frames() {
+    if (environment_get_variable(PP_TITLE_CAPTURE) == "") return;
+    var _s = global.pp.title;
+    if (!is_struct(_s) || _s.phase != "intro") return;
+    if (_s.intro == PP_TITLE_CRAWL_CAPTURE_MID) {
+        screen_save("pp_crawl_mid.png");
+        show_debug_message("PP title: wrote pp_crawl_mid.png at intro step " + string(_s.intro));
+    }
+    if (!variable_global_exists("pp_crawl_end_written")) global.pp_crawl_end_written = false;
+    if (!global.pp_crawl_end_written && is_struct(_s.crawl) && pp_title_crawl_done(_s)) {
+        global.pp_crawl_end_written = true;
+        screen_save("pp_crawl_end.png");
+        show_debug_message("PP title: wrote pp_crawl_end.png at intro step " + string(_s.intro));
+    }
 }
 
 /// The app mode that runs the title screen. Registered by pp_app_boot.

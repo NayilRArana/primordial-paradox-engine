@@ -2,9 +2,11 @@
 /// Everything that decides WHEN a character appears lives here: the item list a source line becomes, the hold value,
 /// the speed, the punctuation pauses, the skip and the done predicate. A layout decides WHERE text is drawn and what
 /// one unit of text looks like: pp_dialogue is a page with a portrait, pp_battle_text is a board with several lines
-/// showing at once. Two layouts, one revealer.
-/// Provenance: knowledge\PROVENANCE.md, entry "text reveal machine: one implementation, two layouts". The mechanism is
-/// spec 05 rules 1, 2, 3 and 5. No expression from a decompilation is used or needed for it.
+/// showing at once, and pp_title is the intro crawl, where one beat of the music is one unit and its rows stack
+/// upward from the bottom of the frame. Three layouts, one revealer.
+/// Provenance: knowledge\PROVENANCE.md, entries "text reveal machine: one implementation, two layouts" and "the title
+/// crawl is a layout over the one reveal machine". The mechanism is spec 05 rules 1, 2, 3 and 5, plus the crawl
+/// addendum of spec 14. No expression from a decompilation is used or needed for it.
 /// No closures: every loop is written out, because a closure that reassigns an outer var is the kind of thing that
 /// behaves differently between runtimes and cannot be tested on this PC.
 
@@ -67,10 +69,11 @@ function pp_text_unit_length(_rv) {
 }
 
 /// Begin a reveal over _units: an array of units, each unit a flat item list from pp_text_items. A unit is one
-/// dialogue page or one board line; the machine never needs to know which.
+/// dialogue page, one board line or one beat of the intro crawl; the machine never needs to know which.
 /// _speaker pitches the blip and is "" for a layout that does not blip. _auto says whether the end of a unit advances
-/// by itself after one punctuation sized hold, or waits for the layout to advance it. Both are layout settings, and
-/// neither one is a reveal of its own.
+/// by itself after the gap, or waits for the layout to advance it. Both are layout settings, and neither one is a
+/// reveal of its own. The three timings (speed, gap, blip interval) start on the spec 05 numbers and a layout with its
+/// own passes them through pp_text_reveal_timing.
 function pp_text_reveal_begin(_units, _speaker, _auto) {
     return {
         units: _units,
@@ -81,10 +84,25 @@ function pp_text_reveal_begin(_units, _speaker, _auto) {
         steps: 0,
         blips: 0,
         speaker: _speaker,
+        speed: PP_TEXT_STEPS_SLOW,
         gap: PP_TEXT_PAUSE_STOP,
+        blip: PP_TEXT_BLIP_EVERY,
         auto: _auto,
         done: (array_length(_units) == 0)
     };
+}
+
+/// Hand the machine a layout's own timings: steps per character, the gap at a unit end, and the blip interval. A
+/// layout that passes nothing keeps the spec 05 numbers, which is what the box and the board want. The crawl passes
+/// its own, because its speed is measured against the music (data\title_timing.json) and its gap is one beat of it.
+/// These are three numbers on one machine, not a second reveal: nothing here decides WHEN a character appears except
+/// by changing the number the one stepper already uses.
+function pp_text_reveal_timing(_rv, _speed, _gap, _blip) {
+    if (is_undefined(_rv)) return _rv;
+    if (_speed > 0) _rv.speed = _speed;
+    if (_gap >= 0) _rv.gap = _gap;
+    if (_blip > 0) _rv.blip = _blip;
+    return _rv;
 }
 
 function pp_text_reveal_done(_rv) {
@@ -107,12 +125,17 @@ function pp_text_reveal_step(_rv, _fast) {
     var _items = _rv.units[_rv.unit];
     var _item = _items[_rv.revealed];
 
-    var _steps_per_char = PP_TEXT_STEPS_SLOW;
+    var _steps_per_char = _rv.speed;
     if (_fast) _steps_per_char = PP_TEXT_STEPS_FAST;
     if (!_fast && _item.speed > 0) _steps_per_char = max(PP_TEXT_STEPS_FAST, _item.speed);
     _rv.acc += 1;
     if (_rv.acc < _steps_per_char) return;
-    _rv.acc = 0;
+    // The remainder is carried, not dropped. At a whole number of steps a character (the box's 2, the fast 1) this
+    // lands on zero and behaves exactly as a reset always did; at a fraction, which is what a speed measured against
+    // the music gives (the crawl runs at 60 / 18 steps a character), dropping it would round every character up to
+    // the next step and slow the text by a fifth.
+    _rv.acc -= _steps_per_char;
+    if (_rv.acc < 0) _rv.acc = 0;
 
     _rv.revealed += 1;
     if (_item.wait > 0) {
@@ -124,9 +147,10 @@ function pp_text_reveal_step(_rv, _fast) {
     } else if (_item.ch == ",") {
         _rv.wait += PP_TEXT_PAUSE_COMMA;
     }
-    if (_item.ch != " " && _rv.speaker != "" && _rv.revealed mod PP_TEXT_BLIP_EVERY == 0) {
+    if (_item.ch != " " && _rv.speaker != "" && _rv.blip > 0 && _rv.revealed mod _rv.blip == 0) {
         _rv.blips += 1;
-        // One blip every three revealed characters, never on a space, pitched by speaker (spec 05 rule 3).
+        // One blip every _rv.blip revealed characters (three, spec 05 rule 3), never on a space and pitched by
+        // speaker. The interval is a field so a layout timed against the music can set its own; it is the same blip.
         pp_audio_play(pp_audio_blip_cue(_rv.speaker));
     }
 
@@ -165,4 +189,21 @@ function pp_text_reveal_next(_rv) {
     _rv.acc = 0;
     _rv.wait = 0;
     return false;
+}
+
+/// Jump to the end: the last unit shown whole and the reveal done, with no hold left. This is the skip of a scene the
+/// player may not want to sit through (the title crawl's start key), and it is the machine's own jump, so a layout
+/// never walks the item list to finish it.
+function pp_text_reveal_finish(_rv) {
+    if (is_undefined(_rv)) return;
+    var _last = array_length(_rv.units) - 1;
+    if (_last < 0) {
+        _rv.done = true;
+        return;
+    }
+    _rv.unit = _last;
+    _rv.revealed = array_length(_rv.units[_last]);
+    _rv.acc = 0;
+    _rv.wait = 0;
+    _rv.done = true;
 }
