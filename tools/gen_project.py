@@ -52,9 +52,17 @@ ROOMS = {
             ("obj_pp_debug_overlay", 0, 0),
         ],
     },
+    # Map 2 (card ASSEMBLE): the Navy ship lower deck, played from data/maps/ship_sample.json. The instance
+    # layer is empty on purpose. obj_pp_game is persistent, so it is already alive when the run enters this
+    # room, and a placed copy here would be a second controller in the same frame.
+    "rm_pp_ship": {
+        "size": (256, 240),
+        "background": 4278190080,  # opaque black, ARGB
+        "instances": [],
+    },
 }
 
-ROOM_ORDER = ["rm_pp_boot", "rm_pp_title"]
+ROOM_ORDER = ["rm_pp_boot", "rm_pp_title", "rm_pp_ship"]
 
 # Per object settings the generated .yy carries. obj_pp_game is persistent because it owns the app mode machine,
 # the input sample and the save panel, and all three must survive the move from the boot room to the title room.

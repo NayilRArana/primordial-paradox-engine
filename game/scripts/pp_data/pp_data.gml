@@ -111,6 +111,16 @@ function pp_data_load() {
         slice: pp_data_json("slice.json")
     };
 
+    // The ship room's own map file (card ASSEMBLE). data\maps\ship_sample.json holds just the map rm_pp_ship plays;
+    // it is appended to the registry list here so pp_map_load finds it by id like any other map. A build without the
+    // file simply has no ship_sample map, and the boot card says so in plain words instead of crashing.
+    var _ship_maps = pp_data_json("maps/ship_sample.json");
+    if (is_struct(_ship_maps) && is_array(_ship_maps.maps)) {
+        for (var _m = 0; _m < array_length(_ship_maps.maps); _m += 1) {
+            array_push(_bundle.maps.maps, _ship_maps.maps[_m]);
+        }
+    }
+
     // Index the id lists once so nothing scans an array every step.
     _bundle.enemy_by_id = pp_data_index(is_struct(_bundle.enemies) ? _bundle.enemies.enemies : []);
     _bundle.encounter_by_id = pp_data_index(is_struct(_bundle.encounters) ? _bundle.encounters.encounters : []);

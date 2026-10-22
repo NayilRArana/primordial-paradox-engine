@@ -126,6 +126,12 @@ enum PPElement {
 #macro PP_TRIGGER_LOCK_STEPS 20
 #macro PP_MARKER_RESPAWN_STEPS 30
 
+// The first room of a new run (card ASSEMBLE): the Navy ship lower deck, played in rm_pp_ship from the map file
+// data\maps\ship_sample.json. It is here, in the constants, so a different first room is one line and not a search.
+#macro PP_NEW_GAME_MAP "ship_sample"
+#macro PP_NEW_GAME_SPAWN "start"
+#macro PP_NEW_GAME_ROOM "rm_pp_ship"
+
 // Dialogue box (spec 05). Box 240x64 at (8,168); portrait 48x48; text area from x 72, 30 characters over 3 rows.
 #macro PP_BOX_X 8
 #macro PP_BOX_Y 168

@@ -87,6 +87,24 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "music_recipes.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "music_recipes.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "nes_palette.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "nes_palette.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "palette.json",
       "CopyToMask": -1,
       "filePath": "datafiles",
@@ -123,6 +141,24 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "title.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_flash.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "title_flash.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_pp_font8.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -145,6 +181,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "spr_pp_title_logo.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_pp_window.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_pp_window.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -186,6 +231,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "spr_title_cone_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cone_flash.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_title_exhaust.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -213,6 +267,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "spr_title_sign_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_sign_flash.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_title_theo.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -231,10 +294,37 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_BG_bigben.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_BG_bigben.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_BG_bigben_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_BG_bigben_flash.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title_L1_sky.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "title_L1_sky.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L1_sky_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L1_sky_flash.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -249,10 +339,28 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_L2_clouds_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L2_clouds_flash.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title_L3_downs.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "title_L3_downs.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L3_downs_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L3_downs_flash.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -267,10 +375,28 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_L4_fields_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L4_fields_flash.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title_L5_verge.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "title_L5_verge.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L5_verge_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L5_verge_flash.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -285,6 +411,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_L6_road_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L6_road_flash.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title_L7_fg.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -294,10 +429,28 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_L7_fg_flash.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L7_fg_flash.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title_manifest.json",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "title_manifest.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "ts_ship.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "ts_ship.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -348,6 +501,96 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "ship_sample.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps",
+      "name": "ship_sample.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "ship_sample_tiled.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps",
+      "name": "ship_sample_tiled.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "southampton_town_quay.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps/osm",
+      "name": "southampton_town_quay.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "westminster_big_ben.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps/osm",
+      "name": "westminster_big_ben.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "winchester_high_street.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps/osm",
+      "name": "winchester_high_street.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "southampton_town_quay.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/osm_cache",
+      "name": "southampton_town_quay.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "westminster_big_ben.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/osm_cache",
+      "name": "westminster_big_ben.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "winchester_high_street.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/osm_cache",
+      "name": "winchester_high_street.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "scene_ship.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_ship.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "scene_title.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_title.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "all.json",
       "CopyToMask": -1,
       "filePath": "datafiles/patterns",
@@ -370,6 +613,24 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "title_theme.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_theme_v2.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "title_theme_v2.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_theme_v3.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "title_theme_v3.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     }
@@ -533,6 +794,12 @@
     },
     {
       "id": {
+        "name": "rm_pp_ship",
+        "path": "rooms/rm_pp_ship/rm_pp_ship.yy"
+      }
+    },
+    {
+      "id": {
         "name": "rm_pp_title",
         "path": "rooms/rm_pp_title/rm_pp_title.yy"
       }
@@ -551,6 +818,12 @@
       "roomId": {
         "name": "rm_pp_title",
         "path": "rooms/rm_pp_title/rm_pp_title.yy"
+      }
+    },
+    {
+      "roomId": {
+        "name": "rm_pp_ship",
+        "path": "rooms/rm_pp_ship/rm_pp_ship.yy"
       }
     }
   ],

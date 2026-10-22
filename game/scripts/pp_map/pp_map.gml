@@ -25,9 +25,13 @@ function pp_map_load(_map_id) {
         collision: _row.collision,
         triggers: _row.triggers,
         spawns: _row.spawns,
+        actors: [],
         story_flag: "",
-        palette: _row.palette_indices
+        palette: _row.palette_indices,
+        tileset: ""
     };
+    if (variable_struct_exists(_row, "actors")) _map.actors = _row.actors;
+    if (variable_struct_exists(_row, "tileset")) _map.tileset = _row.tileset;
     if (variable_struct_exists(_row, "story_flag")) _map.story_flag = _row.story_flag;
     return _map;
 }
@@ -103,8 +107,29 @@ function pp_map_pixel_size(_map) {
     return { w: _map.w * _map.tile, h: _map.h * _map.tile };
 }
 
-/// Draw the visible tile window. Flat rectangles today; spec 13 owns the real tileset and this loop stays the same.
+/// The tile index a map character draws with inside the ship tileset. The numbers are the tile ids in
+/// game\sprites_src\env\ts_ship_tiled.json, chosen by tile name there: bulkhead 8, deck_plain 2, hatch_open 13,
+/// crate 21, pipes 18, deck_grate 3. A character the ship set does not name draws deck_plain, never a hole.
+#macro PP_TILESET_COLUMNS 16
+function pp_map_tile_gid(_ch) {
+    switch (_ch) {
+        case "#": return 8;
+        case ".": return 2;
+        case "D": return 13;
+        case "C": return 21;
+        case "P": return 18;
+        case "G": return 3;
+    }
+    return 2;
+}
+
+/// Draw the visible tile window. The map's own tileset when the art lane delivered one (card ENV-TILES),
+/// flat rectangles when it did not, so the room still reads on a build without the sheet.
 function pp_map_draw(_map, _cam_x, _cam_y) {
+    var _ts = "";
+    if (_map.tileset != "" && pp_art_has(_map.tileset)) _ts = _map.tileset;
+    var _info = is_string(_ts) && _ts != "" ? pp_art_info(_ts) : undefined;
+
     var _x0 = floor(_cam_x / _map.tile);
     var _y0 = floor(_cam_y / _map.tile);
     var _ty = _y0;
@@ -113,8 +138,17 @@ function pp_map_draw(_map, _cam_x, _cam_y) {
         while (_tx <= _x0 + PP_VIEW_W) {
             var _px = _tx * _map.tile - _cam_x;
             var _py = _ty * _map.tile - _cam_y;
-            draw_set_colour(pp_map_kind_colour(pp_map_tile_kind(_map, _tx, _ty)));
-            draw_rectangle(_px, _py, _px + _map.tile - 1, _py + _map.tile - 1, false);
+            var _ch = pp_map_tile_char(_map, _tx, _ty);
+            if (!is_undefined(_info)) {
+                var _gid = pp_map_tile_gid(_ch);
+                var _sx = (_gid mod PP_TILESET_COLUMNS) * _map.tile;
+                var _sy = floor(_gid / PP_TILESET_COLUMNS) * _map.tile;
+                draw_sprite_part_ext(_info.sprite, 0, _sx, _sy, _map.tile, _map.tile,
+                                     _px, _py, 1, 1, c_white, 1);
+            } else {
+                draw_set_colour(pp_map_kind_colour(pp_map_tile_kind(_map, _tx, _ty)));
+                draw_rectangle(_px, _py, _px + _map.tile - 1, _py + _map.tile - 1, false);
+            }
             _tx += 1;
         }
         _ty += 1;

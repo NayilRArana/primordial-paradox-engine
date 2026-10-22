@@ -27,6 +27,10 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "game", "sprites_src", "title")
+# The environment lane writes its tileset into game\sprites_src\env\ with the same PNG plus JSON contract, so the
+# mirror reads both folders and the runtime needs no second index. Card ASSEMBLE loads ts_ship from it.
+ENV_SRC = os.path.join(ROOT, "game", "sprites_src", "env")
+SOURCES = (SRC, ENV_SRC)
 DST = os.path.join(ROOT, "game", "datafiles", "art")
 INDEX = "title_manifest.json"
 
@@ -34,25 +38,37 @@ INDEX = "title_manifest.json"
 def source_entries() -> list[dict]:
     """Every animation on disk, sorted by name, with the numbers the runtime needs."""
     entries = []
-    if not os.path.isdir(SRC):
-        return entries
-    for fname in sorted(os.listdir(SRC)):
-        if not fname.endswith(".json"):
+    for folder in SOURCES:
+        if not os.path.isdir(folder):
             continue
-        with open(os.path.join(SRC, fname), "r", encoding="utf-8") as fh:
-            meta = json.load(fh)
-        png = fname[:-5] + ".png"
-        if not os.path.isfile(os.path.join(SRC, png)):
-            raise SystemExit("sync_art: %s has no PNG beside it" % fname)
-        entries.append({
-            "name": meta["name"],
-            "file": meta["name"] + ".png",
-            "frame_w": int(meta["frame_w"]),
-            "frame_h": int(meta["frame_h"]),
-            "frames": int(meta["frames"]),
-            "fps": float(meta.get("fps", 0.0)),
-        })
+        for fname in sorted(os.listdir(folder)):
+            if not fname.endswith(".json"):
+                continue
+            with open(os.path.join(folder, fname), "r", encoding="utf-8") as fh:
+                meta = json.load(fh)
+            if "name" not in meta or "frame_w" not in meta:
+                # A tileset sidecar (ts_ship_tiled.json) describes a Tiled file, not an animation strip.
+                continue
+            png = fname[:-5] + ".png"
+            if not os.path.isfile(os.path.join(folder, png)):
+                raise SystemExit("sync_art: %s has no PNG beside it" % fname)
+            entries.append({
+                "name": meta["name"],
+                "file": meta["name"] + ".png",
+                "frame_w": int(meta["frame_w"]),
+                "frame_h": int(meta["frame_h"]),
+                "frames": int(meta["frames"]),
+                "fps": float(meta.get("fps", 0.0)),
+            })
     return entries
+
+
+def source_path(fname: str) -> str:
+    """The folder a mirrored PNG really lives in. Title first, so an old name keeps its old file."""
+    for folder in SOURCES:
+        if os.path.isfile(os.path.join(folder, fname)):
+            return os.path.join(folder, fname)
+    return os.path.join(SRC, fname)
 
 
 def index_text(entries: list[dict]) -> str:
@@ -80,7 +96,7 @@ def main() -> int:
 
     stale = []
     for name, entry in wanted_png.items():
-        src = os.path.join(SRC, name)
+        src = source_path(name)
         dst = os.path.join(DST, name)
         if not os.path.exists(dst) or hashlib.sha256(open(src, "rb").read()).digest() != \
                 hashlib.sha256(open(dst, "rb").read()).digest():
@@ -119,12 +135,23 @@ def main() -> int:
 
 
 def mirror_streams() -> None:
-    """The title theme stream: copy title_theme.ogg from assets/audio/title_theme into game/datafiles/streams."""
-    src = os.path.join(ROOT, "assets", "audio", "title_theme", "title_theme.ogg")
+    """Every rendered theme under assets\\audio\\<name>\\<name>.ogg is copied into game/datafiles/streams.
+
+    One stream used to be enough, so this copied title_theme.ogg and nothing else. The music lane
+    added title_theme_v2.ogg, and the committed .yyp lists every stream in the mirror, so a fresh
+    checkout could not regenerate that .yyp while this script mirrored only the first theme. The
+    rule now is the source tree's: one folder per theme, the render named after the folder.
+    """
+    base = os.path.join(ROOT, "assets", "audio")
     dst_dir = os.path.join(ROOT, "game", "datafiles", "streams")
-    if os.path.isfile(src):
+    if not os.path.isdir(base):
+        return
+    for name in sorted(os.listdir(base)):
+        src = os.path.join(base, name, name + ".ogg")
+        if not os.path.isfile(src):
+            continue
         os.makedirs(dst_dir, exist_ok=True)
-        shutil.copy2(src, os.path.join(dst_dir, "title_theme.ogg"))
+        shutil.copy2(src, os.path.join(dst_dir, name + ".ogg"))
 
 
 if __name__ == "__main__":

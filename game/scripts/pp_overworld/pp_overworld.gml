@@ -34,6 +34,25 @@ function pp_overworld_new(_map_id, _spawn_name) {
         map_changes: 0
     };
     pp_overworld_camera_follow(_world);
+
+    // Story actors placed by the map data (card ASSEMBLE). One sailor on the lower deck is the first of them.
+    // They are read from the map, never hardcoded here, so a new NPC is a data edit and not a code edit.
+    if (is_array(_map.actors)) {
+        for (var _i = 0; _i < array_length(_map.actors); _i += 1) {
+            var _a = _map.actors[_i];
+            _world.actors[$ string(_a.id)] = {
+                name: _a.id,
+                kind: _a.kind,
+                dialogue: _a.dialogue,
+                facing: _a.facing,
+                tx: _a.x,
+                ty: _a.y,
+                px: _a.x * PP_TILE,
+                py: _a.y * PP_TILE,
+                walk: 0
+            };
+        }
+    }
     return _world;
 }
 
@@ -252,6 +271,23 @@ function pp_overworld_confirm_target(_world) {
     return pp_map_trigger_at(_world.map, _world.hero.tx, _world.hero.ty);
 }
 
+/// The actor standing on one tile, or undefined. Used for talk and for blocking a walk into somebody.
+function pp_overworld_actor_at(_world, _tx, _ty) {
+    var _names = variable_struct_get_names(_world.actors);
+    for (var _i = 0; _i < array_length(_names); _i += 1) {
+        var _a = _world.actors[$ _names[_i]];
+        if (_a.tx == _tx && _a.ty == _ty) return _a;
+    }
+    return undefined;
+}
+
+/// The actor the hero is facing, or undefined. Talk is confirm on the tile ahead, so the same key that reads a
+/// sign reads a sailor.
+function pp_overworld_actor_ahead(_world) {
+    var _d = pp_world_dir_vector(_world.hero.facing);
+    return pp_overworld_actor_at(_world, _world.hero.tx + _d.x, _world.hero.ty + _d.y);
+}
+
 /// Step the overworld: clocks, scene, dialogue, walking, triggers.
 function pp_overworld_step(_world) {
     if (is_undefined(_world)) return;
@@ -334,6 +370,13 @@ function pp_overworld_step(_world) {
     }
 
     if (_world.trigger_lock <= 0 && pp_pressed("confirm")) {
+        var _talk = pp_overworld_actor_ahead(_world);
+        if (!is_undefined(_talk) && _talk.dialogue != "") {
+            _world.dialogue = pp_dialogue_open(_talk.dialogue);
+            if (is_undefined(_world.dialogue)) _world.dialogue = undefined;
+            pp_overworld_clock_step(_world);
+            return;
+        }
         var _target = pp_overworld_confirm_target(_world);
         if (!is_undefined(_target) && _target.kind != "marker") {
             pp_overworld_fire(_world, _target);
@@ -354,7 +397,7 @@ function pp_overworld_step(_world) {
         var _d = pp_world_dir_vector(_dir);
         var _nx = _world.hero.tx + _d.x;
         var _ny = _world.hero.ty + _d.y;
-        if (pp_map_walkable(_world.map, _nx, _ny)) {
+        if (pp_map_walkable(_world.map, _nx, _ny) && is_undefined(pp_overworld_actor_at(_world, _nx, _ny))) {
             pp_world_start_move(_world, _nx, _ny, PP_WALK_STEPS_FREE);
         } else if (PP_DEBUG) {
             show_debug_message("PP: wall at " + string(_nx) + "," + string(_ny));
@@ -402,16 +445,10 @@ function pp_overworld_draw(_world) {
 
     pp_map_draw(_world.map, floor(_world.cam_x) + _ox, floor(_world.cam_y) + _oy);
 
-    // Story actors, drawn as a plain block until sprites exist.
-    var _names = variable_struct_get_names(_world.actors);
-    var _i = 0;
-    while (_i < array_length(_names)) {
-        var _a = _world.actors[$ _names[_i]];
-        draw_set_colour(pp_role_colour("accent"));
-        draw_rectangle(_a.px - _world.cam_x + 2 + _ox, _a.py - _world.cam_y + 2 + _oy,
-                       _a.px - _world.cam_x + 13 + _ox, _a.py - _world.cam_y + 15 + _oy, false);
-        _i += 1;
-    }
+    // Story actors and the hero, each a sheet frame when the art lane has delivered one and a shaped block
+    // until then (card ASSEMBLE: SPRITE-1 was not on disk, so the block fallback is the live path and the
+    // frame branch is what a delivered sheet switches on with no code change).
+    pp_overworld_draw_actors(_world, _ox, _oy);
 
     // Encounter markers: a small silhouette, skipped while respawning.
     var _t = 0;
@@ -428,10 +465,8 @@ function pp_overworld_draw(_world) {
         _t += 1;
     }
 
-    // The hero, 12x12 in a 16x16 tile, centred.
-    draw_set_colour(pp_role_colour("ink"));
-    draw_rectangle(_world.hero.px - _world.cam_x + 2 + _ox, _world.hero.py - _world.cam_y + 2 + _oy,
-                   _world.hero.px - _world.cam_x + 13 + _ox, _world.hero.py - _world.cam_y + 15 + _oy, false);
+    // The hero, 12x12 in a 16x16 tile, centred, with the walk cycle.
+    pp_overworld_draw_hero(_world, _ox, _oy);
 
     if (!pp_dialogue_closed(_world.dialogue)) pp_dialogue_draw(_world.dialogue);
 
@@ -440,5 +475,81 @@ function pp_overworld_draw(_world) {
         draw_set_colour(c_black);
         draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
         draw_set_alpha(1);
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// The two overworld figures. Both ask the art index first: a delivered sheet is 4 directions by 3 frames
+// (idle, walk a, walk b) in rows of 16x16, so the frame index is direction * 3 + step. With no sheet the
+// same silhouette is drawn from blocks at the same size, which is the card's stated fallback and keeps the
+// walk cycle, the facing and the dialogue reach working before any art lands.
+
+#macro PP_HERO_SHEET "spr_pp_zander_ow"
+#macro PP_SAILOR_SHEET "spr_pp_sailor_ow"
+
+/// Row of a direction inside a 4 by 3 sheet. The order is the one the card names: down, left, right, up.
+function pp_world_dir_row(_dir) {
+    switch (_dir) {
+        case "down":  return 0;
+        case "left":  return 1;
+        case "right": return 2;
+        case "up":    return 3;
+    }
+    return 0;
+}
+
+/// The walk step of a figure: 0 standing, 1 and 2 while a move is under way. Two frames, 4 steps apart, so the
+/// cycle reads at a walking pace without a separate clock.
+function pp_world_walk_frame(_moving, _steps) {
+    if (!_moving) return 0;
+    return 1 + (floor(_steps / 4) mod 2);
+}
+
+function pp_overworld_draw_hero(_world, _ox, _oy) {
+    var _hero = _world.hero;
+    var _sx = _hero.px - _world.cam_x + _ox;
+    var _sy = _hero.py - _world.cam_y + _oy;
+    var _step = pp_world_walk_frame(_hero.moving, _hero.steps);
+    var _frame = pp_world_dir_row(_hero.facing) * 3 + _step;
+    if (pp_art_draw(PP_HERO_SHEET, _frame, _sx, _sy, c_white, 1)) return;
+
+    // Blocks: blond head, light blue bomber, dark trousers. 12 wide, 14 tall inside the 16 pixel tile.
+    var _bob = (_step == 0) ? 0 : 1;
+    draw_set_colour(pp_role_colour("warn"));
+    draw_rectangle(_sx + 5, _sy + 1 + _bob, _sx + 10, _sy + 5 + _bob, false);
+    draw_set_colour(pp_role_colour("marker"));
+    draw_rectangle(_sx + 4, _sy + 6 + _bob, _sx + 11, _sy + 11 + _bob, false);
+    draw_set_colour(pp_role_colour("ink"));
+    draw_rectangle(_sx + 4, _sy + 12, _sx + 5, _sy + 14, false);
+    draw_rectangle(_sx + 10, _sy + 12, _sx + 11, _sy + 14, false);
+    if (_hero.facing == "left" || _hero.facing == "right") {
+        draw_set_colour(pp_role_colour("ink"));
+        draw_rectangle(_sx + (_hero.facing == "left" ? 5 : 9), _sy + 3 + _bob,
+                       _sx + (_hero.facing == "left" ? 5 : 9), _sy + 3 + _bob, false);
+    } else if (_hero.facing == "down") {
+        draw_set_colour(pp_role_colour("ink"));
+        draw_rectangle(_sx + 6, _sy + 3 + _bob, _sx + 6, _sy + 3 + _bob, false);
+        draw_rectangle(_sx + 9, _sy + 3 + _bob, _sx + 9, _sy + 3 + _bob, false);
+    }
+}
+
+function pp_overworld_draw_actors(_world, _ox, _oy) {
+    var _names = variable_struct_get_names(_world.actors);
+    var _i = 0;
+    while (_i < array_length(_names)) {
+        var _a = _world.actors[$ _names[_i]];
+        var _sx = _a.px - _world.cam_x + _ox;
+        var _sy = _a.py - _world.cam_y + _oy;
+        var _frame = pp_world_dir_row(_a.facing) * 3;
+        if (!pp_art_draw(PP_SAILOR_SHEET, _frame, _sx, _sy, c_white, 1)) {
+            // Blocks: navy jacket with a white collar, cap, so a sailor does not read as the hero.
+            draw_set_colour(pp_role_colour("dim"));
+            draw_rectangle(_sx + 3, _sy + 2, _sx + 12, _sy + 6, false);
+            draw_set_colour(pp_role_colour("paper"));
+            draw_rectangle(_sx + 4, _sy + 7, _sx + 11, _sy + 8, false);
+            draw_set_colour(pp_role_colour("dim"));
+            draw_rectangle(_sx + 4, _sy + 9, _sx + 11, _sy + 15, false);
+        }
+        _i += 1;
     }
 }

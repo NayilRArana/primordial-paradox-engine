@@ -73,6 +73,11 @@
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
         "name": { "type": "string", "minLength": 1 },
+        "tileset": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "The art index animation this map's tile art comes from, ts_ship today. Omitted means flat tile colours."
+        },
         "width": { "type": "integer", "minimum": 16, "maximum": 256 },
         "height": { "type": "integer", "minimum": 1, "maximum": 256 },
         "tile_legend": {
@@ -109,7 +114,26 @@
           "additionalProperties": { "$ref": "#/$defs/point" }
         },
         "triggers": { "type": "array", "items": { "$ref": "#/$defs/trigger" } },
-        "rails": { "type": "array", "items": { "$ref": "#/$defs/rail" } }
+        "rails": { "type": "array", "items": { "$ref": "#/$defs/rail" } },
+        "actors": {
+          "type": "array",
+          "description": "People who stand on the map and can be talked to. An actor occupies a tile and blocks it.",
+          "items": { "$ref": "#/$defs/actor" }
+        }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "description": "A person on the map: a point, a facing and one dialogue. kind chooses which figure is drawn.",
+      "required": ["id", "x", "y", "facing", "dialogue"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "facing": { "enum": ["up", "down", "left", "right"] },
+        "kind": { "type": "string", "minLength": 1, "description": "Which figure the renderer draws. sailor today." },
+        "dialogue": { "type": "string", "minLength": 1, "description": "A dialogue id in data/dialogue/all.json." }
       }
     }
   }

@@ -133,7 +133,15 @@ function pp_save_new_game() {
         _s.state = PPSaveState.idle;
     }
     var _slice = global.pp_data.slice;
-    pp_app_request(PPMode.overworld, { map_id: _slice.map, spawn: _slice.spawn, scene: _slice.scene });
+    // Card ASSEMBLE: a new run opens on the ship lower deck, rm_pp_ship, and the ship map is played from
+    // data\maps\ship_sample.json. No scene is played on entry, so the player walks the moment the fade lifts.
+    pp_app_request(PPMode.overworld, { map_id: PP_NEW_GAME_MAP, spawn: PP_NEW_GAME_SPAWN, scene: "" });
+    // The room the run is played in. obj_pp_game is persistent, so it is the same controller instance inside
+    // rm_pp_ship; the room exists so the frame has a real home and the map is not drawn inside the title room.
+    // asset_get_index keeps a build that predates the room from failing to compile, and the request above
+    // still plays the map either way.
+    var _room = asset_get_index(PP_NEW_GAME_ROOM);
+    if (_room != -1 && room != _room) room_goto(_room);
     return true;
 }
 

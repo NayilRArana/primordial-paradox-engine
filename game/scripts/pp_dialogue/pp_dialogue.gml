@@ -260,11 +260,15 @@ function pp_dialogue_row_text(_row_items, _budget) {
 
 /// Draw the box, the name plate, the visible rows and the arrow. Two inks only: text and highlight (rule 6).
 function pp_dialogue_draw(_d) {
-    draw_set_colour(pp_role_colour("paper"));
-    draw_rectangle(PP_BOX_X, PP_BOX_Y, PP_BOX_X + PP_BOX_W - 1, PP_BOX_Y + PP_BOX_H - 1, false);
-    draw_set_colour(pp_role_colour("ink"));
-    draw_rectangle(PP_BOX_X, PP_BOX_Y, PP_BOX_X + PP_BOX_W - 1, PP_BOX_Y + PP_BOX_H - 1, true);
-    draw_rectangle(PP_BOX_X + 1, PP_BOX_Y + 1, PP_BOX_X + PP_BOX_W - 2, PP_BOX_Y + PP_BOX_H - 2, true);
+    // The classic NES window frame from the art lane, nine sliced on the 8x8 tile grid. Drawn rectangles
+    // remain as the fallback for a build without spr_pp_window.
+    if (!pp_window_draw(PP_BOX_X, PP_BOX_Y, 30, 8, 1)) {
+        draw_set_colour(pp_role_colour("paper"));
+        draw_rectangle(PP_BOX_X, PP_BOX_Y, PP_BOX_X + PP_BOX_W - 1, PP_BOX_Y + PP_BOX_H - 1, false);
+        draw_set_colour(pp_role_colour("ink"));
+        draw_rectangle(PP_BOX_X, PP_BOX_Y, PP_BOX_X + PP_BOX_W - 1, PP_BOX_Y + PP_BOX_H - 1, true);
+        draw_rectangle(PP_BOX_X + 1, PP_BOX_Y + 1, PP_BOX_X + PP_BOX_W - 2, PP_BOX_Y + PP_BOX_H - 2, true);
+    }
 
     draw_set_colour(pp_role_colour("dim"));
     draw_rectangle(PP_PORTRAIT_X, PP_PORTRAIT_Y, PP_PORTRAIT_X + PP_PORTRAIT_SIZE - 1,
