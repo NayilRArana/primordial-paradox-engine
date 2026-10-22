@@ -1,0 +1,129 @@
+{
+  "audio_seconds": {
+    "pp_03_harbor.mp3": 225.882358,
+    "pp_03_harbor.ogg": 225.882358,
+    "pp_03_harbor.wav": 225.882358
+  },
+  "bars": 64,
+  "bpm": 68.0,
+  "checks": [
+    {
+      "check": "MIDI header is format 1",
+      "detail": "format 1",
+      "passed": true
+    },
+    {
+      "check": "MIDI division is 480",
+      "detail": "division 480",
+      "passed": true
+    },
+    {
+      "check": "eight voice tracks, named as render_chip.py expects",
+      "detail": "conductor, vrc6 pulse a, vrc6 pulse b, vrc6 saw, pulse 1, pulse 2, triangle, noise, dpcm",
+      "passed": true
+    },
+    {
+      "check": "no voice outside the 2A03 and VRC6 set",
+      "detail": "conductor, dpcm, noise, pulse 1, pulse 2, triangle, vrc6 pulse a, vrc6 pulse b, vrc6 saw",
+      "passed": true
+    },
+    {
+      "check": "tempo is 68 bpm",
+      "detail": "68.0000 bpm (882353 us per quarter)",
+      "passed": true
+    },
+    {
+      "check": "time signature is 4/4",
+      "detail": "(4, 4)",
+      "passed": true
+    },
+    {
+      "check": "every note is inside the loop point",
+      "detail": "limit 122880 ticks",
+      "passed": true
+    },
+    {
+      "check": "the arrangement is exactly 64 bars",
+      "detail": "last note ends at tick 122880 of 122880",
+      "passed": true
+    },
+    {
+      "check": "every note is inside its voice register",
+      "detail": "ranges as declared in build_pp03.py",
+      "passed": true
+    },
+    {
+      "check": "the score opens and closes on the same chord",
+      "detail": "Am at bar 1, Am at bar 64",
+      "passed": true
+    },
+    {
+      "check": "bar 1 and the last bar sound the same bass and pad root",
+      "detail": "bar 1 {'triangle': 40, 'vrc6 saw': 52}, last bar {'triangle': 40, 'vrc6 saw': 52}",
+      "passed": true
+    },
+    {
+      "check": "the noise channel never plays two hits at one tick",
+      "detail": "0 doubled ticks",
+      "passed": true
+    },
+    {
+      "check": "every four bar phrase ends with a lead rest of an eighth (HOK-30)",
+      "detail": "shortest phrase end rest 240 ticks",
+      "passed": true
+    },
+    {
+      "check": "the lead rests in at least half the bars (low intensity brief)",
+      "detail": "a rest of an eighth or more in 45 of 64 bars",
+      "passed": true
+    },
+    {
+      "check": "the drums change from bar to bar (not one static figure)",
+      "detail": "37 distinct bar grids in 64 bars, longest identical run 1",
+      "passed": true
+    },
+    {
+      "check": "the render exists in wave, mp3 and ogg",
+      "detail": "{'pp_03_harbor.wav': 225.882358, 'pp_03_harbor.mp3': 225.882358, 'pp_03_harbor.ogg': 225.882358}",
+      "passed": true
+    },
+    {
+      "check": "the three files are the same length",
+      "detail": "spread 0.000000 s",
+      "passed": true
+    },
+    {
+      "check": "the render is exactly 64 bars long",
+      "detail": "225.882 s measured, 225.882 s expected",
+      "passed": true
+    },
+    {
+      "check": "the loop json reports one loop of 64 bars",
+      "detail": "{\"loop_bars\": 64, \"loop_seconds\": 225.882358, \"seam\": 0}",
+      "passed": true
+    },
+    {
+      "check": "the loop seam does not click",
+      "detail": "seam sample difference 0",
+      "passed": true
+    }
+  ],
+  "distinct_drum_bars": 37,
+  "failed": 0,
+  "lead_bars": 64,
+  "longest_identical_drum_run": 1,
+  "loop_seconds": 225.882368,
+  "midi": "<repo>\\assets\\audio\\pp_03_harbor\\pp_03_harbor.mid",
+  "note_counts": {
+    "dpcm": 134,
+    "noise": 136,
+    "pulse 1": 408,
+    "pulse 2": 129,
+    "triangle": 140,
+    "vrc6 pulse a": 172,
+    "vrc6 pulse b": 128,
+    "vrc6 saw": 128
+  },
+  "passed": 20,
+  "sha256": "6a693a67c0a3d7e0953726e6335b77aad970c3c1863623b92593e72ad48931bd"
+}

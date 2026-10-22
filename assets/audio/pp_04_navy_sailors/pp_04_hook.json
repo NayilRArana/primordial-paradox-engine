@@ -1,0 +1,162 @@
+{
+  "bars": 32,
+  "criteria": [
+    {
+      "criterion": "contour",
+      "fraction": 0.0,
+      "ideal": "every return arch or pedal",
+      "key": "contour",
+      "measured": "0 of 5 returns are arch or pedal (- - - - -)",
+      "pass": false,
+      "points": 0.0,
+      "suggestion": "the phrase wanders; shape it as an arch (rise to one peak then fall) or hold a pedal pitch",
+      "weight": 10
+    },
+    {
+      "criterion": "motif coverage",
+      "fraction": 0.6329,
+      "ideal": "at least 60%",
+      "key": "motif_coverage",
+      "measured": "38% of 158 notes inside the motif",
+      "pass": false,
+      "points": 12.66,
+      "suggestion": "the motif leaves too many notes outside it; move material into the 2 bar phrase or drop the notes that do not belong",
+      "weight": 20
+    },
+    {
+      "criterion": "variation on the third return",
+      "fraction": 0.4,
+      "ideal": "30 to 85% the same",
+      "key": "third_return",
+      "measured": "100% the same as the first return",
+      "pass": false,
+      "points": 3.2,
+      "suggestion": "the third return is a copy (100% the same); change the ending, add a passing note or start it on a different chord tone",
+      "weight": 8
+    },
+    {
+      "criterion": "leaps per motif",
+      "fraction": 0.5,
+      "ideal": "exactly 1",
+      "key": "leaps_per_motif",
+      "measured": "2 leaps",
+      "pass": false,
+      "points": 4.0,
+      "suggestion": "the motif has 2 leaps; one leap (three or more semitones) per motif is what makes it sing",
+      "weight": 8
+    },
+    {
+      "criterion": "motif returns",
+      "fraction": 1.0,
+      "ideal": "at least 3",
+      "key": "motif_returns",
+      "measured": "5 returns",
+      "pass": true,
+      "points": 12.0,
+      "suggestion": "",
+      "weight": 12
+    },
+    {
+      "criterion": "hook cell",
+      "fraction": 1.0,
+      "ideal": "2 to 6 notes with a repeated rhythm cell",
+      "key": "hook_cell",
+      "measured": "6 notes, rhythm 2/2/2/4/2/4 repeated 14 times",
+      "pass": true,
+      "points": 10.0,
+      "suggestion": "",
+      "weight": 10
+    },
+    {
+      "criterion": "steps over leaps",
+      "fraction": 1.0,
+      "ideal": "at least 65% steps",
+      "key": "step_ratio",
+      "measured": "82% steps (9 of 11 intervals), 2 leaps",
+      "pass": true,
+      "points": 12.0,
+      "suggestion": "",
+      "weight": 12
+    },
+    {
+      "criterion": "range",
+      "fraction": 1.0,
+      "ideal": "at most 18 semitones",
+      "key": "range",
+      "measured": "14 semitones (67 to 81)",
+      "pass": true,
+      "points": 8.0,
+      "suggestion": "",
+      "weight": 8
+    },
+    {
+      "criterion": "repeated pitch",
+      "fraction": 1.0,
+      "ideal": "at least 1",
+      "key": "repeat_pitch",
+      "measured": "3 repeated pitches in a row",
+      "pass": true,
+      "points": 6.0,
+      "suggestion": "",
+      "weight": 6
+    },
+    {
+      "criterion": "loop length",
+      "fraction": 1.0,
+      "ideal": "8 or 16 or 32 bars",
+      "key": "loop_length",
+      "measured": "32 bars",
+      "pass": true,
+      "points": 6.0,
+      "suggestion": "",
+      "weight": 6
+    }
+  ],
+  "grammar": "defaults",
+  "grid": "sixteenth",
+  "melody_track": "vrc6 pulse a",
+  "midi_tracks": [
+    "meta",
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "motif": {
+    "bars": 2,
+    "coverage": 0.3797,
+    "notes": 12,
+    "occurrence_bars": [
+      1,
+      5,
+      17,
+      21,
+      25
+    ],
+    "returns": 5,
+    "start_bar": 0
+  },
+  "notes": 158,
+  "points": 73.86,
+  "score": 74,
+  "source": "<repo>\\assets\\audio\\pp_04_navy_sailors\\pp_04_navy_sailors.mid",
+  "suggestions": [
+    "the phrase wanders; shape it as an arch (rise to one peak then fall) or hold a pedal pitch",
+    "the motif leaves too many notes outside it; move material into the 2 bar phrase or drop the notes that do not belong",
+    "the third return is a copy (100% the same); change the ending, add a passing note or start it on a different chord tone",
+    "the motif has 2 leaps; one leap (three or more semitones) per motif is what makes it sing"
+  ],
+  "tempo_us": 340909,
+  "weakest": {
+    "criterion": "contour",
+    "fraction": 0.0,
+    "key": "contour",
+    "of": 10,
+    "points": 0.0
+  },
+  "weights_total": 100
+}

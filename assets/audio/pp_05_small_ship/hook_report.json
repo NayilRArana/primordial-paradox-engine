@@ -1,0 +1,149 @@
+{
+  "bars": 24,
+  "criteria": [
+    {
+      "criterion": "motif coverage",
+      "fraction": 0.3488,
+      "ideal": "at least 60%",
+      "key": "motif_coverage",
+      "measured": "21% of 43 notes inside the motif",
+      "pass": false,
+      "points": 6.98,
+      "suggestion": "the motif leaves too many notes outside it; move material into the 2 bar phrase or drop the notes that do not belong",
+      "weight": 20
+    },
+    {
+      "criterion": "hook cell",
+      "fraction": 0.0,
+      "ideal": "2 to 6 notes with a repeated rhythm cell",
+      "key": "hook_cell",
+      "measured": "no repeated rhythm cell of 2 to 6 notes",
+      "pass": false,
+      "points": 0.0,
+      "suggestion": "no rhythm cell of 2 to 6 notes repeats; write one rhythm and reuse it, the ear remembers rhythm before pitch",
+      "weight": 10
+    },
+    {
+      "criterion": "variation on the third return",
+      "fraction": 0.0,
+      "ideal": "30 to 85% the same as the first",
+      "key": "third_return",
+      "measured": "no third return",
+      "pass": false,
+      "points": 0.0,
+      "suggestion": "there is no third return to vary; the motif has to come back three times first",
+      "weight": 8
+    },
+    {
+      "criterion": "leaps per motif",
+      "fraction": 0.5,
+      "ideal": "exactly 1",
+      "key": "leaps_per_motif",
+      "measured": "0 leaps",
+      "pass": false,
+      "points": 4.0,
+      "suggestion": "the motif has 0 leaps; one leap (three or more semitones) per motif is what makes it sing",
+      "weight": 8
+    },
+    {
+      "criterion": "motif returns",
+      "fraction": 0.6667,
+      "ideal": "at least 3",
+      "key": "motif_returns",
+      "measured": "2 returns",
+      "pass": false,
+      "points": 8.0,
+      "suggestion": "motif returns only 2 times; repeat the 2 bar phrase until it has been heard 3 times",
+      "weight": 12
+    },
+    {
+      "criterion": "loop length",
+      "fraction": 0.5,
+      "ideal": "8 or 16 or 32 bars",
+      "key": "loop_length",
+      "measured": "24 bars",
+      "pass": false,
+      "points": 3.0,
+      "suggestion": "24 bars does not loop cleanly; write 8, 16 or 32 bars so the cue can repeat without a seam",
+      "weight": 6
+    },
+    {
+      "criterion": "steps over leaps",
+      "fraction": 1.0,
+      "ideal": "at least 65% steps",
+      "key": "step_ratio",
+      "measured": "100% steps (4 of 4 intervals), 0 leaps",
+      "pass": true,
+      "points": 12.0,
+      "suggestion": "",
+      "weight": 12
+    },
+    {
+      "criterion": "contour",
+      "fraction": 1.0,
+      "ideal": "every return arch or pedal",
+      "key": "contour",
+      "measured": "2 of 2 returns are arch or pedal (pedal arch)",
+      "pass": true,
+      "points": 10.0,
+      "suggestion": "",
+      "weight": 10
+    },
+    {
+      "criterion": "range",
+      "fraction": 1.0,
+      "ideal": "at most 18 semitones",
+      "key": "range",
+      "measured": "16 semitones (65 to 81)",
+      "pass": true,
+      "points": 8.0,
+      "suggestion": "",
+      "weight": 8
+    },
+    {
+      "criterion": "repeated pitch",
+      "fraction": 1.0,
+      "ideal": "at least 1",
+      "key": "repeat_pitch",
+      "measured": "4 repeated pitches in a row",
+      "pass": true,
+      "points": 6.0,
+      "suggestion": "",
+      "weight": 6
+    }
+  ],
+  "grammar": "defaults",
+  "grid": "sixteenth",
+  "melody_track": "vrc6 pulse a",
+  "motif": {
+    "bars": 2,
+    "coverage": 0.2093,
+    "notes": 5,
+    "occurrence_bars": [
+      7,
+      15
+    ],
+    "returns": 2,
+    "start_bar": 6
+  },
+  "notes": 43,
+  "points": 57.98,
+  "score": 58,
+  "source": "<repo>\\assets\\audio\\pp_05_small_ship\\pp_05_small_ship.mid",
+  "suggestions": [
+    "the motif leaves too many notes outside it; move material into the 2 bar phrase or drop the notes that do not belong",
+    "no rhythm cell of 2 to 6 notes repeats; write one rhythm and reuse it, the ear remembers rhythm before pitch",
+    "there is no third return to vary; the motif has to come back three times first",
+    "the motif has 0 leaps; one leap (three or more semitones) per motif is what makes it sing",
+    "motif returns only 2 times; repeat the 2 bar phrase until it has been heard 3 times",
+    "24 bars does not loop cleanly; write 8, 16 or 32 bars so the cue can repeat without a seam"
+  ],
+  "weakest": {
+    "criterion": "motif coverage",
+    "fraction": 0.3488,
+    "key": "motif_coverage",
+    "of": 20,
+    "points": 6.98
+  },
+  "weights_total": 100
+}

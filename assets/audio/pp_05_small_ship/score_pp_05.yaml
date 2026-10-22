@@ -1,0 +1,137 @@
+# PP-05, "Small Ship": the boarding, corridor and ship's log cue. Card MUS-CUE-PP05 (t_1c42a535).
+# Original throughout. No melody, riff or bass line of any published game is quoted. Technique comes from
+# knowledge/MUSIC-STYLE-BIBLE.md (recipes cited by id), knowledge/MUSIC-DISSONANCE.md (device names) and
+# knowledge/MUSIC-HOOK-GRAMMAR.md (HOK ids). Those are rules, not tunes.
+#
+# What this cue has to be: a BED, not a fanfare. It plays under a 32 s boarding scene, a free three room
+# walk and the ship's log save, so it must survive a stop at the terminal and a restart without asking for
+# attention. That is why the lead is silent in 15 of its 24 bars, why the harmony is one four chord cell
+# repeated, and why the only chromatic note in the whole cue is C#5 over the dominant (bars 16, 20, 23),
+# which is the raised seventh of D harmonic minor and not an outside note at all.
+#
+# D minor, 4/4, 96 bpm, 24 bars = 60.0 s exactly, and the whole 24 bars loop.
+# Durations are in eighth notes; a 4/4 bar holds 8. "X|Y" in a chord slot means X on beats 1 and 2, Y on
+# beats 3 and 4. Names after notes: A4 is concert A at 440 Hz. A sharp is written A#, a flat Ab. r is a rest.
+# Every melody bar sums to 8 eighths; tools/arrange.py refuses the score if one does not.
+#
+# WHY meta.profile IS "hadrian": tools/arrange.py carries three texture recipe sets (the title theme waltz,
+# the percy boss set, and the hadrian 4/4 set) and the file scope of this card is this folder only, so the
+# arranger cannot learn a fourth set here. The hadrian set is the one that reads as a bed: a fixed pitch
+# hum, a low drone on the chord root, a bass note on beat 1, sparse hats and a kick on 1 and 3. Its hum is
+# reused deliberately as the small ship's engine, and section names must stay A, A_fugue, A_second and
+# close because that set reads its chip levels per section name. The composition below is new; only the
+# recipe set is shared.
+meta:
+  profile: hadrian
+  key: D minor
+  time: 4/4
+  bpm: 96
+  loop_start_section: A
+  loop_end_section: close
+  form: "A 8 + A_fugue 8 (the answer in the low voice) + A_second 4 (the corridor, the bass holds) + close 4 (the log terminal, the close) = 24 bars, 60.0 s at 96 bpm; the whole 24 bars are the loop, and bar 24 is the tonic held, so the wrap is D5 back to A4, a fifth, not a jolt"
+  texture_family: "engine room chamber: one hummed pitch as the engine, a low saw drone, a bass note on beat one, brushes, and a kick that is the ship's pulse. No counter melody, no fill, no crescendo of notes or levels; the only lift in the cue is the bass holding a whole note through the corridor, measured at 3.1 dB on the section mean, and the close gives that 3 dB back. Contrast is made by subtraction, not by adding parts (HOK-25/26)"
+
+motifs:
+  # K is the family leitmotif from knowledge/CHARACTER-BIBLE.md: E5 C5 D5 E5, a dotted quarter then three
+  # stepwise eighths, A minor, the family call, heard in every theme. Rule 4 of that table allows four
+  # operations per cue: inversion, augmentation, minor or major swap, and key change. This cue applies
+  # THREE of them and never states K in its own key or its own rhythm, which is what makes it a
+  # transformation and not a quotation.
+  K:  "The family call, transformed here by KEY CHANGE and AUGMENTATION: A4 F4 G4 A4 in D minor, written as
+       a half note then two eighths and a quarter (4 1 1 2) instead of a dotted quarter then three eighths
+       (3 1 1 1). Same interval shape, a major third down then two steps up; different key, different
+       rhythm, twice the length. Stated at bars 1, 5 (literal pair, HOK-15) and 21 (augmented again, split
+       across the bar line, 6 1 1)."
+  Ku: "K transposed UP an octave at bar 13, A5 F5 G5 A5, the deck statement: a fixed transposition is the
+       HOK-16 operation, and the high register is the one place the bed is allowed to sound open."
+  Kl: "K transposed DOWN a fifth and moved to the low voice (vrc6 pulse b) at bars 10 and 14, D4 Bb3 C4 D4.
+       That is the answer in the fourth/fifth sense the hadrian profile's second voice is built for: the
+       low voice calls, the lead answers (HOK-21 call and response, registers crossed, never doubled)."
+  Ki: "K INVERTED at bar 17, A4 C5 Bb4 A4: the third goes up instead of down and the two steps fall back,
+       diatonically inside D minor so it stays recognisable. The corridor statement, the fourth operation."
+
+sections:
+  A:
+    bars: 8
+    chords: [Dm, Bb, F, C, Dm, Bb, Gm, A7]       # i VI III VII twice, the open four chord cell; bar 8 is the
+                                                 # half cadence on V7 (HOK-20 antecedent, open)
+    melody:
+      - [[A4, 4], [F4, 1], [G4, 1], [A4, 2]]     # bar 1: K, augmented, over i. The card's hook, inside bar 1
+      - [[r, 8]]                                 # bar 2: silence is part of the bed
+      - [[C5, 4], [A4, 2], [G4, 2]]              # bar 3: over III, a descent, the G is a passing 9th
+      - [[r, 8]]                                 # bar 4: the breath rest at the phrase end (HOK-30)
+      - [[A4, 4], [F4, 1], [G4, 1], [A4, 2]]     # bar 5: K again, literal, twice is the cap (HOK-15)
+      - [[r, 8]]
+      - [[D5, 2], [C5, 2], [Bb4, 2], [A4, 2]]    # bar 7: over iv, the crest then the fall; A4 is a 9th that
+                                                 # resolves up in bar 8 to the root of V7 (appoggiatura)
+      - [[A4, 8]]                                # bar 8: the dominant held, the phrase left open
+    texture: "the engine and the deck. pulse 2 runs the hum: sixteenth notes on D4 (MIDI 62) for all eight bars, duty 12.5 percent, level 4 of 15, no accent. vrc6 saw holds the chord root as one note per bar (D3, Bb2, F2, C3), level 5. triangle the bass root on beat 1 only, octave 2, level 6. noise closed hats in eighths on beats 1 and 3, level 3. dpcm kick on beats 1 and 3. pulse 1 rests for the whole cue. vrc6 pulse b rests here."
+
+  A_fugue:
+    bars: 8
+    chords: [Dm, Bb, Gm, A7, Dm, Bb, Gm, A7]     # the same cell, iv in place of III: the second phrase
+                                                 # allows itself one chord change and no new tempo
+    melody:
+      - [[r, 8]]                                 # bar 9: the lead stands back and lets the low voice speak
+      - [[r, 8]]
+      - [[D5, 4], [A4, 2], [Bb4, 2]]             # bar 11: the answer, over iv
+      - [[r, 8]]                                 # bar 12: breath
+      - [[A5, 4], [F5, 1], [G5, 1], [A5, 2]]     # bar 13: Ku, K an octave up over i. The one open moment
+      - [[r, 8]]
+      - [[D5, 4], [Bb4, 2], [G4, 2]]             # bar 15: over iv, down the triad
+      - [[A4, 8]]                                 # bar 16: the dominant held again, so the walk can go on
+    second_voice:
+      - [[r, 8]]
+      - [[D4, 4], [Bb3, 1], [C4, 1], [D4, 2]]    # bar 10: Kl, the call in the low voice, over VI
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[D4, 4], [Bb3, 1], [C4, 1], [D4, 2]]    # bar 14: Kl again, the low voice answers itself; the lead
+                                                 # answers above it at 13 and 15, never in unison
+      - [[r, 8]]
+      - [[r, 8]]
+    texture: "as A, plus the second entry: vrc6 pulse b plays Kl at bars 10 and 14 at level 9, duty 50 percent, which makes the low call the warmest voice in the cue. Everything else is unchanged: the hum does not move off D4, the kick does not move off 1 and 3, and no voice changes level inside the section. The one open gesture is the lead an octave up at bar 13, and it is followed by a full bar of rest."
+
+  A_second:
+    bars: 4
+    chords: [Dm, Bb, Gm, A7]                      # the corridor: the cell cut to its first four chords
+    melody:
+      - [[A4, 4], [C5, 1], [Bb4, 1], [A4, 2]]     # bar 17: Ki, the inversion, over i
+      - [[r, 8]]
+      - [[Bb4, 4], [G4, 4]]                       # bar 19: two notes, down the iv triad, nothing faster
+      - [[C#5, 4], [A4, 4]]                       # bar 20: the raised seventh over V7, then the root: the
+                                                  # only chromatic pitch in the cue, and it resolves here
+    texture: "the corridor, the bass holds: the hum is still sixteenths on D4 at level 4, the saw takes the root of each bar at level 5, the hats thin to beat 1 only, the lead drops to two or three notes a bar and leaves bar 18 empty, and the triangle holds a whole note per bar instead of a beat 1 attack. That held bass is the one thing in the cue that adds weight rather than taking it away: the section mean is 3.1 dB above A in the render, and the close gives it back (measure_pp_05.json). The kick stays on 1 and 3 because the pulse is what makes this a loop and not a piece."
+
+  close:
+    bars: 4
+    chords: [Dm, Bb, A7, Dm]                      # i VI V7 i: the cue's only authentic cadence
+    melody:
+      - [[A4, 6], [F4, 1], [G4, 1]]               # bar 21: K augmented again and split over the bar line:
+                                                  # A4 for a dotted half, then the two steps as eighths
+      - [[G4, 4], [F4, 4]]                        # bar 22: over VI, a 6th falling to the 5th
+      - [[C#5, 4], [E5, 4]]                       # bar 23: over V7, third then fifth
+      - [[D5, 8]]                                 # bar 24: the tonic, whole bar. The loop wraps from D5
+                                                  # back to A4 at bar 1, a fifth, so the seam is a step of
+                                                  # harmony and not a mode change
+    texture: "the log terminal, and the quietest bar of the cue. One notch off everything: hum at level 3, saw at 4, triangle at 5, hats on beat 1 only at level 2, kick unchanged at 10. The melody is the only voice allowed to be fully present, because this is the four bars where the player may be reading a save prompt. Bar 24 holds the tonic and then cuts on the bar line."
+
+voices:
+  vrc6_pulse_a:  {role: "the lead: K augmented (bars 1, 5), its octave transposition (13), its inversion (17) and its augmented split (21); silent in 15 of 24 bars", duty: 0.25, vibrato: none}
+  vrc6_pulse_b:  {role: "Kl, the low call at bars 10 and 14 only; rests everywhere else, so the two pulse voices take turns instead of doubling", duty: 0.5, vibrato: none}
+  pulse_2:       {role: "the engine hum: sixteenth notes on one pitch, D4 (MIDI 62), all 24 bars, no accent, no vibrato, level 4 and 3 in the close", duty: 0.125, vibrato: none}
+  vrc6_saw:      {role: "low drone on the chord root, one note per bar; no triad anywhere in the cue", vibrato: none}
+  triangle:      {role: "bass root on beat 1 in A and A_fugue, whole notes in A_second and close, octave 2; no walking line, no approach notes", vibrato: none}
+  noise:         {role: "closed hats, eighths on beats 1 and 3 in A and A_fugue, beat 1 only after; no fill, no snare, no wash, nothing that lands on a scene change", vibrato: none}
+  dpcm:          {role: "kick on beats 1 and 3 of every bar, identical every time; no snare, no tom: the ship's pulse", vibrato: none}
+  pulse_1:       {role: "silent for the whole cue so the hum and the lead have the room; duty 0.125 if ever used", duty: 0.125, vibrato: none}
+
+arrangement_notes:
+  - "Sparse on purpose. The lead sounds in 9 of 24 bars and its longest silence is six bars, because this is music under a scene, and a bed that never stops talking fights the player."
+  - "One cell, one tempo, no build by adding parts. A, A_fugue, A_second and close are 8, 8, 4 and 4 bars of the same four chord progression with one substitution (iv for III in A_fugue), so the loop can be entered at any point and the ear still knows where it is (HOK-19 wants 16 bars with an 8 bar B; this cue keeps the 24 bar span because the scene runs 60 s, and the A_second/close pair does the B's work by subtraction). The measured section means are A 3785, A_fugue 4019, A_second 5414, close 3767: the corridor bass is the only lift, and it is 3.1 dB, not a build."
+  - "The three cadences are all half cadences on V7 (bars 8, 16, 20) except the last, which is authentic (bar 24). That is deliberate for a loop: a bed that cadences every eight bars sounds finished and prompts a save screen. This one closes only at the loop point."
+  - "Every melody bar ends with an eighth or more of rest inside its own phrase except the three held dominants, so the fades the renderer writes have somewhere to land (HOK-30)."
+  - "No vibrato on any voice. The profile offers none and the cue asks for none: a ship's engine does not wobble, and the hum would beat against a wobbling lead."
+  - "Levels are the 0 to 15 chip numbers: lead 10, low call 9, hum 4 (3 in the close), saw 5 (4), triangle 6 (5), hats 3 (2), kick 10. They are the hadrian recipe set's numbers, which is what the arranger writes; nothing louder than the lead is asked for."
+
+originality: "Melody, form and textures are new. Only technique is borrowed: the four operations on a leitmotif from this project's own motif table (knowledge/CHARACTER-BIBLE.md), the half cadence / authentic cadence pairing and the call and response from knowledge/MUSIC-HOOK-GRAMMAR.md, and the appoggiatura and passing tone named in knowledge/MUSIC-DISSONANCE.md. No game music was transcribed, sampled or imitated note for note, and the originality check tools/melody_guard.py is run against the musikage corpus before the cue is reported done."

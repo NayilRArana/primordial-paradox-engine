@@ -1,0 +1,131 @@
+{
+  "bars": 24,
+  "beats_per_bar": 4,
+  "bpm": 96.0,
+  "chords_by_section": {
+    "A": [
+      "Dm",
+      "Bb",
+      "F",
+      "C",
+      "Dm",
+      "Bb",
+      "Gm",
+      "A7"
+    ],
+    "A_fugue": [
+      "Dm",
+      "Bb",
+      "Gm",
+      "A7",
+      "Dm",
+      "Bb",
+      "Gm",
+      "A7"
+    ],
+    "A_second": [
+      "Dm",
+      "Bb",
+      "Gm",
+      "A7"
+    ],
+    "close": [
+      "Dm",
+      "Bb",
+      "A7",
+      "Dm"
+    ]
+  },
+  "chords_match_score": true,
+  "duration_seconds": 60.0,
+  "hat_notes": 80,
+  "hum_notes": 384,
+  "key": "D minor",
+  "kick_notes": 48,
+  "loop_bars": 24,
+  "loop_end_bar": 24,
+  "loop_start_bar": 1,
+  "max_simultaneous_by_section": {
+    "A": 6,
+    "A_fugue": 6,
+    "A_second": 6,
+    "close": 6
+  },
+  "max_simultaneous_notes": 6,
+  "melody_bar_1": [
+    "A4",
+    "F4",
+    "G4",
+    "A4"
+  ],
+  "melody_bar_9": [],
+  "midi": "<repo>\\assets\\audio\\pp_05_small_ship\\pp_05_small_ship.mid",
+  "midi_bpm": 96.0,
+  "midi_bytes": 6670,
+  "midi_division": 480,
+  "midi_duration_seconds": 60.0,
+  "midi_ntracks": 9,
+  "midi_tempo_us_per_qn": 625000,
+  "midi_time_signature": "4/4",
+  "midi_tracks": [
+    "meta",
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "notes": {
+    "dpcm": 48,
+    "noise": 80,
+    "pulse 1": 0,
+    "pulse 2": 384,
+    "triangle": 24,
+    "vrc6 pulse a": 43,
+    "vrc6 pulse b": 8,
+    "vrc6 saw": 24
+  },
+  "out_of_range": [],
+  "profile": "hadrian",
+  "pulse_1_notes": 0,
+  "schema": "v3",
+  "score": "<repo>\\assets\\audio\\pp_05_small_ship\\score_pp_05.yaml",
+  "second_voice_bars": [
+    10,
+    14
+  ],
+  "section_bars": {
+    "A": 8,
+    "A_fugue": 8,
+    "A_second": 4,
+    "close": 4
+  },
+  "section_first_bar": {
+    "A": 1,
+    "A_fugue": 9,
+    "A_second": 17,
+    "close": 21
+  },
+  "sections": [
+    "A",
+    "A_fugue",
+    "A_second",
+    "close"
+  ],
+  "tempo_meta_matches_score": true,
+  "time_signature": "4/4",
+  "tracks": [
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "vibrato_controls": 0
+}

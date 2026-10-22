@@ -1,0 +1,183 @@
+# PP-03 "Harbor": the arrival cue, from the slip road to the gate checkpoint.
+# Written by the musician lane 2026-10-22 from card MUS-CUE-PP03 (GAME-ROADMAP-1 R12, step S4).
+# Everything here is original. No melody of any published game is quoted; the technique comes from
+# knowledge/MUSIC-STYLE-BIBLE.md and knowledge/MUSIC-DRUMS.md, which are rules, not tunes.
+#
+# A minor, 4/4, 68 bpm, 64 bars = 225.882 s (3:46) per loop. Durations are in eighth notes; a 4/4 bar
+# holds 8. "X|Y" in a chord slot means X on beats 1 and 2, Y on beats 3 and 4. "r" is a rest.
+# The loop point is the whole file: bar 1 is Am and bar 64 is Am, so the seam cannot click.
+#
+# Why 68 bpm and 64 bars: the cue holds under four pages of text. At 68 bpm a bar is 3.53 s, so the
+# loop is 3:46 long and does not turn over while a player is still reading. Nothing in the cue exceeds
+# level 11 of 15 on any voice, and the lead gives up an eighth at the end of every four bar phrase.
+
+meta:
+  profile: harbor
+  key: A minor
+  time: 4/4
+  bpm: 68
+  bars: 64
+  loop_start_bar: 1
+  loop_end_bar: 64
+  cue_id: PP-03
+  asset: pp_03_harbor
+  form: "eight sections of 8 bars: arrival, settle, harbor light, water, return, read, light again, close"
+  brief: "low intensity under text; loop without a seam; drums must not be one static figure (ear sweep 2026-10-22, drums 3 to 5)"
+
+motifs:
+  # The tide. Percy's cue is "Percy, Tyrant of the Harbor" (PP-06), so the harbor shares Percy's cell
+  # (assets/audio/percy_theme/score_percy.yaml, motif P) as a leitmotif, per FOX-01: same shape, other
+  # register and other instrumentation, and here in A minor instead of G minor (HOK-16 transposition).
+  # The original rises root, third, fifth then crests and falls. This one does the same in longer values.
+  H:  "Harbor tide: root, third, fifth rising (A4 C5 E5), then a crest and a fall (D5 B4 G4). Two bars. Sea, arrival, and the same wave Percy's trident is made of, played softly."
+  H2: "The answer: the rise again a third higher over the flat sixth (A4 C5 F5), then the arrival on the flat third (E5 C5) and a held fifth under the dominant."
+
+sections:
+  arrival:
+    bars: 8
+    chords: [Am, Em/G, F, C, Dm, Am, Dm, E7]
+    melody:
+      - [[A4, 2], [C5, 2], [E5, 2], [r, 2]]      # H, the tide rises
+      - [[D5, 3], [B4, 1], [G4, 4]]              # the crest and the fall over v
+      - [[A4, 2], [C5, 2], [F5, 2], [r, 2]]      # H2, the same rise over bVI
+      - [[E5, 4], [C5, 4]]                       # the arrival on bIII
+      - [[D5, 2], [F5, 2], [E5, 2], [D5, 2]]     # over iv, the water turning
+      - [[C5, 2], [B4, 2], [A4, 4]]              # home
+      - [[A4, 2], [C5, 2], [D5, 2], [r, 2]]      # the approach
+      - [[B4, 6], [r, 2]]                        # half cadence on the fifth of V: the phrase asks
+    texture: "the arrival, thin. Lead on vrc6 pulse a at duty 0.25 with vibrato starting one eighth after each held note (MOT-03, HOK-28); a broken chord on pulse 1 in eighths, root fifth third fifth (CLS-01 in its calm form, BAR-08 register); a guide tone on vrc6 pulse b as half notes, the third of each chord, so one voice holds while the other moves (BAR-11); a pad on the saw, root then fifth in half notes; the bass on the triangle as root and fifth in half notes; the echo on pulse 2 is silent here and arrives in section three"
+    arp: eighths
+    echo: 0
+    level_scale: 1.0
+    drums: {home: CLM-01, rungs: [5, 1, 0, 3, 2, 6, 4, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  settle:
+    bars: 8
+    chords: [Am, Em/G, F, C, F, G, E7, Am]
+    melody:
+      - [[A4, 2], [C5, 2], [E5, 2], [r, 2]]      # H again, the listener has it now
+      - [[D5, 3], [B4, 1], [G4, 4]]
+      - [[A4, 2], [C5, 2], [F5, 2], [r, 2]]
+      - [[E5, 4], [C5, 4]]
+      - [[A4, 2], [C5, 2], [F5, 2], [r, 2]]      # the second phrase opens the same way
+      - [[D5, 2], [B4, 2], [G4, 4]]
+      - [[B4, 2], [G#4, 2], [B4, 2], [r, 2]]     # the leading tone, the one chromatic step in the cue
+      - [[A4, 8]]                                # authentic close, held
+    texture: "as the arrival, with two changes: the broken chord keeps its eighths but the pad holds one note longer, and the lead takes vibrato on the two long notes"
+    arp: eighths
+    echo: 0
+    level_scale: 0.9
+    drums: {home: CLM-01, rungs: [0, 1, 0, 3, 2, 1, 4, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  harbor_light:
+    bars: 8
+    chords: [C, G/B, Am, Em, F, C, F, G]
+    melody:
+      - [[E4, 2], [G4, 2], [C5, 2], [r, 2]]      # the same shape in C major: the water at dawn
+      - [[D5, 3], [B4, 1], [G4, 4]]
+      - [[A4, 2], [C5, 2], [E5, 2], [r, 2]]
+      - [[D5, 4], [B4, 2], [G4, 2]]
+      - [[A4, 2], [C5, 2], [F5, 2], [r, 2]]
+      - [[E5, 4], [C5, 4]]
+      - [[A4, 2], [C5, 2], [E5, 2], [r, 2]]
+      - [[D5, 4], [B4, 4]]
+    texture: "the middle, brighter and no busier. The echo arrives on pulse 2, one eighth late at 40 percent (CHIP-08), so the lead sounds doubled without a second line being written; the broken chord drops to quarters, which is the contrast the ear asks for (HOK-26 contrast on timbre and density, not on notes); the guide tone moves to the sixth where the chord has one"
+    arp: quarters
+    echo: 1
+    level_scale: 0.85
+    drums: {home: CLM-03, rungs: [5, 1, 0, 3, 2, 1, 4, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  water:
+    bars: 8
+    chords: [C, G/B, Am, Em, F, Dm, G, C]
+    melody:
+      - [[E4, 2], [G4, 2], [C5, 2], [r, 2]]
+      - [[D5, 3], [B4, 1], [G4, 4]]
+      - [[A4, 2], [C5, 2], [E5, 2], [r, 2]]
+      - [[D5, 4], [B4, 2], [G4, 2]]
+      - [[A4, 2], [C5, 2], [F5, 2], [r, 2]]
+      - [[D5, 2], [F5, 2], [A4, 4]]
+      - [[B4, 2], [D5, 2], [B4, 2], [r, 2]]
+      - [[E5, 4], [C5, 4]]                       # closes on bIII, which hands back to Am without a jolt
+    texture: "as harbor light, and the bass starts to walk: root, third, fifth, then the step below the next root (the ear sweep's fourth item, never static roots)"
+    arp: quarters
+    echo: 1
+    level_scale: 0.85
+    walk_bars: [7, 8]
+    drums: {home: CLM-03, rungs: [0, 1, 0, 3, 2, 6, 4, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  return:
+    bars: 8
+    chords: [Am, Em/G, F, C, Dm, Am, Dm, E7]
+    melody: "same notes as arrival"
+    texture: "the return, and the one place the cue is loudest: the broken chord goes back to eighths, the echo is on, every voice is at its section level, and the drums take a soft crash on the downbeat (rung 5). One rung at a time only; no new material"
+    arp: eighths
+    echo: 1
+    level_scale: 1.0
+    drums: {home: CLM-01, rungs: [5, 1, 0, 3, 2, 1, 4, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  read:
+    bars: 8
+    chords: [Am, Em/G, F, C, F, G, E7, Am]
+    melody:
+      - [[A4, 3], [C5, 1], [E5, 2], [r, 2]]      # H with its rhythm changed once per phrase (HOK-17)
+      - [[D5, 3], [B4, 1], [G4, 4]]
+      - [[A4, 3], [C5, 1], [F5, 2], [r, 2]]
+      - [[E5, 4], [C5, 2], [r, 2]]
+      - [[A4, 2], [C5, 2], [F5, 2], [r, 2]]
+      - [[D5, 2], [B4, 2], [G4, 4]]
+      - [[B4, 4], [r, 4]]                        # the dominant held, then a hole
+      - [[A4, 4], [r, 4]]                        # the breath before the last section (HOK-30)
+    texture: "the reading stretch, and the thinnest part of the cue: the broken chord drops out in bars 7 and 8, the drums fall back to two strikes per bar, the pad is the only thing holding the harmony. This is the section a player reads on"
+    arp: quarters
+    echo: 1
+    level_scale: 0.75
+    arp_dropout_bars: [7, 8]
+    drums: {home: CLM-07, rungs: [0, 1, 0, 3, 2, 1, 4, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  light_again:
+    bars: 8
+    chords: [C, G/B, Am, Em, F, C, F, G]
+    melody: "same notes as harbor light"
+    texture: "the light returns with the full calm ensemble: eighths on the broken chord, the echo on, the walk in the last two bars"
+    arp: eighths
+    echo: 1
+    level_scale: 0.9
+    walk_bars: [7, 8]
+    drums: {home: CLM-03, rungs: [5, 1, 0, 3, 2, 6, 4, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  close:
+    bars: 8
+    chords: [Am, Em/G, F, Dm, F, E7, Am, Am]
+    melody:
+      - [[A4, 2], [C5, 2], [E5, 2], [r, 2]]
+      - [[D5, 3], [B4, 1], [G4, 4]]
+      - [[A4, 2], [C5, 2], [F5, 2], [r, 2]]
+      - [[F5, 2], [E5, 2], [D5, 4]]
+      - [[C5, 2], [A4, 2], [F4, 4]]              # down to F4, the bottom of the cue
+      - [[B4, 2], [G#4, 2], [B4, 2], [r, 2]]
+      - [[C5, 4], [B4, 4]]                       # the last cadence, stepwise down
+      - [[A4, 8]]                                # the tonic, held right up to the loop point
+    texture: "the close: the kick drops out in bar 7, the drums take one soft two beat turnaround in bar 8 so the loop reads as a return rather than a cut (FLX-10, the loop point fill from the library), the pad holds Am across the seam and nothing is playing when the file ends"
+    arp: eighths
+    echo: 1
+    level_scale: 0.85
+    walk_bars: [2, 3]
+    drums: {home: CLM-08, rungs: [5, 1, 0, 3, 2, 6, 4, 7], fill_beat: FLF-01, fill_end: FLX-10}
+
+voices:
+  vrc6_pulse_a: {role: "the lead, the harbor tide. duty 0.25 (MOT-07 one finger line), vibrato on every note of three eighths or longer, starting one eighth after the attack (MOT-03, HOK-28); the last note of every four bar phrase gives up an eighth so the phrase breathes (HOK-30)", duty: 3, level: 11, phrase_end_rest_eighths: 1, vibrato: {after_eighths: 1, min_note_eighths: 3, depth: 40}}
+  vrc6_pulse_b: {role: "the guide tone, the third of the chord in half notes, holding while the lead moves (BAR-11)", duty: 3, level: 3}
+  vrc6_saw:     {role: "the pad: root then fifth, half notes, one voice breathing (CHIP-05, rate under the distortion limit)", level: 6}
+  pulse_1:      {role: "the broken chord, root fifth third fifth in eighths or quarters depending on the section (CLS-01, BAR-08)", duty: 0, level: 5}
+  pulse_2:      {role: "the echo of the lead, one eighth late at 40 percent (CHIP-08); silent in sections one and two", duty: 0, level: 4, echo_delay_eighths: 1, echo_level_pct: 40}
+  triangle:     {role: "the bass: root and fifth in half notes, walking in the section's last bars (never a static root for a whole cue, per the ear sweep)", level: 8}
+  noise:        {role: "the kit: home patterns from data/drum_patterns.json CLM-01, CLM-03, CLM-07, CLM-08, the variation ladder per section, ghost notes at level 2, and a library fill into every section end", level: 6}
+  dpcm:         {role: "kick and snare, the calm rates 11 and 13, with the kick dropping out for one bar in every section (rung 4)", level: 7}
+
+drums_contract:
+  source: "data/drum_patterns.json, read at build time by id; nothing here is invented"
+  ladder: "bar by bar rungs from knowledge/MUSIC-DRUMS.md section 4, eight bar cycle 0,1,0,3,2,1,4,3"
+  rung_5: "a soft crash on the first bar of arrival, harbor light, return and light again only, because this is a low intensity cue"
+  rung_7: "the loop point turnaround, used in bar 8 of the close only"
+  level_note: "a calm cue is the same rhythm with every level at 2 or 3 (MUSIC-DRUMS 2.4), so every hit is scaled by the section's level_scale and capped at velocity 60"

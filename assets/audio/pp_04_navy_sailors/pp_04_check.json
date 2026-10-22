@@ -1,0 +1,103 @@
+{
+  "cue": "PP-04 Navy Sailors",
+  "lengths_seconds": {
+    "wav": 43.636,
+    "mp3": 43.636,
+    "ogg": 43.636
+  },
+  "within_30_to_45_s": true,
+  "codecs_same_length": true,
+  "length_spread_seconds": 0.0,
+  "first_lead_note_seconds": 0.0,
+  "hook_cell_end_seconds": 2.727,
+  "hook_cell_inside_4s": true,
+  "lead_notes_in_first_4s": 18,
+  "hook_returns_at_bars": [
+    5,
+    17,
+    25
+  ],
+  "blip_bands": {
+    "1046.5": {
+      "music_rms": 0.003586,
+      "alarm_rms": 0.173772,
+      "margin_db": 33.71
+    },
+    "1318.5": {
+      "music_rms": 0.006001,
+      "alarm_rms": 0.201863,
+      "margin_db": 30.54
+    }
+  },
+  "blip_margin_db": 30.54,
+  "blip_cleared": true,
+  "voice_pitches": {
+    "vrc6 pulse a": [
+      67,
+      81
+    ],
+    "vrc6 pulse b": [
+      62,
+      69
+    ],
+    "vrc6 saw": [
+      43,
+      50
+    ],
+    "pulse 1": [
+      43,
+      50
+    ],
+    "pulse 2": [
+      50,
+      57
+    ],
+    "triangle": [
+      36,
+      46
+    ],
+    "noise": [
+      6,
+      12
+    ],
+    "dpcm": [
+      36,
+      38
+    ]
+  },
+  "blip_pitch_clashes": {},
+  "no_voice_on_a_blip_tone": true,
+  "noise_rates_hz": {
+    "hat": 18643.5,
+    "fill": [
+      3523.2,
+      7046.3,
+      8860.3
+    ],
+    "crash": 7046.3,
+    "note": "the noise clock rates, all far above the 1046 to 1319 Hz of the alarm"
+  },
+  "midi_tracks": [
+    "meta",
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "only_chip_voices": true,
+  "seam_28_bars": {
+    "seconds": 38.182,
+    "sample_difference": 0.0,
+    "zero_crossing_at_seam": false
+  },
+  "seam_end_of_file": {
+    "seconds": 43.636,
+    "sample_difference": 0.0
+  },
+  "peak_dbfs": -1.0,
+  "rms_dbfs": -15.67
+}

@@ -1,0 +1,76 @@
+{
+  "closest": [
+    {
+      "interval_run": 3,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\out\\compose\\base1\\base1.mid",
+      "run": 1
+    },
+    {
+      "interval_run": 2,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\corpus\\d1\\24_hour_cinderella_drums_pattern.mid",
+      "run": 0
+    },
+    {
+      "interval_run": 2,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\corpus\\d1\\attack_of_the_killer_queen_drums_pattern.mid",
+      "run": 0
+    },
+    {
+      "interval_run": 2,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\corpus\\d1\\baka_mitai_drums_pattern.mid",
+      "run": 0
+    },
+    {
+      "interval_run": 2,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\corpus\\d1\\bucciarati_theme_drums_pattern.mid",
+      "run": 0
+    },
+    {
+      "interval_run": 2,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\corpus\\d1\\dance_with_steel_ball_run_drums_pattern.mid",
+      "run": 0
+    },
+    {
+      "interval_run": 2,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\corpus\\d1\\heavens_falling_down_drums_pattern.mid",
+      "run": 0
+    },
+    {
+      "interval_run": 2,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\corpus\\d1\\mamushi_drums_pattern.mid",
+      "run": 0
+    },
+    {
+      "interval_run": 2,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\corpus\\d1\\okuyasu_drums_pattern.mid",
+      "run": 0
+    },
+    {
+      "interval_run": 2,
+      "jaccard": 0.0,
+      "path": "<workspace>/Shared/projects/musikage\\corpus\\d1\\stone_ocean_op1_drums_pattern.mid",
+      "run": 0
+    }
+  ],
+  "failures": [],
+  "highest_jaccard": 0.0,
+  "longest_identical_run": 1,
+  "longest_interval_run": 4,
+  "melody": "<repo>\\assets\\audio\\pp_03_harbor\\pp_03_harbor.mid",
+  "melody_intervals": 171,
+  "melody_notes": 172,
+  "melody_track": "vrc6 pulse a",
+  "ngram": 5,
+  "passed": true,
+  "references": 29,
+  "run_limit": 8
+}
