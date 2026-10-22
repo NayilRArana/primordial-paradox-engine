@@ -885,3 +885,42 @@ capture (`title_run_1.json`) and cropping to that box rather than searching the 
 bust, the fade strips and the cast in whole 8x8 tiles with solid alpha, which is a rule about what a pattern table
 can hold rather than about how the art looks.
 Copied expression: none. No code text, sprite, font, sound or line of prose from any published game is in this change.
+
+## CLEANROOM-FIX, 2026-10-22: shipped data cites this repository, never a study dump
+Studied: this repository only. `knowledge/mechanics/JRPG-MECHANICS.md` section 12, `specs/07-battle-director.md`, the
+attribution header inside the Overpass downloads under `data/osm_cache/` (their own `generator` and `osm3s.copyright`
+fields), and the published Overpass API response shape that header belongs to. No decompiled or ripped material was
+read, opened or reasoned from for this card, and the study artifact the old citations named was not opened either: a
+citation can be deleted without knowing what it said.
+Mechanics learned: a citation chain has a direction. Shipped data may point at our own documents, and our own documents
+may point at a public page; the reverse, a shipped table naming a downloaded study dump, puts material we do not
+control into the build bundle. The second lesson is about a scanner: a directory based allowlist is a hole, because the
+next hand written file parked in that directory inherits the exemption, so an exemption has to be earned by evidence
+inside the file itself, and the run has to report how many files took it.
+Our implementation differs by: keeping the numbers and rewriting only the provenance, so every `source_ids` entry now
+resolves to a file under `knowledge/` or `specs/`; deleting the three recipes that had no internal source rather than
+inventing one; and replacing the path-prefix skip with a four-part test (folder, parses as JSON, `generator` starts
+with `Overpass API`, `osm3s.copyright` contains `openstreetmap.org`) that `tests/test_cleanroom.py` breaks on purpose
+one marker at a time.
+Copied expression: none. No code text, sprite, font, sound or line of prose from any published game is in this change.
+
+## TEXT-REVEAL-2, 2026-10-22: the title crawl is a layout over the one reveal machine
+Studied: this repository's own three text modules (pp_text, pp_dialogue, pp_battle_text), the crawl inside pp_title and
+its data (data\intro_text.json, data\title_timing.json), and FOX-STYLE.md section 7 and law 8. No decompiled material was
+read for this card, and no expression from any game is in it.
+Mechanics learned: two things a page model has that a flat item list does not. The first is a beat: a group of rows the
+author means to be read as one thought, with a pause after it and no pause between its rows. The second is the
+difference between a punctuation pause and a beat pause. A punctuation pause sits inside a row, after a character that
+is already on screen, and is a property of the sentence. A beat pause sits between rows, before any character of the
+next thought appears, and is a property of the page. The machine already owns a hold at the end of a unit, so a beat is
+a unit and the beat pause is that hold; nothing new is needed.
+Our implementation differs by: making one beat one unit of pp_text and never one row, so the beat pause is the machine's
+existing gap and no second timing mechanism was added; passing the title's own three numbers (steps per character from
+60 / chars_per_second, the gap from pause_after_beat_seconds, the blip interval from blip_every_chars) through a
+`pp_text_reveal_timing` setter, so pp_title names no PP_TEXT_ constant and the audit can say so by file name; adding the
+skip as `pp_text_reveal_finish` on the machine rather than walking the item list in the title; carrying the fractional
+per character remainder instead of resetting it, which is identical at the box's whole number speeds and correct at the
+crawl's 60 / 18; and drawing the rows by spending the machine's revealed count over the current beat's row lengths, so
+pp_title keeps no counter, timer, pause or blip of its own. The pacing delta this causes is written down in the spec 14
+addendum of this date: plus 17 steps over 1238, +0.28 s, from honouring punctuation and carrying the remainder.
+Copied expression: none

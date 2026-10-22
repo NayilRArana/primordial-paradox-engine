@@ -1,0 +1,686 @@
+{
+  "format": 1,
+  "kind": "jrpg_mechanics_recipes",
+  "project": "primordial-paradox",
+  "created": "2026-10-22",
+  "author": "research-assistant (Hermes profile)",
+  "companion_doc": "knowledge/mechanics/JRPG-MECHANICS.md",
+  "rules_of_the_file": [
+    "source_ids name an entry in sources, and every entry there points at a file inside this repository (the public page behind each number, with the date it was read, is listed in section 12 of the companion doc)",
+    "numbers_source is either 'cited' (a source in the sources list carries the number) or 'author_inference'",
+    "every rule is restated in words and numbers, no text or notation copied from any game or guide",
+    "pp_mapping names the god, the file, or the decision number it feeds in the companion doc"
+  ],
+  "sources": [
+    {
+      "id": "PP",
+      "kind": "internal",
+      "title": "Our own project files",
+      "path": "specs/07-battle-director.md, knowledge/CHARACTER-BIBLE.md, data/powers.json",
+      "accessed": "2026-10-22",
+      "confidence": "high"
+    },
+    {
+      "id": "S1",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S1: Final Fantasy 1 NES mechanics and walkthrough pages",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "high"
+    },
+    {
+      "id": "S10",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S10: Final Fantasy 3 job point values per action and the 100 point per battle cap",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    },
+    {
+      "id": "S11",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S11: Dragon Quest agility pages: turn order formulas for 1 to 3 and first strike chances",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    },
+    {
+      "id": "S12",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S12: Dragon Quest 1 and 2 stat pages: agility as the basis of defence, random order in 1 and 2",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    },
+    {
+      "id": "S13",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S13: Mother 1 and EarthBound growth formula pages",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    },
+    {
+      "id": "S14",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S14: Mother 1+2 level and stat chart, EarthBound stat gain formula and growth rates",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    },
+    {
+      "id": "S15",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S15: Final Fantasy 1 NES spell damage range, doubling, resistance and weakness multipliers",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "high"
+    },
+    {
+      "id": "S2",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S2: Dragon Warrior NES formula, experience, item and guide pages",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "high"
+    },
+    {
+      "id": "S4",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S4: Final Fantasy 1 NES physical and magic damage derivations",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "high"
+    },
+    {
+      "id": "S5",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S5: stat growth conditions for Final Fantasy 2 and 3",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    },
+    {
+      "id": "S6",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S6: Final Fantasy 2 NES system pages: evasion, turn order, growth categories",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    },
+    {
+      "id": "S7",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S7: Final Fantasy 2 NES levelling pages: skill point formulas and the enemy strength factor",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    },
+    {
+      "id": "S8",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S8: Final Fantasy 3 NES capacity pool, cost by job pair and skill level",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    },
+    {
+      "id": "S9",
+      "kind": "internal",
+      "title": "knowledge/mechanics/JRPG-MECHANICS.md, section 12 row S9: Final Fantasy 3 NES damage formula pages: attack damage, hit and evade multipliers",
+      "path": "knowledge/mechanics/JRPG-MECHANICS.md",
+      "accessed": "2026-10-22",
+      "confidence": "medium"
+    }
+  ],
+  "recipes": [
+    {
+      "id": "TO-01",
+      "family": "turn_order",
+      "name": "Fixed slot schedule with random swaps",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S1"
+      ],
+      "rule": "Thirteen action slots exist: nine enemy slots and four player slots. Before a round resolves, two random positions in the range 0 to 12 are swapped, seventeen times. Dead, petrified or absent units are skipped when their slot comes up. No stat enters the calculation.",
+      "why": "It gives a designer full authorship of rhythm while the seventeen swaps supply visible variance, and it costs no speed stat to balance.",
+      "pp_mapping": "The baseline our spec already uses (player then enemy). Konrad borrows it as the god of time, so he edits the schedule rather than moving faster. Feeds decision 3."
+    },
+    {
+      "id": "TO-02",
+      "family": "turn_order",
+      "name": "Agility lives in evasion, not in order",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S1",
+        "S4"
+      ],
+      "rule": "Player evasion is 48 plus agility minus armour weight, and the attack test subtracts that evasion from a base of 168 plus weapon accuracy. A fast character is hit less often; the character never gets an earlier slot for being fast.",
+      "why": "One stat, one promise: speed means safety, not tempo. Players learn it in one fight.",
+      "pp_mapping": "If we ever add a hero stat, it should be this one, because it changes the dodge phase we already ship rather than adding a second scheduling system. Feeds decision 3."
+    },
+    {
+      "id": "TO-03",
+      "family": "turn_order",
+      "name": "Half agility plus uniform noise",
+      "game": "Dragon Quest 2 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S11"
+      ],
+      "rule": "Initiative value is half of agility plus a uniform random number from 0 to 255. With agility in the twenties, the noise term is worth about twenty times the stat, so order is close to a coin flip all game.",
+      "why": "Cheap to implement and reads as chaos, which suits a game where the player should not be able to plan a perfect turn.",
+      "pp_mapping": "Rejected for the two unit demo: with one hero and one enemy, noise creates no decision. Keep as an option if a fight ever has three or more units. Feeds decision 3."
+    },
+    {
+      "id": "TO-04",
+      "family": "turn_order",
+      "name": "Multiplicative noise on agility plus twenty",
+      "game": "Dragon Quest 3 (NES, 1990)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S11"
+      ],
+      "rule": "Initiative value is agility plus twenty, multiplied by a random number from 0 to 255 divided by 256. Every unit keeps between 0 and 100 percent of its value, so a unit four times faster can never be overtaken, and a unit 1.5 times faster usually goes first.",
+      "why": "Variance that shrinks relative to the stat: the hierarchy is preserved and still wobbles, so the player feels both fairness and surprise.",
+      "pp_mapping": "The recommended formula if we ship any fight with three or more combatants. Start with agility values 6, 7, 8 and 12 for Hadrian, Percy, Konrad and Zander. Feeds decision 3."
+    },
+    {
+      "id": "TO-05",
+      "family": "turn_order",
+      "name": "Authored first strike chance",
+      "game": "Dragon Quest 1 and 2 (NES)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S11",
+        "S12"
+      ],
+      "rule": "First strike belongs to the fight, not to the stats. The NES releases use 100, 50, 37.5 and 25 percent chances depending on the encounter type, and the DQ1 and 2 stat guide says order in those two games is simply random.",
+      "why": "It is the strongest narrative tool of the four order systems: the designer can declare that an enemy always shoots first without inventing a speed stat.",
+      "pp_mapping": "Zander the thunderbolt opens every fight with a guaranteed first action; Percy, Hadrian and Konrad use standard order. Feeds decision 3."
+    },
+    {
+      "id": "TO-06",
+      "family": "turn_order",
+      "name": "Boss rhythm: an extra action slot on a fixed beat",
+      "game": "Primordial Paradox (inference)",
+      "numbers_source": "author_inference",
+      "source_ids": [
+        "S1",
+        "PP"
+      ],
+      "rule": "Konrad gains one extra action slot every third round, so rounds 3, 6 and 9 give him two actions. His second action always uses the reaping blow, which deals 1.5 times damage to a target at or below 25 percent HP.",
+      "why": "A predictable escalation gives the player something to count, which reads as mastery rather than as unfairness, and the execute threshold makes low HP genuinely frightening.",
+      "pp_mapping": "Konrad (Kronos, sickle). Feeds decisions 3 and 5."
+    },
+    {
+      "id": "TO-07",
+      "family": "turn_order",
+      "name": "Initiative debt: order becomes predictable once the gap is wide",
+      "game": "Primordial Paradox (inference)",
+      "numbers_source": "author_inference",
+      "source_ids": [
+        "S11"
+      ],
+      "rule": "With multiplicative noise, an initiative lead of 3 to 1 makes the faster unit first about 96 percent of rounds; a lead of 1.2 to 1 makes it first about 60 percent. Designers can therefore read a stat table and know how the fight will feel.",
+      "why": "Lets us tune order by looking at numbers instead of playtesting every pair.",
+      "pp_mapping": "Tuning rule for any future multi unit fight, and the reason to keep god agility values far apart rather than clustered. Feeds decision 3."
+    },
+    {
+      "id": "DM-01",
+      "family": "damage",
+      "name": "Random band between attack and twice attack, minus armour, floor 1",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S4"
+      ],
+      "rule": "Attack value is weapon damage plus half of strength. Damage per hit is a random number from the attack value up to twice the attack value, minus total armour, with a floor of 1. Sleep or paralysis raises the attack value by a quarter.",
+      "why": "The floor of 1 means no action is wasted, and the 1x to 2x band makes every hit a small reveal. Subtraction makes armour feel concrete.",
+      "pp_mapping": "Used per hit for Percy's trident and Hadrian's bident, where the wide band is the point. Rejected for the hero's 20 HP pool, where a 1x to 2x band on 2 to 12 damage reads as noise. Feeds decisions 2 and 4."
+    },
+    {
+      "id": "DM-02",
+      "family": "damage",
+      "name": "Critical keeps the band and adds it instead of subtracting armour",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S4"
+      ],
+      "rule": "A critical hit rolls the same attack to twice attack band and adds it to a normal hit result rather than replacing it. The total is therefore twice the random band minus armour: with an attack value of 6 the band is 6 to 12, so a critical lands between 12 minus armour and 24 minus armour. Both parts use the same roll.",
+      "why": "Criticals scale with armour instead of with weapon power, so they stay meaningful against armoured bosses and modest against soft ones.",
+      "pp_mapping": "Rejected in this shape. On a 2 to 12 damage scale the additive form is invisible. Feeds decision 5."
+    },
+    {
+      "id": "DM-03",
+      "family": "damage",
+      "name": "Spell band with doubling on hit and quarter at worst",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S4",
+        "S15"
+      ],
+      "rule": "A spell with effectivity E deals a random E to twice E. If the spell passes its hit test the damage doubles. Against a resisting target the effectivity is halved; against a weak target it is multiplied by 1.5. Worst case is therefore a quarter of the best case.",
+      "why": "A four to one spread between a resisted miss and a weak hit makes elemental knowledge feel like power rather than a five percent bonus.",
+      "pp_mapping": "Powers (data/powers.json) currently carry a flat power value. Give each god power an element and a resist multiplier of 0.5 and a weak multiplier of 1.5, keeping the flat base so the numbers stay readable. Feeds decision 4."
+    },
+    {
+      "id": "DM-04",
+      "family": "damage",
+      "name": "Hit test on 201 outcomes with a clamp",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S4"
+      ],
+      "rule": "Chance to hit is a base of 168 plus attacker hit percent minus target evasion, and the base plus hit percent is capped at 255 before evasion is subtracted. Roll 0 to 200; a result at or below the chance hits, 0 always hits and 200 always misses. Minimum chance is 0.",
+      "why": "A percentile test with two always-outcomes is easy to explain and prevents both certainty and hopelessness.",
+      "pp_mapping": "Our dodge phase already decides whether the player is hit by geometry, so a hit test is only needed for enemy physical attacks. If added, use 168 plus accuracy minus evasion on a 0 to 200 roll and skip the 255 clamp. Feeds decision 4."
+    },
+    {
+      "id": "DM-05",
+      "family": "damage",
+      "name": "Ratio damage: a quarter to a half of effective attack",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "Take attack minus half of the target's agility. Multiply by a random number from 256 to 511, divide by 1024 and drop the remainder. If the effective attack is 1 or less the result is 0 or 1 damage, decided 50 50.",
+      "why": "Ratios age well: the same formula holds when attack doubles, so numbers stay small enough to read for a whole game, and a modest stat gain is always felt as a proportion.",
+      "pp_mapping": "The formula for all damage dealt to the hero. With hero defence 0 to 2 and god powers 2 to 9 it yields 1 to 4 per hit, which is 5 to 20 percent of the 20 HP pool. Feeds decision 2."
+    },
+    {
+      "id": "DM-06",
+      "family": "damage",
+      "name": "One in thirty two critical that ignores defence",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "Critical chance is 1 in 32, which is 3.125 percent per attack. A critical ignores the target's defence and deals between half of attack and full attack. A critical can still be dodged.",
+      "why": "A rare, unmissable-looking spike that a player can still lose to a dodge, which keeps it exciting without making it a guaranteed swing.",
+      "pp_mapping": "Base critical 1 in 32, charged god power critical 1 in 16, multiplier 1.5 and armour ignored, popup 24 steps. Feeds decision 5."
+    },
+    {
+      "id": "DM-07",
+      "family": "damage",
+      "name": "Per enemy dodge rates instead of one universal hit rate",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "Dodge is expressed out of 64 per enemy: slime 1, ghost 4, poltergeist 6, demon knight 15, golem 0, both Dragonlord forms 0. Dodge applies to physical attacks including criticals.",
+      "why": "One number per enemy buys a distinct feel: the demon knight is slippery, the golem is a wall, and nobody had to touch the damage formula.",
+      "pp_mapping": "Hadrian (bident plus helm) gets dodge 8 out of 64 while the helm is up, which is 12.5 percent. Everyone else uses 0 to 2 out of 64. Feeds decision 4."
+    },
+    {
+      "id": "DM-08",
+      "family": "damage",
+      "name": "Timed bar maps a sixty step sweep to a damage range",
+      "game": "Primordial Paradox (specs/07-battle-director.md)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "PP"
+      ],
+      "rule": "The FIGHT bar sweeps 0 to 100 in 60 steps, confirming near the centre maximises damage and letting it run out is a miss. The output is 2 to 12 damage, and no other input feeds it.",
+      "why": "It converts player attention into damage without a random roll, so a strong hit feels deserved.",
+      "pp_mapping": "Already shipped in specs/07-battle-director.md. Keep it as the only source of hero attack damage; god powers are the alternate path. Feeds decisions 1 and 4."
+    },
+    {
+      "id": "DM-09",
+      "family": "damage",
+      "name": "Prong count as hit count",
+      "game": "Primordial Paradox (inference)",
+      "numbers_source": "author_inference",
+      "source_ids": [
+        "S4",
+        "PP"
+      ],
+      "rule": "Bident delivers 2 hits at 60 percent of attack each. Trident delivers 3 hits at 45 percent each. Sickle and thunderbolt deliver 1 hit at 100 percent. Each hit rolls its own 1x to 2x band and subtracts armour separately.",
+      "why": "Multi hit punishes armour and rewards unarmoured targets, so the weapon choice has a mechanical answer as well as a mythic one. Expected totals are 1.2x attack for the bident against armour and 1.35x for the trident against unarmoured targets.",
+      "pp_mapping": "Hadrian and Percy as bosses, and the basis for any player wielded version. Feeds decision 4."
+    },
+    {
+      "id": "DH-01",
+      "family": "defense_hp",
+      "name": "Agility doubles as innate defence when unarmoured",
+      "game": "Dragon Quest 1 to 4 (NES)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S11",
+        "S12"
+      ],
+      "rule": "Defence is armour plus half of agility, so agility 20 with no armour is defence 10 and agility 4 with no armour is defence 2. Turn order uses the same stat separately.",
+      "why": "A single stat that quietly protects you makes light builds viable and gives armour a real alternative.",
+      "pp_mapping": "Explains why Hadrian, the smallest and calmest of the four, can be survivable without armour, and why Konrad in a blazer should not be. Feeds decision 2."
+    },
+    {
+      "id": "DH-02",
+      "family": "defense_hp",
+      "name": "Armour buys defence and sells evasion",
+      "game": "Final Fantasy 2 (NES, 1988)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S6"
+      ],
+      "rule": "Evasion percent equals agility plus weapon and shield evasion bonus minus the armour's evasion penalty, 1 point of evasion lost for every 1 point of armour penalty. Heavier armour gives more defence and cuts evasion, and the same penalty applies to magic interference. Because evasion also sets turn order, armour slows you down as well.",
+      "why": "Every upgrade is a trade, so gear becomes a decision instead of a shopping list, and the trade is visible in one number.",
+      "pp_mapping": "Our hero starts at 20 max HP with 3 will. Give armour a will cost: light coat 0, Navy coat minus 1 will, plate minus 2 will, so protection and god power compete. Feeds decision 4."
+    },
+    {
+      "id": "EN-01",
+      "family": "encounter",
+      "name": "Step counter with a discrete value set",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S1"
+      ],
+      "rule": "A countdown decrements per step and a battle starts at zero. Overworld values are 11, 17, 19, 24, 27, 29, 30, 32, 40 and 49 steps; dungeon values are 11, 24, 29, 30, 32, 40, 44 and 46. The first value after power on is 15 lower than the table value.",
+      "why": "A table, not a percentage, gives an exact worst case: never fewer than 11 steps of peace, never more than 49.",
+      "pp_mapping": "Replaces any flat percentage. Land 24 to 40 steps, ship interior 16 to 29, dungeon 11 to 24. Feeds decision 6."
+    },
+    {
+      "id": "EN-02",
+      "family": "encounter",
+      "name": "Per tile probability by terrain",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "Starting zone: grass and bridge 1 in 48, forest and hills 1 in 32, desert 1 in 16. Everywhere else, including dungeons: grass 1 in 24, swamp and forest 1 in 16, hills and desert 1 in 8, stairs and chests 1 in 24, barriers and bricks 1 in 16.",
+      "why": "Terrain becomes a warning system: the player can see danger in the tile art, and deserts earn their reputation.",
+      "pp_mapping": "Rejected as the primary system because it has no floor and the same source names back to back fights as a cause of grind. Kept as a modifier: dunes add 8 to the step band. Feeds decision 6."
+    },
+    {
+      "id": "EN-03",
+      "family": "encounter",
+      "name": "Zone grid with five enemies per zone",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "The overworld is divided into an 8 by 8 grid of zones, each zone listing five possible enemies drawn at roughly equal odds. One 64 entry table therefore covers the whole map's difficulty texture.",
+      "why": "The cheapest content economy in this set: 64 numbers give the entire world a gradient of danger.",
+      "pp_mapping": "Our maps already have named regions (Southampton quay, Westminster, Winchester). Attach one enemy list of five ids per region and pick by region instead of by tile. Feeds decision 6."
+    },
+    {
+      "id": "EN-04",
+      "family": "encounter",
+      "name": "Pity floor and ceiling on the step band",
+      "game": "Primordial Paradox (inference)",
+      "numbers_source": "author_inference",
+      "source_ids": [
+        "S1",
+        "S2"
+      ],
+      "rule": "Absolute floor of 8 steps since the last fight, absolute ceiling of 48 steps. Within the band, draw from the terrain table. The floor and ceiling override the band.",
+      "why": "The floor protects a player who is limping home; the ceiling protects a player who wants the loop. Neither can be violated, which makes both promises testable.",
+      "pp_mapping": "The rule that turns the FF1 counter into an FF1 counter with a guarantee. Feeds decision 6."
+    },
+    {
+      "id": "EN-05",
+      "family": "encounter",
+      "name": "Authored encounter in a corridor",
+      "game": "Primordial Paradox (inference)",
+      "numbers_source": "author_inference",
+      "source_ids": [
+        "PP"
+      ],
+      "rule": "The first Navy Sailor fight is a single placed trigger in a corridor, not a random draw. Its escape chance is 0, its HP is 15 and its attack is 2. Random draws are enabled only after it resolves.",
+      "why": "The tutorial teaches the menu and the dodge phase without a random chance of never happening, and it lets the writer choose the first line of dialogue the player sees.",
+      "pp_mapping": "The Navy Sailors tutorial already planned in specs/07. Feeds decision 6."
+    },
+    {
+      "id": "PR-01",
+      "family": "progression",
+      "name": "FF1 experience curve: anchors and the upward bend",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S1"
+      ],
+      "rule": "Cumulative experience: level 2 is 40, level 3 is 196, level 4 is 547, level 5 is 1,171, level 6 is 2,146, level 7 is 3,550, level 8 is 5,461, level 9 is 7,957, level 10 is 11,116 and level 30 is 333,651. The level 29 to 30 step alone is 32,800.",
+      "why": "Roughly thirty times the level 10 total buys levels 10 to 30, so power gain stays legible across a long game without inflation of the numbers shown.",
+      "pp_mapping": "Rejected as a player mechanic. Kept as the reference shape for enemy HP scaling: 15 HP at rank 1 growing 13 percent per rank reaches 519 at rank 30. Feeds decision 1."
+    },
+    {
+      "id": "PR-02",
+      "family": "progression",
+      "name": "DQ1 experience curve with hand set early levels",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "Cumulative experience: level 2 is 7, level 3 is 23, level 4 is 47, level 5 is 110, level 6 is 220, level 7 is 450, level 8 is 800, level 9 is 1,300, level 10 is 2,000 and level 30 is 65,535. Spells arrive at levels 3, 4, 7, 9 and 10.",
+      "why": "The first three levels are cheaper than any smooth curve, which front loads the feeling of growth, and a spell on nearly every early level gives each level a name.",
+      "pp_mapping": "The pacing model for act 1: a power at fight 2, then one every 3 fights. The 65,535 endpoint is a sixteen bit cap, not a designed value. Feeds decision 1."
+    },
+    {
+      "id": "PR-03",
+      "family": "progression",
+      "name": "Fit both curves with one power law",
+      "game": "Final Fantasy 1 and Dragon Quest 1 (comparison, inference)",
+      "numbers_source": "author_inference",
+      "source_ids": [
+        "S1",
+        "S2"
+      ],
+      "rule": "Fitting levels 3 to 10 gives FF1 a requirement of 28.951 times (level minus 1) to the 2.6928, worst error 4.5 percent, and DQ1 1.941 times (level minus 1) to the 3.0729, worst error 29 percent because levels 2 to 4 are hand set. Both fits sit 1.33 and 1.08 times below the cited level 30 anchor, so the real curves bend up at the top.",
+      "why": "Two independent teams in the same decade produced the same exponent near 3. When a shape repeats across competitors, it is probably a property of the audience, not of taste.",
+      "pp_mapping": "One formula, two constants, if we ever need a curve for anything (enemy HP, power cooldowns, price tiers). Feeds decision 1."
+    },
+    {
+      "id": "PR-04",
+      "family": "progression",
+      "name": "Growth by use with counter against random thresholds",
+      "game": "Final Fantasy 2 (NES, 1988)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S5",
+        "S6",
+        "S7"
+      ],
+      "rule": "Strength rises if a random number from 0 to 45 is below the count of attack selections in that battle; intellect uses 0 to 25 against black magic casts; spirit uses 0 to 15 against white magic casts. Only one point per stat per battle. Weapon, spell, evasion and magic defence levels each need 100 points on the Famicom release and cap at 16.",
+      "why": "Behaviour becomes identity: the character who attacks becomes the attacker, with no menu of builds.",
+      "pp_mapping": "The most interesting rejected mechanic. Its lesson we keep: our TALK count is already a counter, so trust can rise the same way, one point per battle maximum. Feeds decision 1."
+    },
+    {
+      "id": "PR-05",
+      "family": "progression",
+      "name": "Max HP grows only from damage taken",
+      "game": "Final Fantasy 2 (NES, 1988)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S5",
+        "S6"
+      ],
+      "rule": "A character must end a fight having lost at least 12.5 percent of maximum HP for max HP to have a chance of rising, with a second reading of the same source putting the threshold at 11.1 percent, and the chance improves as more was lost. Ending at full health means zero growth. Health, magic points, stamina and magic power all grow from being spent.",
+      "why": "It turns a bad fight into progress and makes struggling the engine of strength, which is a genuinely humane idea.",
+      "pp_mapping": "Rejected: the two sources disagree on the threshold (12.5 percent against 11.1 percent), and it rewards hurting your own party, which would poison a game built on talk. Feeds decision 1."
+    },
+    {
+      "id": "PR-06",
+      "family": "progression",
+      "name": "Job points per action with a per battle cap",
+      "game": "Final Fantasy 3 (NES, 1990)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S9",
+        "S10"
+      ],
+      "rule": "A job level costs 100 points. Actions relevant to the job pay about 12 points for most fighting jobs, 8 for Dragoon, Dark Knight, Thief, Ninja, Red Mage and summoners, 4 for Onion Kid and most mage jobs. No more than 100 points count from a single battle and fleeing pays nothing.",
+      "why": "The per battle cap is the cleanest anti farm rule in this set: one huge fight cannot substitute for playing the route.",
+      "pp_mapping": "Adopt the cap shape even without jobs: no single battle can award more than one power or more than one trust point. Feeds decisions 1 and 10."
+    },
+    {
+      "id": "PR-07",
+      "family": "progression",
+      "name": "Smoothing stats toward an archetype",
+      "game": "EarthBound and Mother 1",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S13",
+        "S14"
+      ],
+      "rule": "EarthBound: the gain is the growth rate times the old level, minus ten times the old stat minus two, all multiplied by a random 3 to 6, or 7 to 10 on levels divisible by four. Mother 1: the gain is a constant plus a random 0 to 3, halved and rounded down, with offence tracking the fight stat and defence tracking speed.",
+      "why": "A stat that is behind catches up faster, so a party member can never be permanently ruined by bad rolls, which is what allows a party of children and a nerd to stay viable.",
+      "pp_mapping": "No levels, but the principle transfers to trust: a talk option the player has not used should be worth more than the one they spam. Feeds decision 1."
+    },
+    {
+      "id": "ES-01",
+      "family": "escape_death",
+      "name": "Luck based escape with preemptive and unrunnable flags",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S1"
+      ],
+      "rule": "Escape succeeds if luck exceeds a random number from 0 to level plus 15. A battle flagged preemptive always escapes and one flagged unrunnable never does. On the NES the routine reads unrelated data for later slots, so the nominal formula is unreliable in play.",
+      "why": "The flags are the useful part: escape is a property of the encounter, so a boss can simply forbid it without a special case in the menu code.",
+      "pp_mapping": "Boss flag sets escape to zero and draws Run in the second ink with the low blip. Feeds decision 7."
+    },
+    {
+      "id": "ES-02",
+      "family": "escape_death",
+      "name": "Enemy class weights the escape roll",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "The hero escapes with an agility test against four enemy id bands with weights 0.25 for the lowest ids, 0.375 for the next band, 0.5 for the next and 1.0 for the highest. A sleeping enemy always lets the hero go. Enemies themselves flee when the hero's strength is at least twice theirs and a 25 percent check passes.",
+      "why": "Difficulty of escape tracks the danger of the enemy, so the player learns which fights are meant to be commitments.",
+      "pp_mapping": "Weights by enemy tier: sailors 0.25, Hector's staff 0.5, gods 1.0 which with our formula means escape is impossible. Feeds decision 7."
+    },
+    {
+      "id": "ES-03",
+      "family": "escape_death",
+      "name": "Escape costs the round",
+      "game": "Final Fantasy 3 (NES, 1990)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S9"
+      ],
+      "rule": "If any character chooses run or escape, the entire party is vulnerable for that round: defence and hit avoidance drop to 0 and incoming physical damage is multiplied by 2. Monsters that run pay no penalty.",
+      "why": "A costed escape is a decision; a free escape is a menu item nobody thinks about.",
+      "pp_mapping": "Failed escape forfeits the hero's next attack and takes one extra bullet in the next pattern. Feeds decision 7."
+    },
+    {
+      "id": "ES-04",
+      "family": "escape_death",
+      "name": "Death takes half of what you carry",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "On death the hero keeps 100 percent of the experience earned and loses 50 percent of the gold carried, rounded down.",
+      "why": "The retry loop stays inside the fiction and the player never has to reload a save, so pacing is preserved.",
+      "pp_mapping": "Lose half of carried salves rounded down, keep powers and trust. Feeds decision 8."
+    },
+    {
+      "id": "ME-01",
+      "family": "menu",
+      "name": "Five entry command ring with immediate resolution",
+      "game": "Final Fantasy 1 (NES, 1987)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S1"
+      ],
+      "rule": "Five battle commands: fight, magic, drink, item and run, each with at most one sub level, so the deepest route is 2 presses (magic needs a spell then a charge; drink offers a heal potion or a pure potion). Confirm accepts and cancel backs out. Party order is edited from the field on a different button than the menu.",
+      "why": "Five entries fit a NES screen and every entry has an obvious sub level, so no command needs a tutorial.",
+      "pp_mapping": "Our five entries are fight, power, talk, spare and item; run becomes a conditional sixth. Feeds decision 9."
+    },
+    {
+      "id": "ME-02",
+      "family": "menu",
+      "name": "Command phase then action phase",
+      "game": "Dragon Quest 1 and 2 (NES)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2",
+        "S11"
+      ],
+      "rule": "The player enters 1 command for every character before any action resolves, then all actions execute in order, then victory or defeat is checked once at the end of the round.",
+      "why": "Batching commands makes risk a plan rather than a reaction, which suits a game with a party and a single enemy.",
+      "pp_mapping": "Not adopted: our fights are one hero and one enemy, and immediate resolution is what makes the four step message timing in spec 07 readable. Feeds decision 9."
+    },
+    {
+      "id": "GR-01",
+      "family": "grind",
+      "name": "A rare enemy that pays ten times the going rate",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "The metal slime pays 115 experience for 4 HP, is immune to magic, usually deals only 1 damage on a non critical hit, and flees often. Ordinary enemies in the same region pay 3 to 16 experience.",
+      "why": "Rare, dangerous and valuable is a three way tension that turns a random encounter into a decision about whether to gamble.",
+      "pp_mapping": "One rare enemy per area: 3 times normal HP, appears at most once per 120 steps, drops a power instead of currency. Feeds decision 10."
+    },
+    {
+      "id": "GR-02",
+      "family": "grind",
+      "name": "A price ladder as a parallel currency",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "Equipment prices run 10, 60, 180, 560, 1,500, 9,800 and 14,800 gold for the visible weapon and shield line, while monsters pay 1 to 199 gold each.",
+      "why": "The next tier is always visible and always slightly out of reach, which converts grinding into a shopping plan the player chose.",
+      "pp_mapping": "Rejected entirely: no gold, no shop, no inn. Named here so the rejection is on the record. Feeds decision 10."
+    },
+    {
+      "id": "GR-03",
+      "family": "grind",
+      "name": "A free refill node",
+      "game": "Dragon Quest 1 (NES, 1986)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S2"
+      ],
+      "rule": "The starting castle restores magic for 0 gold, against inn prices of 2 to 40 gold elsewhere, which allows healing and returning to farm without paying for a room.",
+      "why": "Removing the walk of shame between attempts lowers the cost of a mistake, and it also happens to be the reason the game is remembered as grindy: it is an enabler, not a brake.",
+      "pp_mapping": "One named refill node per area that restores HP once per visit. Keep only one, and place it where the story already sends the player. Feeds decision 10."
+    },
+    {
+      "id": "GR-04",
+      "family": "grind",
+      "name": "A toll on changing your mind",
+      "game": "Final Fantasy 3 (NES, 1990)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S8"
+      ],
+      "rule": "Job changes are paid from a Capacity pool shared by the whole party, at most 255 points. The cost depends on the current job and the target job, and one point is refunded for every skill level already held in the target job.",
+      "why": "A price on switching prevents flip flopping between builds without forbidding experimentation.",
+      "pp_mapping": "Rejected: we have no jobs. The transferable idea is that any future loadout change should cost something the player owns. Feeds decision 10."
+    },
+    {
+      "id": "GR-05",
+      "family": "grind",
+      "name": "Anti synergy between growth paths",
+      "game": "Final Fantasy 2 (NES, 1988)",
+      "numbers_source": "cited",
+      "source_ids": [
+        "S5"
+      ],
+      "rule": "Gaining strength can cost intellect; gaining intellect can cost stamina; gaining spirit can cost strength. The intended chance is about 1 in 6 and the observed rate is closer to 1 in 2.",
+      "why": "A specialist is genuinely sharper than a generalist, so the character sheet tells a story about what the player did.",
+      "pp_mapping": "Rejected as a punishment. Keep the shadow of it: an armour that adds defence should visibly subtract will max, so the trade is legible instead of punitive (see DH-02). Feeds decision 4."
+    }
+  ],
+  "revised": "2026-10-22, clean room fix (card t_aa9d2e7d): internal source ids only"
+}
