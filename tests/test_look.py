@@ -25,9 +25,20 @@ Card t_5665c7d8 item and the test that pins it:
 7  the mutation demonstrated, then reverted
    test_a_seventeenth_colour_is_refused_and_reverting_clears_it
 
-Honest limit: GameMaker is not installed on this machine. Nothing here renders a frame, measures a pixel or proves the
-look on a monitor. What is pinned is the rule; the appearance is unproven until a run through Igor and the 3x screenshot
-acceptance in spec 13 item 1 through 3 can be taken.
+Card t_638da7e0 (the rework) item and the test that pins it:
+1  the 17 colour refusal names the room's set, not only its position
+   test_seventeen_colours_in_a_room_palette_fails, test_a_seventeenth_colour_is_refused_and_reverting_clears_it
+2  every engine call in pp_look cites its manual page
+   test_every_engine_call_in_the_look_module_cites_its_manual_page
+3  a role the room's set does not declare cannot add a colour
+   test_a_role_outside_the_rooms_set_draws_the_missing_colour, test_a_set_plus_the_missing_colour_still_fits_the_cap
+4  the viewport is the frame times the scale, and the dead letterbox fields are gone
+   test_the_viewport_is_the_frame_times_the_scale
+
+Honest limit: nothing here renders a frame, measures a pixel or proves the look on a monitor. What is pinned is the rule.
+GameMaker LTS 2026 is installed (the DEVLOG entry for 2026-10-22 records four real runs of this tree that morning), but no
+run has yet read a pixel back for this card, so the appearance stays unproven until the 3x screenshot acceptance in spec
+13 item 1 through 3 and the first frame measurement are taken from a running build.
 """
 
 from __future__ import annotations
@@ -108,7 +119,7 @@ NAMED_COLOUR_USERS = {
         "game/scripts/pp_overworld/pp_overworld.gml",
         "game/scripts/pp_title/pp_title.gml",
     ),
-    "PP_COLOUR_MISSING": ("game/scripts/pp_data/pp_data.gml",),
+    "PP_COLOUR_MISSING": ("game/scripts/pp_data/pp_data.gml", "game/scripts/pp_look/pp_look.gml"),
     "PP_TITLE_WHITE": ("game/scripts/pp_title/pp_title.gml",),
     "PP_TITLE_GREY": ("game/scripts/pp_title/pp_title.gml",),
 }
@@ -116,6 +127,18 @@ NAMED_COLOUR_USERS = {
 # The one place a window is sized outside pp_look, pinned to the scale the spec calls the default. It runs in the game
 # object's Create event before pp_app_boot, so pp_look has an integer window to measure on its first call.
 DEFAULT_WINDOW_CALLER = "game/objects/obj_pp_game/Create_0.gml"
+
+# Every engine call pp_look makes, and the manual page that documents it. A call whose page is not written next to it is
+# a claim about an engine behaviour that nobody can check without the manual open (card t_638da7e0 item 2). The pages
+# were read on 2026-10-22; the filter call is documented as gpu_set_texfilter, which is why this table names that page
+# for the underscored spelling the module uses.
+MANUAL_CALLS = {
+    "surface_resize": "Drawing/Surfaces/surface_resize.htm",
+    "display_set_gui_size": "Cameras_And_Display/display_set_gui_size.htm",
+    "gpu_set_tex_filter": "Drawing/GPU_Control/gpu_set_texfilter.htm",
+    "view_set_wport": "Cameras_And_Display/Cameras_And_Viewports/view_set_wport.htm",
+    "camera_set_view_size": "Cameras_And_Display/Cameras_And_Viewports/camera_set_view_size.htm",
+}
 
 SEVENTEEN = [
     "grey_0", "grey_1", "grey_2", "grey_3", "grey_4", "grey_5",
@@ -403,6 +426,57 @@ def test_the_look_module_owns_the_numbers_and_the_scale():
     assert "floor(_ww / PP_FRAME_W)" not in camera, "pp_camera computes the scale itself again"
 
 
+def test_every_engine_call_in_the_look_module_cites_its_manual_page():
+    lines = read("game/scripts/pp_look/pp_look.gml").splitlines()
+    uncited = []
+    for call, page in sorted(MANUAL_CALLS.items()):
+        cited = False
+        for number, line in enumerate(lines):
+            if line.lstrip().startswith("//"):
+                continue
+            if not re.search(r"\b%s\s*\(" % re.escape(call), line):
+                continue
+            # The page has to sit beside the call it explains, not somewhere in the file: four lines is the width of a
+            # comment block and the argument it introduces.
+            window = "\n".join(lines[max(0, number - 4):number + 1])
+            if "manual.gamemaker.io" in window and page in window:
+                cited = True
+                break
+        if not cited:
+            uncited.append("%s (%s)" % (call, page))
+    assert uncited == [], "a call with no manual page beside it: %s" % uncited
+
+    # The pages themselves are the manual's own paths, not a guess at a URL: the host and the section are part of the
+    # citation, so a wrong page is a wrong claim and not a cosmetic detail.
+    text = read("game/scripts/pp_look/pp_look.gml")
+    for page in MANUAL_CALLS.values():
+        assert "https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/" + page in text, page
+    assert "GmlSpec.xml" in text, "the filter call's underscored spelling is not explained"
+
+
+def test_the_viewport_is_the_frame_times_the_scale():
+    look = gml_code_only(read("game/scripts/pp_look/pp_look.gml"))
+    apply_window = function_body(look, "pp_look_apply_window")
+    for expected in ("view_enabled = true", "view_visible[0] = true", "view_set_xport(0, 0)", "view_set_yport(0, 0)",
+                     "view_set_wport(0, _w)", "view_set_hport(0, _h)",
+                     "camera_set_view_size(view_camera[0], PP_FRAME_W, PP_FRAME_H)"):
+        assert expected in apply_window, "the viewport is not the frame times the scale: %r" % expected
+    assert "surface_resize(application_surface, _w, _h)" in apply_window
+    assert "window_set_size(_w, _h)" in apply_window
+
+    # The port is re-asserted every step, because a room carries its own view settings and every room in this project
+    # has views 0 to 7 invisible: a set made once at boot is gone the first time the room changes.
+    update = function_body(look, "pp_look_update")
+    for expected in ("!view_enabled", "!view_visible[0]", "view_get_wport(0) != _w", "view_get_hport(0) != _h"):
+        assert expected in update, "pp_look_update does not re-assert the viewport: %r" % expected
+
+    # The letterbox offset is gone rather than promised. It was computed into two fields nothing read, while the comment
+    # beside it claimed a window that cannot take the scale still centres the frame (card t_638da7e0 item 4).
+    assert "offset_x" not in look and "offset_y" not in look
+    for relative, code in gml_sources().items():
+        assert "offset_x" not in code and "offset_y" not in code, "%s still reads a letterbox offset" % relative
+
+
 def test_role_resolution_is_defined_once():
     counts = {}
     for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, "game")):
@@ -454,14 +528,53 @@ def test_real_data_passes():
     assert failures(ROOT) == []
 
 
+def test_a_role_outside_the_rooms_set_draws_the_missing_colour():
+    """A role the room's set does not declare may not borrow a colour from the master palette (card t_638da7e0 item 3).
+
+    deck_day declares 14 roles and 13 distinct colours, while pp_app and pp_dodge_arena ask for accent, hazard, marker and
+    marker_trail. With the master palette as a fallback those four quietly added their colours and a deck_day screen could
+    spend 17, which spec 13 rule 2 forbids and acceptance 3 refuses to look at. The lookup now answers only from the set in
+    use, and the missing colour is one colour whatever the role, so the cap holds.
+    """
+    look = read("game/scripts/pp_look/pp_look.gml")
+    code = gml_code_only(look)
+
+    index = function_body(code, "pp_look_role_index")
+    assert index, "pp_look_role_index is gone"
+    assert "_look.master" not in index, "the role lookup falls back to the master palette again"
+    assert "return -1" in index, "a role outside the set is not reported as missing"
+
+    colour = function_body(code, "pp_role_colour")
+    assert "PP_COLOUR_MISSING" in colour, "an out of set role does not draw the missing colour"
+    assert "_look.missing" in colour and "show_debug_message" in colour, "an out of set role is not logged"
+    assert "pp_colour(_index)" in colour and "if (_index >= 0)" in colour
+
+    # The behaviour the module now has is the behaviour pp_config already documented for that constant.
+    config = " ".join(read("game/scripts/pp_config/pp_config.gml").split())
+    assert "PP_COLOUR_MISSING is what a bad palette index or an unknown role draws as" in config
+
+
+def test_a_set_plus_the_missing_colour_still_fits_the_cap():
+    """A declared set of 16 roles plus one missing colour would be 17 on screen, so the data has to leave room for it."""
+    roles = read_json_file("data/palette.json")["roles"]
+    for room_set in read_json_file("data/room_palettes.json")["sets"]:
+        colours = {roles[name] for name in room_set["roles"] if name in roles}
+        assert len(colours) + 1 <= SCREEN_CAP, \
+            "set %r declares %d distinct colours, and a role outside it adds the missing colour: %d on screen" % (
+                room_set["id"], len(colours), len(colours) + 1)
+
+
 def test_seventeen_colours_in_a_room_palette_fails(data_root, read_json, write_json):
     path = data_root / "data" / "room_palettes.json"
     data = read_json(path)
     data["sets"][0]["roles"] = SEVENTEEN
     write_json(path, data)
 
+    # The refusal names the room's set by id as well as by position: the first set is ui, and whoever reads the failure
+    # has to be able to tell which rooms draw in it without counting sets (spec 13 acceptance item 3, PROGRESS.md).
+    first_id = data["sets"][0]["id"]
     errors = failures(data_root)
-    assert any("data/room_palettes.json" in e and "sets[0].roles" in e
+    assert any("data/room_palettes.json" in e and "sets[0]" in e and repr(first_id) in e
                and "17 colours" in e and "screen cap is 16" in e for e in errors), errors
 
 
@@ -481,7 +594,7 @@ def test_unknown_role_in_a_room_palette_is_named(data_root, read_json, write_jso
     write_json(path, data)
 
     errors = failures(data_root)
-    assert any("data/room_palettes.json" in e and "sets[1].roles[2]" in e and "not a role" in e
+    assert any("data/room_palettes.json" in e and "sets[1] 'deck_day'.roles[2]" in e and "not a role" in e
                for e in errors), errors
 
 
@@ -663,6 +776,8 @@ def fractional_scale_offenders(code: str) -> list:
 
 
 def test_no_fractional_scale_in_the_draw_or_camera_code():
+    # No allowlist on the division rule: a scale is a floor of a frame division, which is how pp_look writes it, and
+    # nothing else in the project divides a window by the frame at all.
     sources = gml_sources()
     offenders = []
     for relative, code in sorted(sources.items()):
@@ -1012,7 +1127,8 @@ def test_a_seventeenth_colour_is_refused_and_reverting_clears_it(data_root, read
     errors = failures(data_root)
     palettes = [e for e in errors if "data/room_palettes.json" in e]
     assert palettes, "a 17th colour was accepted: %s" % errors
-    assert any("sets[0].roles" in e and "17 colours" in e and "screen cap is 16" in e for e in palettes), palettes
+    assert any("sets[0]" in e and repr(clean["sets"][0]["id"]) in e and "17 colours" in e and "screen cap is 16" in e
+               for e in palettes), palettes
     assert all("data/room_palettes.json" in e for e in errors), "the mutation broke something else as well: %s" % errors
 
     write_json(path, clean)

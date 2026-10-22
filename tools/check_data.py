@@ -457,6 +457,9 @@ class Checker:
             path = "sets[%d]" % index
             set_id = self.require(entry, "id", "str", filename, path)
             if isinstance(set_id, str):
+                # From here the path names the set by id as well as by position. A refusal is read by whoever owns the
+                # room that draws in this set, and "sets[3]" alone makes them count sets to find out which room it was.
+                path = "sets[%d] %r" % (index, set_id)
                 if set_id in self.room_palette_ids:
                     self.error(filename, path + ".id", "duplicate set id %r" % set_id)
                 self.room_palette_ids.add(set_id)

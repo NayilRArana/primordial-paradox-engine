@@ -52,7 +52,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_map/pp_map.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
-| game/scripts/pp_save/pp_save.gml | confirmed | code-review | 2026-10-22 |
+| game/scripts/pp_save/pp_save.gml | pending | card t_73f08da5 changed the text | 2026-10-22 |
 | game/scripts/pp_scene/pp_scene.gml | confirmed | code-review | 2026-10-22 |
 | game/scripts/pp_text/pp_text.gml | pending | card t_73f08da5 changed the text | 2026-10-22 |
 | game/scripts/pp_title/pp_title.gml | reviewed | gamedev | 2026-10-21 |
@@ -73,12 +73,14 @@ blacklist hit, no reference to a study copy and no foreign name. That review did
 was returned with required code changes, listed on the card. A confirmed row here means the text was read and holds no
 foreign material; it is not an approval of the logic.
 
-Three rows were set back to `pending` by card t_73f08da5 on 2026-10-22, because that card changed the text after the
+Four rows were set back to `pending` by card t_73f08da5 on 2026-10-22, because that card changed the text after the
 clean-room verdict above: `pp_audio.gml` (the fade helpers, the theme as one music source, the citations in its header),
-`pp_data.gml` (the cue ids indexed beside the sounds) and `pp_text.gml` (the blip call). Nothing in the change reads or
+`pp_data.gml` (the cue ids indexed beside the sounds), `pp_text.gml` (the blip call) and, in the fix round,
+`pp_save.gml` (one `show_debug_message` line in `pp_save_parse` so an accepted read is visible in a runtime log, which
+is what turned the "PP-05 loads clean" claim into evidence on 2026-10-22). Nothing in the change reads or
 cites material outside this repository: the audio rules are specs 05 and 12, the cue ids are the musician lane's own
-list, and every engine call's behaviour is the manual page named next to it. A reviewer still has to read the new text
-before the row says `confirmed` again.
+list, the save rules are spec 11, and every engine call's behaviour is the manual page named next to it. A reviewer
+still has to read the new text before a row says `confirmed` again.
 
 `rewritten` means the file text changed in this review. All eight rewrites are comment only: each one removed a
 provenance parenthetical that described the internals of the quarantined copy, and replaced it with the spec the
@@ -91,6 +93,15 @@ manual pages the entry names (application_surface, display_set_gui_size, gpu_set
 and `tools/check_data.py`. `tools/check_cleanroom.py` reports no blacklist hit and no reference to a study copy. Nothing
 decompiled or ripped was opened, searched or reasoned from, and the quarantine folder was not touched. As with the rows
 above, confirmed is a clean-room verdict only: the same card returned the change with required code fixes.
+
+The rework that answered those fixes (card t_638da7e0, same day) changed this module again: it cites the manual page
+above every engine call, it enables viewport 0 and pins the camera view to the frame, it deletes the letterbox offset
+fields, and the role lookup now answers only from the room's palette set. What gamedev read while making those changes:
+the GameMaker manual pages for application_surface, surface_resize, display_set_gui_size, gpu_set_tex_filter (documented
+as gpu_set_texfilter), view_enabled, view_visible, view_set_wport and camera_set_view_size, the runtime's own function
+table GmlSpec.xml to confirm the underscored filter spelling, and this repository's own palette and room palette data.
+Nothing decompiled or ripped was opened, searched or reasoned from, and the quarantine folder was not touched, so the row
+stays confirmed.
 
 ## Why each module is genre level
 
