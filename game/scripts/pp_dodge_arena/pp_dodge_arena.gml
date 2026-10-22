@@ -199,7 +199,7 @@ function pp_arena_draw(_arena) {
     var _g = _arena.geometry;
 
     draw_set_alpha(0.6);
-    draw_set_colour(c_black);
+    draw_set_colour(pp_role_colour("ink"));
     draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
     draw_set_alpha(1);
 

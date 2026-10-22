@@ -13,6 +13,21 @@
 #macro PP_FADE_STEPS 12
 #macro PP_INPUT_LOCK_STEPS 6
 
+// Colour (spec 13). No draw call in the game carries a colour literal: a colour comes from the palette set a room
+// declares, by role. These two are the only exceptions and both are named here so the sweep test can point at them:
+//   PP_UNTINTED is the blend factor that means "draw the sprite exactly as authored", not a colour choice. GameMaker's
+//   own constant for it is c_white, so the one place that name may appear is this file.
+//   PP_COLOUR_MISSING is what a bad palette index or an unknown role draws as. It is deliberately a colour no room
+//   palette may declare, so a mistake is visible on screen instead of silently black.
+#macro PP_UNTINTED c_white
+#macro PP_COLOUR_MISSING make_colour_rgb(255, 0, 255)
+
+// The title screen's two text colours, taken from spr_pp_window so the letters and the frame agree: white #fcfcfc and
+// the grey #7c7c7c under it. They are NES 2C02 entries $30 and $00, which the title's own scene palette declares. They
+// live here rather than in pp_title because a colour number is a constant and constants live in this file.
+#macro PP_TITLE_WHITE make_colour_rgb(252, 252, 252)
+#macro PP_TITLE_GREY make_colour_rgb(124, 124, 124)
+
 // Battle field geometry (spec 07). The field is the whole 256x240 frame; the menu band is the lower third.
 #macro PP_FIELD_W PP_FRAME_W
 #macro PP_FIELD_H PP_FRAME_H

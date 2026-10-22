@@ -111,9 +111,9 @@ function pp_art_layer(_name, _frame, _y, _offset, _view_w, _view_h) {
     if (_off < 0) _off += _w;
     var _src_x = _f_src_x(_name, _frame);
     var _first = min(_view_w, _w - _off);
-    draw_sprite_part_ext(_info.sprite, 0, _src_x + _off, 0, _first, _view_h, 0, _y, 1, 1, c_white, 1);
+    draw_sprite_part_ext(_info.sprite, 0, _src_x + _off, 0, _first, _view_h, 0, _y, 1, 1, PP_UNTINTED, 1);
     if (_first < _view_w) {
-        draw_sprite_part_ext(_info.sprite, 0, _src_x, 0, _view_w - _first, _view_h, _first, _y, 1, 1, c_white, 1);
+        draw_sprite_part_ext(_info.sprite, 0, _src_x, 0, _view_w - _first, _view_h, _first, _y, 1, 1, PP_UNTINTED, 1);
     }
     return true;
 }
@@ -126,4 +126,29 @@ function _f_src_x(_name, _frame) {
     if (_f < 0) _f = 0;
     if (_f >= _info.frames) _f = _info.frames - 1;
     return _f * _info.frame_w;
+}
+
+/// Draw the nine slice window from the art lane's spr_pp_window, whose top left corner is (_x, _y) and whose
+/// size is given in whole 8x8 tiles. The size is in tiles and never in pixels, because the window is nine 8x8
+/// tiles: stretching one would tear its right and bottom edge. The corners keep the transparent pixels the art
+/// drew them with, so they read as rounded against the black or the room behind, and the field is filled by the
+/// centre tile. A window needs at least 3 by 3 tiles. Returns false when the sprite is not in the build or the
+/// size is too small, so the caller can fall back to a drawn box.
+function pp_window_draw(_x, _y, _tiles_w, _tiles_h, _alpha) {
+    var _info = pp_art_info("spr_pp_window");
+    if (is_undefined(_info)) return false;
+    if (_tiles_w < 3 || _tiles_h < 3) return false;
+    var _spr = _info.sprite;
+    var _t = _info.frame_w;
+    for (var _ty = 0; _ty < _tiles_h; _ty += 1) {
+        for (var _tx = 0; _tx < _tiles_w; _tx += 1) {
+            var _slice;
+            if (_ty == 0) _slice = (_tx == 0 ? 0 : (_tx == _tiles_w - 1 ? 2 : 1));
+            else if (_ty == _tiles_h - 1) _slice = (_tx == 0 ? 6 : (_tx == _tiles_w - 1 ? 8 : 7));
+            else _slice = (_tx == 0 ? 3 : (_tx == _tiles_w - 1 ? 5 : 4));
+            draw_sprite_part_ext(_spr, 0, _slice * _t, 0, _t, _t,
+                                 _x + _tx * _t, _y + _ty * _t, 1, 1, PP_UNTINTED, _alpha);
+        }
+    }
+    return true;
 }

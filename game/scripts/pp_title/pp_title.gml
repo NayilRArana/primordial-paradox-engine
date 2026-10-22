@@ -66,10 +66,6 @@
 #macro PP_TITLE_MENU_ROW_Y 156
 #macro PP_TITLE_MENU_STEP 12
 #macro PP_TITLE_CURSOR_X 8
-// The window's own two text colours, taken from spr_pp_window so the letters and the frame agree: white #fcfcfc
-// and the grey #7c7c7c under it. The scene text outside the window uses the same white.
-#macro PP_TITLE_WHITE make_colour_rgb(252, 252, 252)
-#macro PP_TITLE_GREY make_colour_rgb(124, 124, 124)
 // The copyright line: one quiet row at the very bottom of the frame.
 #macro PP_TITLE_COPY_TEXT "(c) 2026 NAYILINIST"
 #macro PP_TITLE_COPY_Y 228
@@ -456,7 +452,7 @@ function pp_title_draw_sign(_s, _d, _flash) {
     for (var shift = -512; shift <= 512; shift += 512) {
         var _x = PP_TITLE_SIGN_X - _offset + shift;
         if (_x > -100 && _x < PP_FRAME_W) {
-            pp_art_draw(_name, _index, _x, _verge.y + PP_TITLE_SIGN_Y, c_white, 1);
+            pp_art_draw(_name, _index, _x, _verge.y + PP_TITLE_SIGN_Y, PP_UNTINTED, 1);
         }
     }
 }
@@ -465,7 +461,7 @@ function pp_title_draw_sign(_s, _d, _flash) {
 function pp_title_draw_cone(_s, _d, _flash) {
     var _name = pp_title_flash_name("spr_title_cone", _flash);
     if (!pp_art_has(_name)) return;
-    pp_art_draw(_name, 0, _d.cone_x, PP_TITLE_CONE_Y, c_white, 1);
+    pp_art_draw(_name, 0, _d.cone_x, PP_TITLE_CONE_Y, PP_UNTINTED, 1);
 }
 
 /// The opening shot: the Big Ben frame drifts up out of the drive and dissolves, over three seconds. The drive
@@ -477,7 +473,7 @@ function pp_title_draw_opening(_s) {
     var _left = PP_TITLE_OPEN_STEPS - _s.open;
     var _alpha = 1;
     if (_left < PP_TITLE_OPEN_FADE) _alpha = max(0, _left / PP_TITLE_OPEN_FADE);
-    pp_art_draw("title_BG_bigben", 0, 0, _y, c_white, _alpha);
+    pp_art_draw("title_BG_bigben", 0, 0, _y, PP_UNTINTED, _alpha);
 }
 
 /// The car, its wheels, its exhaust and the empty dark glass: nobody is inside it.
@@ -491,7 +487,7 @@ function pp_title_draw_car(_s, _d) {
         var _puff_frames = max(1, pp_art_frames("spr_title_exhaust"));
         var _puff_phase = (_s.steps mod PP_TITLE_EXHAUST_STEPS);
         var _puff = min(_puff_frames - 1, floor(_puff_phase * _puff_frames / PP_TITLE_EXHAUST_STEPS));
-        pp_art_draw("spr_title_exhaust", _puff, _x, _y + 14, c_white, 1);
+        pp_art_draw("spr_title_exhaust", _puff, _x, _y + 14, PP_UNTINTED, 1);
     }
 
     // The v2 car carries its own wheels, baked into the sprite so each one sits in its arch and cannot drift,
@@ -501,7 +497,7 @@ function pp_title_draw_car(_s, _d) {
     var _body = floor(_s.steps * _car_frames / PP_TITLE_BEAT_STEPS) mod _car_frames;
     var _bob = 0;
     if ((_s.steps mod PP_TITLE_BOB_STEPS) >= PP_TITLE_BOB_STEPS / 2) _bob = PP_TITLE_BOB_PX;
-    pp_art_draw("spr_title_car", _body, _x, _y - _bob, c_white, 1);
+    pp_art_draw("spr_title_car", _body, _x, _y - _bob, PP_UNTINTED, 1);
 
     // The cast is off the title as of TS2-ART-A (Nayil: the car shows only its exterior, no faces). The
     // sprites spr_title_theo, spr_title_ronan and spr_title_bubble stay in game\sprites_src\title for the
@@ -519,7 +515,7 @@ function pp_title_draw_cloud(_s, _d, _flash) {
         // Theo's cloud drifts one frame a bar, so it turns over with the storm's own slow clock.
         _index = floor(_s.steps / PP_TITLE_BAR_STEPS) mod 2;
     }
-    pp_art_draw("spr_title_cloud", _index, _d.car_x + 64, 80, c_white, 1);
+    pp_art_draw("spr_title_cloud", _index, _d.car_x + 64, 80, PP_UNTINTED, 1);
 }
 
 /// The logo: it fades in over a second, then a gold shimmer passes over it every four seconds.
@@ -527,7 +523,7 @@ function pp_title_draw_logo(_s) {
     if (!pp_art_has("spr_pp_title_logo")) return;
     var _index = 0;
     if ((_s.steps mod PP_TITLE_SHIMMER_PERIOD) < PP_TITLE_SHIMMER_STEPS) _index = 1;
-    pp_art_draw("spr_pp_title_logo", _index, PP_TITLE_LOGO_X, PP_TITLE_LOGO_Y, c_white, _s.logo_alpha);
+    pp_art_draw("spr_pp_title_logo", _index, PP_TITLE_LOGO_X, PP_TITLE_LOGO_Y, PP_UNTINTED, _s.logo_alpha);
 }
 
 /// The words: the prompt, the menu in its window, the settings placeholder, or the intro crawl.
@@ -556,7 +552,7 @@ function pp_title_draw_words(_s, _d) {
     if (pp_art_has("spr_pp_menu_cursor")) {
         var _cursor = floor(_s.steps / PP_TITLE_CURSOR_PERIOD) mod 2;
         pp_art_draw("spr_pp_menu_cursor", _cursor, PP_TITLE_MENU_WIN_X + PP_TITLE_CURSOR_X,
-                    PP_TITLE_MENU_ROW_Y + _s.menu_index * PP_TITLE_MENU_STEP, c_white, 1);
+                    PP_TITLE_MENU_ROW_Y + _s.menu_index * PP_TITLE_MENU_STEP, PP_UNTINTED, 1);
     }
     pp_title_draw_copy();
 }
@@ -597,7 +593,7 @@ function pp_title_draw_settings(_s) {
     pp_font_draw_centre("BACK", PP_FRAME_W / 2, 128, PP_TITLE_WHITE, 1);
     if (pp_art_has("spr_pp_menu_cursor")) {
         var _cursor = floor(_s.steps / PP_TITLE_CURSOR_PERIOD) mod 2;
-        pp_art_draw("spr_pp_menu_cursor", _cursor, PP_FRAME_W / 2 - 40, 128, c_white, 1);
+        pp_art_draw("spr_pp_menu_cursor", _cursor, PP_FRAME_W / 2 - 40, 128, PP_UNTINTED, 1);
     }
     pp_title_draw_copy();
 }
@@ -868,11 +864,11 @@ function pp_title_draw_intro_scene(_s, _d) {
 
     var _car = pp_title_fade_name("spr_title_car", _s.intro_world);
     if (pp_art_has(_car)) {
-        pp_art_draw(_car, floor(_s.steps / 10) mod pp_art_frames(_car), _d.car_x, _d.car_y + _pan, c_white, 1);
+        pp_art_draw(_car, floor(_s.steps / 10) mod pp_art_frames(_car), _d.car_x, _d.car_y + _pan, PP_UNTINTED, 1);
     }
     var _cloud = pp_title_fade_name("spr_title_cloud", _s.intro_world);
     if (pp_art_has(_cloud)) {
-        pp_art_draw(_cloud, floor(_s.steps / 30) mod 2, _d.car_x + 64, 80 + _pan, c_white, 1);
+        pp_art_draw(_cloud, floor(_s.steps / 30) mod 2, _d.car_x + 64, 80 + _pan, PP_UNTINTED, 1);
     }
 
     pp_title_draw_stars(_s);
@@ -897,7 +893,7 @@ function pp_title_draw_stars(_s) {
         var _frame = 0;
         if (_local < 3) _frame = 2;
         else if (_local < 6) _frame = 1;
-        pp_art_draw("spr_title_star", _frame, _star.x - 2, _star.y - 2, c_white, 1);
+        pp_art_draw("spr_title_star", _frame, _star.x - 2, _star.y - 2, PP_UNTINTED, 1);
     }
 }
 

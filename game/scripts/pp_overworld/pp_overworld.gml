@@ -479,7 +479,7 @@ function pp_overworld_draw(_world) {
 
     if (!is_undefined(_world.fade)) {
         draw_set_alpha(_world.fade.alpha);
-        draw_set_colour(c_black);
+        draw_set_colour(pp_role_colour("ink"));
         draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
         draw_set_alpha(1);
     }
@@ -557,7 +557,7 @@ function pp_overworld_draw_hero(_world, _ox, _oy) {
     var _sy = _hero.py - _world.cam_y + _oy;
     var _step = pp_world_walk_frame(_hero.moving, _hero.steps);
     var _frame = pp_world_sheet_frame(PP_HERO_SHEET, _hero.facing, _hero.moving, _hero.steps);
-    if (pp_art_draw(PP_HERO_SHEET, _frame, _sx, _sy, c_white, 1)) return;
+    if (pp_art_draw(PP_HERO_SHEET, _frame, _sx, _sy, PP_UNTINTED, 1)) return;
 
     // Blocks: blond head, light blue bomber, dark trousers. 12 wide, 14 tall inside the 16 pixel tile.
     var _bob = (_step == 0) ? 0 : 1;
@@ -587,7 +587,7 @@ function pp_overworld_draw_actors(_world, _ox, _oy) {
         var _sx = _a.px - _world.cam_x + _ox;
         var _sy = _a.py - _world.cam_y + _oy;
         var _frame = pp_world_sheet_frame(PP_SAILOR_SHEET, _a.facing, false, 0);
-        if (!pp_art_draw(PP_SAILOR_SHEET, _frame, _sx, _sy, c_white, 1)) {
+        if (!pp_art_draw(PP_SAILOR_SHEET, _frame, _sx, _sy, PP_UNTINTED, 1)) {
             // Blocks: navy jacket with a white collar, cap, so a sailor does not read as the hero.
             draw_set_colour(pp_role_colour("dim"));
             draw_rectangle(_sx + 3, _sy + 2, _sx + 12, _sy + 6, false);

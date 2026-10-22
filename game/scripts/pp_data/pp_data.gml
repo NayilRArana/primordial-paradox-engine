@@ -47,7 +47,7 @@ function pp_data_json(_name) {
 
 /// "#RRGGBB" to a GameMaker colour. Palette entries are strings in data\palette.json (spec 13).
 function pp_data_colour(_hex) {
-    if (!is_string(_hex) || string_length(_hex) < 7) return c_white;
+    if (!is_string(_hex) || string_length(_hex) < 7) return PP_COLOUR_MISSING;
     var _r = pp_hex_to_int(string_copy(_hex, 2, 2));
     var _g = pp_hex_to_int(string_copy(_hex, 4, 2));
     var _b = pp_hex_to_int(string_copy(_hex, 6, 2));
@@ -97,6 +97,7 @@ function pp_data_load() {
     var _bundle = {
         project: pp_data_json("project.json"),
         palette: pp_data_json("palette.json"),
+        room_palettes: pp_data_json("room_palettes.json"),
         party: pp_data_json("characters/party.json"),
         enemies: pp_data_json("enemies/all.json"),
         encounters: pp_data_json("encounters/all.json"),
@@ -142,25 +143,11 @@ function pp_data_load() {
     return _bundle;
 }
 
-/// One palette colour by index, with a visible fallback so a bad index draws magenta rather than crashing.
+/// One palette colour by index, with a visible fallback so a bad index draws the missing colour rather than crashing.
 function pp_colour(_index) {
     var _p = global.pp_data.palette_rgb;
-    if (_index < 0 || _index >= array_length(_p)) return c_fuchsia;
+    if (_index < 0 || _index >= array_length(_p)) return PP_COLOUR_MISSING;
     return _p[_index];
-}
-
-/// Palette indices are data, so drawing code asks for a ROLE ("ink", "paper", "hazard") and the palette file decides
-/// which index that is. A missing role falls back to index 0 and is a checker error before it ships.
-function pp_role_index(_name) {
-    if (is_struct(global.pp_data.palette) && variable_struct_exists(global.pp_data.palette, "roles")) {
-        var _roles = global.pp_data.palette.roles;
-        if (variable_struct_exists(_roles, _name)) return _roles[$ _name];
-    }
-    return 0;
-}
-
-function pp_role_colour(_name) {
-    return pp_colour(pp_role_index(_name));
 }
 
 /// True when every file the runtime needs parsed. The boot mode refuses to continue otherwise.

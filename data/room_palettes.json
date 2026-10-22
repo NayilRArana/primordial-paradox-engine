@@ -1,0 +1,49 @@
+{
+  "format": 1,
+  "kind": "room_palettes",
+  "name": "rooms",
+  "rule": "at most 16 roles per set, every role a name in data/palette.json roles, ids unique, append only",
+  "default": "ui",
+  "notes": [
+    "A set is a list of role names, not colour numbers, so a colour may be moved in data/palette.json and every room follows.",
+    "A room's cap is 16 because spec 13 caps the screen at 16 colours. The checker counts the roles and refuses a 17th.",
+    "ui is the default set for a screen that has not named one, so drawing before a map loads still asks for a real colour."
+  ],
+  "sets": [
+    {
+      "id": "ui",
+      "note": "panels, text and the cursor: the window frame, its shadow, ink on paper",
+      "roles": [
+        "ink", "paper", "dim", "text", "window", "window_edge", "window_shadow",
+        "accent", "marker", "marker_trail", "hazard", "warn"
+      ]
+    },
+    {
+      "id": "deck_day",
+      "note": "the small ship deck in daylight: bronze hull, sea and gold fittings",
+      "roles": [
+        "ink", "paper", "dim", "text", "grey_3",
+        "sea_2", "sea_4", "bronze_2", "bronze_4", "gold_4", "gold_5",
+        "moss_3", "stone_3", "warn"
+      ]
+    },
+    {
+      "id": "ship_cabin",
+      "note": "the cabin off the deck: a lamp, a bunk and the bronze hull, warmer and narrower than the deck",
+      "roles": [
+        "ink", "paper", "dim", "text", "grey_2",
+        "bronze_2", "bronze_3", "bronze_4", "gold_4", "gold_5",
+        "wine_2", "sea_1", "warn"
+      ]
+    },
+    {
+      "id": "lower_deck",
+      "note": "the Navy lower deck: darker bronze, sea light through the hatch, wine trim",
+      "roles": [
+        "ink", "paper", "dim", "text", "grey_2", "grey_3",
+        "sea_1", "sea_3", "bronze_1", "bronze_3", "wine_2",
+        "gold_4", "hazard"
+      ]
+    }
+  ]
+}

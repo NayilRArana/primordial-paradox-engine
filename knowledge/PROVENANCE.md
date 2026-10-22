@@ -90,6 +90,30 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 Every "specs alone" row is owned by the entry "modules written from the specs alone" below. That entry, not either
 withdrawn entry, is what a new module must be written from.
 
+## the 8 bit look: one scale, one palette set per room (2026-10-22, card G0-3)
+
+Status: this entry owns `game/scripts/pp_look/pp_look.gml` and no other row of the module map above.
+
+Studied: nothing. No decompiled, ripped or fan ported material was read, opened, searched or reasoned from for this
+entry. The module was written from two documents of this repository, `specs\13-8bit-look.md` and
+`specs\03-camera-and-scaling.md`, plus three official GameMaker manual pages read at the source today
+(application_surface, gpu_set_tex_filter, display_set_gui_size) for the call shapes only.
+
+Mechanics learned: how the engine's own frame pipeline is arranged, from the manual and from the two specs: an
+application surface sized to the frame times an integer scale, a camera view of exactly the base frame, a GUI layer fixed
+at the base frame so one GUI unit is one pixel, texture interpolation off once, and a resize noticed by polling the
+window because the runtime has no resize event. The palette half is a rule from spec 13: at most 16 colours on screen,
+chosen per room, drawn from one master palette by role name so the art can be re-coloured without new art.
+
+Our implementation differs by: one module owns the frame instead of the camera module, so `pp_camera_apply_window` and
+`pp_camera_scale_for` now delegate and a second scale computation cannot exist. The scale formula is spec 03's own
+`max(1, min(6, floor(min(w / 256, h / 240))))` written once. The letterbox offset is stored as a whole number of pixels,
+which spec 03 does not state and spec 13 implies. The palette sets are this game's own: a set is a list of role names in
+`data\room_palettes.json`, the master palette carries 66 roles over 54 colours, and a set may not name a role the master
+palette does not declare. Nothing here was taken from any other game's project file, code or data.
+
+Copied expression: none.
+
 ## modules written from the specs alone (2026-10-19)
 
 Status: this entry exists because the two study entries further down are withdrawn. Every row of the module map above is

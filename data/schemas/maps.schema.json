@@ -68,7 +68,7 @@
     },
     "map": {
       "type": "object",
-      "required": ["id", "name", "width", "height", "tile_legend", "tiles", "collision", "palette_indices", "spawns", "triggers"],
+      "required": ["id", "name", "width", "height", "tile_legend", "tiles", "collision", "room_palette", "palette_indices", "spawns", "triggers"],
       "additionalProperties": false,
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
@@ -101,6 +101,11 @@
         },
         "music": { "type": "string", "minLength": 1, "description": "A sound id of kind music in data/audio.json." },
         "story_flag": { "type": "string", "description": "The flag that clears tiles marked 2 in collision. Empty string means this map has no story gate." },
+        "room_palette": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "The palette set this room draws with, by id in data/room_palettes.json. At most 16 roles, which is the screen cap in spec 13."
+        },
         "palette_indices": {
           "type": "array",
           "description": "The colours this map may use, as indices into data/palette.json.",

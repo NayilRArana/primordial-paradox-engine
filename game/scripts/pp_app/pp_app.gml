@@ -17,8 +17,11 @@ function pp_app_boot() {
     };
 
     global.pp_input = pp_input_init();
-    global.pp_camera = pp_camera_init();
     global.pp_data = pp_data_load();
+    // The look is built before the camera and before any mode can draw, because it owns the frame and the palette set
+    // that every draw call resolves a role through (spec 13).
+    global.pp_look = pp_look_init();
+    global.pp_camera = pp_camera_init();
     global.pp_ledger = pp_ledger_new();
     pp_save_init();
 
@@ -176,7 +179,7 @@ function pp_app_draw() {
     pp_save_draw_panel();
     if (_app.fade_alpha > 0) {
         draw_set_alpha(_app.fade_alpha);
-        draw_set_colour(c_black);
+        draw_set_colour(pp_role_colour("ink"));
         draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
         draw_set_alpha(1);
     }
@@ -316,7 +319,7 @@ function pp_mode_battle() {
         draw: function(_params) {
             var _battle = global.pp.battle;
             if (is_undefined(_battle)) {
-                draw_set_colour(c_black);
+                draw_set_colour(pp_role_colour("ink"));
                 draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
                 return;
             }

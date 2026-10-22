@@ -24,6 +24,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -48,6 +49,12 @@ ARENA_CAP = 900
 WARN_STEPS = 12
 PALETTE_SIZE = 54
 MAX_COLOURS_ON_SCREEN = 16
+# The master palette is 9 hue families by 6 visible levels, in that order (spec 13). Every family/level pair has a role
+# name, so a room palette names colours instead of guessing indices, and a colour inserted into the middle of a family is
+# caught because every later family role then points at the wrong entry.
+PALETTE_LEVELS = 6
+PALETTE_FAMILIES = ("grey", "sea", "bronze", "wine", "moss", "stone", "gold", "violet", "blood")
+SEMANTIC_ROLES = ("ink", "paper", "dim", "accent", "marker", "marker_trail", "hazard", "warn")
 MAX_FLAGS = 200
 MAX_FLAG_LEN = 32
 LINE_CHARS = 30
@@ -101,6 +108,7 @@ HEX_DIGITS = set("0123456789abcdefABCDEF")
 # ranges, the cross references and the pattern simulation that a schema cannot express.
 SCHEMA_FILES = {
     "maps/all.json": "maps.schema.json",
+    "maps/ship_sample.json": "maps.schema.json",
     "enemies/all.json": "enemies.schema.json",
     "patterns/all.json": "patterns.schema.json",
     "dialogue/all.json": "dialogue.schema.json",
@@ -169,6 +177,7 @@ class Checker:
         self.root = root
         self.errors: list[str] = []
         self.files: dict[str, object] = {}
+        self.room_palette_ids = None
 
     # -- plumbing ------------------------------------------------------------------------------------------------
 
@@ -249,6 +258,7 @@ class Checker:
             ("encounter", "encounters/all.json", "encounters"),
             ("pattern", "patterns/all.json", "patterns"),
             ("map", "maps/all.json", "maps"),
+            ("map", "maps/ship_sample.json", "maps"),
             ("scene", "scenes/all.json", "scenes"),
             ("dialogue", "dialogue/all.json", "dialogue"),
             ("item", "items.json", "items"),
@@ -291,6 +301,7 @@ class Checker:
 
         self.check_project(project, ids)
         self.check_palette(palette)
+        self.check_room_palettes(palette, self.load("room_palettes.json"))
         self.check_flags(flags, ids)
         self.check_items(items, ids)
         self.check_powers(powers, ids)
@@ -301,6 +312,10 @@ class Checker:
         self.check_patterns(patterns, ids)
         self.check_encounters(encounters, ids)
         self.check_maps(maps, ids)
+        # The ship room's own map file (card ASSEMBLE). It is the map rm_pp_ship plays, so it is checked by the same
+        # rules as the registry file and not only by the schema.
+        ship_sample = self.load("maps/ship_sample.json")
+        self.check_maps(ship_sample, ids, "data/maps/ship_sample.json")
         self.check_scenes(scenes, ids)
         self.check_slice(slice_, ids)
 
@@ -366,8 +381,10 @@ class Checker:
         colours = self.require(data, "colours", "list", filename, "")
         if colours is None:
             return
-        if len(colours) != PALETTE_SIZE:
-            self.error(filename, "colours", "has %d entries, the master palette is %d (spec 13)"
+        if len(colours) < PALETTE_SIZE:
+            # Append only: fewer than the shipped 54 is a colour that was removed or moved, which shifts every index
+            # after it. More is allowed, because spec 13 lets a new entry be added at the end.
+            self.error(filename, "colours", "has %d entries, the master palette is %d and is append only"
                        % (len(colours), PALETTE_SIZE))
         seen = set()
         for index, value in enumerate(colours):
@@ -383,11 +400,88 @@ class Checker:
         roles = self.require(data, "roles", "dict", filename, "")
         if roles is None:
             return
-        required_roles = ["ink", "paper", "dim", "accent", "marker", "marker_trail", "hazard", "warn"]
-        for role in required_roles:
+        for role in SEMANTIC_ROLES:
             value = self.require(roles, role, "int", filename, "roles")
             if value is not None and not (0 <= value < PALETTE_SIZE):
                 self.error(filename, "roles." + role, "index %s is outside the palette" % value)
+        # The 9 by 6 grid, by name. A role edited by hand to point at another level is caught here, which is the mistake
+        # that would otherwise move a room's colour with no error at all. An insertion in the middle of the list is
+        # caught by the digest below, because it shifts every colour after it.
+        for family_index, family in enumerate(PALETTE_FAMILIES):
+            for level in range(PALETTE_LEVELS):
+                role = "%s_%d" % (family, level)
+                expected = family_index * PALETTE_LEVELS + level
+                value = self.require(roles, role, "int", filename, "roles")
+                if value is not None and value != expected:
+                    self.error(filename, "roles." + role,
+                               "is %s, the %s level %d of the master palette is %d (spec 13)"
+                               % (value, family, level, expected))
+
+        # The frozen prefix. Every entry below `frozen` is sealed by a digest of its own hex strings, so a colour that is
+        # edited or removed in place is caught even when the entry count is unchanged. Appending past the prefix is the
+        # one edit that leaves both numbers alone, which is the only edit spec 13 allows.
+        frozen = self.require(data, "frozen", "int", filename, "")
+        if frozen is not None and frozen != PALETTE_SIZE:
+            self.error(filename, "frozen", "is %s, the sealed prefix is the %d entries spec 13 ships"
+                       % (frozen, PALETTE_SIZE))
+        digest = self.require(data, "frozen_digest", "str", filename, "")
+        if digest is not None and frozen is not None:
+            sealed = ",".join(value.lower() for value in colours[:frozen] if isinstance(value, str))
+            actual = hashlib.sha256(sealed.encode("utf-8")).hexdigest()
+            if digest != actual:
+                self.error(filename, "frozen_digest",
+                           "does not match the first %d colours, so an entry was changed or removed in place "
+                           "(append a new entry at the end instead)" % frozen)
+
+    def check_room_palettes(self, master, data):
+        """A room palette is a named list of role names, capped at 16 colours, every role a real master palette role."""
+        filename = "data/room_palettes.json"
+        self.room_palette_ids = set()
+        if master is None or not isinstance(master, dict):
+            # A master palette that failed its own check has already been reported. Without its roles the roles below
+            # cannot be judged, so this check reports the sets by count only and does not invent unknown role errors.
+            master_roles = {}
+        else:
+            master_roles = master.get("roles") if isinstance(master.get("roles"), dict) else {}
+        if not self.check_header(data, "room_palettes", filename):
+            return
+
+        sets = self.require(data, "sets", "list", filename, "")
+        if sets is None:
+            return
+        if not sets:
+            self.error(filename, "sets", "is empty, so every room would fall back to one set")
+            return
+
+        for index, entry in enumerate(sets):
+            path = "sets[%d]" % index
+            set_id = self.require(entry, "id", "str", filename, path)
+            if isinstance(set_id, str):
+                if set_id in self.room_palette_ids:
+                    self.error(filename, path + ".id", "duplicate set id %r" % set_id)
+                self.room_palette_ids.add(set_id)
+                if set_id != set_id.lower() or not set_id.replace("_", "").isalnum() or set_id[0].isdigit():
+                    self.error(filename, path + ".id", "%r must be lower case letters, digits and underscores" % set_id)
+
+            roles = self.require(entry, "roles", "list", filename, path)
+            if roles is None:
+                continue
+            if len(roles) > MAX_COLOURS_ON_SCREEN:
+                self.error(filename, path + ".roles",
+                           "%d colours, the screen cap is %d (spec 13)" % (len(roles), MAX_COLOURS_ON_SCREEN))
+            if len(set(roles)) != len(roles):
+                self.error(filename, path + ".roles", "names the same role twice")
+            for role_index, role in enumerate(roles):
+                if not isinstance(role, str):
+                    self.error(filename, "%s.roles[%d]" % (path, role_index), "must be a role name")
+                    continue
+                if master_roles and role not in master_roles:
+                    self.error(filename, "%s.roles[%d]" % (path, role_index),
+                               "%r is not a role in data/palette.json" % role)
+
+        fallback = self.require(data, "default", "str", filename, "")
+        if isinstance(fallback, str) and fallback not in self.room_palette_ids:
+            self.error(filename, "default", "%r is not one of the declared set ids" % fallback)
 
     def check_flags(self, data, ids):
         filename = "data/flags.json"
@@ -829,8 +923,7 @@ class Checker:
                     self.error(filename, path + ".id", "duplicate id %r" % name)
                 ids["encounter"][name] = row
 
-    def check_maps(self, data, ids):
-        filename = "data/maps/all.json"
+    def check_maps(self, data, ids, filename="data/maps/all.json"):
         if not self.check_header(data, "maps", filename):
             return
         tile_size = self.require(data, "tile_size", "int", filename, "")
@@ -841,6 +934,13 @@ class Checker:
             path = "maps[%d]" % index
             name = self.require(row, "id", "str", filename, path)
             self.require(row, "name", "str", filename, path)
+            # Every room names the palette set it draws with, and an unknown set is a room that would draw in the
+            # fallback palette with no error at all, which is why it is a checker error here (spec 13).
+            room_palette = self.require(row, "room_palette", "str", filename, path)
+            if isinstance(room_palette, str) and self.room_palette_ids:
+                if room_palette not in self.room_palette_ids:
+                    self.error(filename, path + ".room_palette",
+                               "names %r, which is not a set in data/room_palettes.json" % room_palette)
             width = self.require(row, "width", "int", filename, path)
             height = self.require(row, "height", "int", filename, path)
             if isinstance(name, str):
@@ -941,6 +1041,25 @@ class Checker:
                                 if not isinstance(points, dict) or entry_spawn not in points:
                                     self.error(filename, trigger_path + ".spawn",
                                                "%r is not a spawn point of map %r" % (entry_spawn, target))
+
+            actors = self.want(row, "actors", "list", filename, path)
+            if actors is not None:
+                seen_actors = set()
+                for actor_index, actor in enumerate(actors):
+                    actor_path = "%s.actors[%d]" % (path, actor_index)
+                    self.check_tile_point(actor, width, height, filename, actor_path)
+                    if collision is not None:
+                        self.check_walkable(actor, collision, filename, actor_path, "actor")
+                    actor_id = self.require(actor, "id", "str", filename, actor_path)
+                    if isinstance(actor_id, str):
+                        if actor_id in seen_actors:
+                            self.error(filename, actor_path + ".id", "duplicate actor id %r on this map" % actor_id)
+                        seen_actors.add(actor_id)
+                    facing = self.require(actor, "facing", "str", filename, actor_path)
+                    if isinstance(facing, str) and facing not in ("up", "down", "left", "right"):
+                        self.error(filename, actor_path + ".facing", "must be up, down, left or right")
+                    self.ref(ids, "dialogue", self.require(actor, "dialogue", "str", filename, actor_path),
+                             filename, actor_path + ".dialogue")
 
             if tile_size is not None and isinstance(width, int):
                 span = width * tile_size

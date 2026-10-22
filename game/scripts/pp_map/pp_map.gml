@@ -33,6 +33,9 @@ function pp_map_load(_map_id) {
     if (variable_struct_exists(_row, "actors")) _map.actors = _row.actors;
     if (variable_struct_exists(_row, "tileset")) _map.tileset = _row.tileset;
     if (variable_struct_exists(_row, "story_flag")) _map.story_flag = _row.story_flag;
+    // The room's own palette set (spec 13). A map that names one draws in it; a map without one keeps the set already in
+    // use, which is the default set the look module loaded at boot.
+    if (variable_struct_exists(_row, "room_palette")) pp_look_palette(_row.room_palette);
     return _map;
 }
 
@@ -146,7 +149,7 @@ function pp_map_draw(_map, _cam_x, _cam_y) {
                 var _sx = (_gid mod _cols) * _map.tile;
                 var _sy = floor(_gid / _cols) * _map.tile;
                 draw_sprite_part_ext(_info.sprite, 0, _sx, _sy, _map.tile, _map.tile,
-                                     _px, _py, 1, 1, c_white, 1);
+                                     _px, _py, 1, 1, PP_UNTINTED, 1);
             } else {
                 draw_set_colour(pp_map_kind_colour(pp_map_tile_kind(_map, _tx, _ty)));
                 draw_rectangle(_px, _py, _px + _map.tile - 1, _py + _map.tile - 1, false);

@@ -168,6 +168,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "room_palettes.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "room_palettes.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "slice.json",
       "CopyToMask": -1,
       "filePath": "datafiles",
@@ -1981,6 +1990,12 @@
       "id": {
         "name": "pp_ledger",
         "path": "scripts/pp_ledger/pp_ledger.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_look",
+        "path": "scripts/pp_look/pp_look.yy"
       }
     },
     {
