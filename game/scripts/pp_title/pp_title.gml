@@ -26,17 +26,24 @@
 #macro PP_TITLE_DRIVE_STEPS 240
 #macro PP_TITLE_DRIVE_LINE_STEPS 70
 // Where the logo, the prompt, the window and its rows sit, in frame pixels. The window is the classic NES JRPG
-// box, low and centred, with the four rows inside it and the cursor against its left edge.
+// box, low and centred, sized in whole 8x8 tiles (18 by 9) because the art lane's spr_pp_window is nine tiles and
+// scaling it would tear its edges. The four rows sit inside its 8 pixel border, and the cursor is against that edge.
 #macro PP_TITLE_LOGO_X 16
 #macro PP_TITLE_LOGO_Y 2
 #macro PP_TITLE_PROMPT_Y 72
 #macro PP_TITLE_MENU_WIN_X 56
-#macro PP_TITLE_MENU_WIN_Y 92
+#macro PP_TITLE_MENU_WIN_Y 148
+#macro PP_TITLE_MENU_WIN_TW 18
+#macro PP_TITLE_MENU_WIN_TH 9
 #macro PP_TITLE_MENU_WIN_W 144
-#macro PP_TITLE_MENU_WIN_H 76
-#macro PP_TITLE_MENU_ROW_Y 106
+#macro PP_TITLE_MENU_WIN_H 72
+#macro PP_TITLE_MENU_ROW_Y 156
 #macro PP_TITLE_MENU_STEP 12
-#macro PP_TITLE_CURSOR_X 10
+#macro PP_TITLE_CURSOR_X 8
+// The window's own two text colours, taken from spr_pp_window so the letters and the frame agree: white #fcfcfc
+// and the grey #7c7c7c under it. The scene text outside the window uses the same white.
+#macro PP_TITLE_WHITE make_colour_rgb(252, 252, 252)
+#macro PP_TITLE_GREY make_colour_rgb(124, 124, 124)
 // The copyright line: one quiet row at the very bottom of the frame.
 #macro PP_TITLE_COPY_TEXT "(c) 2026 NAYILINIST"
 #macro PP_TITLE_COPY_Y 228
@@ -421,7 +428,7 @@ function pp_title_draw_opening(_s) {
     pp_art_draw("title_BG_bigben", 0, 0, _y, c_white, _alpha);
 }
 
-/// The car, its wheels, its exhaust and the two people in it.
+/// The car, its wheels, its exhaust and the empty dark glass: nobody is inside it.
 function pp_title_draw_car(_s, _d) {
     if (!pp_art_has("spr_title_car")) return;
     var _x = _d.car_x;
@@ -476,7 +483,7 @@ function pp_title_draw_words(_s, _d) {
     }
     if (_s.phase == "prompt") {
         if (floor(_s.steps / PP_TITLE_BLINK_STEPS) mod 2 == 0) {
-            pp_font_draw_centre("PRESS START", PP_FRAME_W / 2, PP_TITLE_PROMPT_Y, pp_role_colour("paper"), 1);
+            pp_font_draw_centre("PRESS START", PP_FRAME_W / 2, PP_TITLE_PROMPT_Y, PP_TITLE_WHITE, 1);
         }
         pp_title_draw_copy();
         return;
@@ -486,8 +493,8 @@ function pp_title_draw_words(_s, _d) {
     var _has_save = pp_title_has_save();
     for (var i = 0; i < array_length(_d.menu); i += 1) {
         var _label = _d.menu[i];
-        var _colour = pp_role_colour("paper");
-        if (_label == "CONTINUE" && !_has_save) _colour = pp_role_colour("dim");
+        var _colour = PP_TITLE_WHITE;
+        if (_label == "CONTINUE" && !_has_save) _colour = PP_TITLE_GREY;
         pp_font_draw_centre(_label, PP_TITLE_MENU_WIN_X + PP_TITLE_MENU_WIN_W / 2,
                             PP_TITLE_MENU_ROW_Y + i * PP_TITLE_MENU_STEP, _colour, 1);
     }
@@ -499,22 +506,19 @@ function pp_title_draw_words(_s, _d) {
     pp_title_draw_copy();
 }
 
-/// The menu window: the classic NES JRPG box, a dark blue field inside two pale borders. When the art lane ships
-/// spr_pp_window it is drawn stretched over the same rectangle instead, so the frame becomes art without any code
-/// change; until then the box below is drawn from the palette roles, which keeps the title complete either way.
+/// The menu window: the classic NES JRPG box, the art lane's spr_pp_window drawn as a nine slice at 18 by 9 tiles.
+/// When that sprite is not in the build the box is drawn from the palette roles instead, which keeps the title
+/// complete either way.
 function pp_title_draw_menu_window() {
-    var _x = PP_TITLE_MENU_WIN_X;
-    var _y = PP_TITLE_MENU_WIN_Y;
-    var _w = PP_TITLE_MENU_WIN_W;
-    var _h = PP_TITLE_MENU_WIN_H;
+    if (pp_window_draw(PP_TITLE_MENU_WIN_X, PP_TITLE_MENU_WIN_Y,
+                       PP_TITLE_MENU_WIN_TW, PP_TITLE_MENU_WIN_TH, 1)) return;
+    pp_title_draw_window_plain(PP_TITLE_MENU_WIN_X, PP_TITLE_MENU_WIN_Y,
+                               PP_TITLE_MENU_WIN_W, PP_TITLE_MENU_WIN_H);
+}
 
-    if (pp_art_has("spr_pp_window")) {
-        var _info = pp_art_info("spr_pp_window");
-        draw_sprite_part_ext(_info.sprite, 0, 0, 0, _info.frame_w, _info.frame_h,
-                             _x, _y, _w / _info.frame_w, _h / _info.frame_h, c_white, 1);
-        return;
-    }
-
+/// The box drawn by hand, from the palette roles. This is the fallback while the window sprite is not in the
+/// build, and it is the same two pale borders over a dark field.
+function pp_title_draw_window_plain(_x, _y, _w, _h) {
     draw_set_colour(pp_role_colour("window"));
     draw_rectangle(_x + 2, _y + 2, _x + _w - 2, _y + _h - 2, false);
     draw_set_colour(pp_role_colour("window_shadow"));
@@ -523,26 +527,22 @@ function pp_title_draw_menu_window() {
     draw_rectangle(_x + 1, _y + 1, _x + _w - 2, _y + _h - 2, true);
 }
 
-/// The copyright line: one quiet row at the bottom of the frame, on every phase but the opening.
+/// The copyright line: one quiet row at the bottom of the frame, on every phase but the opening. The grey is the
+/// window's own #7c7c7c, so the line sits behind the frame rather than competing with it.
 function pp_title_draw_copy() {
-    pp_font_draw_centre(PP_TITLE_COPY_TEXT, PP_FRAME_W / 2, PP_TITLE_COPY_Y, pp_role_colour("dim"), 1);
+    pp_font_draw_centre(PP_TITLE_COPY_TEXT, PP_FRAME_W / 2, PP_TITLE_COPY_Y, PP_TITLE_GREY, 1);
 }
 
-/// The settings placeholder: a title and one row, BACK.
+/// The settings placeholder: a title and one row, BACK, inside the same window frame as the menu (26 by 9 tiles).
 function pp_title_draw_settings(_s) {
-    draw_set_colour(pp_role_colour("window"));
-    draw_rectangle(24, 76, PP_FRAME_W - 24, 150, false);
-    draw_set_colour(pp_role_colour("window_edge"));
-    draw_rectangle(24, 76, PP_FRAME_W - 24, 150, true);
-    draw_set_colour(pp_role_colour("window_shadow"));
-    draw_rectangle(25, 77, PP_FRAME_W - 25, 149, true);
+    if (!pp_window_draw(24, 84, 26, 9, 1)) pp_title_draw_window_plain(24, 84, 208, 72);
     draw_set_alpha(1);
-    pp_font_draw_centre("SETTINGS", PP_FRAME_W / 2, 92, pp_role_colour("paper"), 1);
-    pp_font_draw_centre("NOTHING HERE YET", PP_FRAME_W / 2, 110, pp_role_colour("dim"), 1);
-    pp_font_draw_centre("BACK", PP_FRAME_W / 2, 130, pp_role_colour("paper"), 1);
+    pp_font_draw_centre("SETTINGS", PP_FRAME_W / 2, 92, PP_TITLE_WHITE, 1);
+    pp_font_draw_centre("NOTHING HERE YET", PP_FRAME_W / 2, 108, PP_TITLE_GREY, 1);
+    pp_font_draw_centre("BACK", PP_FRAME_W / 2, 128, PP_TITLE_WHITE, 1);
     if (pp_art_has("spr_pp_menu_cursor")) {
         var _cursor = floor(_s.steps / PP_TITLE_CURSOR_PERIOD) mod 2;
-        pp_art_draw("spr_pp_menu_cursor", _cursor, PP_FRAME_W / 2 - 40, 130, c_white, 1);
+        pp_art_draw("spr_pp_menu_cursor", _cursor, PP_FRAME_W / 2 - 40, 128, c_white, 1);
     }
     pp_title_draw_copy();
 }
@@ -555,10 +555,10 @@ function pp_title_draw_intro(_s, _d) {
     if (_index >= _count) _index = _count - 1;
     var _within = _s.drive - _index * PP_TITLE_DRIVE_LINE_STEPS;
     var _y = 210 - _within * 2;
-    pp_font_draw_centre(_d.intro[_index], PP_FRAME_W / 2, _y, pp_role_colour("paper"), 1);
+    pp_font_draw_centre(_d.intro[_index], PP_FRAME_W / 2, _y, PP_TITLE_WHITE, 1);
     if (_index + 1 < _count) {
         var _next_y = 210 + (PP_TITLE_DRIVE_LINE_STEPS - _within) * 2;
-        pp_font_draw_centre(_d.intro[_index + 1], PP_FRAME_W / 2, _next_y, pp_role_colour("paper"), 1);
+        pp_font_draw_centre(_d.intro[_index + 1], PP_FRAME_W / 2, _next_y, PP_TITLE_WHITE, 1);
     }
     pp_title_draw_copy();
 }
