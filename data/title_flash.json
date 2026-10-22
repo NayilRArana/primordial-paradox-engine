@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "frames": 2,
+  "kind": "title_flash",
+  "layers": [
+    "title_L1_sky_flash",
+    "title_L2_clouds_flash",
+    "title_L3_downs_flash",
+    "title_L4_fields_flash",
+    "title_L5_verge_flash",
+    "title_L6_road_flash",
+    "title_L7_fg_flash",
+    "title_BG_bigben_flash"
+  ],
+  "note": "one rung up the 2C02 ladder per entry ($0C to $1C, $02 to $12, black $0F to grey $00); the game swaps the whole scene to these entries for two frames",
+  "palette": {
+    "0": 16,
+    "10": 26,
+    "11": 27,
+    "12": 28,
+    "15": 0,
+    "16": 32,
+    "17": 33,
+    "18": 34,
+    "2": 18,
+    "32": 48,
+    "45": 61,
+    "56": 56,
+    "8": 24,
+    "9": 25
+  },
+  "palette_space": "2C02 entry numbers (data/nes_palette.json)"
+}

@@ -49,6 +49,10 @@ import sys
 
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import nes_tile  # noqa: E402  (the alpha rule, shared with tools/pp_intro_art.py)
+
 CELL = 16          # background attribute area
 SUBTILE = 8        # sprite tile
 LIMIT = 3          # colours per palette, besides the backdrop / plus transparency
@@ -195,7 +199,14 @@ class Scene:
 
 
 def snap_to_master(image: Image.Image, scene: Scene) -> int:
-    """Rewrite every opaque pixel that is not a usable 2C02 colour onto the nearest one. Returns pixels moved."""
+    """Rewrite every opaque pixel that is not a usable 2C02 colour onto the nearest one.
+
+    A pixel with partial alpha is not drawable at all, so it is made into one of the two states the PPU has first
+    (see nes_tile.solid_alpha: opaque, a 2 pixel checker, or transparent). Without that step a puff drawn at
+    alpha 110 kept its alpha through every merge, and tools\\nes_check.py refused the whole strip for it.
+    """
+    if image.getchannel("A").getextrema() != (255, 255):
+        image.paste(nes_tile.solid_alpha(image))
     pixels = image.load()
     index_of = scene.index_of
     moved = 0
@@ -228,8 +239,18 @@ def load_scene(root: str, name: str) -> Scene:
 # ---------------------------------------------------------------------------------------------------
 
 def _pixel_counts(image: Image.Image, box, index_of, into: dict):
+    """Count the master-palette entries an opaque box of the image uses.
+
+    The box is clamped to the image, because a caller that asks for an 8x16 group on a sheet that is only 8 px
+    tall (the star) or that runs past the last frame would otherwise read off the end and lose the whole pass to
+    an IndexError instead of measuring the pixels that exist.
+    """
     x0, y0, x1, y1 = box
+    x0, y0 = max(0, x0), max(0, y0)
+    x1, y1 = min(image.width - 1, x1), min(image.height - 1, y1)
     pixels = image.load()
+    if x1 < x0 or y1 < y0:
+        return into
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             r, g, b, a = pixels[x, y]
@@ -311,6 +332,11 @@ def enforce_sprites(image: Image.Image, scene: Scene, frame_w: int, frame_h: int
                 x0, y0 = ox + tx, ty
                 x1 = min(ox + frame_w - 1, x0 + SUBTILE - 1)
                 y1 = min(frame_h - 1, y0 + step - 1)
+                # The strip can be shorter than the frame says (an 8 px tall sheet asked for a 16 px group), so
+                # the box is clamped here as well as in _pixel_counts: the counting call clamps its own copy, and
+                # the write loop below indexes the image directly.
+                x1 = min(x1, image.width - 1)
+                y1 = min(y1, image.height - 1)
                 counts = _pixel_counts(image, (x0, y0, x1, y1), index_of, {})
                 if not counts:
                     continue
@@ -493,18 +519,76 @@ def load_strip(root: str, name: str):
 
 
 TITLE_SPRITES = ["spr_title_car", "spr_pp_title_logo", "spr_title_sign", "spr_title_cone",
-                 "spr_pp_window", "spr_pp_font8", "spr_pp_menu_cursor"]
+                 # spr_pp_window, spr_pp_font8 and spr_pp_menu_cursor are NOT here, and that is a decision:
+                 # tools/art/make_title_ui.py writes them in the UI palette, they pass tools/nes_check.py as they
+                 # are (measured 2026-10-22: all three PASS with no palette pass), and tests/test_make_title_ui.py
+                 # pins their ink to the exact bytes that generator writes. Repainting them here would only fight
+                 # the generator, the way it used to: the cursor's ink $0b0b0f came back as $0F black and four pins
+                 # went red over art nobody had asked to change.
+                 # The effects the title draws and the cast it keeps for the interior scenes. They were missing
+                 # from this list, which is why they were the only title art the enforcement never touched: the
+                 # cloud, the exhaust, the star and the three busts shipped in the project's drawing palette,
+                 # with partial alpha, and in 10 to 16 pixel frames that cannot be cut into 8x8 tiles.
+                 "spr_title_cloud", "spr_title_exhaust", "spr_title_star",
+                 "spr_title_cloud_fade1", "spr_title_cloud_fade2",
+                 "spr_title_cloud_fade3", "spr_title_cloud_fade4",
+                 "spr_title_exhaust_fade1", "spr_title_exhaust_fade2",
+                 "spr_title_exhaust_fade3", "spr_title_exhaust_fade4",
+                 "spr_title_theo", "spr_title_ronan", "spr_title_bubble", "spr_title_wheel"]
+
+# The sprites whose frames are 16x16 drawings rather than parts of a bigger object. A face cannot survive being
+# flattened to three colours across an 8x16 sprite, and it does not have to: the PPU's sprite rule is per OAM
+# sprite, 8x8 is one, and each tile may pick its own one of the four sprite palettes. The rest of the list is
+# enforced at 8x16 because those parts are drawn as pairs of tiles and the stricter grouping costs them nothing.
+CAST_SPRITES = ("spr_title_theo", "spr_title_ronan", "spr_title_bubble", "spr_title_wheel")
+
+
+def master_copy(image: Image.Image, colours, usable, index_of) -> Image.Image:
+    """A copy of the art as the cartridge will hold it: solid alpha, every pixel on a usable 2C02 entry.
+
+    The solver has to see the colours the enforcement will actually produce. Some sheets are drawn in the project
+    palette (the cast, the cloud, the exhaust), and those pixels are not on the master palette at all, so profiling
+    them raw dropped them out of the solve entirely and their palettes were chosen from the handful of pixels that
+    happened to be chip colours already.
+    """
+    out = image.copy()
+    if out.getchannel("A").getextrema() != (255, 255):
+        out.paste(nes_tile.solid_alpha(out))
+    pixels = out.load()
+    cache = {}
+    for y in range(out.height):
+        for x in range(out.width):
+            r, g, b, a = pixels[x, y]
+            if a == 0:
+                continue
+            key = (r, g, b)
+            entry = cache.get(key)
+            if entry is None:
+                entry = index_of.get(key)
+                if entry is None or not usable[entry] or colours[entry] != key:
+                    entry = 0x0F
+                    best = None
+                    for candidate, colour in enumerate(colours):
+                        if not usable[candidate]:
+                            continue
+                        score = distance(key, colour)
+                        if best is None or score < best[0]:
+                            best = (score, candidate)
+                    entry = best[1]
+                cache[key] = entry
+            pixels[x, y] = colours[entry] + (255,)
+    return out
 
 
 def sprite_colour_pool(root: str):
-    _c, _u, index_of = load_master(root)
+    colours, usable, index_of = load_master(root)
     pool = set()
     for name in TITLE_SPRITES:
         try:
             image, _meta = load_strip(root, name)
         except OSError:
             continue
-        for r, g, b, a in image.getdata():
+        for r, g, b, a in master_copy(image, colours, usable, index_of).getdata():
             if a == 0:
                 continue
             entry = index_of.get((r, g, b))
@@ -553,6 +637,48 @@ def enforce_area_map(image: Image.Image, scene: Scene, y_offset: int, area_map: 
                     pixels[x, y] = scene.colours[target] + (255,)
                     moved += 1
     return moved
+
+
+def write_frame_preview(root: str) -> dict:
+    """Rewrite the 3x preview of the drive, background layers only, from the strips as they are now on disk.
+
+    The preview is a finished frame, and the audit judges it as one, so it has to be composed AFTER the palette
+    pass and not before it: make_title_world draws the strips, this module repaints them into the scene's four
+    background palettes, and a preview rendered before the repaint is a picture of art that is no longer on disk
+    (measured 2026-10-22: 25 screen areas in the preview carried colours the strips no longer had).
+
+    It carries the background and no sprite. That is the same split tools\\check_scene_palettes.py already makes
+    ("the composed background frame and every sprite sheet it draws"): a background pixel is spent from one of
+    the four background palettes, a sprite pixel from one of the four sprite palettes, and a frame check without
+    a sprite mask cannot tell the two apart. Drawing the sign or the headlight cone into this file would charge
+    their white against the hedge's three greens, which is a fault of the measuring, not of the art. The sprite
+    is judged where it belongs: every 8x16 group of every sheet, in tools\\check_scene_palettes.py.
+    """
+    import make_title_world as world
+
+    with open(os.path.join(root, "data", "title.json"), "r", encoding="utf-8-sig") as handle:
+        table = json.load(handle)
+    layer_specs = []
+    for row in table["layers"]:
+        image, meta = load_strip(root, row["name"])
+        layer_specs.append({"name": row["name"], "y": row["y"], "speed": row["speed"],
+                            "frames": [image.crop((0, 0, meta["frame_w"], meta["frame_h"]))]})
+    frame = world.compose(layer_specs, camera_x=0.0)
+    out = os.path.join(root, "output", "ts2_world_preview.png")
+    frame.resize((256 * 3, 240 * 3), Image.NEAREST).save(out, "PNG")
+    scene = load_scene(root, "title")
+    sidecar = os.path.join(root, "output", "ts2_world_preview.json")
+    with open(sidecar, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump({"frame": ["ts2_world_preview.png"], "scale": 3,
+                   "backdrop": "#%02x%02x%02x" % scene.colours[scene.backdrop],
+                   "backdrop_entry": scene.backdrop,
+                   "sprites": "not drawn: a sprite pixel is spent from a sprite palette, and this frame is "
+                              "measured against the four background palettes",
+                   "note": "composed from data/title.json after the scene palette pass; the backdrop is the "
+                           "scene's $3F00 colour, which is what the checker measures the areas against"},
+                  handle, indent=2, sort_keys=True)
+        handle.write("\n")
+    return {"preview": out, "sidecar": sidecar}
 
 
 def apply_title(root: str) -> dict:
@@ -607,9 +733,21 @@ def apply_title(root: str) -> dict:
             image, meta = load_strip(root, name)
         except OSError:
             continue
-        stats = enforce_sprites(image, scene, meta["frame_w"], meta["frame_h"])
+        # 8x16 for every sheet, because that is the unit the checker groups by: tools/check_scene_palettes.py
+        # asks whether each 8x16 group of the sheet fits one of the four sprite palettes. Enforcing an 8x8 tile
+        # at a time lets the top half of a group take one palette and the bottom half another, which the art then
+        # fails on (measured 2026-10-22: spr_title_bubble, one group, no palette covered it). A sheet whose frame
+        # is only 8 px tall (the star) has 8x8 groups, so the height is capped at the frame height: asking for a
+        # 16 px group on an 8 px sheet walks off the bottom of the image.
+        stats = enforce_sprites(image, scene, meta["frame_w"], meta["frame_h"],
+                                sprite_height=min(16, meta["frame_h"]))
         image.save(os.path.join(root, "game", "sprites_src", "title", name + ".png"), "PNG")
         report["sprites"][name] = stats
+    report["frame"] = write_frame_preview(root)
+    # The flash strips are derived from the layers, so they are lifted from the repainted layers and not from the
+    # ones the generator drew: see make_title_world.rebuild_flash() for the measurement that made this necessary.
+    import make_title_world as world
+    report["flash"] = {"strips": world.rebuild_flash(root)}
     return report
 
 
@@ -702,8 +840,18 @@ def apply_ship(root: str) -> dict:
 # CLI
 # ---------------------------------------------------------------------------------------------------
 
-def solve_title(root: str) -> dict:
-    _colours, usable, index_of = load_master(root)
+def solve_title(root: str, write: bool = False) -> dict:
+    """Measure the art and propose four background and four sprite palettes that cover it.
+
+    `write` defaults to False, and that default is the important part. The palette file is an INPUT to the
+    v2 generators (title_logo_v2.py and title_car_v2.py pick their colours out of data/palettes/scene_title.json),
+    so a solve that writes it by default is a loop: solve changes the palette, the generator draws new art from
+    the changed palette, the next solve changes the palette again. Measured 2026-10-22: one solve turned the
+    logo into a six-colour sprite and moved the car's glass out of the window band, and the art pins in
+    tests/test_title_art_v2.py failed against art the palette move had caused. A solve is a report; use
+    `solve --write` when you mean to move the design.
+    """
+    colours, usable, index_of = load_master(root)
     composite = title_composite(root)
     profiles = area_profiles(composite, index_of)
     backdrop = 0x0F
@@ -719,6 +867,8 @@ def solve_title(root: str) -> dict:
             image, meta = load_strip(root, name)
         except OSError:
             continue
+        # Profiled as the cartridge will hold it, not as it was drawn: see master_copy.
+        image = master_copy(image, colours, usable, index_of)
         fw, fh = meta["frame_w"], meta["frame_h"]
         for frame in range(image.width // fw):
             one = image.crop((frame * fw, 0, (frame + 1) * fw, fh))
@@ -735,11 +885,12 @@ def solve_title(root: str) -> dict:
         "background palettes cover the composite of the seven scrolling layers in data/title.json, "
         "16x16 screen areas",
         "sprite palettes cover every 8x8 tile of the car, the logo, the sign, the cone, the window, "
-        "the font and the cursor, 3 colours plus transparency",
+        "the font, the cursor, and the title's cast and effects (cloud, exhaust, star and their fades), "
+        "3 colours plus transparency",
         "solved by tools/art/scene_palette.py from the art on disk, then checked again by "
         "tools/nes_composite_check.py",
     ]
-    path = write_scene(root, "title", backdrop, background, sprites, notes)
+    path = write_scene(root, "title", backdrop, background, sprites, notes) if write else scene_path(root, "title")
     leftover = 0
     scene = load_scene(root, "title")
     for counts in profiles:
@@ -857,6 +1008,9 @@ def main(argv=None) -> int:
     parser.add_argument("command", choices=["solve", "apply", "show", "frame", "preview"])
     parser.add_argument("--scene", default="title", choices=["title", "ship", "all"])
     parser.add_argument("--out", default=None)
+    parser.add_argument("--write", action="store_true",
+                        help="solve only: save the proposed palettes to data/palettes/<scene>.json. The file is "
+                             "an input to the v2 generators, so a solve that writes by default fights the art.")
     parser.add_argument("--root", default=os.path.dirname(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__)))))
     args = parser.parse_args(argv)
@@ -865,7 +1019,7 @@ def main(argv=None) -> int:
     status = 0
     for name in names:
         if args.command == "solve":
-            result = solve_title(root) if name == "title" else solve_ship(root)
+            result = solve_title(root, write=args.write) if name == "title" else solve_ship(root)
             describe(result)
         elif args.command == "apply":
             report = apply_title(root) if name == "title" else apply_ship(root)

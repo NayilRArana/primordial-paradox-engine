@@ -40,6 +40,11 @@ from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TITLE_SRC = os.path.join(ROOT, "game", "sprites_src", "title")
 PALETTE_PATH = os.path.join(ROOT, "data", "nes_palette.json")
+sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
+
+import nes_tile  # noqa: E402  (the one place the alpha rule is written; the art lane shares it)
+
+solid_alpha = nes_tile.solid_alpha
 
 # The black the PPU really has, and the forbidden entry that also decodes to black ($0D).
 BLACK_ENTRY = 0x0F
@@ -66,7 +71,9 @@ FADED_ANIMATIONS = (
 )
 
 STAR_NAME = "spr_title_star"
-STAR_FRAME = 5
+# A star frame is one 8x8 pattern tile, because the star is drawn as a sprite and a sheet has to cut into whole
+# tiles. The drawing inside it is still the 1, 3x3 and 5x5 shapes below; only the frame around them is a tile.
+STAR_FRAME = 8
 STAR_FRAMES = 3
 STAR_FPS = 6
 # 3 x 3 and 5 x 5, one bright colour and one dim one, which is two of a sprite palette's three
@@ -119,7 +126,11 @@ def darker_entry(entry: int, steps: int = 1) -> int:
 
 
 def fade_image(image: Image.Image, steps: int, palette) -> Image.Image:
-    """One fade step applied to every opaque pixel of an image, alpha untouched."""
+    """One fade step applied to every opaque pixel of an image, with the alpha made solid.
+
+    The colour still moves down a brightness row; the alpha is made into the two states the PPU has, because a
+    fade strip with alpha 110 in it is refused by tools\\nes_check.py (and would be refused by the chip).
+    """
     source = image.convert("RGBA")
     out = Image.new("RGBA", source.size, (0, 0, 0, 0))
     cache: dict[tuple[int, int, int], tuple[int, int, int, int]] = {}
@@ -137,6 +148,33 @@ def fade_image(image: Image.Image, steps: int, palette) -> Image.Image:
             cache[key] = hit
         mapped.append(hit)
     out.putdata(mapped)
+    return solid_alpha(out)
+
+
+def enforce_star_palette(strip: Image.Image) -> Image.Image:
+    """Repaint the star into the title's sprite palettes before it is written.
+
+    The star is drawn from two 2C02 entries, and which two the title's sprite palettes actually carry is decided
+    by data/palettes/scene_title.json. Writing the raw entries and letting tools/art/scene_palette.py repaint them
+    afterwards means the file on disk is not what this generator draws, so a re-run of the generator rewrites it
+    differently and tests/test_intro.py's "the generator rewrites the committed sprite" pin fails against art the
+    palette pass produced. Repainting here makes the two agree: the generator's output is already the shipped one.
+    """
+    art_dir = os.path.join(ROOT, "tools", "art")
+    if art_dir not in sys.path:
+        sys.path.insert(0, art_dir)
+    import scene_palette
+
+    scene = scene_palette.load_scene(ROOT, "title")
+    frame = STAR_FRAME
+    frames = []
+    for index in range(STAR_FRAMES):
+        one = strip.crop((index * frame, 0, index * frame + frame, frame))
+        scene_palette.enforce_sprites(one, scene, frame, frame, sprite_height=frame)
+        frames.append(one)
+    out = Image.new("RGBA", strip.size, (0, 0, 0, 0))
+    for index, one in enumerate(frames):
+        out.paste(one, (index * frame, 0))
     return out
 
 
@@ -146,7 +184,8 @@ def write_star_sprite(palette) -> int:
     dim = palette[STAR_DIM]
     size = STAR_FRAME * STAR_FRAMES
     strip = Image.new("RGBA", (size, STAR_FRAME), (0, 0, 0, 0))
-    offset = STAR_FRAME // 2
+    # The 5x5 cross is the widest shape, so it is centred in the 8x8 frame: offset 3 holds columns 1 to 5.
+    offset = STAR_FRAME // 2 - 1
     # Frame 0: the star at rest, one pixel.
     strip.putpixel((offset, offset), bright + (255,))
     # Frame 1: a 3x3 plus.
@@ -156,6 +195,7 @@ def write_star_sprite(palette) -> int:
     for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1), (2, 0), (-2, 0), (0, 2), (0, -2)):
         strip.putpixel((STAR_FRAME * 2 + offset + dx, offset + dy), dim + (255,))
     strip.putpixel((STAR_FRAME * 2 + offset, offset), bright + (255,))
+    strip = enforce_star_palette(strip)
     png = os.path.join(TITLE_SRC, STAR_NAME + ".png")
     strip.save(png)
     sidecar = {"name": STAR_NAME, "frame_w": STAR_FRAME, "frame_h": STAR_FRAME,

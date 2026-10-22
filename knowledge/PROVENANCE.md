@@ -809,3 +809,25 @@ no enemy and no round; storing only the rows in the save under an optional `figh
 verdict on load, so a save written before this card still loads with an empty record; and refusing to count a turned
 enemy, which keeps the counters the coarse instrument spec 10 says they are.
 Copied expression: none. No code text, sprite, font, sound or line of prose from any published game is in this change.
+
+## NES-AUDIT TITLE, 2026-10-22: measuring a still frame with no sprite mask
+Studied: this repository's own measuring tools and notes (`tools/nes_check.py`, `tools/nes_composite_check.py`,
+`tools/art/scene_palette.py`, `knowledge/NES-AUDIT.md`), plus the published 2C02 PPU facts the notes rest on: one
+backdrop colour shared by both layers, four background palettes of three entries selected per 16x16 area, four
+sprite palettes of three entries plus transparency selected per 8x16 sprite, and an alpha channel that has an on
+and an off and nothing between them. No decompiled material was read for this card, so there is nothing here that
+could have come from one.
+Mechanics learned: a photograph of a frame cannot say which pixel belongs to which sprite. The background area rule
+counts colours in a 16x16 box, so a captured title screen charges the car's white against the sky's three blues and
+reports a fault that is in the measuring, not in the art. The honest split is the one this project already makes in
+`tools/check_scene_palettes.py`: judge the composed background frame against the four background palettes, and judge
+each sprite sheet per 8x16 group against the four sprite palettes, and never let one check speak for the other. The
+second thing learned: a background asset's backdrop is a fact that belongs in the asset's own file. Guessing it as
+the most common colour makes the verdict depend on how much of the picture happens to be sky.
+Our implementation differs by: reading `backdrop` out of each asset's JSON sidecar and printing where it came from
+(`backdrop_from`) instead of choosing a colour from the pixels; recording the captured viewport beside each window
+capture (`title_run_1.json`) and cropping to that box rather than searching the picture a second time; composing the
+3x preview after the palette pass and declaring its backdrop in its own sidecar; and keeping the star, the wheel, the
+bust, the fade strips and the cast in whole 8x8 tiles with solid alpha, which is a rule about what a pattern table
+can hold rather than about how the art looks.
+Copied expression: none. No code text, sprite, font, sound or line of prose from any published game is in this change.

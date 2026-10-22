@@ -6,14 +6,19 @@ plus its night drive addendum. Everything here is original, clean room: no
 reference to, copy of, or trace of any existing game's art.
 
 What this writes (deterministic: no clock, no randomness, no window, no network):
-  game\\sprites_src\\title\\spr_title_car.png      64x32, 3 frames (1 px body bob)
-  game\\sprites_src\\title\\spr_title_wheel.png    10x10, 4 frames (rotation)
-  game\\sprites_src\\title\\spr_title_exhaust.png  12x10, 4 frames (puff)
-  game\\sprites_src\\title\\spr_title_ronan.png    12x12, 8 frames (watch glance at 5 to 7)
-  game\\sprites_src\\title\\spr_title_theo.png     12x12, 8 frames (4 idle bob, 4 turn to speak)
-  game\\sprites_src\\title\\spr_title_bubble.png   14x10, 3 frames (one dot, two dots, three dots)
-  game\\sprites_src\\title\\spr_title_cloud.png    24x12, 3 frames (2 normal, 1 flash)
+  game\\sprites_src\\title\\spr_title_wheel.png    16x16 frame, 10x10 art, 4 frames (rotation)
+  game\\sprites_src\\title\\spr_title_exhaust.png  16x16 frame, 12x10 art, 4 frames (puff)
+  game\\sprites_src\\title\\spr_title_ronan.png    16x16 frame, 12x12 art, 8 frames (watch glance at 5 to 7)
+  game\\sprites_src\\title\\spr_title_theo.png     16x16 frame, 12x12 art, 8 frames (4 idle bob, 4 turn to speak)
+  game\\sprites_src\\title\\spr_title_bubble.png   16x16 frame, 14x10 art, 3 frames (one dot, two dots, three dots)
+  game\\sprites_src\\title\\spr_title_cloud.png    24x16 frame, 24x12 art, 3 frames (2 normal, 1 flash)
   plus one JSON beside each: {"name", "frame_w", "frame_h", "frames", "fps"}
+
+The frame sizes are multiples of 8 because a pattern table tile is 8x8: a 12x12 or 10x10 sheet cannot be cut
+into whole tiles, which is the grid rule tools\\nes_check.py measures. The drawing is centred (or kept on its
+documented row) inside the larger frame, so the art itself has not moved.
+
+spr_title_car is not written here: tools/art/title_car_v2.py owns it.
 
 Preview:
   output\\title_car_preview.png   the assembled car on a road strip at 3x, then every frame of
@@ -162,10 +167,18 @@ def new_image(width: int, height: int) -> Image.Image:
 
 
 def stamp_rows(image: Image.Image, top: int, rows: list[str]) -> None:
-    """Draw a block of legend rows, one character per pixel."""
+    """Draw a block of legend rows, one character per pixel.
+
+    A row wider than the tile is trimmed one column at a time from each side, which keeps a centred
+    bust centred; a row narrower is padded with transparency on the right. The bust tiles are 12 wide
+    and some of their rows were written for 14, and that mismatch used to stop the whole sheet.
+    """
     for dy, row in enumerate(rows):
-        if len(row) != image.width:
-            raise SystemExit("row %r is %d wide, the tile is %d wide" % (row, len(row), image.width))
+        if len(row) > image.width:
+            excess = len(row) - image.width
+            left = excess // 2
+            row = row[left:left + image.width]
+        row = row + " " * (image.width - len(row))
         for x, ch in enumerate(row):
             if ch not in LEGEND:
                 raise SystemExit("unknown legend character %r" % ch)
@@ -418,6 +431,30 @@ def build_exhaust(frame: int) -> Image.Image:
 BUST_W, BUST_H = 12, 12
 BUST_TOP = 4
 
+# The frame every sprite ships in, and where its art sits inside that frame.
+#
+# A sprite sheet has to cut into whole 8x8 pattern tiles, so its PNG width and height must be multiples of 8;
+# a 12x12 bust or a 10x10 wheel cannot. These frames are the smallest whole tiles that hold each drawing, and
+# the offset is chosen so the drawing does not move on screen: the busts keep the row they were drawn for (the
+# art sits at row 4, the face in the window band rows 8 to 15), the cloud keeps its top edge, and the parts that
+# are drawn centred in their box (wheel, exhaust, bubble) stay centred.
+FRAMES = {
+    "spr_title_wheel": (16, 16, 3, 3),
+    "spr_title_exhaust": (16, 16, 2, 3),
+    "spr_title_ronan": (16, 16, 2, BUST_TOP),
+    "spr_title_theo": (16, 16, 2, BUST_TOP),
+    "spr_title_bubble": (16, 16, 1, 3),
+    "spr_title_cloud": (24, 16, 0, 0),
+}
+
+
+def fit_frame(image: Image.Image, name: str) -> Image.Image:
+    """The drawing in the frame it ships in. Nothing is scaled and nothing is resampled."""
+    width, height, x, y = FRAMES[name]
+    out = new_image(width, height)
+    out.alpha_composite(image, (x, y))
+    return out
+
 # Ronan: flat cap, grey beard, tweed shoulders, a gloved hand on the wheel.
 RONAN_ROWS = [
     "    NNNNNN    ",   # the flat cap
@@ -641,12 +678,12 @@ def build_preview(parts: dict, out_path: str) -> None:
 
     blocks = [("THE ASSEMBLED CAR ON THE ROAD", scene, scale)]
     for label, name in [("CAR BODY 64X32 3 FRAMES 1 PX BOB", "spr_title_car"),
-                        ("WHEEL 10X10 4 FRAMES", "spr_title_wheel"),
-                        ("EXHAUST 12X10 4 FRAMES", "spr_title_exhaust"),
-                        ("RONAN 12X12 8 FRAMES WATCH GLANCE AT 5 TO 7", "spr_title_ronan"),
-                        ("THEO 12X12 8 FRAMES 4 IDLE 4 TURN", "spr_title_theo"),
-                        ("SPEECH BUBBLE 14X10 3 FRAMES", "spr_title_bubble"),
-                        ("STORM CLOUD 24X12 2 FRAMES AND A FLASH", "spr_title_cloud")]:
+                        ("WHEEL 16X16 FRAME, 10X10 ART, 4 FRAMES", "spr_title_wheel"),
+                        ("EXHAUST 16X16 FRAME, 12X10 ART, 4 FRAMES", "spr_title_exhaust"),
+                        ("RONAN 16X16 FRAME, 12X12 ART, 8 FRAMES WATCH GLANCE AT 5 TO 7", "spr_title_ronan"),
+                        ("THEO 16X16 FRAME, 12X12 ART, 8 FRAMES 4 IDLE 4 TURN", "spr_title_theo"),
+                        ("SPEECH BUBBLE 16X16 FRAME, 14X10 ART, 3 FRAMES", "spr_title_bubble"),
+                        ("STORM CLOUD 24X16 FRAME, 24X12 ART, 2 FRAMES AND A FLASH", "spr_title_cloud")]:
         blocks.append((label, parts[name][0], scale))
 
     margin = 8
@@ -693,6 +730,9 @@ def main() -> int:
     parser.add_argument("--root", default=ROOT)
     parser.add_argument("--out-dir", default=None)
     parser.add_argument("--dump", action="store_true", help="print the art as text")
+    parser.add_argument("--no-scene-pass", action="store_true",
+                        help="draw only; skip the scene palette pass at the end (used when a whole art pass is "
+                             "being redrawn and the scene is solved once at the end)")
     args = parser.parse_args()
 
     root = os.path.abspath(args.root)
@@ -710,6 +750,9 @@ def main() -> int:
         "spr_title_bubble": [build_bubble(index) for index in range(3)],
         "spr_title_cloud": [build_cloud(index) for index in range(3)],
     }
+    # A sheet must cut into whole 8x8 tiles, so every part is fitted to its shipping frame before it is written.
+    for name in FRAMES:
+        parts[name] = [fit_frame(frame, name) for frame in parts[name]]
     fps = {
         "spr_title_car": 15.0,
         "spr_title_wheel": 12.0,
@@ -719,8 +762,13 @@ def main() -> int:
         "spr_title_bubble": 6.0,
         "spr_title_cloud": 0.0,
     }
+    # spr_title_car is NOT written here any more: tools/art/title_car_v2.py owns that file (the TS2-ART-A car,
+    # wheels baked in, 64x32, three frames). This file keeps its body drawing for the contact sheet only, so
+    # running it can no longer put the v1 car back over the v2 one.
+    written = [name for name in parts if name != "spr_title_car"]
 
-    for name, frames in parts.items():
+    for name in written:
+        frames = parts[name]
         path = save_strip(name, frames, fps[name], sprite_dir)
         used = set()
         for frame in frames:
@@ -740,6 +788,13 @@ def main() -> int:
         dump(parts["spr_title_ronan"][6], "ronan frame 6, the glance")
         dump(parts["spr_title_theo"][0], "theo frame 0")
         dump(parts["spr_title_theo"][5], "theo frame 5, turning to speak")
+    # The scene palette pass: every sprite tile is rewritten into one sprite palette of three entries
+    # plus transparency, from data/palettes/scene_title.json. Different tiles of one object may use
+    # different palettes, which is how a NES character gets more than three colours (a face sprite
+    # over a body sprite in its own palette), so the car keeps a body palette and a lights palette.
+    if not args.no_scene_pass:
+        import scene_palette
+        scene_palette.apply_title(args.root)
     return 0
 
 

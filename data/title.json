@@ -1,0 +1,92 @@
+{
+  "backgrounds": [
+    {
+      "backdrop": 15,
+      "frames": 1,
+      "name": "title_BG_bigben",
+      "role": "background"
+    }
+  ],
+  "cone": {
+    "name": "spr_title_cone",
+    "x": 140,
+    "y": 200
+  },
+  "flash": {
+    "file": "title_flash.json",
+    "frames": 2,
+    "name": "title_flash"
+  },
+  "format": 1,
+  "kind": "title",
+  "layers": [
+    {
+      "backdrop": 15,
+      "frames": 2,
+      "name": "title_L1_sky",
+      "role": "background",
+      "speed": 0.0,
+      "y": 0
+    },
+    {
+      "backdrop": 15,
+      "frames": 1,
+      "name": "title_L2_clouds",
+      "role": "background",
+      "speed": 0.05,
+      "y": 0
+    },
+    {
+      "backdrop": 15,
+      "frames": 1,
+      "name": "title_L3_downs",
+      "role": "background",
+      "speed": 0.15,
+      "y": 96
+    },
+    {
+      "backdrop": 11,
+      "frames": 1,
+      "name": "title_L4_fields",
+      "role": "background",
+      "speed": 0.35,
+      "y": 128
+    },
+    {
+      "backdrop": 10,
+      "frames": 1,
+      "name": "title_L5_verge",
+      "role": "background",
+      "speed": 0.7,
+      "y": 128
+    },
+    {
+      "backdrop": 15,
+      "frames": 1,
+      "name": "title_L6_road",
+      "role": "background",
+      "speed": 1.0,
+      "y": 192
+    },
+    {
+      "backdrop": 12,
+      "frames": 1,
+      "name": "title_L7_fg",
+      "role": "background",
+      "speed": 1.3,
+      "y": 192
+    }
+  ],
+  "opening": {
+    "height": 240,
+    "name": "title_BG_bigben",
+    "width": 256
+  },
+  "palette_space": "2C02 entry numbers (data/nes_palette.json); every pixel on disk is one of these",
+  "sign": {
+    "frames": 4,
+    "name": "spr_title_sign",
+    "x": 30,
+    "y": 26
+  }
+}

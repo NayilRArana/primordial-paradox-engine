@@ -30,6 +30,7 @@ import argparse
 import ctypes
 import ctypes.wintypes as wt
 import glob
+import json
 import os
 import shutil
 import subprocess
@@ -70,7 +71,10 @@ WATCHDOG_S = 120.0
 # Video capture settings
 
 VIDEO_OUT = os.path.join(OUTPUT_DIR, "title_run.mp4")
-VIDEO_PREVIEW = os.path.join(OUTPUT_DIR, "title_run_preview.png")
+VIDEO_PREVIEW = os.path.join(OUTPUT_DIR, "title_video_preview_3x.png")
+# The true 3x of the captured title viewport: 768x720 of the game's own pixels, cut from title_run_1 by
+# record_viewport(). A file whose name says 3x reference has to be exactly that, or the name is a claim.
+REFERENCE_3X_NAME = "title_run_reference_3x.png"
 VIDEO_FPS = 30
 VIDEO_FIRST_S = 10.0
 VIDEO_SECOND_S = 3.0
@@ -740,6 +744,59 @@ def png_size(path):
     return width, height
 
 
+def record_viewport(path, scale: int = 3, reference: str | None = None):
+    """Write where the game viewport sits inside a window capture, and cut a true 3x reference from it.
+
+    A window capture carries the desktop, the window's border and the DPI scaling of this PC, so the picture is
+    not a frame until someone says which box inside it is the game. That box is a measurement, not a guess: the
+    game's pixels are all 2C02 colours and the window furniture is not, so the box is found by asking which offset
+    makes the pixels legal PPU colours, using the same search tools\\nes_composite_check.py runs. The result goes
+    into a sidecar beside the PNG (`title_run_1.json`: {"viewport": [x, y, w, h], "scale": 3}), which is the crop
+    the audit reads instead of searching a second time and calling the file UNMEASURED when it fails.
+
+    `reference`, when given, is written as a true 3x of that viewport: 768x720 of the game's own pixels, not a
+    scaled window screenshot. A file called a reference has to carry one.
+    """
+    try:
+        from PIL import Image  # imported here so the other captures never pay for it
+
+        sys.path.insert(0, TOOLS_DIR)
+        import nes_composite_check as ncc
+        palette = ncc.load_palette(ncc.default_palette_path(ROOT))
+        with Image.open(path) as handle:
+            image = handle.convert("RGBA")
+        found = ncc.find_viewport(image, palette["allowed"])
+    except Exception as error:  # gate: ok a capture that cannot be located is reported, never guessed at
+        print("no viewport recorded for %s (%s)" % (os.path.basename(path), error))
+        return None
+    box = found["box"]
+    sidecar = os.path.splitext(path)[0] + ".json"
+    with open(sidecar, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps({
+            "viewport": list(box),
+            "scale": scale,
+            "viewport_score": found["score"],
+            "source_size": [image.width, image.height],
+            "reference": os.path.basename(reference) if reference else None,
+            "note": "the box inside this window capture that holds %dx of the 256x240 screen, found by asking "
+                    "which offset is all 2C02 colours (tools/capture_title.py record_viewport)" % scale,
+        }, indent=2, sort_keys=True) + "\n")
+    if reference:
+        x, y, w, h = box
+        image.crop((x, y, x + w, y + h)).save(reference, "PNG")
+        with open(os.path.splitext(reference)[0] + ".json", "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(json.dumps({
+                "viewport": [0, 0, w, h],
+                "scale": scale,
+                "cut_from": os.path.basename(path),
+                "note": "the whole picture is the %dx viewport of the game screen, cut from a window capture" % scale,
+            }, indent=2, sort_keys=True) + "\n")
+        print("reference %s: %dx%d at %dx (cut from %s at %s, score %.3f)"
+              % (os.path.basename(reference), w, h, scale, os.path.basename(path), [x, y, w, h], found["score"]))
+    print("viewport %s: %s at %dx, score %.3f" % (os.path.basename(path), list(box), scale, found["score"]))
+    return found
+
+
 # ---------------------------------------------------------------------------------------------------------------------
 # Launch helpers
 
@@ -1015,8 +1072,11 @@ def build_video_preview(frames, out_path, notes):
     native_w, native_h = VIDEO_PREVIEW_FRAME
     cell_w = native_w * VIDEO_PREVIEW_SCALE
     cell_h = native_h * VIDEO_PREVIEW_SCALE
-    margin = 12
-    label_h = 26
+    # The margins are 24 px so the sheet's own size is a whole number of 3x pixels (3984x792 for five frames).
+    # tools/nes_audit_all.py reads a picture whose size divides by 3 and by the 24 px cell as a 3x sheet and
+    # measures it; a sheet 770 px tall is neither 3x nor 1x, and the audit can only call it unmeasured.
+    margin = 24
+    label_h = 24
     sheet = Image.new("RGB", (len(usable) * cell_w + margin * (len(usable) + 1),
                               cell_h + label_h + margin * 2), (18, 18, 26))
     draw = ImageDraw.Draw(sheet)
@@ -1372,6 +1432,9 @@ def run_game_capture():
             discard(first_path)
             return 1
         print("captured %s %sx%s via %s (%s)" % (first_path, rect[2], rect[3], note, why))
+        # The crop the audit needs, recorded next to the picture instead of searched for later. title_run_1 is the
+        # frame the title screen is judged by, and its true 3x is what the manager looks at.
+        record_viewport(first_path, 3, os.path.join(OUTPUT_DIR, REFERENCE_3X_NAME))
 
         time.sleep(1.0)
         key_result = send_enter(hwnd)
@@ -1388,6 +1451,7 @@ def run_game_capture():
             discard(second_path)
             return 1
         print("captured %s %sx%s via %s (%s)" % (second_path, rect[2], rect[3], note, why))
+        record_viewport(second_path, 3)
 
         close_window(hwnd)
         deadline = time.time() + CLOSE_GRACE_S

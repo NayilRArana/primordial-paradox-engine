@@ -138,6 +138,37 @@ def over_limit(image: Image.Image, frame_w: int, frame_h: int, index_of, limit: 
     return bad
 
 
+def solid_alpha(image: Image.Image) -> Image.Image:
+    """Turn every partial alpha pixel into a pixel the PPU can draw.
+
+    A NES sprite pixel is on or off: there is no 110/255. The art uses partial alpha for two honest reasons (a
+    puff thinning as it leaves the pipe, a cloud dissolving as it fades), and the hardware way to say "half
+    covered" is a one pixel checker, so that is what this does:
+
+        alpha 192 and up   solid, it was meant to be opaque
+        alpha 96 to 191    a 2 pixel checker: solid where (x + y) is even, transparent elsewhere
+        alpha under 96     transparent, it was meant to be gone
+
+    A checker spends no colour the palette does not have, so a fade still reads as a fade; what stops is shipping
+    pixels the chip cannot output. tools\\nes_check.py refuses any pixel whose alpha is not 0 or 255, so a strip
+    with a half transparent pixel in it fails the palette rule, which is how these files were measured.
+    """
+    out = image.copy()
+    pixels = out.load()
+    for y in range(out.height):
+        for x in range(out.width):
+            r, g, b, a = pixels[x, y]
+            if a == 0 or a == 255:
+                continue
+            if a >= 192:
+                pixels[x, y] = (r, g, b, 255)
+            elif a < 96 or (x + y) % 2:
+                pixels[x, y] = (0, 0, 0, 0)
+            else:
+                pixels[x, y] = (r, g, b, 255)
+    return out
+
+
 # -----------------------------------------------------------------------------------------------------------------
 # Pixel primitives.
 
