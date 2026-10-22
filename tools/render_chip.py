@@ -1,21 +1,49 @@
-"""render_chip.py: render a 4 track chiptune MIDI to WAV and MP3, loop safe.
+"""render_chip.py: render a chiptune MIDI to WAV and MP3, loop safe.
 
-A small, self contained NES 2A03 style renderer. It reads a Standard MIDI File and
-synthesises four voices directly, with no emulator, no window and no external
-dependency beyond numpy:
+A small, self contained NES style renderer. It reads a Standard MIDI File and
+synthesises the voices directly, with no emulator, no window and no external
+dependency beyond numpy.
 
-  pulse 1 : 50 percent duty square (25 percent when the MIDI says so)
-  pulse 2 : 25 percent duty square (50 percent when the MIDI says so)
-  triangle : 16 step NES triangle, fixed level
-  noise    : 15 bit LFSR, period taken from the note number
+Version 2 voices (7 chip voices plus a drum track):
 
-Voice assignment: by track name first ("p1", "pulse 2", "triangle", "noise", ...),
-then by the order in which the tracks start playing. Control change 11 sets the
-level of a pulse or a noise voice and control change 12 sets its duty (or the
-noise loop bit), which is the convention the Musikage dataset uses.
+  pulse 1      2A03 square, 50 percent duty (25 percent when the MIDI says so)
+  pulse 2      2A03 square, 25 percent duty (50 percent when the MIDI says so)
+  triangle     16 step NES triangle, fixed level
+  noise        15 bit LFSR, period taken from the note number
+  vrc6 pulse a Konami VRC6 square, 8 duty steps from 1/16 to 8/16
+  vrc6 pulse b Konami VRC6 square, 8 duty steps from 1/16 to 8/16
+  vrc6 saw     Konami VRC6 sawtooth, 6 bit DAC
+  dpcm         short kick and snare samples, MIDI note 36 and 38
+
+VRC6 saw reference (read on 2026-10-21, from the NESdev wiki):
+  https://www.nesdev.org/wiki/VRC6_audio
+  The CPU clock drives a 12 bit divider F. Every cycle the divider counts
+  down until it reaches zero, at which point it reloads and clocks the
+  accumulator, but the accumulator only reacts on every second clock. When
+  clocked, the rate value A is added to an internal 8 bit accumulator and the
+  high 5 bits of the accumulator are output while the channel is enabled.
+  After A has been added 6 times, on the 7th clock the accumulator is reset to
+  zero instead of A being added. With A = 42 the seven steps of one period are
+  0, 42, 84, 126, 168, 210, 252, whose high 5 bits are 0, 5, 10, 15, 21, 26
+  and 31, so the waveform is a seven step staircase that rises and then drops
+  back to zero. The output frequency is f = CPU / (14 * (t + 1)), so one
+  fundamental period holds exactly seven accumulator steps.
+
+Voice assignment: by track name first ("pulse 1", "vrc6 saw", "dpcm", ...),
+then by the order in which the tracks start playing. Control change 11 sets
+the level of a voice, control change 12 sets its duty (or the noise loop bit),
+control change 1 sets the vibrato depth and control change 20 sets the
+vibrato onset delay in eighth notes. Vibrato runs at a fixed 5.5 Hz.
 
 Each note gets a linear decay envelope from its own velocity, so a note fades
 out over its own length instead of stopping dead.
+
+Mix: the per voice gain table below, then a soft limiter, then the peak is
+set to -1 dBFS.
+
+Legacy compatibility: a MIDI that only uses the four 2A03 voices and only the
+old control changes is rendered through the original code path, so an old
+render such as title_theme.wav is reproduced sample for sample.
 
 Loop handling: with --loop-bars the render is trimmed to exactly that many bars,
 or tailed with silence when the MIDI is shorter, so the end of the last bar
@@ -56,6 +84,49 @@ DUTY_TABLE = [0.125, 0.25, 0.5, 0.25]
 # Mixer levels, matching the levels the Musikage NES synth uses.
 GAIN = {"pulse1": 0.35, "pulse2": 0.30, "triangle": 0.45, "noise": 0.25}
 ATTACK_MS = 1.0
+
+# ---------------------------------------------------------------------------
+# Version 2 header tables
+# ---------------------------------------------------------------------------
+
+# Per voice mix gain table. This is the header of the file on purpose: it is
+# the one place a mixer level is decided, and a level change belongs next to
+# the other chip constants, not buried in a function.
+GAIN_TABLE = {
+    "pulse1": 0.35,
+    "pulse2": 0.30,
+    "triangle": 0.45,
+    "noise": 0.25,
+    "vrc6_pulse_a": 0.32,
+    "vrc6_pulse_b": 0.30,
+    "vrc6_saw": 0.34,
+    "echo": 0.22,
+    "dpcm": 0.55,
+}
+
+# The peak the final mix is set to, in dBFS.
+PEAK_TARGET_DBFS = -1.0
+PEAK_TARGET = 10.0 ** (PEAK_TARGET_DBFS / 20.0)
+
+# Soft limiter: the signal passes through untouched below the knee, and is
+# compressed into the headroom above it with a tanh shaped curve.
+LIMITER_KNEE = 0.8
+
+# The VRC6 saw accumulator rate. 42 is the largest value that does not wrap the
+# 8 bit accumulator over its six steps (NESdev wiki, read 2026-10-21).
+VRC6_SAW_RATE = 42
+VRC6_SAW_STEPS = 7
+
+# Vibrato: fixed rate, depth from CC1, onset delay in eighth notes from CC20.
+VIBRATO_RATE_HZ = 5.5
+VIBRATO_MAX_SEMITONES = 2.0
+VIBRATO_RAMP_S = 0.02
+
+# DPCM drums: MIDI note to drum.
+DPCM_KICK_NOTE = 36
+DPCM_SNARE_NOTE = 38
+DPCM_KICK_SECONDS = 0.16
+DPCM_SNARE_SECONDS = 0.14
 
 
 # ---------------------------------------------------------------- MIDI reading
@@ -193,6 +264,23 @@ def make_clock(tempo_events: list[tuple[int, int]], division: int):
 
 VOICE_NAMES = ("pulse1", "pulse2", "triangle", "noise")
 
+# The version 2 voice set, in the order the spare slots are filled.
+VOICE_NAMES_V2 = (
+    "pulse1", "pulse2", "triangle", "noise",
+    "vrc6_pulse_a", "vrc6_pulse_b", "vrc6_saw", "echo", "dpcm",
+)
+
+# Track name fragments that name a version 2 voice. Longest first so that
+# "vrc6 pulse a" is never read as a plain pulse.
+_V2_NAME_TABLE = (
+    ("vrc6pulsea", "vrc6_pulse_a"),
+    ("vrc6pulseb", "vrc6_pulse_b"),
+    ("vrc6saw", "vrc6_saw"),
+    ("vrc6sawtooth", "vrc6_saw"),
+    ("dpcm", "dpcm"),
+    ("echo", "echo"),
+)
+
 
 def name_to_voice(name: str) -> str | None:
     low = name.lower().replace(" ", "").replace("_", "").replace("-", "")
@@ -207,6 +295,17 @@ def name_to_voice(name: str) -> str | None:
     if "pulse1" in low or low in ("p1", "sq1", "square1", "pulse"):
         return "pulse1"
     return None
+
+
+def name_to_voice_v2(name: str) -> str | None:
+    """Map a track name to a version 2 voice, or None if the name says nothing."""
+    low = name.lower().replace(" ", "").replace("_", "").replace("-", "")
+    if not low:
+        return None
+    for fragment, voice in _V2_NAME_TABLE:
+        if fragment in low:
+            return voice
+    return name_to_voice(name)
 
 
 def assign_voices(tracks: list[Track]) -> dict[str, Track]:
@@ -226,6 +325,49 @@ def assign_voices(tracks: list[Track]) -> dict[str, Track]:
             continue
         voices[voice] = track
     return voices
+
+
+def assign_voices_v2(tracks: list[Track]) -> dict[str, Track]:
+    """Map tracks to the version 2 voice set.
+
+    A named voice wins. A track whose name says nothing (an "echo" track is a
+    normal track) takes the next free slot, and the 2A03 voices are filled
+    first so a four voice file keeps the same assignment it always had.
+    """
+    voices: dict[str, Track] = {}
+    for track in tracks:
+        if not track.notes:
+            continue
+        voice = name_to_voice_v2(track.name)
+        if voice is None or voice in voices:
+            continue
+        voices[voice] = track
+    remaining = [t for t in tracks if t.notes and t not in voices.values()]
+    remaining.sort(key=lambda t: t.notes[0][0])
+    for track in remaining:
+        for voice in VOICE_NAMES_V2:
+            if voice in voices:
+                continue
+            voices[voice] = track
+            break
+    return voices
+
+
+def is_legacy_only(midi: dict) -> bool:
+    """True when the file can be rendered by the original four voice path.
+
+    Legacy means: no version 2 voice names, and none of the version 2 control
+    changes (CC1 vibrato depth, CC12 duty, CC20 vibrato delay).
+    """
+    for track in midi["tracks"]:
+        if not track.notes:
+            continue
+        if name_to_voice_v2(track.name) not in (None, "pulse1", "pulse2", "triangle", "noise"):
+            return False
+        for controller in track.cc:
+            if controller in (1, 12, 20):
+                return False
+    return True
 
 
 # ------------------------------------------------------------------ synthesis
@@ -341,14 +483,220 @@ def render_voice(voice: str, track: Track, to_seconds, total_samples: int) -> np
     return out * GAIN[voice]
 
 
+# -------------------------------------------------------- version 2 synthesis
+
+
+def vrc6_saw_wave(freq, count: int) -> np.ndarray:
+    """The VRC6 sawtooth: a seven step staircase per period.
+
+    See the header for the reference and the date it was read. The 8 bit
+    accumulator is clocked with the rate value every second divider clock and
+    is reset to zero on the seventh clock, so one period is seven steps of
+    A, 2A, ... 6A, whose high 5 bits are the output.
+
+    freq is either a single frequency in Hz or a per sample frequency array,
+    so vibrato reaches this voice the same way it reaches the pulses.
+    """
+    if count <= 0:
+        return np.zeros(count if count > 0 else 0, dtype=np.float64)
+    freqs = np.asarray(freq, dtype=np.float64)
+    if freqs.ndim == 0:
+        if freqs <= 0:
+            return np.zeros(count, dtype=np.float64)
+        freqs = np.full(count, float(freqs))
+    else:
+        freqs = np.resize(freqs, count)
+    # The step boundaries come from a float phase, not an integer division, so
+    # the seven steps of one period land exactly on the period and the pitch
+    # does not drift with the rounding of the step length.
+    phase = np.cumsum(freqs) / SR
+    step = np.floor(phase * VRC6_SAW_STEPS).astype(np.int64) % VRC6_SAW_STEPS
+    accumulator = step * VRC6_SAW_RATE
+    level = (accumulator >> 3).astype(np.float64) / 31.0
+    return level * 2.0 - 1.0
+
+
+def pulse_wave_v2(freqs: np.ndarray, duty: float) -> np.ndarray:
+    """A square wave from a per sample frequency array."""
+    if freqs.size == 0:
+        return np.zeros(0, dtype=np.float64)
+    phase = (np.cumsum(freqs) / SR) % 1.0
+    return (phase < duty).astype(np.float64)
+
+
+def triangle_wave_v2(freqs: np.ndarray) -> np.ndarray:
+    if freqs.size == 0:
+        return np.zeros(0, dtype=np.float64)
+    phase = (np.cumsum(freqs) / SR) % 1.0
+    step = (phase * 32.0) % 32.0
+    return 2.0 * np.abs(step - 16.0) / 16.0 - 1.0
+
+
+def vibrato_frequencies(base: float, count: int, depth: float, delay: float,
+                         ramp: float = VIBRATO_RAMP_S) -> np.ndarray:
+    """Per sample frequency with a 5.5 Hz vibrato that starts after a delay.
+
+    The depth is in semitones, the delay in seconds. The vibrato fades in over
+    the ramp so the note does not step at the moment it starts.
+    """
+    if count <= 0:
+        return np.zeros(0, dtype=np.float64)
+    if depth <= 0.0:
+        return np.full(count, base, dtype=np.float64)
+    times = np.arange(count) / SR
+    since = times - delay
+    active = since > 0.0
+    ramp_up = np.clip(since / max(ramp, 1e-6), 0.0, 1.0)
+    lfo = np.sin(2.0 * np.pi * VIBRATO_RATE_HZ * np.where(active, since, 0.0))
+    semitones = depth * lfo * ramp_up
+    return base * np.power(2.0, semitones / 12.0)
+
+
+def dpcm_kick(count: int) -> np.ndarray:
+    """A short kick: a sine whose pitch drops fast, plus a click at the start."""
+    if count <= 0:
+        return np.zeros(0, dtype=np.float64)
+    times = np.arange(count) / SR
+    duration = times[-1] + 1.0 / SR if count else 0.0
+    sweep = 150.0 * np.exp(-times / 0.030) + 45.0
+    phase = 2.0 * np.pi * np.cumsum(sweep) / SR
+    body = np.sin(phase)
+    env = np.exp(-times / 0.055)
+    click = np.zeros(count, dtype=np.float64)
+    click_length = min(count, int(round(0.004 * SR)))
+    if click_length:
+        click[:click_length] = np.linspace(1.0, 0.0, click_length)
+    return (0.85 * body * env + 0.35 * click) * min(1.0, duration / 0.02 + 0.5)
+
+
+def dpcm_snare(count: int) -> np.ndarray:
+    """A short snare: a filtered noise burst with a fast decay."""
+    if count <= 0:
+        return np.zeros(0, dtype=np.float64)
+    times = np.arange(count) / SR
+    noise = np.random.default_rng(20261021).standard_normal(count)
+    # A one pole high pass, so the burst is bright like a snare and not a hiss.
+    bright = np.diff(noise, prepend=0.0)
+    env = np.exp(-times / 0.035)
+    body = 0.6 * np.sin(2.0 * np.pi * 190.0 * times) * np.exp(-times / 0.020)
+    return (0.9 * bright * env + 0.3 * body)
+
+
+def soft_limit(signal: np.ndarray, knee: float = LIMITER_KNEE) -> np.ndarray:
+    """A soft limiter: linear below the knee, tanh shaped above it."""
+    if signal.size == 0:
+        return signal
+    peak = float(np.abs(signal).max())
+    if peak <= knee:
+        return signal
+    sign = np.sign(signal)
+    magnitude = np.abs(signal)
+    over = magnitude > knee
+    out = signal.copy()
+    headroom = 1.0 - knee
+    out[over] = sign[over] * (knee + headroom * np.tanh((magnitude[over] - knee) / headroom))
+    return out
+
+
+def render_voice_v2(voice: str, track: Track, to_seconds, total_samples: int,
+                    bpm: float) -> np.ndarray:
+    """Render one version 2 voice into a full length buffer."""
+    out = np.zeros(total_samples, dtype=np.float64)
+    times = np.arange(total_samples) / SR
+    cc11 = track.cc.get(11, [])
+    cc12 = track.cc.get(12, [])
+    cc1 = track.cc.get(1, [])
+    cc20 = track.cc.get(20, [])
+
+    # Level is a 0 to 15 chip volume. A value of 127 means full volume, so the
+    # scale is clamped at 15: both the 0 to 15 chip convention and the 0 to 127
+    # mixer convention then read the same way.
+    level = None
+    if cc11:
+        level = np.minimum(control_at(cc11, to_seconds, times, 15.0), 15.0) / 15.0
+    duty_value = control_at(cc12, to_seconds, times, 0.0) if cc12 else None
+    depth_value = control_at(cc1, to_seconds, times, 0.0) if cc1 else None
+    delay_value = control_at(cc20, to_seconds, times, 0.0) if cc20 else None
+
+    eighth = 60.0 / bpm / 2.0
+    attack = max(1, int(round(ATTACK_MS * SR / 1000.0)))
+
+    for start_tick, end_tick, pitch, velocity in track.notes:
+        start = int(round(to_seconds(start_tick) * SR))
+        end = int(round(to_seconds(end_tick) * SR))
+        if end <= start:
+            continue
+        start = max(0, start)
+        end = min(total_samples, end)
+        count = end - start
+        if count <= 0:
+            continue
+
+        base = 440.0 * 2.0 ** ((pitch - 69) / 12.0)
+
+        if voice == "dpcm":
+            if pitch == DPCM_KICK_NOTE:
+                count = min(count, int(round(DPCM_KICK_SECONDS * SR)))
+            elif pitch == DPCM_SNARE_NOTE:
+                count = min(count, int(round(DPCM_SNARE_SECONDS * SR)))
+            else:
+                continue
+            wave = dpcm_kick(count) if pitch == DPCM_KICK_NOTE else dpcm_snare(count)
+            amp = velocity / 127.0
+        else:
+            depth = 0.0
+            delay = 0.0
+            if depth_value is not None:
+                depth = (float(depth_value[start]) / 127.0) * VIBRATO_MAX_SEMITONES
+            if delay_value is not None:
+                delay = float(delay_value[start]) * eighth
+            freqs = vibrato_frequencies(base, count, depth, delay)
+
+            if voice == "triangle":
+                wave = triangle_wave_v2(freqs)
+            elif voice == "noise":
+                short = False
+                if duty_value is not None:
+                    short = bool(int(duty_value[start]) & 1)
+                wave = noise_wave(pitch, count, short)
+            elif voice == "vrc6_saw":
+                wave = vrc6_saw_wave(freqs, count)
+            else:
+                # The duty is read per note. A VRC6 pulse has 8 steps from 1/16
+                # to 8/16; a 2A03 pulse keeps its 4 step table.
+                if duty_value is not None:
+                    raw = int(duty_value[start])
+                    if voice in ("vrc6_pulse_a", "vrc6_pulse_b"):
+                        duty = (min(7, max(0, raw)) + 1) / 16.0
+                    else:
+                        duty = DUTY_TABLE[raw & 3]
+                else:
+                    duty = 0.25 if voice in ("vrc6_pulse_a", "vrc6_pulse_b") else (
+                        0.5 if voice in ("pulse1", "echo") else 0.25
+                    )
+                wave = pulse_wave_v2(freqs, duty)
+
+            amp = velocity / 127.0
+            if voice not in ("triangle", "dpcm"):
+                amp = amp * (1.0 - np.arange(count) / float(count))
+
+        if level is not None:
+            amp = amp * float(level[start])
+        ramp = np.minimum(1.0, np.arange(count) / float(attack))
+        out[start:start + len(wave)] += wave[:max(0, min(len(wave), total_samples - start))] * amp * ramp[:len(wave)]
+    return out * GAIN_TABLE[voice]
+
+
 # ------------------------------------------------------------------- the render
 
 
 def render_file(midi_path: str, wav_path: str, loop_bars: int | None, mp3_path: str | None,
-                loop_json_path: str | None, normalize: bool = True) -> dict:
+                loop_json_path: str | None, normalize: bool = True,
+                force_v2: bool = False) -> dict:
     midi = parse_midi(midi_path)
     to_seconds = make_clock(midi["tempo"], midi["division"])
-    voices = assign_voices(midi["tracks"])
+    legacy = is_legacy_only(midi) and not force_v2
+    voices = assign_voices(midi["tracks"]) if legacy else assign_voices_v2(midi["tracks"])
 
     end_tick = 0
     for track in voices.values():
@@ -363,7 +711,10 @@ def render_file(midi_path: str, wav_path: str, loop_bars: int | None, mp3_path: 
 
     mix = np.zeros(total_samples, dtype=np.float64)
     for voice, track in voices.items():
-        mix += render_voice(voice, track, to_seconds, total_samples)
+        if legacy:
+            mix += render_voice(voice, track, to_seconds, total_samples)
+        else:
+            mix += render_voice_v2(voice, track, to_seconds, total_samples, bpm)
 
     report: dict = {
         "source_midi": os.path.abspath(midi_path),
@@ -377,6 +728,7 @@ def render_file(midi_path: str, wav_path: str, loop_bars: int | None, mp3_path: 
                       for voice, track in voices.items()},
         "source_duration_seconds": round(total_seconds, 6),
         "source_samples": int(total_samples),
+        "renderer": "v1" if legacy else "v2",
     }
 
     if loop_bars:
@@ -412,12 +764,26 @@ def render_file(midi_path: str, wav_path: str, loop_bars: int | None, mp3_path: 
         report["fade_samples"] = int(fade)
         report["fade_shape"] = "raised_cosine"
 
-    if normalize and len(mix) and np.abs(mix).max() > 0:
-        peak_before = float(np.abs(mix).max())
-        mix = mix / peak_before * 0.85
-        report["peak_before_normalize"] = round(peak_before, 6)
+    if legacy:
+        # The original path: scale the peak to 0.85 and nothing else, so an old
+        # render is reproduced exactly.
+        if normalize and len(mix) and np.abs(mix).max() > 0:
+            peak_before = float(np.abs(mix).max())
+            mix = mix / peak_before * 0.85
+            report["peak_before_normalize"] = round(peak_before, 6)
+        else:
+            report["peak_before_normalize"] = round(float(np.abs(mix).max()), 6) if len(mix) else 0.0
+        report["limiter"] = "none (legacy path)"
+        report["peak_target_dbfs"] = round(20.0 * np.log10(0.85), 2)
     else:
-        report["peak_before_normalize"] = round(float(np.abs(mix).max()), 6) if len(mix) else 0.0
+        peak_before = float(np.abs(mix).max()) if len(mix) else 0.0
+        report["peak_before_normalize"] = round(peak_before, 6)
+        mix = soft_limit(mix)
+        report["limiter"] = "soft (knee %.2f)" % LIMITER_KNEE
+        if normalize and len(mix) and np.abs(mix).max() > 0:
+            mix = mix / np.abs(mix).max() * PEAK_TARGET
+        report["peak_target_dbfs"] = PEAK_TARGET_DBFS
+        report["voice_gains"] = {voice: GAIN_TABLE[voice] for voice in sorted(voices)}
 
     data = (np.clip(mix, -1.0, 1.0) * 32767).astype("<i2")
     peak = int(np.abs(data).max()) if data.size else 0
@@ -494,7 +860,7 @@ def render_file(midi_path: str, wav_path: str, loop_bars: int | None, mp3_path: 
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Render a 4 track chiptune MIDI to WAV and MP3.")
+    parser = argparse.ArgumentParser(description="Render a chiptune MIDI to WAV and MP3.")
     parser.add_argument("midi", help="input MIDI file")
     parser.add_argument("wav", help="output WAV file")
     parser.add_argument("--loop-bars", type=int, default=None,
@@ -505,7 +871,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--loop-json", default=None,
                         help="loop point JSON path (default: the WAV path with _loop.json)")
     parser.add_argument("--no-normalize", action="store_true",
-                        help="keep the raw mix level instead of scaling the peak to 0.85")
+                        help="keep the raw mix level instead of scaling the peak to the target")
+    parser.add_argument("--force-v2", action="store_true",
+                        help="use the version 2 voice path even for a four voice file")
     args = parser.parse_args(argv)
 
     wav_path = args.wav
@@ -522,7 +890,7 @@ def main(argv: list[str] | None = None) -> int:
         loop_json_path = stem + "_loop.json"
 
     report = render_file(args.midi, wav_path, args.loop_bars, mp3_path, loop_json_path,
-                         normalize=not args.no_normalize)
+                         normalize=not args.no_normalize, force_v2=args.force_v2)
 
     print("render_chip: %s -> %s" % (os.path.basename(args.midi), wav_path))
     print("  duration %.3f s | peak %d (%.2f dBFS) | rms %.1f (%.2f dBFS)"
@@ -534,6 +902,9 @@ def main(argv: list[str] | None = None) -> int:
                  report["loop_seam_sample_difference"],
                  report["loop_edge_peak_head"], report["loop_edge_peak_tail"]))
     print("  voices: %s" % ", ".join("%s=%s" % (k, v) for k, v in sorted(report["voice_map"].items())))
+    print("  renderer: %s | limiter: %s | peak target %.1f dBFS"
+          % (report.get("renderer", "v1"), report.get("limiter", "none"),
+             report.get("peak_target_dbfs", 0.0)))
     if report.get("mp3"):
         print("  mp3: %s" % report["mp3"])
     elif report.get("mp3_error"):
