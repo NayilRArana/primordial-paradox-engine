@@ -9,7 +9,12 @@ no key and no network. What is measured, and why:
                   which proves the constraint is doing work rather than being satisfied by a small palette
     directions    left is the mirror of right, and the two walk frames differ
     poses         a pose folder fills the battle frames; no pose folder leaves them named TODO
-    plug points   segment() reports where the mask came from, generate_pose() reports todo and never invents
+    blank frames  a fully transparent pose and an all black mask each leave frames as named TODO entries and
+                  the sheet not ok, while a real pose still fills its frame (the negative control)
+    refusal       a missing or unreadable concept or mask exits with a message and no traceback
+    facing        the report records that down and up are the same render as right, byte for byte
+    plug points   segment() reports where the mask came from and its refusal reason; generate_pose() reports
+                  todo and never invents; no data\ai_ledger.csv row is written by either
     preview       3x PNG exists at the expected size
 """
 
@@ -68,8 +73,8 @@ def test_battle_sheet_geometry(concept, tmp_path):
                                                "attack_2", "hurt_0", "down_0"}
 
 
-def test_both_sheets_pass_nes_check(concept, tmp_path):
-    report = sprite_pipe.run(concept, out_dir=str(tmp_path / "out"))
+def test_both_sheets_pass_nes_check(concept, poses, tmp_path):
+    report = sprite_pipe.run(concept, poses_folder=poses, out_dir=str(tmp_path / "out"))
     for name in ("overworld", "battle"):
         verdict = report[name]["nes_check"]
         assert verdict["ok"], (name, verdict["problems"])
@@ -194,9 +199,9 @@ def test_preview_is_three_times_the_sheets(concept, poses, tmp_path):
     assert preview.size[1] > sprite_pipe.OW_FRAME * sprite_pipe.PREVIEW_SCALE
 
 
-def test_report_json_is_written_and_readable(concept, tmp_path):
+def test_report_json_is_written_and_readable(concept, poses, tmp_path):
     out = str(tmp_path / "out")
-    sprite_pipe.run(concept, out_dir=out)
+    sprite_pipe.run(concept, poses_folder=poses, out_dir=out)
     path = os.path.join(out, sprite_pipe.REPORT_NAME)
     with open(path, "r", encoding="utf-8") as handle:
         saved = json.load(handle)
@@ -213,3 +218,179 @@ def test_cli_selftest_exit_code(monkeypatch, tmp_path):
     code = sprite_pipe.main(["--selftest", "--out", str(tmp_path / "out")])
     assert code == 0
     assert os.path.isfile(os.path.join(str(tmp_path / "out"), "with_poses", sprite_pipe.REPORT_NAME))
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# F1: a frame with no visible pixels must never pass as finished art.
+
+BATTLE_NAMES = [name for _, _, name in sprite_pipe.BATTLE_FRAMES]
+OVERWORLD_NAMES = ["%s_%d" % (direction, walk) for direction in sprite_pipe.DIRECTIONS
+                   for walk in range(sprite_pipe.WALK_FRAMES)]
+
+
+def _transparent_poses(folder):
+    """Seven battle pose files that exist, are named right, and are fully transparent."""
+    os.makedirs(folder, exist_ok=True)
+    for name in BATTLE_NAMES:
+        Image.new("RGBA", (96, 128), (0, 0, 0, 0)).save(os.path.join(folder, "battle_%s.png" % name))
+
+
+def test_a_fully_transparent_pose_folder_is_todo_not_finished_art(concept, tmp_path):
+    poses = str(tmp_path / "empty_poses")
+    _transparent_poses(poses)
+    report = sprite_pipe.run(concept, poses_folder=poses, out_dir=str(tmp_path / "out"))
+    assert report["battle"]["todo"] == BATTLE_NAMES
+    for name in BATTLE_NAMES:
+        entry = report["battle"]["frames"][name]
+        assert entry["status"] == "TODO", name
+        assert entry["opaque"] == 0, name
+        assert "no visible pixels" in entry["reason"], name
+    # The sheet itself is not transparent, because the TODO X was drawn, but nothing on it is finished art.
+    assert report["battle"]["opaque_pixels"] > 0
+    assert report["battle"]["finished_frames"] == 0
+    assert report["battle"]["blank"] is True
+    assert report["ok"] is False
+    assert any("battle sheet holds no finished frame" in warning for warning in report["warnings"])
+    assert sprite_pipe.main(["--concept", concept, "--poses", poses,
+                             "--out", str(tmp_path / "cli")]) == 1
+
+
+def test_an_all_black_mask_cannot_produce_an_empty_overworld_sheet(concept, tmp_path):
+    mask_path = tmp_path / "black_mask.png"
+    with Image.open(concept) as handle:
+        Image.new("L", handle.size, 0).save(mask_path)
+    report = sprite_pipe.run(concept, mask_path=str(mask_path), out_dir=str(tmp_path / "out"))
+    assert report["overworld"]["todo"] == OVERWORLD_NAMES
+    assert report["overworld"]["finished_frames"] == 0
+    assert report["overworld"]["blank"] is True
+    assert report["ok"] is False
+    assert any("overworld sheet holds no finished frame" in warning for warning in report["warnings"])
+    with Image.open(report["overworld"]["path"]) as handle:
+        sheet = handle.convert("RGBA")
+    assert sprite_pipe.opaque_pixels(sheet) > 0, "the TODO X must be visible, not a silent empty sheet"
+    assert sprite_pipe.main(["--concept", concept, "--mask", str(mask_path),
+                             "--out", str(tmp_path / "cli")]) == 1
+
+
+def test_a_sheet_of_placeholders_is_not_ok(concept, tmp_path):
+    """No poses at all: the overworld sheet is real art, the battle sheet is seven placeholders."""
+    report = sprite_pipe.run(concept, out_dir=str(tmp_path / "out"))
+    assert report["overworld"]["finished_frames"] == len(OVERWORLD_NAMES)
+    assert report["battle"]["finished_frames"] == 0
+    assert report["battle"]["blank"] is True
+    assert report["ok"] is False
+    assert sprite_pipe.main(["--concept", concept, "--out", str(tmp_path / "cli")]) == 1
+
+
+def test_a_real_pose_still_fills_its_frame(concept, poses, tmp_path):
+    """The negative control for F1: the blank check must not turn real art into a TODO."""
+    report = sprite_pipe.run(concept, poses_folder=poses, out_dir=str(tmp_path / "out"))
+    assert report["battle"]["todo"] == []
+    assert report["battle"]["finished_frames"] == len(BATTLE_NAMES)
+    assert report["battle"]["blank"] is False
+    for name in BATTLE_NAMES:
+        entry = report["battle"]["frames"][name]
+        assert entry["opaque"] > 0, name
+        assert "status" not in entry, name
+    assert report["overworld"]["finished_frames"] == len(OVERWORLD_NAMES)
+    assert report["ok"] is True
+
+
+def test_an_unreadable_pose_file_is_named_todo(concept, tmp_path):
+    poses = tmp_path / "poses"
+    poses.mkdir()
+    (poses / "battle_idle_0.png").write_bytes(b"not an image at all")
+    report = sprite_pipe.run(concept, poses_folder=str(poses), out_dir=str(tmp_path / "out"))
+    entry = report["battle"]["frames"]["idle_0"]
+    assert entry["status"] == "TODO"
+    assert "unreadable" in entry["reason"]
+    assert "idle_0" in report["battle"]["todo"]
+
+
+def test_an_unreadable_overworld_walk_pose_falls_back_to_the_bob(concept, tmp_path):
+    poses = tmp_path / "poses"
+    poses.mkdir()
+    (poses / "overworld_right_walk1.png").write_bytes(b"not an image at all")
+    report = sprite_pipe.run(concept, poses_folder=str(poses), out_dir=str(tmp_path / "out"))
+    assert report["overworld"]["frames"]["right_1"]["origin"] == "bob"
+    assert any("pose unreadable" in note for note in report["overworld"]["notes"])
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# F2: a missing or unreadable input is refused with a message, not a traceback.
+
+def test_missing_and_unreadable_inputs_are_refused_with_a_message(concept, tmp_path):
+    bad = tmp_path / "bad.png"
+    bad.write_bytes(b"not an image at all")
+    cases = [
+        (str(tmp_path / "nope.png"), None, "does not exist"),
+        (str(bad), None, "is not a readable image"),
+        (concept, str(tmp_path / "nope_mask.png"), "does not exist"),
+        (concept, str(bad), "is not a readable image"),
+    ]
+    for concept_path, mask_path, expected in cases:
+        with pytest.raises(SystemExit) as caught:
+            sprite_pipe.run(concept_path, mask_path=mask_path, out_dir=str(tmp_path / "out"))
+        message = str(caught.value)
+        assert expected in message, (concept_path, mask_path, message)
+        assert "Traceback" not in message
+
+
+def test_main_refuses_a_missing_concept_with_one_line(tmp_path):
+    """main() propagates the SystemExit run() raises, so the CLI exits 1 with a message and no traceback.
+
+    A SystemExit carrying a string exits the interpreter with status 1 and prints that string, which is the
+    refusal shape collect_poses() already used. The same refusal is measured at the real CLI level by the
+    card's own probe (verify_char_pipe_rework.py) rather than here: on this host Popen launched from pytest
+    raises OSError WinError 6 when another Python process is spawning children at the same time (measured
+    2026-10-22, three runs under load), and a suite that goes red for the environment teaches the wrong lesson.
+    """
+    with pytest.raises(SystemExit) as caught:
+        sprite_pipe.main(["--concept", str(tmp_path / "nope.png"), "--out", str(tmp_path / "out")])
+    code = caught.value.code
+    assert isinstance(code, str), code
+    assert "does not exist" in code
+    assert "Traceback" not in code
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# F3: the sheet holds one render, so the report must not let four rows read as four facings.
+
+def test_facing_notes_say_the_sheet_is_not_directional(concept, poses, tmp_path):
+    report = sprite_pipe.run(concept, poses_folder=poses, out_dir=str(tmp_path / "out"))
+    assert report["overworld"]["facing"]["down_0"] == "right_0"
+    assert report["overworld"]["facing"]["up_0"] == "right_0"
+    assert report["overworld"]["frames"]["down_0"]["facing"] == "same render as right"
+    assert any("not directional" in note for note in report["overworld"]["notes"])
+    # Measured on the written sheet rather than trusted from the note.
+    with Image.open(report["overworld"]["path"]) as handle:
+        sheet = handle.convert("RGBA")
+    size = sprite_pipe.OW_FRAME
+
+    def frame(direction):
+        index = sprite_pipe.DIRECTIONS.index(direction)
+        return sheet.crop((0, index * size, size, index * size + size)).tobytes()
+
+    assert frame("down") == frame("right") == frame("up")
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# F4: the docstring and the ledger claim must match what the plug points actually do.
+
+def test_docstring_states_the_measured_model_behaviour():
+    doc = sprite_pipe.__doc__ or ""
+    assert "answers with metadata and no mask pixels" not in doc
+    assert "still lands" not in doc
+    assert "NotConfigured" in doc
+    assert "ai_ledger.csv" in doc
+
+
+def test_the_segment_plug_point_writes_no_ledger_row(concept, tmp_path, monkeypatch):
+    ledger = tmp_path / "ledger.csv"
+    monkeypatch.setenv("PP_AI_LEDGER", str(ledger))
+    for backend in ("gemini", "mock"):
+        monkeypatch.setenv("PP_AI_BACKEND", backend)
+        report = sprite_pipe.run(concept, out_dir=str(tmp_path / backend))
+        assert not ledger.exists(), backend
+        assert any("refused" in line for line in report["segmentation"]["detail"]), backend
+

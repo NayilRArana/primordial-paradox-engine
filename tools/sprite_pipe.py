@@ -7,17 +7,21 @@ The pipeline the plan asks for, in the order it runs:
       -> downscale                 fit the masked character into the frame, letterboxed, alpha cut
       -> palette quantisation      every opaque pixel becomes one of the 2C02 outputs
       -> per tile constraint solver merge colours until each 8x8 tile carries 3 plus transparent
-      -> sheet assembly            overworld 16x16 in four directions, battle 24x32 in six poses
+      -> sheet assembly            overworld 16x16 in four directions, battle 24x32 in seven frames
       -> tools\\nes_check.py        the validator decides whether the sheet is legal, not this tool
 
 Two plug points are the reason this file exists before the models do:
 
-    segment(image, ...)          calls tools\\ai_client.py segment() when a backend can answer. The mock
-                                 backend answers with metadata and no mask pixels, so the mask falls back to
-                                 the local corner colour matte. The model call is still made and still lands
-                                 in data\\ai_ledger.csv, so the wiring is exercised, not described.
-    generate_pose(prompt)        calls tools\\ai_client.py image(). The mock writes no bytes, so a pose that
-                                 was never generated is reported as TODO instead of being faked.
+    segment(image, ...)          calls tools\\ai_client.py segment(). Measured today, no backend answers: the
+                                 default gemini backend raises NotConfigured (SAM style segmentation is the
+                                 Meta lane) and the mock backend raises ValueError because this tool passes
+                                 neither points nor a box. So the mask always comes from the local corner
+                                 colour matte, and the refusal reason is recorded in the report under
+                                 "segmentation". No data\\ai_ledger.csv row is written: the call raises before
+                                 ai_client reaches its ledger write, and the file does not exist after a run.
+    generate_pose(prompt)        calls tools\\ai_client.py image(). No backend returns bytes today either:
+                                 gemini raises NotConfigured, the mock answers with image_bytes 0. Either way
+                                 a pose that was never generated is reported as TODO instead of being faked.
 
 What each sheet is, and why the numbers are these numbers
     overworld   16x16 per frame, down, up, left, right, 2 walk frames each, the NES sprite tile is 8x8 so a
@@ -27,6 +31,14 @@ What each sheet is, and why the numbers are these numbers
     battle      24x32 per frame, Castlevania proportioned (taller than wide), idle 2, attack 3, hurt 1, down 1:
                 seven frames. A frame with no pose image is drawn as a single colour X and named in the
                 sidecar's "todo" list, so a blank slot can never pass for finished art.
+
+A blank frame is not art
+    Every finished frame is counted for visible pixels before it is pasted (opaque_pixels()). A frame with
+    none, whether it came from a concept whose matte removed everything, a pose image that is fully
+    transparent, or a pose file that cannot be read, is replaced by the same TODO X and named in that
+    sheet's "todo" list with the reason. A sheet that ends up with no finished frame at all makes run()
+    report ok false and the report prints a warning, so the CLI cannot exit 0 on an empty sheet. The
+    report also records the opaque pixel count per sheet and per frame, so the claim is checkable.
 
 What this tool deliberately does not do
     It does not judge whether the sprite is good. It does not invent a pose, a costume or a face. It does not
@@ -44,8 +56,9 @@ Outputs, in --out (default output\\char_pipe)
     char_pipe_report.json        sizes, mask source, colour counts, per sheet nes_check verdict, TODO list
 
 Exit codes
-    0  both sheets were written and both pass nes_check
-    1  a sheet failed nes_check, or an input could not be read
+    0  both sheets were written, both pass nes_check, and each sheet holds at least one finished frame
+    1  a sheet failed nes_check, a sheet holds only TODO placeholders, or an input could not be read
+    2  no --concept and no --selftest given
 """
 
 from __future__ import annotations
@@ -85,6 +98,8 @@ BATTLE_FRAMES = (
 TILE_COLOUR_LIMIT = 3
 DEFAULT_MAX_COLOURS = 5
 ALPHA_CUT = 128
+# A frame with fewer visible pixels than this is not art: it is a blank slot that must be named TODO.
+BLANK_MIN_OPAQUE = 1
 PREVIEW_SCALE = 3
 PREVIEW_BACKDROP = (0, 0, 0)
 SEGMENT_TOLERANCE = 40
@@ -98,6 +113,40 @@ try:  # Pillow 9 moved the resampling constants; both spellings work.
 except AttributeError:  # pragma: no cover - old Pillow
     RESAMPLE = Image.LANCZOS
     NEAREST = Image.NEAREST
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# Reading inputs and counting what is actually visible.
+
+class InputError(Exception):
+    """An input image could not be read.
+
+    run() turns this into a clean SystemExit for a concept or a mask, and a pose frame turns it into a TODO
+    entry, so a missing file or a file that is not an image never reaches the user as a traceback.
+    """
+
+
+def read_image(path: str, role: str, mode: str = "RGBA") -> Image.Image:
+    """Open one input image, or raise InputError naming the file and why it could not be read."""
+    if not path:
+        raise InputError("no %s path given" % role)
+    if not os.path.isfile(path):
+        raise InputError("%s %s does not exist" % (role, path))
+    try:
+        with Image.open(path) as handle:
+            return handle.convert(mode)
+    except Exception as exc:
+        raise InputError("%s %s is not a readable image: %s" % (role, path, str(exc)[:160]))
+
+
+def opaque_pixels(image: Image.Image) -> int:
+    """How many pixels survive the alpha cut. Zero means the frame has nothing visible in it.
+
+    A blank frame is the one defect a colour count cannot see: nes_check counts 0 colours as legal, so a
+    fully transparent sheet passes it. This count is the check that a frame is art at all.
+    """
+    return sum(count for value, count in enumerate(image.convert("RGBA").getchannel("A").histogram())
+               if value >= ALPHA_CUT)
 
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -116,11 +165,13 @@ def segment(image: Image.Image, path: str | None = None, points=None, box=None,
             use_client: bool = True) -> dict:
     """Mask the character out of the concept image. Returns {"mask", "source", "detail"}.
 
-    The model is asked first, because a segmentation model is the intended source (SAM 3.1 later). The mock
-    backend answers ok with no mask payload, so the mask itself comes from the local corner colour matte:
-    the corners of a concept render are background, and every pixel within SEGMENT_TOLERANCE of any distinct
-    corner colour is treated as background. That is honest for flat background concept art and useless for a
-    photographed scene, which is exactly the case the model will be plugged in for.
+    The model is asked first, because a segmentation model is the intended source (SAM 3.1 later), but no
+    backend answers today: the default gemini backend raises NotConfigured and the mock raises ValueError
+    because no points and no box are passed. The refusal is recorded in "detail" verbatim, and the mask
+    itself comes from the local corner colour matte: the corners of a concept render are background, and
+    every pixel within SEGMENT_TOLERANCE of any distinct corner colour is treated as background. That is
+    honest for flat background concept art and useless for a photographed scene, which is exactly the case
+    the model will be plugged in for.
 
     When the real backend returns masks, mask_from_reply() decodes them. It raises today because the reply
     shape is not documented yet, and guessing it would be fiction.
@@ -387,14 +438,12 @@ def collect_poses(folder: str | None) -> dict:
     return out
 
 
-def _load_rgba(path: str) -> Image.Image:
-    with Image.open(path) as img:
-        return img.convert("RGBA")
-
-
 def _pose_frame(path: str, size: tuple, allowed, max_colours: int) -> tuple:
-    """One pose image to one legal frame, through the same fit, quantise and solver steps."""
-    rgba = _load_rgba(path)
+    """One pose image to one legal frame, through the same fit, quantise and solver steps.
+
+    Raises InputError when the pose file cannot be read; the caller turns that into a named TODO frame.
+    """
+    rgba = read_image(path, "pose image")
     mask = segment(rgba, path=path, use_client=False)["mask"]
     frame = fit_frame(rgba, size, mask)
     frame, info = quantise(frame, allowed, max_colours)
@@ -416,59 +465,125 @@ def todo_frame(size: tuple, allowed, label: str) -> Image.Image:
 # -----------------------------------------------------------------------------------------------------------------
 # Sheets.
 
+def _crop_box(image: Image.Image, box) -> Image.Image:
+    """The frame a recorded box names, for a byte comparison between two frames."""
+    x, y, width, height = box
+    return image.crop((x, y, x + width, y + height))
+
+
+def _frame_entry(frame, box, label, label_key: str = "origin", reason: str | None = None) -> tuple:
+    """(frame to paste, report entry) for one candidate frame; a blank frame returns None as the frame.
+
+    The visible pixel count is taken on the frame that would have been pasted, which is the only place the
+    defect can be caught: nes_check counts 0 colours as legal, so an empty frame passes it.
+    """
+    visible = opaque_pixels(frame) if frame is not None else 0
+    entry = {"box": [box[0], box[1], box[2], box[3]], label_key: label, "opaque": visible}
+    if frame is None or visible < BLANK_MIN_OPAQUE:
+        entry["status"] = "TODO"
+        entry["reason"] = reason or "frame has no visible pixels"
+        return None, entry
+    return frame, entry
+
+
 def build_overworld(concept: Image.Image, mask: Image.Image, poses: dict, allowed,
                     max_colours: int = DEFAULT_MAX_COLOURS, ow_frame: int = OW_FRAME) -> tuple:
     """The FF style sheet: 4 directions x 2 walk frames at ow_frame square, left mirrored from right."""
+    size = (ow_frame, ow_frame)
     sheet = Image.new("RGBA", (ow_frame * WALK_FRAMES, ow_frame * len(DIRECTIONS)), (0, 0, 0, 0))
-    frames = {}
-    merges = []
-    base, info = _concept_frame(concept, mask, (ow_frame, ow_frame), allowed, max_colours)
-    merges += info["solver"]["merges"]
-    # Right first, so left can be its mirror, exactly as the card allows.
-    right = [base]
-    pose = _find_pose(poses, "right", "1")
-    if pose:
-        frame, pinfo = _pose_frame(pose, (ow_frame, ow_frame), allowed, max_colours)
-        right.append(frame)
-        merges += pinfo["solver"]["merges"]
-    else:
-        walk, winfo = quantise(bob(base), allowed, max_colours)
-        walk, sinfo = enforce_tile_colours(walk)
-        merges += sinfo["merges"]
-        right.append(walk)
-    left = [frame.transpose(Image.FLIP_LEFT_RIGHT) for frame in right]
-    row_frames = {"right": right, "left": left}
-    for direction in ("down", "up"):
-        column = []
-        first, sinfo = _concept_frame(concept, mask, (ow_frame, ow_frame), allowed, max_colours)
-        merges += sinfo["solver"]["merges"]
-        column.append(first)
+    merges, notes = [], []
+
+    def concept_frame():
+        frame, info = _concept_frame(concept, mask, size, allowed, max_colours)
+        merges.extend(info["solver"]["merges"])
+        return frame
+
+    def walk_frame(base, direction):
+        """(frame, origin) for walk 1: an authored pose when one reads, otherwise the one pixel bob."""
         pose = _find_pose(poses, direction, "1")
         if pose:
-            frame, pinfo = _pose_frame(pose, (ow_frame, ow_frame), allowed, max_colours)
-            merges += pinfo["solver"]["merges"]
-            column.append(frame)
-        else:
-            walk, _ = quantise(bob(first), allowed, max_colours)
-            walk, sinfo = enforce_tile_colours(walk)
-            merges += sinfo["merges"]
-            column.append(walk)
-        row_frames[direction] = column
+            try:
+                frame, info = _pose_frame(pose, size, allowed, max_colours)
+                merges.extend(info["solver"]["merges"])
+                return frame, "pose"
+            except InputError as exc:
+                notes.append("%s walk 1 pose unreadable, the bob was used: %s" % (direction, str(exc)[:120]))
+        walk, _ = quantise(bob(base), allowed, max_colours)
+        walk, info = enforce_tile_colours(walk)
+        merges.extend(info["merges"])
+        return walk, "bob"
+
+    # Right first, so left can be its mirror, exactly as the card allows.
+    base = concept_frame()
+    rows = {"right": [base]}
+    origins = {"right": ["concept"]}
+    second, origin = walk_frame(base, "right")
+    rows["right"].append(second)
+    origins["right"].append(origin)
+    for direction in ("down", "up"):
+        first = concept_frame()
+        second, origin = walk_frame(first, direction)
+        rows[direction] = [first, second]
+        origins[direction] = ["concept", origin]
+
+    final = {}
+    for index, direction in enumerate(DIRECTIONS):
+        if direction == "left":
+            continue
+        for walk in range(WALK_FRAMES):
+            box = (walk * ow_frame, index * ow_frame, ow_frame, ow_frame)
+            frame, entry = _frame_entry(rows[direction][walk], box, origins[direction][walk])
+            final["%s_%d" % (direction, walk)] = (
+                todo_frame(size, allowed, "%s_%d" % (direction, walk)) if frame is None else frame, entry)
+    # Left mirrors the frame that was actually pasted on the right, a TODO X included, so the mirror
+    # invariant holds even when the concept came out blank.
+    left_index = DIRECTIONS.index("left")
+    for walk in range(WALK_FRAMES):
+        name = "left_%d" % walk
+        box = (walk * ow_frame, left_index * ow_frame, ow_frame, ow_frame)
+        source_name = "right_%d" % walk
+        mirrored = final[source_name][0].transpose(Image.FLIP_LEFT_RIGHT)
+        frame, entry = _frame_entry(mirrored, box, "mirror of right")
+        if final[source_name][1].get("status") == "TODO":
+            # The mirror of a placeholder is a placeholder, even though its X has visible pixels.
+            entry = {"box": entry["box"], "origin": "mirror of right", "opaque": entry["opaque"],
+                     "status": "TODO", "reason": "mirror of the TODO %s frame" % source_name}
+            frame = None
+        final[name] = (todo_frame(size, allowed, name) if frame is None else frame, entry)
+
+    frames = {}
     for index, direction in enumerate(DIRECTIONS):
         for walk in range(WALK_FRAMES):
-            sheet.paste(row_frames[direction][walk], (walk * ow_frame, index * ow_frame))
+            name = "%s_%d" % (direction, walk)
+            frame, entry = final[name]
+            frames[name] = entry
+            sheet.paste(frame, (walk * ow_frame, index * ow_frame))
     sheet, safety = enforce_tile_colours(sheet)
     merges += safety["merges"]
-    for index, direction in enumerate(DIRECTIONS):
-        for walk in range(WALK_FRAMES):
-            frames["%s_%d" % (direction, walk)] = {
-                "box": [walk * ow_frame, index * ow_frame, ow_frame, ow_frame],
-                "origin": "mirror of right" if direction == "left" else
-                          ("pose" if _find_pose(poses, direction if direction != "right" else "right", "1")
-                           and walk == 1 else "concept" if walk == 0 else "bob"),
-            }
-    return sheet, {"frames": frames, "size": list(sheet.size),
-                   "max_colours_in_a_tile": safety["max_colours_in_a_tile"],
+
+    todo = [name for direction in DIRECTIONS for walk in range(WALK_FRAMES)
+            if frames["%s_%d" % (direction, walk)].get("status") == "TODO"
+            for name in ["%s_%d" % (direction, walk)]]
+    # Four rows read as four facings, but both walk frames of down and up are the same render as right,
+    # because nothing here rotates the concept. The sheet says so rather than leaving a reviewer to guess.
+    facing = {}
+    for walk in range(WALK_FRAMES):
+        twin = "right_%d" % walk
+        if frames[twin].get("status") == "TODO":
+            continue
+        for direction in ("down", "up"):
+            name = "%s_%d" % (direction, walk)
+            if frames[name].get("status") == "TODO":
+                continue
+            if (_crop_box(sheet, frames[name]["box"]).tobytes()
+                    == _crop_box(sheet, frames[twin]["box"]).tobytes()):
+                facing[name] = twin
+                frames[name]["facing"] = "same render as right"
+    if facing:
+        notes.append("not directional: %s byte identical to the right frame of the same walk column, so "
+                     "those rows hold one render and not four" % ", ".join(sorted(facing)))
+    return sheet, {"frames": frames, "size": list(sheet.size), "todo": todo, "facing": facing,
+                   "notes": notes, "max_colours_in_a_tile": safety["max_colours_in_a_tile"],
                    "merges": len(merges)}
 
 
@@ -482,28 +597,37 @@ def _concept_frame(concept: Image.Image, mask: Image.Image, size: tuple, allowed
 
 def build_battle(concept: Image.Image | None, mask: Image.Image | None, poses: dict, allowed,
                  max_colours: int = DEFAULT_MAX_COLOURS, stand_in: bool = False) -> tuple:
-    """The Castlevania style sheet: 24x32, idle 2, attack 3, hurt 1, down 1. No pose means TODO."""
+    """The Castlevania style sheet: 24x32, idle 2, attack 3, hurt 1, down 1. No visible frame means TODO."""
+    size = (BATTLE_W, BATTLE_H)
     sheet = Image.new("RGBA", (BATTLE_W * len(BATTLE_FRAMES), BATTLE_H), (0, 0, 0, 0))
     todo, made = [], {}
     for index, (role, which, name) in enumerate(BATTLE_FRAMES):
-        box = (index * BATTLE_W, 0)
+        box = (index * BATTLE_W, 0, BATTLE_W, BATTLE_H)
         path = _find_pose(poses, role, str(which))
         if path is None:
             path = _find_pose(poses, name)
+        frame, origin, reason = None, None, None
         if path:
-            frame, info = _pose_frame(path, (BATTLE_W, BATTLE_H), allowed, max_colours)
-            made[name] = {"source": path}
+            origin = path
+            try:
+                frame, info = _pose_frame(path, size, allowed, max_colours)
+            except InputError as exc:
+                reason = "pose image unreadable: %s" % str(exc)[:140]
         elif stand_in and concept is not None and mask is not None and index == 0:
-            frame, info = _concept_frame(concept, mask, (BATTLE_W, BATTLE_H), allowed, max_colours)
-            made[name] = {"source": "concept stand in, not a pose"}
+            frame, info = _concept_frame(concept, mask, size, allowed, max_colours)
+            origin = "concept stand in, not a pose"
         else:
-            frame = todo_frame((BATTLE_W, BATTLE_H), allowed, name)
+            reason = "no pose image for this frame"
+        frame, entry = _frame_entry(frame, box, origin, label_key="source", reason=reason)
+        if frame is None:
             todo.append(name)
-            made[name] = {"source": None, "status": "TODO"}
-        sheet.paste(frame, box)
+            frame = todo_frame(size, allowed, name)
+        made[name] = entry
+        sheet.paste(frame, (box[0], 0))
     sheet, safety = enforce_tile_colours(sheet)
     return sheet, {"frames": made, "size": list(sheet.size), "todo": todo,
                    "max_colours_in_a_tile": safety["max_colours_in_a_tile"]}
+
 
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -555,14 +679,20 @@ def run(concept_path: str, mask_path: str | None = None, poses_folder: str | Non
         out_dir: str = DEFAULT_OUT, max_colours: int = DEFAULT_MAX_COLOURS, stand_in: bool = False,
         palette_path_override: str | None = None) -> dict:
     """Concept to two sheets plus a report. Returns the report dict; writes everything it names."""
-    os.makedirs(out_dir, exist_ok=True)
-    concept = _load_rgba(concept_path)
-    if mask_path:
-        with Image.open(mask_path) as handle:
-            mask = handle.convert("L")
+    try:
+        concept = read_image(concept_path, "concept")
+        mask = None
+        if mask_path:
+            mask = read_image(mask_path, "mask", mode="L")
             if mask.size != concept.size:
                 mask = mask.resize(concept.size, NEAREST)
-        segment_info = {"mask_source": "supplied mask PNG", "detail": [os.path.basename(mask_path)]}
+    except InputError as exc:
+        # The shape collect_poses() already uses: a message, no traceback, exit 1.
+        raise SystemExit(str(exc))
+    os.makedirs(out_dir, exist_ok=True)
+    if mask is not None:
+        segment_info = {"mask_source": "supplied mask PNG",
+                        "detail": [os.path.basename(mask_path or "")]}
     else:
         segmented = segment(concept, path=concept_path)
         mask = segmented["mask"]
@@ -580,6 +710,15 @@ def run(concept_path: str, mask_path: str | None = None, poses_folder: str | Non
     checks = {name: check_sheet(paths[name], "sprite", palette_path_override) for name in paths}
     preview = build_preview({"overworld": overworld, "battle": battle},
                             os.path.join(out_dir, PREVIEW_NAME))
+    sheets = {"overworld": overworld, "battle": battle}
+    infos = {"overworld": ow_info, "battle": battle_info}
+    for name in sheets:
+        infos[name].update(sheet_verdict(sheets[name], infos[name]))
+    warnings = []
+    for name in ("overworld", "battle"):
+        if infos[name]["blank"]:
+            warnings.append("%s sheet holds no finished frame: %d of %d frames are TODO placeholders"
+                            % (name, infos[name]["todo_frames"], len(infos[name]["frames"])))
     report = {
         "concept": os.path.abspath(concept_path),
         "concept_size": list(concept.size),
@@ -592,12 +731,24 @@ def run(concept_path: str, mask_path: str | None = None, poses_folder: str | Non
         "overworld": dict(ow_info, path=paths["overworld"], nes_check=_summary(checks["overworld"])),
         "battle": dict(battle_info, path=paths["battle"], nes_check=_summary(checks["battle"])),
         "preview": preview,
-        "ok": all(report_ok for report_ok in (checks["overworld"]["ok"], checks["battle"]["ok"])),
+        "warnings": warnings,
+        # nes_check alone cannot see a blank sheet (0 colours is legal), so the visible pixel count and
+        # the finished frame count are part of the verdict too.
+        "ok": all(checks[name]["ok"] for name in checks) and not warnings,
     }
     with open(os.path.join(out_dir, REPORT_NAME), "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=2)
         handle.write("\n")
     return report
+
+
+def sheet_verdict(image: Image.Image, info: dict) -> dict:
+    """Visible pixel count and finished frame count for one sheet, so an empty sheet is never ok."""
+    todo = set(info.get("todo") or [])
+    finished = [name for name in info["frames"] if name not in todo]
+    visible = opaque_pixels(image)
+    return {"opaque_pixels": visible, "finished_frames": len(finished), "todo_frames": len(todo),
+            "blank": visible < BLANK_MIN_OPAQUE or not finished}
 
 
 def _summary(report: dict) -> dict:
@@ -617,16 +768,33 @@ def _print_report(report: dict, out_dir: str) -> None:
     for name in ("overworld", "battle"):
         sheet = report[name]
         check = sheet["nes_check"]
-        print("%-12s %s  %dx%d  %d colours  max %d colours in any 8x8 tile  %s"
+        print("%-12s %s  %dx%d  %d colours  max %d colours in any 8x8 tile  %d/8x8 tiles opaque  "
+              "%d opaque px  %s"
               % (name, os.path.basename(sheet["path"]), sheet["size"][0], sheet["size"][1],
                  check["colours"], sheet["max_colours_in_a_tile"],
+                 sheet["opaque_pixels"] // (TILE * TILE), sheet["opaque_pixels"],
                  "PASS nes_check" if check["ok"] else "FAIL nes_check (%d)" % check["problem_count"]))
-    if report["battle"]["todo"]:
-        print("battle TODO  %s" % ", ".join(report["battle"]["todo"]))
-    else:
-        print("battle TODO  none, every frame came from a pose image")
+        if sheet["todo"]:
+            print("%-12s TODO %s" % (name, _todo_line(sheet)))
+        else:
+            print("%-12s TODO none, every frame holds visible pixels" % name)
+        for note in sheet.get("notes") or []:
+            print("%-12s note %s" % (name, note))
+    for warning in report.get("warnings") or []:
+        print("WARNING      %s" % warning)
     print("preview      %s" % report["preview"])
     print("report       %s" % os.path.join(out_dir, REPORT_NAME))
+
+
+def _todo_line(sheet: dict) -> str:
+    """Every TODO frame, with the reason when it is not simply a missing pose."""
+    parts = []
+    for name in sheet["todo"]:
+        entry = sheet["frames"].get(name) or {}
+        reason = entry.get("reason")
+        parts.append("%s (%s)" % (name, reason) if reason else name)
+    return ", ".join(parts)
+
 
 
 # -----------------------------------------------------------------------------------------------------------------
