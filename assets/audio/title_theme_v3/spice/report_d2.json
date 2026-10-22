@@ -1,0 +1,1049 @@
+{
+  "bar_ticks": 1440,
+  "bars": 52,
+  "bytes_in": 13218,
+  "bytes_out": 14127,
+  "chip_limit": 8,
+  "dissonance": {
+    "by_device": {
+      "chromatic_neighbour": 9
+    },
+    "devices": [
+      {
+        "bar": 8,
+        "beat": 3.48,
+        "detail": "B4 dips to A#4 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 11272,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 16,
+        "beat": 3.48,
+        "detail": "B5 dips to A#5 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 22792,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 22,
+        "beat": 3.48,
+        "detail": "B4 dips to A#4 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 31432,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 25,
+        "beat": 3.48,
+        "detail": "A5 dips to G#5 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 35752,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 26,
+        "beat": 3.48,
+        "detail": "E5 dips to D#5 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 37192,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 33,
+        "beat": 3.48,
+        "detail": "A6 dips to G#6 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 47272,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 34,
+        "beat": 3.48,
+        "detail": "E6 dips to D#6 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 48712,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 43,
+        "beat": 3.48,
+        "detail": "G#4 dips to G4 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 61672,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 48,
+        "beat": 3.48,
+        "detail": "B4 dips to A#4 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 68872,
+        "voice": "vrc6 pulse a"
+      }
+    ],
+    "hook": {
+      "after": 66,
+      "allowed_drop": 5,
+      "before": 65,
+      "drop": -1,
+      "reverted": []
+    },
+    "injected": 9,
+    "notes_added": 18,
+    "protected_bars": [
+      2,
+      3,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      13,
+      14,
+      15,
+      17,
+      18,
+      19,
+      21,
+      23,
+      29,
+      31,
+      39,
+      45,
+      46,
+      47,
+      49,
+      50,
+      51
+    ],
+    "rejected": {
+      "F1": 19,
+      "F2/F3": 13,
+      "budget": 4,
+      "no": 5
+    },
+    "rules_source": "<repo>\\data\\dissonance_rules.json"
+  },
+  "dissonance_strength": 2,
+  "division": 480,
+  "drums": {
+    "bars": {
+      "10": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 1,
+        "section": "A"
+      },
+      "11": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 0,
+        "section": "A"
+      },
+      "12": {
+        "changed_steps": [
+          1,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-04 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-04",
+        "pattern": "WZ-06",
+        "rung": 3,
+        "section": "A"
+      },
+      "13": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 5,
+        "section": "A_prime"
+      },
+      "14": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 1,
+        "section": "A_prime"
+      },
+      "15": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 0,
+        "section": "A_prime"
+      },
+      "16": {
+        "changed_steps": [
+          1,
+          5,
+          9,
+          10
+        ],
+        "changes": [
+          "fill FLF-05 over the last 4 step(s)",
+          "2 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": "FLF-05",
+        "pattern": "WZ-21",
+        "rung": 3,
+        "section": "A_prime"
+      },
+      "17": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 0,
+        "section": "A_prime"
+      },
+      "18": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 1,
+        "section": "A_prime"
+      },
+      "19": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 0,
+        "section": "A_prime"
+      },
+      "20": {
+        "changed_steps": [
+          1,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-04 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-04",
+        "pattern": "WZ-21",
+        "rung": 3,
+        "section": "A_prime"
+      },
+      "21": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)",
+          "4 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 5,
+        "section": "B"
+      },
+      "22": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2",
+          "5 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 1,
+        "section": "B"
+      },
+      "23": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "4 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 0,
+        "section": "B"
+      },
+      "24": {
+        "changed_steps": [
+          1,
+          5,
+          9,
+          10
+        ],
+        "changes": [
+          "fill FLF-05 over the last 4 step(s)",
+          "8 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": "FLF-05",
+        "pattern": "WZ-15",
+        "rung": 3,
+        "section": "B"
+      },
+      "25": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "4 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 0,
+        "section": "B"
+      },
+      "26": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2",
+          "5 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 1,
+        "section": "B"
+      },
+      "27": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "4 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 0,
+        "section": "B"
+      },
+      "28": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-10 over the last 8 step(s)",
+          "2 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": "FLX-10",
+        "pattern": "WZ-15",
+        "rung": 3,
+        "section": "B"
+      },
+      "29": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 5,
+        "section": "B_prime"
+      },
+      "30": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 1,
+        "section": "B_prime"
+      },
+      "31": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 0,
+        "section": "B_prime"
+      },
+      "32": {
+        "changed_steps": [
+          1,
+          5,
+          9,
+          10,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-03 over the last 4 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-03",
+        "pattern": "WZ-21",
+        "rung": 3,
+        "section": "B_prime"
+      },
+      "33": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 0,
+        "section": "B_prime"
+      },
+      "34": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 1,
+        "section": "B_prime"
+      },
+      "35": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 0,
+        "section": "B_prime"
+      },
+      "36": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-10 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-10",
+        "pattern": "WZ-21",
+        "rung": 3,
+        "section": "B_prime"
+      },
+      "37": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 5,
+        "section": "C_trio"
+      },
+      "38": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 1,
+        "section": "C_trio"
+      },
+      "39": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 0,
+        "section": "C_trio"
+      },
+      "40": {
+        "changed_steps": [
+          1,
+          5,
+          9,
+          12
+        ],
+        "changes": [
+          "fill FLX-09 over the last 4 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-09",
+        "pattern": "CLM-06",
+        "rung": 3,
+        "section": "C_trio"
+      },
+      "41": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 0,
+        "section": "C_trio"
+      },
+      "42": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 1,
+        "section": "C_trio"
+      },
+      "43": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 0,
+        "section": "C_trio"
+      },
+      "44": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-10 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-10",
+        "pattern": "CLM-06",
+        "rung": 3,
+        "section": "C_trio"
+      },
+      "45": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 5,
+        "section": "A_return"
+      },
+      "46": {
+        "changed_steps": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 1,
+        "section": "A_return"
+      },
+      "47": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 0,
+        "section": "A_return"
+      },
+      "48": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLF-01 over the last 4 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLF-01",
+        "pattern": "WZ-12",
+        "rung": 3,
+        "section": "A_return"
+      },
+      "49": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 0,
+        "section": "A_return"
+      },
+      "5": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 5,
+        "section": "A"
+      },
+      "50": {
+        "changed_steps": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 1,
+        "section": "A_return"
+      },
+      "51": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 0,
+        "section": "A_return"
+      },
+      "52": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-10 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-10",
+        "pattern": "WZ-12",
+        "rung": 3,
+        "section": "A_return"
+      },
+      "6": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 1,
+        "section": "A"
+      },
+      "7": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 0,
+        "section": "A"
+      },
+      "8": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9,
+          10,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-03 over the last 4 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-03",
+        "pattern": "WZ-06",
+        "rung": 3,
+        "section": "A"
+      },
+      "9": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 0,
+        "section": "A"
+      }
+    },
+    "changed_steps": 233,
+    "crashes": 6,
+    "displaced_accents": 0,
+    "fills": 12,
+    "ghost_notes": 12,
+    "hemiola_bars": [],
+    "hits_dropped": 38,
+    "kicks_dropped": 0,
+    "patterns": {
+      "CLM-06": 8,
+      "WZ-06": 8,
+      "WZ-12": 8,
+      "WZ-15": 8,
+      "WZ-21": 16
+    },
+    "silent_bars": [],
+    "source": "<repo>\\data\\drum_patterns.json",
+    "steps_in": 152,
+    "steps_out": 238
+  },
+  "drums_strength": 2,
+  "humanize": null,
+  "key": null,
+  "leitmotif": {
+    "bars": [
+      2,
+      3,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      13,
+      14,
+      15,
+      17,
+      18,
+      19,
+      21,
+      23,
+      29,
+      31,
+      39,
+      45,
+      46,
+      47,
+      49,
+      50,
+      51
+    ],
+    "count": 25,
+    "identical": true,
+    "notes_after": 91,
+    "notes_before": 91,
+    "sha256_after": "b2c5b0743ad640e8527a80a3310edbce8e538626538cf86321f0dc0cc8dda480",
+    "sha256_before": "b2c5b0743ad640e8527a80a3310edbce8e538626538cf86321f0dc0cc8dda480"
+  },
+  "max_simultaneous_notes": 8,
+  "melody_unchanged_outside_devices": {
+    "notes": 119,
+    "passed": true
+  },
+  "midi_in": "<repo>\\assets\\audio\\title_theme_v3\\title_theme_v3_126.mid",
+  "midi_out": "<repo>\\assets\\audio\\title_theme_v3\\spice\\title_theme_v3_126_spice_d2.mid",
+  "peak_simultaneous_in": 8,
+  "score": null,
+  "sections": [
+    {
+      "bars": 4,
+      "first_bar": 1,
+      "name": "intro"
+    },
+    {
+      "bars": 8,
+      "first_bar": 5,
+      "name": "A"
+    },
+    {
+      "bars": 8,
+      "first_bar": 13,
+      "name": "A_prime"
+    },
+    {
+      "bars": 8,
+      "first_bar": 21,
+      "name": "B"
+    },
+    {
+      "bars": 8,
+      "first_bar": 29,
+      "name": "B_prime"
+    },
+    {
+      "bars": 8,
+      "first_bar": 37,
+      "name": "C_trio"
+    },
+    {
+      "bars": 8,
+      "first_bar": 45,
+      "name": "A_return"
+    }
+  ],
+  "sections_known": true,
+  "seed": 20261022,
+  "sha256_in": "481bcb4ea1dea7d646d6f8c720a44271a259e4ae4ad20760d03eeeece84369f7",
+  "sha256_out": "2f932c845c3602197c22c88e35ebff93ee6ce2732b3eeb4ae70857b4c5455fd4",
+  "tempo_us": 476190,
+  "time_sig": "3/4",
+  "tool": "spice.py",
+  "warnings": []
+}

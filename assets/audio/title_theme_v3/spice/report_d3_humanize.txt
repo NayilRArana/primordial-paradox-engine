@@ -1,0 +1,80 @@
+spice: <repo>\assets\audio\title_theme_v3\title_theme_v3_126.mid
+  out <repo>\assets\audio\title_theme_v3\spice\title_theme_v3_126_spice_d3_humanized.mid
+  seed 20261022 | drums 3 | dissonance 3 | 52 bars | 3/4 | 1440 ticks per bar
+  drums: 8 pattern(s) over 48 bar(s), 266 drum steps changed (input 152 steps, output 268)
+    fills 6 | crashes 6 | ghost notes 12 | displaced accents 3 | kicks dropped 6 | hemiola bars 7,8,15,16,23,24,31,32,39,40,47,48
+    pattern CLM-06   6 bar(s)
+    pattern WZ-02    6 bar(s)
+    pattern WZ-03    6 bar(s)
+    pattern WZ-06    6 bar(s)
+    pattern WZ-09    6 bar(s)
+    pattern WZ-12    6 bar(s)
+    pattern WZ-15    6 bar(s)
+    pattern WZ-21    6 bar(s)
+    bar  5 A         WZ-06    rung 5     4 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar  6 A         WZ-06    rung 1     5 step(s) changed  ghost note at step 2
+    bar  7 A         WZ-02    rung hemiola  6 step(s) changed  hemiola bar from WZ-02
+    bar  8 A         WZ-03    rung hemiola  5 step(s) changed  hemiola bar from WZ-03
+    bar  9 A         WZ-06    rung 2     4 step(s) changed  kick moved from step 7 to step 11
+    bar 10 A         WZ-06    rung 1     5 step(s) changed  ghost note at step 2
+    bar 11 A         WZ-06    rung 4     2 step(s) changed  kick dropped for the bar
+    bar 12 A         WZ-06    rung 3     6 step(s) changed  fill FLX-10 over the last 8 step(s); 1 quiet hit(s) dropped to stay inside the arrangement's note ceiling
+    bar 13 A_prime   WZ-09    rung 5     6 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar 14 A_prime   WZ-09    rung 1     7 step(s) changed  ghost note at step 2
+    bar 15 A_prime   WZ-02    rung hemiola  6 step(s) changed  hemiola bar from WZ-02
+    bar 16 A_prime   WZ-03    rung hemiola  5 step(s) changed  hemiola bar from WZ-03
+    bar 17 A_prime   WZ-09    rung 2     6 step(s) changed  kick moved from step 6 to step 7
+    bar 18 A_prime   WZ-09    rung 1     7 step(s) changed  ghost note at step 2
+    bar 19 A_prime   WZ-09    rung 4     5 step(s) changed  kick dropped for the bar
+    bar 20 A_prime   WZ-09    rung 3     8 step(s) changed  fill FLX-10 over the last 8 step(s)
+    bar 21 B         WZ-12    rung 5     4 step(s) changed  crash on the downbeat (period 13, one beat); 2 quiet hit(s) dropped to stay inside the arrangement's note ceiling
+    bar 22 B         WZ-12    rung 1     4 step(s) changed  ghost note at step 2; 3 quiet hit(s) dropped to stay inside the arrangement's note ceiling
+    bar 23 B         WZ-02    rung hemiola  6 step(s) changed  hemiola bar from WZ-02
+    bar 24 B         WZ-03    rung hemiola  5 step(s) changed  hemiola bar from WZ-03
+    bar 25 B         WZ-12    rung 2     6 step(s) changed  home pattern
+    bar 26 B         WZ-12    rung 1     4 step(s) changed  ghost note at step 2; 3 quiet hit(s) dropped to stay inside the arrangement's note ceiling
+    bar 27 B         WZ-12    rung 4     6 step(s) changed  kick dropped for the bar
+    bar 28 B         WZ-12    rung 3    10 step(s) changed  fill FLX-04 over the last 8 step(s)
+    bar 29 B_prime   WZ-15    rung 5     8 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar 30 B_prime   WZ-15    rung 1     9 step(s) changed  ghost note at step 2
+    bar 31 B_prime   WZ-02    rung hemiola  6 step(s) changed  hemiola bar from WZ-02
+    bar 32 B_prime   WZ-03    rung hemiola  5 step(s) changed  hemiola bar from WZ-03
+    bar 33 B_prime   WZ-15    rung 2     8 step(s) changed  home pattern
+    bar 34 B_prime   WZ-15    rung 1     9 step(s) changed  ghost note at step 2
+    bar 35 B_prime   WZ-15    rung 4     8 step(s) changed  kick dropped for the bar
+    bar 36 B_prime   WZ-15    rung 3    10 step(s) changed  fill FLX-04 over the last 8 step(s)
+    bar 37 C_trio    CLM-06   rung 5     3 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar 38 C_trio    CLM-06   rung 1     4 step(s) changed  ghost note at step 2
+    bar 39 C_trio    WZ-02    rung hemiola  6 step(s) changed  hemiola bar from WZ-02
+    bar 40 C_trio    WZ-03    rung hemiola  5 step(s) changed  hemiola bar from WZ-03
+    bar 41 C_trio    CLM-06   rung 2     3 step(s) changed  home pattern
+    bar 42 C_trio    CLM-06   rung 1     4 step(s) changed  ghost note at step 2
+    bar 43 C_trio    CLM-06   rung 4     3 step(s) changed  kick dropped for the bar
+    bar 44 C_trio    CLM-06   rung 3     7 step(s) changed  fill FLX-10 over the last 8 step(s)
+    bar 45 A_return  WZ-21    rung 5     3 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar 46 A_return  WZ-21    rung 1     4 step(s) changed  ghost note at step 2
+    bar 47 A_return  WZ-02    rung hemiola  6 step(s) changed  hemiola bar from WZ-02
+    bar 48 A_return  WZ-03    rung hemiola  5 step(s) changed  hemiola bar from WZ-03
+    bar 49 A_return  WZ-21    rung 2     4 step(s) changed  kick moved from step 5 to step 7
+    bar 50 A_return  WZ-21    rung 1     4 step(s) changed  ghost note at step 2
+    bar 51 A_return  WZ-21    rung 4     3 step(s) changed  kick dropped for the bar; soft hat on beat 2 keeps the time
+    bar 52 A_return  WZ-21    rung 3     7 step(s) changed  fill FLX-10 over the last 8 step(s)
+  dissonance: 10 device(s), 15 note(s) added
+    bar  3 beat 1.0  vrc6 saw      dominant_flat_nine   DIS-11 F3 flat ninth over E7
+    bar  8 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 B4 dips to A#4 and returns
+    bar 16 beat 1.25 pulse 2       echo_semitone_clash  DIS-18 echo A#5 against the lead B5
+    bar 19 beat 3.0  vrc6 saw      dominant_flat_nine   DIS-11 F3 flat ninth over E7
+    bar 22 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 B4 dips to A#4 and returns
+    bar 25 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 A5 dips to G#5 and returns
+    bar 26 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 E5 dips to D#5 and returns
+    bar 35 beat 1.0  vrc6 saw      dominant_flat_nine   DIS-11 F3 flat ninth over E7
+    bar 48 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 B4 dips to A#4 and returns
+    bar 51 beat 3.0  vrc6 saw      dominant_flat_nine   DIS-11 F3 flat ninth over E7
+    refused: F1 11, F2/F3 13, F4 risk3 spacing 7, no 2, risk3_budget 7
+  leitmotif: 25 frozen bar(s) 2,3,5,6,7,9,10,11,13,14,15,17,18,19,21,23,29,31,39,45,46,47,49,50,51
+    melody events identical: yes (91 notes, sha b2c5b0743ad640e8)
+    melody outside the device bars unchanged: yes (111 notes)
+  hook_score: 65 before, 68 after, drop -3 (allowed 5)
+  notes sounding at once: 8 (the arrangement peaks at 8, the chip declares 8)
+  humanize rerun: seed 20261022, 1144 notes changed, 20 fills, sha bde8c2f221256120
+  json: <repo>\assets\audio\title_theme_v3\spice\report_d3_humanize.json

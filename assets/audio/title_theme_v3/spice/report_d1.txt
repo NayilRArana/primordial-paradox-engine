@@ -1,0 +1,72 @@
+spice: <repo>\assets\audio\title_theme_v3\title_theme_v3_126.mid
+  out <repo>\assets\audio\title_theme_v3\spice\title_theme_v3_126_spice_d1.mid
+  seed 20261022 | drums 1 | dissonance 1 | 52 bars | 3/4 | 1440 ticks per bar
+  drums: 5 pattern(s) over 48 bar(s), 206 drum steps changed (input 152 steps, output 198)
+    fills 0 | crashes 6 | ghost notes 0 | displaced accents 0 | kicks dropped 0 | hemiola bars none
+    pattern CLM-06   8 bar(s)
+    pattern WZ-06    8 bar(s)
+    pattern WZ-09    8 bar(s)
+    pattern WZ-21    16 bar(s)
+    pattern WZ-29    8 bar(s)
+    bar  5 A         WZ-06    rung 5     4 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar  6 A         WZ-06    rung 0     4 step(s) changed  home pattern
+    bar  7 A         WZ-06    rung 0     4 step(s) changed  home pattern
+    bar  8 A         WZ-06    rung 0     4 step(s) changed  home pattern
+    bar  9 A         WZ-06    rung 0     4 step(s) changed  home pattern
+    bar 10 A         WZ-06    rung 0     4 step(s) changed  home pattern
+    bar 11 A         WZ-06    rung 0     4 step(s) changed  home pattern
+    bar 12 A         WZ-06    rung 0     5 step(s) changed  home pattern
+    bar 13 A_prime   WZ-21    rung 5     3 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar 14 A_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 15 A_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 16 A_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 17 A_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 18 A_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 19 A_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 20 A_prime   WZ-21    rung 0     5 step(s) changed  home pattern
+    bar 21 B         WZ-09    rung 5     6 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar 22 B         WZ-09    rung 0     6 step(s) changed  home pattern
+    bar 23 B         WZ-09    rung 0     6 step(s) changed  home pattern
+    bar 24 B         WZ-09    rung 0     6 step(s) changed  home pattern
+    bar 25 B         WZ-09    rung 0     6 step(s) changed  home pattern
+    bar 26 B         WZ-09    rung 0     6 step(s) changed  home pattern
+    bar 27 B         WZ-09    rung 0     6 step(s) changed  home pattern
+    bar 28 B         WZ-09    rung 0     7 step(s) changed  home pattern
+    bar 29 B_prime   WZ-21    rung 5     3 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar 30 B_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 31 B_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 32 B_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 33 B_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 34 B_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 35 B_prime   WZ-21    rung 0     3 step(s) changed  home pattern
+    bar 36 B_prime   WZ-21    rung 0     5 step(s) changed  home pattern
+    bar 37 C_trio    CLM-06   rung 5     3 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar 38 C_trio    CLM-06   rung 0     3 step(s) changed  home pattern
+    bar 39 C_trio    CLM-06   rung 0     3 step(s) changed  home pattern
+    bar 40 C_trio    CLM-06   rung 0     3 step(s) changed  home pattern
+    bar 41 C_trio    CLM-06   rung 0     3 step(s) changed  home pattern
+    bar 42 C_trio    CLM-06   rung 0     3 step(s) changed  home pattern
+    bar 43 C_trio    CLM-06   rung 0     3 step(s) changed  home pattern
+    bar 44 C_trio    CLM-06   rung 0     3 step(s) changed  home pattern
+    bar 45 A_return  WZ-29    rung 5     6 step(s) changed  crash on the downbeat (period 13, one beat)
+    bar 46 A_return  WZ-29    rung 0     6 step(s) changed  home pattern
+    bar 47 A_return  WZ-29    rung 0     6 step(s) changed  home pattern
+    bar 48 A_return  WZ-29    rung 0     6 step(s) changed  home pattern
+    bar 49 A_return  WZ-29    rung 0     6 step(s) changed  home pattern
+    bar 50 A_return  WZ-29    rung 0     6 step(s) changed  home pattern
+    bar 51 A_return  WZ-29    rung 0     6 step(s) changed  home pattern
+    bar 52 A_return  WZ-29    rung 0     6 step(s) changed  home pattern
+  dissonance: 6 device(s), 12 note(s) added
+    bar  8 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 B4 dips to A#4 and returns
+    bar 16 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 B5 dips to A#5 and returns
+    bar 22 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 B4 dips to A#4 and returns
+    bar 25 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 A5 dips to G#5 and returns
+    bar 33 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 A6 dips to G#6 and returns
+    bar 43 beat 3.48 vrc6 pulse a  chromatic_neighbour  DIS-02 G#4 dips to G4 and returns
+    refused: F1 19, F2/F3 13, budget 7, no 5
+  leitmotif: 25 frozen bar(s) 2,3,5,6,7,9,10,11,13,14,15,17,18,19,21,23,29,31,39,45,46,47,49,50,51
+    melody events identical: yes (91 notes, sha b2c5b0743ad640e8)
+    melody outside the device bars unchanged: yes (124 notes)
+  hook_score: 65 before, 68 after, drop -3 (allowed 5)
+  notes sounding at once: 8 (the arrangement peaks at 8, the chip declares 8)
+  json: <repo>\assets\audio\title_theme_v3\spice\report_d1.json

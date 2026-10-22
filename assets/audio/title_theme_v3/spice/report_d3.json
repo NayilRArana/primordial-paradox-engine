@@ -1,0 +1,1134 @@
+{
+  "bar_ticks": 1440,
+  "bars": 52,
+  "bytes_in": 13218,
+  "bytes_out": 14349,
+  "chip_limit": 8,
+  "dissonance": {
+    "by_device": {
+      "chromatic_neighbour": 5,
+      "dominant_flat_nine": 4,
+      "echo_semitone_clash": 1
+    },
+    "devices": [
+      {
+        "bar": 3,
+        "beat": 1.0,
+        "detail": "F3 flat ninth over E7",
+        "device": "dominant_flat_nine",
+        "risk": 3,
+        "rule": "DIS-11",
+        "tick": 2880,
+        "voice": "vrc6 saw"
+      },
+      {
+        "bar": 8,
+        "beat": 3.48,
+        "detail": "B4 dips to A#4 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 11272,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 16,
+        "beat": 1.25,
+        "detail": "echo A#5 against the lead B5",
+        "device": "echo_semitone_clash",
+        "risk": 3,
+        "rule": "DIS-18",
+        "tick": 21720,
+        "voice": "pulse 2"
+      },
+      {
+        "bar": 19,
+        "beat": 3.0,
+        "detail": "F3 flat ninth over E7",
+        "device": "dominant_flat_nine",
+        "risk": 3,
+        "rule": "DIS-11",
+        "tick": 26880,
+        "voice": "vrc6 saw"
+      },
+      {
+        "bar": 22,
+        "beat": 3.48,
+        "detail": "B4 dips to A#4 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 31432,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 25,
+        "beat": 3.48,
+        "detail": "A5 dips to G#5 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 35752,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 26,
+        "beat": 3.48,
+        "detail": "E5 dips to D#5 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 37192,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 35,
+        "beat": 1.0,
+        "detail": "F3 flat ninth over E7",
+        "device": "dominant_flat_nine",
+        "risk": 3,
+        "rule": "DIS-11",
+        "tick": 48960,
+        "voice": "vrc6 saw"
+      },
+      {
+        "bar": 48,
+        "beat": 3.48,
+        "detail": "B4 dips to A#4 and returns",
+        "device": "chromatic_neighbour",
+        "risk": 1,
+        "rule": "DIS-02",
+        "tick": 68872,
+        "voice": "vrc6 pulse a"
+      },
+      {
+        "bar": 51,
+        "beat": 3.0,
+        "detail": "F3 flat ninth over E7",
+        "device": "dominant_flat_nine",
+        "risk": 3,
+        "rule": "DIS-11",
+        "tick": 72960,
+        "voice": "vrc6 saw"
+      }
+    ],
+    "hook": {
+      "after": 68,
+      "allowed_drop": 5,
+      "before": 65,
+      "drop": -3,
+      "reverted": []
+    },
+    "injected": 10,
+    "notes_added": 15,
+    "protected_bars": [
+      2,
+      3,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      13,
+      14,
+      15,
+      17,
+      18,
+      19,
+      21,
+      23,
+      29,
+      31,
+      39,
+      45,
+      46,
+      47,
+      49,
+      50,
+      51
+    ],
+    "rejected": {
+      "F1": 11,
+      "F2/F3": 13,
+      "F4 risk3 spacing": 7,
+      "no": 2,
+      "risk3_budget": 7
+    },
+    "rules_source": "<repo>\\data\\dissonance_rules.json"
+  },
+  "dissonance_strength": 3,
+  "division": 480,
+  "drums": {
+    "bars": {
+      "10": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 1,
+        "section": "A"
+      },
+      "11": {
+        "changed_steps": [
+          5,
+          9
+        ],
+        "changes": [
+          "kick dropped for the bar"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 4,
+        "section": "A"
+      },
+      "12": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-10 over the last 8 step(s)",
+          "1 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": "FLX-10",
+        "pattern": "WZ-06",
+        "rung": 3,
+        "section": "A"
+      },
+      "13": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          6,
+          9,
+          11
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-09",
+        "rung": 5,
+        "section": "A_prime"
+      },
+      "14": {
+        "changed_steps": [
+          1,
+          2,
+          3,
+          5,
+          6,
+          9,
+          11
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-09",
+        "rung": 1,
+        "section": "A_prime"
+      },
+      "15": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-02"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-02",
+        "rung": "hemiola",
+        "section": "A_prime"
+      },
+      "16": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-03"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-03",
+        "rung": "hemiola",
+        "section": "A_prime"
+      },
+      "17": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "kick moved from step 6 to step 7"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-09",
+        "rung": 2,
+        "section": "A_prime"
+      },
+      "18": {
+        "changed_steps": [
+          1,
+          2,
+          3,
+          5,
+          6,
+          9,
+          11
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-09",
+        "rung": 1,
+        "section": "A_prime"
+      },
+      "19": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          9,
+          11
+        ],
+        "changes": [
+          "kick dropped for the bar"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-09",
+        "rung": 4,
+        "section": "A_prime"
+      },
+      "20": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-10 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-10",
+        "pattern": "WZ-09",
+        "rung": 3,
+        "section": "A_prime"
+      },
+      "21": {
+        "changed_steps": [
+          1,
+          5,
+          9,
+          11
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)",
+          "2 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 5,
+        "section": "B"
+      },
+      "22": {
+        "changed_steps": [
+          1,
+          5,
+          9,
+          11
+        ],
+        "changes": [
+          "ghost note at step 2",
+          "3 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 1,
+        "section": "B"
+      },
+      "23": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-02"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-02",
+        "rung": "hemiola",
+        "section": "B"
+      },
+      "24": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-03"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-03",
+        "rung": "hemiola",
+        "section": "B"
+      },
+      "25": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 2,
+        "section": "B"
+      },
+      "26": {
+        "changed_steps": [
+          1,
+          5,
+          9,
+          11
+        ],
+        "changes": [
+          "ghost note at step 2",
+          "3 quiet hit(s) dropped to stay inside the arrangement's note ceiling"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 1,
+        "section": "B"
+      },
+      "27": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "kick dropped for the bar"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-12",
+        "rung": 4,
+        "section": "B"
+      },
+      "28": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-04 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-04",
+        "pattern": "WZ-12",
+        "rung": 3,
+        "section": "B"
+      },
+      "29": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 5,
+        "section": "B_prime"
+      },
+      "30": {
+        "changed_steps": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 1,
+        "section": "B_prime"
+      },
+      "31": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-02"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-02",
+        "rung": "hemiola",
+        "section": "B_prime"
+      },
+      "32": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-03"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-03",
+        "rung": "hemiola",
+        "section": "B_prime"
+      },
+      "33": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 2,
+        "section": "B_prime"
+      },
+      "34": {
+        "changed_steps": [
+          1,
+          2,
+          3,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 1,
+        "section": "B_prime"
+      },
+      "35": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "kick dropped for the bar"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-15",
+        "rung": 4,
+        "section": "B_prime"
+      },
+      "36": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-04 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-04",
+        "pattern": "WZ-15",
+        "rung": 3,
+        "section": "B_prime"
+      },
+      "37": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 5,
+        "section": "C_trio"
+      },
+      "38": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 1,
+        "section": "C_trio"
+      },
+      "39": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-02"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-02",
+        "rung": "hemiola",
+        "section": "C_trio"
+      },
+      "40": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-03"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-03",
+        "rung": "hemiola",
+        "section": "C_trio"
+      },
+      "41": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [],
+        "crash": false,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 2,
+        "section": "C_trio"
+      },
+      "42": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 1,
+        "section": "C_trio"
+      },
+      "43": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [
+          "kick dropped for the bar"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "CLM-06",
+        "rung": 4,
+        "section": "C_trio"
+      },
+      "44": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-10 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-10",
+        "pattern": "CLM-06",
+        "rung": 3,
+        "section": "C_trio"
+      },
+      "45": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 5,
+        "section": "A_return"
+      },
+      "46": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 1,
+        "section": "A_return"
+      },
+      "47": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-02"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-02",
+        "rung": "hemiola",
+        "section": "A_return"
+      },
+      "48": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-03"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-03",
+        "rung": "hemiola",
+        "section": "A_return"
+      },
+      "49": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "kick moved from step 5 to step 7"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 2,
+        "section": "A_return"
+      },
+      "5": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "crash on the downbeat (period 13, one beat)"
+        ],
+        "crash": true,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 5,
+        "section": "A"
+      },
+      "50": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 1,
+        "section": "A_return"
+      },
+      "51": {
+        "changed_steps": [
+          1,
+          5,
+          9
+        ],
+        "changes": [
+          "kick dropped for the bar",
+          "soft hat on beat 2 keeps the time"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-21",
+        "rung": 4,
+        "section": "A_return"
+      },
+      "52": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          8,
+          9,
+          11,
+          12
+        ],
+        "changes": [
+          "fill FLX-10 over the last 8 step(s)"
+        ],
+        "crash": false,
+        "fill": "FLX-10",
+        "pattern": "WZ-21",
+        "rung": 3,
+        "section": "A_return"
+      },
+      "6": {
+        "changed_steps": [
+          1,
+          2,
+          5,
+          7,
+          9
+        ],
+        "changes": [
+          "ghost note at step 2"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 1,
+        "section": "A"
+      },
+      "7": {
+        "changed_steps": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-02"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-02",
+        "rung": "hemiola",
+        "section": "A"
+      },
+      "8": {
+        "changed_steps": [
+          1,
+          5,
+          7,
+          9,
+          11
+        ],
+        "changes": [
+          "hemiola bar from WZ-03"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-03",
+        "rung": "hemiola",
+        "section": "A"
+      },
+      "9": {
+        "changed_steps": [
+          1,
+          5,
+          9,
+          11
+        ],
+        "changes": [
+          "kick moved from step 7 to step 11"
+        ],
+        "crash": false,
+        "fill": null,
+        "pattern": "WZ-06",
+        "rung": 2,
+        "section": "A"
+      }
+    },
+    "changed_steps": 266,
+    "crashes": 6,
+    "displaced_accents": 3,
+    "fills": 6,
+    "ghost_notes": 12,
+    "hemiola_bars": [
+      7,
+      8,
+      15,
+      16,
+      23,
+      24,
+      31,
+      32,
+      39,
+      40,
+      47,
+      48
+    ],
+    "hits_dropped": 9,
+    "kicks_dropped": 6,
+    "patterns": {
+      "CLM-06": 6,
+      "WZ-02": 6,
+      "WZ-03": 6,
+      "WZ-06": 6,
+      "WZ-09": 6,
+      "WZ-12": 6,
+      "WZ-15": 6,
+      "WZ-21": 6
+    },
+    "silent_bars": [],
+    "source": "<repo>\\data\\drum_patterns.json",
+    "steps_in": 152,
+    "steps_out": 268
+  },
+  "drums_strength": 3,
+  "humanize": null,
+  "key": null,
+  "leitmotif": {
+    "bars": [
+      2,
+      3,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      13,
+      14,
+      15,
+      17,
+      18,
+      19,
+      21,
+      23,
+      29,
+      31,
+      39,
+      45,
+      46,
+      47,
+      49,
+      50,
+      51
+    ],
+    "count": 25,
+    "identical": true,
+    "notes_after": 91,
+    "notes_before": 91,
+    "sha256_after": "b2c5b0743ad640e8527a80a3310edbce8e538626538cf86321f0dc0cc8dda480",
+    "sha256_before": "b2c5b0743ad640e8527a80a3310edbce8e538626538cf86321f0dc0cc8dda480"
+  },
+  "max_simultaneous_notes": 8,
+  "melody_unchanged_outside_devices": {
+    "notes": 111,
+    "passed": true
+  },
+  "midi_in": "<repo>\\assets\\audio\\title_theme_v3\\title_theme_v3_126.mid",
+  "midi_out": "<repo>\\assets\\audio\\title_theme_v3\\spice\\title_theme_v3_126_spice_d3.mid",
+  "peak_simultaneous_in": 8,
+  "score": null,
+  "sections": [
+    {
+      "bars": 4,
+      "first_bar": 1,
+      "name": "intro"
+    },
+    {
+      "bars": 8,
+      "first_bar": 5,
+      "name": "A"
+    },
+    {
+      "bars": 8,
+      "first_bar": 13,
+      "name": "A_prime"
+    },
+    {
+      "bars": 8,
+      "first_bar": 21,
+      "name": "B"
+    },
+    {
+      "bars": 8,
+      "first_bar": 29,
+      "name": "B_prime"
+    },
+    {
+      "bars": 8,
+      "first_bar": 37,
+      "name": "C_trio"
+    },
+    {
+      "bars": 8,
+      "first_bar": 45,
+      "name": "A_return"
+    }
+  ],
+  "sections_known": true,
+  "seed": 20261022,
+  "sha256_in": "481bcb4ea1dea7d646d6f8c720a44271a259e4ae4ad20760d03eeeece84369f7",
+  "sha256_out": "b9898ffece9e1f9c3b0d1f7dd7f9626130efaf170eda41cbba7218fa0f1a9c54",
+  "tempo_us": 476190,
+  "time_sig": "3/4",
+  "tool": "spice.py",
+  "warnings": []
+}
