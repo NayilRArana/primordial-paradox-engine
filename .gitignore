@@ -20,5 +20,20 @@ game/.resource_order
 # Igor build products and its cache. Measured 2026-10-21: output/ held 17 untracked files
 # including PrimordialParadox.exe (7.9 MB) and PrimordialParadox.win, and the repo root
 # .gitignore did not cover them, so a build would have committed 8 MB of binary.
-output/
+#
+# The review previews below stay tracked. tests/test_make_env_ship.py,
+# tests/test_make_title_world.py and tests/test_sfx.py assert they exist and call them "the
+# picture the manager reviews", so a clean checkout must have them. Note the exclusion is
+# output/* and not output/: git never descends into an excluded directory, so a negation
+# under output/ would be a dead line, which is exactly how the title theme MIDI exceptions
+# silently did nothing earlier.
+output/*
+!output/env_ship_preview.png
+!output/nes_ui_preview.png
+!output/title_ui_preview.png
+!output/ts2_world_preview.png
+!output/ts2_bigben_preview.png
+!output/sfx_preview_3x.png
+!output/render2_demo_preview.png
+!output/scene_palettes.json
 cache/

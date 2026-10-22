@@ -1,0 +1,633 @@
+{
+  "failures": [],
+  "scenes": {
+    "ship": {
+      "backdrop": 15,
+      "background_colours": 9,
+      "background_palettes": [
+        [
+          [
+            124,
+            124,
+            124
+          ],
+          [
+            188,
+            188,
+            188
+          ],
+          [
+            252,
+            252,
+            252
+          ]
+        ],
+        [
+          [
+            0,
+            88,
+            248
+          ],
+          [
+            248,
+            184,
+            0
+          ],
+          [
+            252,
+            252,
+            252
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            188
+          ],
+          [
+            136,
+            20,
+            0
+          ],
+          [
+            228,
+            92,
+            16
+          ]
+        ],
+        [
+          [
+            124,
+            124,
+            124
+          ],
+          [
+            0,
+            0,
+            188
+          ],
+          [
+            60,
+            188,
+            252
+          ]
+        ]
+      ],
+      "distinct_colours": 13,
+      "limit": 25,
+      "scene": "ship",
+      "sprite_colours": 12,
+      "sprite_palettes": [
+        [
+          [
+            124,
+            124,
+            124
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            188,
+            188,
+            188
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            188
+          ],
+          [
+            0,
+            88,
+            248
+          ],
+          [
+            252,
+            252,
+            252
+          ]
+        ],
+        [
+          [
+            136,
+            20,
+            0
+          ],
+          [
+            228,
+            92,
+            16
+          ],
+          [
+            240,
+            208,
+            176
+          ]
+        ],
+        [
+          [
+            80,
+            48,
+            0
+          ],
+          [
+            252,
+            160,
+            68
+          ],
+          [
+            248,
+            184,
+            0
+          ]
+        ]
+      ]
+    },
+    "title": {
+      "backdrop": 15,
+      "background_colours": 10,
+      "background_palettes": [
+        [
+          [
+            124,
+            124,
+            124
+          ],
+          [
+            0,
+            120,
+            248
+          ],
+          [
+            248,
+            248,
+            248
+          ]
+        ],
+        [
+          [
+            0,
+            64,
+            88
+          ],
+          [
+            0,
+            88,
+            248
+          ],
+          [
+            248,
+            248,
+            248
+          ]
+        ],
+        [
+          [
+            0,
+            120,
+            0
+          ],
+          [
+            0,
+            104,
+            0
+          ],
+          [
+            0,
+            88,
+            0
+          ]
+        ],
+        [
+          [
+            124,
+            124,
+            124
+          ],
+          [
+            0,
+            0,
+            188
+          ],
+          [
+            80,
+            48,
+            0
+          ]
+        ]
+      ],
+      "distinct_colours": 16,
+      "limit": 25,
+      "scene": "title",
+      "sprite_colours": 12,
+      "sprite_palettes": [
+        [
+          [
+            0,
+            120,
+            0
+          ],
+          [
+            248,
+            248,
+            248
+          ],
+          [
+            252,
+            252,
+            252
+          ]
+        ],
+        [
+          [
+            124,
+            124,
+            124
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            248,
+            184,
+            0
+          ]
+        ],
+        [
+          [
+            0,
+            104,
+            0
+          ],
+          [
+            0,
+            64,
+            88
+          ],
+          [
+            188,
+            188,
+            188
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            188
+          ],
+          [
+            136,
+            20,
+            0
+          ],
+          [
+            248,
+            56,
+            0
+          ]
+        ]
+      ]
+    }
+  },
+  "ship_frame": {
+    "exit": 0,
+    "frame": "<home>\\AppData\\Local\\Temp\\pp_ship_1egnqdew\\ship_stack.png",
+    "report": [
+      "ship_stack.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
+      "  colours: 10 in the frame, 25 allowed; backdrop #7c7c7c (the most common colour in the frame)",
+      "  background: 240 blocks, 9 distinct colour sets, 4 palette(s) cover them, 4 allowed",
+      "    palette #000000 #881400 #e45c10",
+      "    palette #000000 #bcbcbc #fcfcfc",
+      "    palette #000000 #bcbcbc #f8b800",
+      "    palette #0000bc #0058f8 #3cbcfc",
+      "  sprites: not checked (no --sprite-mask and no --sprites)",
+      "  PASS: 0 block(s) violate the background rules, 0 sprite(s) violate the sprite rules",
+      "  palette: data\\nes_palette.json (55 usable of 64 entries)"
+    ]
+  },
+  "ship_sheet": {
+    "background_histogram": [
+      35,
+      6,
+      6,
+      1
+    ],
+    "sheet": [
+      256,
+      48
+    ],
+    "tiles": 48,
+    "tiles_outside_background_palettes": 0
+  },
+  "ship_sprites": {
+    "sailor_battle": {
+      "frame": [
+        24,
+        32
+      ],
+      "frames": 7,
+      "groups": 39,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "worst_colours": 3
+    },
+    "sailor_ow": {
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 8,
+      "groups": 16,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "worst_colours": 2
+    }
+  },
+  "title_car_frame": {
+    "exit": 0,
+    "report": [
+      "car.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
+      "  colours: 4 in the frame, 25 allowed; backdrop #000000 (declared)",
+      "  background: 240 blocks, 2 distinct colour sets, 1 palette(s) cover them, 4 allowed",
+      "    palette #004058 #006800 #bcbcbc",
+      "  sprites: 16, 1 palette(s), busiest scanline 31 carries 8, 8 per line and 64 total allowed",
+      "    sprite palette #004058 #006800 #bcbcbc",
+      "  PASS: 0 block(s) violate the background rules, 0 sprite(s) violate the sprite rules",
+      "  palette: data\\nes_palette.json (55 usable of 64 entries)"
+    ]
+  },
+  "title_frame": {
+    "exit": 0,
+    "frame": "<home>\\AppData\\Local\\Temp\\pp_title_zycgsol4\\frame.png",
+    "report": [
+      "frame.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
+      "  colours: 11 in the frame, 25 allowed; backdrop #000000 (the most common colour in the frame)",
+      "  background: 240 blocks, 16 distinct colour sets, 4 palette(s) cover them, 4 allowed",
+      "    palette #0000bc #503000 #7c7c7c",
+      "    palette #004058 #0058f8 #f8f8f8",
+      "    palette #005800 #006800 #007800",
+      "    palette #0078f8 #7c7c7c #f8f8f8",
+      "  sprites: not checked (no --sprite-mask and no --sprites)",
+      "  PASS: 0 block(s) violate the background rules, 0 sprite(s) violate the sprite rules",
+      "  palette: data\\nes_palette.json (55 usable of 64 entries)"
+    ]
+  },
+  "title_sprites": {
+    "spr_pp_title_logo": {
+      "busiest_scanline": 28,
+      "frame": [
+        224,
+        64
+      ],
+      "frames": 2,
+      "groups": 142,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 112,
+      "worst_colours": 3
+    },
+    "spr_title_bubble": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 3,
+      "groups": 6,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 2
+    },
+    "spr_title_car": {
+      "busiest_scanline": 8,
+      "frame": [
+        64,
+        32
+      ],
+      "frames": 3,
+      "groups": 36,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 16,
+      "worst_colours": 3
+    },
+    "spr_title_cloud": {
+      "busiest_scanline": 3,
+      "frame": [
+        24,
+        16
+      ],
+      "frames": 3,
+      "groups": 9,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 3,
+      "worst_colours": 2
+    },
+    "spr_title_cloud_fade1": {
+      "busiest_scanline": 3,
+      "frame": [
+        24,
+        16
+      ],
+      "frames": 3,
+      "groups": 9,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 3,
+      "worst_colours": 2
+    },
+    "spr_title_cloud_fade2": {
+      "busiest_scanline": 3,
+      "frame": [
+        24,
+        16
+      ],
+      "frames": 3,
+      "groups": 9,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 3,
+      "worst_colours": 1
+    },
+    "spr_title_cloud_fade3": {
+      "busiest_scanline": 3,
+      "frame": [
+        24,
+        16
+      ],
+      "frames": 3,
+      "groups": 9,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 3,
+      "worst_colours": 1
+    },
+    "spr_title_cloud_fade4": {
+      "busiest_scanline": 3,
+      "frame": [
+        24,
+        16
+      ],
+      "frames": 3,
+      "groups": 9,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 3,
+      "worst_colours": 1
+    },
+    "spr_title_cone": {
+      "busiest_scanline": 12,
+      "frame": [
+        96,
+        40
+      ],
+      "frames": 1,
+      "groups": 29,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 24,
+      "worst_colours": 1
+    },
+    "spr_title_exhaust": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 4,
+      "groups": 7,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 1
+    },
+    "spr_title_exhaust_fade1": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 4,
+      "groups": 7,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 1
+    },
+    "spr_title_exhaust_fade2": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 4,
+      "groups": 7,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 1
+    },
+    "spr_title_exhaust_fade3": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 4,
+      "groups": 7,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 1
+    },
+    "spr_title_exhaust_fade4": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 4,
+      "groups": 7,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 1
+    },
+    "spr_title_ronan": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 8,
+      "groups": 16,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 3
+    },
+    "spr_title_sign": {
+      "busiest_scanline": 12,
+      "frame": [
+        96,
+        24
+      ],
+      "frames": 4,
+      "groups": 96,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 12,
+      "worst_colours": 2
+    },
+    "spr_title_star": {
+      "busiest_scanline": 1,
+      "frame": [
+        8,
+        8
+      ],
+      "frames": 3,
+      "groups": 3,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 0,
+      "worst_colours": 1
+    },
+    "spr_title_theo": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 8,
+      "groups": 16,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 2
+    },
+    "spr_title_wheel": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 4,
+      "groups": 8,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 2
+    }
+  }
+}
