@@ -12,19 +12,45 @@
 /// named in each function. The art is this project's own; nothing is copied from any existing game.
 /// Provenance: knowledge\PROVENANCE.md, entry "modules written from the specs alone".
 
-// The logo takes one second to arrive (spec 14: it fades in over 1 second, then shimmers).
+/// The logo takes one second to arrive (spec 14: it fades in over 1 second, then shimmers).
 #macro PP_TITLE_FADE_STEPS 60
-// The world scrolls at the rate the offline preview used: 12 pixels a second at 12 frames a second, which at
-// this game's 60 steps a second is 0.2 pixels a step.
-#macro PP_TITLE_SCROLL_PX_PER_STEP 0.2
-// The prompt blinks at 2 Hz, the logo shimmers for 0.4 seconds every 4 seconds, and the menu cursor blinks at 4 Hz.
-#macro PP_TITLE_BLINK_STEPS 30
+// Beat macros derived from data\title_timing.json by tools\apply_title_timing.py: edit the json, not these.
+#macro PP_TITLE_BPM 126
+#macro PP_TITLE_BEAT_STEPS 29
+#macro PP_TITLE_BAR_STEPS 86
+#macro PP_TITLE_SCROLL_PX_PER_STEP 0.552
+#macro PP_TITLE_BOB_PX 1
+#macro PP_TITLE_BOB_STEPS 29
+#macro PP_TITLE_EXHAUST_STEPS 58
+#macro PP_TITLE_TWINKLE_PERIOD 86
+#macro PP_TITLE_FLASH_STEPS 2
+#macro PP_TITLE_FLASH_MIN_STEPS 688
+#macro PP_TITLE_FLASH_MAX_STEPS 688
 #macro PP_TITLE_SHIMMER_STEPS 24
-#macro PP_TITLE_SHIMMER_PERIOD 240
-#macro PP_TITLE_CURSOR_PERIOD 15
-// The drive out before the map: the intro text scrolls over the road for four seconds.
-#macro PP_TITLE_DRIVE_STEPS 240
-#macro PP_TITLE_DRIVE_LINE_STEPS 70
+#macro PP_TITLE_SHIMMER_PERIOD 344
+#macro PP_TITLE_BLINK_STEPS 29
+#macro PP_TITLE_CURSOR_PERIOD 14
+// The intro after NEW GAME (card INTRO-1): the camera pans up out of the road over three seconds with an ease
+// out, the world fades four palette steps to black, the sky fades the same four steps and leaves the stars, the
+// stars are held for a beat, and then the crawl runs. Every number here is measured in steps at 60 a second.
+#macro PP_TITLE_INTRO_PAN_STEPS 180
+#macro PP_TITLE_INTRO_PAN_PX 240
+#macro PP_TITLE_INTRO_FADE_STEP_STEPS 18
+#macro PP_TITLE_INTRO_WORLD_FADE 180
+#macro PP_TITLE_INTRO_SKY_FADE 252
+#macro PP_TITLE_INTRO_TEXT 540
+#macro PP_TITLE_INTRO_HOLD 60
+#macro PP_TITLE_INTRO_COLUMNS 32
+#macro PP_TITLE_INTRO_LINES 6
+#macro PP_TITLE_INTRO_LINE_H 12
+#macro PP_TITLE_INTRO_TEXT_Y 132
+#macro PP_TITLE_TEXT_CPS 18
+#macro PP_TITLE_TEXT_PAUSE 72
+#macro PP_TITLE_TEXT_BLIP_EVERY 3
+// The star twinkle period is PP_TITLE_TWINKLE_PERIOD in the beat group above (one bar, three beats of the theme);
+// data\title_timing.json can override it at runtime, which is why the value is also read into the state at enter.
+// The theme ducks this far under the crawl, and comes back up when the crawl ends or is skipped.
+#macro PP_TITLE_DUCK_DB 6
 // Where the logo, the prompt, the window and its rows sit, in frame pixels. The window is the classic NES JRPG
 // box, low and centred, sized in whole 8x8 tiles (18 by 9) because the art lane's spr_pp_window is nine tiles and
 // scaling it would tear its edges. The four rows sit inside its 8 pixel border, and the cursor is against that edge.
@@ -54,9 +80,6 @@
 #macro PP_TITLE_OPEN_FADE 45
 // Lightning: the scene swaps to the flash palette for two frames, every 8 to 12 seconds (480 to 720 steps). The
 // wait is drawn from the title's own seeded stream, so the same launch flashes at the same moments.
-#macro PP_TITLE_FLASH_STEPS 2
-#macro PP_TITLE_FLASH_MIN_STEPS 480
-#macro PP_TITLE_FLASH_MAX_STEPS 720
 #macro PP_TITLE_FLASH_SEED 20261021
 // The marker that says the opening has been seen. It lands in the save area beside the slot, so nothing here
 // writes outside the sandbox.
@@ -191,20 +214,35 @@ function pp_title_seen_write() {
 /// A fresh screen. The logo starts invisible, the lightning clock starts on its first wait, and the phase is the
 /// opening on a first boot or the prompt on every later launch.
 function pp_title_state_new(_phase) {
+    var _timing = pp_title_intro_timing();
     var _s = {
         steps: 0,
         phase: _phase,
         menu_index: 0,
         scroll: 0,
         logo_alpha: 0,
-        drive: 0,
-        drive_line: 0,
         open: 0,
         flash_left: 0,
         flash_wait: 0,
         flash_count: 0,
         rng: pp_rng_new(PP_TITLE_FLASH_SEED),
-        data: pp_title_data()
+        data: pp_title_data(),
+        // The intro's own clock and levels. The pan is a pixel offset; the two fade levels are 0 (untouched) to
+        // 4 (black), one per NES brightness row the strips were drawn with.
+        intro: 0,
+        intro_pan: 0,
+        intro_world: 0,
+        intro_sky: 0,
+        intro_hold: 0,
+        ducked: false,
+        crawl: undefined,
+        crawl_done: false,
+        stars: pp_title_intro_stars(),
+        text_beats: pp_title_intro_beats(),
+        timing: _timing,
+        twinkle_period: _timing.twinkle_period,
+        char_steps: _timing.char_steps,
+        beat_pause: _timing.beat_pause
     };
     _s.flash_wait = pp_rng_int(_s.rng, PP_TITLE_FLASH_MIN_STEPS, PP_TITLE_FLASH_MAX_STEPS);
     return _s;
@@ -233,8 +271,8 @@ function pp_title_step(_params) {
         _s.logo_alpha = min(1, _s.logo_alpha + (1 / PP_TITLE_FADE_STEPS));
     }
 
-    // The storm flashes on its own clock in every phase, so the title card breathes while the menu is up.
-    pp_title_step_lightning(_s);
+    // The storm flashes on its own clock in every phase but the intro, which is a cutscene and owns its own light.
+    if (_s.phase != "intro") pp_title_step_lightning(_s);
 
     if (_s.phase == "open") {
         _s.open += 1;
@@ -273,17 +311,14 @@ function pp_title_step(_params) {
         // The placeholder screen has one row, BACK, and both the confirm and the cancel key leave it.
         if (pp_pressed("confirm") || pp_pressed("cancel")) {
             _s.phase = "menu";
-            pp_audio_play("menu_select");
+            pp_audio_play("menu_cancel");
         }
         return;
     }
 
-    if (_s.phase == "drive") {
-        _s.drive += 1;
-        if (_s.drive >= PP_TITLE_DRIVE_STEPS) {
-            // A new run: a fresh ledger, the slice's first map, and the fade the app machine owns.
-            pp_save_new_game();
-        }
+    if (_s.phase == "intro") {
+        pp_title_step_intro(_s);
+        return;
     }
 }
 
@@ -314,9 +349,18 @@ function pp_title_select(_s) {
     if (_row >= 0 && _row < array_length(_s.data.menu)) _name = _s.data.menu[_row];
     if (_name == "NEW GAME") {
         pp_audio_play("menu_select");
-        _s.phase = "drive";
-        _s.drive = 0;
-        _s.drive_line = 0;
+        // The intro runs before the run starts (card INTRO-1): pan up, fade, stars, crawl. The run itself, its
+        // ledger and rm_pp_ship are only entered when the crawl ends.
+        _s.phase = "intro";
+        _s.intro = 0;
+        _s.intro_pan = 0;
+        _s.intro_world = 0;
+        _s.intro_sky = 0;
+        _s.intro_hold = 0;
+        _s.crawl = pp_title_crawl_new(_s);
+        _s.crawl_done = false;
+        show_debug_message("PP title: intro started, pan " + string(PP_TITLE_INTRO_PAN_STEPS) + " steps, "
+            + string(array_length(_s.stars)) + " stars, " + string(array_length(_s.text_beats)) + " crawl lines");
         return;
     }
     if (_name == "CONTINUE") {
@@ -355,6 +399,13 @@ function pp_title_draw(_params) {
 
     draw_set_colour(pp_role_colour("ink"));
     draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
+
+    // The intro is its own shot, drawn from the same layers but with a camera that has left the road, so it does
+    // not go through the title card's draws (card INTRO-1).
+    if (_s.phase == "intro") {
+        pp_title_draw_intro_scene(_s, _d);
+        return;
+    }
 
     pp_title_draw_layers(_s, _d, _flash);
     pp_title_draw_sign(_s, _d, _flash);
@@ -400,7 +451,8 @@ function pp_title_draw_sign(_s, _d, _flash) {
     var _verge = pp_title_layer_named(_d, "title_L5_verge");
     if (is_undefined(_verge)) return;
     var _offset = (round(_s.scroll * _verge.speed) mod 512);
-    var _index = floor((_s.steps / 15) mod 4);
+    // The miles count down one plate a bar, so the sign changes on the music like everything else.
+    var _index = floor(_s.steps / PP_TITLE_BAR_STEPS) mod 4;
     for (var shift = -512; shift <= 512; shift += 512) {
         var _x = PP_TITLE_SIGN_X - _offset + shift;
         if (_x > -100 && _x < PP_FRAME_W) {
@@ -434,16 +486,22 @@ function pp_title_draw_car(_s, _d) {
     var _x = _d.car_x;
     var _y = _d.car_y;
 
-    // The exhaust puff, behind the rear of the car, one frame every fifth of a second.
-    var _puff = (floor(_s.steps / 5) mod 20);
-    if (_puff < 4 && pp_art_has("spr_title_exhaust")) {
+    // The exhaust: one puff cycle every two beats, so a puff leaves the pipe on every other beat of the theme.
+    if (pp_art_has("spr_title_exhaust")) {
+        var _puff_frames = max(1, pp_art_frames("spr_title_exhaust"));
+        var _puff_phase = (_s.steps mod PP_TITLE_EXHAUST_STEPS);
+        var _puff = min(_puff_frames - 1, floor(_puff_phase * _puff_frames / PP_TITLE_EXHAUST_STEPS));
         pp_art_draw("spr_title_exhaust", _puff, _x, _y + 14, c_white, 1);
     }
 
     // The v2 car carries its own wheels, baked into the sprite so each one sits in its arch and cannot drift,
-    // and the frames turn those spokes. There is no separate wheel sprite on the title any more.
-    var _body = floor(_s.steps / 10) mod pp_art_frames("spr_title_car");
-    pp_art_draw("spr_title_car", _body, _x, _y, c_white, 1);
+    // and the frames turn those spokes. There is no separate wheel sprite on the title any more. The frames run one
+    // full turn a beat, and the body rides PP_TITLE_BOB_PX high on the second half of each beat (card TEMPO-1).
+    var _car_frames = max(1, pp_art_frames("spr_title_car"));
+    var _body = floor(_s.steps * _car_frames / PP_TITLE_BEAT_STEPS) mod _car_frames;
+    var _bob = 0;
+    if ((_s.steps mod PP_TITLE_BOB_STEPS) >= PP_TITLE_BOB_STEPS / 2) _bob = PP_TITLE_BOB_PX;
+    pp_art_draw("spr_title_car", _body, _x, _y - _bob, c_white, 1);
 
     // The cast is off the title as of TS2-ART-A (Nayil: the car shows only its exterior, no faces). The
     // sprites spr_title_theo, spr_title_ronan and spr_title_bubble stay in game\sprites_src\title for the
@@ -458,7 +516,8 @@ function pp_title_draw_cloud(_s, _d, _flash) {
     if (_flash) {
         _index = 2;
     } else {
-        _index = floor(_s.steps / 30) mod 2;
+        // Theo's cloud drifts one frame a bar, so it turns over with the storm's own slow clock.
+        _index = floor(_s.steps / PP_TITLE_BAR_STEPS) mod 2;
     }
     pp_art_draw("spr_title_cloud", _index, _d.car_x + 64, 80, c_white, 1);
 }
@@ -471,12 +530,8 @@ function pp_title_draw_logo(_s) {
     pp_art_draw("spr_pp_title_logo", _index, PP_TITLE_LOGO_X, PP_TITLE_LOGO_Y, c_white, _s.logo_alpha);
 }
 
-/// The words: the prompt, the menu in its window, the settings placeholder, or the intro text over the road.
+/// The words: the prompt, the menu in its window, the settings placeholder, or the intro crawl.
 function pp_title_draw_words(_s, _d) {
-    if (_s.phase == "drive") {
-        pp_title_draw_intro(_s, _d);
-        return;
-    }
     if (_s.phase == "settings") {
         pp_title_draw_settings(_s);
         return;
@@ -547,20 +602,323 @@ function pp_title_draw_settings(_s) {
     pp_title_draw_copy();
 }
 
-/// The intro text over the road, one line at a time, each line scrolling up as it goes.
-function pp_title_draw_intro(_s, _d) {
-    var _count = array_length(_d.intro);
-    if (_count == 0) return;
-    var _index = floor(_s.drive / PP_TITLE_DRIVE_LINE_STEPS);
-    if (_index >= _count) _index = _count - 1;
-    var _within = _s.drive - _index * PP_TITLE_DRIVE_LINE_STEPS;
-    var _y = 210 - _within * 2;
-    pp_font_draw_centre(_d.intro[_index], PP_FRAME_W / 2, _y, PP_TITLE_WHITE, 1);
-    if (_index + 1 < _count) {
-        var _next_y = 210 + (PP_TITLE_DRIVE_LINE_STEPS - _within) * 2;
-        pp_font_draw_centre(_d.intro[_index + 1], PP_FRAME_W / 2, _next_y, PP_TITLE_WHITE, 1);
+// ---------------------------------------------------------------------------------------------------------------
+// The intro after NEW GAME (card INTRO-1): pan up out of the road, fade the world, fade the sky to the stars, then
+// the crawl. Its data is data\intro_text.json (the crawl), data\intro_stars.json (where the stars stand) and
+// data\title_timing.json (the beat the twinkles are measured against). Each file is optional: a build without it
+// still runs the shot, with the built in numbers below.
+
+/// Read the first of several candidate paths that exists, relative to the working directory. The bundle ships the data
+/// files at the root of the game folder while a dev checkout may carry them under datafiles/, and the first build of
+/// this shot read neither: it ran with zero stars and two fallback lines, which is how the difference was found.
+function pp_title_read_any(_paths) {
+    for (var i = 0; i < array_length(_paths); i += 1) {
+        var _d = pp_art_read_json(_paths[i]);
+        if (is_struct(_d)) return _d;
     }
-    pp_title_draw_copy();
+    return undefined;
+}
+
+/// The timing table for the intro. A missing or unreadable file gives the numbers the card names.
+function pp_title_intro_timing() {
+    var _out = {
+        bpm: 126,
+        twinkle_period: PP_TITLE_TWINKLE_PERIOD,
+        char_steps: 60 / PP_TITLE_TEXT_CPS,
+        beat_pause: PP_TITLE_TEXT_PAUSE,
+        lines_on_screen: PP_TITLE_INTRO_LINES
+    };
+    var _d = pp_title_read_any(["datafiles/title_timing.json", "title_timing.json"]);
+    if (!is_struct(_d)) return _out;
+    if (variable_struct_exists(_d, "bpm") && _d.bpm > 0) _out.bpm = _d.bpm;
+    // The card's number: one twinkle pass every four beats of the theme at 126 bpm, which is 1.9 s.
+    var _beats = 4;
+    if (variable_struct_exists(_d, "intro") && is_struct(_d.intro)
+        && variable_struct_exists(_d.intro, "twinkle_beats") && _d.intro.twinkle_beats > 0) {
+        _beats = _d.intro.twinkle_beats;
+    }
+    // One twinkle pass per N beats, in steps at 60 a second.
+    _out.twinkle_period = max(1, round(_beats * (60 / _out.bpm) * 60));
+    if (variable_struct_exists(_d, "text") && is_struct(_d.text)) {
+        var _t = _d.text;
+        if (variable_struct_exists(_t, "chars_per_second") && _t.chars_per_second > 0) {
+            _out.char_steps = 60 / _t.chars_per_second;
+        }
+        if (variable_struct_exists(_t, "pause_after_beat_seconds") && _t.pause_after_beat_seconds >= 0) {
+            _out.beat_pause = round(_t.pause_after_beat_seconds * 60);
+        }
+        if (variable_struct_exists(_t, "lines_on_screen") && _t.lines_on_screen > 0) {
+            _out.lines_on_screen = _t.lines_on_screen;
+        }
+    }
+    return _out;
+}
+
+/// The crawl's beats, flattened into one line per entry: an array of { beat, text } in reading order.
+function pp_title_intro_beats() {
+    var _rows = [];
+    var _d = pp_title_read_any(["datafiles/intro_text.json", "intro_text.json"]);
+    if (is_struct(_d) && variable_struct_exists(_d, "beats") && is_array(_d.beats)) {
+        for (var b = 0; b < array_length(_d.beats); b += 1) {
+            var _beat = _d.beats[b];
+            if (!is_array(_beat)) continue;
+            for (var l = 0; l < array_length(_beat); l += 1) {
+                if (!is_string(_beat[l])) continue;
+                array_push(_rows, { beat: b, text: _beat[l] });
+            }
+        }
+    }
+    if (array_length(_rows) > 0) return _rows;
+    // The fallback crawl, so the shot never runs on an empty screen.
+    var _fallback = ["THE GODS NEVER DIED.", "THEY WERE FORGOTTEN."];
+    for (var f = 0; f < array_length(_fallback); f += 1) array_push(_rows, { beat: f, text: _fallback[f] });
+    return _rows;
+}
+
+/// Every star as a point, in one flat array: the shapes in reading order, then the loose ones.
+function pp_title_intro_stars() {
+    var _stars = [];
+    var _d = pp_title_read_any(["datafiles/intro_stars.json", "intro_stars.json"]);
+    if (!is_struct(_d)) return _stars;
+    if (variable_struct_exists(_d, "shapes") && is_array(_d.shapes)) {
+        for (var s = 0; s < array_length(_d.shapes); s += 1) {
+            var _shape = _d.shapes[s];
+            if (!is_struct(_shape) || !variable_struct_exists(_shape, "points")) continue;
+            var _name = (variable_struct_exists(_shape, "name") ? _shape.name : "loose");
+            var _points = _shape.points;
+            if (!is_array(_points)) continue;
+            for (var p = 0; p < array_length(_points); p += 1) {
+                var _pt = _points[p];
+                if (!is_array(_pt) || array_length(_pt) < 2) continue;
+                array_push(_stars, { x: _pt[0], y: _pt[1], shape: _name });
+            }
+        }
+    }
+    if (variable_struct_exists(_d, "loose") && is_array(_d.loose)) {
+        for (var k = 0; k < array_length(_d.loose); k += 1) {
+            var _loose = _d.loose[k];
+            if (!is_array(_loose) || array_length(_loose) < 2) continue;
+            array_push(_stars, { x: _loose[0], y: _loose[1], shape: "loose" });
+        }
+    }
+    return _stars;
+}
+
+/// A fresh crawl: which line is being typed, how many of its characters are shown, and the pause between beats.
+function pp_title_crawl_new(_s) {
+    return {
+        lines: _s.text_beats,
+        index: 0,
+        chars: 0,
+        timer: 0,
+        pause: 0,
+        line_steps: 0,
+        blips: 0
+    };
+}
+
+/// One step of the crawl: the typewriter, the blip every third letter, and the pause after each beat.
+function pp_title_crawl_step(_s) {
+    var _c = _s.crawl;
+    if (!is_struct(_c)) return;
+    if (_c.index >= array_length(_c.lines)) {
+        _s.crawl_done = true;
+        return;
+    }
+    if (_c.pause > 0) {
+        _c.pause -= 1;
+        return;
+    }
+    var _line = _c.lines[_c.index].text;
+    _c.timer += 1;
+    if (_c.timer < _s.char_steps) return;
+    _c.timer -= _s.char_steps;
+    _c.chars += 1;
+    _c.line_steps += 1;
+    // The blip is every third letter and never on a space, so the sound runs on the words and not on the gaps. The
+    // narrator's pitch, because the crawl is the game speaking and not a character (spec 05 dialogue rule 3).
+    var _ch = string_char_at(_line, _c.chars);
+    if (_ch != " " && _ch != "" && (_c.chars mod PP_TITLE_TEXT_BLIP_EVERY) == 0) {
+        pp_audio_play(pp_audio_blip_cue("narrator"));
+        _c.blips += 1;
+    }
+    if (_c.chars >= string_length(_line)) {
+        var _beat = _c.lines[_c.index].beat;
+        _c.index += 1;
+        _c.chars = 0;
+        _c.timer = 0;
+        _c.line_steps = 0;
+        if (_c.index >= array_length(_c.lines)) {
+            _s.crawl_done = true;
+            return;
+        }
+        // A pause marks the end of a beat, which is where a reader stops before the next thought.
+        if (_c.lines[_c.index].beat != _beat) _c.pause = _s.beat_pause;
+    }
+}
+
+/// Jump the crawl to its end, which is what the start key does: the last line is shown whole, then the shot leaves.
+function pp_title_crawl_finish(_s) {
+    var _c = _s.crawl;
+    if (!is_struct(_c)) {
+        _s.crawl_done = true;
+        return;
+    }
+    var _last = array_length(_c.lines) - 1;
+    if (_last >= 0) {
+        _c.index = _last;
+        _c.chars = string_length(_c.lines[_last].text);
+    } else {
+        _c.index = 0;
+    }
+    _c.pause = 0;
+    _c.timer = 0;
+    _s.crawl_done = true;
+}
+
+/// One step of the intro: the pan, the two four step fades, the held stars, the crawl, and the skip.
+function pp_title_step_intro(_s) {
+    _s.intro += 1;
+
+    // The pan: a camera move up out of the road, slowed at the end (ease out) so it settles instead of stopping.
+    var _t = min(1, _s.intro / PP_TITLE_INTRO_PAN_STEPS);
+    _s.intro_pan = round(PP_TITLE_INTRO_PAN_PX * (1 - power(1 - _t, 2)));
+
+    // The world fades four NES brightness rows to black while the sky is still bright, then the sky does the same.
+    if (_s.intro >= PP_TITLE_INTRO_WORLD_FADE) {
+        _s.intro_world = min(4, 1 + floor((_s.intro - PP_TITLE_INTRO_WORLD_FADE) / PP_TITLE_INTRO_FADE_STEP_STEPS));
+    }
+    if (_s.intro >= PP_TITLE_INTRO_SKY_FADE) {
+        _s.intro_sky = min(4, 1 + floor((_s.intro - PP_TITLE_INTRO_SKY_FADE) / PP_TITLE_INTRO_FADE_STEP_STEPS));
+    }
+
+    if (_s.intro >= PP_TITLE_INTRO_TEXT && !_s.crawl_done) {
+        if (!_s.ducked) {
+            // The theme keeps playing and drops under the words, then comes back for the run.
+            pp_audio_duck_db(PP_TITLE_DUCK_DB);
+            _s.ducked = true;
+        }
+        pp_title_crawl_step(_s);
+    }
+
+    // The start key skips to the end of the crawl. The pad's start is the menu action, and Z or X work too, which is
+    // how a cutscene of this kind is skipped on the hardware this game is written for.
+    if (pp_pressed("menu") || pp_pressed("cancel") || pp_pressed("confirm")) {
+        if (!_s.crawl_done) {
+            pp_title_crawl_finish(_s);
+            show_debug_message("PP title: intro skipped, the crawl jumped to its end");
+        }
+    }
+
+    if (_s.crawl_done) {
+        if (_s.ducked) {
+            pp_audio_unduck();
+            _s.ducked = false;
+        }
+        _s.intro_hold += 1;
+        if (_s.intro_hold >= PP_TITLE_INTRO_HOLD) {
+            // One second of the last frame, then the run: a fresh ledger and rm_pp_ship, behind the app machine's fade.
+            _s.phase = "leaving";
+            show_debug_message("PP title: intro finished, starting the run in " + PP_NEW_GAME_ROOM);
+            pp_save_new_game();
+        }
+    }
+}
+
+/// The name of a strip at a fade level: the untouched art at level 0, and the pre-drawn palette row copies after
+/// that. A level whose strip is not in the build falls back to the brightest one that is, so a half built fade
+/// never shows a hole.
+function pp_title_fade_name(_name, _level) {
+    if (_level <= 0) return _name;
+    for (var level = _level; level >= 1; level -= 1) {
+        var _candidate = _name + "_fade" + string(level);
+        if (pp_art_has(_candidate)) return _candidate;
+    }
+    return _name;
+}
+
+/// The intro shot: the sky, the world sliding down out of frame, the stars over it, and the crawl under them.
+function pp_title_draw_intro_scene(_s, _d) {
+    var _pan = _s.intro_pan;
+
+    // The sky fills the frame once the camera is above the road, so it is drawn as two strips, one above the other.
+    // The fade picks the pre-drawn NES brightness row copies of the sky; the stars are drawn after it and are never
+    // faded, which is the whole point of the shot.
+    var _sky = pp_title_fade_name("title_L1_sky", _s.intro_sky);
+    var _sky_info = pp_art_info(_sky);
+    if (!is_undefined(_sky_info)) {
+        var _sky_frame = pp_art_frame_at(_sky, _s.steps);
+        var _sky_offset = round(_s.scroll * 0.02);
+        for (var r = 0; r < 2; r += 1) {
+            pp_art_layer(_sky, _sky_frame, r * _sky_info.frame_h, _sky_offset, PP_FRAME_W, _sky_info.frame_h);
+        }
+    }
+
+    // The world: every layer but the sky, with the pan added, so the road and the fields slide out of the bottom of
+    // the frame as if the camera rose. Each one is drawn at the world's fade level.
+    for (var i = 0; i < array_length(_d.layers); i += 1) {
+        var _layer = _d.layers[i];
+        if (_layer.name == "title_L1_sky") continue;
+        var _name = pp_title_fade_name(_layer.name, _s.intro_world);
+        var _info = pp_art_info(_name);
+        if (is_undefined(_info)) continue;
+        var _offset = round(_s.scroll * _layer.speed);
+        pp_art_layer(_name, pp_art_frame_at(_name, _s.steps), _layer.y + _pan, _offset, PP_FRAME_W, _info.frame_h);
+    }
+
+    var _car = pp_title_fade_name("spr_title_car", _s.intro_world);
+    if (pp_art_has(_car)) {
+        pp_art_draw(_car, floor(_s.steps / 10) mod pp_art_frames(_car), _d.car_x, _d.car_y + _pan, c_white, 1);
+    }
+    var _cloud = pp_title_fade_name("spr_title_cloud", _s.intro_world);
+    if (pp_art_has(_cloud)) {
+        pp_art_draw(_cloud, floor(_s.steps / 30) mod 2, _d.car_x + 64, 80 + _pan, c_white, 1);
+    }
+
+    pp_title_draw_stars(_s);
+
+    if (_s.intro >= PP_TITLE_INTRO_TEXT) pp_title_draw_crawl(_s);
+}
+
+/// The twenty four stars, each on its own beat of the theme: a star is spread a slot apart, so neighbours light on
+/// different beats, and each one runs the three frame twinkle from the dot to the wide cross and back.
+function pp_title_draw_stars(_s) {
+    if (!is_array(_s.stars)) return;
+    var _count = array_length(_s.stars);
+    if (_count == 0) return;
+    var _period = max(1, _s.twinkle_period);
+    for (var i = 0; i < _count; i += 1) {
+        var _star = _s.stars[i];
+        // The stagger: the stars are spread evenly across one twinkle period, so a group of nine in a sickle never
+        // lights as a group. A star's own twinkle is nine steps: wide, plus, dot, then the dot until its next turn.
+        var _slot = floor(i * _period / _count);
+        var _local = (_s.intro - _slot) mod _period;
+        if (_local < 0) _local += _period;
+        var _frame = 0;
+        if (_local < 3) _frame = 2;
+        else if (_local < 6) _frame = 1;
+        pp_art_draw("spr_title_star", _frame, _star.x - 2, _star.y - 2, c_white, 1);
+    }
+}
+
+/// The crawl: the lines already typed stack upward, the line being typed sits at the bottom, and when the stack is
+/// full the oldest line scrolls off the top.
+function pp_title_draw_crawl(_s) {
+    var _c = _s.crawl;
+    if (!is_struct(_c)) return;
+    var _visible = _s.timing.lines_on_screen;
+    var _total = array_length(_c.lines);
+    if (_total == 0) return;
+    var _last = min(_c.index, _total - 1);
+    var _first = max(0, _last - (_visible - 1));
+    for (var i = _first; i <= _last; i += 1) {
+        var _text = _c.lines[i].text;
+        if (i == _c.index) _text = string_copy(_text, 1, floor(_c.chars));
+        if (_text == "") continue;
+        var _row = i - _first;
+        pp_font_draw_centre(_text, PP_FRAME_W / 2, PP_TITLE_INTRO_TEXT_Y + _row * PP_TITLE_INTRO_LINE_H,
+                            PP_TITLE_WHITE, 1);
+    }
 }
 
 /// The layer with this name, or undefined.
@@ -572,10 +930,13 @@ function pp_title_layer_named(_d, _name) {
 }
 
 /// The app mode that runs the title screen. Registered by pp_app_boot.
+/// Since card W1 the screen lives in rm_pp_title and obj_pp_title runs it. When that object is in the room it is the
+/// only stepper and the only drawer, so the mode hands over rather than running the same screen a second time. The
+/// guards are also what keeps the screen still while the room move is in flight, because the object does not exist yet.
 function pp_title_mode() {
     return {
-        enter: function(_params) { pp_title_enter(_params); },
-        step: function(_params) { pp_title_step(_params); },
-        draw: function(_params) { pp_title_draw(_params); }
+        enter: function(_params) { if (!instance_exists(obj_pp_title)) pp_title_enter(_params); },
+        step: function(_params) { if (instance_exists(obj_pp_title)) return; pp_title_step(_params); },
+        draw: function(_params) { if (instance_exists(obj_pp_title)) return; pp_title_draw(_params); }
     };
 }

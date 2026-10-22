@@ -1,0 +1,8 @@
+{
+  "fps": 0.0,
+  "frame_h": 12,
+  "frame_w": 24,
+  "frames": 3,
+  "name": "spr_title_cloud_fade4",
+  "note": "one NES brightness row darker per step, written by tools/pp_intro_art.py"
+}

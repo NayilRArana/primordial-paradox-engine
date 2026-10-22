@@ -39,9 +39,32 @@ function pp_app_boot() {
     pp_app_register(PPMode.overworld, pp_mode_overworld());
     pp_app_register(PPMode.battle, pp_mode_battle());
 
-    // The title screen is the first thing the player sees. A data problem still lands on the boot card, which says it in words.
-    pp_app_enter(pp_data_ok() ? PPMode.title : PPMode.boot, {});
+    // The title screen is the first thing the player sees. Since card W1 it owns a room: the frame sets the mode,
+    // moves to rm_pp_title, and the room's own object enters the screen, so the screen is entered exactly once.
+    // The screen object is not in the boot room, so nothing here runs the title before the room exists.
+    // A data problem still lands on the boot card, which says it in words, and that card is drawn by this object.
+    if (pp_data_ok()) {
+        pp_app_enter_room(PPMode.title, {}, rm_pp_title);
+    } else {
+        pp_app_enter(PPMode.boot, {});
+    }
     return _app;
+}
+
+/// Jump with no fade into a mode that owns its own room (card W1). The mode is set and the move to the room is asked
+/// for here, and the room's own object is what enters, steps and draws the screen. That is why this door does not call
+/// the mode's enter: one owner per frame, and one entry per screen.
+function pp_app_enter_room(_mode, _params, _room) {
+    var _app = global.pp.app;
+    if (!variable_struct_exists(_app.modes, string(_mode))) {
+        show_debug_message("PP: enter for unregistered mode " + string(_mode));
+        return false;
+    }
+    _app.mode = _mode;
+    _app.mode_params = _params;
+    if (room != _room) room_goto(_room);
+    pp_input_lock(PP_INPUT_LOCK_STEPS);
+    return true;
 }
 
 /// Register one mode. Registering twice is a programming error and is reported once.
@@ -195,6 +218,7 @@ function pp_mode_boot() {
                     return;
                 }
                 if (pp_pressed("cancel")) {
+                    pp_audio_play("menu_cancel");
                     pp_save_new_game();
                     return;
                 }
@@ -267,6 +291,8 @@ function pp_mode_battle() {
                 }
             }
             global.pp.battle = _battle;
+            // Card SFX-WIRE: the fight opens with the swoosh, whether or not the encounter data was found.
+            pp_audio_play("encounter_swoosh");
         },
         step: function(_params) {
             var _battle = global.pp.battle;

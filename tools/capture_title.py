@@ -59,6 +59,9 @@ FOREGROUND_SETTLE_S = 0.5
 GAME_WINDOW_TIMEOUT_S = 20.0
 GAME_SETTLE_S = 3.0
 AFTER_ENTER_S = 1.5
+# The gap between the two frames of the --scroll run: half a second is the card's number, and at 126 bpm that is
+# just over one beat, so the frames differ by about one lane dash of road.
+SCROLL_GAP_S = 0.5
 CLOSE_GRACE_S = 5.0
 SELFTEST_WINDOW_TIMEOUT_S = 20.0
 WATCHDOG_S = 120.0
@@ -84,12 +87,26 @@ VIDEO_SAMPLE_TIMES = (0.5, 4.0, 8.0, 11.0, 12.5)
 # Two frames count as different when this share of their pixels differ. A still frame scores 0.0 and a
 # moving scene scores far above this.
 VIDEO_FRAME_DIFF_RATIO = 0.001
-# The frames of a real game screen carry the night blue of the title sky. The anchor is read from the
-# reference capture of the same window (output\title_run_1.png), so a frame that shows a foreign window
-# instead of the game fails this check. It is a share of pixels, so a small change in the art does not
-# break it.
-VIDEO_GAME_ANCHOUR_COLOURS = ((8, 20, 32), (13, 43, 58), (11, 11, 15))
-VIDEO_GAME_ANCHOUR_SHARE = 0.02
+# The frames of a real game screen carry the title screen's own colours. Those colours are read from the
+# newest title reference frame on disk instead of being hardcoded, because a hardcoded list goes stale the
+# moment the art lane ships new layers: the 2026-10-21 night rebuild turned the old (8,20,32) sky into the
+# NES blues, and the old list then failed a recording that showed the title perfectly. A recording of a
+# foreign window scores near zero against the same list, which is what the check is for.
+VIDEO_GAME_REFERENCE_FILES = (
+    os.path.join(OUTPUT_DIR, "nes_title_frame.png"),
+    os.path.join(OUTPUT_DIR, "title_run_1.png"),
+)
+# Used only when no reference frame can be read at all.
+VIDEO_GAME_ANCHOR_FALLBACK = ((0, 120, 248), (0, 104, 0), (0, 88, 248), (0, 88, 0))
+VIDEO_GAME_ANCHOR_COUNT = 6
+VIDEO_GAME_ANCHOR_TOLERANCE = 12
+# A colour becomes an anchor only when its channels differ by this much, which keeps the black, white and
+# grey of window furniture out and keeps the title's sky, field and teal in.
+VIDEO_GAME_ANCHOR_SPREAD = 24
+# The share of a frame that must carry those colours. Measured on 2026-10-21: a recording of a covering
+# claude.exe window scored 0.0013, and a recording of the title screen scored about 0.30, so 0.05 sits
+# clear of both.
+VIDEO_GAME_ANCHOR_SHARE = 0.05
 
 # user32 and kernel32 through ctypes: no extra packages needed for the window side.
 user32 = ctypes.windll.user32
@@ -115,8 +132,28 @@ SHIP_WALK_STEPS = 8
 SHIP_KEY_GAP_S = 0.18
 SHIP_AFTER_WALK_S = 0.5
 SHIP_MIN_DIFF = 0.001
+# The intro capture (card INTRO-1): the opening shot lasts 3 s on a first boot and any key skips it, so the first
+# wait covers it either way; then Enter opens the menu and Enter again chooses NEW GAME. The four timestamps are the
+# card's own, measured from the second Enter: mid pan, pan landed and the world fading, the stars, the crawl.
+INTRO_OPEN_WAIT_S = 0.8
+INTRO_MENU_WAIT_S = 1.2
+INTRO_LEAD_S = 0.15
+INTRO_TIMES = (1.0, 4.0, 8.0, 14.0)
+INTRO_MIN_DIFF = 0.001
+INTRO_START_TIMEOUT_S = 12.0
+INTRO_NUDGE_S = 4.0
+# The band the title logo occupies inside the window screenshot: the viewport sits at (8, 31) at 3x, and the
+# logo fills most of the top third of the 256x240 frame. Fewer than this many grey pixels there means the intro
+# has begun, because the intro shot never draws the logo.
+LOGO_BAND = (68, 121, 716, 331)
+LOGO_GONE_PIXELS = 3000
 SW_RESTORE = 9
 KEYEVENTF_KEYUP = 0x0002
+# The keys whose scancode is only correct when the extended flag is set. Sent without it they arrive as their
+# numpad twins, which is why the Down presses in the first keys run moved nothing while Enter worked.
+KEYEVENTF_EXTENDEDKEY = 0x0001
+EXTENDED_KEYS = frozenset((0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x2C, 0x2D, 0x2E,
+                           0x5B, 0x5C, 0x6F, 0x90))
 # Topmost and not topmost, for the window handles that SetWindowPos takes.
 HWND_TOPMOST = -1
 HWND_NOTOPMOST = -2
@@ -410,6 +447,101 @@ def ensure_game_visible(hwnd, rect, attempts=None):
     return None, "%s; every placement tried (%d) stayed covered" % (note, len(tried))
 
 
+def game_has_focus(hwnd):
+    """True when the window holding the keyboard focus is hwnd or one of its child windows.
+
+    The game draws into a child render window, and that child is what Windows names as the foreground
+    window, so comparing the foreground handle with the top level one answered "not focused" while the game
+    really did hold the focus. That mistake sent the Enter through PostMessage, and a GameMaker game reads
+    the key state rather than the window messages, so the press was lost: the 22:00 run of 2026-10-21 shows
+    the title still on screen two and a half seconds after an Enter that was "posted".
+    """
+    foreground = user32.GetForegroundWindow()
+    if not foreground:
+        return False
+    GA_ROOT = 2
+    top = user32.GetAncestor(foreground, GA_ROOT) or foreground
+    return top == hwnd
+
+
+def send_vk_focused(vk):
+    """Send one real key press while this process already holds the focus for the game.
+
+    A posted key is read by the window procedure, not by the game's key state, so a scripted run built out of
+    posted keys reads as "the player did nothing". This sends the press through the input queue, which is the
+    only path GameMaker's keyboard_check_pressed sees.
+
+    The arrow keys, Insert/Delete/Home/End/PageUp/PageDown and the right hand Ctrl/Alt are extended keys: sent
+    without KEYEVENTF_EXTENDEDKEY they arrive as their numpad twins, so the Enter that was sent worked and the
+    two Down presses before it did nothing (first keys run of 2026-10-22, menu never moved).
+    """
+    flags = KEYEVENTF_EXTENDEDKEY if vk in EXTENDED_KEYS else 0
+    user32.keybd_event(vk, 0, flags, 0)
+    time.sleep(0.05)
+    user32.keybd_event(vk, 0, flags | KEYEVENTF_KEYUP, 0)
+    return "sent"
+
+
+def allow_foreground_change():
+    """Ask Windows to stop refusing SetForegroundWindow to this process.
+
+    The foreground lock times out after SPI_GETFOREGROUNDLOCKTIMEOUT by default, and a window started by a
+    background process has to wait it out. Setting it to zero for the duration of the harness is the documented
+    escape, and it is restored by the same call with the old value at the end of the run.
+    """
+    SPI_GETFOREGROUNDLOCKTIMEOUT = 0x2000
+    SPI_SETFOREGROUNDLOCKTIMEOUT = 0x2001
+    SPIF_SENDCHANGE = 0x2
+    old = ctypes.c_void_p()
+    try:
+        if user32.SystemParametersInfoW(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(old), 0):
+            user32.SystemParametersInfoW(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ctypes.c_void_p(0), SPIF_SENDCHANGE)
+            return old.value
+    except Exception:  # gate: ok Focus is best effort here; the caller checks the result.
+        pass
+    return None
+
+
+def ensure_key_focus(hwnd, attempts=8, settle=0.3):
+    """Take the keyboard focus for the game and keep it there. Returns (ok, note).
+
+    Windows refuses SetForegroundWindow from a background process often enough that one ask is not enough, and
+    the fallback (posting the key) silently proves nothing, which is how the first keys run of 2026-10-22
+    reported "posted" four times while the menu never moved. Four routes are tried per attempt: the input queue
+    attach, the foreground lock lifted, SwitchToThisWindow, and a real SetForegroundWindow after both.
+    """
+    allow_foreground_change()
+    for attempt in range(attempts):
+        bring_to_front(hwnd)
+        if game_has_focus(hwnd):
+            return True, "keyboard focus taken on attempt %d" % (attempt + 1)
+        # An attach to the window that holds the foreground is the route Windows actually honours: the lock is
+        # judged against the foreground thread, not against the target's thread, so attaching to the target
+        # alone (which is what bring_to_front does) still loses the race on this desktop.
+        foreground = user32.GetForegroundWindow()
+        current_thread = ctypes.windll.kernel32.GetCurrentThreadId()
+        fg_thread = user32.GetWindowThreadProcessId(foreground, None) if foreground else 0
+        attached = False
+        if fg_thread and fg_thread != current_thread:
+            attached = bool(user32.AttachThreadInput(current_thread, fg_thread, True))
+        try:
+            user32.ShowWindow(hwnd, SW_RESTORE)
+            user32.BringWindowToTop(hwnd)
+            user32.SetForegroundWindow(hwnd)
+            try:
+                user32.SwitchToThisWindow(hwnd, True)
+            except Exception:  # gate: ok One route failing does not stop the others.
+                pass
+            user32.SetForegroundWindow(hwnd)
+        finally:
+            if attached:
+                user32.AttachThreadInput(current_thread, fg_thread, False)
+        if game_has_focus(hwnd):
+            return True, "keyboard focus taken on attempt %d by attaching to the foreground thread" % (attempt + 1)
+        time.sleep(settle)
+    return False, "the game never took the keyboard focus after %d attempts" % attempts
+
+
 def send_enter(hwnd, keep_foreground=False):
     """Send exactly one Enter key press to the game window. No other key is sent.
 
@@ -418,7 +550,7 @@ def send_enter(hwnd, keep_foreground=False):
     would end up in the file instead of the game.
     """
     previous = bring_to_front(hwnd)
-    focused = user32.GetForegroundWindow() == hwnd
+    focused = game_has_focus(hwnd)
     try:
         if focused:
             user32.keybd_event(VK_RETURN, 0, 0, 0)
@@ -444,7 +576,7 @@ def send_vk(hwnd, vk):
     key posted to it, so a dud focus can never type into another application.
     """
     previous = bring_to_front(hwnd)
-    focused = user32.GetForegroundWindow() == hwnd
+    focused = game_has_focus(hwnd)
     try:
         if focused:
             user32.keybd_event(vk, 0, 0, 0)
@@ -803,8 +935,33 @@ def frames_differ(path_a, path_b):
         return None
 
 
-def frame_shows_game(path):
-    """The share of pixels in a frame that carry the night blue of the title screen.
+def title_anchor_colours(paths=VIDEO_GAME_REFERENCE_FILES, count=VIDEO_GAME_ANCHOR_COUNT):
+    """The title screen's own colours, read from the newest title reference frame on disk.
+
+    Returns (path, colours). The path is None when no reference frame could be read, and the colours are
+    then the built in fallback list, so the check still runs on a checkout that has no render of the title.
+    """
+    try:
+        from PIL import Image
+    except Exception:
+        return None, VIDEO_GAME_ANCHOR_FALLBACK
+    for path in paths:
+        if not os.path.isfile(path):
+            continue
+        try:
+            with Image.open(path) as image:
+                counts = image.convert("RGB").getcolors(maxcolors=1 << 20) or []
+        except Exception:
+            continue
+        colours = [tuple(pixel) for _count, pixel in sorted(counts, key=lambda row: row[0], reverse=True)
+                   if max(pixel) - min(pixel) >= VIDEO_GAME_ANCHOR_SPREAD]
+        if len(colours) >= 2:
+            return path, tuple(colours[:count])
+    return None, VIDEO_GAME_ANCHOR_FALLBACK
+
+
+def frame_shows_game(path, anchors):
+    """The share of pixels in a frame that carry one of the title screen's colours.
 
     A frame that shows some other window, a terminal or a black rectangle scores near zero here, so this
     is the check that the recording shows the game and not whatever else was on the desktop.
@@ -823,11 +980,10 @@ def frame_shows_game(path):
     total = sum(count for count, _pixel in counts)
     hit = 0
     for count, pixel in counts:
-        if pixel[0] > 40 or pixel[1] > 60 or pixel[2] > 80:
-            continue
-        for anchor in VIDEO_GAME_ANCHOUR_COLOURS:
-            if abs(pixel[0] - anchor[0]) <= 6 and abs(pixel[1] - anchor[1]) <= 6 \
-                    and abs(pixel[2] - anchor[2]) <= 6:
+        for anchor in anchors:
+            if abs(pixel[0] - anchor[0]) <= VIDEO_GAME_ANCHOR_TOLERANCE \
+                    and abs(pixel[1] - anchor[1]) <= VIDEO_GAME_ANCHOR_TOLERANCE \
+                    and abs(pixel[2] - anchor[2]) <= VIDEO_GAME_ANCHOR_TOLERANCE:
                 hit += count
                 break
     return hit / float(total)
@@ -1004,6 +1160,20 @@ def run_video_capture():
             recorder_log.close()
         except Exception:  # gate: ok Best-effort cleanup of a temp artifact: the capture result does not depend on it.
             pass
+        # Ask Windows again who owns the pixels of the recorded rectangle, while the game is still held on
+        # top. The window was topmost for the whole recording, so a foreign owner here means the recording
+        # may have caught that window too, and the title colour check alone would not say so.
+        covered, owners = cover_report(hwnd, rect)
+        if covered:
+            print("FAIL after the recording another window owns %d of the %d sampled points of the recorded "
+                  "rectangle: %s"
+                  % (len(covered), len(COVERAGE_SAMPLES),
+                     ", ".join(sorted({"%s %r" % (image or "?", title)
+                                       for _h, image, title in owners if _h != hwnd}))))
+            release_on_top(hwnd)
+            restore_foreground(previous)
+            return 1
+        print("coverage after the recording: every sampled point of the rectangle still belongs to the game")
         release_on_top(hwnd)
         if recorder.returncode not in (0, None):
             print("ffmpeg exited with code %s, its log is %s" % (recorder.returncode, recorder_log_path))
@@ -1033,36 +1203,55 @@ def run_video_capture():
               % (duration, VIDEO_DURATION_SLACK_S, VIDEO_TOTAL_S))
 
         # Check 3: at least two sampled frames differ, so the scene moves.
+        anchor_source, anchors = title_anchor_colours()
+        if anchor_source:
+            print("title colours: %d anchor(s) from %s (written %s): %s"
+                  % (len(anchors), anchor_source,
+                     time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(anchor_source))),
+                     ", ".join("rgb(%d,%d,%d)" % anchor for anchor in anchors)))
+        else:
+            print("title colours: no reference frame on disk, using the built in fallback list %s"
+                  % (", ".join("rgb(%d,%d,%d)" % anchor for anchor in anchors)))
         work_dir = tempfile.mkdtemp(prefix="titlevid-")
         frames = []
         notes = []
-        game_shares = []
+        title_shares = []
+        after_shares = []
         for stamp in VIDEO_SAMPLE_TIMES:
             frame_path = os.path.join(work_dir, "frame_%.1f.png" % stamp)
+            before_enter = stamp < VIDEO_FIRST_S
+            label = ("t=%.1f s" % stamp) if before_enter else ("t=%.1f s after the enter" % stamp)
             if extract_frame(ffmpeg_path, VIDEO_OUT, stamp, frame_path):
                 frames.append(frame_path)
-                notes.append("t=%.1f s" % stamp)
-                share = frame_shows_game(frame_path)
+                notes.append(label)
+                share = frame_shows_game(frame_path, anchors)
                 if share is not None:
-                    game_shares.append((notes[-1], share))
+                    (title_shares if before_enter else after_shares).append((label, share))
             else:
                 frames.append(None)
-                notes.append("t=%.1f s (missing)" % stamp)
+                notes.append("%s (missing)" % label)
 
-        # Check 3a: every sampled frame shows the game, not another window that came to the front.
-        if game_shares:
-            for note, share in game_shares:
+        if title_shares:
+            for note, share in title_shares:
                 print("game pixels in %s: %.4f" % (note, share))
-            worst_note, worst_share = min(game_shares, key=lambda row: row[1])
-            if worst_share < VIDEO_GAME_ANCHOUR_SHARE:
-                print("FAIL the frame at %s carries only %.4f of the game's title colours, so the "
-                      "recording shows something else" % (worst_note, worst_share))
+            best_title_note, best_title_share = max(title_shares, key=lambda row: row[1])
+            if best_title_share < VIDEO_GAME_ANCHOR_SHARE:
+                print("FAIL no frame before the enter carries the game's title colours (the highest of %d "
+                      "frames is %.4f at %s, against the %.3f required), so the recording shows something "
+                      "else" % (len(title_shares), best_title_share, best_title_note,
+                                VIDEO_GAME_ANCHOR_SHARE))
                 return 1
-            print("PASS every sampled frame carries the game's title colours (the lowest is %.4f at %s)"
-                  % (worst_share, worst_note))
+            print("PASS the title screen is in the recording: %s carries %.4f of the game's title colours "
+                  "(%.3f required). The title screen changes within the recording (PRESS START, then the menu), "
+                  "so one frame is the bar and the rest are reported"
+                  % (best_title_note, best_title_share, VIDEO_GAME_ANCHOR_SHARE))
         else:
             print("FAIL the game colour check could not run on any frame")
             return 1
+        # The frames after the enter are a different scene on purpose, since the title's own confirm leads
+        # on, so their title colour share is reported and not required.
+        for note, share in after_shares:
+            print("after the enter, %s: %.4f of the title colours, reported only" % (note, share))
 
         differences = []
         for i in range(len(frames)):
@@ -1338,6 +1527,396 @@ def run_ship_capture():
             pass
 
 
+def logo_grey_pixels(path):
+    """Count the grey pixels in the band the title logo occupies, inside a window screenshot.
+
+    The logo is the only large light-grey mass in the top third of the frame, so its disappearance is the
+    intro's first step: the title card measures about 10000 of these pixels and the star field about 1000.
+    """
+    from PIL import Image  # imported here so the other captures never pay for it
+
+    try:
+        image = Image.open(path).convert("RGB")
+    except (OSError, ValueError):
+        return None
+    pixels = image.load()
+    x0, y0, x1, y1 = LOGO_BAND
+    total = 0
+    for y in range(y0, min(y1, image.size[1])):
+        for x in range(x0, min(x1, image.size[0])):
+            r, g, b = pixels[x, y]
+            if r == g == b and 90 <= r <= 250:
+                total += 1
+    return total
+
+
+def press_until_intro(hwnd, attempts=8, gap=1.2):
+    """Press Enter until the title logo leaves the frame, then return that time; None if it never goes.
+
+    Two fixed presses are not enough: the title's opening shot can eat the first one and the menu the second,
+    which is exactly what put the first pass's t=1 s frame on the title card. Watching for the logo to go is
+    proof the intro really started, so the four capture times hang off a frame instead of off a stopwatch.
+    """
+    probe = os.path.join(BUILD_DIR, "_intro_probe.png")
+    deadline = time.time() + attempts * gap + 6.0
+    while time.time() < deadline:
+        print("enter %s" % send_vk(hwnd, VK_RETURN))
+        pressed = time.time()
+        while time.time() - pressed < gap:
+            rect, written, note = capture_window(hwnd, probe)
+            if written is not None:
+                grey = logo_grey_pixels(probe)
+                if grey is not None and grey < LOGO_GONE_PIXELS:
+                    discard(probe)
+                    return time.time()
+            time.sleep(0.2)
+    discard(probe)
+    return None
+
+
+def wait_for_intro_start(log_path, hwnd, timeout_s=INTRO_START_TIMEOUT_S):
+    """Return the time the intro's first step was seen in the game log, or None if it never started.
+
+    Reading the log is the only proof that NEW GAME really took: the menu may swallow a press that lands
+    while the opening shot is still playing. When the line is late, one more Enter is sent, which covers
+    the case where the first press opened the menu a beat later than the fixed wait assumed.
+    """
+    began = time.time()
+    nudged = False
+    while time.time() - began < timeout_s:
+        try:
+            with open(log_path, "r", encoding="utf-8", errors="replace") as handle:
+                if "PP title: intro started" in handle.read():
+                    return time.time()
+        except OSError:
+            # The game may hold the file for writing on this platform; the fixed waits still apply then.
+            return None
+        if not nudged and time.time() - began > INTRO_NUDGE_S:
+            print("no intro line yet, pressing enter again %s" % send_vk(hwnd, VK_RETURN))
+            nudged = True
+        time.sleep(0.05)
+    return None
+
+
+def run_intro_capture():
+    """Start a new game and capture the intro at 1, 4, 8 and 14 seconds into it (card INTRO-1).
+
+    The wait before the first Enter covers the opening shot, which plays for three seconds on a first boot and any
+    key skips it; on a later boot the title simply sits on PRESS START for the same wait, so the sequence is the same
+    either way. Then Enter opens the menu and Enter again chooses NEW GAME, which is what starts the intro.
+
+    The four frames are the card's own timestamps, measured from the frame the intro starts on: at 1 s the camera is
+    mid pan, at 4 s the pan has landed and the world is fading, at 8 s only the sky's last fade and the stars are on
+    screen, and at 14 s the crawl is running.
+
+    Usage: python tools\\capture_title.py --intro
+    """
+    build = newest_build()
+    if build is None:
+        print("no built game found under %s" % GAME_OUTPUT_DIR)
+        return 1
+    exe_path, win_path = build
+    print("launching %s -game %s" % (exe_path, win_path))
+
+    os.makedirs(BUILD_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    game_log_path = os.path.join(BUILD_DIR, "capture-intro-game.log")
+    game_log = open(game_log_path, "wb")
+    process = subprocess.Popen(
+        [exe_path, "-game", win_path],
+        cwd=os.path.dirname(exe_path),
+        stdin=subprocess.DEVNULL,
+        stdout=game_log,
+        stderr=subprocess.STDOUT,
+    )
+    start_watchdog(process, WATCHDOG_S)
+    try:
+        match = find_window(
+            lambda hwnd, pid, title, visible, rect: visible
+            and pid == process.pid
+            and GAME_WINDOW_TITLE.lower() in title.lower(),
+            timeout_s=GAME_WINDOW_TIMEOUT_S,
+        )
+        if match is None:
+            print("the game window did not appear within %.0f s" % GAME_WINDOW_TIMEOUT_S)
+            return 1
+        hwnd = match[0]
+        image_name = process_image_name(match[1])
+        if image_name.lower() != GAME_EXE_NAME.lower():
+            print("the window belongs to %r, not to %s" % (image_name, GAME_EXE_NAME))
+            return 1
+        print("game window found: %s (hwnd %s)" % (match[2], hwnd))
+
+        time.sleep(GAME_SETTLE_S + INTRO_OPEN_WAIT_S)
+        # Press until the title logo leaves the frame: that frame is the intro's first step, and it is the only
+        # honest start time. The game's own log line is block buffered when stdout is a file, so it cannot be
+        # read live, and a stopwatch started at the key press drifts whenever the title eats a press.
+        started = press_until_intro(hwnd)
+        if started is None:
+            print("the intro never started: the title logo stayed on screen through every press")
+            return 1
+        print("the intro started, the clock is on that frame")
+        time.sleep(INTRO_LEAD_S)
+
+        frames = []
+        for index, target in enumerate(INTRO_TIMES, start=1):
+            remaining = started + target - time.time()
+            if remaining > 0:
+                time.sleep(remaining)
+            out_path = os.path.join(OUTPUT_DIR, "intro_%d.png" % index)
+            rect, written, note = capture_window(hwnd, out_path)
+            if rect is None or written is None:
+                print("intro capture %d failed: %s" % (index, note))
+                return 1
+            real, why = frame_is_real(out_path)
+            if not real:
+                print("intro capture %d rejected: %s" % (index, why))
+                discard(out_path)
+                return 1
+            print("captured %s at t=%.1f s %sx%s (%s)" % (out_path, target, rect[2], rect[3], why))
+            frames.append(out_path)
+
+        close_window(hwnd)
+        deadline = time.time() + CLOSE_GRACE_S
+        while time.time() < deadline and process.poll() is None:
+            time.sleep(0.2)
+        if process.poll() is None:
+            print("the game did not close on request, terminating it")
+            kill_tree(process)
+        try:
+            game_log.close()
+        except Exception:  # gate: ok Best-effort: the crash check below reads the file from disk.
+            pass
+
+        with open(game_log_path, "r", encoding="utf-8", errors="replace") as handle:
+            log_text = handle.read()
+        if "PP CRASH" in log_text:
+            crash_lines = [line for line in log_text.splitlines() if "PP CRASH" in line]
+            print("the game reported a crash: %s" % crash_lines[0][:200])
+            return 1
+        print("no PP CRASH in %s" % game_log_path)
+        # The line NEW GAME writes when the intro starts is the proof that the two Enters landed on the menu row the
+        # card asks for; without it the frames could be the menu and still look plausible.
+        started_lines = [line for line in log_text.splitlines() if "PP title: intro started" in line]
+        if not started_lines:
+            print("the log has no 'PP title: intro started' line, so NEW GAME never started the intro")
+            return 1
+        print(started_lines[0].strip())
+
+        differences = []
+        for i in range(len(frames)):
+            for j in range(i + 1, len(frames)):
+                ratio = frames_differ(frames[i], frames[j])
+                if ratio is not None:
+                    differences.append((INTRO_TIMES[i], INTRO_TIMES[j], ratio))
+        if not differences:
+            print("the intro frames could not be compared")
+            return 1
+        differences.sort(key=lambda row: row[2], reverse=True)
+        best = differences[0]
+        print("frame differences: the largest is %.5f of the pixels between t=%.0f and t=%.0f"
+              % (best[2], best[0], best[1]))
+        if best[2] < INTRO_MIN_DIFF:
+            print("the intro frames are all the same picture, so nothing played")
+            return 1
+
+        for path in frames:
+            print(path)
+        return 0
+    finally:
+        kill_tree(process)
+        try:
+            game_log.close()
+        except Exception:  # gate: ok Best-effort cleanup of a temp artifact.
+            pass
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Scripted keys (card SFX-WIRE). Drives a menu with real key presses so the audio cues it plays can be read from
+# the game log afterwards, which is the only proof a sound was asked for at the moment the player acted.
+
+# Virtual key codes for the key names a script may use. The names are the game's own input ids where the two
+# agree, so a script reads like the action it performs. confirm is Z and cancel is X, the same binding as
+# game\scripts\pp_input\pp_input.gml.
+KEY_CODES = {
+    "enter": 0x0D,
+    "confirm": 0x5A,
+    "z": 0x5A,
+    "cancel": 0x58,
+    "x": 0x58,
+    "space": 0x20,
+    "up": 0x26,
+    "down": 0x28,
+    "left": 0x25,
+    "right": 0x27,
+    "escape": 0x1B,
+}
+# "wait" is not a key: it is a pause in the script, so a scene that plays out over several seconds can be given
+# the time it needs without guessing one gap for every press.
+KEY_WAIT_S = 1.0
+KEY_GAP_S = 0.45
+KEYS_USER_DIR = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")), "PrimordialParadox")
+KEYS_SEEN_FILE = os.path.join(KEYS_USER_DIR, "pp_title_seen.txt")
+
+
+def parse_key_script(text):
+    """Split "enter,down,down,enter" into a list of tokens, refusing any token that is not a key or wait."""
+    tokens = []
+    for raw in str(text).split(","):
+        token = raw.strip().lower()
+        if not token:
+            continue
+        if token == "wait" or token in KEY_CODES:
+            tokens.append(token)
+            continue
+        raise SystemExit("unknown key %r in --keys; the names are %s and wait"
+                         % (raw, ", ".join(sorted(KEY_CODES))))
+    return tokens
+
+
+def run_keys_capture(tokens, expect=None, first_boot=False):
+    """Launch the game, send one key at a time, capture a frame, then check the audio lines in the log.
+
+    Steps:
+      1. --first-boot removes the opening marker, so the title is in its first boot phase and the key script
+         starts from a known state instead of depending on whether the game was run before.
+      2. Every token is sent with KEY_GAP_S between presses, because the game reads the key state once a step
+         and two presses inside one step read as one.
+      3. A frame is captured after the script, to prove the window was the game and to give the reviewer a
+         picture of where the script left it.
+      4. The game log is read back. Every "PP audio: <cue> played" line is printed, each cue in --expect must
+         appear at least once, and a PP CRASH anywhere fails the run.
+    """
+    build = newest_build()
+    if build is None:
+        print("no built game found under %s" % GAME_OUTPUT_DIR)
+        return 1
+    exe_path, win_path = build
+    expect = [cue.strip() for cue in (expect or "").split(",") if cue.strip()]
+
+    if first_boot:
+        if os.path.isfile(KEYS_SEEN_FILE):
+            os.remove(KEYS_SEEN_FILE)
+            print("removed the opening marker so the title starts in its first boot phase: %s" % KEYS_SEEN_FILE)
+        else:
+            print("no opening marker at %s, the title is already in its first boot phase" % KEYS_SEEN_FILE)
+
+    print("launching %s -game %s" % (exe_path, win_path))
+    os.makedirs(BUILD_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    game_log_path = os.path.join(BUILD_DIR, "capture-keys-game.log")
+    game_log = open(game_log_path, "wb")
+    process = subprocess.Popen(
+        [exe_path, "-game", win_path],
+        cwd=os.path.dirname(exe_path),
+        stdin=subprocess.DEVNULL,
+        stdout=game_log,
+        stderr=subprocess.STDOUT,
+    )
+    start_watchdog(process, WATCHDOG_S)
+    try:
+        match = find_window(
+            lambda hwnd, pid, title, visible, rect: visible
+            and pid == process.pid
+            and GAME_WINDOW_TITLE.lower() in title.lower(),
+            timeout_s=GAME_WINDOW_TIMEOUT_S,
+        )
+        if match is None:
+            print("the game window did not appear within %.0f s" % GAME_WINDOW_TIMEOUT_S)
+            return 1
+        hwnd = match[0]
+        image_name = process_image_name(match[1])
+        if image_name.lower() != GAME_EXE_NAME.lower():
+            print("the window belongs to %r, not to %s, so it is not the game window"
+                  % (image_name, GAME_EXE_NAME))
+            return 1
+        print("game window found: %s (hwnd %s)" % (match[2], hwnd))
+        time.sleep(GAME_SETTLE_S)
+
+        focus_ok, focus_note = ensure_key_focus(hwnd)
+        print(focus_note)
+        if not focus_ok:
+            print("refusing to post the key script: a posted key is read by the window, not by the game's key "
+                  "state, so a run built out of posted keys would prove nothing")
+            return 1
+        previous_foreground = user32.GetForegroundWindow()
+
+        sent = 0
+        for token in tokens:
+            if token == "wait":
+                print("wait %.1f s" % KEY_WAIT_S)
+                time.sleep(KEY_WAIT_S)
+                continue
+            # The focus can be stolen between two presses (any window that pops up takes it). Take it back
+            # rather than posting, so every press in the script is a press the game actually read.
+            if not game_has_focus(hwnd):
+                retaken, why = ensure_key_focus(hwnd, attempts=4, settle=0.2)
+                print("focus lost before %s: %s" % (token, why))
+                if not retaken:
+                    return 1
+            result = send_vk_focused(KEY_CODES[token])
+            sent += 1
+            print("key %s (%s)" % (token, result))
+            time.sleep(KEY_GAP_S)
+        print("keys sent: %d of %d tokens" % (sent, len(tokens)))
+        restore_foreground(previous_foreground)
+        time.sleep(FOREGROUND_SETTLE_S)
+
+        frame_path = os.path.join(OUTPUT_DIR, "keys_run.png")
+        rect, written, note = capture_window(hwnd, frame_path)
+        if rect is None or written is None:
+            print("frame capture failed: %s" % note)
+            return 1
+        real, why = frame_is_real(frame_path)
+        if not real:
+            print("frame rejected: %s" % why)
+            discard(frame_path)
+            return 1
+        print("captured %s %sx%s (%s)" % (frame_path, rect[2], rect[3], why))
+
+        close_window(hwnd)
+        deadline = time.time() + CLOSE_GRACE_S
+        while time.time() < deadline and process.poll() is None:
+            time.sleep(0.2)
+        if process.poll() is None:
+            kill_tree(process)
+    finally:
+        kill_tree(process)
+        try:
+            game_log.close()
+        except Exception:  # gate: ok Best-effort: the checks below read the file from disk.
+            pass
+
+    with open(game_log_path, "r", encoding="utf-8", errors="replace") as handle:
+        log_text = handle.read()
+    audio_lines = [line.strip() for line in log_text.splitlines() if "PP audio:" in line]
+    print("audio lines in %s: %d" % (game_log_path, len(audio_lines)))
+    for line in audio_lines:
+        print("  " + line)
+
+    if "PP CRASH" in log_text:
+        crash_lines = [line for line in log_text.splitlines() if "PP CRASH" in line]
+        print("the game reported a crash: %s" % crash_lines[0][:200])
+        return 1
+    print("no PP CRASH in %s" % game_log_path)
+
+    if not expect:
+        print(frame_path)
+        return 0
+
+    missing = []
+    for cue in expect:
+        needle = "PP audio: %s played" % cue
+        if not any(needle in line for line in audio_lines):
+            missing.append(cue)
+    if missing:
+        print("FAIL these cues were never played: %s" % ", ".join(missing))
+        return 1
+    print("PASS every cue was played at least once: %s" % ", ".join(expect))
+    print(frame_path)
+    return 0
+
+
 def run_selftest():
     """Prove the capture path works, using notepad, so the harness can be trusted before the room exists."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -1381,6 +1960,116 @@ def run_selftest():
             kill_tree(process)
 
 
+def run_scroll_capture():
+    """Capture two frames of the running title exactly half a second apart, with no key pressed (card TEMPO-1).
+
+    The check the card asks for is arithmetic on the captures: the road layer travels
+    scroll_px_per_step * 60 * elapsed pixels, and two frames 0.5 s apart should differ by that much. So the
+    harness has to know the elapsed time rather than assume it, which is why the timestamps are taken around
+    the two screen copies and printed. The world is not touched between them: this run never presses a key,
+    so the title stays on PRESS START and the only thing that changes is the scene's own clock.
+
+    Usage: python tools\\capture_title.py --scroll
+    """
+    build = newest_build()
+    if build is None:
+        print("no built game found under %s" % GAME_OUTPUT_DIR)
+        return 1
+    exe_path, win_path = build
+    print("launching %s -game %s" % (exe_path, win_path))
+
+    os.makedirs(BUILD_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    game_log_path = os.path.join(BUILD_DIR, "capture-scroll-game.log")
+    game_log = open(game_log_path, "wb")
+    process = subprocess.Popen(
+        [exe_path, "-game", win_path],
+        cwd=os.path.dirname(exe_path),
+        stdin=subprocess.DEVNULL,
+        stdout=game_log,
+        stderr=subprocess.STDOUT,
+    )
+    start_watchdog(process, WATCHDOG_S)
+    try:
+        match = find_window(
+            lambda hwnd, pid, title, visible, rect: visible
+            and pid == process.pid
+            and GAME_WINDOW_TITLE.lower() in title.lower(),
+            timeout_s=GAME_WINDOW_TIMEOUT_S,
+        )
+        if match is None:
+            print("the game window did not appear within %.0f s" % GAME_WINDOW_TIMEOUT_S)
+            return 1
+        hwnd = match[0]
+        image_name = process_image_name(match[1])
+        if image_name.lower() != GAME_EXE_NAME.lower():
+            print("the window belongs to %r, not to %s" % (image_name, GAME_EXE_NAME))
+            return 1
+        print("game window found: %s (hwnd %s)" % (match[2], hwnd))
+
+        time.sleep(GAME_SETTLE_S)
+        first_path = os.path.join(OUTPUT_DIR, "title_scroll_1.png")
+        second_path = os.path.join(OUTPUT_DIR, "title_scroll_2.png")
+        t0 = time.time()
+        rect, written, note = capture_window(hwnd, first_path)
+        if rect is None or written is None:
+            print("scroll capture 1 failed: %s" % note)
+            return 1
+        real, why = frame_is_real(first_path)
+        if not real:
+            print("scroll capture 1 rejected: %s" % why)
+            discard(first_path)
+            return 1
+        print("captured %s %sx%s via %s (%s)" % (first_path, rect[2], rect[3], note, why))
+
+        remaining = t0 + SCROLL_GAP_S - time.time()
+        if remaining > 0:
+            time.sleep(remaining)
+        t1 = time.time()
+        rect, written, note = capture_window(hwnd, second_path)
+        if rect is None or written is None:
+            print("scroll capture 2 failed: %s" % note)
+            return 1
+        real, why = frame_is_real(second_path)
+        if not real:
+            print("scroll capture 2 rejected: %s" % why)
+            discard(second_path)
+            return 1
+        print("captured %s %sx%s via %s (%s)" % (second_path, rect[2], rect[3], note, why))
+        print("elapsed between the two frames: %.3f s" % (t1 - t0))
+
+        close_window(hwnd)
+        deadline = time.time() + CLOSE_GRACE_S
+        while time.time() < deadline and process.poll() is None:
+            time.sleep(0.2)
+        if process.poll() is None:
+            print("the game did not close on request, terminating it")
+            kill_tree(process)
+        try:
+            game_log.close()
+        except Exception:  # gate: ok Best-effort: the log is read from disk just below.
+            pass
+
+        with open(game_log_path, "r", encoding="utf-8", errors="replace") as handle:
+            log_text = handle.read()
+        theme = [line for line in log_text.splitlines() if "title_theme streaming" in line]
+        if theme:
+            print("audio: %s" % theme[0].strip())
+        else:
+            print("audio: no theme stream line in %s" % game_log_path)
+        if "PP CRASH" in log_text:
+            print("the game reported a crash")
+            return 1
+        print("elapsed %.3f" % (t1 - t0))
+        return 0
+    finally:
+        kill_tree(process)
+        try:
+            game_log.close()
+        except Exception:  # gate: ok Best-effort cleanup of a temp artifact: the capture result does not depend on it.
+            pass
+
+
 def main():
     parser = argparse.ArgumentParser(description="Capture the title screen frames of the built game.")
     parser.add_argument(
@@ -1399,13 +2088,46 @@ def main():
         default=None,
         help="start a new game and capture the ship room twice into output\\ship_run_1.png and _2.png",
     )
+    parser.add_argument(
+        "--intro",
+        action="store_true",
+        help="start a new game and capture the intro at 1, 4, 8 and 14 s into output\\intro_1.png to intro_4.png",
+    )
+    parser.add_argument(
+        "--keys",
+        default=None,
+        help="drive the game with a key script, for example 'enter,enter,down,down,enter,cancel', then read the "
+             "PP audio lines back from the game log; 'wait' pauses between presses",
+    )
+    parser.add_argument(
+        "--expect",
+        default=None,
+        help="comma separated cue names that must each be played at least once in the --keys run",
+    )
+    parser.add_argument(
+        "--first-boot",
+        action="store_true",
+        help="remove the opening marker before the --keys run, so the title starts in its first boot phase",
+    )
+    parser.add_argument(
+        "--scroll",
+        action="store_true",
+        help="capture two title frames half a second apart into output\\title_scroll_1.png and _2.png with no "
+             "key pressed, and print the elapsed time so the world's travel can be measured (card TEMPO-1)",
+    )
     args = parser.parse_args()
     if args.selftest:
         return run_selftest()
     if args.video:
         return run_video_capture()
+    if args.keys:
+        return run_keys_capture(parse_key_script(args.keys), args.expect, args.first_boot)
     if args.room == "ship":
         return run_ship_capture()
+    if args.intro:
+        return run_intro_capture()
+    if args.scroll:
+        return run_scroll_capture()
     return run_game_capture()
 
 

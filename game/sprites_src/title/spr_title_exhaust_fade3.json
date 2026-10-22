@@ -1,0 +1,8 @@
+{
+  "fps": 12.0,
+  "frame_h": 10,
+  "frame_w": 12,
+  "frames": 4,
+  "name": "spr_title_exhaust_fade3",
+  "note": "one NES brightness row darker per step, written by tools/pp_intro_art.py"
+}

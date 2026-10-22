@@ -1,0 +1,8 @@
+{
+  "fps": 0,
+  "frame_h": 48,
+  "frame_w": 512,
+  "frames": 1,
+  "name": "title_L3_downs_fade1",
+  "note": "one NES brightness row darker per step, written by tools/pp_intro_art.py"
+}

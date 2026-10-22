@@ -1,0 +1,8 @@
+{
+  "fps": 2,
+  "frame_h": 120,
+  "frame_w": 512,
+  "frames": 2,
+  "name": "title_L1_sky_fade1",
+  "note": "one NES brightness row darker per step, written by tools/pp_intro_art.py"
+}

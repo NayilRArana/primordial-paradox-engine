@@ -1,0 +1,13 @@
+{
+  "_note": "Manager draft 2026-10-21 for the text crawl after the title screen. 32 columns max, capital letters, our own 8x8 font. Nayil will refine; one beat per entry; each beat is shown line by line with the text blip.",
+  "columns": 32,
+  "beats": [
+    ["THE GODS NEVER DIED."],
+    ["THEY WERE FORGOTTEN,", "AND THE VEIL BETWEEN", "THEIR WORLD AND OURS", "WEARS THIN."],
+    ["TODAY A SCIENTIST, A STUDENT,", "A SAILOR AND A CEO", "DO NOT KNOW WHO", "THEY WERE."],
+    ["TONIGHT, A FATHER DRIVES", "HIS SON SOUTH, TO THE SEA."],
+    ["ENTROPY IS SPEEDING UP."],
+    ["SOUTHAMPTON.", "OCTOBER."]
+  ],
+  "timing": {"chars_per_second": 18, "pause_after_beat_seconds": 1.2, "skip_key": "start"}
+}

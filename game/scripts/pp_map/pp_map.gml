@@ -19,7 +19,7 @@ function pp_map_load(_map_id) {
         w: _row.width,
         h: _row.height,
         tile: PP_TILE,
-        music: _row.music,
+        music: (variable_struct_exists(_row, "music") ? _row.music : ""),
         legend: _row.tile_legend,
         tiles: _row.tiles,
         collision: _row.collision,

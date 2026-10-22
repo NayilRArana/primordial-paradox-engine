@@ -1,0 +1,57 @@
+{
+  "_note": "Stars for the intro (card INTRO-1). Twenty four fixed points in the 256x240 frame, grouped into shapes a Greek myth reader will see: a sickle (9), a thunderbolt (7), a trident at the right edge (3), a bident (2) and three loose ones. Each point is the star's centre pixel; the game draws the 5x5 star sprite centred on it. Positions are inside x 4..252 and y 8..160 so no star is cut by the frame edge and all of them sit in the sky, never over the text crawl area below y 128.",
+  "format": 1,
+  "kind": "intro_stars",
+  "shapes": [
+    {
+      "name": "sickle",
+      "meaning": "the reaping blade Kronos used, and the shape of the moon it left",
+      "points": [
+        [30, 96],
+        [36, 84],
+        [46, 76],
+        [58, 72],
+        [70, 74],
+        [78, 82],
+        [80, 94],
+        [74, 104],
+        [62, 108]
+      ]
+    },
+    {
+      "name": "thunderbolt",
+      "meaning": "the bolt of the sky father, zigzagged down the middle of the frame",
+      "points": [
+        [120, 22],
+        [136, 44],
+        [126, 46],
+        [140, 68],
+        [128, 70],
+        [114, 94],
+        [106, 72]
+      ]
+    },
+    {
+      "name": "trident",
+      "meaning": "the sea god's three points, standing at the right edge of the sky",
+      "points": [
+        [222, 58],
+        [234, 44],
+        [246, 58]
+      ]
+    },
+    {
+      "name": "bident",
+      "meaning": "the two pointed fork of the underworld",
+      "points": [
+        [192, 118],
+        [208, 118]
+      ]
+    }
+  ],
+  "loose": [
+    [14, 58],
+    [210, 20],
+    [46, 40]
+  ]
+}

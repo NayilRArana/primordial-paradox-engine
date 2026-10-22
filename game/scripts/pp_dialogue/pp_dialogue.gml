@@ -219,7 +219,11 @@ function pp_dialogue_step(_d) {
     } else if (_item.ch == ",") {
         _d.wait += PP_TEXT_PAUSE_COMMA;
     }
-    if (_item.ch != " " && _d.revealed mod PP_TEXT_BLIP_EVERY == 0) _d.blips += 1;
+    if (_item.ch != " " && _d.revealed mod PP_TEXT_BLIP_EVERY == 0) {
+        _d.blips += 1;
+        // Card SFX-WIRE: one blip every three revealed characters, never on a space, pitched by speaker.
+        pp_audio_play(pp_audio_blip_cue(_d.speaker));
+    }
 }
 
 /// Confirm: complete the page if it is still typing, otherwise turn the page or close. Returns true when it closed.

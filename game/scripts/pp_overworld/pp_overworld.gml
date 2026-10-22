@@ -109,6 +109,8 @@ function pp_world_start_move(_world, _tx, _ty, _steps_per_tile) {
         _guard += 1;
     }
     _hero.moving = true;
+    // Card SFX-WIRE: a tile move shows two walk frames, so one footstep per move is one every second frame.
+    pp_audio_play("footstep");
     _hero.from_x = _hero.px;
     _hero.from_y = _hero.py;
     _hero.to_x = _tx * PP_TILE;
@@ -132,6 +134,9 @@ function pp_world_move_step(_world) {
         _hero.py = _hero.to_y;
         _hero.moving = false;
         _hero.steps = _hero.total;
+        // Card SFX-WIRE: a hatch is a tile, not a trigger, so the sound fires when the hero lands on one.
+        var _kind = pp_map_tile_kind(_world.map, _hero.tx, _hero.ty);
+        if (string_pos("hatch", _kind) > 0) pp_audio_play("door_hatch");
         return;
     }
     _hero.px = floor(lerp(_hero.from_x, _hero.to_x, _t));
@@ -219,6 +224,8 @@ function pp_overworld_fire(_world, _trigger) {
         case "map":
             var _spawn = "start";
             if (variable_struct_exists(_trigger, "spawn")) _spawn = _trigger.spawn;
+            // Card SFX-WIRE: a door between maps is a hatch in the story, so it gets the hatch sound.
+            pp_audio_play("door_hatch");
             pp_overworld_change_map(_world, _trigger.id, _spawn);
             break;
 

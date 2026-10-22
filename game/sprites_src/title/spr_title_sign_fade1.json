@@ -1,0 +1,8 @@
+{
+  "fps": 0,
+  "frame_h": 24,
+  "frame_w": 96,
+  "frames": 4,
+  "name": "spr_title_sign_fade1",
+  "note": "one NES brightness row darker per step, written by tools/pp_intro_art.py"
+}

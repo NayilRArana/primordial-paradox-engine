@@ -11,7 +11,11 @@
     "marker": 41,
     "marker_trail": 40,
     "hazard": 53,
-    "warn": 23
+    "warn": 23,
+    "window": 6,
+    "window_edge": 5,
+    "window_shadow": 2,
+    "text": 5
   },
   "colours": [
     "#0b0b0f", "#1c1c24", "#2e2e3a", "#4a4a58", "#7a7a88", "#c8c8d4",

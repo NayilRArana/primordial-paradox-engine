@@ -35,19 +35,30 @@ DST = os.path.join(ROOT, "game", "datafiles", "art")
 INDEX = "title_manifest.json"
 
 
-def source_entries() -> list[dict]:
-    """Every animation on disk, sorted by name, with the numbers the runtime needs."""
-    entries = []
+def _folders():
     for folder in SOURCES:
-        if not os.path.isdir(folder):
-            continue
+        if os.path.isdir(folder):
+            yield folder
+
+
+def source_entries() -> list[dict]:
+    """Every animation on disk, sorted by name, with the numbers the runtime needs.
+
+    A tileset sidecar (ts_ship_tiled.json, ts_exterior_tiled.json) is not an animation: it
+    declares kind tileset and names its sheet in "image". Measured 2026-10-21: the sidecar was
+    read as a strip and stopped the whole suite at session setup with "has no PNG beside it",
+    because its sheet is ts_exterior.png, not ts_exterior_tiled.png. The strip naming rule
+    therefore only applies to real animations; the tileset sheets are mirrored by
+    source_pngs() below, because the committed .yyp lists them as Included Files.
+    """
+    entries = []
+    for folder in _folders():
         for fname in sorted(os.listdir(folder)):
             if not fname.endswith(".json"):
                 continue
             with open(os.path.join(folder, fname), "r", encoding="utf-8") as fh:
                 meta = json.load(fh)
-            if "name" not in meta or "frame_w" not in meta:
-                # A tileset sidecar (ts_ship_tiled.json) describes a Tiled file, not an animation strip.
+            if meta.get("kind") == "tileset" or "name" not in meta or "frame_w" not in meta:
                 continue
             png = fname[:-5] + ".png"
             if not os.path.isfile(os.path.join(folder, png)):
@@ -86,6 +97,7 @@ def main() -> int:
     File streams/title_theme.ogg which is not in game/datafiles".
     """
     mirror_streams()
+    mirror_sfx()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
@@ -134,24 +146,124 @@ def main() -> int:
     return 0
 
 
+# -----------------------------------------------------------------------------------------------------------------
+# Sound effects (card SFX-WIRE). The effects are rendered as 16 bit mono WAV by tools\sfx.py. The game plays them
+# with audio_play_sound on a buffer sound, which needs the header lengths, not a guess, so this mirror copies each
+# WAV into game\datafiles\sfx and writes sfx\sfx.json with the offset and length measured from the file itself.
+
+SFX_SRC = os.path.join(ROOT, "assets", "audio", "sfx")
+SFX_DST = os.path.join(ROOT, "game", "datafiles", "sfx")
+SFX_INDEX = "sfx.json"
+# Every cue name the game asks for. A cue not in this list is a typo in GML, and the manifest catches it here
+# rather than at runtime.
+SFX_CUES = (
+    "menu_move", "menu_select", "menu_cancel",
+    "text_blip_a", "text_blip_b", "text_blip_c",
+    "footstep", "door_hatch", "encounter_swoosh", "thunder_soft",
+    "item_get", "heal", "hit_light", "hit_heavy", "miss", "crit",
+    "level_up", "alarm", "wave_wash", "save_jingle", "game_over",
+)
+
+
+def wav_info(path: str) -> dict | None:
+    """Read a WAV header: the data chunk offset and length, the sample rate, the channels and the bit depth.
+
+    The chunk walk is the reason this is here: the game hands audio_create_buffer_sound an offset and a byte
+    length, and a hardcoded 44 would be wrong the moment a renderer writes a LIST or fact chunk.
+    """
+    with open(path, "rb") as handle:
+        blob = handle.read()
+    if len(blob) < 44 or blob[0:4] != b"RIFF" or blob[8:12] != b"WAVE":
+        return None
+    info = {"rate": 0, "channels": 0, "bits": 0, "offset": 0, "data_bytes": 0}
+    pos = 12
+    while pos + 8 <= len(blob):
+        tag = blob[pos:pos + 4]
+        size = int.from_bytes(blob[pos + 4:pos + 8], "little")
+        body = pos + 8
+        if tag == b"fmt " and body + 16 <= len(blob):
+            info["channels"] = int.from_bytes(blob[body + 2:body + 4], "little")
+            info["rate"] = int.from_bytes(blob[body + 4:body + 8], "little")
+            info["bits"] = int.from_bytes(blob[body + 14:body + 16], "little")
+        elif tag == b"data":
+            info["offset"] = body
+            info["data_bytes"] = min(size, len(blob) - body)
+            break
+        pos = body + size + (size % 2)
+    if info["offset"] == 0 or info["data_bytes"] <= 0 or info["rate"] <= 0 or info["channels"] <= 0:
+        return None
+    return info
+
+
+def mirror_sfx() -> list:
+    """Copy every cue's WAV into the build and return the manifest cues, sorted by cue name."""
+    if not os.path.isdir(SFX_SRC):
+        return []
+    os.makedirs(SFX_DST, exist_ok=True)
+    cues = []
+    for cue in sorted(SFX_CUES):
+        name = cue + ".wav"
+        src = os.path.join(SFX_SRC, name)
+        if not os.path.isfile(src):
+            print("MISSING sfx source: assets/audio/sfx/%s" % name)
+            continue
+        info = wav_info(src)
+        if info is None:
+            print("BAD wav header: assets/audio/sfx/%s" % name)
+            continue
+        shutil.copy2(src, os.path.join(SFX_DST, name))
+        cues.append({
+            "bits": info["bits"],
+            "channels": info["channels"],
+            "data_bytes": info["data_bytes"],
+            "file": name,
+            "id": cue,
+            "offset": info["offset"],
+            "rate": info["rate"],
+            "sample_format": "buffer_s16" if info["bits"] == 16 else "buffer_u8",
+            "seconds": round(info["data_bytes"] / float(info["rate"] * info["channels"] * (info["bits"] // 8)), 3),
+        })
+    # A WAV the cue list no longer names must not linger in the build.
+    for fname in sorted(os.listdir(SFX_DST)):
+        if fname.endswith(".wav") and fname[:-4] not in SFX_CUES:
+            os.remove(os.path.join(SFX_DST, fname))
+    manifest = {
+        "format": 1,
+        "kind": "sfx",
+        "source": "generated by tools/sync_art.py from assets/audio/sfx; 2A03 voices, no sampled or copied audio",
+        "cues": cues,
+    }
+    with open(os.path.join(SFX_DST, SFX_INDEX), "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    print("mirrored %d sound effects into game/datafiles/sfx" % len(cues))
+    return cues
+
+
 def mirror_streams() -> None:
-    """Every rendered theme under assets\\audio\\<name>\\<name>.ogg is copied into game/datafiles/streams.
+    """Every rendered theme .ogg under assets\\audio\\<name>\\ is copied into game/datafiles/streams.
 
     One stream used to be enough, so this copied title_theme.ogg and nothing else. The music lane
     added title_theme_v2.ogg, and the committed .yyp lists every stream in the mirror, so a fresh
     checkout could not regenerate that .yyp while this script mirrored only the first theme. The
-    rule now is the source tree's: one folder per theme, the render named after the folder.
+    rule now is: every .ogg in a theme folder is a stream, named by its own basename, so a faster
+    render of the same piece (title_theme_v3_126.ogg beside title_theme_v3.ogg) ships with it.
     """
     base = os.path.join(ROOT, "assets", "audio")
     dst_dir = os.path.join(ROOT, "game", "datafiles", "streams")
     if not os.path.isdir(base):
         return
     for name in sorted(os.listdir(base)):
-        src = os.path.join(base, name, name + ".ogg")
-        if not os.path.isfile(src):
+        folder = os.path.join(base, name)
+        if not os.path.isdir(folder):
             continue
-        os.makedirs(dst_dir, exist_ok=True)
-        shutil.copy2(src, os.path.join(dst_dir, name + ".ogg"))
+        for fname in sorted(os.listdir(folder)):
+            if not fname.endswith(".ogg"):
+                continue
+            src = os.path.join(folder, fname)
+            if not os.path.isfile(src):
+                continue
+            os.makedirs(dst_dir, exist_ok=True)
+            shutil.copy2(src, os.path.join(dst_dir, fname))
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@
       "id": "ship_sample",
       "name": "Navy Ship, Lower Deck",
       "tileset": "ts_ship",
+      "music": "ship_ambient",
       "width": 24,
       "height": 18,
       "tile_legend": {

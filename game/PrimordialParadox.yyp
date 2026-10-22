@@ -69,10 +69,46 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "dissonance_rules.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "dissonance_rules.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "drum_patterns.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "drum_patterns.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "flags.json",
       "CopyToMask": -1,
       "filePath": "datafiles",
       "name": "flags.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "intro_stars.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "intro_stars.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "intro_text.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "intro_text.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -159,6 +195,24 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_timing.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "title_timing.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "ui_layouts.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "ui_layouts.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_pp_font8.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -213,6 +267,42 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "spr_title_car_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_car_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_car_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_car_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_car_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_car_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_car_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_car_fade4.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_title_cloud.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -222,10 +312,82 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "spr_title_cloud_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cloud_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_cloud_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cloud_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_cloud_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cloud_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_cloud_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cloud_fade4.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_title_cone.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "spr_title_cone.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_cone_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cone_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_cone_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cone_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_cone_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cone_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_cone_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_cone_fade4.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -249,6 +411,42 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "spr_title_exhaust_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_exhaust_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_exhaust_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_exhaust_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_exhaust_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_exhaust_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_exhaust_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_exhaust_fade4.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_title_ronan.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -267,10 +465,55 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "spr_title_sign_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_sign_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_sign_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_sign_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_sign_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_sign_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_sign_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_sign_fade4.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_title_sign_flash.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "spr_title_sign_flash.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_title_star.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_title_star.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -321,6 +564,42 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_L1_sky_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L1_sky_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L1_sky_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L1_sky_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L1_sky_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L1_sky_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L1_sky_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L1_sky_fade4.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title_L1_sky_flash.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -334,6 +613,42 @@
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "title_L2_clouds.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L2_clouds_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L2_clouds_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L2_clouds_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L2_clouds_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L2_clouds_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L2_clouds_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L2_clouds_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L2_clouds_fade4.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -357,6 +672,42 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_L3_downs_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L3_downs_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L3_downs_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L3_downs_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L3_downs_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L3_downs_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L3_downs_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L3_downs_fade4.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title_L3_downs_flash.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -370,6 +721,42 @@
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "title_L4_fields.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L4_fields_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L4_fields_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L4_fields_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L4_fields_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L4_fields_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L4_fields_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L4_fields_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L4_fields_fade4.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -393,6 +780,42 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_L5_verge_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L5_verge_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L5_verge_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L5_verge_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L5_verge_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L5_verge_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L5_verge_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L5_verge_fade4.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title_L5_verge_flash.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -406,6 +829,42 @@
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "title_L6_road.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L6_road_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L6_road_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L6_road_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L6_road_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L6_road_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L6_road_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L6_road_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L6_road_fade4.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -429,6 +888,42 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "title_L7_fg_fade1.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L7_fg_fade1.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L7_fg_fade2.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L7_fg_fade2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L7_fg_fade3.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L7_fg_fade3.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_L7_fg_fade4.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "title_L7_fg_fade4.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title_L7_fg_flash.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -442,15 +937,6 @@
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "title_manifest.json",
-      "resourceType": "GMIncludedFile",
-      "resourceVersion": "2.0"
-    },
-    {
-      "$GMIncludedFile": "",
-      "%Name": "ts_ship.png",
-      "CopyToMask": -1,
-      "filePath": "datafiles/art",
-      "name": "ts_ship.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -573,6 +1059,42 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "scene_battle_corridor.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_battle_corridor.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "scene_battle_deck_night.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_battle_deck_night.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "scene_battle_quay_dusk.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_battle_quay_dusk.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "scene_battle_wardroom.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_battle_wardroom.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "scene_ship.json",
       "CopyToMask": -1,
       "filePath": "datafiles/palettes",
@@ -591,6 +1113,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "scene_ui.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_ui.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "all.json",
       "CopyToMask": -1,
       "filePath": "datafiles/patterns",
@@ -600,10 +1131,460 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "capcom.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/recipes",
+      "name": "capcom.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "classical.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/recipes",
+      "name": "classical.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "composers.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/recipes",
+      "name": "composers.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "fox.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/recipes",
+      "name": "fox.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "jrpg.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/recipes",
+      "name": "jrpg.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "konami.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/recipes",
+      "name": "konami.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "nintendo.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/recipes",
+      "name": "nintendo.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "all.json",
       "CopyToMask": -1,
       "filePath": "datafiles/scenes",
       "name": "all.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "alarm.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "alarm.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "crit.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "crit.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "door_hatch.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "door_hatch.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "encounter_swoosh.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "encounter_swoosh.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "footstep.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "footstep.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "game_over.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "game_over.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "heal.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "heal.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "hit_heavy.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "hit_heavy.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "hit_light.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "hit_light.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "item_get.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "item_get.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "level_up.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "level_up.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "menu_cancel.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "menu_cancel.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "menu_move.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "menu_move.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "menu_select.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "menu_select.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "miss.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "miss.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "save_jingle.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "save_jingle.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "sfx.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "sfx.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "text_blip_a.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "text_blip_a.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "text_blip_b.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "text_blip_b.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "text_blip_c.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "text_blip_c.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "thunder_soft.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "thunder_soft.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "wave_wash.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "wave_wash.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "alarm.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "alarm.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "crit.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "crit.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "door_hatch.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "door_hatch.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "encounter_swoosh.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "encounter_swoosh.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "footstep.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "footstep.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "game_over.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "game_over.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "heal.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "heal.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "hit_heavy.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "hit_heavy.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "hit_light.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "hit_light.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "item_get.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "item_get.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "level_up.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "level_up.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "menu_cancel.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "menu_cancel.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "menu_move.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "menu_move.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "menu_select.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "menu_select.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "miss.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "miss.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "percy_theme.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "percy_theme.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "save_jingle.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "save_jingle.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "text_blip_a.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "text_blip_a.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "text_blip_b.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "text_blip_b.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "text_blip_c.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "text_blip_c.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "thunder_soft.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "thunder_soft.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -631,6 +1612,51 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "title_theme_v3.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_theme_v3_126.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "title_theme_v3_126.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_theme_v4_medium.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "title_theme_v4_medium.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_theme_v4_spicy.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "title_theme_v4_spicy.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_theme_v4_subtle.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "title_theme_v4_subtle.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "wave_wash.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "wave_wash.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     }

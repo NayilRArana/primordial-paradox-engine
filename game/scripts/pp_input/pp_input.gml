@@ -111,6 +111,23 @@ function pp_input_lock(_steps) {
     pp_input_clear_edges();
 }
 
+/// True on the step any key, any face button or start goes down. The title's opening shot is skippable with any
+/// key, and this stays the only place that reads a key (spec 02 rule 1). A locked input reports nothing, so a
+/// held key from the previous mode cannot skip the shot by accident.
+function pp_input_any_pressed() {
+    var _in = global.pp_input;
+    if (!is_struct(_in)) return false;
+    if (_in.lock_steps > 0) return false;
+    if (keyboard_check_pressed(vk_anykey)) return true;
+    if (gamepad_is_connected(0)) {
+        for (var b = gp_face1; b <= gp_face4; b += 1) {
+            if (gamepad_button_check_pressed(0, b)) return true;
+        }
+        if (gamepad_button_check_pressed(0, gp_start)) return true;
+    }
+    return false;
+}
+
 function pp_action(_name) {
     var _a = global.pp_input.actions[$ _name];
     if (is_undefined(_a)) return false;

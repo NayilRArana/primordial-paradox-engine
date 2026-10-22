@@ -130,6 +130,42 @@ cursor being an outlined arrow that changes state, and the committed PNGs matchi
 
 Copied expression: none.
 
+## the Map 2 ship tileset and its sample map (2026-10-21, card ENV-TILES)
+
+Studied: nothing. No decompiled, ripped or fan ported material was read, opened, searched, fetched, downloaded or
+reasoned from for this entry, and no published game's art was looked at to draw these tiles. The sources were this
+repository's own `data\nes_palette.json` (the Ricoh 2C02 outputs, built and cited by `tools\art\nes_palette_build.py`),
+`knowledge\CHARACTER-BIBLE.md` REVISION 2 for what the ship is (Percy Skye, 23, Royal Navy lieutenant, grey steel
+corridors, bulkheads, a wardroom, no knight armour), `knowledge\ART-BIBLE.md`, spec 13, `specs\15-env-tiles-ship.md`,
+and the Pillow documentation for the drawing primitives used.
+
+Mechanics learned (public hardware facts and our own decisions, not a studied design):
+- A NES background is built from 16x16 attribute areas that each select 3 colours plus the one backdrop the frame
+  shares, and from 8x8 pattern tiles. So a drawing that is legal at 16x16 has to be re-checked per 8x8 quarter if it is
+  ever to be cut into pattern tiles.
+- A 10 colour scene is built by spending the budget in groups: here black backdrop, a steel ramp (dark, mid, light),
+  a sea ramp (deep, mid, crest), and rust, orange, brass. Propaganda-era steel reads as steel when the light ramp runs
+  in one direction down the plate, not when it is speckled.
+- A tileset that a map can be validated against carries its own properties: solid, climb, palette group, animation
+  pairs. Deriving the collision layer from those properties makes "walls and objects are solid" a measurement instead
+  of a second hand transcription.
+- A deterministic generator (no clock, no unseeded randomness, sorted JSON keys, LF endings) is what lets committed
+  art be regenerated and diffed, so the picture in the repository is the code that made it.
+
+Our implementation differs by: the generator is `tools\art\make_env_ship.py`, a pure function of a root directory that
+writes five files (the sheet, its animation contract JSON, the Tiled tileset, the sample map and a 3x preview) and
+nothing else. Every tile function paints one 16x16 cell through six primitives (`rect`, `frame`, `hline`, `vline`,
+`annulus`, `disc`, plus `hazard` and `checker`) so no tile is a pasted bitmap and each one can be read as geometry. The
+palette is a 10 entry table in the file, and `tools\check_env_tiles.py` compares every opaque pixel against it and
+against `data\nes_palette.json`, so a colour cannot drift into "nearly NES". The map is written by the same script from
+a legend of letters, its collision layer is computed from the tileset's solid flags, and the preview is rendered from
+the map file rather than drawn beside it. The name of the map file is decided by a rule that refuses to overwrite
+another lane's `ship_sample.json`. `tests\test_make_env_ship.py` pins the five outputs, byte identical reruns, the two
+colour ceilings, the collision layer against the flags, reachability, both halves of the name rule, the committed files
+against a fresh build, and the checker's own verdict.
+
+Copied expression: none.
+
 ## the NES validator, the 8x8 font and the window frame (2026-10-21, card NES-CHECK)
 
 Studied: the NESdev wiki pages "PPU palettes" (https://www.nesdev.org/wiki/PPU_palettes), ".pal" and
@@ -409,3 +445,10 @@ only. What changed, and why it is not a re-review of the specs:
   They are named in the card's completion summary for a gamedev rewrite card, because this card is documentation only.
 
 Checks run on this machine for this pass are recorded in DEVLOG.md, top entry.
+
+## INTRO-1 intro shot (2026-10-22)
+Studied: the NES fade rule as documented in knowledge/ART-BIBLE.md and the 2C02 table in data/nes_palette.json.
+Mechanic learned: a hardware fade rewrites each palette entry to a darker row of the same hue, and past the
+darkest row the entry is black, which is why a four step fade ends on a black screen instead of a dark blue one.
+Ours differs: the fade is pre-drawn into named strips beside each art strip and picked by name at runtime, so the
+shot costs no per-pixel work and every strip is checked against the 55 usable PPU entries.

@@ -1,0 +1,66 @@
+{
+  "_note": "Timing for the title card and the intro. Every animation constant on the title is derived from the theme's tempo here, so the car bobs, the lane dashes pass and the logo shimmers on the music rather than on a wall clock. The theme is the 2026-10-21 waltz rendered at 126 bpm (assets\\audio\\title_theme_v3\\title_theme_v3_126.ogg); 126 is the card's number and is the value a musician counts against it. tools\\apply_title_timing.py turns this file into the macros of game\\scripts\\pp_title\\pp_title.gml, so this file is the source of truth and the macros are the copy.",
+  "format": 1,
+  "kind": "title_timing",
+  "bpm": 126,
+  "fps": 60,
+  "beats_per_bar": 3,
+  "steps_per_beat": 28.571,
+  "steps_per_bar": 85.714,
+  "beat_steps": 29,
+  "bar_steps": 86,
+  "beats_per_twinkle": 3,
+  "scroll": {
+    "_note": "One lane dash per beat: the road art draws a 16 px dash every 16 px (tools/art/make_title_world.py, build_road), so a beat of road travel is 16 px. At 60 steps a second that is 16 / 29 = 0.552 px a step for the road layer. The card asked for at least 1.6 times the old 0.2 px a step; the tempo lock needs 2.76 times, which is the faster number and the one the music sets, so the 1.6 is exceeded rather than missed.",
+    "dash_px": 16,
+    "px_per_step": 0.552,
+    "previous_px_step": 0.2,
+    "times_previous": 2.76
+  },
+  "car": {
+    "bob_px": 1,
+    "bob_beats": 1,
+    "bob_steps": 29,
+    "wheel_turns_per_beat": 1
+  },
+  "exhaust": {
+    "beats_per_puff": 2,
+    "steps": 58
+  },
+  "stars": {
+    "twinkles_on": "bar",
+    "steps": 86
+  },
+  "lightning": {
+    "bars": 8,
+    "steps": 688,
+    "flash_steps": 2
+  },
+  "shimmer": {
+    "bars": 4,
+    "steps": 344,
+    "length_steps": 24
+  },
+  "prompt": {
+    "blink_steps": 29
+  },
+  "cursor": {
+    "steps": 14
+  },
+  "intro": {
+    "pan_seconds": 3.0,
+    "twinkle_beats": 4,
+    "world_fade_steps_per_palette_step": 18,
+    "sky_fade_steps_per_palette_step": 18,
+    "star_hold_seconds": 3.6,
+    "hold_before_leaving_seconds": 1.0,
+    "text_starts_after_seconds": 9.0
+  },
+  "text": {
+    "chars_per_second": 18,
+    "pause_after_beat_seconds": 1.2,
+    "blip_every_chars": 3,
+    "columns": 32,
+    "lines_on_screen": 6
+  }
+}
