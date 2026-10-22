@@ -1932,6 +1932,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "pp_drive.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_drive.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "save_jingle.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
@@ -2035,6 +2044,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "title_theme_v4_subtle.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "title_theme_v5.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "title_theme_v5.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
