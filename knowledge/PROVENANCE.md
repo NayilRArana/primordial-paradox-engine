@@ -500,7 +500,14 @@ Studied: nothing outside this repository. The cue ids, titles, meters and tempos
 (note round1\musician.md, PP-01 to PP-16), which is our project's document, and the bus rules are spec 12. Every
 behaviour of every audio call used is cited from the official GameMaker manual page read on 2026-10-22, named in the
 module header: audio_play_sound, audio_sound_gain, audio_pause_sound, audio_resume_sound, audio_stop_sound,
-audio_channel_num, audio_create_stream (with audio_destroy_stream), and window_has_focus.
+audio_is_playing (whose own note says it still returns true for a paused sound), audio_channel_num, audio_create_stream
+(with audio_destroy_stream), audio_create_buffer_sound (whose page defines the audio_mono and audio_stereo constants it
+is given), and window_has_focus.
+
+Rule 9 of spec 12 is not proven, and this entry records that rather than quoting the rule back as if the engine said
+it. audio_channel_num.htm says a sound of lower priority is stopped to free a channel when the limit is reached; it
+says nothing about which of several equal priority sounds goes, and nothing about age. "Replaces the oldest of that
+kind" is therefore our wish, not a documented behaviour, and the module comment says so.
 
 Mechanics learned: a music bus is three separate things and keeping them apart is what makes it simple. One, a registry
 that turns a stable id into the file to stream, held in data rather than in code, so a new render arrives as a file and
@@ -517,9 +524,10 @@ failure at build time and a silent log line at run time, never a crash; polling 
 rather than trusting an event number this project has never compiled; and reporting the fade as 30 steps of the spec but
 converting to milliseconds at the one place the manual says the engine wants them.
 
-Copied expression: none. No audio file was generated, downloaded or invented, no sound was heard, and nothing was
-compiled: GameMaker is not installed on this machine, so the module is reviewed text and it is not proven to make a
-noise. What is proven is the data, its cross references and the arithmetic, all by tools\check_data.py and its tests.
+Copied expression: none. No audio file was generated, downloaded or invented. Nothing was heard by the lane that wrote
+the module, and that is a limit of a scripted build and not of the machine: GameMaker LTS 2026 is installed here and
+this tree builds and runs, so the module compiles and its log lines are real (build/capture-intro-game.log). What the
+checks prove is the data, its cross references and the arithmetic, by tools\check_data.py and its tests.
 
 ---
 

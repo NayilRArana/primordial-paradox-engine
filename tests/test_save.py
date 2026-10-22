@@ -549,7 +549,12 @@ def save_document_errors(document: dict) -> list[str]:
         if not known:
             problems.append("the save carries a flag this build does not know: %s" % name)
 
-    sounds = {row["id"]: row for row in _load_json("audio.json")["sounds"]}
+    audio = _load_json("audio.json")
+    sounds = {row["id"]: row for row in audio["sounds"]}
+    # A cue id is a music name too, because a scene music command writes the cue id into world.music and pp_save
+    # stores it. pp_data.gml indexes the cue table beside the sounds with kind music, and this mirrors that.
+    for row in audio.get("cues", []):
+        sounds[row["id"]] = {"id": row["id"], "kind": "music", "cue": True}
     music = document.get("music")
     if music:
         if music not in sounds:
@@ -609,6 +614,21 @@ def test_the_mirror_agrees_with_the_gml_on_which_flags_are_allowed():
     scene = function_body(read_code(SAVE_GML), "pp_save_scene_flag_id")
     assert '"scene_"' in scene
     assert "variable_struct_exists(global.pp_data.scene_by_id, _scene)" in allowed
+
+
+def test_a_save_taken_in_a_scene_that_set_a_cue_id_can_be_loaded():
+    """Item 5 of card t_73f08da5. A scene music command writes the cue id into world.music and pp_save stores it, so
+    the validator has to accept a cue id as a music name or a save taken after the ship boarding scene or the
+    Prometheus scene cannot be loaded. Both halves are pinned: the mirror here, and pp_data.gml, which indexes the
+    cue table beside the sounds so the game's own check sees the cue."""
+    for cue in ("PP-05", "PP-07"):
+        problems = save_document_errors(_save_document(music=cue))
+        assert problems == [], problems
+    problems = save_document_errors(_save_document(music="no_such_music"))
+    assert any("names music this build does not have: no_such_music" in p for p in problems), problems
+    data = read_code("game/scripts/pp_data/pp_data.gml")
+    assert "audio_by_id" in data and "audio.cues" in data, \
+        "the cue ids are not reachable as a music name in the game"
 
 
 def test_a_save_shaped_document_with_an_unknown_id_is_rejected():

@@ -35,26 +35,26 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_title/Step_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_app/pp_app.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_art/pp_art.gml | reviewed | gamedev | 2026-10-21 |
-| game/scripts/pp_audio/pp_audio.gml | confirmed | code-review | 2026-10-22 |
+| game/scripts/pp_audio/pp_audio.gml | pending | card t_73f08da5 changed the text | 2026-10-22 |
 | game/scripts/pp_battle_commands/pp_battle_commands.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_battle_director/pp_battle_director.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_battle_text/pp_battle_text.gml | rewritten | gamedev | 2026-10-22 |
 | game/scripts/pp_camera/pp_camera.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_config/pp_config.gml | reviewed | gamedev | 2026-10-22 |
-| game/scripts/pp_data/pp_data.gml | confirmed | code-review | 2026-10-19 |
+| game/scripts/pp_data/pp_data.gml | pending | card t_73f08da5 changed the text | 2026-10-22 |
 | game/scripts/pp_dialogue/pp_dialogue.gml | rewritten | gamedev | 2026-10-22 |
 | game/scripts/pp_dodge_arena/pp_dodge_arena.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_input/pp_input.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_font/pp_font.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_ledger/pp_ledger.gml | reviewed | gamedev | 2026-10-22 |
-| game/scripts/pp_look/pp_look.gml | pending | code-review | 2026-10-22 |
+| game/scripts/pp_look/pp_look.gml | confirmed | code-review | 2026-10-22 |
 | game/scripts/pp_map/pp_map.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_save/pp_save.gml | confirmed | code-review | 2026-10-22 |
 | game/scripts/pp_scene/pp_scene.gml | confirmed | code-review | 2026-10-22 |
-| game/scripts/pp_text/pp_text.gml | rewritten | gamedev | 2026-10-22 |
+| game/scripts/pp_text/pp_text.gml | pending | card t_73f08da5 changed the text | 2026-10-22 |
 | game/scripts/pp_title/pp_title.gml | reviewed | gamedev | 2026-10-21 |
 
 The two rows that were `pending` were reviewed by gamedev on 2026-10-21 and raised to `confirmed` by code-review on
@@ -73,10 +73,24 @@ blacklist hit, no reference to a study copy and no foreign name. That review did
 was returned with required code changes, listed on the card. A confirmed row here means the text was read and holds no
 foreign material; it is not an approval of the logic.
 
+Three rows were set back to `pending` by card t_73f08da5 on 2026-10-22, because that card changed the text after the
+clean-room verdict above: `pp_audio.gml` (the fade helpers, the theme as one music source, the citations in its header),
+`pp_data.gml` (the cue ids indexed beside the sounds) and `pp_text.gml` (the blip call). Nothing in the change reads or
+cites material outside this repository: the audio rules are specs 05 and 12, the cue ids are the musician lane's own
+list, and every engine call's behaviour is the manual page named next to it. A reviewer still has to read the new text
+before the row says `confirmed` again.
+
 `rewritten` means the file text changed in this review. All eight rewrites are comment only: each one removed a
 provenance parenthetical that described the internals of the quarantined copy, and replaced it with the spec the
 structure is actually written from. No logic line, no number and no data field changed, and `python -m pytest tests -q`
 plus the three checkers were run afterwards.
+
+The `pp_look.gml` row was raised from `pending` to `confirmed` on 2026-10-22 by code-review, on card t_047bb3a7 (the gate
+on the 8 bit look and its tests). What that reviewer read: the whole module, its provenance entry, and the three official
+manual pages the entry names (application_surface, display_set_gui_size, gpu_set_tex_filter), plus the room palette data
+and `tools/check_data.py`. `tools/check_cleanroom.py` reports no blacklist hit and no reference to a study copy. Nothing
+decompiled or ripped was opened, searched or reasoned from, and the quarantine folder was not touched. As with the rows
+above, confirmed is a clean-room verdict only: the same card returned the change with required code fixes.
 
 ## Why each module is genre level
 

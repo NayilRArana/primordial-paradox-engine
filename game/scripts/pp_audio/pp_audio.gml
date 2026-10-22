@@ -7,7 +7,7 @@
 ///   music cues, keyed by the musician's own ids PP-01 to PP-16 in data\audio.json, so his OGG named after the
 ///     cue's asset is picked up with no code edit (spec 12, card G0-2).
 ///
-/// Audio calls used here, and where each behaviour was checked. All six pages were read on 2026-10-22 at
+/// Audio calls used here, and where each behaviour was checked. Every page named below was read on 2026-10-22 at
 /// https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/Asset_Management/Audio/ :
 ///   audio_play_sound(index, priority, loop, gain) returns the instance id, and that id is what the gain, pause,
 ///     resume and stop calls below address (audio_play_sound.htm);
@@ -16,10 +16,16 @@
 ///   audio_pause_sound(index) and audio_resume_sound(index) resume "from its paused state", so the play position
 ///     survives a pause (audio_pause_sound.htm, audio_resume_sound.htm);
 ///   audio_stop_sound(index) also stops a paused sound (audio_stop_sound.htm);
+///   audio_is_playing(index) asks whether an instance is playing, and its own note says it STILL RETURNS TRUE for a
+///     sound that was paused, so it answers "is this instance alive", never "is this instance audible"
+///     (audio_is_playing.htm);
 ///   audio_channel_num(num) is a configuration call that STOPS ALL PLAYING SOUNDS, so it is called exactly once,
 ///     before the first cue (audio_channel_num.htm);
 ///   audio_create_stream(file) streams an external OGG, and the page says the sound must be destroyed with
-///     audio_destroy_stream or the game leaks and eventually crashes (audio_create_stream.htm).
+///     audio_destroy_stream or the game leaks and eventually crashes (audio_create_stream.htm);
+///   audio_create_buffer_sound(buffer, format, rate, offset, length, channels) makes a sound from a fixed buffer, and
+///     its own page defines the channel constants audio_mono and audio_stereo passed to it here
+///     (Audio_Buffers/audio_create_buffer_sound.htm).
 /// Focus is polled with window_has_focus(), which the manual documents as valid on Windows and which returns false
 /// while the window has lost focus (Cameras_And_Display/The_Game_Window/window_has_focus.htm). Polling beats an
 /// event number this project has never compiled and therefore cannot claim.
@@ -140,9 +146,46 @@ function pp_audio_music_paths(_asset) {
     ];
 }
 
-/// Start one music cue, crossfading from whatever is playing. One music source at a time: the outgoing instance
-/// fades to 0 over the fade and is stopped by pp_audio_step when the fade time is up, and the incoming one rises
-/// from 0 to the music level over the same time. Two tracks overlap only for those steps (spec 12 rule 4).
+/// Finish a fade that is still running, so a second cue or a stop inside the 500 ms window cannot overwrite the fade
+/// slot and orphan the instance and the stream it holds. audio_create_stream.htm warns that a stream which is never
+/// destroyed leaks and eventually crashes the game, so this is a stop and a destroy, not a variable reset.
+function pp_audio_fade_flush(_a) {
+    if (_a.fade_inst <= -1) return;
+    audio_stop_sound(_a.fade_inst);
+    if (_a.fade_stream > -1) audio_destroy_stream(_a.fade_stream);
+    _a.fade_inst = -1;
+    _a.fade_stream = -1;
+}
+
+/// Hand an instance and the stream behind it to the fade slot: faded to 0 here, then stopped and destroyed by
+/// pp_audio_step once the fade's time is up. A fade already pending is finished first, so only one is ever live.
+function pp_audio_fade_handoff(_a, _inst, _stream, _fade_ms) {
+    if (_inst <= -1) return;
+    pp_audio_fade_flush(_a);
+    audio_sound_gain(_inst, 0, _fade_ms);
+    _a.fade_inst = _inst;
+    _a.fade_stream = _stream;
+    _a.fade_end_ms = current_time + _fade_ms;
+}
+
+/// The title theme is music too. Before a cue starts, the theme is handed to the fade slot, so the two never play over
+/// each other and the theme's stream is destroyed by the step that finishes the fade. theme_inst is then cleared, so
+/// the focus poll and the duck cannot address a sound that is already on its way out.
+function pp_audio_theme_release(_a, _fade_ms) {
+    if (!variable_struct_exists(_a, "theme_inst") || _a.theme_inst <= -1) return false;
+    var _stream = -1;
+    if (variable_struct_exists(_a, "theme_stream")) _stream = _a.theme_stream;
+    pp_audio_fade_handoff(_a, _a.theme_inst, _stream, _fade_ms);
+    _a.theme_inst = -1;
+    _a.theme_stream = -1;
+    show_debug_message("PP audio: title_theme handed to the fade, the cue takes the one music source");
+    return true;
+}
+
+/// Start one music cue, crossfading from whatever is playing. One music source at a time, the title theme
+/// included: a live theme is handed to the same fade first. The outgoing instance fades to 0 over the fade and
+/// is stopped by pp_audio_step when the fade time is up, and the incoming one rises from 0 to the music level
+/// over the same time. Two tracks overlap only for those steps (spec 12 rule 4).
 /// Returns true when a stream started, false when the cue is registered but its OGG has not arrived.
 function pp_audio_music(_cue, _fade_steps) {
     if (!is_struct(global.pp)) return false;
@@ -157,6 +200,8 @@ function pp_audio_music(_cue, _fade_steps) {
 
     if (_fade_steps < 1) _fade_steps = PP_AUDIO_FADE_STEPS;
     var _fade_ms = _fade_steps * PP_AUDIO_STEP_MS;
+    // One music source: a live title theme goes to the same fade slot before this cue starts.
+    pp_audio_theme_release(_a, _fade_ms);
 
     var _file = "";
     var _paths = pp_audio_music_paths(_entry.asset);
@@ -196,11 +241,7 @@ function pp_audio_music(_cue, _fade_steps) {
     }
     audio_sound_gain(_inst, PP_AUDIO_GAIN_MUSIC, _fade_ms);
 
-    if (_a.music_inst > -1) {
-        audio_sound_gain(_a.music_inst, 0, _fade_ms);
-        _a.fade_inst = _a.music_inst;
-        _a.fade_stream = _a.music_stream;
-    }
+    if (_a.music_inst > -1) pp_audio_fade_handoff(_a, _a.music_inst, _a.music_stream, _fade_ms);
     _a.music_inst = _inst;
     _a.music_stream = _stream;
     _a.music_cue = _cue;
@@ -217,21 +258,27 @@ function pp_audio_music_stop() {
     if (!is_struct(global.pp)) return false;
     var _a = pp_audio_state();
     _a.music_cue = "";
-    if (_a.music_inst <= -1) return false;
     var _fade_ms = PP_AUDIO_FADE_STEPS * PP_AUDIO_STEP_MS;
-    audio_sound_gain(_a.music_inst, 0, _fade_ms);
-    _a.fade_inst = _a.music_inst;
-    _a.fade_stream = _a.music_stream;
+    // The theme is music too, so a stop silences it with the same fade instead of leaving it playing.
+    var _stopped_theme = pp_audio_theme_release(_a, _fade_ms);
+    if (_a.music_inst <= -1) {
+        if (_stopped_theme) show_debug_message("PP audio: title_theme stopping over "
+            + string(PP_AUDIO_FADE_STEPS) + " steps");
+        return _stopped_theme;
+    }
+    pp_audio_fade_handoff(_a, _a.music_inst, _a.music_stream, _fade_ms);
     _a.music_inst = -1;
     _a.music_stream = -1;
-    _a.fade_end_ms = current_time + _fade_ms;
     show_debug_message("PP audio: music stopping over " + string(PP_AUDIO_FADE_STEPS) + " steps");
     return true;
 }
 
-/// One effect. kind is "sfx" (priority 5) or "ui" (priority 4), per spec 12 rule 2; the channel limit and those
-/// priorities are what makes the engine cull the oldest low priority sound when all channels are busy (spec rule 9),
-/// which audio_channel_num.htm states as its own behaviour. Returns the instance, or -1 when the sound is missing.
+/// One effect. kind is "sfx" (priority 5) or "ui" (priority 4), per spec 12 rule 2. When the channel limit is
+/// reached the engine stops a sound of LOWER priority to free a channel: that is what audio_channel_num.htm says,
+/// and the page never mentions age, so spec rule 9's "replaces the oldest of that kind" is not an engine
+/// guarantee. Rule 9 is recorded as unproven in knowledge\PROVENANCE.md, and the channel budget plus the
+/// priorities are what make the newest hit survive in practice. Returns the instance, or -1 when the sound is
+/// missing.
 function pp_audio_sfx(_kind, _id) {
     if (!is_struct(global.pp)) return -1;
     var _a = pp_audio_state();
@@ -271,7 +318,8 @@ function pp_audio_blip(_pitch_role) {
 }
 
 /// Focus rule (spec 12 rule 8). Losing focus pauses the music and stops the effects; regaining it resumes the music
-/// where it stopped, because audio_resume_sound continues from the paused position rather than restarting.
+/// where it stopped, because audio_resume_sound continues from the paused position rather than restarting. The
+/// title theme is music too, so both instance slots are paused and resumed, not only the cue slot.
 function pp_audio_focus(_paused) {
     if (!is_struct(global.pp)) return false;
     var _a = pp_audio_state();
@@ -280,14 +328,16 @@ function pp_audio_focus(_paused) {
     _a.focus_paused = _now;
     if (_now) {
         if (_a.music_inst > -1) audio_pause_sound(_a.music_inst);
+        if (variable_struct_exists(_a, "theme_inst") && _a.theme_inst > -1) audio_pause_sound(_a.theme_inst);
         for (var i = 0; i < array_length(_a.sfx_insts); i++) {
             if (audio_is_playing(_a.sfx_insts[i])) audio_stop_sound(_a.sfx_insts[i]);
         }
         _a.sfx_insts = [];
-        show_debug_message("PP audio: focus lost, music paused and every effect stopped");
+        show_debug_message("PP audio: focus lost, music paused (cue and theme) and every effect stopped");
         return true;
     }
     if (_a.music_inst > -1) audio_resume_sound(_a.music_inst);
+    if (variable_struct_exists(_a, "theme_inst") && _a.theme_inst > -1) audio_resume_sound(_a.theme_inst);
     show_debug_message("PP audio: focus back, music resumed where it stopped");
     return true;
 }
@@ -299,12 +349,7 @@ function pp_audio_step() {
     var _a = pp_audio_state();
     pp_audio_focus(!window_has_focus());
 
-    if (_a.fade_inst > -1 && current_time >= _a.fade_end_ms) {
-        audio_stop_sound(_a.fade_inst);
-        if (_a.fade_stream > -1) audio_destroy_stream(_a.fade_stream);
-        _a.fade_inst = -1;
-        _a.fade_stream = -1;
-    }
+    if (_a.fade_inst > -1 && current_time >= _a.fade_end_ms) pp_audio_fade_flush(_a);
 }
 
 /// The music cue playing now, or an empty string. The log and the tests read this instead of the instance id.
@@ -370,8 +415,8 @@ function pp_audio_sound(_a, _cue, _entry) {
     return _sound;
 }
 
-/// The title theme: an external OGG stream shipped as an included file, looped. The newest render is asked for
-/// first and older ones stay as fallbacks, so a new render lands with no code change.
+/// The title theme: an external OGG stream shipped as an included file, looped, and played at the music level. The
+/// newest render is asked for first and older ones stay as fallbacks, so a new render lands with no code change.
 function pp_audio_play_theme(_a) {
     if (!variable_struct_exists(_a, "theme_inst")) {
         var _candidates = pp_audio_theme_streams();
@@ -382,8 +427,13 @@ function pp_audio_play_theme(_a) {
             var _stream = audio_create_stream(_file);
             _a.theme_stream = _stream;
             _a.theme_file = _rel;
-            _a.theme_inst = audio_play_sound(_stream, PP_AUDIO_PRI_MUSIC, true);
-            show_debug_message("PP audio: title_theme streaming " + _rel + ", instance " + string(_a.theme_inst));
+            // The theme is music, so it starts at the music level, not the engine default of 1.0, and a duck
+            // already asked for multiplies that level instead of being lost.
+            var _gain = PP_AUDIO_GAIN_MUSIC;
+            if (variable_struct_exists(_a, "duck_db")) _gain *= power(10, _a.duck_db / 20);
+            _a.theme_inst = audio_play_sound(_stream, PP_AUDIO_PRI_MUSIC, true, _gain);
+            show_debug_message("PP audio: title_theme streaming " + _rel + ", instance "
+                + string(_a.theme_inst) + ", gain " + string(_gain));
             _a.played += 1;
             return true;
         }
@@ -461,11 +511,13 @@ function pp_audio_duck_db(_db) {
     if (!is_struct(global.pp)) return false;
     var _a = pp_audio_state();
     _a.duck_db = _db;
-    if (!variable_struct_exists(_a, "theme_inst")) {
+    if (!variable_struct_exists(_a, "theme_inst") || _a.theme_inst <= -1) {
         show_debug_message("PP audio: title_theme ducked " + string(_db) + " dB in the state, no stream instance to turn down");
         return false;
     }
-    var _gain = power(10, _db / 20);
+    // The duck multiplies the level the theme already sits at, so full is PP_AUDIO_GAIN_MUSIC and a duck is a
+    // fraction of that, never a replacement that would quietly raise the theme back toward 1.0.
+    var _gain = PP_AUDIO_GAIN_MUSIC * power(10, _db / 20);
     audio_sound_gain(_a.theme_inst, _gain, 0);
     show_debug_message("PP audio: title_theme ducked " + string(_db) + " dB, gain " + string(_gain));
     return true;
@@ -478,8 +530,8 @@ function pp_audio_unduck() {
     var _was = 0;
     if (variable_struct_exists(_a, "duck_db")) _was = _a.duck_db;
     _a.duck_db = 0;
-    if (!variable_struct_exists(_a, "theme_inst")) return false;
-    audio_sound_gain(_a.theme_inst, 1, 0);
+    if (!variable_struct_exists(_a, "theme_inst") || _a.theme_inst <= -1) return false;
+    audio_sound_gain(_a.theme_inst, PP_AUDIO_GAIN_MUSIC, 0);
     if (_was != 0) show_debug_message("PP audio: title_theme back to full after " + string(_was) + " dB");
     return true;
 }

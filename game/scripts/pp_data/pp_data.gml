@@ -132,6 +132,16 @@ function pp_data_load() {
     _bundle.scene_by_id = pp_data_index(is_struct(_bundle.scenes) ? _bundle.scenes.scenes : []);
     _bundle.map_by_id = pp_data_index(is_struct(_bundle.maps) ? _bundle.maps.maps : []);
     _bundle.audio_by_id = pp_data_index(is_struct(_bundle.audio) ? _bundle.audio.sounds : []);
+    // A cue id is a music name too. A scene command writes the cue id into world.music and the save stores it, so the
+    // save check has to accept PP-05 as readily as the old sound id. Each cue is added as its own row carrying kind
+    // music, so no cue struct from audio.json is rewritten and the registry the bus holds keeps the data file's shape.
+    if (is_struct(_bundle.audio) && is_array(_bundle.audio.cues)) {
+        for (var _c = 0; _c < array_length(_bundle.audio.cues); _c += 1) {
+            var _cue = _bundle.audio.cues[_c];
+            if (!is_struct(_cue) || !variable_struct_exists(_cue, "id")) continue;
+            _bundle.audio_by_id[$ _cue.id] = { id: _cue.id, kind: "music", cue: true };
+        }
+    }
 
     // The palette resolves to colours once, at load, so drawing never parses a string.
     _bundle.palette_rgb = [];

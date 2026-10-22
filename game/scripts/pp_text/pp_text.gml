@@ -151,7 +151,9 @@ function pp_text_reveal_step(_rv, _fast) {
         _rv.blips += 1;
         // One blip every _rv.blip revealed characters (three, spec 05 rule 3), never on a space and pitched by
         // speaker. The interval is a field so a layout timed against the music can set its own; it is the same blip.
-        pp_audio_play(pp_audio_blip_cue(_rv.speaker));
+        // The call goes through pp_audio_blip, not pp_audio_play: the blip is a UI sound at priority 4 and 0.5 of the
+        // effect level (spec 12 rules 2 and 6), and pp_audio_blip is the one place those two numbers live.
+        pp_audio_blip(_rv.speaker);
     }
 
     // The end of a unit. A layout that advances by itself moves on after its own hold, which is a setting and not a

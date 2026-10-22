@@ -1,7 +1,7 @@
 """Tests for the audio bus contract: data\\audio.json, game\\scripts\\pp_audio\\pp_audio.gml and the checker.
 
 What is pinned here, and why each pin earns its place:
-  - the cue table holds exactly the ids card G0-2T names, one row each, with a title, an asset
+  - the cue table holds exactly the musician's seventeen ids, one row each, with a title, an asset
     name, a loop flag and a placeholder flag, so a rename cannot detach the musician's music
     from the game without a red test;
   - every cue id asked for by a map, a scene or an encounter is a row in that table, and the
@@ -12,20 +12,19 @@ What is pinned here, and why each pin earns its place:
   - check_data refuses a cue id no row defines, on a private copy of data\\.
 
 Honest limits. There is no data\\music directory and no pp_*.ogg anywhere in the tree, so no cue
-has a file to play; GameMaker is not installed, so nothing here compiles, runs or is heard. What
-is proved is the contract between the data, the module text and the checker. The sound is
-unproven, and this file does not claim anything is audible.
+has a file to play. GameMaker builds this tree and the build log shows the module loading and
+playing, but no test below listens to a speaker: what is pinned is the contract between the data,
+the module text and the checker. Anything about how it sounds is unproven and said so.
 
-Four defects this file records rather than hides, all reported on card t_0c5dc024:
-  1. The musician's round 1 note (section 4) lists seventeen cue ids and the table holds fourteen.
-     The three missing rows are PP-03 Harbor, PP-04 Navy Sailors and PP-13 Titan Employees. The
-     card's own id list also leaves them out, so the table matches the card and not the note.
-  2. Eleven of the fourteen rows are asked for by no map, scene or encounter, and data\\audio.json
+Defects this file still records rather than hides:
+  1. Thirteen of the seventeen rows are asked for by no map, scene or encounter, and data\\audio.json
      has no "unused" marker to say so on purpose. Card item 2's second half needs a data decision.
-  3. The placeholder stand-in a cue names can never play: pp_audio_music hands it to pp_audio_play,
+  2. The placeholder stand-in a cue names can never play: pp_audio_music hands it to pp_audio_play,
      which refuses every name that is not in pp_audio_cues(), and none of the three stand-ins is.
-  4. Focus is polled once per step from pp_audio_step, not delivered as an event, because the
+  3. Focus is polled once per step from pp_audio_step, not delivered as an event, because the
      engine documents no Windows focus event. Recorded in the focus tests and on the card.
+The seventeen ids the musician's round 1 note carries are all in the table now, so the shortfall
+the review returned on card t_8de1aca9 is closed and pinned by a test instead of documented.
 """
 
 from __future__ import annotations
@@ -42,25 +41,24 @@ DATA = os.path.join(ROOT, "data")
 MODULE = os.path.join(ROOT, "game", "scripts", "pp_audio", "pp_audio.gml")
 STEP_EVENT = os.path.join(ROOT, "game", "objects", "obj_pp_game", "Step_0.gml")
 SPEC = os.path.join(ROOT, "specs", "12-audio.md")
+TEXT_MODULE = os.path.join(ROOT, "game", "scripts", "pp_text", "pp_text.gml")
 MUSICIAN = os.path.join(SHARED, "notes", "notebook-2026-10-19", "round1", "musician.md")
 
-# The ids card G0-2T names, in the card's order. Not the musician's full list: this module's
-# docstring names the three ids his note has and this table does not.
-CARD_CUE_IDS = [
-    "PP-01", "PP-02", "PP-05", "PP-06", "PP-07", "PP-08", "PP-09",
-    "PP-10", "PP-11", "PP-12", "PP-14", "PP-15a", "PP-15b", "PP-16",
+# The musician's seventeen ids, in the order his note lists them and the table holds them. The
+# card's own list had fourteen; the gate card (t_8de1aca9 item 2) asks for his ids exactly, so
+# PP-03, PP-04 and PP-13 are rows now and this list is the note, not the card.
+CUE_IDS = [
+    "PP-01", "PP-02", "PP-03", "PP-04", "PP-05", "PP-06", "PP-07", "PP-08", "PP-09",
+    "PP-10", "PP-11", "PP-12", "PP-13", "PP-14", "PP-15a", "PP-15b", "PP-16",
 ]
 
 # The rows no map, scene or encounter asks for today. Pinned exactly so a row added to or dropped
 # from the table cannot slip into or out of this list unnoticed. This is a recorded gap, not an
 # approval: data\\audio.json has no field that marks a cue unused on purpose.
 RECORDED_UNREFERENCED = [
-    "PP-01", "PP-02", "PP-08", "PP-09", "PP-10", "PP-11", "PP-12",
-    "PP-14", "PP-15a", "PP-15b", "PP-16",
+    "PP-01", "PP-02", "PP-03", "PP-08", "PP-09", "PP-10", "PP-11", "PP-12",
+    "PP-13", "PP-14", "PP-15a", "PP-15b", "PP-16",
 ]
-
-# The musician's ids his round 1 note carries and the table does not. Same meaning as above.
-RECORDED_MUSICIAN_GAP = ["PP-03", "PP-04", "PP-13"]
 
 CUE_ID_RE = re.compile(r"^PP-[0-9]{2}[ab]?$")
 
@@ -88,6 +86,25 @@ def _code(text):
 def _macro(code, name):
     match = re.search(r"^#macro\s+%s\s+(\S+)" % re.escape(name), code, re.MULTILINE)
     return match.group(1) if match else None
+
+
+def _function(text, name):
+    """The body of one function, brace balanced, so a claim about a call is about that function.
+
+    A whole module search cannot tell a call in pp_audio_focus from one in pp_audio_music, and
+    three of the fixes on this card are about which function does what.
+    """
+    code = _code(text)
+    start = code.index("function %s(" % name)
+    depth = 0
+    for offset, character in enumerate(code[start:]):
+        if character == "{":
+            depth += 1
+        elif character == "}":
+            depth -= 1
+            if depth == 0:
+                return code[start:start + offset + 1]
+    raise AssertionError("no balanced body for %s" % name)
 
 
 def _cue_rows():
@@ -139,13 +156,14 @@ def _music_references():
 
 # --- item 1: the table is exactly the ids the card names, fully filled in ---------------------------------------
 
-def test_cue_table_is_exactly_the_fourteen_ids_the_card_names():
+def test_cue_table_is_exactly_the_seventeen_ids_the_musician_wrote():
     """No more and no fewer. Sorting on both sides means a reordered table is fine and a renamed,
     added or dropped id is not: that is the failure a silent detach of the musician's music from
     the game would otherwise be."""
     ids = _cue_ids()
-    assert len(ids) == 14
-    assert sorted(ids) == sorted(CARD_CUE_IDS)
+    assert len(ids) == 17
+    assert sorted(ids) == sorted(CUE_IDS)
+    assert sorted(ids) == sorted(_musician_ids()), "the table and the musician's own list disagree"
     assert all(CUE_ID_RE.match(row_id) for row_id in ids), "every id must look like PP-01 or PP-15a"
 
 
@@ -204,13 +222,28 @@ def test_the_placeholder_stand_in_cannot_reach_a_playable_effect():
         "the unknown name is refused before the manifest is consulted"
 
 
-def test_the_three_musician_cues_missing_from_the_table_are_the_recorded_gap():
-    """DEFECT, reported on card t_0c5dc024. The note lists seventeen ids; the table holds fourteen.
-    PP-03 Harbor, PP-04 Navy Sailors and PP-13 Titan Employees have no row, so when their OGGs
-    arrive there is nowhere for them to land. The card's own list also leaves them out, so this is
-    a card and data decision, not something a test may fix. Pinned so the gap cannot grow or
-    shrink without a red test."""
-    assert sorted(_musician_ids() - set(_cue_ids())) == RECORDED_MUSICIAN_GAP
+def test_the_three_cues_the_card_left_out_are_rows_with_the_musicians_own_assets():
+    """The shortfall card t_8de1aca9 item 2 returned. PP-03 Harbor, PP-04 Navy Sailors and PP-13 Titan
+    Employees had no row, so the day their OGGs arrived there was nowhere for them to land. Each is a
+    row now, with the title the note's table writes and the asset name the loader will append .ogg to.
+    PP-04 is the tutorial fight cue, so the encounter points at it instead of the old sound id."""
+    rows = {row["id"]: row for row in _cue_rows()}
+    wanted = {
+        "PP-03": ("Harbor", "pp_03_harbor"),
+        "PP-04": ("Navy Sailors", "pp_04_navy_sailors"),
+        "PP-13": ("Titan Employees", "pp_13_titan_employees"),
+    }
+    for cue, (title, asset) in wanted.items():
+        assert cue in rows, "%s is missing from the cue table" % cue
+        assert rows[cue]["title"] == title
+        assert rows[cue]["asset"] == asset
+        assert rows[cue]["loop"] is True
+        assert rows[cue]["placeholder"] is True
+        assert rows[cue]["placeholder_sound"] is None
+    assert sorted(_musician_ids() - set(_cue_ids())) == [], "the note still has a cue the table cannot hold"
+    encounter = [row for row in _read(os.path.join(DATA, "encounters", "all.json"))["encounters"]
+                 if row.get("id") == "tutorial_sailors"]
+    assert encounter and encounter[0]["music"] == "PP-04", "the tutorial fight must ask for its own cue id"
 
 
 # --- item 2: every reference resolves, and every row is accounted for -------------------------------------------
@@ -355,3 +388,117 @@ def test_check_data_refuses_an_unknown_cue_id_in_an_encounter(data_root, read_js
     errors = check_data.check(str(data_root))
     assert any("unknown sound or cue id 'PP-97'" in error and "encounters[0].music" in error
                for error in errors), errors
+
+
+# --- item 2: the blip the game plays goes through the blip function ----------------------------------------------
+
+def test_the_text_reveal_plays_its_blip_through_pp_audio_blip():
+    """Spec 12 rule 6 wants a blip at 0.5 of the effect level and rule 2 wants a UI sound at priority
+    4. pp_audio_blip is the one place those two numbers are applied. pp_text used to build the blip
+    cue and hand it to pp_audio_play, the effect path at priority 5 and the full level, so the rule
+    was written and never called; the build log showed pp_audio_play's own "played, instance" line
+    for text_blip_a. The call site is read here, and the old one must be gone from the whole file."""
+    text = _text(TEXT_MODULE)
+    assert "pp_audio_blip(_rv.speaker);" in _code(text), "the reveal must call pp_audio_blip"
+    assert "pp_audio_play(pp_audio_blip_cue(" not in _code(text), "the old effect path call is back"
+    module = _text(MODULE)
+    blip = _function(module, "pp_audio_blip")
+    assert 'pp_audio_sfx("ui", _cue)' in blip, "a blip is a UI sound, priority 4 (rule 2)"
+    assert "PP_AUDIO_GAIN_SFX * PP_AUDIO_GAIN_BLIP" in blip, "a blip is half the effect level (rule 6)"
+
+
+# --- item 3: one music source, and focus reaches the one that is playing ----------------------------------------
+
+def test_the_title_theme_is_handed_to_the_fade_before_a_cue_starts():
+    """The theme was a second music source: its own instance, untouched by pp_audio_music, by the
+    stop and by focus. The build log showed "focus lost, music paused" while the only music playing
+    was the theme, at instance 400001, and music_inst was -1. So a cue start now hands a live theme
+    to the fade slot, and the theme's own stream goes with it to be destroyed."""
+    music = _function(_text(MODULE), "pp_audio_music")
+    assert "pp_audio_theme_release(_a, _fade_ms);" in music
+    assert music.index("pp_audio_theme_release") < music.index("audio_create_stream"), \
+        "the theme must be released before the incoming track starts"
+    release = _function(_text(MODULE), "pp_audio_theme_release")
+    assert "pp_audio_fade_handoff(_a, _a.theme_inst, _stream, _fade_ms);" in release
+    assert "_a.theme_inst = -1;" in release, "a released theme must not be addressed again"
+    stop = _function(_text(MODULE), "pp_audio_music_stop")
+    assert "pp_audio_theme_release(_a, _fade_ms)" in stop, "a stop must silence the theme too"
+
+
+def test_focus_pauses_and_resumes_both_music_slots():
+    """Spec 12 rule 8 is about the music that is playing, not about the cue slot. Both instances are
+    paused, and both are resumed where they stopped."""
+    focus = _function(_text(MODULE), "pp_audio_focus")
+    assert "audio_pause_sound(_a.music_inst)" in focus
+    assert "audio_pause_sound(_a.theme_inst)" in focus
+    assert "audio_resume_sound(_a.music_inst)" in focus
+    assert "audio_resume_sound(_a.theme_inst)" in focus
+
+
+def test_the_theme_plays_at_the_music_level_and_a_duck_multiplies_it():
+    """The theme started at the engine default gain of 1.0 while every other track started at 0.7, so
+    the title was louder than the game. It now starts at the music level, and the duck and unduck
+    multiply that level instead of replacing it with 1.0 on the way back."""
+    module = _text(MODULE)
+    assert _macro(_code(module), "PP_AUDIO_GAIN_MUSIC") == "0.7"
+    theme = _function(module, "pp_audio_play_theme")
+    assert "audio_play_sound(_stream, PP_AUDIO_PRI_MUSIC, true, _gain)" in theme
+    assert "var _gain = PP_AUDIO_GAIN_MUSIC;" in theme
+    duck = _function(module, "pp_audio_duck_db")
+    assert "PP_AUDIO_GAIN_MUSIC * power(10, _db / 20)" in duck
+    unduck = _function(module, "pp_audio_unduck")
+    assert "audio_sound_gain(_a.theme_inst, PP_AUDIO_GAIN_MUSIC, 0)" in unduck
+    assert "audio_sound_gain(_a.theme_inst, 1, 0)" not in _code(module), "the theme can never jump to 1.0"
+
+
+# --- item 7: a fast change cannot orphan a stream ---------------------------------------------------------------
+
+def test_a_second_fade_finishes_the_first_so_no_stream_is_orphaned():
+    """audio_create_stream.htm warns that a stream which is never destroyed leaks and eventually
+    crashes the game. The fade slot holds one instance and one stream, so a third cue or a stop
+    inside the 500 ms window used to overwrite the pending pair and orphan the first stream. The
+    handoff now flushes what is there first, and the step finishes a fade through the same call."""
+    module = _text(MODULE)
+    handoff = _function(module, "pp_audio_fade_handoff")
+    assert "pp_audio_fade_flush(_a);" in handoff
+    assert handoff.index("pp_audio_fade_flush") < handoff.index("_a.fade_inst = _inst;")
+    flush = _function(module, "pp_audio_fade_flush")
+    assert "audio_stop_sound(_a.fade_inst);" in flush
+    assert "audio_destroy_stream(_a.fade_stream)" in flush
+    step = _function(module, "pp_audio_step")
+    assert "pp_audio_fade_flush(_a)" in step, "the step must finish a fade through the same call"
+    code = _code(module)
+    assert "_a.fade_inst = _a.music_inst;" not in code, "the fade slot is written by the helper only"
+    assert "_a.fade_stream = _a.music_stream;" not in code, "the fade slot is written by the helper only"
+
+
+# --- item 4: every audio call names the manual page it came from ------------------------------------------------
+
+def test_every_audio_call_names_the_manual_page_it_came_from():
+    """The review found three calls with no page named: audio_is_playing, audio_create_buffer_sound
+    and the audio_mono / audio_stereo constants. A count in prose drifted too ("all six pages" while
+    eight were named), so the header names the pages and no longer counts them."""
+    text = _text(MODULE)
+    for page in ("audio_play_sound.htm", "audio_sound_gain.htm", "audio_pause_sound.htm",
+                 "audio_resume_sound.htm", "audio_stop_sound.htm", "audio_is_playing.htm",
+                 "audio_channel_num.htm", "audio_create_stream.htm",
+                 "audio_create_buffer_sound.htm", "window_has_focus.htm"):
+        assert page in text, "no manual page named for %s" % page
+    assert "audio_mono" in text and "audio_stereo" in text
+    assert "All six pages" not in text and "All seven pages" not in text
+    assert "states as its own behaviour" not in text, \
+        "rule 9 must not be attributed to a page that does not state it"
+
+
+def test_rule_nine_is_recorded_as_unproven_because_the_engine_page_does_not_promise_it():
+    """Spec 12 rule 9 says a sound replaces the oldest of its kind. audio_channel_num.htm says a sound
+    of lower priority is stopped to free a channel and says nothing about age, so the rule is our
+    wish, not an engine guarantee. It is stated as unproven in the module and in PROVENANCE."""
+    module = _text(MODULE)
+    assert "oldest" in module
+    assert "unproven" in module
+    provenance = _text(os.path.join(ROOT, "knowledge", "PROVENANCE.md"))
+    assert "rule 9" in provenance.lower()
+    assert "audio_is_playing" in provenance
+    assert "audio_create_buffer_sound" in provenance
+

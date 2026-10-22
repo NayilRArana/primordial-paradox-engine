@@ -290,17 +290,17 @@ def test_angle_to_gm_mirrors_and_wraps():
 
 # --- the music cue registry (spec 12, card G0-2) ----------------------------------------------------------------
 
-CUE_IDS = ["PP-01", "PP-02", "PP-05", "PP-06", "PP-07", "PP-08", "PP-09",
-           "PP-10", "PP-11", "PP-12", "PP-14", "PP-15a", "PP-15b", "PP-16"]
+CUE_IDS = ["PP-01", "PP-02", "PP-03", "PP-04", "PP-05", "PP-06", "PP-07", "PP-08", "PP-09",
+           "PP-10", "PP-11", "PP-12", "PP-13", "PP-14", "PP-15a", "PP-15b", "PP-16"]
 ROOT_DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
 
 def test_cue_registry_uses_the_musicians_own_ids_and_count_is_pinned(read_json):
-    """The cue ids come from the musician's list, not from a name invented in code, and there are fourteen of them.
+    """The cue ids come from the musician's list, not from a name invented in code, and there are seventeen of them.
     Pinning the count means a cue that is quietly dropped from the table fails here instead of failing as silence."""
     data = read_json(os.path.join(ROOT_DATA, "audio.json"))
     assert [row["id"] for row in data["cues"]] == CUE_IDS
-    assert len(data["cues"]) == 14
+    assert len(data["cues"]) == 17
     for row in data["cues"]:
         assert row["placeholder"] is True, "no OGG exists yet, so every cue must say so"
         assert row["loop"] in (True, False)
@@ -380,7 +380,7 @@ def test_cue_route_must_be_one_of_the_project_routes(data_root, read_json, write
     write_json(path, data)
 
     errors = failures(data_root)
-    assert any("cues[11].route" in e and "route labels" in e for e in errors), errors
+    assert any("cues[14].route" in e and "route labels" in e for e in errors), errors
 
 
 def test_cue_asset_is_a_bare_name(data_root, read_json, write_json):
