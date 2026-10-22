@@ -1,0 +1,1150 @@
+{
+ "format": 1,
+ "kind": "real_places",
+ "generated_utc": "2026-10-22T19:42:36+00:00",
+ "grid": {
+  "cols": 64,
+  "rows": 48,
+  "tile_px": 16
+ },
+ "legend": {
+  ".": "ground",
+  "B": "building",
+  ",": "park",
+  "~": "water",
+  "=": "quay",
+  "R": "road_major",
+  "-": "road_minor",
+  "p": "path",
+  "#": "rail"
+ },
+ "legend_notes": {
+  "road": "R major (motorway, trunk, primary, secondary), - minor (tertiary, residential, service)",
+  "water": "~ rivers, docks, sea",
+  "building": "B any building footprint, doors folded into the footprint",
+  "grass": ", parks, downland, verges, golf course",
+  "rail": "# railway, including sidings",
+  "path": "p footway, path, cycleway (extra class, kept so pavements do not read as road)",
+  "quay": "= quay, pier, dock apron (extra class)",
+  "ground": ". everything else, mostly hardstanding and bare ground"
+ },
+ "attribution": "(c) OpenStreetMap contributors, Open Database Licence (ODbL) 1.0, https://www.openstreetmap.org/copyright",
+ "licence": "OpenStreetMap data ODbL 1.0. Wikipedia text CC BY-SA 4.0, consulted, no images downloaded.",
+ "method": "OSM map API bbox -> tools/osm_to_map.py rasteriser at the stated metres per tile -> one glyph per tile",
+ "places": [
+  {
+   "slug": "westminster_bridge_big_ben",
+   "name": "Westminster Bridge and the Big Ben corner",
+   "region": "London, City of Westminster",
+   "blurb": "The river is the spine of this box: the Thames runs north to south down the east side, Westminster Bridge crosses it, and the Palace of Westminster with the Elizabeth Tower (Big Ben) fills the west bank. Traffic runs on the Embankment and Bridge Street; Parliament Square sits behind the palace.",
+   "anchor": {
+    "lat": 51.5009,
+    "lon": -0.1244
+   },
+   "bbox": {
+    "south": 51.499175,
+    "west": -0.128094,
+    "north": 51.502625,
+    "east": -0.120706
+   },
+   "metres_per_tile": 8.0,
+   "size_m": {
+    "width": 512,
+    "height": 384
+   },
+   "grid": {
+    "cols": 64,
+    "rows": 48,
+    "origin": "top left, north up",
+    "ascii": [
+     "BBBBBBBBBBBBBBBpRRRR.BBBBBBBB-BBBBBBRRRpp~==~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBpRRRBBBBBBBB------B--RRppp~==~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBpRRRBBBBBBBBBBBBBBBBBRRppp~==~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBpRRRBBBBBBB-BBBBBBBBBRRpp~~==~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBBRRRBBBBBBBBBBBBBBBBpRRpp~~==~~~~~~~~~~~~~~~~~~~~",
+     "------ppBBBBBBBBRRRBBBBBBB-BBBBBBBBpRRpp~===~~~~~~~~~~~~~~~~~~~~",
+     "pp--pp------BB-pRRRBBBBBB.BBBBBBBBBRRRpp~===~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBpBBp-RRRBBBBBB-BBBBBBBBBRRRpp~===~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBpRRRBBBB---BBBBBBBBpRRppp~===~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBpRRRBBBBBBBBBB------RRppp~===~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBppRRRBBBBBBBBBBBBBBBpRRppp~==~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBppRRRBBBBBBBBBBBBBBBpRRpp~~p=~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBpRRRRBBBBBBBBBBBBBBBpRRpp~ppp~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBRRRRBBBBBBBBBBBBBBBRRRpppppp~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBpRRRRBBBBBBBBBBBBBBpRRpBppp==~~~~~~~~~~~~~~~~~~###",
+     "BBBBBBBBBBBBBBpRRRRBBBBBBBBBBBBBBpRRRBppp==~~~~~~~~~~~~~~#######",
+     "BBBBBBBBBBBBBBpRRRRBBBBBBBBBBBBBBpRRRBpp~==~~~~~~~~~~~##########",
+     "BBBBBBBBBBBBBBpRRRRBBBBBBBBBBBBBBBRRRpp~~==~~~~~~~~#############",
+     "BBBBBBBBBBBBBBpRRRBBBBBBBBBBBBBBBBRRRpp~~==~~~~~#############~~~",
+     "p--pBBBBBBBBBBpRRRBBBBBBBBBBBBBBBpRRRpp~~~~~##############~~~~~~",
+     "------ppppppBBpRRRBBBBBBBBBBBBBBBRRRRpp##############~~~~~~~~~~~",
+     "BBpp---RRRRRRRRRRRRBBBBBBBBBBBBBBRRRRpp########~~~~~~~~~~~~~~~~~",
+     "BB##-.RRRRRRRRRRRRRRRRRRRRRRRRRppRRRRpppppppp~~~~~~~~~~~~~~~~~~~",
+     "BB##-RRRRpRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRppppppppppppppppppppp",
+     "BB#ppRR#ppppp#RRRRpBpppppppppRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRpp",
+     "BB,p#RR#p###ppppRRpBB#,,,pppBBBBpppppppppRRRRRRRRRRRRRRRRRRRRRRR",
+     "BB,p.RR.p,,,,,#pRRpBBB------BBBB,,,,,,p~~~~~~~~~~~~~~pppppppRRRR",
+     "BB,pRRR.p,,,,##pRRp-B-------BBBB,,,,,~p~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BB,pRRppp,,####pRR---,,,~~,-BBBBBBBB,~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBppRRpp,,#####pRR---,,,~~,-BBBBBBBBBBB~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBppRRpp######,pRRp,--,,,,,-BBBBBBBBBBB~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBppRRRpppp#,,,pRRpp-----.--BBBBBBBBBBB~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBppRRRRpppppppRRRBBBpBB----BBBBBBBBBBB~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBpRRRRRRRRRRRRRRRBBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "RRRRRRRRRRRRRRRRRRBBBBBBBBBBBBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "RRRRRRRRRBB,,,pRRRR,,BBBBBBBBBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "RRRR,,,p,BBBBBBRRRR,,BBBBBBBBBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "RR,,,,,pBBBBBBBpRRR,BBBBBBBBBBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     ",,,,,,,pBBBBBBBpRRRBBBBBBBBBBBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "pppppp,p,BBBBBBpRRRBBBBBBBBBBBBBBBBB.p~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     ".BBBBBBBBppppBBpRRR,BBBBBBBBBBBBBBBB.p~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     ".BBBBBBBBB,,,,,pRRp,BBBBBBBBBBBBBBBBpp~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBB,,,,pRRppBBBBBBBBBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBB--RRp.BBBBBBBBBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBBRRR.BBBBBBBBBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBBBRR....BBBBBBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBBBBBBBRR.....BB.BBBBBBBBBp~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+     "BBBBBBBBBBBB-BB--RRp...BBBBBBBBBBBB.p~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    ]
+   },
+   "tile_counts": {
+    "B": 1065,
+    "p": 271,
+    "R": 391,
+    ".": 27,
+    "-": 91,
+    "~": 988,
+    "=": 38,
+    "#": 114,
+    ",": 87
+   },
+   "landmarks": [
+    {
+     "name": "Elizabeth Tower",
+     "osm_type": "way",
+     "osm_id": 123557148,
+     "osm_kind": "yes",
+     "lat": 51.500712,
+     "lon": -0.124552,
+     "east_m": -10.5,
+     "north_m": -20.9,
+     "tile": {
+      "x": 30,
+      "y": 26
+     }
+    },
+    {
+     "name": "Big Ben",
+     "osm_type": "node",
+     "osm_id": 1802652184,
+     "osm_kind": "clock",
+     "lat": 51.500704,
+     "lon": -0.124572,
+     "east_m": -11.9,
+     "north_m": -21.8,
+     "tile": {
+      "x": 30,
+      "y": 26
+     }
+    },
+    {
+     "name": "Westminster Bridge",
+     "osm_type": "node",
+     "osm_id": 4084403503,
+     "osm_kind": "feature",
+     "lat": 51.500856,
+     "lon": -0.123964,
+     "east_m": 30.2,
+     "north_m": -4.9,
+     "tile": {
+      "x": 35,
+      "y": 24
+     }
+    },
+    {
+     "name": "Westminster Abbey",
+     "osm_type": "node",
+     "osm_id": 6188865202,
+     "osm_kind": "feature",
+     "lat": 51.499662,
+     "lon": -0.127313,
+     "east_m": -201.9,
+     "north_m": -137.8,
+     "tile": {
+      "x": 6,
+      "y": 41
+     }
+    },
+    {
+     "name": "Westminster Pier",
+     "osm_type": "node",
+     "osm_id": 469762514,
+     "osm_kind": "feature",
+     "lat": 51.501595,
+     "lon": -0.124062,
+     "east_m": 23.4,
+     "north_m": 77.4,
+     "tile": {
+      "x": 34,
+      "y": 14
+     }
+    },
+    {
+     "name": "Parliament Square",
+     "osm_type": "node",
+     "osm_id": 11939799210,
+     "osm_kind": "feature",
+     "lat": 51.500156,
+     "lon": -0.126525,
+     "east_m": -147.3,
+     "north_m": -82.8,
+     "tile": {
+      "x": 13,
+      "y": 34
+     }
+    }
+   ],
+   "roads": {
+    "major": [
+     "Bridge Street",
+     "Broad Sanctuary",
+     "Great George Street",
+     "Old Palace Yard",
+     "Parliament Square",
+     "Parliament Street",
+     "Saint Margaret Street",
+     "St. Margaret Street",
+     "Victoria Embankment",
+     "Westminster Bridge"
+    ],
+    "minor": [
+     "Canon Row",
+     "Commissioner's Yard",
+     "Derby Gate",
+     "Great George Street",
+     "King Charles Street",
+     "Laundry Road",
+     "Little George Street",
+     "New Palace Yard",
+     "Old Palace Yard",
+     "Parliament Square"
+    ],
+    "route_relations": []
+   },
+   "water_names": [
+    "Jubilee Fountain"
+   ],
+   "rail_names": [
+    "Jubilee Line"
+   ],
+   "rail_disused_names": [],
+   "osm_elements": {
+    "ways": 399,
+    "counted": {
+     "road_minor_line": 148,
+     "road_major_line": 95,
+     "path_line": 534,
+     "park_area": 50,
+     "building_area": 156,
+     "rail_line": 7,
+     "quay_area": 1,
+     "water_area": 5,
+     "water_line": 3,
+     "water_arearing": 3,
+     "building_arearing": 10,
+     "water_areachain": 126,
+     "quay_arearing": 1,
+     "path_arearing": 6,
+     "park_areachain": 1
+    }
+   },
+   "sources": [
+    "https://en.wikipedia.org/wiki/Westminster_Bridge",
+    "https://en.wikipedia.org/wiki/Big_Ben",
+    "https://en.wikipedia.org/wiki/Palace_of_Westminster"
+   ],
+   "source_kind": "cache"
+  },
+  {
+   "slug": "m3_fleet_services",
+   "name": "M3 Fleet services, both carriageways",
+   "region": "Hampshire, between Fleet and Hartley Wintney",
+   "blurb": "A motorway services pair: the M3 runs southwest to northeast through the middle, a service area sits on each side, and a footbridge crosses the carriageways. The card's real geometry is two blocks of buildings, a lot of hardstanding, and a wide road; there is no town street pattern here.",
+   "anchor": {
+    "lat": 51.2958,
+    "lon": -0.8552
+   },
+   "bbox": {
+    "south": 51.293213,
+    "west": -0.860717,
+    "north": 51.298387,
+    "east": -0.849683
+   },
+   "metres_per_tile": 12.0,
+   "size_m": {
+    "width": 768,
+    "height": 576
+   },
+   "grid": {
+    "cols": 64,
+    "rows": 48,
+    "origin": "top left, north up",
+    "ascii": [
+     ".........................,,,,,,,,,,,--,,,,,,,,,--.............BB",
+     "........................,,,,,,,,,,,--,,,,,,,,,,,,--............-",
+     "......................,,,,,,,,,,,,--,,,,,,,,,,,,,,--.......---BB",
+     "......................,,,,,,,,,,,--.,,,,,,,,,,,,,,,,--.-----..BB",
+     ".......,.............,,,,,,,,,,--,----,,,,,,,,,,,,,,,--........-",
+     ".....,,,.........,,,.,,,,,,,,,-----...---,,,,,,,,,,,,,,........-",
+     "....,,,,........,,,,,,,,,,,,--,-------..---,,,,,,,,,,,,,,......-",
+     "...,,,,,,.......,,,,,,,,,,,--,--,.--.--....-,,,,,,,,,,,,,,.....-",
+     "..,,,,,,,,,..........,,,,,----,,,..-..--...--BB---,,,,,,,,,,,,,,",
+     ",,,,,,,,,,,,......BBB,,,--,---,,,..-...-...-.BBBBB------,,,,,,,,",
+     ",,,,,,,,,,,,,,,,,,BB--,----.--,,,,.-.----..-.BBBBB.BBB-RRRRRR,,,",
+     ",,,,,,,,,,,,,,,,,,,-------..--,,,,.---..--.-.BBBBB----,RRRRRRRRR",
+     ",,,,,,,,,,,,,,,,,-----,--.----,,,,.-.....---.BB----,,,,,,,,,RRRR",
+     ",,,,,,,,,,,,,,-------,--------,,,,--,,,,,,,-----,,,,,,,,,.RRRRRR",
+     ",,,,,,,,,,,----,,,-,--..------,BB,-,,,,,,,,-,,,,,,,,,.RRRRRRRRRR",
+     ",,,,,,,,,,-,,,,,--,,-.----.BBBBBB,-,,,,,,,,,,,,,.RRRRRRRRRRRRRRR",
+     ",,,,,,,,,-,,,,,--,,--------BBBBBBBB,,,,,,,,,.RRRRRRRRRRRRRRRRRRR",
+     ",BB,,,,--,,,,--,,,----.----BBBBB..B,,,,..RRRRRRRRRRRRRRRRRRR.--B",
+     ".BB.,,--,,,,--,,,,-----.---BBBBB....RRRRRRRRRRRRRRRRRRRRRBB--BBB",
+     ".....--,,,--,,,,,--------...pB..RRRRRRRRRRRRRRRRRRRRRBBBBBBBBBB.",
+     "....-,,,,--,,,,,------......RRRRRRRRRRRRRRRRRRRRRR-..BBBB---BBBB",
+     "...--,,--.,,,,,,-.......RRRRRRRRRRRRRRRRR--RRRRRB-B-B-BBBB-BBBBB",
+     "..---,--,,,,,.RRR...RRRRRRRRRRRRRRRR..-----RRR,,BBBBBBBBBB-BBBB,",
+     "..-,---,,,.RRRRRRRRRRRRRRRRRRRRR....---..-,,,,,,,BB-BBBBBB-BBB-p",
+     ".----,,..RRRRRRRRRRRRRRRRRRR.BpB.-----..-,,,,,,ppppp-BBBBBBB.BBp",
+     "--,,.RRRRRRRRRRRRRRRRRRR..BBBBBBB.-------,,pppp,,,,,ppp---BBBB,p",
+     ",,RRRRRRRRRRRRRRRRRR..---BBBBBBBB--.----.BBBB,pppppppBBBp--BBBpp",
+     "RRRRRRRRRRRRRRR..-----....BBBBBBB---.---.B-BB~~~~,,pp.BBBBBp-Bp,",
+     "RRRRRRRRRRR...----.......BBBBBBBB------.BBBBBB~~~~~~pBB--B.BBBpp",
+     "RRRRRRR.....--....-----...BBBBBBB-.----..BBBBBB~~~~pBB.-BBBBBBp,",
+     "RRR.........-.-----...-.ppBBpp---------BBBBBBBBB~BppBBpBBBBBBp,,",
+     "..-------B-----..--...-..pp.....-------.BB-BBBB-BBp-BB-BB-BBBp,,",
+     "---.--BB-BB-,,,-.-...-....pBB.B.------.BB-BBBBB-BB..BBBBBBBB,p,,",
+     "--....BBBBB-,,,--....-...pBBBBB.--BB--BBBBB-.BBB-BBBBBB.BBB-,,,,",
+     "..---BBBBBB-,,,,,-..-....pBBBBB.--BB-.BBBBB-B.BBB-BBBBB.BB-,,,,,",
+     "B....--BBB--,,,,,--.-...pp.--BB-...-.BB.BB-BBBBpBB-BBBBBBB,,,,,,",
+     "BB......-B--,,,,,,--..p----.-.--.--..BBBB.BBBBBB.BB-BB.BB-,,,,,,",
+     ".--.......---,,,,,,--.p-.---------BBBBBB-BBB--BB.BB-BBBBB,,,,,,,",
+     "-..--...---..--,,,,,-.p--.----..BBBBBBB..BB-B-BB.BBBBBBBB,,,,,,,",
+     "B-..----......---,,,,-----.,,,BBBBBBBB-BBB--BBBBB.BBB-BBB,,,,,,,",
+     "B-..............------.,,,,,,,,BB---BB.BB--BB.B-BB.BBBBBB,,,,,,,",
+     "BBBBB...............-,,,,,,,,,,BBBBB-.BB--BB-.BB-BBBBBB-,,,,,,,,",
+     ",BBBB...........-.B.BB,,,,,,,,,BBBBB.BB--BB.--.BBBBBBBB-,,,,,,,p",
+     "pBBB.-B.....BBBBBBBBBB,,,,,,,,,,BB--BB--BB-BBB-.B-BBB--,,,,,,,,p",
+     "ppBB--BBBBBBBBBBBBB-BB,,,,,,,,,,B..BB.-BBB.BBBBBBBBB-,,,,,,,,,p,",
+     "ppBBBB-BBBBBB-BBBBBBBB,,,,,,,,,,,-BBB-BBB.BBBBBBBBBB,,,,,,,,,p,,",
+     ",BBBB-BB-BBBB-BBBBB---,,,,,,,..BBB---BBB.BBBBBBBBBBB,,,,,,,,pp,,",
+     "BBBBB-BB.BBBB-BBB----.B,,,.....BBBB-BBB-.BBBB-BBBBB,,,,,,,,pp,,,"
+    ]
+   },
+   "tile_counts": {
+    ".": 613,
+    ",": 807,
+    "-": 593,
+    "B": 664,
+    "R": 309,
+    "p": 71,
+    "~": 15
+   },
+   "landmarks": [
+    {
+     "name": "Welcome Break Fleet Services",
+     "osm_type": "way",
+     "osm_id": 32806558,
+     "osm_kind": "services",
+     "lat": 51.29453,
+     "lon": -0.860547,
+     "east_m": -372.2,
+     "north_m": -141.4,
+     "tile": {
+      "x": 0,
+      "y": 35
+     }
+    },
+    {
+     "name": "Fleet Services",
+     "osm_type": "node",
+     "osm_id": 503401213,
+     "osm_kind": "bus_stop",
+     "lat": 51.297292,
+     "lon": -0.853549,
+     "east_m": 114.9,
+     "north_m": 166.1,
+     "tile": {
+      "x": 41,
+      "y": 10
+     }
+    },
+    {
+     "name": "Shell Fleet Services (West)",
+     "osm_type": "way",
+     "osm_id": 61478612,
+     "osm_kind": "fuel",
+     "lat": 51.294682,
+     "lon": -0.859727,
+     "east_m": -315.1,
+     "north_m": -124.5,
+     "tile": {
+      "x": 5,
+      "y": 34
+     }
+    },
+    {
+     "name": "Shell Fleet Services (East)",
+     "osm_type": "way",
+     "osm_id": 61478613,
+     "osm_kind": "service",
+     "lat": 51.29719,
+     "lon": -0.852574,
+     "east_m": 182.8,
+     "north_m": 154.7,
+     "tile": {
+      "x": 47,
+      "y": 11
+     }
+    },
+    {
+     "name": "Former Scott Mills Bridge",
+     "osm_type": "way",
+     "osm_id": 24428692,
+     "osm_kind": "footway",
+     "lat": 51.296026,
+     "lon": -0.855598,
+     "east_m": -27.7,
+     "north_m": 25.2,
+     "tile": {
+      "x": 29,
+      "y": 21
+     }
+    }
+   ],
+   "roads": {
+    "major": [],
+    "minor": [
+     "Ramsdell Road",
+     "Rotten Green",
+     "Shell Fleet Services (East)",
+     "Stockbridge Road",
+     "Tadley Close",
+     "Tunworth Close",
+     "Turgis Road",
+     "Turners Avenue",
+     "Twyford Close",
+     "Upper Wield Drive"
+    ],
+    "route_relations": [
+     "M3 J4a",
+     "M3 motorway",
+     "Strategic Road Network"
+    ]
+   },
+   "water_names": [],
+   "rail_names": [],
+   "rail_disused_names": [],
+   "osm_elements": {
+    "ways": 650,
+    "counted": {
+     "road_major_line": 6,
+     "road_minor_line": 275,
+     "path_line": 117,
+     "park_area": 62,
+     "building_area": 369,
+     "water_line": 4,
+     "water_area": 3
+    }
+   },
+   "sources": [
+    "https://en.wikipedia.org/wiki/Fleet_Services",
+    "https://en.wikipedia.org/wiki/M3_motorway_(Great_Britain)"
+   ],
+   "source_kind": "cache"
+  },
+  {
+   "slug": "winchester_twyford_down",
+   "name": "Winchester, the M3 cutting through Twyford Down",
+   "region": "Hampshire, southeast of Winchester",
+   "blurb": "Chalk downland with a motorway cut through it. The M3 sweeps in a wide curve through a chalk cutting, the Itchen Navigation and the River Itchen run in the valley to the west, and the ground either side is open down and golf course. This is the emptiest of the five boxes and the best one for a long visible road line.",
+   "anchor": {
+    "lat": 51.0415,
+    "lon": -1.3085
+   },
+   "bbox": {
+    "south": 51.037619,
+    "west": -1.316729,
+    "north": 51.045381,
+    "east": -1.300271
+   },
+   "metres_per_tile": 18.0,
+   "size_m": {
+    "width": 1152,
+    "height": 864
+   },
+   "grid": {
+    "cols": 64,
+    "rows": 48,
+    "origin": "top left, north up",
+    "ascii": [
+     ",,,,,~pp,,,,pp,,,pp,,p,,,pp,ppp,,,.......,pp,,p,pRRRRp,,pppp,,,,",
+     ",,,,~~pp,,,,pp,,,ppppp,,,pp,ppp,........,,p,,,pp.RRRRp,,,p,,,,..",
+     ",,,,~~pp,,,,pp,,,p,p,,,,,ppppppp.......,,ppppppp.RRRR,,,,,p,,...",
+     ",,,,~ppp,,,,pp,,,p,p,,,,,,pppp,pp.....,,ppp,,,ppRRRRp,,,pppp....",
+     ",,,,~p,p,,,,ppp,,pp,,,,,,pppp,,,pp...,,,p,,,,,p.RRRRp,pp,,,p,...",
+     ",,,,~ppp,,,,,ppp,p,,,,,,ppp,ppp,ppp..,,p,,,,,ppRRRRR,p,,,..pp,..",
+     ",,,,~pp,,,,,,,ppppp,pppppppp,ppppppp,,pp,,,,,ppRRRRpp,,,....p,..",
+     ",,,,~pp,,,,,pppppppppppppppppppppppppp,,,,,,ppRRRRRp,,......,p,.",
+     ",,,,~pp,,,,p,,,,,,,,p,,,,,,,,,,,p,,,pp,,,,,pp.RRRRp,,........pp.",
+     ",,,,~pp,,,p,,,,,,,,,p,,,,,,,,,,,pp,pp,,,,,,ppRRRRR,...........pp",
+     ",,,,~pp,pp,,,,,,,,,,p,,,,,,,,,,,pppp,,,,,,pp.RRRRp............,p",
+     ",,,,~ppppp,,,,,,,,,p,,,,,,,,,,,ppp,,,,,,,pp.RRRRp..............,",
+     ",,,~~p,,ppppp,,,,,,pp,,,,,,pppppp,,,,,,,pp.RRRRRp...............",
+     "~~~~p,,,pp,,ppppp,,pp,ppppp,,,pp,,,,,,,pppRRRRR.p...............",
+     "~~~~p,,,pp,,,,,,ppppppp,,,,,,pp,,,,,,,pppRRRRR..p...............",
+     "~~,~p,,,pp,,,,,,,,,pp,,,,,,,,,pp,,,,,pppRRRRR...p...............",
+     ",,,~p,,,ppp,,,,,,,,p,,,,,,,,,,,ppp,,pp.RRRRR....p...............",
+     ",,,~p,,,p,p,,,,,,,,p,,,,,,,,,,,,,pppp.RRRRRR....p...............",
+     ",,~p,,,,p,p,,,,,,,,pp,,,,,,,,,,,,ppp.RRRRRR.....p...............",
+     ",,~p,,,,p,,p,,,,,,,,p,,,,,,,,,,pppp.RRRRR.......p...............",
+     ",,~p,,,,pp,p,,,,,,,,p,,,,,,,,pppp.RRRRRR.........p..............",
+     ",~~p,,,,ppppp,,,,,,,p,,,,,,ppppp.RRRRRR..........p..............",
+     ",~pp,,,ppp,pp,,,,,,,p,,,ppp,pp..RRRRRR...........p..............",
+     ",~p,,,,pppppp,,,,ppppppp,,,pp..RRRRRR............p..............",
+     "~~p,,,,p,ppppppppp,,,,,,,ppp.RRRRRR...............p.............",
+     "~pp,,,ppp,,,,,,,,,,,,,,,pp.RRRRRR.................p.............",
+     "~p,,,,pp,,,,,,,,,,,,,,pp..RRRRRR...................p............",
+     "~p,,,,p,,,,,,,,,,,,,,pp.RRRRRRR....................p............",
+     "pp,,,pp,,,,,,,,,,,,pp..RRRRRR......................p............",
+     "p.,,,p,,,,,,,,,,,pp..RRRRRR........................p............",
+     "p,,,,p,,,,,,,,,,pp..RRRRRR........................pp............",
+     "p,,,,p,,,,,,,,pp..RRRRRR.........................pp.............",
+     "p,,,pp,,,,,,,pp.RRRRRRR..........................p..............",
+     "p,,,p,,,,,,pp..RRRRRR...........................pp..............",
+     ",,,pp,,,,,pp.RRRRRRR...........................pp...............",
+     ",,,p,,,,pp..RRRRRRp............................p................",
+     ",,pp,,,pp..RRRRRR.............................pp................",
+     ",pp,,,ppRRRRRRRR..............................p.................",
+     ",p,,ppRRRRRRRRR...............................p.................",
+     "p,,pRRRRRRRRR.................................p.................",
+     "p,pRRRRRRRRR.................................p..................",
+     ",RRRRRRRRRR..................................p..................",
+     "RRRRRRRRRR..................................pp..................",
+     "RRRRRRRR....................................p...................",
+     "RRRRRRR....................................p....................",
+     "RRRRRR....................................pp....................",
+     "RRRR......................................p.....................",
+     "RRR......................................p......................"
+    ]
+   },
+   "tile_counts": {
+    ",": 794,
+    "~": 41,
+    "p": 503,
+    ".": 1453,
+    "R": 281
+   },
+   "landmarks": [
+    {
+     "name": "Twyford Down Cutting",
+     "osm_type": "way",
+     "osm_id": 306310686,
+     "osm_kind": "cliff",
+     "lat": 51.042283,
+     "lon": -1.308587,
+     "east_m": -6.1,
+     "north_m": 87.2,
+     "tile": {
+      "x": 31,
+      "y": 19
+     }
+    },
+    {
+     "name": "Twyford Down",
+     "osm_type": "node",
+     "osm_id": 3111838899,
+     "osm_kind": "locality",
+     "lat": 51.040627,
+     "lon": -1.30925,
+     "east_m": -52.5,
+     "north_m": -97.2,
+     "tile": {
+      "x": 29,
+      "y": 29
+     }
+    },
+    {
+     "name": "Hockley Cross",
+     "osm_type": "node",
+     "osm_id": 1596591884,
+     "osm_kind": "motorway_junction",
+     "lat": 51.039716,
+     "lon": -1.312775,
+     "east_m": -299.2,
+     "north_m": -198.6,
+     "tile": {
+      "x": 15,
+      "y": 35
+     }
+    },
+    {
+     "name": "Saint Catherine's Lock",
+     "osm_type": "node",
+     "osm_id": 611718036,
+     "osm_kind": "weir",
+     "lat": 51.043411,
+     "lon": -1.315638,
+     "east_m": -499.6,
+     "north_m": 212.7,
+     "tile": {
+      "x": 4,
+      "y": 12
+     }
+    },
+    {
+     "name": "Itchen Navigation (Disused)",
+     "osm_type": "way",
+     "osm_id": 44911141,
+     "osm_kind": "stream",
+     "lat": 51.041412,
+     "lon": -1.316511,
+     "east_m": -560.7,
+     "north_m": -9.8,
+     "tile": {
+      "x": 0,
+      "y": 24
+     }
+    }
+   ],
+   "roads": {
+    "major": [],
+    "minor": [],
+    "route_relations": [
+     "European route E05",
+     "M3 J10",
+     "M3 J11",
+     "M3 motorway",
+     "Strategic Road Network"
+    ]
+   },
+   "water_names": [
+    "Itchen Navigation (Disused)",
+    "Saint Catherine's Lock"
+   ],
+   "rail_names": [],
+   "rail_disused_names": [
+    "Newbury and Winchester Line"
+   ],
+   "osm_elements": {
+    "ways": 60,
+    "counted": {
+     "path_line": 107,
+     "road_major_line": 34,
+     "road_minor_line": 22,
+     "water_line": 33,
+     "building_area": 4,
+     "park_area": 8,
+     "water_area": 2,
+     "water_arearing": 1,
+     "water_areachain": 52,
+     "park_arearing": 2
+    }
+   },
+   "sources": [
+    "https://en.wikipedia.org/wiki/Twyford_Down",
+    "https://en.wikipedia.org/wiki/St_Catherine%27s_Hill"
+   ],
+   "source_kind": "cache"
+  },
+  {
+   "slug": "southampton_ocean_terminal",
+   "name": "Southampton Ocean Terminal and the Old Docks berths",
+   "region": "Southampton, Eastern Docks",
+   "blurb": "A cruise quay: deep water on the west side, a straight quay line, a terminal shed and berth heads along it. Almost everything else in the box is hardstanding, which makes the water and quay edge the whole read of the map.",
+   "anchor": {
+    "lat": 50.893,
+    "lon": -1.399
+   },
+   "bbox": {
+    "south": 50.890413,
+    "west": -1.404469,
+    "north": 50.895587,
+    "east": -1.393531
+   },
+   "metres_per_tile": 12.0,
+   "size_m": {
+    "width": 768,
+    "height": 576
+   },
+   "grid": {
+    "cols": 64,
+    "rows": 48,
+    "origin": "top left, north up",
+    "ascii": [
+     "~~~---.--------------.-........----.---BBBBBBB....BBBB-BB-.-.BBB",
+     "==~~~~~-..------------.--....---..-.---BBBBBBB....BBB.-BB-.-....",
+     "~===~~~---------------..------.----.--BBBBBBBB....BBBB-BB---....",
+     "~~~==~~-------.-----.---....-.------.BBBBBBBBB....BBB.-BBBB-....",
+     "==~~~.~----.-----------.-...---BB---.-BB#.........BBBB-BBBB-----",
+     "~==~~~~--------------..--.B---BBBB-----##.........BBBB-......BBB",
+     "~~~==~~-------------.----.B-.-BBBB-----##.........BBB.-BBBB-.BBB",
+     "~~~~===~---------------------..BB---B---#.........BBBB-BBBB-.--B",
+     "==~~~~=~------.---------..-------BBBBB--#.........BBBB------.--.",
+     ".===~=~~---------------..----.~~~BBBBB--##........BBBB---------.",
+     "========~-----------.--..----.~~~BBBBB--##..........B.----...---",
+     "========~-------.--.--------..~~~~BB...--#............---------B",
+     "~~===~==~---------------.-BB..~~~~.BBB.-##..............------BB",
+     "~~~~=~~~~~--.----------.--BBB.~~~~.BBB.-###...............-BBBB,",
+     "~~==~~===~----------.--.--BBB~~~~~~BBBB-------............-BBBB,",
+     "~~~======~~~-----------.--BBB~~~~~~BB...-##.---...........-BBBB,",
+     "~~~~~===~~~~--.--------.-BBBB~~~~~~~....-##-BB-------......BBBBB",
+     "~~~~~~~===~~~---------.--BBB.~~~~~~~....-#-BBB-----.-------.---B",
+     "~~~~~~~===~~~-------.-.--BBB~~~~~~~~~...---#B-..-BB---.BB..-----",
+     "~~~~~~~~~~~~~~...-~.----BBBB~~~~~~~~~....--#-..-.BBB---BB-------",
+     "~~~~~~~~~=~~BB.BB-~~~-.-BBBB~~~~~~~~~....-#-.---.BBBB--p-pBB-..-",
+     "~~~~~~~~~==~BB.BB~~~--.BBBB.~~~~~~~~~~...-#-..-.BBBBBB---BBB-.--",
+     "~~~~~~~~~~~~~BBBB~~~-..BBBB.~~~~~~~~~~...#---.B.BBBBBBB--BBB--BB",
+     "~~~~~~~~~~~=~BB-B~~~-..BBBB~~~~~~~~~~~~..#-B.BBBBB.BBBBBBBBBBBBB",
+     "~~~~~~~~~===~~~--~~~-..BBBB~~~~~~~~~~~~..#-BB-BBB.--BBBBBBBBBBBB",
+     "~~~~~~~~~~=~~~~~BBBB---BBBB~~~~~~~~~~~...#------.-.--.B.BBBBBBBB",
+     "~~~~~~~~~~~~~~~~~BBBBBBBBB.~~~~~~~~~~~...-#BB--.--...--BBBBBBBBB",
+     "~~~~~~~~~~===~~~~~BBBBBBBB.~~~~~~~~~~~...--BB.----....-BBBBBBBBB",
+     "~~~~~~~~~~~=~~~~~~~~~BBBBB~~~~~~~~~~~~..#--...-~~--..-BBBBBBBBBB",
+     "~~~~~~~~~~~~~~~~~~==~-BBBB~~~~~~~~~~~...#--...-~~~~---BBBBBBBBBB",
+     "~~~~~~~~~~~~~~~~~~===-BBB.~~~~~~~~~~~...#--...-~~~~~.-BBBBBBBBBB",
+     "~~~~~~~~~~~~~~~~~~~==BBBB.~~~~~~~~~~~...#--...-~~~~~~.-BBBBBBBBB",
+     "~~~~~~~~~~~~~~~~~~~~~BBBB~~~~~~~~~~~~...#--...-~~~~~~~~--BBBBB-B",
+     "~~~~~~~~~~~~~~~~~~~~.BBBB~~~~~~~~~~~~...---...-~~~~~~~~~--BBBBBB",
+     "~~~~~~~~~~~~~~~~~~~~-..BB~~~~~~~~~~~...#-#-...-~~~~~~~~~~~-BBBB.",
+     "~~~~~~~~~~~~~~~~~~~~-BBB.~~~~~~~~~~~...#-#-...-~~~~~~~~~~~~--BBB",
+     "~~~~~~~~~~~~~~~~~~~~-BBB~~~~~~~~~~~~...#-#-..-.~~~~~~~~~~~~~.-BB",
+     "~~~~~~~~~~~~~~~~~~~~.-BB~~~~~~~~~~~~...#-.-....~~~~~~~~~~~~~~.BB",
+     "~~~~~~~~~~~~~~~~~~~...-B~~~~~~~~~~~....-#.-...~~~~~~~~~~~~~~~~pB",
+     "~~~~~~~~~~~~~~~~~~~...-.~~~~~~~~~~~...#-#-....~~~~~~~~~~~~~~~pp=",
+     "~~~~~~~~~~~~~~~~~~~...-.~~~~~~~~~~~...#-#-....~~~~~~~~~~~~~~pp==",
+     "~~~~~~~~~~~~~~~~~~~..--~~~~~~~~~~~~...#-#-....~~~~~~~~~~~~~~~==-",
+     "~~~~~~~~~~~~~~~~~~~..-.~~~~~~~~~~~~...--.-....~~~~~~~~~~~~~~~~~-",
+     "~~~~~~~~~~~~~~~~~~~~.-.~~~~~~~~~~~...#-#.-...~~~~~~~~~~~~~~~~~~-",
+     "~~~~~~~~~~~~~~~~~~~~...~~~~~~~~~~~...#-#.-...~~~~~~~~~~~~~~~~~~-",
+     "~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~...#-#.-...~~~~~~~~~~~~~~~~~~~",
+     "~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~...#-..-...~~==~~~~~~~~~~~~~~~",
+     "~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~....-----...~~=~~~~~~~~~~~~~~~~"
+    ]
+   },
+   "tile_counts": {
+    "~": 1257,
+    "-": 660,
+    ".": 535,
+    "B": 461,
+    "=": 92,
+    "#": 57,
+    ",": 3,
+    "p": 7
+   },
+   "landmarks": [
+    {
+     "name": "Ocean Cruise Terminal",
+     "osm_type": "way",
+     "osm_id": 314606884,
+     "osm_kind": "commercial",
+     "lat": 50.892923,
+     "lon": -1.400214,
+     "east_m": -85.2,
+     "north_m": -8.6,
+     "tile": {
+      "x": 24,
+      "y": 24
+     }
+    },
+    {
+     "name": "Berth 46",
+     "osm_type": "node",
+     "osm_id": 729188561,
+     "osm_kind": "locality",
+     "lat": 50.89332,
+     "lon": -1.399398,
+     "east_m": -27.9,
+     "north_m": 35.6,
+     "tile": {
+      "x": 29,
+      "y": 21
+     }
+    },
+    {
+     "name": "Berth 45",
+     "osm_type": "node",
+     "osm_id": 729188724,
+     "osm_kind": "locality",
+     "lat": 50.893614,
+     "lon": -1.398533,
+     "east_m": 32.8,
+     "north_m": 68.4,
+     "tile": {
+      "x": 34,
+      "y": 18
+     }
+    },
+    {
+     "name": "Berth 47",
+     "osm_type": "node",
+     "osm_id": 729188786,
+     "osm_kind": "locality",
+     "lat": 50.891713,
+     "lon": -1.399996,
+     "east_m": -69.9,
+     "north_m": -143.3,
+     "tile": {
+      "x": 26,
+      "y": 35
+     }
+    },
+    {
+     "name": "Berth 44",
+     "osm_type": "node",
+     "osm_id": 729188488,
+     "osm_kind": "locality",
+     "lat": 50.891916,
+     "lon": -1.398454,
+     "east_m": 38.3,
+     "north_m": -120.7,
+     "tile": {
+      "x": 35,
+      "y": 34
+     }
+    },
+    {
+     "name": "Eastern Docks",
+     "osm_type": "node",
+     "osm_id": 13332325982,
+     "osm_kind": "quarter",
+     "lat": 50.895417,
+     "lon": -1.399533,
+     "east_m": -37.4,
+     "north_m": 269.1,
+     "tile": {
+      "x": 28,
+      "y": 1
+     }
+    }
+   ],
+   "roads": {
+    "major": [],
+    "minor": [
+     "Atlantic Way",
+     "Central Road",
+     "Cunard Road",
+     "European Way",
+     "Lane 1",
+     "Lane 2",
+     "Lane 3",
+     "Maritime Walk",
+     "Ocean Road",
+     "Ocean Way",
+     "Town Quay"
+    ],
+    "route_relations": [
+     "A33"
+    ]
+   },
+   "water_names": [
+    "Berth 49"
+   ],
+   "rail_names": [],
+   "rail_disused_names": [],
+   "osm_elements": {
+    "ways": 414,
+    "counted": {
+     "road_minor_line": 276,
+     "path_line": 88,
+     "road_major_line": 10,
+     "quay_area": 24,
+     "building_area": 128,
+     "park_area": 8,
+     "quay_line": 10,
+     "rail_line": 4,
+     "water_area": 2,
+     "building_arearing": 1,
+     "water_arearing": 5
+    }
+   },
+   "sources": [
+    "https://en.wikipedia.org/wiki/Port_of_Southampton",
+    "https://en.wikipedia.org/wiki/Southampton"
+   ],
+   "source_kind": "cache"
+  },
+  {
+   "slug": "southampton_dock_gate_4",
+   "name": "Southampton Dock Gate 4 and the Eastern Docks road",
+   "region": "Southampton, Dock Gate 4",
+   "blurb": "The gate itself is the landmark: a wide dock road, a gate structure, port sheds and rail sidings, with the River Itchen cutting the east edge of the box. This is the only one of the five with working railway in frame.",
+   "anchor": {
+    "lat": 50.897,
+    "lon": -1.3929
+   },
+   "bbox": {
+    "south": 50.89355,
+    "west": -1.400192,
+    "north": 50.90045,
+    "east": -1.385608
+   },
+   "metres_per_tile": 16.0,
+   "size_m": {
+    "width": 1024,
+    "height": 768
+   },
+   "grid": {
+    "cols": 64,
+    "rows": 48,
+    "origin": "top left, north up",
+    "ascii": [
+     "-BBBBBBB-BBBB-BBBBBRRRB-.BBB-p-BBBB--BBBBB.-BBBBB--...BB-~~~~~~~",
+     "BBBBBB-B-BRBBBB.-BBBRBBB-.BB-p-BBBB-BBBRRBBBBB.B.--...BB.~~~~~~~",
+     "B-----BB-BRR-BBB-BBBRBBBBB--#--BBBBBBBBRBBBBB---.--...--.~~~~~~~",
+     "-BB,ppBBBBBBBBBBBBB-RBBBBBBBpp-B,B-B-BBRBBBBB-.B......--~~~~~~~~",
+     "BBB,,,BBBpBBBBBBBBBRRBB-BBBBBBBBBB-B-BBRBBBBBBBB-....---pp~~~~~~",
+     "BBB,,ppBBpBBBB.BBBBRBBBBB-BBBB-BBBBB-BBRBBBBBBBB-BBBBBB-,p~~~~~~",
+     ".BBBBpBBBBRBBBBBBB-RRBBBBBBBBBB---BB-BBRBBBBBB-BBBBB-----p~~~~~~",
+     "-BBBBBBBBBRR---BBBRRRBRRBBB#BBBBB-BBBBBR..-BBBBBBBB-BBBp~~~~~~~~",
+     "B-BB--BBBBR-------RBBBBBRRBR-BBBB-BBBRRR..-BBBB..---BBB~~~~~~~~~",
+     "B-BBBBBBBBRRRR----RBBBBBBBRRRBRBBBBBpRRRpp----------BBB.~~~~~~~~",
+     "BBBB.-BBBBBBBBRRRRRBBBBBBBBBBBRBBBBpRRRpp.pp..-.----BB..~~~~~~~~",
+     "BBBBB--.BBBBBBBBRRR--BBBBBBBBBRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+     "BBBBBB-BBBBBBBBBRBBBBBBBB#BBBBBBBRRRRRRRRRRRRRBBBBRBBRBRRRRRRRRR",
+     "BBBBBBBBBBBBBBBBBBBBBBBBB-BBBBBBBBRRR-BBBBBp-BBBBB-B--B--~~~~~~~",
+     "BB.BBBBBBBBBBBBBBBBBBBBBB-BBB-BBBRRRp-BBBBB--BB-BB-BBBBBB~~~~~~~",
+     "B..BBB-BBBBBBBBBBBBBBBBB#BBBB-RRBBBB-BBBBB--BBBBBB-BBBBBBp===~~~",
+     "BB.BBBBBBBBBBBBBBBBBBBBB-BBBBRBBBBB-BBBBB--BBBBBBBBBBBBBBB===~~~",
+     "BBBBBBBBBBBBBBRBBBBBBBBBBBBBRBBBBBBBBBBB.--BpppppBBBBBBBBp~~~~~~",
+     "--BBBBBBBBBBBBRBBB--.-BBBBBBRBBB-BBBBB-BBB-BBBBppBBppppBBp~~~~~~",
+     "pppp---BBBBBBBBBBB---#BBBBBBRRBBBBBBB-BBBB-BBBBBBBBBBBBBBp~~~~~~",
+     "pp,pp,p,--BBBBBBBBB--BBBBB-BBBBBBBBBBBBBBBB-----BBBBBBBBB~~~~~~~",
+     "pppppppp,,,pRBBBBBB-BBBBBB-BBBBBBBBBBBBBBBB---------.--BB~~~~~~~",
+     "pp,pp,ppppppRBBBBB-#BBBBBBBBBBBBBBBB--BBBBBBBBBB-------BB~~~~~~~",
+     "pppppppRRRRRRBBBBBRRBBBBBBBBBBBB-BBBBBBBBBBBBBBB----BBBBB~~~~~~~",
+     "RRRRRRRRRRRBBBBBBBBBBBBBBBBBBRBB--BBBBBBBBBBB-BB-----BBBp~~~~~~~",
+     "RRRRRRRBBBBBBBBB#BBBBBBBBBBBBBBBB-BBBBBBBBpBB---BB----BB~~~~~~~~",
+     "RRRBBBBBBBBBBB--#--BBBBB---BBB-BB-BBBBBp====ppppBBp-BBBB~~~~~~~~",
+     ",,,BBBB---...#--.--BB-BBBBB-----B-BBBBp~========BBBBBBBp~~~~~~~~",
+     "......-B-----#BB.--BB-BBBBB-----BBBBpp~~~=========pBBBB~~~~~~~~~",
+     "......-B.--.#-BB...BB.BBBBBBB---BBBp==============-BBBB~~~~~~~~~",
+     ".......-----#--....BB.BBBBBBBB.-BBp===============BBBBp~~~~~~~~~",
+     ".......--.-----.......----BBBB-BBB===============BBBBB~~~~~~~~~~",
+     ".......-------.....BBB-BBB----BBBB===============BBBBB~~~~~~~~~~",
+     "......--------....BBBBBBBB.BBBBBBB===============BBBB~~~~~~~~~~~",
+     "....---.---BBBBB..BBBBBB--.BBBBBBB======~~=======BBBBp~~~~~~~~~~",
+     "----.-----BBBBBB..BBBBBB--...BBBBp=======~========pppp~~~~~~~~~~",
+     "..-------BBBBBBB..BBB.BBBB...BBBBBBBBBB==~==~~~~==~~~~~~~~~~~~~~",
+     ".B--BB--.BB##.....BBBBBBBB-BBBBBBBBBBBB==~~~~~~~===~~~~~~~~~~~~~",
+     "BB--BBB----##.....BBBBBBBB.BBBBBB========~~========~~~~~~~~~~~~~",
+     "---.BB--B--##.....BBBBBBBB-BBBBBp===================~~~~~~~~~~~~",
+     "------BBBB-##.....BBBB-------BBBp===================~~~~~~~~~~~~",
+     "---.~~BBBB--#......BBB-------BBB-=============BBBBB~~~~~~~~~~~~~",
+     "---.~~BBB.--#.........------BBBBppppppBBBB====BBBBBp~~~~~~~~~~~~",
+     "-BB~~~~BBB--##..........--BBBBBBpBBpBBBBBB===pB-BB-p~~~~~~~~~~~~",
+     "-BB~~~~.BB.----..........BBB,,BB-BBpBBB-BBBBBBBBBB-~~~~~~~~~~~~~",
+     "BBB~~~~~BB.-#-----.......BBBBBBB-BBBBBBBBBBBB--BBBp~~~~~~~~~~~~~",
+     "BBB~~~~~...-#-BB-------..--BBBBB-BBBB.BBBB-BBBBBB-~~~~~~~~~~~~~~",
+     "BBB~~~~~~..-#BB-.-B--.-B------------BBBBBBBB-BBBB-~~~~~~~~~~~~~~"
+    ]
+   },
+   "tile_counts": {
+    "-": 444,
+    "B": 1395,
+    "R": 168,
+    ".": 231,
+    "p": 113,
+    "~": 459,
+    "#": 27,
+    ",": 21,
+    "=": 214
+   },
+   "landmarks": [
+    {
+     "name": "Dock Gate 4",
+     "osm_type": "way",
+     "osm_id": 1043468564,
+     "osm_kind": "yes",
+     "lat": 50.896259,
+     "lon": -1.398554,
+     "east_m": -397.0,
+     "north_m": -82.5,
+     "tile": {
+      "x": 7,
+      "y": 29
+     }
+    },
+    {
+     "name": "European Vehicle Terminal",
+     "osm_type": "node",
+     "osm_id": 1418768385,
+     "osm_kind": "locality",
+     "lat": 50.895749,
+     "lon": -1.397101,
+     "east_m": -295.0,
+     "north_m": -139.3,
+     "tile": {
+      "x": 13,
+      "y": 32
+     }
+    },
+    {
+     "name": "Eastern Docks",
+     "osm_type": "node",
+     "osm_id": 13332325982,
+     "osm_kind": "quarter",
+     "lat": 50.895417,
+     "lon": -1.399533,
+     "east_m": -465.7,
+     "north_m": -176.2,
+     "tile": {
+      "x": 2,
+      "y": 35
+     }
+    },
+    {
+     "name": "River Itchen",
+     "osm_type": "way",
+     "osm_id": 310937889,
+     "osm_kind": "river",
+     "lat": 50.896876,
+     "lon": -1.387335,
+     "east_m": 390.7,
+     "north_m": -13.8,
+     "tile": {
+      "x": 56,
+      "y": 24
+     }
+    },
+    {
+     "name": "Old Docks PSS",
+     "osm_type": "way",
+     "osm_id": 1465356953,
+     "osm_kind": "feature",
+     "lat": 50.896108,
+     "lon": -1.39553,
+     "east_m": -184.7,
+     "north_m": -99.3,
+     "tile": {
+      "x": 20,
+      "y": 30
+     }
+    },
+    {
+     "name": "The Dock House",
+     "osm_type": "node",
+     "osm_id": 11455376818,
+     "osm_kind": "restaurant",
+     "lat": 50.896458,
+     "lon": -1.392056,
+     "east_m": 59.3,
+     "north_m": -60.3,
+     "tile": {
+      "x": 35,
+      "y": 27
+     }
+    }
+   ],
+   "roads": {
+    "major": [
+     "Albert Road North",
+     "Bernard Street",
+     "Canute Road",
+     "Central Bridge",
+     "Itchen Bridge",
+     "Platform Road",
+     "Royal Crescent Road",
+     "Saltmarsh Road",
+     "Terminus Terrace",
+     "Threefield Lane"
+    ],
+    "minor": [
+     "Albert Road South",
+     "Alcantara Crescent",
+     "Anderson's Road",
+     "Andes Close",
+     "Asturias Way",
+     "Atlantic Close",
+     "Atlantic Way",
+     "Bernard Street",
+     "Canute Road",
+     "Captains Place",
+     "Central Road",
+     "Chandos Street",
+     "Channel Way",
+     "Chantry Road",
+     "Charles Street",
+     "College Street",
+     "Crosshouse Road",
+     "Cunard Road",
+     "Duke Street",
+     "Endle Street",
+     "European Way",
+     "Floating Bridge Road",
+     "John Street",
+     "King Street",
+     "Lane 1",
+     "Lane 2",
+     "Lane 3",
+     "Latimer Street",
+     "Maritime Walk",
+     "Maritime Way",
+     "Mermaid Way",
+     "Neptune Way",
+     "Ocean Way",
+     "Old Road",
+     "Orchard Place",
+     "Oxford Street",
+     "Pacific Close",
+     "Queen's Terrace",
+     "Richmond Street",
+     "Royal Crescent Road",
+     "Russell Street",
+     "Ryde Terrace",
+     "St Lawrence Road",
+     "Tasman Close",
+     "Ted Bates Road",
+     "Terminus Terrace",
+     "The Old Cattle Market"
+    ],
+    "route_relations": [
+     "A33",
+     "B3038 Road (Great Britain)",
+     "B3039 Road (Great Britain)"
+    ]
+   },
+   "water_names": [
+    "Ocean Village Marina",
+    "River Itchen"
+   ],
+   "rail_names": [
+    "Southampton Eastern Docks Branch"
+   ],
+   "rail_disused_names": [],
+   "osm_elements": {
+    "ways": 1609,
+    "counted": {
+     "road_major_line": 48,
+     "road_minor_line": 595,
+     "path_line": 281,
+     "quay_area": 14,
+     "building_area": 966,
+     "park_area": 43,
+     "quay_line": 32,
+     "rail_line": 5,
+     "water_area": 2,
+     "water_line": 1,
+     "building_arearing": 9,
+     "path_arearing": 4,
+     "water_arearing": 6,
+     "water_areachain": 52
+    }
+   },
+   "sources": [
+    "https://en.wikipedia.org/wiki/Port_of_Southampton",
+    "https://en.wikipedia.org/wiki/River_Itchen"
+   ],
+   "source_kind": "cache"
+  }
+ ]
+}
