@@ -130,6 +130,33 @@ cursor being an outlined arrow that changes state, and the committed PNGs matchi
 
 Copied expression: none.
 
+## the NES validator, the 8x8 font and the window frame (2026-10-21, card NES-CHECK)
+
+Studied: the NESdev wiki pages "PPU palettes" (https://www.nesdev.org/wiki/PPU_palettes), ".pal" and
+"PPU pattern tables" for the hardware rules only, and the licence file of Press Start 2P from its official home in
+google/fonts. No game was opened, no ROM, tile sheet, screenshot or decompiled code was read, and no existing game's
+window frame was measured. What the wiki gave us is a specification: 64 palette outputs, 4 background and 4 sprite
+palettes of 3 colours plus a shared backdrop, 8x8 pattern table tiles, 16x16 attribute areas, 25 colours on screen.
+
+Mechanics learned (public hardware facts, not a studied design):
+- A pixel is legal only if it is one of the 64 outputs, and the count of distinct colours in one frame is capped at
+  4 palettes x 3 colours x 2 kinds plus the backdrop, which is 25.
+- Sprite tiles pick from 3 colours plus transparent, background areas pick 3 plus the one backdrop shared by the frame,
+  so the same 8x8 drawing can be legal as background and illegal as a sprite.
+- A bitmap font ships inside a sprite sheet, so its pixels answer to the same rule as any other sprite: the old
+  project paper colour `#c8c8d4` was not a 2C02 output and the font failed the validator on exactly that pixel. The
+  fix was the chip's own white, `#fcfcfc` ($30), not a new palette entry.
+- Press Start 2P was designed on an 8x8 grid, so rasterising it at 8 px and thresholding the alpha gives one crisp
+  cell per glyph with no resampling.
+
+Our implementation differs by: `tools\nes_check.py` checks the four rules plus the grid and the screen cap, lists the
+offending tile or area for each failure and exits 1; `tests\test_nes_check.py` has a passing and a failing PNG fixture
+for each rule, and also runs the validator on the committed font and window. The window frame in
+`tools\art\make_pp_window.py` is drawn from nine hand written 8x8 bitmaps (border, inner line, fill, rounded corner),
+imitating a layout convention rather than any particular game's artwork.
+
+Copied expression: none.
+
 ## save, load and resume (2026-10-20)
 
 Status: the live entry for card t_a311bdff: the save slot in game\scripts\pp_save, the Save/Load event at

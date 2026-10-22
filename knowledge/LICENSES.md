@@ -63,6 +63,23 @@ becomes the better link.
 | GPL or AGPL GML libraries | They would force the game to be GPL. |
 | The FMOD binding (FML, MIT) | The binding is MIT but FMOD itself has its own commercial licence. GameMaker's built-in audio is enough for a 20 sound 8-bit game. |
 
+## Fonts and reference art (open licence only)
+
+The rule for a font is the project's rule for everything else: read the licence file, record it here, keep the text.
+A font used for on-screen text is a dependency just like a library, and a bitmap font that ships inside a sprite
+sheet has to be redistributable.
+
+| Asset | Licence, as read in the file | Source | Verified |
+| --- | --- | --- | --- |
+| Press Start 2P, by CodeMan38 (cody@zone38.net), Copyright 2012 The Press Start 2P Project Authors | SIL Open Font License 1.1, with Reserved Font Name "Press Start 2P" | https://github.com/google/fonts/blob/main/ofl/pressstart2p/OFL.txt | 2026-10-21, raw file fetched and diffed byte for byte: `knowledge\licences\PressStart2P-OFL.txt` is identical to upstream, sha256 `705960c3281a5765ecc0b59bd4ed7ca59eed165748076bc2fc3e8fdbfeb944b0` |
+
+Why this is allowed: the OFL 1.1 permits use, embedding and redistribution, including inside commercial software, as
+long as the copyright notice and the licence travel with it. It does not permit selling the font on its own, and it
+forbids using the Reserved Font Name for a modified version. Rasterising the glyphs at their design size of 8 px into
+our own sprite sheet is use of the font, not a modified font, so the sheet may ship with the game and
+`knowledge\licences\PressStart2P-OFL.txt` is the notice that travels with it. `tools\art\pressstart2p_font.py` reads
+the upstream TTF in `assets\fonts\`, never redraws it, and fails if a glyph does not fit the 8x8 cell.
+
 ## Attribution plan
 
 When a library is imported:

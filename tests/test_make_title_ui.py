@@ -33,7 +33,7 @@ GOLD = (179, 143, 40, 255)
 DIM = (46, 46, 58, 255)
 PAPER = (200, 200, 212, 255)
 
-CONTRACT_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,!? :'- "
+CONTRACT_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,!?() :'- "
 
 
 def sha256(path: str) -> str:
@@ -84,6 +84,13 @@ def palette_hexes() -> set:
     return {c.lower() for c in data["colours"]}
 
 
+def nes_palette_hexes() -> set:
+    """The 2C02 outputs. The font is drawn on screen, so its pixels answer to the chip, not to the project palette."""
+    with open(os.path.join(ROOT, "data", "nes_palette.json"), "r", encoding="utf-8-sig") as handle:
+        data = json.load(handle)
+    return {c.lower() for c in data["colours"]}
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # Determinism.
 
@@ -106,7 +113,10 @@ def test_two_runs_produce_identical_bytes(generated):
 def test_every_pixel_is_a_master_palette_colour(generated, name):
     root = generated[0]
     png_path, _ = sprite_paths(root)[name]
-    allowed = palette_hexes()
+    # The font strip is the text the title screen draws, so its pixels must be 2C02 outputs (tools/nes_check.py
+    # enforces that too). The logo and cursor still come from the project palette until TS2-ART-B repaints them.
+    allowed = nes_palette_hexes() if name == "spr_pp_font8" else palette_hexes()
+    source = "data/nes_palette.json" if name == "spr_pp_font8" else "data/palette.json"
     with Image.open(png_path) as img:
         sheet = img.convert("RGBA")
         seen = set()
@@ -115,7 +125,7 @@ def test_every_pixel_is_a_master_palette_colour(generated, name):
             if a == 0:
                 continue
             value = "#%02x%02x%02x" % (r, g, b)
-            assert value in allowed, "%s uses %s, which is not in data/palette.json" % (name, value)
+            assert value in allowed, "%s uses %s, which is not in %s" % (name, value, source)
             seen.add(value)
     assert len(seen) <= 16, "%s uses %d colours, the room cap is 16" % (name, len(seen))
 
@@ -142,9 +152,9 @@ def test_font_matches_the_contract(generated):
         meta = json.load(handle)
     assert meta["name"] == "spr_pp_font8"
     assert (meta["frame_w"], meta["frame_h"]) == (8, 8)
-    assert meta["frames"] == 44, "26 letters, 10 digits, 7 marks and the space"
+    assert meta["frames"] == 46, "26 letters, 10 digits, 9 marks and the space"
     with Image.open(png_path) as img:
-        assert img.size == (8 * 44, 8)
+        assert img.size == (8 * 46, 8)
 
 
 def test_cursor_matches_the_contract(generated):
@@ -163,13 +173,21 @@ def test_cursor_matches_the_contract(generated):
 # The font strip itself.
 
 def test_font_strip_carries_every_contract_glyph_in_ascii_order(generated):
+    """One frame per contract glyph in ASCII order, and every frame is the Press Start 2P glyph.
+
+    The font is no longer hand drawn: it is rasterised from Press Start 2P at 8 px (tools\\art\\pressstart2p_font.py,
+    SIL OFL 1.1, licence text in knowledge\\licences). So the check is not "the strokes are the grid in make_title_ui"
+    any more, it is "the strip in the repository is the font we license, in the order the contract fixes".
+    """
     root = generated[0]
     png_path, _ = sprite_paths(root)["spr_pp_font8"]
     sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
     import make_title_ui as gen
+    import pressstart2p_font
 
     order = sorted(gen.FONT.keys(), key=ord)
-    assert len(order) == 44
+    assert len(order) == 46
+    assert order == pressstart2p_font.GLYPHS, "the frame order must be ASCII order over the contract glyphs"
     for glyph in CONTRACT_GLYPHS:
         assert glyph in gen.FONT, "the font is missing the contract glyph %r" % glyph
     # ASCII order means the space comes first and the letters last.
@@ -179,21 +197,17 @@ def test_font_strip_carries_every_contract_glyph_in_ascii_order(generated):
         sheet = img.convert("RGBA")
         for index, glyph in enumerate(order):
             cell = sheet.crop((index * 8, 0, index * 8 + 8, 8))
-            lit = 0
-            for y in range(8):
-                for x in range(8):
-                    if cell.getpixel((x, y))[3] > 0:
-                        lit += 1
+            lit = {
+                (x, y) for y in range(8) for x in range(8)
+                if cell.getpixel((x, y))[3] > 0
+            }
+            rows = pressstart2p_font.bitmap(glyph)
+            expected = {(x, y) for y in range(8) for x in range(8) if rows[y][x] == "#"}
+            assert lit == expected, "the frame for %r is not the Press Start 2P glyph" % glyph
             if glyph == " ":
-                assert lit == 0, "the space frame is not empty"
+                assert lit == set(), "the space frame is not empty"
             else:
-                assert lit > 0, "the frame for %r is empty" % glyph
-                assert all(
-                    cell.getpixel((1 + gx, gy))[3] > 0
-                    for gy in range(gen.GLYPH_H)
-                    for gx in range(gen.GLYPH_W)
-                    if gen.FONT[glyph][gy][gx] == "#"
-                ), "the frame for %r is missing a stroke pixel" % glyph
+                assert lit, "the frame for %r is empty" % glyph
 
 
 # ---------------------------------------------------------------------------------------------------------------

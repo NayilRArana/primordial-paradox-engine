@@ -5,13 +5,15 @@ Contract: TITLE-COORD.md (the UI line of the interface contract) and specs/14-ti
 paragraph, night drive addendum. Colours, frame rules, the 1 px outline and the detail budget come from
 specs/13-8bit-look.md.
 
-Clean room: every letterform in FONT is drawn here as a 5x7 grid of characters, and the logo is that same grid scaled
-by whole numbers and weathered by code in this file. The cursor and the lightning crack are defined here as pixel
-sets. Nothing is copied, traced or imported from any commercial game, and nothing outside this repository is read.
+Clean room: the logo, the cursor and the lightning crack are drawn here from numbers in this file, and the logo is
+the hand drawn 5x7 FONT grid below scaled by whole numbers and weathered by code here. The 8x8 text font is no longer
+hand drawn: it is rasterised from Press Start 2P (SIL OFL 1.1, copyright 2012 The Press Start 2P Project Authors,
+codeman38), whose licence text is in knowledge/licences/PressStart2P-OFL.txt, by pressstart2p_font.py in this folder.
+Nothing is copied, traced or imported from any commercial game, and nothing outside this repository is read.
 
 Outputs, one horizontal strip plus one JSON per animation, in game/sprites_src/title/:
     spr_pp_title_logo.png    224x56, 2 frames: frame 0 normal, frame 1 gold shimmer
-    spr_pp_font8.png         8x8, 44 frames in ASCII order: space ! ' , - . 0-9 : ? A-Z
+    spr_pp_font8.png         8x8, 46 frames in ASCII order: space ! ' ( ) , - . 0-9 : ? A-Z
     spr_pp_menu_cursor.png   8x8, 2 frames: frame 0 lit, frame 1 unlit
 Preview: output/title_ui_preview.png, everything at 3x, the logo and the cursor and the font strip alike.
 
@@ -38,6 +40,8 @@ from collections import deque
 
 from PIL import Image
 
+import pressstart2p_font
+
 # --------------------------------------------------------------------------------------------------------------
 # Palette. Indices into data/palette.json, with the hex each index must hold. If the master palette ever shifts,
 # this script stops instead of silently recolouring the art.
@@ -59,13 +63,16 @@ EXPECTED_HEX = {
 }
 
 # --------------------------------------------------------------------------------------------------------------
-# The font. 5 wide by 7 tall, '#' is ink, '.' is empty. The cell is 8x8: the glyph sits at column 1, row 0, so every
-# cell has a 1 px left margin, a 2 px right margin and a 1 px descender row at the bottom. No glyph touches its cell.
+# The font. 5 wide by 7 tall, '#' is ink, '.' is empty, drawn for the logo and the preview labels. The 8x8 text
+# font frames do NOT come from this grid any more: they are rasterised from Press Start 2P by pressstart2p_font.py,
+# because Nayil rejected the hand drawn letterforms (plan v2, item: "the font is wrong").
 # --------------------------------------------------------------------------------------------------------------
 FONT = {
     " ": [".....", ".....", ".....", ".....", ".....", ".....", "....."],
     "!": ["..#..", "..#..", "..#..", "..#..", "..#..", ".....", "..#.."],
     "'": ["..#..", "..#..", ".....", ".....", ".....", ".....", "....."],
+    "(": ["...#.", "..#..", ".#...", ".#...", ".#...", "..#..", "...#."],
+    ")": [".#...", "..#..", "...#.", "...#.", "...#.", "..#..", ".#..."],
     ",": [".....", ".....", ".....", ".....", ".....", "..#..", ".#..."],
     "-": [".....", ".....", ".....", ".###.", ".....", ".....", "....."],
     ".": [".....", ".....", ".....", ".....", ".....", ".....", "..#.."],
@@ -398,15 +405,25 @@ def logo_frame(index: int, colours) -> Image.Image:
 
 
 # --------------------------------------------------------------------------------------------------------------
+# The colour of the 8x8 text sprite. data/palette.json is the project's own bookkeeping palette; the pixels that
+# reach the screen must also be one of the 64 outputs of the 2C02 (data/nes_palette.json), or tools/nes_check.py
+# fails the asset. #fcfcfc is 2C02 entry $30, and it is used here as a literal rather than an index into
+# data/palette.json, because that palette has no NES-legal white in it.
+# --------------------------------------------------------------------------------------------------------------
+FONT_INK = "#fcfcfc"   # 2C02 $30, the font pixels
+
+# --------------------------------------------------------------------------------------------------------------
 # Font strip and cursor.
 # --------------------------------------------------------------------------------------------------------------
 def glyph_frame(ch: str, colours) -> Image.Image:
+    """One 8x8 font frame: the Press Start 2P glyph rasterised at 8 px, in the 2C02 white the NES allows."""
     img = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
-    rows = FONT[ch]
-    for y in range(GLYPH_H):
-        for x in range(GLYPH_W):
+    rows = pressstart2p_font.bitmap(ch)
+    ink = tuple(int(FONT_INK[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
+    for y in range(CELL):
+        for x in range(CELL):
             if rows[y][x] == "#":
-                img.putpixel((1 + x, y), colours[PAPER])
+                img.putpixel((x, y), ink)
     return img
 
 
@@ -477,7 +494,7 @@ def build_preview(logo: list[Image.Image], font_sheet: Image.Image, cursor: list
     draw_text(canvas, "FRAME 1 GOLD SHIMMER", 24, 248, 2, colours[GOLD])
     canvas.alpha_composite(upscale(logo[1], 3), (48, 268))
     canvas.paste(colours[DIM], (24, 444, 1128, 445))
-    draw_text(canvas, "SPR PP FONT8 8X8 44 GLYPHS ASCII ORDER AT 3X", 24, 454, 2, colours[GOLD])
+    draw_text(canvas, "SPR PP FONT8 8X8 46 GLYPHS ASCII ORDER AT 3X", 24, 454, 2, colours[GOLD])
     canvas.alpha_composite(upscale(font_sheet, 3), (48, 474))
     draw_text(canvas, "PRESS Z OR ENTER", 48, 512, 2, colours[PAPER])
     draw_text(canvas, "SPR PP MENU CURSOR 8X8 BY 2 FRAME 0 AND 1 AT 3X", 24, 540, 2, colours[GOLD])
@@ -517,8 +534,13 @@ def write_sprite(out_dir: str, name: str, frames: list[Image.Image], fps: float)
     return meta
 
 
-def check_sprite(png_path: str, meta: dict, palette_hex: set[str]) -> int:
-    """Reopen the strip: every visible pixel must be an exact master palette colour, and the count must be small."""
+def check_sprite(png_path: str, meta: dict, palette_hex: set[str], extra_hex: set[str] | None = None) -> int:
+    """Reopen the strip: every visible pixel must be an exact palette colour, and the count must be small.
+
+    ``extra_hex`` carries colours that are legal for this sprite but not in data/palette.json, which is how the
+    font's 2C02 white gets in. Nothing else may use it.
+    """
+    allowed = set(palette_hex) | set(extra_hex or ())
     with Image.open(png_path) as img:
         sheet = img.convert("RGBA")
     expected = (meta["frame_w"] * meta["frames"], meta["frame_h"])
@@ -534,7 +556,7 @@ def check_sprite(png_path: str, meta: dict, palette_hex: set[str]) -> int:
         if a == 0:
             continue
         value = "#%02x%02x%02x" % (r, g, b)
-        if value not in palette_hex:
+        if value not in allowed:
             raise SystemExit("%s: pixel %s is not in data/palette.json" % (png_path, value))
         seen.add(value)
     if len(seen) > 16:
@@ -591,8 +613,10 @@ def generate(root: str) -> int:
     failures = 0
     for meta in written:
         png_path = os.path.join(out_dir, meta["name"] + ".png")
+        # The font is text on a NES screen, so its 2C02 white is allowed in addition to the project palette.
+        extra = {FONT_INK} if meta["name"] == "spr_pp_font8" else None
         try:
-            count = check_sprite(png_path, meta, palette_hex)
+            count = check_sprite(png_path, meta, palette_hex, extra)
         except SystemExit as exc:
             print("FAIL %s" % exc)
             failures += 1

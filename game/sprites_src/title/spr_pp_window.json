@@ -1,0 +1,25 @@
+{
+  "name": "spr_pp_window",
+  "frame_w": 8,
+  "frame_h": 8,
+  "frames": 9,
+  "fps": 0.0,
+  "slice": [
+    "tl",
+    "t",
+    "tr",
+    "l",
+    "c",
+    "r",
+    "bl",
+    "b",
+    "br"
+  ],
+  "colours": {
+    "fill": "#0000bc",
+    "white": "#fcfcfc",
+    "grey": "#7c7c7c",
+    "backdrop": "#000000"
+  },
+  "rule": "9 slice: 0 tl, 1 t, 2 tr, 3 l, 4 c, 5 r, 6 bl, 7 b, 8 br; each frame is one 8x8 tile"
+}
