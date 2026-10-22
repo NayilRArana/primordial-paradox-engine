@@ -6,7 +6,7 @@
     {
       "id": "ship_small",
       "name": "Small Ship, Deck",
-      "tile_legend": { "#": "wall", ".": "floor", "D": "door" },
+      "tile_legend": { "#": "wall", ".": "floor", "D": "door", "H": "hatch" },
       "width": 20,
       "height": 15,
       "music": "PP-05",
@@ -27,7 +27,7 @@
         "#..#..#....#..#....#",
         "#..#..#....#..#....#",
         "#..####....####....#",
-        "#..................#",
+        "#.H................#",
         "####################"
       ],
       "collision": [
@@ -50,7 +50,8 @@
       "spawns": {
         "start": { "x": 2, "y": 7 },
         "after_percy": { "x": 17, "y": 7 },
-        "from_cabin": { "x": 17, "y": 7 }
+        "from_cabin": { "x": 17, "y": 7 },
+        "from_hatch": { "x": 2, "y": 13 }
       },
       "triggers": [
         { "x": 2, "y": 5, "kind": "save", "id": "deck_save", "once": false, "condition": "" },
@@ -58,7 +59,8 @@
         { "x": 14, "y": 8, "kind": "flag", "id": "ship_deck_seen", "once": true, "condition": "" },
         { "x": 2, "y": 2, "kind": "say", "id": "ship_rail_note", "once": true, "condition": "" },
         { "x": 10, "y": 13, "kind": "scene", "id": "ship_boarding", "once": true, "condition": "" },
-        { "x": 18, "y": 7, "kind": "map", "id": "ship_cabin", "spawn": "from_deck", "once": false, "condition": "ship_door_open" }
+        { "x": 18, "y": 7, "kind": "map", "id": "ship_cabin", "spawn": "from_deck", "once": false, "condition": "ship_door_open" },
+        { "x": 2, "y": 13, "kind": "map", "id": "ship_sample", "spawn": "start", "once": false, "condition": "" }
       ],
       "rails": []
     },

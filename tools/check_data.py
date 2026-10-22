@@ -285,6 +285,10 @@ class Checker:
         encounters = self.load("encounters/all.json")
         patterns = self.load("patterns/all.json")
         maps = self.load("maps/all.json")
+        # The ship room's own map file (card ASSEMBLE), loaded with the rest so its map id is registered before any
+        # other file references it. A map that names another map (card SFX-WIRE: the deck's hatch names the lower
+        # deck) must not be reported as unknown just because the file that defines it is checked later.
+        self.load("maps/ship_sample.json")
         scenes = self.load("scenes/all.json")
         dialogue = self.load("dialogue/all.json")
         items = self.load("items.json")
@@ -314,7 +318,7 @@ class Checker:
         self.check_maps(maps, ids)
         # The ship room's own map file (card ASSEMBLE). It is the map rm_pp_ship plays, so it is checked by the same
         # rules as the registry file and not only by the schema.
-        ship_sample = self.load("maps/ship_sample.json")
+        ship_sample = self.files.get("maps/ship_sample.json") if isinstance(self.files, dict) else None
         self.check_maps(ship_sample, ids, "data/maps/ship_sample.json")
         self.check_scenes(scenes, ids)
         self.check_slice(slice_, ids)

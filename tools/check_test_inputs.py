@@ -15,10 +15,10 @@ Two rules, both mechanical:
    that is not on PATH) is allowed, because that is a capability of the machine rather than an input
    this repository is supposed to carry.
 
-2. Every fixture in FIXTURES is tracked by git. The list is the audio inputs the tests read by path,
-   which is the set that was untracked when this card was written. It is written down rather than
-   discovered, because a checker that guesses which files matter ends up checking the files it can
-   see, which in a HEAD worktree is the ones that are already there.
+2. Every fixture in FIXTURES is tracked by git. The list is the audio inputs and the title frame the
+   tests read by path, which is the set that was untracked when this card was written. It is written
+   down rather than discovered, because a checker that guesses which files matter ends up checking the
+   files it can see, which in a HEAD worktree is the ones that are already there.
 
 The .yyp side of the same class is tools/check_build_inputs.py's job and is not repeated here.
 """
@@ -41,6 +41,9 @@ FIXTURES = (
     "assets/audio/title_theme_v3/score_v3.yaml",
     "assets/audio/title_theme_v3/title_theme_v3.mid",
     "assets/audio/title_theme_v3/title_theme_v3_126.mid",
+    # The frame tests/test_palette_synergy.py measures with palette_synergy.analyse(). It was the
+    # skipped input that made that test look healthy: absent, the test passed without measuring.
+    "output/nes_title_frame.png",
 )
 
 # The calls that answer "is this input here". A skip guarded by one of these is the defect.

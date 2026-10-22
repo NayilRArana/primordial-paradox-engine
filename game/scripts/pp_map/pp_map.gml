@@ -75,6 +75,9 @@ function pp_map_kind_colour(_kind) {
     switch (_kind) {
         case "floor": return pp_role_colour("paper");
         case "door":  return pp_role_colour("accent");
+        // Card SFX-WIRE: a hatch is the ship's way between decks, so it draws in the door's colour and the walker
+        // reads it as a way through rather than as a wall.
+        case "hatch": return pp_role_colour("accent");
         default:      return pp_role_colour("dim");
     }
 }
@@ -122,6 +125,9 @@ function pp_map_tile_gid(_ch) {
         case "C": return 21;
         case "P": return 18;
         case "G": return 3;
+        // Card SFX-WIRE: a hatch draws with the ship sheet's own hatch_open tile, the same art the deck door uses,
+        // because that is what the tile is.
+        case "H": return 13;
     }
     return 2;
 }

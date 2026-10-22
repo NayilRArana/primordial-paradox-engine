@@ -28,6 +28,10 @@ game/.resource_order
 # under output/ would be a dead line, which is exactly how the title theme MIDI exceptions
 # silently did nothing earlier.
 output/*
+# tests/test_palette_synergy.py measures this frame through palette_synergy.py by path, so a
+# clean checkout must carry it: the test used to skip when it was absent, which is the silent
+# pass tests/test_test_inputs.py now forbids. Written by tools/art/scene_palette.py.
+!output/nes_title_frame.png
 !output/env_ship_preview.png
 !output/nes_ui_preview.png
 !output/title_ui_preview.png

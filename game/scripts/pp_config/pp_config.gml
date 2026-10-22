@@ -158,9 +158,12 @@ enum PPElement {
 #macro PP_TRIGGER_LOCK_STEPS 20
 #macro PP_MARKER_RESPAWN_STEPS 30
 
-// The first room of a new run (card ASSEMBLE): the Navy ship lower deck, played in rm_pp_ship from the map file
-// data\maps\ship_sample.json. It is here, in the constants, so a different first room is one line and not a search.
-#macro PP_NEW_GAME_MAP "ship_sample"
+// The first room of a new run (card ASSEMBLE, settled by card SFX-WIRE 2026-10-22): the Small Ship's deck, played in
+// rm_pp_ship from the map file data\maps\all.json. It is here, in the constants, so a different first room is one line
+// and not a search. data\slice.json and data\project.json already named ship_small as the slice's map, and
+// ROADMAP-2026-10-22 puts the first two fights on this deck, so the constant follows the data instead of the
+// provisional lower deck the ASSEMBLE card wrote when the deck did not exist yet.
+#macro PP_NEW_GAME_MAP "ship_small"
 #macro PP_NEW_GAME_SPAWN "start"
 #macro PP_NEW_GAME_ROOM "rm_pp_ship"
 

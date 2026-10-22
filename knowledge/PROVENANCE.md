@@ -932,3 +932,20 @@ crawl's 60 / 18; and drawing the rows by spending the machine's revealed count o
 pp_title keeps no counter, timer, pause or blip of its own. The pacing delta this causes is written down in the spec 14
 addendum of this date: plus 17 steps over 1238, +0.28 s, from honouring punctuation and carrying the remainder.
 Copied expression: none
+
+## SFX-WIRE, 2026-10-22: the first room is the deck, and a hatch is a way between maps
+Studied: this repository's own map data (data\maps\all.json, data\maps\ship_sample.json), the trigger and walk code in
+pp_overworld and pp_map, specs 04 and 12, ROADMAP-2026-10-22 S5 and S6, and the review comment on card t_efdf181b. No
+decompiled material was read for this card, and no expression from any game is in it.
+Mechanics learned: two things about how a room's exits work. The first is that a door between two rooms is a tile the
+walker can stand on plus a trigger on that tile, and the tile art only decides what it looks like, never whether it
+works, because the ship sheet draws both a door and a hatch with the same open hatch tile. The second is that a trigger
+fires on confirm, not on arrival, while the hatch sound fires on the step that lands on the tile, so one tile can
+honestly give both the walker's cue and the door's cue without a second mechanism.
+Our implementation differs by: naming kinds rather than art, so the deck's legend carries a "hatch" kind that pp_map
+gives the door colour and the ship sheet's tile 13, with no new sheet entry; pairing the two ship rooms with one hatch
+each, the deck's at (2,13) down to the lower deck and the lower deck's at (3,11) back up, both `map` triggers, so a new
+game begins on the deck that data\slice.json and data\project.json already named; and making the code follow the data
+rather than the other way round by changing one constant, PP_NEW_GAME_MAP, and leaving the lower deck's save, sailors
+and flag trigger in place as the room the hatch leads to.
+Copied expression: none
