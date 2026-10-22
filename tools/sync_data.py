@@ -71,6 +71,12 @@ def main() -> int:
                     # check below was unreachable for these paths. The clean code gate
                     # caught it on 2026-10-21 as "unreachable Expr after continue".
                     continue
+                if rel.startswith("sfx/"):
+                    # The sound effect mirror is owned by tools/sync_art.py (mirror_sfx),
+                    # which also writes sfx/sfx.json with the WAV header offsets. Card
+                    # SFX-1 puts the sources in assets\audio\sfx, so nothing under
+                    # data\ produces these files and they are never extras to delete.
+                    continue
                 if rel not in wanted:
                     extras.append(rel)
                     if not args.check:

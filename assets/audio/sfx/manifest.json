@@ -1,0 +1,494 @@
+{
+  "generated_by": "tools/sfx.py",
+  "source": "synthesised from the 2A03 voice set; no sampled or copied audio",
+  "sample_rate": 44100,
+  "channels": 1,
+  "bit_depth": 16,
+  "peak_target_dbfs": -3.0,
+  "fade_ms": 5.0,
+  "fade_shape": "raised_cosine",
+  "dc_block_hz": 20.0,
+  "voice_set": [
+    "pulse_12.5",
+    "pulse_25",
+    "pulse_50",
+    "triangle",
+    "noise_short",
+    "noise_long"
+  ],
+  "required_names": [
+    "menu_move",
+    "menu_select",
+    "menu_cancel",
+    "text_blip",
+    "footstep",
+    "door_hatch",
+    "item_get",
+    "heal",
+    "hit_light",
+    "hit_heavy",
+    "miss",
+    "crit",
+    "level_up",
+    "encounter_swoosh",
+    "thunder_soft",
+    "wave_wash",
+    "alarm",
+    "save_jingle",
+    "game_over"
+  ],
+  "name_groups": {
+    "text_blip": [
+      "text_blip_a",
+      "text_blip_b",
+      "text_blip_c"
+    ]
+  },
+  "effects": [
+    {
+      "name": "menu_move",
+      "voices": [
+        "pulse_12.5"
+      ],
+      "purpose": "Cursor moves one row in a menu. A tick, not a tune.",
+      "groups": [],
+      "files": {
+        "wav": "menu_move.wav",
+        "ogg": "menu_move.ogg"
+      },
+      "length_seconds": 0.06,
+      "length_samples": 2646,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -18.908,
+      "dc_offset": 0.000127,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.80169
+    },
+    {
+      "name": "menu_select",
+      "voices": [
+        "pulse_25"
+      ],
+      "purpose": "Confirm in a menu: two steps up, second one longer.",
+      "groups": [],
+      "files": {
+        "wav": "menu_select.wav",
+        "ogg": "menu_select.ogg"
+      },
+      "length_seconds": 0.16,
+      "length_samples": 7056,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -13.337,
+      "dc_offset": 5e-06,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.876784
+    },
+    {
+      "name": "menu_cancel",
+      "voices": [
+        "pulse_50"
+      ],
+      "purpose": "Cancel or back out of a menu: a falling square blip.",
+      "groups": [],
+      "files": {
+        "wav": "menu_cancel.wav",
+        "ogg": "menu_cancel.ogg"
+      },
+      "length_seconds": 0.18,
+      "length_samples": 7938,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -8.54,
+      "dc_offset": -2e-06,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 1.337909
+    },
+    {
+      "name": "text_blip_a",
+      "voices": [
+        "pulse_12.5"
+      ],
+      "purpose": "Typewriter blip for speaker A (Konrad), C5.",
+      "groups": [
+        "text_blip"
+      ],
+      "files": {
+        "wav": "text_blip_a.wav",
+        "ogg": "text_blip_a.ogg"
+      },
+      "length_seconds": 0.06,
+      "length_samples": 2646,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -18.199,
+      "dc_offset": 0.00013,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.79418
+    },
+    {
+      "name": "text_blip_b",
+      "voices": [
+        "pulse_12.5"
+      ],
+      "purpose": "Typewriter blip for speaker B (Zander), E5.",
+      "groups": [
+        "text_blip"
+      ],
+      "files": {
+        "wav": "text_blip_b.wav",
+        "ogg": "text_blip_b.ogg"
+      },
+      "length_seconds": 0.06,
+      "length_samples": 2646,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -18.52,
+      "dc_offset": -7.7e-05,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.806639
+    },
+    {
+      "name": "text_blip_c",
+      "voices": [
+        "pulse_12.5"
+      ],
+      "purpose": "Typewriter blip for speaker C (Percy), G5.",
+      "groups": [
+        "text_blip"
+      ],
+      "files": {
+        "wav": "text_blip_c.wav",
+        "ogg": "text_blip_c.ogg"
+      },
+      "length_seconds": 0.06,
+      "length_samples": 2646,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -18.49,
+      "dc_offset": 0.000106,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.761712
+    },
+    {
+      "name": "footstep",
+      "voices": [
+        "noise_short",
+        "triangle"
+      ],
+      "purpose": "One step on stone decking; alternates with the other foot.",
+      "groups": [],
+      "files": {
+        "wav": "footstep.wav",
+        "ogg": "footstep.ogg"
+      },
+      "length_seconds": 0.09,
+      "length_samples": 3969,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -14.907,
+      "dc_offset": 0.001705,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.00616
+    },
+    {
+      "name": "door_hatch",
+      "voices": [
+        "noise_long",
+        "pulse_25"
+      ],
+      "purpose": "A bulkhead hatch swings open and clunks.",
+      "groups": [],
+      "files": {
+        "wav": "door_hatch.wav",
+        "ogg": "door_hatch.ogg"
+      },
+      "length_seconds": 0.3,
+      "length_samples": 13230,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -13.987,
+      "dc_offset": -0.000447,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.216708
+    },
+    {
+      "name": "item_get",
+      "voices": [
+        "pulse_25",
+        "triangle"
+      ],
+      "purpose": "Pickup collected: a four note rising arpeggio.",
+      "groups": [],
+      "files": {
+        "wav": "item_get.wav",
+        "ogg": "item_get.ogg"
+      },
+      "length_seconds": 0.32,
+      "length_samples": 14112,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -13.617,
+      "dc_offset": 2.8e-05,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.614641
+    },
+    {
+      "name": "heal",
+      "voices": [
+        "pulse_25",
+        "pulse_12.5",
+        "triangle"
+      ],
+      "purpose": "Restorative magic: a rising shimmer with a held root.",
+      "groups": [],
+      "files": {
+        "wav": "heal.wav",
+        "ogg": "heal.ogg"
+      },
+      "length_seconds": 0.52,
+      "length_samples": 22932,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -13.83,
+      "dc_offset": -0.000214,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.639308
+    },
+    {
+      "name": "hit_light",
+      "voices": [
+        "noise_short",
+        "pulse_50"
+      ],
+      "purpose": "A light physical hit that does not kill.",
+      "groups": [],
+      "files": {
+        "wav": "hit_light.wav",
+        "ogg": "hit_light.ogg"
+      },
+      "length_seconds": 0.12,
+      "length_samples": 5292,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -14.685,
+      "dc_offset": 0.00093,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 1.047085
+    },
+    {
+      "name": "hit_heavy",
+      "voices": [
+        "noise_long",
+        "triangle",
+        "pulse_25"
+      ],
+      "purpose": "A heavy blow: long noise body, sub thump, short snap on top.",
+      "groups": [],
+      "files": {
+        "wav": "hit_heavy.wav",
+        "ogg": "hit_heavy.ogg"
+      },
+      "length_seconds": 0.34,
+      "length_samples": 14994,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -11.97,
+      "dc_offset": -0.002895,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.04048
+    },
+    {
+      "name": "miss",
+      "voices": [
+        "noise_long"
+      ],
+      "purpose": "An attack that misses: air only, no impact, quieter than a hit.",
+      "groups": [],
+      "files": {
+        "wav": "miss.wav",
+        "ogg": "miss.ogg"
+      },
+      "length_seconds": 0.2,
+      "length_samples": 8820,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -16.824,
+      "dc_offset": 0.002405,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.025259
+    },
+    {
+      "name": "crit",
+      "voices": [
+        "noise_long",
+        "triangle",
+        "pulse_50"
+      ],
+      "purpose": "A critical hit: the heavy hit plus a two stage falling ring.",
+      "groups": [],
+      "files": {
+        "wav": "crit.wav",
+        "ogg": "crit.ogg"
+      },
+      "length_seconds": 0.42,
+      "length_samples": 18522,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -12.346,
+      "dc_offset": -0.002261,
+      "first_sample": 0.0,
+      "last_sample": -0.0,
+      "edge_max_step": 0.35336
+    },
+    {
+      "name": "level_up",
+      "voices": [
+        "pulse_25",
+        "pulse_12.5",
+        "triangle"
+      ],
+      "purpose": "Level up: a short fanfare, five notes, third above and a bass root.",
+      "groups": [],
+      "files": {
+        "wav": "level_up.wav",
+        "ogg": "level_up.ogg"
+      },
+      "length_seconds": 1.2,
+      "length_samples": 52920,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -11.47,
+      "dc_offset": -0.001515,
+      "first_sample": 0.0,
+      "last_sample": -0.0,
+      "edge_max_step": 0.492406
+    },
+    {
+      "name": "encounter_swoosh",
+      "voices": [
+        "noise_long",
+        "pulse_12.5"
+      ],
+      "purpose": "Encounter transition: a noise sweep down with a rising pulse under it.",
+      "groups": [],
+      "files": {
+        "wav": "encounter_swoosh.wav",
+        "ogg": "encounter_swoosh.ogg"
+      },
+      "length_seconds": 0.7,
+      "length_samples": 30870,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -14.046,
+      "dc_offset": -0.000614,
+      "first_sample": 0.0,
+      "last_sample": -0.0,
+      "edge_max_step": 0.009703
+    },
+    {
+      "name": "thunder_soft",
+      "voices": [
+        "noise_long",
+        "triangle"
+      ],
+      "purpose": "Distant thunder for a scene or the storm cloud: long decay, low rumble under it.",
+      "groups": [],
+      "files": {
+        "wav": "thunder_soft.wav",
+        "ogg": "thunder_soft.ogg"
+      },
+      "length_seconds": 1.45,
+      "length_samples": 63945,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -14.189,
+      "dc_offset": -0.001313,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.135025
+    },
+    {
+      "name": "wave_wash",
+      "voices": [
+        "noise_long",
+        "noise_short"
+      ],
+      "purpose": "A wave breaking and draining: noise only, a swell then a fall.",
+      "groups": [],
+      "files": {
+        "wav": "wave_wash.wav",
+        "ogg": "wave_wash.ogg"
+      },
+      "length_seconds": 1.1,
+      "length_samples": 48510,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -8.225,
+      "dc_offset": -0.004148,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.117781
+    },
+    {
+      "name": "alarm",
+      "voices": [
+        "pulse_50"
+      ],
+      "purpose": "Ship alarm or a timed hazard: two tones alternating, square and hard.",
+      "groups": [],
+      "files": {
+        "wav": "alarm.wav",
+        "ogg": "alarm.ogg"
+      },
+      "length_seconds": 0.64,
+      "length_samples": 28224,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -7.314,
+      "dc_offset": -1.6e-05,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 1.363395
+    },
+    {
+      "name": "save_jingle",
+      "voices": [
+        "pulse_12.5",
+        "pulse_25",
+        "triangle"
+      ],
+      "purpose": "Save confirmed: the level up fanfare's cousin, a third above instead of a fourth.",
+      "groups": [],
+      "files": {
+        "wav": "save_jingle.wav",
+        "ogg": "save_jingle.ogg"
+      },
+      "length_seconds": 1.4,
+      "length_samples": 61740,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -12.259,
+      "dc_offset": -0.001739,
+      "first_sample": 0.0,
+      "last_sample": -0.0,
+      "edge_max_step": 0.626174
+    },
+    {
+      "name": "game_over",
+      "voices": [
+        "pulse_25",
+        "pulse_12.5",
+        "triangle"
+      ],
+      "purpose": "Death or a lost run: four notes down the minor scale, slow, with a held low root.",
+      "groups": [],
+      "files": {
+        "wav": "game_over.wav",
+        "ogg": "game_over.ogg"
+      },
+      "length_seconds": 1.4,
+      "length_samples": 61740,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -11.802,
+      "dc_offset": -0.001372,
+      "first_sample": 0.0,
+      "last_sample": 0.0,
+      "edge_max_step": 0.681442
+    }
+  ]
+}
