@@ -507,8 +507,8 @@ CAST = [
         "role": "tutorial enemy",
         "personality": "Two years of night watches and a mop he treats like a rifle: tired, decent, and not paid enough to care who you are.",
         "voice": "Lower deck watch keeper, tired, clipped, short flat sentences, no poetry, nothing warmer than dry.",
-        "wants": ["a smoke and ten minutes off his feet", "to be asked his name instead of his rank"],
-        "fears": ["the officer finding the deck unswabbed", "being put on report"],
+        "wants": ["the watch to end", "a smoke", "not to be reported", "to be asked his name"],
+        "fears": ["the bridge", "being the one who let a stowaway through"],
         "weak_topics": [
             {"topic": "the long watch", "keywords": ["watch", "hours", "standing", "shift"], "examples": ["how long have you been out here"]},
             {"topic": "tiredness", "keywords": ["tired", "sleep", "rest", "wrecked", "exhausted"], "examples": ["you look wrecked"]},
@@ -942,6 +942,28 @@ def contact_sheet(rows, scale):
     return canvas
 
 
+def preserved_rows(root, drawn_ids):
+    """Roster rows this tool does not draw, read back out of the roster the last run left behind.
+
+    CAST is the complete list of enemies this tool draws a sheet for, and it writes the roster from that list alone.
+    deck_hound is the first fight (S6, R05) and has no drawn sheet yet, so its row is hand written in
+    data/enemies/roster.json; a plain rebuild would silently delete a row that data/talk_cards.json and the S6
+    encounter both name. So any row whose id is not in drawn_ids is carried over verbatim, and the roster's own notes
+    say which ones were. Giving the hound a CAST spec and a drawn sheet belongs to the art pass; until then this
+    keeps the hand written row instead of forgetting it.
+    """
+    path = os.path.join(root, "data", "enemies", "roster.json")
+    try:
+        with open(path, "r", encoding="utf-8-sig") as handle:
+            previous = json.load(handle)
+    except (OSError, ValueError):
+        return []
+    rows = previous.get("enemies") if isinstance(previous, dict) else None
+    if not isinstance(rows, list):
+        return []
+    return [row for row in rows if isinstance(row, dict) and row.get("id") not in drawn_ids]
+
+
 # ----------------------------------------------------------------------------------------------------------------
 # Build.
 # ----------------------------------------------------------------------------------------------------------------
@@ -1044,6 +1066,16 @@ def build(root, dump=False):
                                       "sprites_per_scanline": 4}
             report["composite"] = composite
             battle_frame_drawn = True
+
+    # Rows this tool draws no sheet for, chiefly deck_hound, are carried over instead of being dropped. See
+    # preserved_rows for why that matters, and note that the note names them so a reader can see what is hand kept.
+    kept = preserved_rows(root, {spec["id"] for spec in CAST})
+    roster["enemies"].extend(kept)
+    if kept:
+        roster["notes"].append(
+            "hand maintained rows, which this tool draws no sheet for, are carried over verbatim from the roster on "
+            "disk so a rebuild cannot drop them: %s"
+            % ", ".join("%s (%s)" % (row.get("id"), row.get("role", "no role given")) for row in kept))
 
     with open(os.path.join(data_dir, "roster.json"), "w", encoding="utf-8", newline="\n") as handle:
         json.dump(roster, handle, indent=2)

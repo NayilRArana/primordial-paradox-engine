@@ -113,6 +113,7 @@ SCHEMA_FILES = {
     "patterns/all.json": "patterns.schema.json",
     "dialogue/all.json": "dialogue.schema.json",
     "scenes/all.json": "cutscenes.schema.json",
+    "talk_cards.json": "talk_cards.schema.json",
 }
 
 

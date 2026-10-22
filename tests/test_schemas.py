@@ -157,3 +157,115 @@ def test_scene_commands_match_the_checker_vocabulary():
         if isinstance(cmd, dict) and "const" in cmd:
             commands.add(cmd["const"])
     assert commands == check_data.SCENE_COMMANDS
+
+
+# ----------------------------------------------------------------------------------------------------------------
+# Talk cards (specs/16-talk-command.md section 15 check 1).
+
+TALK_CARDS = os.path.join(ROOT, "data", "talk_cards.json")
+
+
+def talk_cards_document():
+    with open(TALK_CARDS, "r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def talk_card_validator():
+    jsonschema = pytest.importorskip("jsonschema")
+    return jsonschema.Draft202012Validator(load_schema("talk_cards.schema.json"))
+
+
+def first_card(document):
+    return document["cards"][0]
+
+
+def _extra_card_field(document):
+    first_card(document)["mood"] = "tired"
+
+
+def _long_reply_line(document):
+    card = first_card(document)
+    neutral = card["pools"]["neutral"]
+    assert isinstance(neutral, list), "the first card's neutral pool is bucketed; this case needs a flat one"
+    neutral[0] = "a" * 61
+
+
+def _one_want(document):
+    first_card(document)["wants"] = first_card(document)["wants"][:1]
+
+
+def _uppercase_keyword(document):
+    first_card(document)["weak_topics"][0]["keywords"][0] = "Watch"
+
+
+def _bucket_without_mid(document):
+    first_card(document)["pools"]["weak"] = {"low": ["Twenty two years of this."],
+                                             "high": ["Take the hatch. I never saw you."]}
+
+
+def _wrong_kind(document):
+    document["kind"] = "talk_card"
+
+
+# name, mutation, the keyword JSON Schema reports, and the field path the failure must name
+TALK_CARD_BAD_INSTANCES = [
+    ("an extra card field", _extra_card_field, "additionalProperties", ("cards", 0)),
+    ("a reply line of 61 characters", _long_reply_line, "maxLength", ("cards", 0, "pools", "neutral", 0)),
+    ("one want instead of two", _one_want, "minItems", ("cards", 0, "wants")),
+    ("an uppercase keyword", _uppercase_keyword, "pattern", ("cards", 0, "weak_topics", 0, "keywords", 0)),
+    ("a bucket object with no mid", _bucket_without_mid, "required", ("cards", 0, "pools", "weak")),
+    ("the wrong kind", _wrong_kind, "const", ("kind",)),
+]
+
+
+def talk_card_errors(validator, document):
+    """Every error, including the ones a oneOf wrapper hides.
+
+    A pool is oneOf (one array of 3, or three named buckets), so a fault inside a pool is reported only as "is not
+    valid under any of the given schemas" at the pool. The nested errors carry absolute paths, so unrolling them is
+    what makes a bad case prove it failed for the RIGHT reason and not merely that it failed.
+    """
+    errors = []
+    stack = list(validator.iter_errors(document))
+    while stack:
+        error = stack.pop()
+        errors.append(error)
+        stack.extend(list(getattr(error, "context", None) or []))
+    return errors
+
+
+def test_talk_cards_schema_runs_in_the_data_checker():
+    """Spec 16 section 15 check 1 asks for this schema to be enforced; nothing enforces it unless it is named here."""
+    assert check_data.SCHEMA_FILES.get("talk_cards.json") == "talk_cards.schema.json"
+
+
+def test_talk_cards_schema_accepts_the_shipping_file():
+    validator = talk_card_validator()
+    document = talk_cards_document()
+    assert document["cards"], "data/talk_cards.json has no cards"
+    assert list(validator.iter_errors(document)) == []
+
+
+@pytest.mark.parametrize("name,mutate,expected,path", TALK_CARD_BAD_INSTANCES,
+                         ids=[case[0] for case in TALK_CARD_BAD_INSTANCES])
+def test_talk_cards_schema_refuses_a_bad_instance_for_the_right_reason(name, mutate, expected, path):
+    validator = talk_card_validator()
+    document = talk_cards_document()
+    mutate(document)
+    reported = talk_card_errors(validator, document)
+    errors = [error for error in reported if error.validator == expected]
+    assert errors, "%s was accepted: %s" % (name, [(e.validator, e.message) for e in reported])
+    assert any(tuple(error.absolute_path)[:len(path)] == path for error in errors), \
+        "%s failed, but not at %s: %s" % (name, path, [(list(e.absolute_path), e.message) for e in errors])
+
+
+def test_check_data_reports_a_bad_talk_card(data_root, read_json, write_json):
+    """End to end: the checker itself, not only the validator, has to refuse the file and name the field."""
+    path = data_root / "data" / "talk_cards.json"
+    document = read_json(path)
+    document["cards"][0]["voice"] = ""
+    write_json(path, document)
+
+    messages = schema_messages(data_root, "talk_cards.json")
+    assert messages, check_data.check(str(data_root))
+    assert any("voice" in m for m in messages), messages
