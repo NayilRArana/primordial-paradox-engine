@@ -61,6 +61,15 @@ def index_text(entries: list[dict]) -> str:
 
 
 def main() -> int:
+    """Mirror the title art into game/datafiles/art and return 0.
+
+    The title theme stream is mirrored here too, so that anyone who calls main() gets the
+    same result as someone who runs the script: a fresh checkout of a commit can only
+    regenerate the committed .yyp when both mirrors exist. Measured 2026-10-21: with the
+    stream mirrored only from the __main__ block, the PP suite failed with "lists Included
+    File streams/title_theme.ogg which is not in game/datafiles".
+    """
+    mirror_streams()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
