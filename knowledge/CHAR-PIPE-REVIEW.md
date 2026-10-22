@@ -85,6 +85,48 @@ errors names sprite_pipe.py or char_pipe, so this commit is not their cause (the
 example is red on assets\audio\title_theme_v3\EAR_REVIEW_126.md, another lane's file). The builder's
 "339 passed, 5 failed" no longer describes the tree: three later commits landed after it ran.
 
+## Re-confirmation on the current tree (2026-10-22 00:02, run 2161)
+
+The reviewed code is unchanged: tools\sprite_pipe.py and tests\test_sprite_pipe.py last changed in
+ecef6a1 and are clean in git status. F1 was re-measured from a committed probe rather than carried
+over from the first run: knowledge\char-pipe-review\review_char_pipe5_reconfirm.py, under the pinned
+interpreter, on the tree at 90f8513. Same result, exit 0 both times:
+
+    seven battle pose PNGs present, all fully transparent
+      battle 168x32  0 colours  PASS nes_check | 0 of 5376 opaque | todo [] | nes_check ok true
+      printed "battle TODO  none, every frame came from a pose image"
+    all black mask
+      overworld 32x64  0 colours  PASS nes_check | 0 of 2048 opaque
+      the battle sheet lists all seven names in todo, and the blank overworld sheet still exits 0
+
+So the defect is live on the code the builder is being asked to fix, not a stale measurement.
+
+## Re-confirmation of all four findings (2026-10-22 02:15, run 2189)
+
+After the card was unblocked, every finding and every pass-side number was re-measured from scratch,
+not copied from the section above. Code still at ecef6a1 for tools\sprite_pipe.py (git log -1 -- it
+and git diff ecef6a1 both empty).
+
+  nes_check --type sprite, four committed sheets, four exit 0:
+    with_poses overworld 32x64  32 tiles  4 colours  PASS
+    with_poses battle    168x32 84 tiles  5 colours  PASS
+    no_poses   overworld 32x64  32 tiles  3 colours  PASS
+    no_poses   battle    168x32 84 tiles  5 colours  PASS
+  pytest tests\test_sprite_pipe.py: 15 passed in 1.94 s.
+  overworld: walk 0 differs from walk 1 in all four rows, left walk 0 is the byte mirror of right walk 0.
+
+  F1 live: seven transparent pose PNGs give exit 0, battle 0 of 5376 opaque, "battle TODO none, every
+  frame came from a pose image", nes_check ok true. All black mask gives exit 0, overworld 0 of 2048
+  opaque, 0 colours printed as PASS.
+  F2 live: corrupt concept raises PIL.UnidentifiedImageError with a traceback; missing concept raises
+  FileNotFoundError with a traceback. Exit 1 in both cases, by accident.
+  F3 live: down 0, up 0 and right 0 are byte identical (down==right, up==right, down==up all true).
+  F4 live: data\ai_ledger.csv still does not exist; ai_client exports segment.
+
+Probes for this pass: recheck_f1.py and recheck_f234.py in the review workspace
+(<agent-runtime>\kanban\boards\nayil-ops\workspaces\t_d01614a1), writing only to
+the Hermes profile scratch dir.
+
 ## How to rerun every check here
 
 Interpreter for all of it (the gate's pinned one):
