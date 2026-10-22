@@ -1,0 +1,851 @@
+{
+ "meta": {
+  "title": "Primordial Paradox music recipes, Capcom NES rock family (Mega Man 1 to 6, Ninja Gaiden, DuckTales)",
+  "generated_at": "2026-10-21",
+  "card": "t_c7507612 (STUDY-CAPCOM)",
+  "scope": "capcom",
+  "study": "knowledge/music-styles/capcom.md",
+  "source_of_truth": "knowledge/music-styles/capcom.md sections 3 to 11",
+  "citation_note": "Every recipe cites source ids from knowledge/music-styles/capcom.md section 13. Full titles, URLs and read dates live there, not here, because this directory is scanned by the project's clean-room gate.",
+  "chip": "NES 2A03 (2 pulse, triangle, noise, DPCM). Capcom's own releases used no expansion audio; CAP-29 is our arranger's VRC6 extension and is marked as such",
+  "family_count": 33,
+  "conventions": {
+   "frames": "one frame is 1/60 s (16.7 ms) on NTSC; at 150 bpm a beat is 24 frames, an eighth 4 and a sixteenth 2",
+   "duty": "0.125, 0.25, 0.5, 0.75 on the 2A03",
+   "note_cut": "gate = written length minus one frame, applied per note on every melodic channel",
+   "no_long_dashes": true
+  },
+  "recipe_count": 33
+ },
+ "recipes": [
+  {
+   "id": "CAP-01",
+   "name": "Power fifth dyad on two pulses",
+   "family": "CAP",
+   "when_to_use": "The default harmony for every riff, chord stab and chorus in this style. This is the chord the style is built on.",
+   "params": {
+    "interval": "perfect_fifth_above_root",
+    "semitones": 7,
+    "channels": "pulse1 root, pulse2 fifth",
+    "duty": 0.5,
+    "third": "omitted",
+    "grid": "eighths in a stage theme, sixteenths in a boss theme",
+    "rearticulate": "on every riff attack, never held as a pad"
+   },
+   "forbidden": [
+    "a third anywhere inside the dyad",
+    "holding the dyad for a full bar as a pad",
+    "putting the fifth on the triangle and the root on a pulse"
+   ],
+   "source": [
+    "C14",
+    "S29"
+   ]
+  },
+  {
+   "id": "CAP-02",
+   "name": "Dotted quarter lean cell",
+   "family": "CAP",
+   "when_to_use": "A stage riff bar that needs swagger rather than speed: one long note that crosses the middle of the bar, answered by a short figure.",
+   "params": {
+    "cell_16ths": [
+     3,
+     3,
+     2
+    ],
+    "counted": "1 _ a 2 _ a 3 _",
+    "long_note_semitones": "unison or fifth, on the attack",
+    "max_per_bar": 1,
+    "placement": "bars 1 and 3 of a 4 bar group",
+    "cut": "long note gets the one frame cut like every other note"
+   },
+   "forbidden": [
+    "two dotted quarter figures in one bar",
+    "a dotted quarter on the last beat of the loop",
+    "using it in a boss theme, where the sixteenth surface is the identity"
+   ],
+   "source": [
+    "C14"
+   ]
+  },
+  {
+   "id": "CAP-03",
+   "name": "One frame note cut on every melodic note",
+   "family": "CAP",
+   "when_to_use": "Every pulse melody, riff and arpeggio in a Mega Man 1 or 2 style cue, so consecutive notes articulate instead of fusing.",
+   "params": {
+    "gate": "written_length_minus_1_frame",
+    "applies_to": "pulse1, pulse2, vrc6 pulses",
+    "frames_at_150bpm": {
+     "sixteenth": 1,
+     "eighth": 3,
+     "quarter": 5
+    },
+    "consistency": "same cut on every instrument in the pattern",
+    "style_note": "Rockman 1 and 2 used this profusely; 4, 5 and 6 deviated"
+   },
+   "forbidden": [
+    "cutting some instruments and not others in the same pattern",
+    "applying the cut to the triangle bass",
+    "using the cut below about 140 bpm, where the gap stops being audible"
+   ],
+   "source": [
+    "C14"
+   ]
+  },
+  {
+   "id": "CAP-04",
+   "name": "Volume staircase release",
+   "family": "CAP",
+   "when_to_use": "Any lead note longer than an eighth, so held notes decay like a struck string instead of a square gate.",
+   "params": {
+    "levels": [
+     15,
+     13,
+     11,
+     9,
+     7,
+     5,
+     3,
+     1,
+     0
+    ],
+    "step": 2,
+    "frames_per_step": 2,
+    "minimum_step": 2,
+    "shape": "staircase from the attack level down to zero"
+   },
+   "forbidden": [
+    "a 1 step decay, which is inaudible on 16 levels",
+    "a single linear slide on the pulse volume, which the hardware cannot do",
+    "applying the staircase to the triangle, which has no volume control"
+   ],
+   "source": [
+    "C14",
+    "C15"
+   ]
+  },
+  {
+   "id": "CAP-05",
+   "name": "Duty plan: 25 lead, 50 layer, one change per cue",
+   "family": "CAP",
+   "when_to_use": "Every cue, decided before writing a note. Duty is a voice colour in this style, not an articulation.",
+   "params": {
+    "lead_duty": 0.25,
+    "harmony_duty": 0.5,
+    "pad_duty": [
+     0.5,
+     0.75
+    ],
+    "changes_per_cue": 1,
+    "change_position": "section boundary only",
+    "percussive_attacks": "never by duty change"
+   },
+   "forbidden": [
+    "changing duty mid note",
+    "changing duty to sharpen a drum or pluck attack",
+    "more than one duty change in a 16 bar loop"
+   ],
+   "source": [
+    "C14"
+   ]
+  },
+  {
+   "id": "CAP-06",
+   "name": "Fine detune on any doubled pitch",
+   "family": "CAP",
+   "when_to_use": "Whenever two channels play the same pitch at the same width, including the power fifth octave and any unison doubling.",
+   "params": {
+    "detune_cents": [
+     5,
+     10
+    ],
+    "channel": "the doubling channel only",
+    "disable_when": "the next note differs, so the detune does not smear the melody",
+    "purpose": "prevents the two squares cancelling out of phase"
+   },
+   "forbidden": [
+    "doubling a pitch with no detune",
+    "detune deeper than 12 cents, which reads as out of tune",
+    "detune on the bass root"
+   ],
+   "source": [
+    "C14"
+   ]
+  },
+  {
+   "id": "CAP-07",
+   "name": "Delayed echo at 30 to 50 percent",
+   "family": "CAP",
+   "when_to_use": "A stage or boss lead line that needs size without a third melodic voice.",
+   "params": {
+    "delay_stage": "one eighth",
+    "delay_boss": "one sixteenth",
+    "vol_pct_stage": [
+     40,
+     50
+    ],
+    "vol_pct_boss": [
+     30,
+     40
+    ],
+    "detune_cents": [
+     5,
+     10
+    ],
+    "channel": "pulse2 or vrc6_p2",
+    "echo_bass": false,
+    "echo_drums": false
+   },
+   "forbidden": [
+    "echoing a pitch at the same width with no detune, which cancels",
+    "echoing the bass line",
+    "an echo louder than the lead"
+   ],
+   "source": [
+    "C14"
+   ]
+  },
+  {
+   "id": "CAP-08",
+   "name": "Triangle root eighths with an octave jump at the change",
+   "family": "CAP",
+   "when_to_use": "The default bass for any stage or boss riff.",
+   "params": {
+    "pattern": "root_eighths",
+    "notes_per_bar": 8,
+    "octave_jump": "last eighth before a chord change",
+    "pitch_range_midi": [
+     36,
+     52
+    ],
+    "corpus_bass_median_midi": 46,
+    "volume": "fixed, since the triangle has no volume control"
+   },
+   "forbidden": [
+    "a bass line with rests in the middle of a riff",
+    "a bass walking in sixteenths under a sixteenth melody",
+    "bass above MIDI 52, which collides with the pulses"
+   ],
+   "source": [
+    "C14",
+    "C15",
+    "C19"
+   ]
+  },
+  {
+   "id": "CAP-09",
+   "name": "Triangle kick by logarithmic pitch slide",
+   "family": "CAP",
+   "when_to_use": "The Rockman 6 lineage solution when the cue needs a low thud and the noise channel is busy with the snare and hat.",
+   "params": {
+    "channel": "triangle",
+    "slide": "falling",
+    "slide_value": 15,
+    "length_frames": [
+     6,
+     8
+    ],
+    "then": "note off",
+    "start_pitch_midi": [
+     43,
+     48
+    ]
+   },
+   "forbidden": [
+    "a linear pitch slide, which the period table makes impossible",
+    "a triangle kick longer than 8 frames",
+    "a triangle kick on every beat alongside a noise kick, which double thumps"
+   ],
+   "source": [
+    "C14"
+   ]
+  },
+  {
+   "id": "CAP-10",
+   "name": "Noise snare on 2 and 4",
+   "family": "CAP",
+   "when_to_use": "The default backbeat in a stage theme, doubling to all four beats in a boss theme.",
+   "params": {
+    "grid_stage": "beats 2 and 4",
+    "grid_boss": "every beat",
+    "noise_rate_start": [
+     3,
+     5,
+     9
+    ],
+    "decay_frames": [
+     2,
+     4
+    ],
+    "pitch_hint": "the rate index is the starting pitch, so 5 and 9 are the two Rockman snares"
+   },
+   "forbidden": [
+    "a snare with no decay, which reads as a hiss",
+    "the same snare rate for both the snare and the kick",
+    "a snare fill longer than one beat in a 16 bar loop"
+   ],
+   "source": [
+    "C14",
+    "C15"
+   ]
+  },
+  {
+   "id": "CAP-11",
+   "name": "Hat on eighths, open hat in the B section",
+   "family": "CAP",
+   "when_to_use": "Every stage and boss cue, to make a five channel mix read as a full kit.",
+   "params": {
+    "closed_hat": "eighths",
+    "noise_rate_start": 13,
+    "vol_pct_of_snare": [
+     40,
+     55
+    ],
+    "open_hat": "offbeat eighths in section B only",
+    "frames_closed": 1,
+    "frames_open": [
+     3,
+     4
+    ]
+   },
+   "forbidden": [
+    "hats on sixteenths in a 150 bpm stage theme, which eats the noise channel",
+    "open hats in section A, where they blur the riff",
+    "hats at the same volume as the snare"
+   ],
+   "source": [
+    "C14",
+    "C15"
+   ]
+  },
+  {
+   "id": "CAP-12",
+   "name": "One beat fill every 4 and 8 bars",
+   "family": "CAP",
+   "when_to_use": "The bar before every 4 bar and 8 bar boundary in a looping cue.",
+   "params": {
+    "length": "one beat",
+    "content": "snare run then a tom slide",
+    "landing": "on the beat, never a frame early",
+    "tom": "logarithmic falling slide, value 15, then note off",
+    "skip_at": "not every 4 bars in the first 8, to leave the hook clean"
+   },
+   "forbidden": [
+    "a fill longer than one beat",
+    "a fill in the last bar before the loop seam, which tramples the return",
+    "the same fill every 4 bars for a whole 16 bar loop"
+   ],
+   "source": [
+    "C14",
+    "C15"
+   ]
+  },
+  {
+   "id": "CAP-13",
+   "name": "16 bar stage loop: 8 plus 8 plus a 2 bar link",
+   "family": "CAP",
+   "when_to_use": "Every stage theme. The measured Mega Man stage cues run 19 to 22 bars, so 16 plus a link is the honest size.",
+   "params": {
+    "A_bars": 8,
+    "B_bars": 8,
+    "link_bars": 2,
+    "total_bars": 18,
+    "A": "hook stated, power fifth riff, full kit",
+    "B": "same hook with one operation: sequence, register lift or changed ending",
+    "link": "bass and drums only, or a one bar fill plus a bar of pedal"
+   },
+   "forbidden": [
+    "a third section inside an 18 bar loop",
+    "a B section with a new melody that never returns",
+    "a link longer than 2 bars"
+   ],
+   "source": [
+    "C19",
+    "C12",
+    "C13"
+   ]
+  },
+  {
+   "id": "CAP-14",
+   "name": "8 bar boss loop, two note riff, no padding",
+   "family": "CAP",
+   "when_to_use": "Every boss cue. The published album timing for the MM2 boss loop is one minute, so this loop is heard several times in a row.",
+   "params": {
+    "bars": 8,
+    "riff_notes": [
+     2,
+     4
+    ],
+    "surface": "sixteenths",
+    "drums": "snare every beat, eighth hats, kick on 1 and 3",
+    "tempo": "168 to 190 bpm, faster than the stage it follows",
+    "harmony": "one chord per bar, or a two chord vamp"
+   },
+   "forbidden": [
+    "a full melody over a boss loop",
+    "a boss theme longer than 16 bars",
+    "the same tempo as the stage theme"
+   ],
+   "source": [
+    "C11",
+    "C19"
+   ]
+  },
+  {
+   "id": "CAP-15",
+   "name": "Stage select figure over a pedal",
+   "family": "CAP",
+   "when_to_use": "The menu cue. It plays while the player chooses, so it must survive dozens of repetitions.",
+   "params": {
+    "bars": 8,
+    "content": "one figure plus one answer",
+    "bass": "pedal on the tonic, eighths",
+    "drums": "none, or closed hats only",
+    "tempo": "120 to 140 bpm",
+    "development": "none",
+    "duty": 0.25
+   },
+   "forbidden": [
+    "a drum kit louder than the figure",
+    "a key change mid loop",
+    "any note above the melody's octave, which the menu window covers with noise"
+   ],
+   "source": [
+    "C11"
+   ]
+  },
+  {
+   "id": "CAP-16",
+   "name": "Game start jingle, two bars",
+   "family": "CAP",
+   "when_to_use": "The cue that plays when a stage begins. The MM2 album timing is eight seconds, so this is two bars at most.",
+   "params": {
+    "bars": 2,
+    "shape": "arpeggio up to the tonic",
+    "mode": "major or major with a raised fourth colour",
+    "channels": "pulse1 lead, pulse2 fifth, triangle root",
+    "drums": "one crash on the first beat",
+    "ends": "on the tonic, held two beats"
+   },
+   "forbidden": [
+    "a drum pattern under the jingle",
+    "a descending shape, which reads as an ending rather than a start",
+    "any chromatic note"
+   ],
+   "source": [
+    "C1",
+    "C11"
+   ]
+  },
+  {
+   "id": "CAP-17",
+   "name": "Stage clear fanfare, four bars",
+   "family": "CAP",
+   "when_to_use": "The cue after a stage boss dies. Seven seconds on the album reference, so four bars.",
+   "params": {
+    "bars": 4,
+    "chords": 3,
+    "progression": "IV, V, I with the I held",
+    "rhythm": "dotted eighth plus sixteenth pickup into each chord",
+    "drums": "snare roll into the final chord, one crash",
+    "ends": "tonic held to silence"
+   },
+   "forbidden": [
+    "a loop point, since this cue does not loop",
+    "a minor cadence",
+    "more than three chords"
+   ],
+   "source": [
+    "C11"
+   ]
+  },
+  {
+   "id": "CAP-18",
+   "name": "Raised sixth in the B section of a minor stage theme",
+   "family": "CAP",
+   "when_to_use": "The bright dark mixture the series uses to stop a minor stage theme from sounding flat over 18 bars.",
+   "params": {
+    "key": "minor",
+    "raise": "sixth degree in section B only",
+    "bars": "second half of B, 2 to 4 bars",
+    "chord": "IV becomes a major fourth",
+    "return": "natural sixth restored in the link"
+   },
+   "forbidden": [
+    "the raised sixth in section A",
+    "the raised sixth and the raised seventh in the same bar",
+    "using it as a modulation rather than a colour"
+   ],
+   "source": [
+    "C19",
+    "C12"
+   ]
+  },
+  {
+   "id": "CAP-19",
+   "name": "Relative major section inside a minor stage theme",
+   "family": "CAP",
+   "when_to_use": "A stage theme that needs a released B section without changing tempo or rhythmic cell.",
+   "params": {
+    "mode_change": "relative major for the B section",
+    "tempo_change": "none",
+    "cell_change": "none",
+    "transition": "one bar of dominant of the relative major",
+    "return": "dominant of the minor in the link bar"
+   },
+   "forbidden": [
+    "changing the rhythmic cell at the same time as the mode",
+    "a distant key rather than the relative major",
+    "a major section longer than the minor one"
+   ],
+   "source": [
+    "C19",
+    "C12",
+    "S64"
+   ]
+  },
+  {
+   "id": "CAP-20",
+   "name": "Hook stated in bars 1 and 2, no intro",
+   "family": "CAP",
+   "when_to_use": "Every stage theme. The style puts the riff on the first beat, because that is what the composers were told to do.",
+   "params": {
+    "intro_bars": 0,
+    "hook_bars": 2,
+    "hook_completes_by_bar": 4,
+    "identity_feature": "one of: rhythmic cell, register lift, one chromatic note",
+    "seconds_budget": "2.67 s for two bars at 180 bpm",
+    "notes_in_hook": [
+     8,
+     18
+    ]
+   },
+   "forbidden": [
+    "a four bar intro before the riff",
+    "starting on a pickup with no downbeat",
+    "a hook that needs eight bars to complete"
+   ],
+   "source": [
+    "C1",
+    "C4",
+    "S45",
+    "S47"
+   ]
+  },
+  {
+   "id": "CAP-21",
+   "name": "Layered inner line on pulse2",
+   "family": "CAP",
+   "when_to_use": "The accompaniment default. Capcom's layering is the documented difference between its sound and Tecmo's.",
+   "params": {
+    "pulse2_role": "inner line a third or sixth below the lead",
+    "doubling": "only on chorus bars, and detuned when it happens",
+    "grid": "eighths when the lead moves in sixteenths, quarters when the lead moves in eighths",
+    "measured_reference": "Mega Man melody share 23.6 percent of notes against Ninja Gaiden 35.2 percent"
+   },
+   "forbidden": [
+    "pulse2 doubling the lead for a whole section",
+    "an inner line that crosses the lead in register",
+    "three simultaneous melodic lines on the 2A03, which the chip cannot voice"
+   ],
+   "source": [
+    "C7",
+    "C19"
+   ]
+  },
+  {
+   "id": "CAP-22",
+   "name": "Pulse call and response one beat apart",
+   "family": "CAP",
+   "when_to_use": "Section A of a stage theme, so the two pulses trade instead of doubling.",
+   "params": {
+    "offset_beats": 1,
+    "answer_interval": "unison, fourth or fifth",
+    "answer_duty": 0.5,
+    "lead_duty": 0.25,
+    "answer_fills": "the rests in the lead line"
+   },
+   "forbidden": [
+    "the answer playing while the lead is sounding its main phrase",
+    "both voices leaping in the same direction at the same time",
+    "an answer that is a literal copy of the lead"
+   ],
+   "source": [
+    "C7",
+    "C19"
+   ]
+  },
+  {
+   "id": "CAP-23",
+   "name": "Bass led theme, melody sparse above it",
+   "family": "CAP",
+   "when_to_use": "A stage theme whose identity sits in the triangle, the way Heat Man's stage was built on a bass rather than a guitar.",
+   "params": {
+    "bass_role": "carries the hook",
+    "bass_pattern": "root eighths with a fifth on beat 3",
+    "melody": "one third of the bar at most, or nothing in the first four bars",
+    "melody_share_target": "below 30 percent of notes",
+    "pulse2": "power fifth stabs on the bass accents"
+   },
+   "forbidden": [
+    "a bass led theme with a busy lead over it",
+    "a bass hook that sits above MIDI 52",
+    "power chords on every eighth under a bass hook"
+   ],
+   "source": [
+    "C5",
+    "C19"
+   ]
+  },
+  {
+   "id": "CAP-24",
+   "name": "Arpeggio bass instead of power chords, piano reading",
+   "family": "CAP",
+   "when_to_use": "A quiet stage, a water stage, or any cue that should read as piano rather than guitar, the way Bubble Man's stage was written piano oriented.",
+   "params": {
+    "pulse2": "broken chord in eighths, one chord per bar",
+    "pulse1": "stepwise melody, no power fifth layer",
+    "triangle": "root on beats 1 and 3 only",
+    "drums": "closed hats and a soft snare, no crash",
+    "duty": {
+     "lead": 0.25,
+     "arpeggio": 0.5
+    }
+   },
+   "forbidden": [
+    "power chord stabs in the same section as the arpeggio",
+    "arpeggio and melody in the same register",
+    "a noise kick under a piano reading"
+   ],
+   "source": [
+    "C5"
+   ]
+  },
+  {
+   "id": "CAP-25",
+   "name": "Two section build with a bridge that subtracts a voice",
+   "family": "CAP",
+   "when_to_use": "A stage theme that has to survive a 30 second loop without fatigue, the Wily Stage 1 shape.",
+   "params": {
+    "sections": 2,
+    "section_bars": 8,
+    "bridge_bars": 4,
+    "bridge": "drums or bass drop out for the first half, then climb back",
+    "return": "full texture on the first beat of A",
+    "published_readings": "two sections and a bridge that releases tension; the third Wily cue builds and drops just before the climax"
+   },
+   "forbidden": [
+    "a bridge that adds voices instead of removing them",
+    "a bridge longer than 4 bars in an 18 bar loop",
+    "a bridge with a new melodic idea that never returns"
+   ],
+   "source": [
+    "C13",
+    "C12",
+    "C22"
+   ]
+  },
+  {
+   "id": "CAP-26",
+   "name": "Sampled kick and snare on DPCM",
+   "family": "CAP",
+   "when_to_use": "A cue that wants Tecmo's Ninja Gaiden drum weight: a drum with a real pitch and attack rather than a noise burst.",
+   "params": {
+    "kick": "short DPCM sample",
+    "snare": "short DPCM sample",
+    "share": "one sample channel, so kick and snare alternate",
+    "noise": "hats and cymbals only",
+    "sample_length": "under 4 KB total"
+   },
+   "forbidden": [
+    "sampled hats or toms, which waste the channel",
+    "a DPCM kick and a noise kick on the same beat",
+    "more than two sampled sounds in one cue"
+   ],
+   "source": [
+    "C7",
+    "C8",
+    "C15"
+   ]
+  },
+  {
+   "id": "CAP-27",
+   "name": "Odd grouping intro figure against a 4/4 body",
+   "family": "CAP",
+   "when_to_use": "An intro or hook that wants to feel off balance for one bar before settling, the DuckTales approach without quoting anything.",
+   "params": {
+    "intro_grouping_16ths": 15,
+    "body_meter": "4/4",
+    "bars_before_settling": 1,
+    "repeat_intro": false,
+    "transcription_note": "a fan transcription argues The Moon's intro groups in 15 eighths and that covers smooth it to 4/4"
+   },
+   "forbidden": [
+    "an odd grouping that lasts more than two bars",
+    "an odd metred drum pattern, which reads as a mistake rather than a hook",
+    "more than one odd figure per cue"
+   ],
+   "source": [
+    "C17",
+    "C16"
+   ]
+  },
+  {
+   "id": "CAP-28",
+   "name": "Ascending arpeggio hook over a descending bass",
+   "family": "CAP",
+   "when_to_use": "The DuckTales kind of hook: the melody climbs while the bass falls, so the cue sounds like a classical figure played by a band.",
+   "params": {
+    "melody": "arpeggio rising through the chord, eighths or sixteenths",
+    "bass": "stepwise descent, one pitch per beat",
+    "harmony": "one chord per bar, diatonic",
+    "drums": "none in the intro, closed hats after"
+   },
+   "forbidden": [
+    "arpeggio and bass moving in the same direction",
+    "power fifth layer under an arpeggio hook",
+    "a chromatic bass descent"
+   ],
+   "source": [
+    "C16",
+    "C17"
+   ]
+  },
+  {
+   "id": "CAP-29",
+   "name": "VRC6 extension: octave, third and saw, melody stays on the 2A03",
+   "family": "CAP",
+   "when_to_use": "Only in our own score, where the seven voice palette exists. Capcom's own releases used no expansion audio, so this is an extension and must not be presented as period accuracy.",
+   "params": {
+    "melody": "stays on pulse1 at 0.25 duty",
+    "vrc6_p1": "octave of the root, or the third when the cue wants a real triad",
+    "vrc6_p2": "delayed echo or a line a third below",
+    "vrc6_saw": "bass on chorus sections, accumulator rate 32 to 40",
+    "triangle": "kick, tom slide or root pedal",
+    "voice_budget": "at most one addition per section"
+   },
+   "forbidden": [
+    "moving the melody to a VRC6 pulse",
+    "four simultaneous melodic lines",
+    "saw bass and triangle bass on the same root for a whole section"
+   ],
+   "source": [
+    "C14",
+    "C15",
+    "C10"
+   ]
+  },
+  {
+   "id": "CAP-30",
+   "name": "Tempo ladder per cue type",
+   "family": "CAP",
+   "when_to_use": "Whole score planning, so no cue type lands in another's tempo band.",
+   "params": {
+    "stage_bpm": [
+     150,
+     180
+    ],
+    "boss_bpm": [
+     168,
+     190
+    ],
+    "stage_select_bpm": [
+     120,
+     140
+    ],
+    "title_staff_roll_bpm": [
+     126,
+     150
+    ],
+    "jingle_bpm": [
+     132,
+     168
+    ],
+    "floor_note": "below 140 the one frame cut stops reading",
+    "measured_anchor": "180 bpm for Dr Wily Stage 1"
+   },
+   "forbidden": [
+    "a boss theme slower than its stage theme",
+    "a stage theme under 140 bpm with the one frame cut enabled",
+    "two adjacent cues in the same tempo band and the same key"
+   ],
+   "source": [
+    "C12",
+    "C13",
+    "C14",
+    "C11"
+   ]
+  },
+  {
+   "id": "CAP-31",
+   "name": "One cool set, one cute exception",
+   "family": "CAP",
+   "when_to_use": "Whole score planning. The MM2 director rejected every first draft but one for sounding too cute and asked for cool music, and the cheerful stage survived as the single exception.",
+   "params": {
+    "default_mode": "cool: minor, riff led, sixteenth surface",
+    "exception_count": 1,
+    "exception_role": "the cheerful stage or the shop or the bonus cue",
+    "exception_traits": "major, stepwise melody, no power fifth stabs",
+    "reuse": "the exception is never the game's main theme"
+   },
+   "forbidden": [
+    "two cheerful cues in the same set",
+    "a cheerful cue in a boss or final stage slot",
+    "a minor key cue for the designated exception"
+   ],
+   "source": [
+    "C4",
+    "C5"
+   ]
+  },
+  {
+   "id": "CAP-32",
+   "name": "Loop seam that climbs rather than resolves",
+   "family": "CAP",
+   "when_to_use": "The last bar of any looping stage or boss cue, so the seam reads as a lift instead of a restart.",
+   "params": {
+    "last_bar": "root to fifth climb, or a rising chromatic approach",
+    "cadence": "avoid a full authentic close",
+    "drums": "keep the kit running through the seam",
+    "voice_drop": "drop the inner line on the last beat",
+    "evidence": "the third Wily cue builds and drops just before the climax so the loop carries the tension"
+   },
+   "forbidden": [
+    "a tonic landing on the last bar of a loop",
+    "a silent last beat",
+    "a fill that ends after the seam"
+   ],
+   "source": [
+    "C12",
+    "C22",
+    "C13"
+   ]
+  },
+  {
+   "id": "CAP-33",
+   "name": "Noise electric hit as a non drum percussion colour",
+   "family": "CAP",
+   "when_to_use": "A texture cue that wants the Quick Man kind of buzz: a percussion sound that is not a drum, used as an accent layer.",
+   "params": {
+    "channel": "noise",
+    "rate_start": 11,
+    "length_frames": [
+     1,
+     2
+    ],
+    "grid": "offbeat eighths or the last sixteenth of a bar",
+    "vol_pct_of_snare": 60,
+    "max_per_bar": 2
+   },
+   "forbidden": [
+    "an electric hit on the downbeat of bar 1",
+    "more than two per bar",
+    "using it as the snare"
+   ],
+   "source": [
+    "C14"
+   ]
+  }
+ ]
+}

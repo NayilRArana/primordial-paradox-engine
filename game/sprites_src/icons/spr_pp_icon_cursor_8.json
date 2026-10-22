@@ -1,0 +1,100 @@
+{
+  "format": 1,
+  "kind": "nes_icon_sheet",
+  "name": "spr_pp_icon_cursor_8",
+  "size": "16x8",
+  "frame_w": 8,
+  "frame_h": 8,
+  "frames": 2,
+  "grid": {
+    "cols": 2,
+    "rows": 1,
+    "cell_w": 8,
+    "cell_h": 8,
+    "sheet_w": 16,
+    "sheet_h": 8
+  },
+  "group": "cursor",
+  "title": "menu cursors, 8x8",
+  "transparent": true,
+  "sprite_palettes_used": [
+    "sp0"
+  ],
+  "sprite_palette_count": 1,
+  "sprite_objects_per_frame": 1,
+  "max_sprite_objects_if_all_frames_on_screen": 2,
+  "colours_used": [
+    {
+      "index": 15,
+      "hex": "#000000",
+      "hue": "black",
+      "usable": true
+    },
+    {
+      "index": 40,
+      "hex": "#f8b800",
+      "hue": "yellow",
+      "usable": true
+    },
+    {
+      "index": 48,
+      "hex": "#fcfcfc",
+      "hue": "grey",
+      "usable": true
+    }
+  ],
+  "colour_count": 3,
+  "rule": "sprite art: at most 3 opaque colours plus transparency on any 8x8 tile; entry 0 of a sprite palette is transparency; black is $0F; no gradient, no anti aliasing, no dithering; each icon wears one of the four sprite palettes in data\\palettes\\scene_icons.json",
+  "size_variants": [],
+  "size_variant_note": "these five are simplified drawings made for 8x8, not the 16x16 art seen smaller: at 8x8 one pixel is 2 design units, so their 16x16 features would vanish",
+  "palette_file": "data\\palettes\\scene_icons.json",
+  "built_by": "tools\\art\\make_icons_nes.py",
+  "frames_detail": [
+    {
+      "index": 0,
+      "name": "hand",
+      "x": 0,
+      "y": 0,
+      "w": 8,
+      "h": 8,
+      "tiles_w": 1,
+      "tiles_h": 1,
+      "sprite_objects": 1,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "menu cursor: pointing hand"
+    },
+    {
+      "index": 1,
+      "name": "arrow",
+      "x": 8,
+      "y": 0,
+      "w": 8,
+      "h": 8,
+      "tiles_w": 1,
+      "tiles_h": 1,
+      "sprite_objects": 1,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "menu cursor: solid arrow"
+    }
+  ]
+}

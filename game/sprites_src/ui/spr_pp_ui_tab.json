@@ -1,0 +1,43 @@
+{
+  "name": "spr_pp_ui_tab",
+  "frame_w": 72,
+  "frame_h": 8,
+  "frames": 9,
+  "tiles": [
+    "tl",
+    "t",
+    "tr",
+    "l",
+    "c",
+    "r",
+    "bl",
+    "b",
+    "br"
+  ],
+  "tile_size": 8,
+  "layout": "row major: tl t tr l c r bl b br, 8x8 each",
+  "nine_slice": {
+    "corner": [
+      "tl",
+      "tr",
+      "bl",
+      "br"
+    ],
+    "edge": [
+      "t",
+      "b",
+      "l",
+      "r"
+    ],
+    "fill": [
+      "c"
+    ]
+  },
+  "role": "dialogue name tab, same nine slices in the accent colour",
+  "colours": {
+    "border": 40,
+    "inner": 40,
+    "fill": 2
+  },
+  "rule": "3 colours per 8x8 tile, transparent corner pixel"
+}

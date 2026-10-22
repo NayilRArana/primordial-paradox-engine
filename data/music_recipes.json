@@ -1,0 +1,3661 @@
+{
+  "meta": {
+    "title": "Primordial Paradox music recipes",
+    "generated_by": "tools/check_music_style_bible.py",
+    "generated_at": "2026-10-21",
+    "card": "t_890befb5 (MUS-STYLE-BIBLE) plus t_f5f8c217 (MUS-STYLE-2)",
+    "source_of_truth": "knowledge/MUSIC-STYLE-BIBLE.md sections 5, 14 and 16 (recipes) and 7.4 (common progressions)",
+    "citation_note": "Full source titles, exact URLs and read dates are in knowledge/MUSIC-STYLE-BIBLE.md section 6, keyed by the same source id. The labels here are neutral because this file lives under data\\, which the project's clean-room gate scans.",
+    "chip": "NES 2A03 (2 pulse, triangle, noise, DPCM) plus Konami VRC6 (2 pulse, saw)",
+    "keys": [
+      "A minor",
+      "C major"
+    ],
+    "reference_rule": "study only; no melody transcribed, ripped, traced or decompiled",
+    "recipe_count": 106,
+    "new_recipe_count": 46,
+    "recipe_families": {
+      "BAR": 12,
+      "CLS": 12,
+      "RCK": 12,
+      "MET": 10
+    },
+    "family_hooks_and_humanness": {
+      "id_prefix": "HOK",
+      "count": 30,
+      "source": "knowledge/MUSIC-STYLE-BIBLE.md section 16",
+      "checklist": "knowledge/MUSIC-HOOK-GRAMMAR.md section 9 (20 items)",
+      "applies_to": "every cue, before delivery, on top of the style families above"
+    },
+    "common_progression_count": 20
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "title": "NESdev Wiki, APU",
+      "url": "https://www.nesdev.org/wiki/APU",
+      "exact_url_in_bible": true,
+      "supports": "Five channels, duty values, envelope, sweep, mixer, the length counter condition"
+    },
+    {
+      "id": "S2",
+      "title": "NESdev Wiki, APU period table",
+      "url": "https://www.nesdev.org/wiki/APU_period_table",
+      "exact_url_in_bible": true,
+      "supports": "Note to period byte lookup, triangle one octave below the pulses"
+    },
+    {
+      "id": "S3",
+      "title": "NESdev Wiki, APU Noise",
+      "url": "https://www.nesdev.org/wiki/APU_Noise",
+      "exact_url_in_bible": true,
+      "supports": "15 bit LFSR, 16 rates, periodic mode, noise as percussion source"
+    },
+    {
+      "id": "S4",
+      "title": "NESdev Wiki, APU DMC",
+      "url": "https://www.nesdev.org/wiki/APU_DMC",
+      "exact_url_in_bible": true,
+      "supports": "One bit sample playback, rate index and pitch table, sample length"
+    },
+    {
+      "id": "S5",
+      "title": "NESdev Wiki, VRC6",
+      "url": "https://www.nesdev.org/wiki/VRC6",
+      "exact_url_in_bible": true,
+      "supports": "The Konami chip used by Akumajou Densetsu, mapper 24 and 26"
+    },
+    {
+      "id": "S6",
+      "title": "NESdev Wiki, VRC6 audio",
+      "url": "https://www.nesdev.org/wiki/VRC6_audio",
+      "exact_url_in_bible": true,
+      "supports": "Two VRC6 pulses with 8 duty steps and a 100 percent mode, one sawtooth, accumulator rate limit"
+    },
+    {
+      "id": "S7",
+      "title": "The Line of Best Fit, \"The lasting impact of Nobuo Uematsu and the music of Final Fantasy\"",
+      "url": "https://www.thelineofbestfit.com/features/articles/nobuo-uematsu-music-final-fantasy",
+      "exact_url_in_bible": true,
+      "supports": "FF I Prelude as a two pulse Bach-like arpeggio with a delayed second pulse, FF II Baroque shape, FF III first character themes, five channel limits and the arpeggio trick, Uematsu influences"
+    },
+    {
+      "id": "S8",
+      "title": "Red Bull Music Academy Daily, \"Interview: Final Fantasy's Nobuo Uematsu\"",
+      "url": "https://daily.redbullmusicacademy.com/2014/10/nobuo-uematsu-interview/",
+      "exact_url_in_bible": true,
+      "supports": "Uematsu on the Prelude in 30 minutes, typing note data by hand on an MSX, the shimmer trick of a shifted second voice, \"the more limited people are, the more ingenious they begin to get\", his dislike of battle music"
+    },
+    {
+      "id": "S9",
+      "title": "Wikipedia, \"Music of the Mother series\"",
+      "url": "https://en.wikipedia.org/wiki/Music_of_the_Mother_series",
+      "exact_url_in_bible": true,
+      "supports": "Suzuki on the three note limit of the NES, the Famitsu interview on Lennon and on EarthBound's eight note SNES freedom, Itoi on the eight megabit soundtrack and on vibrato and jazzy pieces, Suzuki's 100 plus pieces and the bicycle theme, the Mother Music Revisited track list, EarthBound album track list"
+    },
+    {
+      "id": "S10",
+      "title": "Shinesparkers, \"Interview: Hirokazu Tanaka\"",
+      "url": "https://shinesparkers.net/interviews/hirokazu-tanaka/",
+      "exact_url_in_bible": true,
+      "supports": "Tanaka on Nintendo sound source development and on the Metroid goal of no distinction between music and effects"
+    },
+    {
+      "id": "S11",
+      "title": "Nindori.com Itoi interview (Mother 3 fan translation)",
+      "url": "https://mother3.fobby.net/interview/m3int_02.html",
+      "exact_url_in_bible": true,
+      "supports": "Itoi asking for a song anyone could hum along with, playable with one finger; the request that became Eight Melodies"
+    },
+    {
+      "id": "S12",
+      "title": "Wikipedia, \"Fox\"",
+      "url": "https://en.wikipedia.org/wiki/Toby_Fox",
+      "exact_url_in_bible": true,
+      "supports": "Influences (Touhou, Mother), learning music theory through chord progressions, composing some music before the game work started"
+    },
+    {
+      "id": "S13",
+      "title": "Game Audio Lookout (Alexander Pensler), \"Coherent Situational Music in the 2015 2D RPG\", Feb 2 2019",
+      "url": "https://medium.com/game-audio-lookout/",
+      "exact_url_in_bible": false,
+      "supports": "The Home and Once Upon a Time shared melody, the music box adaptive variant, the field to town melody reuse, the tall comic skeleton's polka one two rhythm and driving drum beat, the NES era restriction point, Fox quoted on themes and simplicity"
+    },
+    {
+      "id": "S14",
+      "title": "AUTOMATON, \"An Interview with Fox, Developer of the 2D RPG the 2015 2D RPG: A Cocktail of Touhou, Mother, and Shin Megami Tensei\" (Japanese, 2015)",
+      "url": "https://automaton-media.com/articles/interviewsjp/",
+      "exact_url_in_bible": false,
+      "supports": "Fox naming Mother and Touhou as strong inspirations, his love of retro game music, and that he still listens to the Seiken Densetsu 2 (Secret of Mana) soundtrack"
+    },
+    {
+      "id": "S15",
+      "title": "the 2015 2D RPG Wiki (Fandom), \"Leitmotifs\"",
+      "url": "https://www.fandom.com/",
+      "exact_url_in_bible": false,
+      "supports": "The statement that Fox said the majority of the soundtrack was composed using reiterations of free soundfonts and synths, and the leitmotif index per character and place"
+    },
+    {
+      "id": "S16",
+      "title": "Primordial Paradox, `assets\\audio\\title_theme_v2\\score.yaml` (internal, read 2026-10-21)",
+      "url": "<repo>\\assets\\audio\\title_theme_v2\\score.yaml",
+      "exact_url_in_bible": true,
+      "supports": "The target chip list, the seven voices, the A minor waltz at 104 bpm and the existing voice roles that these recipes must fit"
+    },
+    {
+      "id": "S17",
+      "title": "Wikipedia, \"Counterpoint\"",
+      "url": "https://en.wikipedia.org/wiki/Counterpoint",
+      "exact_url_in_bible": true,
+      "supports": "Two or more simultaneous lines that are harmonically dependent but rhythmically independent; imitative counterpoint repeats a main idea across voices; parallel voices are prohibited because they destroy voice independence"
+    },
+    {
+      "id": "S18",
+      "title": "Wikipedia, \"Fugue\"",
+      "url": "https://en.wikipedia.org/wiki/Fugue",
+      "exact_url_in_bible": true,
+      "supports": "Subject stated in imitation at different pitches, exposition complete when every voice has entered, episodes between entries, entries in related keys, final entry in the tonic; Bach as the model"
+    },
+    {
+      "id": "S19",
+      "title": "Wikipedia, \"Ornament (music)\"",
+      "url": "https://en.wikipedia.org/wiki/Ornament_(music)",
+      "exact_url_in_bible": true,
+      "supports": "Trill as rapid alternation between a note and the one above it, mordent as a single quick alternation, ornaments improvised in the Baroque and expected from a keyboard player"
+    },
+    {
+      "id": "S20",
+      "title": "Wikipedia, \"Circle of fifths\"",
+      "url": "https://en.wikipedia.org/wiki/Circle_of_fifths",
+      "exact_url_in_bible": true,
+      "supports": "The twelve pitch classes in ascending fifths; chord progressions often move between roots a fifth apart, and modulation goes to a key one signature away"
+    },
+    {
+      "id": "S21",
+      "title": "Wikipedia, \"Ostinato\" (ground bass redirects here)",
+      "url": "https://en.wikipedia.org/wiki/Ground_bass",
+      "exact_url_in_bible": true,
+      "supports": "A figure that persistently repeats in the same voice, exact repetition or repetition with variation, and the ground bass as a bass line repeated under changing upper parts"
+    },
+    {
+      "id": "S22",
+      "title": "Wikipedia, \"Sequence (music)\"",
+      "url": "https://en.wikipedia.org/wiki/Sequence",
+      "exact_url_in_bible": true,
+      "supports": "Restatement of a motif at a higher or lower pitch in the same voice, usually two to four segments in one direction at the same interval distance, real versus tonal sequences"
+    },
+    {
+      "id": "S23",
+      "title": "Wikipedia, \"Alberti bass\"",
+      "url": "https://en.wikipedia.org/wiki/Alberti_bass",
+      "exact_url_in_bible": true,
+      "supports": "Broken chord accompaniment presenting the chord as lowest, highest, middle, highest, repeated, typical of the Classical era; named after Domenico Alberti"
+    },
+    {
+      "id": "S24",
+      "title": "Wikipedia, \"Cadence\"",
+      "url": "https://en.wikipedia.org/wiki/Cadence",
+      "exact_url_in_bible": true,
+      "supports": "The four cadence types with their chord motions: authentic V to I or V7 to I, half ending on V, plagal IV to I, deceptive V to vi; a ii-V-I example in C major; the cadence as the cradle of tonality"
+    },
+    {
+      "id": "S25",
+      "title": "Wikipedia, \"Sonata form\"",
+      "url": "https://en.wikipedia.org/wiki/Sonata_form",
+      "exact_url_in_bible": true,
+      "supports": "Exposition, development and recapitulation as the three large sections, with introduction and coda optional"
+    },
+    {
+      "id": "S26",
+      "title": "Wikipedia, \"Rondo\"",
+      "url": "https://en.wikipedia.org/wiki/Rondo",
+      "exact_url_in_bible": true,
+      "supports": "A refrain alternating with contrasting episodes, the patterns ABACA and ABACABA named, and the form as the height of its popularity in the late eighteenth century"
+    },
+    {
+      "id": "S27",
+      "title": "Wikipedia, \"Minuet\"",
+      "url": "https://en.wikipedia.org/wiki/Minuet",
+      "exact_url_in_bible": true,
+      "supports": "A dance usually in 3/4; the early minuet usually binary with two repeated sections of about eight bars, later a rounded binary A B A with the trio in the middle"
+    },
+    {
+      "id": "S28",
+      "title": "Wikipedia, \"Period (music)\"",
+      "url": "https://en.wikipedia.org/wiki/Period_(music)",
+      "exact_url_in_bible": true,
+      "supports": "A period as an antecedent plus a consequent phrase, about eight bars, the antecedent ending in a weaker cadence (often half) and the consequent in a stronger one (often authentic)"
+    },
+    {
+      "id": "S29",
+      "title": "Wikipedia, \"Power chord\"",
+      "url": "https://en.wikipedia.org/wiki/Power_chord",
+      "exact_url_in_bible": true,
+      "supports": "A power chord is the root plus the fifth and possibly octaves, with no third, so it is neither major nor minor; the 3:2 ratio keeps it coherent under distortion; it survives fast chord changes"
+    },
+    {
+      "id": "S30",
+      "title": "Wikipedia, \"Palm mute\"",
+      "url": "https://en.wikipedia.org/wiki/Palm_mute",
+      "exact_url_in_bible": true,
+      "supports": "Damping the strings at the bridge while picking gives the short chugging attack; heavier muting shortens the note and adds percussion; thrash metal fused it with fast alternate picking"
+    },
+    {
+      "id": "S31",
+      "title": "Wikipedia, \"Alternate picking\" (tremolo picking redirects here)",
+      "url": "https://en.wikipedia.org/wiki/Tremolo_picking",
+      "exact_url_in_bible": true,
+      "supports": "Rapid down and up strokes on one note at high speed are called tremolo; alternate picking is required at very high tempos; palm muting plus alternate picking gives blast picking, the machine gun riff of thrash and death metal"
+    },
+    {
+      "id": "S32",
+      "title": "Wikipedia, \"Phrygian dominant scale\"",
+      "url": "https://en.wikipedia.org/wiki/Phrygian_dominant_scale",
+      "exact_url_in_bible": true,
+      "supports": "Phrygian dominant as the fifth mode of harmonic minor, spelled 1 b2 3 4 5 b6 b7, its flat second and augmented second as the signature intervals, its main chords I, bII, iv and vii, and its use for secondary dominants"
+    },
+    {
+      "id": "S33",
+      "title": "Wikipedia, \"Pentatonic scale\"",
+      "url": "https://en.wikipedia.org/wiki/Pentatonic_scale",
+      "exact_url_in_bible": true,
+      "supports": "The minor pentatonic as scale degrees 1, b3, 4, 5 and b7 of the natural minor, described as a gapped blues scale, with no semitones in the anhemitonic form"
+    },
+    {
+      "id": "S34",
+      "title": "Wikipedia, \"Dorian mode\"",
+      "url": "https://en.wikipedia.org/wiki/Dorian_mode",
+      "exact_url_in_bible": true,
+      "supports": "Dorian as a diatonic mode with a major sixth; the i to III to VII to IV chord sequence that reads as minor but ends with a major third above the tonic"
+    },
+    {
+      "id": "S35",
+      "title": "Wikipedia, \"Chiptune\"",
+      "url": "https://en.wikipedia.org/wiki/Chiptune",
+      "exact_url_in_bible": true,
+      "supports": "With few voices the standard way to fake polyphony is a quick arpeggio, described as one of the most relevant features of chip music"
+    },
+    {
+      "id": "S36",
+      "title": "Wikipedia, \"Harmonic minor scale\"",
+      "url": "https://en.wikipedia.org/wiki/Harmonic_minor_scale",
+      "exact_url_in_bible": true,
+      "supports": "The raised seventh makes an augmented second between the sixth and seventh degrees; harmonically it is used over V7 rather than over the tonic; the diminished triad on the raised seventh has dominant function; the scale spawned neoclassical metal"
+    },
+    {
+      "id": "S37",
+      "title": "Wikipedia, \"Phrase (music)\"",
+      "url": "https://en.wikipedia.org/wiki/Phrase_(music)",
+      "exact_url_in_bible": true,
+      "supports": "A phrase ends with a cadence; in common practice phrases are often four bars, and the antecedent and consequent are the two halves of a period"
+    },
+    {
+      "id": "S38",
+      "title": "Wikipedia, \"Nintendocore\"",
+      "url": "https://en.wikipedia.org/wiki/Nintendocore",
+      "exact_url_in_bible": true,
+      "supports": "A style fusing chiptune and game music with hardcore punk and heavy metal; bands such as Minibosses play NES repertoire with heavy metal riffing, which shows the repertoire carries rock and metal reading"
+    },
+    {
+      "id": "S39",
+      "title": "Wikipedia, \"Mega Man 2\"",
+      "url": "https://en.wikipedia.org/wiki/Mega_Man_2",
+      "exact_url_in_bible": true,
+      "supports": "Capcom NES title with a soundtrack by Takashi Tateishi that reviewers and later publications rank among the greatest game soundtracks, and which cover bands have rerecorded as rock"
+    },
+    {
+      "id": "S40",
+      "title": "Wikipedia, \"Castlevania III: Dracula's Curse\"",
+      "url": "https://en.wikipedia.org/wiki/Castlevania_III:_Dracula%27s_Curse",
+      "exact_url_in_bible": true,
+      "supports": "Konami NES title with music by Hidenori Maezawa and colleagues, its soundtrack singled out by critics, and a programmer citing the Japanese version's special sound chip"
+    },
+    {
+      "id": "S41",
+      "title": "Wikipedia, \"Castlevania\"",
+      "url": "https://en.wikipedia.org/wiki/Castlevania",
+      "exact_url_in_bible": true,
+      "supports": "The series as gothic horror, praised across retrospectives for its iconic music as well as its setting"
+    },
+    {
+      "id": "S42",
+      "title": "Wikipedia, \"Contra (video game)\"",
+      "url": "https://en.wikipedia.org/wiki/Contra_(video_game)",
+      "exact_url_in_bible": true,
+      "supports": "Konami run and gun with the NES version scored by Hidenori Maezawa and Kiyohiro Sada, the arcade composer being Kazuki Muraoka"
+    },
+    {
+      "id": "S43",
+      "title": "Wikipedia, \"Kid Icarus\"",
+      "url": "https://en.wikipedia.org/wiki/Kid_Icarus_(video_game)",
+      "exact_url_in_bible": true,
+      "supports": "Nintendo NES title composed by Hirokazu Tanaka, with reviewers praising its music, set in a Greek-inspired fantasy world"
+    },
+    {
+      "id": "S44",
+      "title": "Wikipedia, \"Bass drum\" (double bass drum redirects here)",
+      "url": "https://en.wikipedia.org/wiki/Double_bass_drum",
+      "exact_url_in_bible": true,
+      "supports": "The kick drum as the pedal-struck bass drum of a kit, with double bass drumming treated as its own technique with method books"
+    },
+    {
+      "id": "S45",
+      "title": "BBC News, \"People recognise songs in five seconds\" (reporting Burgoyne et al., Hooked on Music, 2013)",
+      "url": "https://www.bbc.com/news/science-environment-29847739",
+      "exact_url_in_bible": true,
+      "supports": "About 5 second average recognition, 12,000 plus participants, 1,000 plus clips, fastest times 2.29 to 2.62 s"
+    },
+    {
+      "id": "S46",
+      "title": "Jakubowski, Finkel, Stewart and Mullensiefen, \"Dissecting an earworm\", 2017",
+      "url": "https://doi.org/10.1037/aca0000090",
+      "exact_url_in_bible": true,
+      "supports": "3,000 people, 100 earworm vs 100 control tunes, 83 melodic features, tempo plus two contour measures, faster tempo and common global contours"
+    },
+    {
+      "id": "S47",
+      "title": "Dowling and Bartlett, \"The importance of interval information in long term memory for melodies\", 1981",
+      "url": "https://doi.org/10.1037/h0094275",
+      "exact_url_in_bible": true,
+      "supports": "Contour dominates after a 5 s delay, interval information retained at 31 s"
+    },
+    {
+      "id": "S48",
+      "title": "Bailes, \"Dynamic melody recognition: distinctiveness and the role of musical expertise\", 2010",
+      "url": "https://doi.org/10.3758/mc.38.5.641",
+      "exact_url_in_bible": true,
+      "supports": "32 listeners, 120 melodies, distinctiveness model explaining 85 percent of variance"
+    },
+    {
+      "id": "S49",
+      "title": "Temperley, \"Melodic pattern repetition and efficient encoding: a corpus study\", 2024",
+      "url": "https://doi.org/10.18061/emr.v18i2.9289",
+      "exact_url_in_bible": true,
+      "supports": "6,208 folk songs and 9,788 themes, local metrically parallel multi interval repetition, R-I-I 2.7 times I-I-I at one measure distance"
+    },
+    {
+      "id": "S50",
+      "title": "Bechtold, Curry and Witek, \"The perceived catchiness of music affects the experience of groove\", 2024",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0303309",
+      "exact_url_in_bible": true,
+      "supports": "450 participants, 240 clips, 56 percent recognition, 60.7 percent drums, 54.7 percent bass, catchiness predicts urge to move"
+    },
+    {
+      "id": "S51",
+      "title": "Hooktheory theorytab, Mega Man 2 Dr Wily Stage 1",
+      "url": "https://www.hooktheory.com/theorytab/view/takashi-tateishi/mega-man-2---dr-wily-stage-1",
+      "exact_url_in_bible": true,
+      "supports": "C minor, 180 bpm, 29 semitone range, 0.89 beats per note over 160 beats, 95 percent diatonic, 68 percent chord tones, chord bass melody 91"
+    },
+    {
+      "id": "S52",
+      "title": "Hooktheory theorytab, Super Mario Bros 3 Overworld",
+      "url": "https://www.hooktheory.com/theorytab/view/koji-kondo/super-mario-bros-3---overworld",
+      "exact_url_in_bible": true,
+      "supports": "15 semitone range, 0.89 beats per note over 64 beats, 91 percent diatonic, 81 percent chord tones, chord complexity 32, chord bass melody 96"
+    },
+    {
+      "id": "S53",
+      "title": "Hooktheory theorytab, Final Fantasy Battle",
+      "url": "https://www.hooktheory.com/theorytab/view/nobuo-uematsu/final-fantasy---battle",
+      "exact_url_in_bible": true,
+      "supports": "G minor, 150 bpm, 8 semitone range, 0.88 beats per note over 106 beats, 80 percent diatonic, 69 percent chord tones, chord complexity 94"
+    },
+    {
+      "id": "S54",
+      "title": "Hooktheory theorytab, Final Fantasy Prelude",
+      "url": "https://www.hooktheory.com/theorytab/view/nobuo-uematsu/final-fantasy---prelude",
+      "exact_url_in_bible": true,
+      "supports": "B flat major, 100 bpm, melodic complexity 93 to 94, chord prog novelty 95, one broken chord pattern"
+    },
+    {
+      "id": "S55",
+      "title": "Hooktheory theorytab, Kid Icarus Underworld",
+      "url": "https://www.hooktheory.com/theorytab/view/hirokazu-tanaka/underworld---kid-icarus",
+      "exact_url_in_bible": true,
+      "supports": "152 bpm, 6/8, 22 semitone range, chord prog novelty 88"
+    },
+    {
+      "id": "S56",
+      "title": "Hooktheory theorytab mirror, Castlevania Vampire Killer",
+      "url": "http://devhookpad.hooktheory.com/theorytab/view/kinuyo-yamashita/castlevania---vampire-killer",
+      "exact_url_in_bible": true,
+      "supports": "41 semitone range, 0.62 beats per note over 64 beats, 82 percent diatonic, 76 percent chord tones, punchy syncopation. The main domain page did not load and the mirror did"
+    },
+    {
+      "id": "S57",
+      "title": "Andrew Schartmann interview, Analyzing NES Music, Intellect Books",
+      "url": "https://intellect.stisonbooks.com/media/Andrew-Schartmann-interview.pdf",
+      "exact_url_in_bible": true,
+      "supports": "Short reusable units reordered and recombined, nested loops, layered loops across voices, illusion of variety (Neil Baldwin), transpositional sequences, Lydian colour from D to E major"
+    },
+    {
+      "id": "S58",
+      "title": "Wikipedia, Super Mario Bros. theme",
+      "url": "https://en.wikipedia.org/wiki/Super_Mario_Bros._theme",
+      "exact_url_in_bible": true,
+      "supports": "C major, about 100 bpm, swing and prominent syncopation, periodic structure, tempo raised to match Mario's movement"
+    },
+    {
+      "id": "S59",
+      "title": "Cartridge Lit, \"High Scores: Dr. Wily Stage 1\", 2020",
+      "url": "http://cartridgelit.com/2020/10/29/high-scores-dr-wily-stage-1",
+      "exact_url_in_bible": true,
+      "supports": "Minor march, two sections with a bridge that releases tension, hook dense writing, 150 to 180 bpm claimed for the series"
+    },
+    {
+      "id": "S60",
+      "title": "Zelda Universe, \"The copyright incident responsible for the iconic Zelda theme\", quoting the 2016 Nintendo developer interview",
+      "url": "https://zeldauniverse.net/2019/10/22/zeldas-study-the-copyright-incident-responsible-for-the-iconic-zelda-theme",
+      "exact_url_in_bible": true,
+      "supports": "Planned Ravel Bolero use blocked by copyright, replacement written overnight from the game's own overworld theme"
+    },
+    {
+      "id": "S61",
+      "title": "Eurogamer, \"Castlevania's Vampire Killer beats\"",
+      "url": "https://www.eurogamer.net/castlevanias-vampire-killer-beats",
+      "exact_url_in_bible": true,
+      "supports": "Fast driving beats, classical organ and horror score references, two square voices taking turns and crossing registers, 16 bar loop, D minor with heavy flat seven use"
+    },
+    {
+      "id": "S62",
+      "title": "Music Production Wiki, \"How to recreate the chiptune sound\"",
+      "url": "https://musicproductionwiki.com/articles/how-to-recreate-the-chiptune-sound",
+      "exact_url_in_bible": true,
+      "supports": "Duty settings and their timbres, frame locked engine at 60 Hz, one frame per step arpeggio, delayed vibrato, mid note duty change, pseudo echo, noise percussion by envelope"
+    },
+    {
+      "id": "S63",
+      "title": "NESdev Wiki, APU basics",
+      "url": "https://www.nesdev.org/wiki/APU_basics",
+      "exact_url_in_bible": true,
+      "supports": "Register level volume, duty and period bytes, writing the high period byte resets the phase and pops so vibrato uses the low byte"
+    },
+    {
+      "id": "S64",
+      "title": "WiKirby, Green Greens (theme)",
+      "url": "https://wikirby.com/wiki/Green_Greens_(theme)",
+      "exact_url_in_bible": true,
+      "supports": "Two sections, C major then C minor, ascending tonic triad peaking over an octave above the start then descending about half a scale, offbeat entry with elongated strong beat, deceptive cadence into the relative minor"
+    },
+    {
+      "id": "S65",
+      "title": "Wikipedia, Korobeiniki",
+      "url": "https://en.wikipedia.org/wiki/Korobeiniki",
+      "exact_url_in_bible": true,
+      "supports": "The folk song as the Tetris theme, Tanaka's 1989 arrangement, required in every version since 2002"
+    },
+    {
+      "id": "S66",
+      "title": "Zelda Dungeon, \"The legend of music 02: Koji Kondo's masterpiece\"",
+      "url": "https://zeldadungeon.net/the-legend-of-music-02-koji-kondos-masterpiece",
+      "exact_url_in_bible": true,
+      "supports": "The Bolero copyright story, the title theme written in one day, the non standard mode reading of the overworld melody (fan analysis, treated as such)"
+    },
+    {
+      "id": "S67",
+      "title": "Killingly and Lacherez, \"The song that never ends\", 2023",
+      "url": "https://europepmc.org/article/PMC/PMC10585939",
+      "exact_url_in_bible": true,
+      "supports": "44 participants, four novel choruses heard 1 to 4 times, exposure increased later musical interference, familiarity and desire to sing along rose"
+    }
+  ],
+  "recipes": [
+    {
+      "id": "UEM-01",
+      "name": "Prelude harp arpeggio",
+      "lineage": "Uematsu FF I",
+      "rule": "Play the chord as an up then down broken chord over two octaves in sixteenths on pulse1, and repeat the same figure on pulse2 one eighth later at lower volume, so the pair reads as a harp with a delay",
+      "params": {
+        "subdivision": "16ths",
+        "octaves": "2",
+        "order": "up_then_down",
+        "notes": "chord_tones_only",
+        "delay_eighths": "1",
+        "vol_pct": "40",
+        "channel": "pulse1+pulse2"
+      },
+      "params_text": "subdivision=16ths; octaves=2; order=up_then_down; notes=chord_tones_only; delay_eighths=1; vol_pct=40; channel=pulse1+pulse2",
+      "use": [
+        "title",
+        "town",
+        "sad"
+      ],
+      "sources": [
+        "S7",
+        "S8"
+      ]
+    },
+    {
+      "id": "UEM-02",
+      "name": "Detuned shimmer pair",
+      "lineage": "Uematsu",
+      "rule": "Play one melody on two pulses at the same rhythm, the second pulse shifted a few cents flat and a fraction later, which is the trick that makes plain square tones feel emotional",
+      "params": {
+        "cents_offset": "-8",
+        "delay_ms": "18",
+        "vol_pct": "70",
+        "envelope": "soft_decay"
+      },
+      "params_text": "cents_offset=-8; delay_ms=18; vol_pct=70; envelope=soft_decay",
+      "use": [
+        "town",
+        "sad",
+        "character"
+      ],
+      "sources": [
+        "S8"
+      ]
+    },
+    {
+      "id": "UEM-03",
+      "name": "Maiden arpeggio and melody",
+      "lineage": "Uematsu FF III",
+      "rule": "Under a delicate single line melody, let a simple arpeggio of the chord run in eighths on pulse1 with the melody on vrc6_p1, keeping the arpeggio below the melody in register",
+      "params": {
+        "arp": "eighths",
+        "arp_register": "below_melody",
+        "melody_duty": "0.25",
+        "arp_duty": "0.125",
+        "chord_tones": "3"
+      },
+      "params_text": "arp=eighths; arp_register=below_melody; melody_duty=0.25; arp_duty=0.125; chord_tones=3",
+      "use": [
+        "sad",
+        "character"
+      ],
+      "sources": [
+        "S7"
+      ]
+    },
+    {
+      "id": "UEM-04",
+      "name": "Driving sixteenth battle riff",
+      "lineage": "Uematsu",
+      "rule": "Play a repeating sixteenth riff on pulse1 at a fixed two bar cell, put the root on the triangle on every beat, and put a noise hit on beats 2 and 4",
+      "params": {
+        "riff_cell_bars": "2",
+        "subdivision": "16ths",
+        "bass": "root_on_beats",
+        "noise_hits": "beats_2_and_4",
+        "tempo_floor": "140"
+      },
+      "params_text": "riff_cell_bars=2; subdivision=16ths; bass=root_on_beats; noise_hits=beats_2_and_4; tempo_floor=140",
+      "use": [
+        "battle"
+      ],
+      "sources": [
+        "S7"
+      ]
+    },
+    {
+      "id": "UEM-05",
+      "name": "Baroque fanfare cadence",
+      "lineage": "Uematsu FF II",
+      "rule": "End a cue with a rising arpeggio figure on pulse1, a sawtooth chord stab on vrc6_saw, then a single held tonic, in a shape that arrives at the last bar",
+      "params": {
+        "figure": "rising_arp",
+        "stab_channel": "vrc6_saw",
+        "final": "held_tonic",
+        "bars": "2"
+      },
+      "params_text": "figure=rising_arp; stab_channel=vrc6_saw; final=held_tonic; bars=2",
+      "use": [
+        "boss",
+        "title",
+        "town"
+      ],
+      "sources": [
+        "S7"
+      ]
+    },
+    {
+      "id": "UEM-06",
+      "name": "Ostinato under arpeggio",
+      "lineage": "Uematsu",
+      "rule": "Hold a repeated root and fifth ostinato on the triangle under the UEM-01 arpeggio, so the harmony is stated twice by two different voices",
+      "params": {
+        "pattern": "root_fifth",
+        "repetition": "per_bar",
+        "triangle": "fixed_volume",
+        "pulse2": "delayed_arp"
+      },
+      "params_text": "pattern=root_fifth; repetition=per_bar; triangle=fixed_volume; pulse2=delayed_arp",
+      "use": [
+        "title",
+        "field"
+      ],
+      "sources": [
+        "S7",
+        "S8"
+      ]
+    },
+    {
+      "id": "MOT-01",
+      "name": "Three note melody discipline",
+      "lineage": "Mother",
+      "rule": "Write the lead melody for one pulse channel only and put no more than three distinct pitches in any two bar span, because the NES cannot play three notes at once and Mother was written inside that limit",
+      "params": {
+        "max_pitches_per_2bars": "3",
+        "melody_channel": "pulse1",
+        "harmony_channel": "pulse2"
+      },
+      "params_text": "max_pitches_per_2bars=3; melody_channel=pulse1; harmony_channel=pulse2",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S9"
+      ]
+    },
+    {
+      "id": "MOT-02",
+      "name": "Jazz town shuffle",
+      "lineage": "EarthBound",
+      "rule": "Write a town cue with a swung eighth feel over a walking triangle bass, and give the melody a blue third, because EarthBound deliberately carried more jazzy pieces than Mother",
+      "params": {
+        "feel": "shuffle_2_3",
+        "bass": "walking_root_third_approach",
+        "melody_colour": "blue_third",
+        "cue": "town"
+      },
+      "params_text": "feel=shuffle_2_3; bass=walking_root_third_approach; melody_colour=blue_third; cue=town",
+      "use": [
+        "town"
+      ],
+      "sources": [
+        "S9"
+      ]
+    },
+    {
+      "id": "MOT-03",
+      "name": "Slow vibrato on held notes",
+      "lineage": "EarthBound",
+      "rule": "Bend the pitch of any melody note held longer than a quarter note by a few cents and back, the string bending that EarthBound is credited with bringing to a video game",
+      "params": {
+        "bend_cents": "18",
+        "bend_rate_hz": "5",
+        "applies_to": "notes_longer_than_quarter",
+        "channel": "vrc6_p1"
+      },
+      "params_text": "bend_cents=18; bend_rate_hz=5; applies_to=notes_longer_than_quarter; channel=vrc6_p1",
+      "use": [
+        "sad",
+        "town"
+      ],
+      "sources": [
+        "S9"
+      ]
+    },
+    {
+      "id": "MOT-04",
+      "name": "Bicycle lilt",
+      "lineage": "EarthBound",
+      "rule": "Write a travel cue in a compound feel with a skipping melody in thirds, a light triangle accompaniment on beats 1 and 3, and no drum layer at all",
+      "params": {
+        "meter": "6/8",
+        "melody": "thirds",
+        "triangle": "beats_1_and_3",
+        "drums": "none",
+        "tempo": "medium"
+      },
+      "params_text": "meter=6/8; melody=thirds; triangle=beats_1_and_3; drums=none; tempo=medium",
+      "use": [
+        "field",
+        "town"
+      ],
+      "sources": [
+        "S9"
+      ]
+    },
+    {
+      "id": "MOT-05",
+      "name": "Style switch per place",
+      "lineage": "Mother",
+      "rule": "Give each location its own style and its own rhythmic signature, and let the piece change style between locations rather than varying one global theme",
+      "params": {
+        "style_per_location": "yes",
+        "new_rhythm_signature_per_location": "yes",
+        "shared_melody": "no"
+      },
+      "params_text": "style_per_location=yes; new_rhythm_signature_per_location=yes; shared_melody=no",
+      "use": [
+        "town",
+        "field",
+        "secret"
+      ],
+      "sources": [
+        "S9",
+        "S11"
+      ]
+    },
+    {
+      "id": "MOT-06",
+      "name": "Music and effects as one",
+      "lineage": "Tanaka",
+      "rule": "Use the noise channel as part of the arrangement, not only as a separate effect layer, so that the track and the sound effects share one surface",
+      "params": {
+        "noise_in_arrangement": "yes",
+        "noise_role": "texture_and_rhythm",
+        "separate_sfx_layer": "no"
+      },
+      "params_text": "noise_in_arrangement=yes; noise_role=texture_and_rhythm; separate_sfx_layer=no",
+      "use": [
+        "secret",
+        "battle",
+        "field"
+      ],
+      "sources": [
+        "S10"
+      ]
+    },
+    {
+      "id": "MOT-07",
+      "name": "One finger singable theme",
+      "lineage": "Mother",
+      "rule": "Write the theme as a single line, stepwise, with no leap larger than a fourth and no more than one chromatic note in the whole phrase, so that a beginner can play it with one finger and hum it",
+      "params": {
+        "max_leap": "perfect_fourth",
+        "stepwise": "yes",
+        "chromatic_notes_max": "1",
+        "range": "one_octave"
+      },
+      "params_text": "max_leap=perfect_fourth; stepwise=yes; chromatic_notes_max=1; range=one_octave",
+      "use": [
+        "title",
+        "sad",
+        "character"
+      ],
+      "sources": [
+        "S11"
+      ]
+    },
+    {
+      "id": "MOT-08",
+      "name": "Layered hidden motif",
+      "lineage": "Mother",
+      "rule": "Keep one secondary motif in reserve and reveal it only in the secret or late scene, so the earlier scenes feel like they were hiding something",
+      "params": {
+        "motif": "secondary_cell",
+        "reveal_scene": "secret",
+        "earlier_scenes": "omit",
+        "cell_length": "3_notes"
+      },
+      "params_text": "motif=secondary_cell; reveal_scene=secret; earlier_scenes=omit; cell_length=3_notes",
+      "use": [
+        "secret",
+        "boss"
+      ],
+      "sources": [
+        "S9",
+        "S11"
+      ]
+    },
+    {
+      "id": "FOX-01",
+      "name": "Recast the leitmotif",
+      "lineage": "Fox",
+      "rule": "Reuse the same melodic cell in a new scene and change only the instrumentation and the register, never the notes, so the listener recognises the place from the melody",
+      "params": {
+        "melody": "fixed",
+        "change": "instrumentation_and_register_only",
+        "reuse": "across_cues"
+      },
+      "params_text": "melody=fixed; change=instrumentation_and_register_only; reuse=across_cues",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S13"
+      ]
+    },
+    {
+      "id": "FOX-02",
+      "name": "Adaptive instrument on a state flag",
+      "lineage": "Fox",
+      "rule": "Bind the instrument of the current cue to a game state flag, so the same cue plays as a different instrument when the state changes, as the music box variant does",
+      "params": {
+        "trigger": "state_flag",
+        "mapping": "instrument_to_flag",
+        "melody": "unchanged",
+        "swap": "soundfont"
+      },
+      "params_text": "trigger=state_flag; mapping=instrument_to_flag; melody=unchanged; swap=soundfont",
+      "use": [
+        "town",
+        "secret"
+      ],
+      "sources": [
+        "S13"
+      ]
+    },
+    {
+      "id": "FOX-03",
+      "name": "Music first, scene second",
+      "lineage": "Fox",
+      "rule": "Write the cue before the scene it belongs to, then name the scene in the cue metadata, so the music sets the emotion the scene then has to carry",
+      "params": {
+        "order": "music_then_scene",
+        "cue_metadata": "scene_name",
+        "reuse_of_earlier_cue": "allowed"
+      },
+      "params_text": "order=music_then_scene; cue_metadata=scene_name; reuse_of_earlier_cue=allowed",
+      "use": [
+        "title",
+        "sad",
+        "character"
+      ],
+      "sources": [
+        "S12",
+        "S13"
+      ]
+    },
+    {
+      "id": "FOX-04",
+      "name": "Simple line that grows",
+      "lineage": "Fox",
+      "rule": "Keep the melody inside a narrow range with one deliberate deviation, then let the arrangement grow around it without changing the melody",
+      "params": {
+        "range": "one_octave",
+        "deviations": "1",
+        "arrangement_growth": "add_voices",
+        "melody": "unchanged"
+      },
+      "params_text": "range=one_octave; deviations=1; arrangement_growth=add_voices; melody=unchanged",
+      "use": [
+        "title",
+        "town",
+        "field"
+      ],
+      "sources": [
+        "S13"
+      ]
+    },
+    {
+      "id": "FOX-05",
+      "name": "Character theme with a signature rhythm",
+      "lineage": "Fox",
+      "rule": "Give each character theme one rhythmic signature, a fixed two or three note figure that carries the personality, and keep the drum pattern behind it constant and driving",
+      "params": {
+        "signature": "one_rhythmic_figure",
+        "drums": "driving_constant",
+        "figure_bars": "1"
+      },
+      "params_text": "signature=one_rhythmic_figure; drums=driving_constant; figure_bars=1",
+      "use": [
+        "character",
+        "battle"
+      ],
+      "sources": [
+        "S13"
+      ]
+    },
+    {
+      "id": "FOX-06",
+      "name": "Field then town, same melody",
+      "lineage": "Fox",
+      "rule": "Write a sparse field cue with a small instrumental palette, then write the town cue as the same melody with more voices and a brighter rhythm",
+      "params": {
+        "melody": "identical",
+        "field_voices": "2",
+        "town_voices": "4",
+        "brightness": "rhythm_and_drums"
+      },
+      "params_text": "melody=identical; field_voices=2; town_voices=4; brightness=rhythm_and_drums",
+      "use": [
+        "field",
+        "town"
+      ],
+      "sources": [
+        "S13"
+      ]
+    },
+    {
+      "id": "FOX-07",
+      "name": "Small synth set for the whole score",
+      "lineage": "Fox",
+      "rule": "Restrict the whole score to one small set of soundfonts and synths and reuse them everywhere, as the 2015 2D RPG score does with its soundfonts",
+      "params": {
+        "soundfont_count": "6",
+        "reuse": "everywhere",
+        "variation": "register_and_envelope_only"
+      },
+      "params_text": "soundfont_count=6; reuse=everywhere; variation=register_and_envelope_only",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S13",
+        "S15"
+      ]
+    },
+    {
+      "id": "CHIP-01",
+      "name": "Duty layering for melody and accompaniment",
+      "lineage": "APU",
+      "rule": "Give the lead a 12.5 or 25 percent duty pulse and the accompaniment a 50 percent duty pulse, so the two voices stay separable under the mixer",
+      "params": {
+        "lead_duty": "0.125",
+        "accomp_duty": "0.50",
+        "separation": "by_duty"
+      },
+      "params_text": "lead_duty=0.125; accomp_duty=0.50; separation=by_duty",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S1"
+      ]
+    },
+    {
+      "id": "CHIP-02",
+      "name": "Triangle bass with envelope bass",
+      "lineage": "APU",
+      "rule": "Put the bass line on the triangle and vary its loudness with the sweep unit falling in pitch on each note, which is the classic NES bass envelope",
+      "params": {
+        "channel": "triangle",
+        "pitch": "falling_sweep_per_note",
+        "base": "root",
+        "volume": "triangle_fixed"
+      },
+      "params_text": "channel=triangle; pitch=falling_sweep_per_note; base=root; volume=triangle_fixed",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S1"
+      ]
+    },
+    {
+      "id": "CHIP-03",
+      "name": "Noise kit from the LFSR rates",
+      "lineage": "APU",
+      "rule": "Build the percussion kit from the noise channel only: a short high rate burst for the hat, a mid rate burst for the snare, and a periodic mode burst for a metallic hit",
+      "params": {
+        "hat": "short_high_rate",
+        "snare": "mid_rate_burst",
+        "metal": "periodic_mode",
+        "rates": "from_published_table"
+      },
+      "params_text": "hat=short_high_rate; snare=mid_rate_burst; metal=periodic_mode; rates=from_published_table",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S3"
+      ]
+    },
+    {
+      "id": "CHIP-04",
+      "name": "DPCM kick",
+      "lineage": "DMC",
+      "rule": "Use the sample channel for a kick drum, because a one bit sample gives a pitched thump that the noise channel cannot, and keep the sample short",
+      "params": {
+        "sample_length": "short",
+        "pitch_from": "rate_index",
+        "use": "kick_only",
+        "loop": "no"
+      },
+      "params_text": "sample_length=short; pitch_from=rate_index; use=kick_only; loop=no",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S4"
+      ]
+    },
+    {
+      "id": "CHIP-05",
+      "name": "Sawtooth pad and oom pah",
+      "lineage": "VRC6",
+      "rule": "Use the VRC6 sawtooth as a sustained pad on long values and as an oom pah two hit stab on beats 2 and 3 of a waltz, with a rate that stays under the distortion threshold",
+      "params": {
+        "channel": "vrc6_saw",
+        "accum_rate_max": "42",
+        "mode": "pad_or_oom_pah",
+        "waltz_stabs": "beats_2_and_3"
+      },
+      "params_text": "channel=vrc6_saw; accum_rate_max=42; mode=pad_or_oom_pah; waltz_stabs=beats_2_and_3",
+      "use": [
+        "title",
+        "town",
+        "boss"
+      ],
+      "sources": [
+        "S6"
+      ]
+    },
+    {
+      "id": "CHIP-06",
+      "name": "VRC6 pulse doubling and echo",
+      "lineage": "VRC6",
+      "rule": "Double the lead with the second VRC6 pulse a step below, or use the VRC6 pulse in 100 percent mode as a flat organ voice for a held chord",
+      "params": {
+        "doubling": "parallel_at_third_below",
+        "mode_100": "organ_held_chord",
+        "duty_range": "0.0625_to_0.5"
+      },
+      "params_text": "doubling=parallel_at_third_below; mode_100=organ_held_chord; duty_range=0.0625_to_0.5",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S5",
+        "S6"
+      ]
+    },
+    {
+      "id": "CHIP-07",
+      "name": "Falling sweep line",
+      "lineage": "APU",
+      "rule": "Express a falling melody line by enabling the sweep unit with the negate flag so the pitch glides down under each note",
+      "params": {
+        "sweep": "negate_falling",
+        "note_length": "quarter",
+        "register": "upper"
+      },
+      "params_text": "sweep=negate_falling; note_length=quarter; register=upper",
+      "use": [
+        "sad",
+        "boss"
+      ],
+      "sources": [
+        "S1"
+      ]
+    },
+    {
+      "id": "CHIP-08",
+      "name": "Delayed echo voice",
+      "lineage": "APU",
+      "rule": "Send a copy of the lead to the second pulse one eighth later at reduced volume, the way the FF I Prelude does, and vary the delay across sections",
+      "params": {
+        "delay_eighths": "1",
+        "vol_pct": "40",
+        "varies_per_section": "yes"
+      },
+      "params_text": "delay_eighths=1; vol_pct=40; varies_per_section=yes",
+      "use": [
+        "title",
+        "town",
+        "sad"
+      ],
+      "sources": [
+        "S1",
+        "S7",
+        "S16"
+      ]
+    },
+    {
+      "id": "GRM-01",
+      "name": "Instantiate a mood grammar",
+      "lineage": "this bible",
+      "rule": "Pick the grammar for the mood of the scene from section 7, draw the progression for the key of the cue, and drop the section that does not fit the scene's function",
+      "params": {
+        "key": "scene_key",
+        "progression": "from_section_7",
+        "drop_rule": "scene_function"
+      },
+      "params_text": "key=scene_key; progression=from_section_7; drop_rule=scene_function",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S16"
+      ]
+    },
+    {
+      "id": "BAR-01",
+      "name": "Two voice imitative entry",
+      "lineage": "Baroque",
+      "rule": "State the subject on pulse1, bring pulse2 in on the same subject one bar later at the fifth above, and give pulse1 free eighths from that point so the two voices never move in the same rhythm",
+      "params": {
+        "subject_bars": "1",
+        "entry_delay_bars": "1",
+        "entry_interval": "perfect_fifth_above",
+        "counter_voice": "eighths",
+        "channels": "pulse1+pulse2"
+      },
+      "params_text": "subject_bars=1; entry_delay_bars=1; entry_interval=perfect_fifth_above; counter_voice=eighths; channels=pulse1+pulse2",
+      "use": [
+        "title",
+        "town",
+        "boss"
+      ],
+      "sources": [
+        "S17",
+        "S18"
+      ]
+    },
+    {
+      "id": "BAR-02",
+      "name": "Four entry exposition",
+      "lineage": "Bach fugue practice",
+      "rule": "Alternate subject and answer on the two pulses for four entries, with a two bar episode between entries, and drop the entry that would collide rather than voice crossing",
+      "params": {
+        "entries": "4",
+        "pattern": "subject_answer_subject_answer",
+        "episode_bars": "2",
+        "collision_rule": "drop_entry"
+      },
+      "params_text": "entries=4; pattern=subject_answer_subject_answer; episode_bars=2; collision_rule=drop_entry",
+      "use": [
+        "title",
+        "boss"
+      ],
+      "sources": [
+        "S18",
+        "S17"
+      ]
+    },
+    {
+      "id": "BAR-03",
+      "name": "Tonal sequence",
+      "lineage": "Baroque and Classical",
+      "rule": "Restate a two beat motif at the next scale step, three segments in one direction, then cadence; use diatonic transposition so the sequence stays in key",
+      "params": {
+        "cell_beats": "2",
+        "sequence_segments": "3",
+        "direction": "up",
+        "step": "diatonic_second",
+        "end": "cadence"
+      },
+      "params_text": "cell_beats=2; sequence_segments=3; direction=up; step=diatonic_second; end=cadence",
+      "use": [
+        "title",
+        "town",
+        "boss"
+      ],
+      "sources": [
+        "S22"
+      ]
+    },
+    {
+      "id": "BAR-04",
+      "name": "Circle of fifths descent",
+      "lineage": "Baroque harmony",
+      "rule": "Move the roots down a fifth every bar for four bars and put the function order pre-dominant to dominant to tonic at the end of the chain, with the root on the triangle and the chord broken on pulse2",
+      "params": {
+        "root_motion": "descending_fifths",
+        "bars": "4",
+        "bass": "triangle_root",
+        "arp": "pulse2",
+        "seventh_allowed": "yes"
+      },
+      "params_text": "root_motion=descending_fifths; bars=4; bass=triangle_root; arp=pulse2; seventh_allowed=yes",
+      "use": [
+        "title",
+        "town",
+        "ending"
+      ],
+      "sources": [
+        "S20",
+        "S21"
+      ]
+    },
+    {
+      "id": "BAR-05",
+      "name": "Ground bass",
+      "lineage": "Baroque",
+      "rule": "Repeat one four bar triangle figure exactly two to four times and change only the pulse parts above it, so the bass is the fixed point and the melody is the argument",
+      "params": {
+        "ground_bars": "4",
+        "repetitions": "2_to_4",
+        "bass": "triangle",
+        "upper": "varied",
+        "rhythm_fixed": "yes"
+      },
+      "params_text": "ground_bars=4; repetitions=2_to_4; bass=triangle; upper=varied; rhythm_fixed=yes",
+      "use": [
+        "boss",
+        "secret",
+        "title"
+      ],
+      "sources": [
+        "S21",
+        "S20"
+      ]
+    },
+    {
+      "id": "BAR-06",
+      "name": "Trill on a long note",
+      "lineage": "Baroque ornament",
+      "rule": "When a melody note is a quarter or longer, alternate it with the upper diatonic neighbour in 32nds for the last third of its value, on 12.5 percent duty so the two pitches stay distinct",
+      "params": {
+        "ornament_rate": "32nd",
+        "interval": "upper_second",
+        "duration_pct_of_note": "33",
+        "duty": "0.125",
+        "note_floor": "quarter"
+      },
+      "params_text": "ornament_rate=32nd; interval=upper_second; duration_pct_of_note=33; duty=0.125; note_floor=quarter",
+      "use": [
+        "title",
+        "town",
+        "character"
+      ],
+      "sources": [
+        "S19",
+        "S1"
+      ]
+    },
+    {
+      "id": "BAR-07",
+      "name": "Mordent on an accent",
+      "lineage": "Baroque ornament",
+      "rule": "Start an accented note with three quick notes main, lower neighbour, main at 64th rate, which costs two frames and marks the beat",
+      "params": {
+        "figure": "main_lower_main",
+        "ornament_rate": "64th",
+        "position": "start_of_note",
+        "cost_frames": "2"
+      },
+      "params_text": "figure=main_lower_main; ornament_rate=64th; position=start_of_note; cost_frames=2",
+      "use": [
+        "title",
+        "town"
+      ],
+      "sources": [
+        "S19"
+      ]
+    },
+    {
+      "id": "BAR-08",
+      "name": "Arpeggiated chord figure",
+      "lineage": "Baroque keyboard practice",
+      "rule": "Break the chord root, third, fifth, octave upward in sixteenths over two octaves on pulse2, which is the chip's only way to state a triad and the Baroque way to state it too",
+      "params": {
+        "order": "root_third_fifth_octave",
+        "subdivision": "16ths",
+        "octaves": "2",
+        "channel": "pulse2",
+        "sustain_last": "no"
+      },
+      "params_text": "order=root_third_fifth_octave; subdivision=16ths; octaves=2; channel=pulse2; sustain_last=no",
+      "use": [
+        "title",
+        "town",
+        "ending"
+      ],
+      "sources": [
+        "S35",
+        "S7"
+      ]
+    },
+    {
+      "id": "BAR-09",
+      "name": "Dance pair, binary",
+      "lineage": "Baroque suite",
+      "rule": "Write section A of 8 bars in the tonic and section B of 8 bars starting on the dominant, repeat both, and keep one rhythmic figure for the whole dance",
+      "params": {
+        "form": "binary_repeats",
+        "A_bars": "8",
+        "B_bars": "8",
+        "B_start": "dominant",
+        "repeat": "both"
+      },
+      "params_text": "form=binary_repeats; A_bars=8; B_bars=8; B_start=dominant; repeat=both",
+      "use": [
+        "town",
+        "field"
+      ],
+      "sources": [
+        "S27",
+        "S22"
+      ]
+    },
+    {
+      "id": "BAR-10",
+      "name": "Cadential trill to the tonic",
+      "lineage": "Baroque cadence",
+      "rule": "Put the trill on the penultimate note of the phrase and land the tonic on the last beat, with the bass moving fifth to first under it, so the ornament and the cadence are one gesture",
+      "params": {
+        "ornament": "BAR-06",
+        "cadence": "V_to_i",
+        "landing_beat": "last",
+        "bass": "triangle"
+      },
+      "params_text": "ornament=BAR-06; cadence=V_to_i; landing_beat=last; bass=triangle",
+      "use": [
+        "ending",
+        "title",
+        "town"
+      ],
+      "sources": [
+        "S19",
+        "S24"
+      ]
+    },
+    {
+      "id": "BAR-11",
+      "name": "Cantus firmus against motion",
+      "lineage": "Baroque counterpoint",
+      "rule": "Hold long values on pulse2 (halves and wholes) while pulse1 moves in eighths, forbid voice crossing, and let the slow voice change only on strong beats so the motion is audibly one voice",
+      "params": {
+        "slow_voice": "pulse2",
+        "slow_values": "half_or_whole",
+        "fast_voice": "pulse1",
+        "fast_values": "eighths",
+        "crossing": "none"
+      },
+      "params_text": "slow_voice=pulse2; slow_values=half_or_whole; fast_voice=pulse1; fast_values=eighths; crossing=none",
+      "use": [
+        "town",
+        "sad",
+        "secret"
+      ],
+      "sources": [
+        "S17"
+      ]
+    },
+    {
+      "id": "BAR-12",
+      "name": "Organ chorale stab",
+      "lineage": "Baroque, VRC6",
+      "rule": "Use the first VRC6 pulse in 100 percent duty as a held chorale voice, move one voice at a time, and double the bass on the triangle so the four voice texture reads as four voices on seven channels",
+      "params": {
+        "channel": "vrc6_p1",
+        "duty": "1.0",
+        "motion": "one_voice_at_a_time",
+        "bass": "triangle_doubling",
+        "voices": "4"
+      },
+      "params_text": "channel=vrc6_p1; duty=1.0; motion=one_voice_at_a_time; bass=triangle_doubling; voices=4",
+      "use": [
+        "title",
+        "town",
+        "ending"
+      ],
+      "sources": [
+        "S6",
+        "S17"
+      ]
+    },
+    {
+      "id": "CLS-01",
+      "name": "Alberti bass",
+      "lineage": "Classical",
+      "rule": "Under the melody, break the chord on pulse2 in the order lowest, highest, middle, highest at eighth rate, one chord per bar, which is the standard Classical accompaniment and costs exactly one channel",
+      "params": {
+        "order": "lowest_highest_middle_highest",
+        "subdivision": "8ths",
+        "chord_per_bars": "1",
+        "channel": "pulse2"
+      },
+      "params_text": "order=lowest_highest_middle_highest; subdivision=8ths; chord_per_bars=1; channel=pulse2",
+      "use": [
+        "town",
+        "title",
+        "field"
+      ],
+      "sources": [
+        "S23"
+      ]
+    },
+    {
+      "id": "CLS-02",
+      "name": "Antecedent and consequent",
+      "lineage": "Classical period",
+      "rule": "Write an 8 bar period as 4 plus 4, the antecedent ending on a half cadence and the consequent ending on an authentic cadence, with both phrases opening on the same motif",
+      "params": {
+        "phrase_bars": "4",
+        "period_bars": "8",
+        "cadence_a": "half",
+        "cadence_b": "authentic",
+        "opening": "shared_motif"
+      },
+      "params_text": "phrase_bars=4; period_bars=8; cadence_a=half; cadence_b=authentic; opening=shared_motif",
+      "use": [
+        "town",
+        "character",
+        "title"
+      ],
+      "sources": [
+        "S28",
+        "S37"
+      ]
+    },
+    {
+      "id": "CLS-03",
+      "name": "Cadence palette",
+      "lineage": "Classical",
+      "rule": "End every phrase with one of the four named cadences: authentic V to I for closure, half ending on V for a question, plagal IV to I for a soft end, deceptive V to vi for a dodge, and never leave a phrase without one",
+      "params": {
+        "authentic": "V7_to_i",
+        "half": "any_to_V",
+        "plagal": "IV_to_I",
+        "deceptive": "V7_to_vi",
+        "phrases_unclosed": "0"
+      },
+      "params_text": "authentic=V7_to_i; half=any_to_V; plagal=IV_to_I; deceptive=V7_to_vi; phrases_unclosed=0",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S24",
+        "S37"
+      ]
+    },
+    {
+      "id": "CLS-04",
+      "name": "Compressed sonata",
+      "lineage": "Classical",
+      "rule": "Build a 32 bar cue as 8 bars of theme A in the tonic, 8 bars of theme B in the dominant, 8 bars of development sequencing the A cell, 8 bars recapitulating both themes in the tonic, which is the shortest honest sonata form on this chip",
+      "params": {
+        "A_bars": "8",
+        "B_bars": "8",
+        "development_bars": "8",
+        "recap_bars": "8",
+        "B_key": "dominant",
+        "recap_key": "tonic",
+        "total_bars": "32"
+      },
+      "params_text": "A_bars=8; B_bars=8; development_bars=8; recap_bars=8; B_key=dominant; recap_key=tonic; total_bars=32",
+      "use": [
+        "boss",
+        "battle"
+      ],
+      "sources": [
+        "S25"
+      ]
+    },
+    {
+      "id": "CLS-05",
+      "name": "Rondo refrain loop",
+      "lineage": "Classical",
+      "rule": "Alternate an 8 bar refrain with two 8 bar episodes, episode one in the dominant and episode two in the relative major or minor, then close on the refrain, giving a 40 bar loop that does not read as a loop",
+      "params": {
+        "form": "ABACA",
+        "refrain_bars": "8",
+        "episode_bars": "8",
+        "episode_1_key": "dominant",
+        "episode_2_key": "relative",
+        "total_bars": "40"
+      },
+      "params_text": "form=ABACA; refrain_bars=8; episode_bars=8; episode_1_key=dominant; episode_2_key=relative; total_bars=40",
+      "use": [
+        "town",
+        "field",
+        "title"
+      ],
+      "sources": [
+        "S26"
+      ]
+    },
+    {
+      "id": "CLS-06",
+      "name": "Minuet figure",
+      "lineage": "Classical dance",
+      "rule": "Write 3/4 with the bass on beat 1, a chord stab on beats 2 and 3, an 8 bar binary section repeated, and the melody in quarters with a stepwise lift on beat 3",
+      "params": {
+        "meter": "3/4",
+        "bars": "8",
+        "repeat": "yes",
+        "bass": "beat_1",
+        "stabs": "beats_2_and_3",
+        "melody": "quarters"
+      },
+      "params_text": "meter=3/4; bars=8; repeat=yes; bass=beat_1; stabs=beats_2_and_3; melody=quarters",
+      "use": [
+        "town",
+        "title"
+      ],
+      "sources": [
+        "S27",
+        "S1"
+      ]
+    },
+    {
+      "id": "CLS-07",
+      "name": "Waltz at cue tempo",
+      "lineage": "Classical dance",
+      "rule": "Take the minuet figure to 130 to 160 bpm, put the melody in dotted rhythms in the second half of each bar, and keep the beat 2 and 3 stabs on the saw channel so the dance pulse survives the tempo",
+      "params": {
+        "meter": "3/4",
+        "tempo_min": "130",
+        "tempo_max": "160",
+        "melody": "dotted_second_half",
+        "stabs": "vrc6_saw"
+      },
+      "params_text": "meter=3/4; tempo_min=130; tempo_max=160; melody=dotted_second_half; stabs=vrc6_saw",
+      "use": [
+        "title",
+        "town",
+        "ending"
+      ],
+      "sources": [
+        "S27",
+        "S16"
+      ]
+    },
+    {
+      "id": "CLS-08",
+      "name": "Function rule",
+      "lineage": "Classical harmony",
+      "rule": "Label every chord tonic, pre-dominant or dominant before writing it, and forbid a pre-dominant from moving to another pre-dominant except ii to IV; this one rule removes most amateur harmonic stalls",
+      "params": {
+        "functions": "T_PD_D",
+        "pre_to_pre": "forbidden_except_ii_IV",
+        "cadence_every": "phrase_end"
+      },
+      "params_text": "functions=T_PD_D; pre_to_pre=forbidden_except_ii_IV; cadence_every=phrase_end",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S24",
+        "S28"
+      ]
+    },
+    {
+      "id": "CLS-09",
+      "name": "Minor close, counted",
+      "lineage": "Classical, minor key",
+      "rule": "Take the i, iv, V7, i close and give each chord a stated number of bars, two then two then two then two, with the V7 held longest so the arrival is heard",
+      "params": {
+        "progression": "i_iv_V7_i",
+        "bars_per_chord": "2",
+        "V7_bars": "2",
+        "cadence": "authentic"
+      },
+      "params_text": "progression=i_iv_V7_i; bars_per_chord=2; V7_bars=2; cadence=authentic",
+      "use": [
+        "ending",
+        "town",
+        "boss"
+      ],
+      "sources": [
+        "S24",
+        "S37"
+      ]
+    },
+    {
+      "id": "CLS-10",
+      "name": "Turnaround, counted",
+      "lineage": "Popular and Classical",
+      "rule": "Play I, vi, ii, V one bar each to close a section and reopen it, with the V on the last bar, which is the cheapest four bar engine in the score",
+      "params": {
+        "progression": "I_vi_ii_V",
+        "bars_per_chord": "1",
+        "section_bars": "4",
+        "last_chord": "V"
+      },
+      "params_text": "progression=I_vi_ii_V; bars_per_chord=1; section_bars=4; last_chord=V",
+      "use": [
+        "town",
+        "battle",
+        "title"
+      ],
+      "sources": [
+        "S24",
+        "S28"
+      ]
+    },
+    {
+      "id": "CLS-11",
+      "name": "Secondary dominant",
+      "lineage": "Classical and later",
+      "rule": "One bar before a target chord, play the dominant seventh of that target, resolve it on the next bar, and allow at most one secondary dominant per four bars so the colour reads as an event",
+      "params": {
+        "pattern": "V7_of_target",
+        "resolve": "next_bar",
+        "max_per_bars": "4",
+        "targets": "ii_IV_V"
+      },
+      "params_text": "pattern=V7_of_target; resolve=next_bar; max_per_bars=4; targets=ii_IV_V",
+      "use": [
+        "town",
+        "boss",
+        "ending"
+      ],
+      "sources": [
+        "S24",
+        "S32"
+      ]
+    },
+    {
+      "id": "CLS-12",
+      "name": "Four bar phrase rhythm",
+      "lineage": "Classical",
+      "rule": "Put one chord per bar, one cadence every four bars, and never the same chord on both sides of a cadence, so the harmonic rhythm and the phrase rhythm agree",
+      "params": {
+        "chord_per_bars": "1",
+        "cadence_every_bars": "4",
+        "repeat_across_cadence": "no"
+      },
+      "params_text": "chord_per_bars=1; cadence_every_bars=4; repeat_across_cadence=no",
+      "use": [
+        "town",
+        "field",
+        "character"
+      ],
+      "sources": [
+        "S37",
+        "S28"
+      ]
+    },
+    {
+      "id": "RCK-01",
+      "name": "Power chord on two pulses",
+      "lineage": "Rock",
+      "rule": "Play the root on pulse1 and the fifth on pulse2 on the same grid at 50 percent duty, with no third anywhere, which is a real power chord and the only triad the chip can voice",
+      "params": {
+        "interval": "perfect_fifth",
+        "channels": "pulse1+pulse2",
+        "third": "omitted",
+        "duty": "0.5",
+        "grid": "8ths"
+      },
+      "params_text": "interval=perfect_fifth; channels=pulse1+pulse2; third=omitted; duty=0.5; grid=8ths",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S29",
+        "S1"
+      ]
+    },
+    {
+      "id": "RCK-02",
+      "name": "Octave doubled power chord",
+      "lineage": "Rock, VRC6",
+      "rule": "Add the octave of the root on the first VRC6 pulse at the same rhythm and lower volume, so the chord gains size without gaining a third",
+      "params": {
+        "voicing": "root_fifth_octave",
+        "octave_channel": "vrc6_p1",
+        "vol_pct": "70",
+        "third": "omitted"
+      },
+      "params_text": "voicing=root_fifth_octave; octave_channel=vrc6_p1; vol_pct=70; third=omitted",
+      "use": [
+        "boss",
+        "battle"
+      ],
+      "sources": [
+        "S29",
+        "S6"
+      ]
+    },
+    {
+      "id": "RCK-03",
+      "name": "Palm mute by envelope",
+      "lineage": "Rock and metal",
+      "rule": "Give every muted chord an envelope decay of three frames from volume 10 to 0 and a 50 percent gate, which is the chip's palm mute: the attack is the whole note",
+      "params": {
+        "decay_frames": "3",
+        "vol_start": "10",
+        "gate_pct": "50",
+        "applies": "chords_on_the_grid"
+      },
+      "params_text": "decay_frames=3; vol_start=10; gate_pct=50; applies=chords_on_the_grid",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S30",
+        "S1"
+      ]
+    },
+    {
+      "id": "RCK-04",
+      "name": "Triangle root pulse",
+      "lineage": "Rock bass",
+      "rule": "Put the root on the triangle on every eighth with an accent on beats 1 and 3, and jump the octave only on the last beat before a chord change, so the bass drives without competing with the riff",
+      "params": {
+        "pattern": "root_eighths",
+        "accent": "beats_1_and_3",
+        "octave_jump": "last_beat",
+        "channel": "triangle"
+      },
+      "params_text": "pattern=root_eighths; accent=beats_1_and_3; octave_jump=last_beat; channel=triangle",
+      "use": [
+        "battle",
+        "boss",
+        "town"
+      ],
+      "sources": [
+        "S1",
+        "S29"
+      ]
+    },
+    {
+      "id": "RCK-05",
+      "name": "Rock drum kit",
+      "lineage": "Rock",
+      "rule": "Build the kit as DPCM kick on beats 1 and 3, noise snare on 2 and 4, and noise hat on every eighth, with the hat rate high enough to sit above the riff",
+      "params": {
+        "kick_grid": "beats_1_and_3",
+        "snare_grid": "beats_2_and_4",
+        "hat_grid": "8ths",
+        "kick": "dpcm",
+        "snare": "noise"
+      },
+      "params_text": "kick_grid=beats_1_and_3; snare_grid=beats_2_and_4; hat_grid=8ths; kick=dpcm; snare=noise",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S4",
+        "S3"
+      ]
+    },
+    {
+      "id": "RCK-06",
+      "name": "Minor pentatonic riff",
+      "lineage": "Rock",
+      "rule": "Write the riff from 1, b3, 4, 5, b7 only, in a two bar cell, with the root on the beat and the highest scale tone on the last beat of the cell",
+      "params": {
+        "scale": "minor_pentatonic",
+        "cell_bars": "2",
+        "root_on_beat": "yes",
+        "peak": "last_beat",
+        "semitones": "none"
+      },
+      "params_text": "scale=minor_pentatonic; cell_bars=2; root_on_beat=yes; peak=last_beat; semitones=none",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S33",
+        "S39"
+      ]
+    },
+    {
+      "id": "RCK-07",
+      "name": "Dorian chorus",
+      "lineage": "Rock",
+      "rule": "Keep the riff minor but raise the sixth, so the major chord on the fourth degree is available, and use that chord as the chorus arrival",
+      "params": {
+        "scale": "dorian",
+        "sixth": "raised",
+        "vamp": "i_IV",
+        "cell_bars": "2",
+        "chorus_chord": "IV"
+      },
+      "params_text": "scale=dorian; sixth=raised; vamp=i_IV; cell_bars=2; chorus_chord=IV",
+      "use": [
+        "boss",
+        "battle",
+        "field"
+      ],
+      "sources": [
+        "S34"
+      ]
+    },
+    {
+      "id": "RCK-08",
+      "name": "Gallop rhythm",
+      "lineage": "Rock and metal",
+      "rule": "Play eighth then two sixteenths, repeated every beat, on muted dyads, which is the gallop and the cheapest way to make a two bar cell sound fast",
+      "params": {
+        "pattern": "eighth_two_sixteenths",
+        "repeats": "per_beat",
+        "muted": "yes",
+        "decay_frames": "2"
+      },
+      "params_text": "pattern=eighth_two_sixteenths; repeats=per_beat; muted=yes; decay_frames=2",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S30",
+        "S31"
+      ]
+    },
+    {
+      "id": "RCK-09",
+      "name": "Half time riff",
+      "lineage": "Rock",
+      "rule": "Halve the riff's note values to quarters, keep the hat in eighths and the snare on 2 and 4, so the same riff reads as heavy instead of fast, which is the contrast the boss cue needs",
+      "params": {
+        "riff_values": "quarters",
+        "drums": "half_time",
+        "hat": "eighths",
+        "tempo_pct": "100"
+      },
+      "params_text": "riff_values=quarters; drums=half_time; hat=eighths; tempo_pct=100",
+      "use": [
+        "boss",
+        "battle"
+      ],
+      "sources": [
+        "S29",
+        "S3"
+      ]
+    },
+    {
+      "id": "RCK-10",
+      "name": "Bend into the blue note",
+      "lineage": "Rock, APU sweep",
+      "rule": "Use the sweep unit with the negate flag to glide up a semitone onto the flat third and back over a quarter note, so the blue note arrives by bend rather than by a new attack",
+      "params": {
+        "sweep": "up_then_back",
+        "interval": "semitone",
+        "target": "b3",
+        "note_length": "quarter",
+        "channel": "pulse1"
+      },
+      "params_text": "sweep=up_then_back; interval=semitone; target=b3; note_length=quarter; channel=pulse1",
+      "use": [
+        "battle",
+        "character",
+        "town"
+      ],
+      "sources": [
+        "S1",
+        "S33"
+      ]
+    },
+    {
+      "id": "RCK-11",
+      "name": "Verse and chorus riffs",
+      "lineage": "Rock form",
+      "rule": "Write a verse riff on the tonic and a chorus riff transposed up a fourth with the octave doubled, three sections maximum, and loop the pair four times for a 32 bar cue",
+      "params": {
+        "verse": "tonic",
+        "chorus": "transpose_fourth",
+        "contrast": "register_and_octave",
+        "sections_max": "3",
+        "loop_bars": "32"
+      },
+      "params_text": "verse=tonic; chorus=transpose_fourth; contrast=register_and_octave; sections_max=3; loop_bars=32",
+      "use": [
+        "battle",
+        "boss",
+        "title"
+      ],
+      "sources": [
+        "S39",
+        "S29"
+      ]
+    },
+    {
+      "id": "RCK-12",
+      "name": "Ending tag",
+      "lineage": "Rock",
+      "rule": "End with a held power chord, a noise crash and a triangle root, held for two bars, with the mute released, which is the rock full stop",
+      "params": {
+        "final": "held_power_chord",
+        "crash": "noise",
+        "bass": "triangle_root",
+        "bars": "2",
+        "mute": "released"
+      },
+      "params_text": "final=held_power_chord; crash=noise; bass=triangle_root; bars=2; mute=released",
+      "use": [
+        "ending",
+        "boss"
+      ],
+      "sources": [
+        "S4",
+        "S29"
+      ]
+    },
+    {
+      "id": "MET-01",
+      "name": "Tremolo by channel alternation",
+      "lineage": "Metal",
+      "rule": "Play one pitch at 16th rate and alternate the note between pulse1 and pulse2 on every attack, so the ear hears one continuous attack train with an accent pattern and no gap",
+      "params": {
+        "note_rate": "16ths",
+        "alternation": "per_note",
+        "channels": "pulse1,pulse2",
+        "gate_pct": "60",
+        "tempo_floor": "150"
+      },
+      "params_text": "note_rate=16ths; alternation=per_note; channels=pulse1,pulse2; gate_pct=60; tempo_floor=150",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S31",
+        "S29"
+      ]
+    },
+    {
+      "id": "MET-02",
+      "name": "Blast picking",
+      "lineage": "Metal",
+      "rule": "Take MET-01 to 32nd rate with a two frame decay on every attack, which is palm muted tremolo and reads as the machine gun figure rather than as a note",
+      "params": {
+        "note_rate": "32nd",
+        "decay_frames": "2",
+        "gate_pct": "40",
+        "mute": "palm",
+        "bars_max": "1"
+      },
+      "params_text": "note_rate=32nd; decay_frames=2; gate_pct=40; mute=palm; bars_max=1",
+      "use": [
+        "boss"
+      ],
+      "sources": [
+        "S31",
+        "S30"
+      ]
+    },
+    {
+      "id": "MET-03",
+      "name": "Double bass drum feel",
+      "lineage": "Metal",
+      "rule": "Put the DPCM kick on every 16th with the accent on alternate strokes, keep the noise snare on 2 and 4, and never leave a gap, which is what a double pedal does",
+      "params": {
+        "kick_grid": "16ths",
+        "accent": "alternate",
+        "snare_grid": "beats_2_and_4",
+        "kick": "dpcm",
+        "gap": "none"
+      },
+      "params_text": "kick_grid=16ths; accent=alternate; snare_grid=beats_2_and_4; kick=dpcm; gap=none",
+      "use": [
+        "boss",
+        "battle"
+      ],
+      "sources": [
+        "S44",
+        "S4"
+      ]
+    },
+    {
+      "id": "MET-04",
+      "name": "Diminished riff on the raised seventh",
+      "lineage": "Metal, harmonic minor",
+      "rule": "Build the riff from the diminished triad on the raised seventh and its tritone, one channel per note, and resolve it up a semitone to the tonic",
+      "params": {
+        "scale": "harmonic_minor",
+        "chord": "vii_diminished",
+        "interval": "tritone",
+        "resolve": "up_semitone",
+        "voices": "2"
+      },
+      "params_text": "scale=harmonic_minor; chord=vii_diminished; interval=tritone; resolve=up_semitone; voices=2",
+      "use": [
+        "boss",
+        "battle"
+      ],
+      "sources": [
+        "S36",
+        "S29"
+      ]
+    },
+    {
+      "id": "MET-05",
+      "name": "Phrygian flat second riff",
+      "lineage": "Metal",
+      "rule": "Write the riff with the flat second next to the root as its signature move, over a i to bII vamp, and let the semitone be the riff rather than an ornament",
+      "params": {
+        "scale": "phrygian",
+        "signature_interval": "b2",
+        "vamp": "i_bII",
+        "voices": "2"
+      },
+      "params_text": "scale=phrygian; signature_interval=b2; vamp=i_bII; voices=2",
+      "use": [
+        "boss",
+        "battle"
+      ],
+      "sources": [
+        "S32",
+        "S36"
+      ]
+    },
+    {
+      "id": "MET-06",
+      "name": "Harmonic minor leap",
+      "lineage": "Metal, neoclassical",
+      "rule": "End a two bar cell with the augmented second as an upward leap from the flat sixth to the raised seventh, then resolve the seventh up to the tonic on the next strong beat",
+      "params": {
+        "leap": "flat6_to_raised7",
+        "direction": "up",
+        "cell_bars": "2",
+        "resolve": "7_to_1",
+        "position": "end_of_cell"
+      },
+      "params_text": "leap=flat6_to_raised7; direction=up; cell_bars=2; resolve=7_to_1; position=end_of_cell",
+      "use": [
+        "boss",
+        "battle",
+        "ending"
+      ],
+      "sources": [
+        "S36",
+        "S32"
+      ]
+    },
+    {
+      "id": "MET-07",
+      "name": "Neoclassical lead over V7",
+      "lineage": "Metal, neoclassical",
+      "rule": "Put the harmonic minor run in sixteenths over the dominant seventh rather than over the tonic, because the raised seventh belongs to the dominant and clashes on the tonic",
+      "params": {
+        "scale": "harmonic_minor",
+        "applied_over": "V7",
+        "subdivision": "16ths",
+        "avoid_on": "tonic_chord",
+        "run_bars": "1_to_2"
+      },
+      "params_text": "scale=harmonic_minor; applied_over=V7; subdivision=16ths; avoid_on=tonic_chord; run_bars=1_to_2",
+      "use": [
+        "boss",
+        "battle"
+      ],
+      "sources": [
+        "S36"
+      ]
+    },
+    {
+      "id": "MET-08",
+      "name": "Tritone stab",
+      "lineage": "Metal",
+      "rule": "Hit root and flat fifth on the two pulses as a one beat stab with a four frame decay, on beat 4 before a section change, and never twice in the same bar",
+      "params": {
+        "interval": "tritone",
+        "duration": "beat",
+        "decay_frames": "4",
+        "position": "beat_4",
+        "max_per_bar": "1"
+      },
+      "params_text": "interval=tritone; duration=beat; decay_frames=4; position=beat_4; max_per_bar=1",
+      "use": [
+        "boss",
+        "battle"
+      ],
+      "sources": [
+        "S29",
+        "S36"
+      ]
+    },
+    {
+      "id": "MET-09",
+      "name": "Unison hit ending",
+      "lineage": "Metal",
+      "rule": "End with three unison hits on one pitch, separated by rests, then a DPCM crash and one beat of silence, so the cue stops rather than fades",
+      "params": {
+        "hits": "3",
+        "spacing": "rest_between",
+        "crash": "dpcm",
+        "silence_beats": "1",
+        "fade": "no"
+      },
+      "params_text": "hits=3; spacing=rest_between; crash=dpcm; silence_beats=1; fade=no",
+      "use": [
+        "ending",
+        "boss"
+      ],
+      "sources": [
+        "S4",
+        "S44"
+      ]
+    },
+    {
+      "id": "MET-10",
+      "name": "Low register weight",
+      "lineage": "Metal mix",
+      "rule": "Keep the riff in the lowest usable pulse octave and double its root on the triangle, because the mixer sums the triangle on top of the pulses and that doubling is the only way to add weight without spending a melodic voice",
+      "params": {
+        "riff_register": "lowest_usable",
+        "bass": "triangle_root_unison",
+        "extra_voice": "no",
+        "mixer_note": "pulses_then_triangle"
+      },
+      "params_text": "riff_register=lowest_usable; bass=triangle_root_unison; extra_voice=no; mixer_note=pulses_then_triangle",
+      "use": [
+        "boss",
+        "battle"
+      ],
+      "sources": [
+        "S1",
+        "S29"
+      ]
+    },
+    {
+      "id": "HOK-01",
+      "name": "Hook inside four bars",
+      "lineage": "NES hook grammar",
+      "rule": "State the hook completely inside the first 4 bars, which is 6.9 s at 104 bpm in 3/4 and 5.3 s at 180 bpm in 4/4, because average recognition is about 5 s and the fastest is 2.3 to 2.6 s",
+      "params": {
+        "bars_max": "4",
+        "seconds_max": "6.9",
+        "tempo_ref": "104",
+        "metre_ref": "3/4"
+      },
+      "params_text": "bars_max=4; seconds_max=6.9; tempo_ref=104; metre_ref=3/4",
+      "use": [
+        "title",
+        "battle",
+        "field"
+      ],
+      "sources": [
+        "S45",
+        "S47"
+      ]
+    },
+    {
+      "id": "HOK-02",
+      "name": "Identifiable from two bars",
+      "lineage": "NES hook grammar",
+      "rule": "Make the identifying feature audible inside the first 2 bars, because contour memory forms within 5 s and the fastest recognitions land at 2.3 to 2.6 s",
+      "params": {
+        "bars_to_identity": "2",
+        "feature": "rhythm_or_leap_or_timbre"
+      },
+      "params_text": "bars_to_identity=2; feature=rhythm_or_leap_or_timbre",
+      "use": [
+        "title",
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S45",
+        "S47"
+      ]
+    },
+    {
+      "id": "HOK-03",
+      "name": "No intro before the hook",
+      "lineage": "NES hook grammar",
+      "rule": "Start with the hook's own rhythmic cell in bar 1 and put any build up inside the hook; the studied stage theme opens with the figure that becomes its first half",
+      "params": {
+        "intro_bars": "0",
+        "build_inside_hook": "yes"
+      },
+      "params_text": "intro_bars=0; build_inside_hook=yes",
+      "use": [
+        "title",
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S59"
+      ]
+    },
+    {
+      "id": "HOK-04",
+      "name": "Hook note budget",
+      "lineage": "NES hook grammar",
+      "rule": "Keep the hook between 8 and 18 notes over 2 to 4 bars, which follows from the measured 0.89 beats per note of the studied themes",
+      "params": {
+        "notes_min": "8",
+        "notes_max": "18",
+        "bars": "2-4",
+        "beats_per_note_ref": "0.89"
+      },
+      "params_text": "notes_min=8; notes_max=18; bars=2-4; beats_per_note_ref=0.89",
+      "use": [
+        "title",
+        "town",
+        "battle"
+      ],
+      "sources": [
+        "S51",
+        "S52"
+      ]
+    },
+    {
+      "id": "HOK-05",
+      "name": "Hook inside an octave",
+      "lineage": "NES hook grammar",
+      "rule": "Keep the hook within 12 semitones even when the whole cue is wider, because the measured narrow melodies are the ones that behave as riffs",
+      "params": {
+        "hook_range_max": "12",
+        "whole_cue_range_allowed": "41"
+      },
+      "params_text": "hook_range_max=12; whole_cue_range_allowed=41",
+      "use": [
+        "town",
+        "character",
+        "sad"
+      ],
+      "sources": [
+        "S52",
+        "S53"
+      ]
+    },
+    {
+      "id": "HOK-06",
+      "name": "One leap only",
+      "lineage": "NES hook grammar",
+      "rule": "Allow at most one interval larger than a perfect fourth in the hook, always at the same metric position, so the leap itself becomes the signature",
+      "params": {
+        "leaps_gt_fourth_max": "1",
+        "position": "fixed"
+      },
+      "params_text": "leaps_gt_fourth_max=1; position=fixed",
+      "use": [
+        "title",
+        "battle"
+      ],
+      "sources": [
+        "S56"
+      ]
+    },
+    {
+      "id": "HOK-07",
+      "name": "Diatonic floor",
+      "lineage": "NES hook grammar",
+      "rule": "Keep at least 80 percent of hook notes in the key, which is the bottom of the measured 80 to 95 percent band",
+      "params": {
+        "diatonic_pct_min": "80",
+        "measured_band_pct": "80-95"
+      },
+      "params_text": "diatonic_pct_min=80; measured_band_pct=80-95",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S51",
+        "S52",
+        "S53",
+        "S56"
+      ]
+    },
+    {
+      "id": "HOK-08",
+      "name": "Chord tone band",
+      "lineage": "NES hook grammar",
+      "rule": "Land 60 to 85 percent of hook notes on chord tones, so the strong beats belong to the harmony and the weak beats carry the colour",
+      "params": {
+        "chord_tone_pct": "60-85",
+        "strong_beats": "chord_tones"
+      },
+      "params_text": "chord_tone_pct=60-85; strong_beats=chord_tones",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S51",
+        "S52"
+      ]
+    },
+    {
+      "id": "HOK-09",
+      "name": "Rhythm first",
+      "lineage": "NES hook grammar",
+      "rule": "Write the rhythmic cell before the pitches: drums alone reach 60.7 percent recognition and bass alone 54.7 percent, so rhythm carries identity without a melody",
+      "params": {
+        "cell_attacks": "2-6",
+        "write_order": "rhythm_then_pitch"
+      },
+      "params_text": "cell_attacks=2-6; write_order=rhythm_then_pitch",
+      "use": [
+        "battle",
+        "boss",
+        "field"
+      ],
+      "sources": [
+        "S50"
+      ]
+    },
+    {
+      "id": "HOK-10",
+      "name": "One predictable syncopation",
+      "lineage": "NES hook grammar",
+      "rule": "Put exactly one syncopation or one rest in the cell and repeat it at the same place every statement; the studied themes are tagged loose or punchy syncopation, never freely syncopated",
+      "params": {
+        "syncopations": "1",
+        "predictability": "repeat_exact"
+      },
+      "params_text": "syncopations=1; predictability=repeat_exact",
+      "use": [
+        "title",
+        "battle",
+        "town"
+      ],
+      "sources": [
+        "S51",
+        "S52",
+        "S56"
+      ]
+    },
+    {
+      "id": "HOK-11",
+      "name": "Arch contour",
+      "lineage": "NES hook grammar",
+      "rule": "Shape the phrase as a rise to a peak near its middle then a fall back, the shape used by the studied first stage theme",
+      "params": {
+        "peak_position": "0.4-0.6",
+        "start_end": "low"
+      },
+      "params_text": "peak_position=0.4-0.6; start_end=low",
+      "use": [
+        "title",
+        "town"
+      ],
+      "sources": [
+        "S64"
+      ]
+    },
+    {
+      "id": "HOK-12",
+      "name": "Rise then leap down",
+      "lineage": "NES hook grammar",
+      "rule": "After the rise, leave the phrase with one fall, which pairs with a march or heroic cue and stays audible inside a wide range",
+      "params": {
+        "exit": "leap_down",
+        "range_ref": "41"
+      },
+      "params_text": "exit=leap_down; range_ref=41",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S56",
+        "S61"
+      ]
+    },
+    {
+      "id": "HOK-13",
+      "name": "Pedal then step",
+      "lineage": "NES hook grammar",
+      "rule": "Repeat one pitch then move by step, the design behind the measured narrow melodies that earn identity from rhythm against rich harmony",
+      "params": {
+        "pedal_notes": "2-4",
+        "motion_after": "step"
+      },
+      "params_text": "pedal_notes=2-4; motion_after=step",
+      "use": [
+        "battle",
+        "boss"
+      ],
+      "sources": [
+        "S53"
+      ]
+    },
+    {
+      "id": "HOK-14",
+      "name": "Repeated note anchor",
+      "lineage": "NES hook grammar",
+      "rule": "Anchor the hook on a repeated note so the rhythm is audible with no pitch travel; the measured narrow melodies pair an 8 to 15 semitone range with 0.88 to 0.89 beats per note",
+      "params": {
+        "repeated_notes": "1",
+        "beats_per_note": "0.88-0.89"
+      },
+      "params_text": "repeated_notes=1; beats_per_note=0.88-0.89",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S52",
+        "S53"
+      ]
+    },
+    {
+      "id": "HOK-15",
+      "name": "Exact repeat cap",
+      "lineage": "NES hook grammar",
+      "rule": "Repeat a phrase exactly no more than twice in a row and make the third statement carry an operation, because varied repetition outweighs literal repetition 2.7 to 1 at one measure distance",
+      "params": {
+        "exact_repeats_max": "2",
+        "third_statement": "operated"
+      },
+      "params_text": "exact_repeats_max=2; third_statement=operated",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S49"
+      ]
+    },
+    {
+      "id": "HOK-16",
+      "name": "Sequence on the third statement",
+      "lineage": "NES hook grammar",
+      "rule": "Transpose the whole cell by a fixed interval for the third statement, the operation described as ubiquitous in the repertoire and cheap for early sound drivers",
+      "params": {
+        "operation": "transpose_fixed",
+        "interval": "one_fixed_semitone_value",
+        "statement": "3"
+      },
+      "params_text": "operation=transpose_fixed; interval=one_fixed_semitone_value; statement=3",
+      "use": [
+        "town",
+        "battle"
+      ],
+      "sources": [
+        "S57",
+        "S49"
+      ]
+    },
+    {
+      "id": "HOK-17",
+      "name": "Rhythm variation once per eight bars",
+      "lineage": "NES hook grammar",
+      "rule": "Keep the pitches and change the rhythm or the accent once per 8 bar phrase, so the phrase reads as the same idea twice",
+      "params": {
+        "rate": "1_per_8_bars",
+        "changed": "pitch_kept_rhythm_changed"
+      },
+      "params_text": "rate=1_per_8_bars; changed=pitch_kept_rhythm_changed",
+      "use": [
+        "field",
+        "town"
+      ],
+      "sources": [
+        "S49"
+      ]
+    },
+    {
+      "id": "HOK-18",
+      "name": "Changed ending every second phrase",
+      "lineage": "NES hook grammar",
+      "rule": "Rewrite the last 2 notes or the cadence on every second statement, including a deceptive cadence into the relative minor, and keep the new ending loopable",
+      "params": {
+        "rate": "every_2nd",
+        "changed": "last_2_notes_or_cadence",
+        "loopable": "yes"
+      },
+      "params_text": "rate=every_2nd; changed=last_2_notes_or_cadence; loopable=yes",
+      "use": [
+        "title",
+        "town",
+        "sad"
+      ],
+      "sources": [
+        "S64"
+      ]
+    },
+    {
+      "id": "HOK-19",
+      "name": "Sixteen bar loop with an eight bar B",
+      "lineage": "NES hook grammar",
+      "rule": "Build the loop as 16 bars with an 8 or 16 bar B section; 16 bars is the measured workhorse loop and the wide melodies span 64 to 160 beats",
+      "params": {
+        "loop_bars": "16",
+        "b_section_bars": "8-16",
+        "melody_beats": "64-160"
+      },
+      "params_text": "loop_bars=16; b_section_bars=8-16; melody_beats=64-160",
+      "use": [
+        "field",
+        "town",
+        "battle"
+      ],
+      "sources": [
+        "S52",
+        "S56",
+        "S61"
+      ]
+    },
+    {
+      "id": "HOK-20",
+      "name": "Antecedent and consequent",
+      "lineage": "NES hook grammar",
+      "rule": "End the first 4 bar phrase open on the dominant and close the answering phrase with an authentic cadence, joining the melody in chords at the close as the studied theme does",
+      "params": {
+        "first_cadence": "half",
+        "second_cadence": "authentic",
+        "close": "chords_with_melody"
+      },
+      "params_text": "first_cadence=half; second_cadence=authentic; close=chords_with_melody",
+      "use": [
+        "title",
+        "town",
+        "character"
+      ],
+      "sources": [
+        "S64"
+      ]
+    },
+    {
+      "id": "HOK-21",
+      "name": "Call and response, never doubling",
+      "lineage": "NES hook grammar",
+      "rule": "Give the answering voice its own path: take turns, chase a beat apart and cross registers instead of doubling the lead",
+      "params": {
+        "doubling": "no",
+        "offset": "1_beat",
+        "register_cross": "yes"
+      },
+      "params_text": "doubling=no; offset=1_beat; register_cross=yes",
+      "use": [
+        "town",
+        "battle",
+        "character"
+      ],
+      "sources": [
+        "S61"
+      ]
+    },
+    {
+      "id": "HOK-22",
+      "name": "Declare the bass type",
+      "lineage": "NES hook grammar",
+      "rule": "Name the bass line as walking, pedal or ostinato before writing the melody, because the bass alone carries 54.7 percent recognition",
+      "params": {
+        "bass_type": "walking_or_pedal_or_ostinato",
+        "recognition_ref": "54.7"
+      },
+      "params_text": "bass_type=walking_or_pedal_or_ostinato; recognition_ref=54.7",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S50",
+        "S57"
+      ]
+    },
+    {
+      "id": "HOK-23",
+      "name": "Couple melody to bass",
+      "lineage": "NES hook grammar",
+      "rule": "Keep the melody tightly coupled to the bass motion, the property the studied themes score 91 to 96 on against a database average of 50",
+      "params": {
+        "chord_bass_melody": "91-96",
+        "coupling": "high"
+      },
+      "params_text": "chord_bass_melody=91-96; coupling=high",
+      "use": [
+        "battle",
+        "boss",
+        "title"
+      ],
+      "sources": [
+        "S51",
+        "S52"
+      ]
+    },
+    {
+      "id": "HOK-24",
+      "name": "One or two chromatic notes, fixed place",
+      "lineage": "NES hook grammar",
+      "rule": "Put one or two notes outside the key in a 4 bar hook, always on the same beat, since the measured chromatic share runs 5 to 20 percent",
+      "params": {
+        "chromatic_notes": "1-2",
+        "position": "fixed",
+        "share_pct": "5-20"
+      },
+      "params_text": "chromatic_notes=1-2; position=fixed; share_pct=5-20",
+      "use": [
+        "town",
+        "sad",
+        "boss"
+      ],
+      "sources": [
+        "S51",
+        "S56",
+        "S57"
+      ]
+    },
+    {
+      "id": "HOK-25",
+      "name": "Contrast by mode first",
+      "lineage": "NES hook grammar",
+      "rule": "Change section by mode or key before touching instrumentation, as the studied theme moves from the major to the parallel minor while keeping tempo and cell",
+      "params": {
+        "contrast": "mode_or_key",
+        "tempo_same": "yes",
+        "cell_same": "yes"
+      },
+      "params_text": "contrast=mode_or_key; tempo_same=yes; cell_same=yes",
+      "use": [
+        "battle",
+        "boss",
+        "field"
+      ],
+      "sources": [
+        "S64"
+      ]
+    },
+    {
+      "id": "HOK-26",
+      "name": "Contrast by timbre second",
+      "lineage": "NES hook grammar",
+      "rule": "Spend the second contrast on duty, register or voice count: 12.5 percent thin, 25 reedy, 50 hollow, one voice dropped for 2 bars, or the lead moved an octave",
+      "params": {
+        "duty_set": "12.5_25_50",
+        "dropped_voice_bars": "2",
+        "octave_shift": "yes"
+      },
+      "params_text": "duty_set=12.5_25_50; dropped_voice_bars=2; octave_shift=yes",
+      "use": [
+        "battle",
+        "boss",
+        "secret"
+      ],
+      "sources": [
+        "S62",
+        "S63"
+      ]
+    },
+    {
+      "id": "HOK-27",
+      "name": "Frame jitter on non bass voices",
+      "lineage": "NES hook grammar",
+      "rule": "Move one non bass voice by 1 or 2 frames at the same place in each phrase, because one frame is 16.7 ms and that is the smallest human timing unit on the chip",
+      "params": {
+        "jitter_frames": "1-2",
+        "voices": "non_bass",
+        "place": "fixed"
+      },
+      "params_text": "jitter_frames=1-2; voices=non_bass; place=fixed",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S62",
+        "S63"
+      ]
+    },
+    {
+      "id": "HOK-28",
+      "name": "Delayed vibrato, low byte only",
+      "lineage": "NES hook grammar",
+      "rule": "Start a small period wobble 2 to 4 frames after the attack and write only the low period byte, because a high byte write resets the phase and pops",
+      "params": {
+        "vibrato_delay_frames": "2-4",
+        "period_bytes": "low_only",
+        "depth": "small"
+      },
+      "params_text": "vibrato_delay_frames=2-4; period_bytes=low_only; depth=small",
+      "use": [
+        "sad",
+        "character",
+        "title"
+      ],
+      "sources": [
+        "S62",
+        "S63"
+      ]
+    },
+    {
+      "id": "HOK-29",
+      "name": "Envelope per note",
+      "lineage": "NES hook grammar",
+      "rule": "Give each note a volume shape from the 16 hardware levels and change it in steps of 2 or more, because a 2 step change is audible and a 1 step change is not",
+      "params": {
+        "volume_steps": "16",
+        "minimum_change": "2",
+        "shape": "attack_decay_or_swell"
+      },
+      "params_text": "volume_steps=16; minimum_change=2; shape=attack_decay_or_swell",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S62",
+        "S63"
+      ]
+    },
+    {
+      "id": "HOK-30",
+      "name": "Breath rest and pre change fill",
+      "lineage": "NES hook grammar",
+      "rule": "Rest one eighth note at the end of every 4 bar phrase on the melody voice and play a one bar noise fill before each section change, landing on the beat",
+      "params": {
+        "rest": "eighth_at_phrase_end",
+        "fill_bars": "1",
+        "fill_landing": "on_beat"
+      },
+      "params_text": "rest=eighth_at_phrase_end; fill_bars=1; fill_landing=on_beat",
+      "use": [
+        "any"
+      ],
+      "sources": [
+        "S62"
+      ]
+    }
+  ],
+  "progressions": {
+    "A minor": {
+      "Determined": {
+        "progressions": [
+          [
+            "i",
+            "i",
+            "bVI",
+            "bVII"
+          ],
+          [
+            "i",
+            "bVI",
+            "bVII",
+            "i"
+          ]
+        ],
+        "colour_notes": "bVI as F major (Dorian colour), bVII as G major",
+        "recipes": [
+          "UEM-01",
+          "CHIP-05",
+          "CHIP-02"
+        ]
+      },
+      "Melancholy": {
+        "progressions": [
+          [
+            "i",
+            "iv6",
+            "v",
+            "i"
+          ],
+          [
+            "i",
+            "bVI",
+            "iv",
+            "i"
+          ]
+        ],
+        "colour_notes": "iv6 first inversion D minor over F, v as E minor",
+        "recipes": [
+          "UEM-03",
+          "MOT-01",
+          "CHIP-07"
+        ]
+      },
+      "Hopeful": {
+        "progressions": [
+          [
+            "i",
+            "bVI",
+            "bIII",
+            "bVII"
+          ],
+          [
+            "i",
+            "iv",
+            "bVII",
+            "i"
+          ]
+        ],
+        "colour_notes": "bIII as C major, iv as D minor",
+        "recipes": [
+          "UEM-01",
+          "MOT-04",
+          "CHIP-08"
+        ]
+      },
+      "Ominous": {
+        "progressions": [
+          [
+            "i",
+            "v",
+            "bVI",
+            "V7"
+          ],
+          [
+            "i",
+            "bII",
+            "i",
+            "V7"
+          ]
+        ],
+        "colour_notes": "bII as the Neapolitan Db major, V7 as E7",
+        "recipes": [
+          "CHIP-03",
+          "CHIP-07",
+          "CHIP-01"
+        ]
+      },
+      "Tender": {
+        "progressions": [
+          [
+            "i7",
+            "v7",
+            "bVI",
+            "iv"
+          ],
+          [
+            "i",
+            "v",
+            "bVI",
+            "bVII"
+          ]
+        ],
+        "colour_notes": "seventh chords on i and v soften the tonic",
+        "recipes": [
+          "MOT-03",
+          "MOT-07",
+          "UEM-02"
+        ]
+      },
+      "Triumphant": {
+        "progressions": [
+          [
+            "i",
+            "bVI",
+            "bIII",
+            "bVII",
+            "i"
+          ],
+          [
+            "v7",
+            "V7",
+            "i"
+          ]
+        ],
+        "colour_notes": "V7 to i as the arrival",
+        "recipes": [
+          "UEM-05",
+          "CHIP-04",
+          "CHIP-02"
+        ]
+      },
+      "Playful": {
+        "progressions": [
+          [
+            "i",
+            "bVII",
+            "bVI",
+            "bVII"
+          ],
+          [
+            "i",
+            "bIII",
+            "bVII",
+            "i"
+          ]
+        ],
+        "colour_notes": "bVII rocking between the tonic and the flat sixth",
+        "recipes": [
+          "MOT-02",
+          "CHIP-03",
+          "CHIP-01"
+        ]
+      }
+    },
+    "C major": {
+      "Determined": {
+        "progressions": [
+          [
+            "I",
+            "V",
+            "vi",
+            "IV"
+          ],
+          [
+            "I",
+            "IV",
+            "V",
+            "I"
+          ]
+        ],
+        "colour_notes": "vi as the minor colour under a major tonic",
+        "recipes": [
+          "UEM-04",
+          "CHIP-05",
+          "CHIP-02"
+        ]
+      },
+      "Melancholy": {
+        "progressions": [
+          [
+            "I",
+            "iii",
+            "vi",
+            "iv"
+          ],
+          [
+            "I",
+            "vi",
+            "ii",
+            "V"
+          ]
+        ],
+        "colour_notes": "iii as E minor, ii as D minor",
+        "recipes": [
+          "UEM-03",
+          "MOT-01",
+          "CHIP-07"
+        ]
+      },
+      "Hopeful": {
+        "progressions": [
+          [
+            "I",
+            "ii",
+            "IV",
+            "V"
+          ],
+          [
+            "I",
+            "V",
+            "vi",
+            "IV"
+          ]
+        ],
+        "colour_notes": "ii as the minor pre dominant, sus4 available on V",
+        "recipes": [
+          "UEM-01",
+          "MOT-04",
+          "CHIP-08"
+        ]
+      },
+      "Ominous": {
+        "progressions": [
+          [
+            "I",
+            "vi",
+            "iv",
+            "V7"
+          ],
+          [
+            "I",
+            "bVII",
+            "I",
+            "V7"
+          ]
+        ],
+        "colour_notes": "bVII as Bb major, V7 as G7",
+        "recipes": [
+          "CHIP-03",
+          "CHIP-07",
+          "CHIP-01"
+        ]
+      },
+      "Tender": {
+        "progressions": [
+          [
+            "Imaj7",
+            "vi",
+            "IVmaj7",
+            "V7"
+          ],
+          [
+            "I",
+            "vi",
+            "iii",
+            "vi"
+          ]
+        ],
+        "colour_notes": "major sevenths on the tonic and the subdominant",
+        "recipes": [
+          "MOT-03",
+          "MOT-07",
+          "UEM-02"
+        ]
+      },
+      "Triumphant": {
+        "progressions": [
+          [
+            "I",
+            "IV",
+            "V",
+            "I"
+          ],
+          [
+            "I",
+            "V",
+            "vi",
+            "IV",
+            "V",
+            "I"
+          ]
+        ],
+        "colour_notes": "I IV V I as the arrival",
+        "recipes": [
+          "UEM-05",
+          "CHIP-04",
+          "CHIP-02"
+        ]
+      },
+      "Playful": {
+        "progressions": [
+          [
+            "I",
+            "V",
+            "vi",
+            "IV"
+          ],
+          [
+            "I",
+            "IV",
+            "vi",
+            "V"
+          ]
+        ],
+        "colour_notes": "the same four chords with a swung feel",
+        "recipes": [
+          "MOT-02",
+          "CHIP-03",
+          "CHIP-01"
+        ]
+      }
+    }
+  },
+  "common_progressions": [
+    {
+      "number": "1",
+      "name": "Authentic close",
+      "a_minor": [
+        "Am",
+        "Dm",
+        "E7",
+        "Am"
+      ],
+      "c_major": [
+        "C",
+        "F",
+        "G7",
+        "C"
+      ],
+      "roman_numerals": [
+        "i",
+        "iv",
+        "V7",
+        "i"
+      ],
+      "functions": [
+        "T",
+        "PD",
+        "D",
+        "T"
+      ],
+      "bars": "4",
+      "recipes": [
+        "CLS-03",
+        "CLS-08",
+        "BAR-10"
+      ]
+    },
+    {
+      "number": "2",
+      "name": "Plagal close",
+      "a_minor": [
+        "Am",
+        "Dm",
+        "Am"
+      ],
+      "c_major": [
+        "C",
+        "F",
+        "C"
+      ],
+      "roman_numerals": [
+        "i",
+        "iv",
+        "i"
+      ],
+      "functions": [
+        "T",
+        "PD",
+        "T"
+      ],
+      "bars": "3",
+      "recipes": [
+        "CLS-03",
+        "BAR-11"
+      ]
+    },
+    {
+      "number": "3",
+      "name": "Deceptive close",
+      "a_minor": [
+        "Am",
+        "E7",
+        "F"
+      ],
+      "c_major": [
+        "C",
+        "G7",
+        "Am"
+      ],
+      "roman_numerals": [
+        "i",
+        "V7",
+        "bVI"
+      ],
+      "functions": [
+        "T",
+        "D",
+        "T substitute"
+      ],
+      "bars": "3",
+      "recipes": [
+        "CLS-03",
+        "BAR-05"
+      ]
+    },
+    {
+      "number": "4",
+      "name": "Half cadence",
+      "a_minor": [
+        "Am",
+        "Dm",
+        "Em"
+      ],
+      "c_major": [
+        "C",
+        "F",
+        "G"
+      ],
+      "roman_numerals": [
+        "i",
+        "iv",
+        "v"
+      ],
+      "functions": [
+        "T",
+        "PD",
+        "D"
+      ],
+      "bars": "4 with i held 2 bars",
+      "recipes": [
+        "CLS-02",
+        "CLS-12"
+      ]
+    },
+    {
+      "number": "5",
+      "name": "Two five one",
+      "a_minor": [
+        "Bm7b5",
+        "E7",
+        "Am"
+      ],
+      "c_major": [
+        "Dm",
+        "G7",
+        "C"
+      ],
+      "roman_numerals": [
+        "ii7b5",
+        "V7",
+        "i"
+      ],
+      "functions": [
+        "PD",
+        "D",
+        "T"
+      ],
+      "bars": "3",
+      "recipes": [
+        "CLS-10",
+        "CLS-03"
+      ]
+    },
+    {
+      "number": "6",
+      "name": "Turnaround",
+      "a_minor": [
+        "Am",
+        "F",
+        "Bm7b5",
+        "E7"
+      ],
+      "c_major": [
+        "C",
+        "Am",
+        "Dm",
+        "G7"
+      ],
+      "roman_numerals": [
+        "i",
+        "bVI",
+        "ii7b5",
+        "V7"
+      ],
+      "functions": [
+        "T",
+        "T substitute",
+        "PD",
+        "D"
+      ],
+      "bars": "4",
+      "recipes": [
+        "CLS-10",
+        "UEM-01"
+      ]
+    },
+    {
+      "number": "7",
+      "name": "Circle of fifths descent",
+      "a_minor": [
+        "C",
+        "F",
+        "Bm7b5",
+        "E7",
+        "Am"
+      ],
+      "c_major": [
+        "C",
+        "F",
+        "Bdim",
+        "Em",
+        "Am"
+      ],
+      "roman_numerals": [
+        "bIII",
+        "bVI",
+        "ii7b5",
+        "V7",
+        "i"
+      ],
+      "functions": [
+        "T",
+        "PD",
+        "PD",
+        "D",
+        "T"
+      ],
+      "bars": "5",
+      "recipes": [
+        "BAR-04",
+        "BAR-05"
+      ]
+    },
+    {
+      "number": "8",
+      "name": "Pop loop",
+      "a_minor": [
+        "Am",
+        "F",
+        "Dm",
+        "Em"
+      ],
+      "c_major": [
+        "C",
+        "Am",
+        "F",
+        "G"
+      ],
+      "roman_numerals": [
+        "i",
+        "bVI",
+        "iv",
+        "v"
+      ],
+      "functions": [
+        "T",
+        "T substitute",
+        "PD",
+        "D"
+      ],
+      "bars": "4",
+      "recipes": [
+        "RCK-11",
+        "CLS-12"
+      ]
+    },
+    {
+      "number": "9",
+      "name": "Royal road",
+      "a_minor": [
+        "F",
+        "G",
+        "Em",
+        "Am"
+      ],
+      "c_major": [
+        "F",
+        "G",
+        "Em",
+        "Am"
+      ],
+      "roman_numerals": [
+        "bVI",
+        "bVII",
+        "v",
+        "i"
+      ],
+      "functions": [
+        "PD",
+        "D",
+        "T",
+        "T"
+      ],
+      "bars": "4",
+      "recipes": [
+        "CLS-09",
+        "UEM-05"
+      ]
+    },
+    {
+      "number": "10",
+      "name": "Ostinato ground",
+      "a_minor": [
+        "Am",
+        "Em",
+        "F",
+        "C",
+        "Dm",
+        "Am",
+        "Dm",
+        "E"
+      ],
+      "c_major": [
+        "C",
+        "G",
+        "Am",
+        "Em",
+        "F",
+        "C",
+        "F",
+        "G"
+      ],
+      "roman_numerals": [
+        "i",
+        "v",
+        "bVI",
+        "bIII",
+        "iv",
+        "i",
+        "iv",
+        "V"
+      ],
+      "functions": [
+        "T",
+        "D",
+        "T substitute",
+        "T",
+        "PD",
+        "T",
+        "PD",
+        "D"
+      ],
+      "bars": "8, one chord per bar",
+      "recipes": [
+        "BAR-05",
+        "BAR-04"
+      ]
+    },
+    {
+      "number": "11",
+      "name": "Modal minor lament",
+      "a_minor": [
+        "Am",
+        "F",
+        "G"
+      ],
+      "c_major": [
+        "Am",
+        "F",
+        "G (relative minor reading)"
+      ],
+      "roman_numerals": [
+        "i",
+        "bVI",
+        "bVII"
+      ],
+      "functions": [
+        "T",
+        "PD borrowed",
+        "D borrowed"
+      ],
+      "bars": "3 or 6",
+      "recipes": [
+        "BAR-02",
+        "UEM-06"
+      ]
+    },
+    {
+      "number": "12",
+      "name": "Secondary dominant chain",
+      "a_minor": [
+        "Am",
+        "A7",
+        "Dm",
+        "E7"
+      ],
+      "c_major": [
+        "C",
+        "A7",
+        "Dm",
+        "G7"
+      ],
+      "roman_numerals": [
+        "i",
+        "V7/iv",
+        "iv",
+        "V7"
+      ],
+      "functions": [
+        "T",
+        "D of PD",
+        "PD",
+        "D"
+      ],
+      "bars": "4",
+      "recipes": [
+        "CLS-11",
+        "CLS-10"
+      ]
+    },
+    {
+      "number": "13",
+      "name": "Neapolitan approach",
+      "a_minor": [
+        "Bb",
+        "E7",
+        "Am"
+      ],
+      "c_major": [
+        "Db",
+        "G7",
+        "C (chromatic in major)"
+      ],
+      "roman_numerals": [
+        "bII",
+        "V7",
+        "i"
+      ],
+      "functions": [
+        "PD chromatic",
+        "D",
+        "T"
+      ],
+      "bars": "3",
+      "recipes": [
+        "CLS-11",
+        "MET-06"
+      ]
+    },
+    {
+      "number": "14",
+      "name": "Pivot to the relative major",
+      "a_minor": [
+        "Am",
+        "C",
+        "Dm",
+        "E7"
+      ],
+      "c_major": [
+        "Am",
+        "C",
+        "Dm",
+        "G7 (minor reading)"
+      ],
+      "roman_numerals": [
+        "i",
+        "bIII",
+        "iv",
+        "V7"
+      ],
+      "functions": [
+        "T",
+        "T",
+        "PD",
+        "D"
+      ],
+      "bars": "4",
+      "recipes": [
+        "CLS-02",
+        "BAR-10"
+      ]
+    },
+    {
+      "number": "15",
+      "name": "Cadential six four",
+      "a_minor": [
+        "Am",
+        "Dm over F",
+        "E7",
+        "Am"
+      ],
+      "c_major": [
+        "C",
+        "F over A",
+        "G7",
+        "C"
+      ],
+      "roman_numerals": [
+        "i",
+        "iv6",
+        "V7",
+        "i"
+      ],
+      "functions": [
+        "T",
+        "PD",
+        "D",
+        "T"
+      ],
+      "bars": "4",
+      "recipes": [
+        "CLS-03",
+        "CLS-08"
+      ]
+    },
+    {
+      "number": "16",
+      "name": "Dorian vamp",
+      "a_minor": [
+        "Am",
+        "D"
+      ],
+      "c_major": [
+        "Dm7",
+        "G (D Dorian)"
+      ],
+      "roman_numerals": [
+        "i",
+        "IV"
+      ],
+      "functions": [
+        "T",
+        "PD with raised sixth"
+      ],
+      "bars": "2 or 4",
+      "recipes": [
+        "RCK-07",
+        "MOT-02"
+      ]
+    },
+    {
+      "number": "17",
+      "name": "Minor pentatonic vamp",
+      "a_minor": [
+        "Am",
+        "G"
+      ],
+      "c_major": [
+        "C",
+        "Bb"
+      ],
+      "roman_numerals": [
+        "i",
+        "bVII"
+      ],
+      "functions": [
+        "T",
+        "D borrowed"
+      ],
+      "bars": "2 or 4",
+      "recipes": [
+        "RCK-06",
+        "RCK-09"
+      ]
+    },
+    {
+      "number": "18",
+      "name": "Waltz period",
+      "a_minor": [
+        "Am",
+        "Dm",
+        "E7",
+        "Am"
+      ],
+      "c_major": [
+        "C",
+        "F",
+        "G7",
+        "C"
+      ],
+      "roman_numerals": [
+        "i",
+        "iv",
+        "V7",
+        "i in 3/4"
+      ],
+      "functions": [
+        "T",
+        "PD",
+        "D",
+        "T"
+      ],
+      "bars": "4, one chord per bar",
+      "recipes": [
+        "CLS-06",
+        "CLS-07",
+        "CHIP-05"
+      ]
+    },
+    {
+      "number": "19",
+      "name": "Lament bass descent",
+      "a_minor": [
+        "Am",
+        "Em over G",
+        "Dm over F",
+        "E"
+      ],
+      "c_major": [
+        "C",
+        "G over B",
+        "Am",
+        "G"
+      ],
+      "roman_numerals": [
+        "i",
+        "v6",
+        "iv6",
+        "V"
+      ],
+      "functions": [
+        "T",
+        "D",
+        "PD",
+        "D"
+      ],
+      "bars": "4, bass descends 1 7 6 5",
+      "recipes": [
+        "BAR-05",
+        "CHIP-02"
+      ]
+    },
+    {
+      "number": "20",
+      "name": "Flat side cadence",
+      "a_minor": [
+        "F",
+        "G",
+        "Am"
+      ],
+      "c_major": [
+        "F",
+        "G",
+        "C"
+      ],
+      "roman_numerals": [
+        "bVI",
+        "bVII",
+        "i"
+      ],
+      "functions": [
+        "PD borrowed",
+        "D borrowed",
+        "T"
+      ],
+      "bars": "3 or 6",
+      "recipes": [
+        "MET-06",
+        "UEM-05"
+      ]
+    }
+  ]
+}

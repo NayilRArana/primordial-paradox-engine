@@ -1,0 +1,89 @@
+{
+  "bpm": 126.0,
+  "breaths": 20,
+  "bytes_in": 13048,
+  "bytes_out": 19504,
+  "changed_fraction": 0.9665,
+  "division": 480,
+  "envelope_points": 1605,
+  "fills": 22,
+  "grace_notes": 1,
+  "loop_period_bars": 8,
+  "midi_in": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_medium_spice.mid",
+  "midi_out": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_medium.mid",
+  "mordents": 1,
+  "motif": {
+    "bars": 2,
+    "returns": 4,
+    "start_bar": 2,
+    "third_return_bar": 18
+  },
+  "notes": 1044,
+  "notes_by_track": {
+    "dpcm": {
+      "changed": 79,
+      "notes": 89,
+      "role": "kick"
+    },
+    "meta": {
+      "changed": 0,
+      "notes": 0,
+      "role": "other"
+    },
+    "noise": {
+      "changed": 67,
+      "notes": 70,
+      "role": "drums"
+    },
+    "pulse 1": {
+      "changed": 288,
+      "notes": 288,
+      "role": "arpeggio"
+    },
+    "pulse 2": {
+      "changed": 93,
+      "notes": 93,
+      "role": "echo"
+    },
+    "triangle": {
+      "changed": 115,
+      "notes": 120,
+      "role": "bass"
+    },
+    "vrc6 pulse a": {
+      "changed": 133,
+      "notes": 137,
+      "role": "melody"
+    },
+    "vrc6 pulse b": {
+      "changed": 90,
+      "notes": 90,
+      "role": "counter"
+    },
+    "vrc6 saw": {
+      "changed": 144,
+      "notes": 160,
+      "role": "pad"
+    }
+  },
+  "notes_changed": 1009,
+  "notes_in": 1044,
+  "notes_out": 1069,
+  "onset_frames": 0.75,
+  "onset_shifts": 675,
+  "section_bars": [
+    8,
+    16,
+    24,
+    32,
+    40,
+    48,
+    52
+  ],
+  "seed": 20261022,
+  "sha256_in": "11e33a7e073bd22b0349d8097bf56b158fe9e70df7da2d429e0575916dce26e5",
+  "sha256_out": "d046e3ffc46389ee3b98dfc8a6426e5cbc053446e181dbf800ced0971bcd9951",
+  "tempo_us": 476190,
+  "ticks_per_frame": 16.8,
+  "vibrato_notes": 21
+}

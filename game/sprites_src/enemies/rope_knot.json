@@ -1,0 +1,21 @@
+{
+  "name": "rope_knot",
+  "frame_w": 32,
+  "frame_h": 32,
+  "frames": 3,
+  "fps": 8.0,
+  "frame_names": [
+    "idle0",
+    "idle1",
+    "hit"
+  ],
+  "hit_frame": 2,
+  "palette": "sp1_brown_gold",
+  "palette_entries": [
+    15,
+    7,
+    40
+  ],
+  "sprite": "spr_pp_rope_knot",
+  "note": "3 frames left to right: idle0, idle1, hit flash; transparent background"
+}

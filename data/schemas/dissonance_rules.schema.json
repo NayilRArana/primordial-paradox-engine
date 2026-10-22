@@ -1,0 +1,461 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://primordial-paradox.local/schemas/dissonance_rules.schema.json",
+  "title": "Primordial Paradox dissonance device catalogue",
+  "description": "Every device the arranger may inject against tonal material, with the exact recipe, the slot it may occupy, its duration, the resolution it owes, its rate budget per 8 bars, its risk level and its sources. Written by research-assistant for card t_baafc947. The device is an idea and a rule, never a transcribed melody.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version",
+    "card",
+    "written",
+    "currency",
+    "rate_policy",
+    "risk_levels",
+    "forbidden",
+    "rules",
+    "sources"
+  ],
+  "properties": {
+    "format": {
+      "const": "pp-dissonance-rules"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "card": {
+      "type": "string",
+      "minLength": 3
+    },
+    "written": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "currency": {
+      "type": "string",
+      "description": "The score family this catalogue was written against.",
+      "minLength": 3
+    },
+    "rate_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "note_count_per_8_bars_3_4",
+        "note_count_per_8_bars_4_4",
+        "device_rate_min_percent",
+        "device_rate_max_percent",
+        "devices_per_8_bars_min",
+        "devices_per_8_bars_max",
+        "strong_clash_max_per_8_bars",
+        "risk_2_max_per_8_bars",
+        "min_spacing_beats_any",
+        "min_spacing_bars_risk_3",
+        "derivation",
+        "measured_chromatic_share"
+      ],
+      "properties": {
+        "basis": {
+          "type": "string"
+        },
+        "note_count_per_8_bars_3_4": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "note_count_per_8_bars_4_4": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "device_rate_min_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "device_rate_max_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "devices_per_8_bars_min": {
+          "type": "number",
+          "minimum": 0
+        },
+        "devices_per_8_bars_max": {
+          "type": "number",
+          "minimum": 0
+        },
+        "strong_clash_max_per_8_bars": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "risk_2_max_per_8_bars": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "min_spacing_beats_any": {
+          "type": "number",
+          "minimum": 0
+        },
+        "min_spacing_bars_risk_3": {
+          "type": "number",
+          "minimum": 0
+        },
+        "derivation": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 10
+          }
+        },
+        "measured_chromatic_share": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mean_percent", "min_percent", "max_percent", "sources"],
+          "properties": {
+            "mean_percent": {
+              "type": "number"
+            },
+            "min_percent": {
+              "type": "number"
+            },
+            "max_percent": {
+              "type": "number"
+            },
+            "sources": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "pattern": "^S[0-9]+$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "risk_levels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["1", "2", "3"],
+      "patternProperties": {
+        "^[123]$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "meaning", "max_per_8_bars"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "meaning": {
+              "type": "string",
+              "minLength": 20
+            },
+            "max_per_8_bars": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "forbidden": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "rule", "check"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^F[0-9]+$"
+          },
+          "rule": {
+            "type": "string",
+            "minLength": 20
+          },
+          "check": {
+            "type": "string",
+            "minLength": 10
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 30,
+      "maxItems": 30,
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    },
+    "sources": {
+      "type": "object",
+      "minProperties": 5,
+      "additionalProperties": false,
+      "patternProperties": {
+        "^S[0-9]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["title", "url", "read", "supports"],
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 5
+            },
+            "url": {
+              "type": "string",
+              "minLength": 8
+            },
+            "read": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+            },
+            "supports": {
+              "type": "string",
+              "minLength": 10
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "beat_position": {
+      "type": "string",
+      "enum": [
+        "downbeat",
+        "beat_2",
+        "beat_3",
+        "beat_4",
+        "weak_beat",
+        "offbeat_eighth",
+        "second_half_of_beat",
+        "pickup",
+        "section_downbeat",
+        "any"
+      ]
+    },
+    "voice": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "echo",
+        "bass",
+        "pad",
+        "stab",
+        "arpeggio",
+        "countermelody",
+        "drums",
+        "any"
+      ]
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "family",
+        "trigger",
+        "recipe",
+        "where",
+        "duration_beats",
+        "resolution",
+        "rate_per_8_bars",
+        "risk",
+        "chip",
+        "test",
+        "sources",
+        "forbidden"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^DIS-[0-9]{2}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 5
+        },
+        "family": {
+          "type": "string",
+          "enum": [
+            "chromatic_passing",
+            "chromatic_neighbour",
+            "appoggiatura",
+            "suspension",
+            "anticipation",
+            "dominant_colour",
+            "modal_mixture",
+            "cadence",
+            "secondary_function",
+            "cross_voice_clash",
+            "harmonic_colour",
+            "gag",
+            "pedal",
+            "cluster"
+          ]
+        },
+        "trigger": {
+          "type": "string",
+          "minLength": 20,
+          "description": "The musical condition that must hold before the device may be written."
+        },
+        "recipe": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "string",
+            "minLength": 10
+          },
+          "description": "Ordered steps. Each step names an interval, a beat or a voice, so an injector can execute it without taste."
+        },
+        "where": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["voice", "beat_position", "chord_context", "section"],
+          "properties": {
+            "voice": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/voice"
+              }
+            },
+            "beat_position": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/beat_position"
+              }
+            },
+            "chord_context": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 3
+              }
+            },
+            "section": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "duration_beats": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min", "max"],
+          "properties": {
+            "min": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "resolution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "target",
+            "direction",
+            "interval_semitones",
+            "within_beats_min",
+            "within_beats_max",
+            "verdict_if_missing"
+          ],
+          "properties": {
+            "target": {
+              "type": "string",
+              "minLength": 8,
+              "description": "Which note the device must land on, phrased so a checker can test chord membership."
+            },
+            "direction": {
+              "type": "string",
+              "enum": ["up", "down", "either", "none_required"]
+            },
+            "interval_semitones": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 12
+            },
+            "within_beats_min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "within_beats_max": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "verdict_if_missing": {
+              "type": "string",
+              "enum": ["reject", "warn"]
+            }
+          }
+        },
+        "rate_per_8_bars": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min", "max"],
+          "properties": {
+            "min": {
+              "type": "number",
+              "minimum": 0
+            },
+            "max": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "risk": {
+          "type": "integer",
+          "enum": [1, 2, 3]
+        },
+        "chip": {
+          "type": "string",
+          "minLength": 10,
+          "description": "How the 2A03 plus VRC6 voices realise it, channel by channel."
+        },
+        "test": {
+          "type": "string",
+          "minLength": 10,
+          "description": "The assertion the injector or the checker runs to prove the device is correct."
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^S[0-9]+$"
+          }
+        },
+        "forbidden": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^F[0-9]+$"
+          }
+        },
+        "example_key": {
+          "type": "string",
+          "description": "Optional worked spelling in one key, notes only as scale degrees plus accidentals, never a tune."
+        }
+      }
+    }
+  }
+}

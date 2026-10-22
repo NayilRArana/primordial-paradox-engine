@@ -100,3 +100,8 @@ dash scan, which flags 14 lines in `EAR_REVIEW_126.md` plus
 `tests/test_spice.py` passes 24 of 24, and the humanize articulation failure in
 `tests/test_humanize.py` is a 0.2 tick rounding edge in that test's own synthetic
 song, untouched by this card.
+
+Correction, 2026-10-22 (card t_8a45271e, musician): the 14 long dashes in
+`EAR_REVIEW_126.md` were rewritten with commas and hyphens, so that scan now passes. The
+scan prunes any directory named `study`, which is why `knowledge/study/ut_decomp` never
+appears in its output; only the pasted note was ever flagged.

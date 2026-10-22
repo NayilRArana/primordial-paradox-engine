@@ -332,6 +332,35 @@ def test_the_tempo_and_the_time_signature_are_in_the_file(tmp_path, score):
                               str(tmp_path / "out.mid"))
     assert b"\xff\x51\x03" in data
     assert b"\xff\x58\x04\x03\x02\x18\x08" in data
+    # The marker bytes alone passed while the tempo VALUE was wrong, so read the
+    # value back. The pre-fix writer used 500000 * 60 / bpm, which for 104 bpm
+    # wrote 288461 instead of 576923 microseconds per quarter, and a tempo meta
+    # that is half its true value plays the cue at double speed: measured
+    # 2026-10-21, bpm read 208.0004, 52 bars came out at 45.0 s instead of
+    # 90.0 s, and every bar after the fifth arrived early, so an FFT of "bars 5
+    # and 6" read the notes of bars 10 and 11.
+    assert arrange.read_midi(data)["tempo_us"] == 60_000_000 // score["meta"]["bpm"]
+    assert arrange.read_midi(data)["tempo_us"] == 576923
+
+
+def test_the_renderer_clock_reads_90_seconds_from_the_arranged_midi(tmp_path, score):
+    """The renderer plays what the file says, so the file has to say 90 s.
+
+    This is the check a hand render does: parse the arranged MIDI the way
+    tools/render_chip.py parses it and ask how long 52 bars of 3/4 last.
+    """
+    import render_chip
+
+    path = tmp_path / "out.mid"
+    arrange.write_midi(arrange.build_arrangement(score), str(path))
+    midi = render_chip.parse_midi(str(path))
+    to_seconds = render_chip.make_clock(midi["tempo"], midi["division"])
+    end_tick = max(end for track in midi["tracks"] for (_s, end, _p, _v) in track.notes)
+    bar_ticks = midi["time_sig"][0] * midi["division"]
+    assert bar_ticks == 1440
+    assert end_tick / bar_ticks == pytest.approx(52.0, abs=0.02)
+    assert to_seconds(end_tick) == pytest.approx(90.0, abs=0.05)
+    assert 60_000_000.0 / midi["tempo"][0][1] == pytest.approx(104.0, abs=0.001)
 
 
 # ---------------------------------------------------------------- the guard

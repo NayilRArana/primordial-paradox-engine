@@ -7,8 +7,9 @@ and this tool does not compose. Every note it writes is one of three things:
 a melody note from the yaml, a chord tone of a chord symbol in the yaml, or
 the result of a recipe written in the voices block of the yaml.
 
-The output is a Standard MIDI File, format 1, ppq 480, 3/4, tempo from the
-meta block, with the eight track names the version 2 renderer expects:
+The output is a Standard MIDI File, format 1, ppq 480, with the time signature and
+tempo from the meta block (meta.time: "3/4" or "4/4"; a score without it reads
+as 3/4), and the eight track names the version 2 renderer expects:
 
     vrc6 pulse a   the melody, with vibrato and per section duty
     vrc6 pulse b   the guide tone counter melody (section A2 only)
@@ -235,8 +236,9 @@ class Bar:
         self.index = index              # 0 based
         self.number = index + 1         # 1 based, as the score counts them
         self.section = section
-        self.chords = []                # (Chord or None) for beats 1, 2, 3
+        self.chords = []                # (Chord or None), one entry per beat
         self.melody = []                # (start_slot, length, pitch or None)
+        self.second_voice = []          # (start_slot, length, pitch or None)
 
     @property
     def first_chord(self):
@@ -246,8 +248,10 @@ class Bar:
         return None
 
     def chord_at_slot(self, slot):
-        """The chord sounding at an eighth slot, 0 to 5."""
-        beat = min(2, slot // 2)
+        """The chord sounding at an eighth slot (two eighths to a beat)."""
+        if not self.chords:
+            return None
+        beat = min(len(self.chords) - 1, slot // 2)
         return self.chords[beat]
 
 
@@ -464,6 +468,10 @@ class Arrangement:
                 "loop_start_bar": score["meta"]["loop_start_bar"],
             }
         self.meta = meta
+        # A bar's length is per score (meta.time), not per module: the waltz is
+        # six eighths, the hadrian cue eight. The default keeps every score
+        # written before the 4/4 work on the same ticks it always had.
+        self.ticks_per_bar = int(meta.get("ticks_per_bar") or TICKS_PER_BAR)
 
     # helpers -----------------------------------------------------------
     def add(self, track, start_tick, length, pitch, velocity):
@@ -473,7 +481,7 @@ class Arrangement:
         self.controls[track].append((tick, controller, value))
 
     def bar_start(self, bar):
-        return bar.index * TICKS_PER_BAR
+        return bar.index * self.ticks_per_bar
 
 
 # ---------------------------------------------------------- the arrangement
@@ -1111,8 +1119,33 @@ def resolve_melody_v3(score, name, resolved):
     return bars
 
 
+def score_geometry(score):
+    """(beats per bar, eighth slots per bar, ticks per bar) from `meta.time`.
+
+    "4/4" reads as four beats and eight eighths, "3/4" as three and six. A
+    score with no `time` keeps the waltz reading this module started with, so
+    the title theme and the Percy theme cannot move. Only a /4 denominator is
+    accepted: every recipe here counts eighths, and a /8 signature would mean a
+    different slot grid, which no score asks for yet.
+    """
+    meta = score.get("meta") or {}
+    text = str(meta.get("time") or "3/4").strip()
+    found = re.match(r"^(\d+)\s*/\s*(\d+)$", text)
+    if not found:
+        raise ValueError("meta.time %r is not a time signature" % (text,))
+    beats, denominator = int(found.group(1)), int(found.group(2))
+    if denominator != 4:
+        raise ValueError("meta.time %r: only a /4 denominator is supported" % (text,))
+    if not 2 <= beats <= 8:
+        raise ValueError("meta.time %r: %d beats per bar is not supported"
+                         % (text, beats))
+    slots = beats * 2
+    return beats, slots, slots * EIGHTH
+
+
 def build_bars_v3(score):
     """The bars of the version 3 piece, in playing order."""
+    beats, slots, _ticks = score_geometry(score)
     names = v3_section_names(score)
     resolved = {}
     for name in names:
@@ -1138,16 +1171,20 @@ def build_bars_v3(score):
         for offset, symbol in enumerate(chords):
             bar = Bar(len(bars), name)
             left, right = split_chord_symbol(symbol)
-            bar.chords = [parse_chord(left), parse_chord(left), parse_chord(right)]
+            # The score convention: X on beats 1 and 2, Y on the rest of the
+            # bar. A 3/4 bar is [X, X, Y]; a 4/4 bar is [X, X, Y, Y].
+            split_at = 2 if beats >= 4 else max(1, beats // 2)
+            bar.chords = ([parse_chord(left)] * split_at
+                          + [parse_chord(right)] * (beats - split_at))
             slot = 0
             for entry in melody[offset]:
                 note, length = entry[0], int(entry[1])
                 pitch = None if note in ("r", "rest", None) else note_to_midi(note)
                 bar.melody.append((slot, length, pitch))
                 slot += length
-            if slot != SLOTS:
+            if slot != slots:
                 raise ValueError("bar %d of section %s holds %d eighths, not %d"
-                                 % (bar.number, name, slot, SLOTS))
+                                 % (bar.number, name, slot, slots))
             bars.append(bar)
     return bars
 
@@ -1554,7 +1591,7 @@ def max_simultaneous_by_section(arrangement):
     count = 0
     for tick, delta in events:
         count += delta
-        index = min(len(bars) - 1, max(0, tick // TICKS_PER_BAR))
+        index = min(len(bars) - 1, max(0, tick // arrangement.ticks_per_bar))
         section = bars[index].section
         if count > per_section.get(section, 0):
             per_section[section] = max(count, 0)
@@ -1579,7 +1616,8 @@ def self_check_v3(arrangement, data=None):
         "bpm": bpm,
         "beats_per_bar": arrangement.meta["beats_per_bar"],
         "key": (score.get("meta") or {}).get("key"),
-        "duration_seconds": round(total_bars * 3 * 60.0 / bpm, 3),
+        "duration_seconds": round(total_bars * arrangement.meta["beats_per_bar"]
+                                  * 60.0 / bpm, 3),
         "loop_start_bar": arrangement.meta["loop_start_bar"],
         "loop_end_bar": total_bars,
         "loop_bars": total_bars - arrangement.meta["loop_start_bar"] + 1,
@@ -1639,8 +1677,810 @@ def self_check_v3(arrangement, data=None):
             tempo_us == expected_us
             and parsed["time_sig"] == (arrangement.meta["beats_per_bar"], 4))
         result["midi_duration_seconds"] = round(
-            total_bars * TICKS_PER_BAR / PPQ * tempo_us / 1e6, 3)
+            total_bars * arrangement.ticks_per_bar / PPQ * tempo_us / 1e6, 3)
     return result
+
+
+# ================================= version 3, the percy profile (boss cue)
+#
+# assets/audio/percy_theme/score_percy.yaml uses the version 3 sections schema
+# but a different family of textures: scaled down rock in the intro, A and A
+# prime, a Baroque chaconne in B, and a rock close. The recipe ids its texture
+# lines name are from knowledge/MUSIC-STYLE-BIBLE.md:
+#
+#   RCK-01  power chord, root on pulse 1 and fifth on pulse 2, no third
+#   RCK-02  octave doubled power chord on the VRC6 pulse at 70 percent
+#   RCK-03  palm mute as an envelope: a short gate, the attack is the note
+#   RCK-04  triangle root pedal, the leap on the last beat before a change
+#   RCK-05  the kit: DPCM kick and snare, noise hat, here in 3/4
+#   RCK-12  a crash on the close
+#   BAR-05  a fixed triangle ground bass over a chaconne progression
+#   BAR-08  the chord broken in sixteenths as the countermelody
+#   BAR-12  a held shell pad as the continuo
+#   CLS-09  a counted i iv V7 i close
+#
+# meta.profile == "percy" selects it, so the title theme path is untouched.
+
+PERCY_TEXTURE_READ_AS = {
+    "intro": "the low riff: pulse 1 root and pulse 2 fifth in muted eighths, triangle pedal on G, "
+             "saw a low held root and fifth, no lead, no hats, one pickup kick",
+    "A": "the riff: lead duty 0.5 palm muted, pulse 1 root and pulse 2 fifth muted, pulse b the root "
+         "octave, triangle G pedal, kick on beat 1 and snare on beat 3, no hats",
+    "B": "the chaconne: triangle ground in quarters, pulse 1 a sixteenth arpeggio, lead quarters with "
+         "vibrato, pulse b a shell pad, hats on beats 2 and 3, no saw, no kick",
+    "A_prime": "as A with the lead an octave up and the mute released, a hat on beat 2, a fill on the last bar",
+    "cadence": "the close: full band with the mute released, power chord, saw low, kick on beat 1 and "
+               "snare on beat 3, one crash on the last bar",
+}
+
+PERCY_VOICE_RANGES = {
+    "vrc6 pulse a": (55, 91),
+    "vrc6 pulse b": (43, 84),
+    "vrc6 saw": (36, 60),
+    # The riff of A is a power chord on the two 2A03 pulses, and its top note
+    # is D5: the fifth of that note, A5, has to fit, so the ceiling is A5 and
+    # not G5. Nothing else in the cue moves: the intro and the close sit far
+    # below this.
+    "pulse 1": (43, 84),
+    "pulse 2": (43, 84),
+    "triangle": (36, 55),
+    "noise": (1, 15),
+    "dpcm": (36, 38),
+}
+
+# Section level, 0 to 15 chip volume, and the share of it each voice takes.
+PERCY_LEVELS = {"intro": 6, "A": 9, "B": 8, "A_prime": 11, "cadence": 12}
+PERCY_TRACK_LEVEL = {
+    "vrc6 pulse a": 1.0,
+    "vrc6 pulse b": 0.75,
+    "vrc6 saw": 0.55,
+    "pulse 1": 0.80,
+    "pulse 2": 0.80,
+    "triangle": 1.0,
+    "noise": 0.70,
+    "dpcm": 1.0,
+}
+
+# The palm mute of RCK-03, as a gate. The chip has no hand, so the gate is the
+# whole effect: the note is attacked and decays inside a fraction of its own
+# written length.
+PERCY_GATE_MUTED = 0.40
+PERCY_GATE_OPEN = 0.90
+PERCY_ARP_SIXTEENTH = EIGHTH // 2
+PULSE_DUTY_50_2A03 = 2          # DUTY_TABLE index of the 2A03 50 percent square
+
+# The sections where the mute is on, so the lead may not ring or vibrate.
+PERCY_MUTED_SECTIONS = ("intro", "A")
+# The intro riff and the power chord registers, low, as MET-10 asks.
+PERCY_POWER_CHORD_RANGE = (43, 57)
+PERCY_POWER_TARGET = 46        # the octave the riff root is chosen in, Bb2
+PERCY_ARP_ROOT_RANGE = (52, 65)
+PERCY_PAD_RANGE = (55, 72)
+PERCY_CRASH_PITCH = 10
+# G minor as the melody of A uses it: natural minor plus the leading tone of
+# V7. A fifth is only played when it stays inside these classes.
+PERCY_MINOR_CLASSES = frozenset({0, 2, 3, 5, 6, 7, 9, 10})
+
+
+def _percy_fifth_offset(root):
+    """The interval of the upper note of a riff power chord.
+
+    A perfect fifth when that fifth is inside G minor, otherwise an octave, the
+    one doubling that can never be wrong. A third is never played: that is what
+    RCK-01 asks for, and it is what keeps the riff a power chord and not a
+    chord line.
+    """
+    return 7 if (root + 7) % 12 in PERCY_MINOR_CLASSES else 12
+
+
+def percy_section_duty(score, name):
+    """The duty of the lead in one section, from the voices block and the texture."""
+    default = 0.5
+    declared = (score.get("voices") or {}).get("vrc6_pulse_a") or {}
+    if isinstance(declared.get("duty"), (int, float)):
+        default = float(declared["duty"])
+    texture = (score["sections"].get(name) or {}).get("texture") or ""
+    found = V3_DUTY_IN_TEXTURE.findall(texture)
+    return float(found[-1]) if found else default
+
+
+def _percy_chord_fifth(chord):
+    """The perfect fifth of a chord, as semitones above its root."""
+    return chord.tones[2] if len(chord.tones) > 2 else 7
+
+
+def _percy_root_pitch(chord, reference):
+    """The chord root in the power chord register.
+
+    The root keeps one octave for the whole cue instead of following the
+    previous note, so the riff does not leap an octave between i and III: every
+    root is the one nearest G2 to D3, which is G2, Bb2, C3, D3 for the chords
+    this score uses.
+    """
+    lo, hi = PERCY_POWER_CHORD_RANGE
+    return _bass_pitch(chord.root_pc, lo, hi, PERCY_POWER_TARGET)
+
+
+def _percy_muted_length(written):
+    """A palm muted gate for a written length in ticks."""
+    return max(EIGHTH // 4, int(round(written * PERCY_GATE_MUTED)))
+
+
+def _percy_lead(out, bars):
+    """The lead: the tide in B, A prime and the cadence.
+
+    In A the riff is the power chord on the two pulses (see `_percy_power`), so
+    the VRC6 lead is silent there: it arrives in A prime, an octave up, which is
+    the contrast the brief asks for. The intro has no lead either.
+    """
+    voices = out.score.get("voices") or {}
+    vibrato = (voices.get("vrc6_pulse_a") or {}).get("vibrato") or {}
+    played = []
+    seen = set()
+    for bar in bars:
+        start = out.bar_start(bar)
+        if bar.section not in seen:
+            seen.add(bar.section)
+            out.add_control("vrc6 pulse a", start, 12,
+                            vrc6_duty_value(percy_section_duty(out.score, bar.section)))
+        if bar.section == "A":
+            continue
+        muted = bar.section in PERCY_MUTED_SECTIONS
+        gate = PERCY_GATE_MUTED if muted else PERCY_GATE_OPEN
+        for slot, length, pitch in bar.melody:
+            if pitch is None:
+                continue
+            written = length * EIGHTH
+            held = max(EIGHTH // 4, int(round(written * gate)))
+            tick = start + slot * EIGHTH
+            out.add("vrc6 pulse a", tick, held, pitch, 100)
+            played.append({"tick": tick, "written": written, "pitch": pitch,
+                           "section": bar.section})
+
+    if vibrato:
+        depth_cents = float(vibrato.get("depth_cents", 12))
+        after = float(vibrato.get("after_eighths", 1))
+        min_eighths = int(vibrato.get("min_note_eighths", 3))
+        depth_value = max(0, min(127, round(depth_cents / 100.0 / 2.0 * 127)))
+        delay_value = max(0, min(127, round(after)))
+        for row in played:
+            wants = (row["section"] not in PERCY_MUTED_SECTIONS
+                     and row["written"] >= min_eighths * EIGHTH)
+            out.add_control("vrc6 pulse a", row["tick"], 1, depth_value if wants else 0)
+            out.add_control("vrc6 pulse a", row["tick"], 20, delay_value if wants else 0)
+    return played
+
+
+def _percy_power(out, bars):
+    """RCK-01 and RCK-02: root on pulse 1, fifth on pulse 2, octave on pulse b.
+
+    The rhythm is the melody's own rhythm, so the chord is the riff and not a
+    second part. In the intro the riff is the low pattern the score names.
+    """
+    roots = []
+    previous_root = None
+    for bar in bars:
+        start = out.bar_start(bar)
+        if bar.section not in ("intro", "A", "A_prime", "cadence"):
+            continue
+        if bar.section == "intro":
+            slots = (0, 1, 2, 4)
+            for slot in slots:
+                chord = bar.chord_at_slot(slot)
+                if chord is None:
+                    continue
+                root = _percy_root_pitch(chord, previous_root)
+                previous_root = root
+                held = _percy_muted_length(EIGHTH)
+                tick = start + slot * EIGHTH
+                out.add("pulse 1", tick, held, root, 92)
+                out.add("pulse 2", tick, held, root + _percy_chord_fifth(chord), 92)
+                out.add("vrc6 pulse b", tick, held, root + 12, 70)
+                roots.append(root)
+            continue
+        for slot, length, melody_pitch in bar.melody:
+            chord = bar.chord_at_slot(slot)
+            if chord is None:
+                continue
+            if bar.section == "A" and melody_pitch is not None:
+                # RCK-01 in its riff form: the riff note is the root of the
+                # power chord, so the contour of motif P is what the two pulses
+                # play, and the chord of the bar is only the floor the riff is
+                # pinned to. This is the section the brief gives to the pulses;
+                # the VRC6 lead enters in A prime.
+                root = melody_pitch
+                previous_root = root
+                offset = _percy_fifth_offset(root)
+            else:
+                root = _percy_root_pitch(chord, previous_root)
+                previous_root = root
+                offset = _percy_chord_fifth(chord)
+            written = length * EIGHTH
+            held = _percy_muted_length(written)
+            if bar.section == "cadence":
+                held = max(held, int(round(written * 0.75)))
+            tick = start + slot * EIGHTH
+            out.add("pulse 1", tick, held, root, 94)
+            out.add("pulse 2", tick, held, root + offset, 94)
+            upper = root + 12
+            if upper <= PERCY_VOICE_RANGES["vrc6 pulse b"][1]:
+                out.add("vrc6 pulse b", tick, held, upper, 70)
+            roots.append(root)
+    return roots
+
+
+def _percy_pad(out, bars):
+    """BAR-12: a held shell pad, third and seventh, as the continuo of section B."""
+    voicing = Voicing(*PERCY_PAD_RANGE)
+    for bar in bars:
+        if bar.section != "B":
+            continue
+        start = out.bar_start(bar)
+        chord = bar.first_chord
+        if chord is None:
+            continue
+        offsets = shell_offsets(chord)
+        if not offsets:
+            continue
+        classes = tuple(sorted({(chord.root_pc + offset) % 12 for offset in offsets}))
+        for pitch in voicing.place(classes, 0):
+            out.add("vrc6 pulse b", start, BAR, pitch, 62)
+
+
+def _percy_arp16(out, bars):
+    """BAR-08: the chord broken in sixteenths, rising then falling.
+
+    Twelve sixteenths to the bar, two groups of six, the second an octave above
+    the first. Bars 1 to 4 of the section rise, bars 5 to 8 fall, so the second
+    pass of the chaconne changes the part above the fixed bass.
+    """
+    lo, hi = PERCY_VOICE_RANGES["pulse 1"]
+    first = v3_section_first_bars(bars).get("B")
+    if first is None:
+        return
+    previous = None
+    for bar in bars:
+        if bar.section != "B":
+            continue
+        start = out.bar_start(bar)
+        chord = bar.chord_at_slot(0)
+        if chord is None:
+            continue
+        third = chord.tones[1] if len(chord.tones) > 1 else 4
+        fifth = _percy_chord_fifth(chord)
+        rising = (bar.index - first) < 4
+        if rising:
+            figure = (0, third, fifth, 12, fifth, third)
+        else:
+            figure = (12, fifth, third, 0, third, fifth)
+        low, high = PERCY_ARP_ROOT_RANGE
+        options = [p for p in range(low, high + 1) if p % 12 == chord.root_pc]
+        if not options:
+            continue
+        base = min(options, key=lambda p: (abs(p - previous) if previous is not None else 0, p))
+        for half in (0, 1):
+            for index, offset in enumerate(figure):
+                pitch = base + offset + 12 * half
+                while pitch > hi:
+                    pitch -= 12
+                while pitch < lo:
+                    pitch += 12
+                tick = start + (half * len(figure) + index) * PERCY_ARP_SIXTEENTH
+                out.add("pulse 1", tick, PERCY_ARP_SIXTEENTH, pitch, 76)
+                previous = pitch
+
+
+def _percy_triangle(out, bars):
+    """The bass: a G pedal in A and A prime, the ground bass in B, i iv V7 i in the close."""
+    lo, hi = PERCY_VOICE_RANGES["triangle"]
+    pedal_low = _bass_pitch(7, lo, hi, lo)            # the tonic G at the floor: G2
+    pedal_high = min(hi, pedal_low + 12)              # G3
+    first_prime = v3_section_first_bars(bars).get("A_prime")
+    for bar in bars:
+        start = out.bar_start(bar)
+        if bar.section in ("intro", "A", "A_prime"):
+            pattern = (pedal_low, pedal_high, pedal_low)
+            if (bar.section == "A_prime" and first_prime is not None
+                    and (bar.index - first_prime) % 4 == 3):
+                # RCK-04: the leap lands on the last beat before the change.
+                pattern = (pedal_low, pedal_high, pedal_high)
+            for beat, pitch in enumerate(pattern):
+                out.add("triangle", start + beat * 2 * EIGHTH, 2 * EIGHTH, pitch,
+                        104 if beat == 0 else 92)
+            continue
+        if bar.section in ("B", "cadence"):
+            chord = bar.first_chord
+            if chord is None:
+                continue
+            # The ground figure is one pattern for the whole section: root, the
+            # perfect fifth above it, then the octave, in the bass register.
+            root = _bass_pitch(chord.bass_pc, lo, hi, pedal_low)
+            fifth = _bass_pitch((chord.root_pc + _percy_chord_fifth(chord)) % 12,
+                                lo, hi, root + 7)
+            octave = root + 12 if root + 12 <= hi else root
+            for beat, pitch in enumerate((root, fifth, octave)):
+                out.add("triangle", start + beat * 2 * EIGHTH, 2 * EIGHTH, pitch,
+                        100 if beat == 0 else 92)
+
+
+def _percy_saw(out, bars):
+    """A low held root and fifth in the intro, the root alone in the close.
+
+    The close already has the lead, two pulses, the doubling and the kit, so the
+    saw keeps one note there and the arrangement stays inside eight notes.
+    """
+    low_voicing = Voicing(36, 52)
+    for bar in bars:
+        if bar.section not in ("intro", "cadence"):
+            continue
+        start = out.bar_start(bar)
+        chord = bar.first_chord
+        if chord is None:
+            continue
+        if bar.section == "cadence":
+            out.add("vrc6 saw", start, BAR,
+                    _bass_pitch(chord.root_pc, 36, 52, 43), 58)
+            continue
+        classes = tuple(sorted({chord.root_pc % 12,
+                                (chord.root_pc + _percy_chord_fifth(chord)) % 12}))
+        for pitch in low_voicing.place(classes, 0):
+            out.add("vrc6 saw", start, BAR, pitch, 58)
+
+
+def _percy_noise(out, bars):
+    """RCK-05 in 3/4: a soft lilt in B, a hat and a fill in A prime, one crash in the close."""
+    last_bar = {}
+    for bar in bars:
+        last_bar[bar.section] = bar.number
+    for bar in bars:
+        start = out.bar_start(bar)
+        if bar.section == "B":
+            for slot in (2, 4):
+                out.add("noise", start + slot * EIGHTH, EIGHTH, HAT_SOFT, 48)
+        elif bar.section == "A_prime":
+            if bar.number == last_bar["A_prime"]:
+                out.add("noise", start + 2 * EIGHTH, EIGHTH, HAT_SOFT, 52)
+                for index, pitch in enumerate(FILL_PITCHES):
+                    out.add("noise", start + (3 + index) * EIGHTH, EIGHTH, pitch, 92)
+            else:
+                out.add("noise", start + 2 * EIGHTH, EIGHTH, HAT_SOFT, 44)
+        elif bar.section == "cadence" and bar.number == last_bar["cadence"]:
+            out.add("noise", start, 2 * EIGHTH, PERCY_CRASH_PITCH, 104)
+
+
+def _percy_dpcm(out, bars):
+    """RCK-05: the kick on beat 1 and the snare on beat 3, and the pickup kick of the intro."""
+    last_bar = {}
+    for bar in bars:
+        last_bar[bar.section] = bar.number
+    for bar in bars:
+        start = out.bar_start(bar)
+        if bar.section in ("A", "A_prime", "cadence"):
+            out.add("dpcm", start, EIGHTH, 36, 112)
+            out.add("dpcm", start + 4 * EIGHTH, EIGHTH, 38, 96)
+            if bar.section == "A_prime" and bar.number == last_bar["A_prime"]:
+                out.add("dpcm", start + 5 * EIGHTH, EIGHTH, 38, 88)
+        elif bar.section == "intro" and bar.number == last_bar["intro"]:
+            out.add("dpcm", start + 4 * EIGHTH, EIGHTH, 36, 100)
+
+
+def build_arrangement_percy(score):
+    """Turn the percy score into the same eight voice lines the renderer reads."""
+    bars = build_bars_v3(score)
+    meta = {
+        "bpm": float(score["meta"]["bpm"]),
+        "beats_per_bar": 3,
+        "loop_start_bar": v3_loop_start_bar(score, bars),
+    }
+    out = Arrangement(score, bars, meta)
+    first = v3_section_first_bars(bars)
+
+    for bar in bars:
+        start = out.bar_start(bar)
+        level = PERCY_LEVELS.get(bar.section, 8)
+        for track in TRACK_NAMES:
+            value = max(0, min(15, int(round(level * PERCY_TRACK_LEVEL[track]))))
+            out.add_control(track, start, 11, value)
+        # RCK-01 asks for 50 percent duty on both 2A03 pulses.
+        out.add_control("pulse 1", start, 12, PULSE_DUTY_50_2A03)
+        out.add_control("pulse 2", start, 12, PULSE_DUTY_50_2A03)
+        # The VRC6 pulse b is the doubling voice: a 50 percent duty too.
+        out.add_control("vrc6 pulse b", start, 12, vrc6_duty_value(0.5))
+
+    _percy_lead(out, bars)
+    _percy_power(out, bars)
+    _percy_pad(out, bars)
+    _percy_arp16(out, bars)
+    _percy_triangle(out, bars)
+    _percy_saw(out, bars)
+    _percy_noise(out, bars)
+    _percy_dpcm(out, bars)
+    return out
+
+
+def self_check_percy(arrangement, data=None):
+    """The checks the card names, for the boss cue, as numbers."""
+    score = arrangement.score
+    bars = arrangement.bars
+    bpm = float(arrangement.meta["bpm"])
+    first = v3_section_first_bars(bars)
+    result = {
+        "schema": "v3",
+        "profile": (score.get("meta") or {}).get("profile"),
+        "sections": list(score["sections"]),
+        "section_bars": {name: len([b for b in bars if b.section == name])
+                         for name in score["sections"]},
+        "section_first_bar": {name: first[name] + 1 for name in first},
+        "bars": len(bars),
+        "bpm": bpm,
+        "beats_per_bar": arrangement.meta["beats_per_bar"],
+        "key": (score.get("meta") or {}).get("key"),
+        "duration_seconds": round(len(bars) * TICKS_PER_BAR / PPQ * 60.0 / bpm, 3),
+        "loop_start_bar": arrangement.meta["loop_start_bar"],
+        "loop_end_bar": len(bars),
+        "loop_bars": len(bars) - arrangement.meta["loop_start_bar"] + 1,
+        "tracks": list(TRACK_NAMES),
+        "notes": {name: len(arrangement.notes[name]) for name in TRACK_NAMES},
+        "max_simultaneous_notes": max_simultaneous(arrangement),
+        "max_simultaneous_by_section": max_simultaneous_by_section(arrangement),
+        "out_of_range": [],
+    }
+
+    for name in TRACK_NAMES:
+        lo, hi = PERCY_VOICE_RANGES[name]
+        for start, _end, pitch in note_spans(arrangement.notes[name]):
+            if not (lo <= pitch <= hi):
+                result["out_of_range"].append(
+                    {"track": name, "tick": start, "pitch": pitch,
+                     "note": midi_to_name(pitch), "range": [lo, hi]})
+
+    chords_written = {name: [chord_symbol_of_bar(bar) for bar in bars
+                             if bar.section == name] for name in score["sections"]}
+    chords_score = {name: list(score["sections"][name]["chords"])
+                    for name in score["sections"]}
+    result["chords_by_section"] = chords_written
+    result["chords_match_score"] = chords_written == chords_score
+
+    # RCK-01 says no third anywhere: every pulse 1 note that has a pulse 2 note
+    # under it must be a perfect fifth or an octave above it. The octave is the
+    # fallback of the riff where a fifth would leave G minor, and it is still a
+    # power chord; a third, at any octave, is the failure this catches.
+    by_tick_1 = {start: pitch for start, _end, pitch in note_spans(arrangement.notes["pulse 1"])}
+    by_tick_2 = {start: pitch for start, _end, pitch in note_spans(arrangement.notes["pulse 2"])}
+    intervals = sorted({by_tick_2[tick] - pitch for tick, pitch in by_tick_1.items()
+                        if tick in by_tick_2})
+    result["power_chord_intervals"] = intervals
+    result["power_chord_has_no_third"] = all(interval % 12 in (0, 7) for interval in intervals)
+    result["power_chord_has_a_fifth"] = 7 in intervals
+
+    # RCK-04: the triangle pedal in A and A prime is the tonic G all the way.
+    pedal = sorted({pitch % 12 for start, _end, pitch in note_spans(arrangement.notes["triangle"])
+                    if bars[min(len(bars) - 1, start // TICKS_PER_BAR)].section
+                    in ("intro", "A", "A_prime")})
+    result["triangle_pedal_pitch_classes"] = pedal
+    result["triangle_pedal_is_g"] = pedal == [7]
+
+    # BAR-05: the ground bass of B is one four bar figure repeated twice.
+    b_bars = [bar for bar in bars if bar.section == "B"]
+    if len(b_bars) >= 8:
+        spans = {start: (end - start, pitch)
+                 for start, end, pitch in note_spans(arrangement.notes["triangle"])}
+        def figure(offset):
+            rows = []
+            for bar in b_bars[offset:offset + 4]:
+                base = arrangement.bar_start(bar)
+                for slot in range(SLOTS):
+                    tick = base + slot * EIGHTH
+                    if tick in spans:
+                        rows.append((slot, spans[tick][0], spans[tick][1]))
+            return rows
+        result["ground_bass_first_pass"] = figure(0)
+        result["ground_bass_second_pass"] = figure(4)
+        result["ground_bass_repeats"] = figure(0) == figure(4)
+
+    if data is not None:
+        parsed = read_midi(data)
+        result["midi_tracks"] = [name for name, _notes in parsed["tracks"]]
+        result["midi_ntracks"] = parsed["ntracks"]
+        result["midi_division"] = parsed["division"]
+        tempo_us = parsed["tempo_us"]
+        result["midi_tempo_us_per_qn"] = tempo_us
+        result["midi_bpm"] = round(60_000_000.0 / tempo_us, 3) if tempo_us else None
+        result["midi_time_signature"] = ("%d/%d" % parsed["time_sig"]
+                                        if parsed["time_sig"] else None)
+        result["tempo_meta_matches_score"] = (
+            tempo_us == _microseconds_per_quarter(bpm)
+            and parsed["time_sig"] == (arrangement.meta["beats_per_bar"], 4))
+    return result
+
+
+# ================================= version 3, the hadrian profile (cold cue)
+#
+# assets/audio/hadrian_theme/score_hadrian.yaml is the first 4/4 score: meta.time
+# is "4/4" and meta.profile is "hadrian". Its texture is deliberately not the
+# waltz, so it gets its own recipe set, chosen by the profile and not by the time
+# signature alone (a later 4/4 cue may differ):
+#
+#   pulse 2   the server hum, sixteenth notes on D4 (MIDI 62), every bar, duty 12.5%
+#   vrc6 saw  the low drone on the chord root, one note per bar
+#   triangle  the root on beat 1 (a whole note per bar in A_second)
+#   noise     closed hats in eighths on beats 1 and 3; beat 1 only in the last two sections
+#   dpcm      the kick on beats 1 and 3 of every bar
+#   pulse 1   silent for the whole cue
+#   pulse b   the score's second_voice bars (the fugue answer H4)
+#   pulse a   the lead, exactly the melody in the score
+#
+# No vibrato anywhere: the score's voices block says so, and the cold read comes
+# from exact rhythm. Levels are the 0 to 15 chip numbers the texture lines name;
+# the lead and the answer sit above them so the melody reads.
+
+HADRIAN_HUM_PITCH = 62              # D4: the server hum is one pitch for 32 bars
+HADRIAN_SAW_RANGE = (43, 55)        # G2 to G3: D3, Bb2, G2, A2 as the score names them
+HADRIAN_TRIANGLE_RANGE = (31, 45)   # octave 2: G1 to D2
+
+# Chip levels per section, read from the score's texture lines (hum 4, saw 5,
+# triangle 6, hats 3; the close takes one notch off each and the hum to 3).
+# The lead is 10 throughout and the answer 9, the numbers the score gives pulse b.
+HADRIAN_LEVELS = {
+    "A":        {"vrc6 pulse a": 10, "pulse 2": 4, "vrc6 saw": 5,
+                 "triangle": 6, "noise": 3, "dpcm": 10},
+    "A_fugue":  {"vrc6 pulse a": 10, "vrc6 pulse b": 9, "pulse 2": 4,
+                 "vrc6 saw": 5, "triangle": 6, "noise": 3, "dpcm": 10},
+    "A_second": {"vrc6 pulse a": 10, "vrc6 pulse b": 9, "pulse 2": 4,
+                 "vrc6 saw": 5, "triangle": 6, "noise": 3, "dpcm": 10},
+    "close":    {"vrc6 pulse a": 10, "pulse 2": 3, "vrc6 saw": 4,
+                 "triangle": 5, "noise": 2, "dpcm": 10},
+}
+HADRIAN_HAT_SECTIONS = ("A", "A_fugue")   # eighths on beats 1 and 3; others beat 1 only
+HADRIAN_WHOLE_NOTE_TRIANGLE = ("A_second",)
+
+
+def _hadrian_declared_duty(score, voice, fallback):
+    """The duty the voices block declares for one voice."""
+    declared = (score.get("voices") or {}).get(voice) or {}
+    duty = declared.get("duty")
+    return float(duty) if isinstance(duty, (int, float)) else fallback
+
+
+def _hadrian_attach_second_voice(score, bars, slots):
+    """Read each section's second_voice block onto the bars it belongs to.
+
+    The block is written exactly like melody: one list of [note, length] per bar
+    of that section. It is a hadrian-profile field (the fugue answer), so it is
+    read here rather than in build_bars_v3, which the waltz scores share.
+    """
+    offset = {}
+    for bar in bars:
+        index = offset.get(bar.section, 0)
+        offset[bar.section] = index + 1
+        spec = score["sections"].get(bar.section) or {}
+        rows = spec.get("second_voice")
+        bar.second_voice = []
+        if not rows:
+            continue
+        if index >= len(rows):
+            raise ValueError("section %s has %d second_voice bars, bar %d needs one"
+                             % (bar.section, len(rows), index + 1))
+        slot = 0
+        for entry in rows[index]:
+            note, length = entry[0], int(entry[1])
+            pitch = None if note in ("r", "rest", None) else note_to_midi(note)
+            bar.second_voice.append((slot, length, pitch))
+            slot += length
+        if slot != slots:
+            raise ValueError("second voice of bar %d of section %s holds %d eighths, not %d"
+                             % (bar.number, bar.section, slot, slots))
+
+
+def _hadrian_lead(out, bars):
+    """The lead: every melody note of the score, no vibrato."""
+    for bar in bars:
+        start = out.bar_start(bar)
+        for slot, length, pitch in bar.melody:
+            if pitch is None:
+                continue
+            out.add("vrc6 pulse a", start + slot * EIGHTH, length * EIGHTH, pitch, 100)
+
+
+def _hadrian_answer(out, bars):
+    """Pulse b: the second_voice bars, the fugue answer in the fourth."""
+    for bar in bars:
+        start = out.bar_start(bar)
+        for slot, length, pitch in bar.second_voice:
+            if pitch is None:
+                continue
+            out.add("vrc6 pulse b", start + slot * EIGHTH, length * EIGHTH, pitch, 100)
+
+
+def _hadrian_hum(out, bars):
+    """Pulse 2: the server hum, sixteenth notes on one pitch, every bar."""
+    step = EIGHTH // 2
+    per_bar = out.ticks_per_bar // step
+    for bar in bars:
+        start = out.bar_start(bar)
+        for index in range(per_bar):
+            out.add("pulse 2", start + index * step, step, HADRIAN_HUM_PITCH, 90)
+
+
+def _hadrian_saw(out, bars):
+    """The saw: one low drone on the chord root, held for the whole bar."""
+    lo, hi = HADRIAN_SAW_RANGE
+    previous = None
+    for bar in bars:
+        chord = bar.first_chord
+        if chord is None:
+            continue
+        root = _bass_pitch(chord.bass_pc, lo, hi, previous)
+        previous = root
+        out.add("vrc6 saw", out.bar_start(bar), out.ticks_per_bar, root, 90)
+
+
+def _hadrian_triangle(out, bars):
+    """The triangle: the root on beat 1, a whole note per bar in A_second."""
+    lo, hi = HADRIAN_TRIANGLE_RANGE
+    previous = None
+    for bar in bars:
+        chord = bar.first_chord
+        if chord is None:
+            continue
+        root = _bass_pitch(chord.bass_pc, lo, hi, previous)
+        previous = root
+        length = (out.ticks_per_bar if bar.section in HADRIAN_WHOLE_NOTE_TRIANGLE
+                  else BEAT)
+        out.add("triangle", out.bar_start(bar), length, root, 100)
+
+
+def _hadrian_noise(out, bars):
+    """Closed hats in eighths on beats 1 and 3; beat 1 only in the last two sections."""
+    for bar in bars:
+        start = out.bar_start(bar)
+        beats = (0, 2) if bar.section in HADRIAN_HAT_SECTIONS else (0,)
+        for beat in beats:
+            for eighth in (0, 1):
+                out.add("noise", start + beat * BEAT + eighth * EIGHTH,
+                        EIGHTH, HAT_SOFT, 90)
+
+
+def _hadrian_dpcm(out, bars):
+    """The kick on beats 1 and 3 of every bar, identical every time."""
+    for bar in bars:
+        start = out.bar_start(bar)
+        for beat in (0, 2):
+            out.add("dpcm", start + beat * BEAT, EIGHTH, 36, 112)
+
+
+def build_arrangement_hadrian(score):
+    """Turn the hadrian score into the same eight voice lines, at four beats a bar."""
+    beats, slots, ticks = score_geometry(score)
+    bars = build_bars_v3(score)
+    _hadrian_attach_second_voice(score, bars, slots)
+    meta = {
+        "bpm": float(score["meta"]["bpm"]),
+        "beats_per_bar": beats,
+        "ticks_per_bar": ticks,
+        "loop_start_bar": v3_loop_start_bar(score, bars),
+    }
+    out = Arrangement(score, bars, meta)
+
+    lead_duty = _hadrian_declared_duty(score, "vrc6_pulse_a", 0.25)
+    answer_duty = _hadrian_declared_duty(score, "vrc6_pulse_b", 0.5)
+    for bar in bars:
+        start = out.bar_start(bar)
+        levels = HADRIAN_LEVELS.get(bar.section) or {}
+        for track in TRACK_NAMES:
+            out.add_control(track, start, 11, levels.get(track, 0))
+        out.add_control("vrc6 pulse a", start, 12, vrc6_duty_value(lead_duty))
+        out.add_control("vrc6 pulse b", start, 12, vrc6_duty_value(answer_duty))
+        out.add_control("pulse 2", start, 12, 0)     # 2A03 duty 12.5 percent
+        out.add_control("noise", start, 12, 0)       # closed hats, long LFSR
+
+    _hadrian_lead(out, bars)
+    _hadrian_answer(out, bars)
+    _hadrian_hum(out, bars)
+    _hadrian_saw(out, bars)
+    _hadrian_triangle(out, bars)
+    _hadrian_noise(out, bars)
+    _hadrian_dpcm(out, bars)
+    return out
+
+
+def self_check_hadrian(arrangement, data=None):
+    """The numbers this cue owes: 32 bars of 4/4, and the voices the score names."""
+    score = arrangement.score
+    bars = arrangement.bars
+    bpm = float(arrangement.meta["bpm"])
+    beats = arrangement.meta["beats_per_bar"]
+    first = v3_section_first_bars(bars)
+    total = len(bars)
+
+    def melody_of(section, bar_offset):
+        chosen = [bar for bar in bars if bar.section == section]
+        if bar_offset >= len(chosen):
+            return []
+        return [midi_to_name(pitch) for _slot, _length, pitch in chosen[bar_offset].melody
+                if pitch is not None]
+
+    result = {
+        "schema": "v3",
+        "profile": "hadrian",
+        "sections": [name for name in score["sections"]],
+        "section_bars": {name: len([b for b in bars if b.section == name])
+                         for name in score["sections"]},
+        "section_first_bar": {name: first[name] + 1 for name in first},
+        "bars": total,
+        "bpm": bpm,
+        "beats_per_bar": beats,
+        "time_signature": (score.get("meta") or {}).get("time"),
+        "key": (score.get("meta") or {}).get("key"),
+        "duration_seconds": round(total * beats * 60.0 / bpm, 3),
+        "loop_start_bar": arrangement.meta["loop_start_bar"],
+        "loop_end_bar": total,
+        "loop_bars": total - arrangement.meta["loop_start_bar"] + 1,
+        "tracks": list(TRACK_NAMES),
+        "notes": {name: len(arrangement.notes[name]) for name in TRACK_NAMES},
+        "max_simultaneous_notes": max_simultaneous(arrangement),
+        "max_simultaneous_by_section": max_simultaneous_by_section(arrangement),
+        "melody_bar_1": melody_of("A", 0),
+        "melody_bar_9": melody_of("A_fugue", 0),
+        "second_voice_bars": [bar.number for bar in bars
+                              if any(pitch is not None
+                                     for _slot, _length, pitch in bar.second_voice)],
+        "pulse_1_notes": len(arrangement.notes["pulse 1"]),
+        "hum_notes": len(arrangement.notes["pulse 2"]),
+        "hat_notes": len(arrangement.notes["noise"]),
+        "kick_notes": len(arrangement.notes["dpcm"]),
+        "vibrato_controls": sum(
+            1 for name in TRACK_NAMES for _tick, controller, _value
+            in arrangement.controls[name] if controller in (1, 20)),
+        "out_of_range": [],
+    }
+
+    for name in TRACK_NAMES:
+        lo, hi = HADRIAN_VOICE_RANGES[name]
+        for start, _end, pitch in note_spans(arrangement.notes[name]):
+            if not (lo <= pitch <= hi):
+                result["out_of_range"].append(
+                    {"track": name, "tick": start, "pitch": pitch,
+                     "note": midi_to_name(pitch), "range": [lo, hi]})
+
+    chords_written = {name: [chord_symbol_of_bar(bar) for bar in bars
+                             if bar.section == name] for name in score["sections"]}
+    chords_score = {name: list(score["sections"][name]["chords"])
+                    for name in score["sections"]}
+    result["chords_by_section"] = chords_written
+    result["chords_match_score"] = chords_written == chords_score
+
+    if data is not None:
+        parsed = read_midi(data)
+        result["midi_tracks"] = [name for name, _notes in parsed["tracks"]]
+        result["midi_ntracks"] = parsed["ntracks"]
+        result["midi_division"] = parsed["division"]
+        tempo_us = parsed["tempo_us"]
+        result["midi_tempo_us_per_qn"] = tempo_us
+        result["midi_bpm"] = round(60_000_000.0 / tempo_us, 3) if tempo_us else None
+        result["midi_time_signature"] = ("%d/%d" % parsed["time_sig"]
+                                         if parsed["time_sig"] else None)
+        result["tempo_meta_matches_score"] = (
+            tempo_us == _microseconds_per_quarter(bpm)
+            and parsed["time_sig"] == (beats, 4))
+        result["midi_duration_seconds"] = round(
+            total * arrangement.ticks_per_bar / PPQ * tempo_us / 1e6, 3)
+    return result
+
+
+# The voice ranges this cue is checked against. The 2A03 pulse 2 hum sits on D4
+# (62), the saw drone stays in the G2 to G3 register the score names, and the
+# triangle reads octave 2 (G1 to D2), lower than the waltz bass of the v3 scores.
+HADRIAN_VOICE_RANGES = {
+    "vrc6 pulse a": (55, 96),
+    "vrc6 pulse b": (45, 84),
+    "vrc6 saw": (43, 55),
+    "pulse 1": (55, 79),
+    "pulse 2": (43, 96),
+    "triangle": (31, 45),
+    "noise": (1, 15),
+    "dpcm": (36, 38),
+}
 
 
 def default_out_for(score_path):
@@ -1823,28 +2663,80 @@ def main(argv=None):
                         help="output MIDI (default: the score's own folder, named after it)")
     parser.add_argument("--report", default=None)
     parser.add_argument("--self-check", action="store_true")
+    parser.add_argument("--hook-report", nargs="?", const="", default=None,
+                        metavar="JSON",
+                        help="score the melody's memorability (optional JSON path)")
+    parser.add_argument("--humanize", action="store_true",
+                        help="write the chip legal humanization of the output MIDI")
     args = parser.parse_args(argv)
 
     score = load_score(args.score)
     # Two schemas, one writer: version 3 is the score with a sections block,
-    # version 2 the score with a chords and melody block.
+    # version 2 the score with a chords and melody block. A version 3 score may
+    # also name a texture profile; the boss cue uses the percy recipes.
     version_3 = isinstance(score.get("sections"), dict)
+    profile = (score.get("meta") or {}).get("profile")
     out_path = args.out or default_out_for(args.score)
-    if version_3:
+    if version_3 and profile == "percy":
+        arrangement = build_arrangement_percy(score)
+    elif version_3 and profile == "hadrian":
+        arrangement = build_arrangement_hadrian(score)
+    elif version_3:
         arrangement = build_arrangement_v3(score)
     else:
         arrangement = build_arrangement(score)
     data = write_midi(arrangement, out_path)
 
-    if version_3:
+    if version_3 and profile == "percy":
+        report = self_check_percy(arrangement, data)
+    elif version_3 and profile == "hadrian":
+        report = self_check_hadrian(arrangement, data)
+    elif version_3:
         report = self_check_v3(arrangement, data)
     else:
         report = self_check(arrangement, data)
     report["score"] = os.path.abspath(args.score)
     report["midi"] = os.path.abspath(out_path)
     report["midi_bytes"] = len(data)
-    report["duration_seconds"] = round(len(arrangement.bars) * TICKS_PER_BAR
+    report["duration_seconds"] = round(len(arrangement.bars) * arrangement.ticks_per_bar
                                       / PPQ * 60.0 / arrangement.meta["bpm"], 3)
+
+    # Optional step: the hook score of the melody as the arranger wrote it,
+    # before any humanization, because the score measures the composition.
+    if args.hook_report is not None:
+        import hook_score
+        config, grammar = hook_score.load_grammar()
+        melody = hook_score.Melody(arrangement.notes["vrc6 pulse a"], PPQ,
+                                   arrangement.meta["beats_per_bar"], 4,
+                                   name="vrc6 pulse a")
+        hook = hook_score.score_melody(melody, config, source=os.path.abspath(out_path),
+                                       extra={"grammar": grammar})
+        report["hook"] = {"score": hook["score"], "weakest": hook["weakest"],
+                          "motif": hook["motif"],
+                          "suggestions": hook["suggestions"]}
+        if args.hook_report:
+            directory = os.path.dirname(os.path.abspath(args.hook_report))
+            if directory:
+                os.makedirs(directory, exist_ok=True)
+            with open(args.hook_report, "w", encoding="utf-8", newline="\n") as handle:
+                json.dump(hook, handle, indent=2, sort_keys=True)
+                handle.write("\n")
+        print(hook_score.format_report(hook), file=sys.stderr)
+
+    # Optional step: humanize the file on disk. The self checks above ran on
+    # the unhumanized bytes on purpose: they compare the MIDI against the
+    # score, and humanized note lengths are meant to differ from it.
+    if args.humanize:
+        import humanize
+        humanized, humanize_report = humanize.humanize_bytes(
+            data, name=os.path.abspath(out_path))
+        with open(out_path, "wb") as handle:
+            handle.write(humanized)
+        report["humanize"] = {key: value for key, value in humanize_report.items()
+                              if key != "notes_by_track"}
+        report["midi_bytes"] = len(humanized)
+        report["midi_humanized"] = os.path.abspath(out_path)
+        print(humanize.format_report(humanize_report), file=sys.stderr)
     if args.report:
         directory = os.path.dirname(os.path.abspath(args.report))
         if directory:

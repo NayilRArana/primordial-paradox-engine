@@ -77,6 +77,13 @@ def test_art_mirror_holds_the_sprites_the_project_lists():
 
 
 def test_the_project_lists_the_title_theme_stream():
-    """The committed .yyp lists the title theme stream, so the mirror must carry it."""
+    """The committed .yyp lists the title theme stream, so the mirror must carry it.
+
+    The list is not fixed to one entry any more: the music lane added title_theme_v2.ogg, and the
+    .yyp lists every stream in the mirror. So the test pins what actually matters, which is that the
+    original theme is among them and that each listed stream exists.
+    """
     listed = _listed_included_files("datafiles/streams")
-    assert listed == ["datafiles/streams/title_theme.ogg"], f"unexpected stream entries: {listed}"
+    assert "datafiles/streams/title_theme.ogg" in listed, f"unexpected stream entries: {listed}"
+    for file_path in listed:
+        assert os.path.isfile(os.path.join(ROOT, "game", file_path)), f"{file_path} is not in the mirror"

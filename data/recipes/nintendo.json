@@ -1,0 +1,881 @@
+{
+  "meta": {
+    "title": "Primordial Paradox music recipes, Nintendo first-party NES family (Kondo and Tanaka paths)",
+    "generated_at": "2026-10-21",
+    "card": "t_90f62589 (STUDY-NINTENDO)",
+    "scope": "nintendo",
+    "study": "knowledge/music-styles/nintendo.md",
+    "source_of_truth": "knowledge/music-styles/nintendo.md sections 3 to 11",
+    "citation_note": "Every recipe cites source ids from knowledge/music-styles/nintendo.md section 13. Full titles, URLs and read dates live there, not here, because this directory is scanned by the project's clean-room gate.",
+    "chip": "NES 2A03 only (2 pulse, triangle, noise, DPCM); no first-party game in this scope used an expansion chip",
+    "reference_rule": "study only; no melody transcribed, ripped, traced or decompiled",
+    "recipe_count": 32,
+    "families": {
+      "NIN": 32
+    },
+    "default_tempo_bpm": {
+      "bright_overworld": 100,
+      "compound_overworld": 152,
+      "serious_or_title": 92,
+      "boss": 132,
+      "stage_clear": 150
+    },
+    "default_keys": [
+      "C major",
+      "G major",
+      "F major",
+      "Bb Mixolydian",
+      "A minor",
+      "G minor"
+    ],
+    "measured_anchors": {
+      "mode_split_major_minor": "94 of 132",
+      "tonic_C_share": "38 of 132",
+      "median_melody_range_semitones": 18,
+      "melody_step_share": 0.6028,
+      "melody_leap_share": 0.3972,
+      "melody_single_sixteenth_share": 0.6703,
+      "chord_changes_per_bar": 3.85,
+      "top_interval_shapes": [
+        "0 0",
+        "1 -1",
+        "-1 1",
+        "2 -2"
+      ],
+      "median_melody_pitch": 72,
+      "median_bass_pitch": 45,
+      "median_pitched_voices": 3,
+      "note": "all from D:/Musikage-Corpus/style-pp/stats/nintendo.json, cited as N20 in the study; its tempo field is normalised and is not used"
+    }
+  },
+  "recipes": [
+    {
+      "id": "NIN-01",
+      "name": "One bar rhythm cell, four statements, one change",
+      "family": "NIN",
+      "when_to_use": "The skeleton of every bright cue in this style; write it before any pitch.",
+      "params": {
+        "cell_bars": 1,
+        "attacks_per_cell": [
+          2,
+          4
+        ],
+        "statements": 4,
+        "change_on_statement": 4,
+        "change_one_of": [
+          "register",
+          "duty",
+          "last two sixteenths",
+          "bass note under the cell"
+        ],
+        "tempo_range_bpm": [
+          96,
+          112
+        ],
+        "loop_bars": [
+          8,
+          16
+        ]
+      },
+      "forbidden": [
+        "changing two parameters at once on statement four",
+        "a cell with more than four attacks (it stops being a cell)",
+        "statement four unchanged, which the melody guard and the ear both read as a loop fault"
+      ],
+      "source": [
+        "N1",
+        "N2",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-02",
+      "name": "Neighbour wobble hook",
+      "family": "NIN",
+      "when_to_use": "The pitch content of a hook; it is the measured micro-shape of this scope.",
+      "params": {
+        "intervals_allowed": [
+          0,
+          1,
+          -1,
+          2,
+          -2
+        ],
+        "share_of_all_moves_in_this_range": 0.5,
+        "one_leap_allowed": "perfect fourth or fifth, at a fixed position in every repetition",
+        "max_range_semitones": 18,
+        "diatonic_to_key": true
+      },
+      "forbidden": [
+        "wandering beyond an octave and a half",
+        "two or more leaps inside one bar",
+        "a chromatic note inside the hook itself"
+      ],
+      "source": [
+        "N20",
+        "N9"
+      ]
+    },
+    {
+      "id": "NIN-03",
+      "name": "Two bar question and answer, answer unresolved",
+      "family": "NIN",
+      "when_to_use": "Second half of every 4 or 8 bar loop.",
+      "params": {
+        "question_bars": 1,
+        "answer_bars": 1,
+        "question_ends_on": "tonic or third",
+        "answer_ends_on": "second, fifth or seventh degree",
+        "cadence": "half cadence or open",
+        "answer_register": "same as the question, not an octave up"
+      },
+      "forbidden": [
+        "closing the answer on the tonic, which flattens the loop",
+        "answering with the identical rhythm and identical pitches (that is a repeat, not an answer)"
+      ],
+      "source": [
+        "N1",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-04",
+      "name": "Written swing, long-short pair plus one frame late",
+      "family": "NIN",
+      "when_to_use": "Bright 4/4 cues that need lilt without compound metre.",
+      "params": {
+        "pair_pattern_16ths": [
+          3,
+          1
+        ],
+        "alternative_pair_pattern_16ths": [
+          2,
+          1
+        ],
+        "second_note_offset_frames": 1,
+        "frame_ms_at_60hz": 16.7,
+        "accent": "on the first note of the pair only",
+        "duty": "25 percent for the lead"
+      },
+      "forbidden": [
+        "triplet timing written as a frame offset",
+        "mixing this with 12/8 grouping in the same cue",
+        "swing on a sixteenth-note drum fill"
+      ],
+      "source": [
+        "N1",
+        "N14",
+        "N9"
+      ]
+    },
+    {
+      "id": "NIN-05",
+      "name": "Compound 12/8 groove",
+      "family": "NIN",
+      "when_to_use": "Zelda and Metroid path, and any cue that should feel old or folk rather than modern.",
+      "params": {
+        "meter": "12/8",
+        "tempo_bpm": [
+          144,
+          156
+        ],
+        "beat_unit": "dotted quarter",
+        "attacks_per_beat": 3,
+        "hat_placement": "on each dotted quarter",
+        "bass_placement": "one pitch per dotted quarter, moving by step or by chord root"
+      },
+      "forbidden": [
+        "backbeat on 2 and 4 (there is no 2 and 4 in this grouping)",
+        "sixteenth runs across the group boundary without an accent",
+        "tempo above 160, where the grouping stops being audible on the noise channel"
+      ],
+      "source": [
+        "N10",
+        "N12",
+        "N14"
+      ]
+    },
+    {
+      "id": "NIN-06",
+      "name": "Walking triangle bass, eighths, two pitches",
+      "family": "NIN",
+      "when_to_use": "Under any bright hook; it is the interlock the crowd-sourced Zelda tab scores at 94 for chord-bass melody.",
+      "params": {
+        "note_value": "eighth",
+        "pitch_changes_per_bar": [
+          2,
+          4
+        ],
+        "pitch_sources": [
+          "root",
+          "fifth",
+          "root of the next chord as an anticipation"
+        ],
+        "register_midi": [
+          40,
+          52
+        ],
+        "accent": "impossible, triangle has no volume control, so use pitch",
+        "octave_jumps": "one per four bars maximum"
+      },
+      "forbidden": [
+        "a steady root pedal for more than two bars in a bright cue",
+        "bass above MIDI 52, where it collides with the inner voice at 61.8",
+        "swing or dotted rhythms in the bass line"
+      ],
+      "source": [
+        "N14",
+        "N10",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-07",
+      "name": "Bass octave answer on bar four",
+      "family": "NIN",
+      "when_to_use": "Last bar of a four bar group, to mark the seam without a drum fill.",
+      "params": {
+        "bar": 4,
+        "beats": [
+          3,
+          4
+        ],
+        "move": "drop one octave then return",
+        "duration": "quarter then eighth",
+        "melody_state": "resting or holding one note"
+      },
+      "forbidden": [
+        "doing it on every bar (it becomes the bass line)",
+        "octave drop below MIDI 36, which disappears on small speakers"
+      ],
+      "source": [
+        "N14",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-08",
+      "name": "Bass carries the hook for two bars",
+      "family": "NIN",
+      "when_to_use": "Section B, or the second pass of a loop, when the melody has been continuous for four bars.",
+      "params": {
+        "bars": 2,
+        "melody": "rests, or holds a single note",
+        "bass_role": "plays the cell rhythm on the triangle",
+        "inner_voice": "doubles the bass a sixth above, or drops out",
+        "return": "melody re-enters on the fifth of the key, not the tonic"
+      },
+      "forbidden": [
+        "leaving all three voices empty in those two bars",
+        "putting the drum fill in the same two bars (one change at a time)"
+      ],
+      "source": [
+        "N10",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-09",
+      "name": "Hocket, melody rests and bass answers",
+      "family": "NIN",
+      "when_to_use": "Loop seams and one bar links; the cheapest way to make five channels sound like six.",
+      "params": {
+        "swap_unit": "eighth or quarter",
+        "melody_on_beats": [
+          1,
+          3
+        ],
+        "bass_on_beats": [
+          2,
+          4
+        ],
+        "overlap": "none, one voice sounds at a time",
+        "register_gap_semitones": [
+          12,
+          24
+        ]
+      },
+      "forbidden": [
+        "more than two voices trading (it becomes a messy canon)",
+        "hocket over a busy drum pattern"
+      ],
+      "source": [
+        "N14",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-10",
+      "name": "C major bright hook default",
+      "family": "NIN",
+      "when_to_use": "Overworld and menu cues; C is 38 of the 132 measured pieces.",
+      "params": {
+        "key": "C major",
+        "tempo_bpm": [
+          96,
+          112
+        ],
+        "harmony": "I, IV, V, vi with one borrowed chord per four bars",
+        "melody_scale_degrees": [
+          1,
+          2,
+          3,
+          5,
+          6
+        ],
+        "avoid_degree": "4 in the hook (it pulls to 3 and weakens the lift)",
+        "chord_changes_per_bar": [
+          1,
+          2
+        ]
+      },
+      "forbidden": [
+        "minor-key hook in a cue meant to be cheerful",
+        "more than one borrowed chord per four bars"
+      ],
+      "source": [
+        "N20",
+        "N9",
+        "N1"
+      ]
+    },
+    {
+      "id": "NIN-11",
+      "name": "Mixolydian flat seven colour",
+      "family": "NIN",
+      "when_to_use": "Wandering overworld, travel and field cues; the measured Zelda overworld tab is Bb Mixolydian.",
+      "params": {
+        "scale": "major with flat seven",
+        "chords": "I, bVII, IV, v (minor five) as an option",
+        "melody_use": "flat seven as a passing note between 1 and 6",
+        "frequency": "at least once per two bars",
+        "tempo_bpm": [
+          140,
+          156
+        ]
+      },
+      "forbidden": [
+        "a raised leading tone in the same phrase as the flat seven",
+        "resolving the flat seven upward to the tonic as if it were the leading tone"
+      ],
+      "source": [
+        "N10"
+      ]
+    },
+    {
+      "id": "NIN-12",
+      "name": "Natural minor with flat six",
+      "family": "NIN",
+      "when_to_use": "Serious, sacred or title cues; the measured Zelda main theme tab is Bb minor with VI most used.",
+      "params": {
+        "scale": "natural minor",
+        "most_used_chord": "VI",
+        "progression": "i, VI, III, VII or i, VI, iv, V",
+        "tempo_bpm": [
+          84,
+          96
+        ],
+        "melody_range_semitones": [
+          12,
+          18
+        ]
+      },
+      "forbidden": [
+        "harmonic minor raised seventh in the same cue, unless a boss cue takes over",
+        "diminished seventh chords, which this scope uses 63 times against 1659 major chords"
+      ],
+      "source": [
+        "N11",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-13",
+      "name": "Neapolitan flat two stab",
+      "family": "NIN",
+      "when_to_use": "Danger, boss entry, secret rooms; measured at 41 occurrences of the bII6/5 bigram.",
+      "params": {
+        "chord": "major triad a semitone above the tonic",
+        "inversion": "first or second",
+        "duration": "one beat, then resolve to V or i6/4",
+        "frequency": "once per four bars maximum",
+        "register": "below the melody, above MIDI 48 for the root"
+      },
+      "forbidden": [
+        "flat two in a bright overworld loop",
+        "flat two twice in a row"
+      ],
+      "source": [
+        "N20",
+        "N13"
+      ]
+    },
+    {
+      "id": "NIN-14",
+      "name": "Tonic second-inversion pedal",
+      "family": "NIN",
+      "when_to_use": "Long loops that would otherwise sit still; I6/4 is the fourth most common label in the measured corpus.",
+      "params": {
+        "bass_note": "fifth of the key, held",
+        "upper_voices": "move over the pedal, or arpeggiate the tonic triad",
+        "duration_bars": [
+          1,
+          4
+        ],
+        "exit": "V or Vsus4, then resolve",
+        "share_of_chord_beats": 0.04
+      },
+      "forbidden": [
+        "pedal held for more than four bars without an upper-voice change",
+        "pedal under a melody that also sits on the fifth (the two blur)"
+      ],
+      "source": [
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-15",
+      "name": "Suspended dominant, held then resolved",
+      "family": "NIN",
+      "when_to_use": "Loop end and phrase end; Vsus4 is the third most common single chord label (329 beats).",
+      "params": {
+        "chord": "V with a fourth instead of a third",
+        "hold": "two to four beats",
+        "resolution": "third of the dominant, then I or i",
+        "where": "last two beats of the loop",
+        "voicing": "arpeggio at frame rate if only one pulse is free"
+      },
+      "forbidden": [
+        "resolving sus4 to sus4 again at the loop seam",
+        "sus4 in the same bar as a diminished chord"
+      ],
+      "source": [
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-16",
+      "name": "Chromatic approach bass",
+      "family": "NIN",
+      "when_to_use": "Transitions between sections, and under any chord change that would otherwise be a plain root jump.",
+      "params": {
+        "approach": "one semitone below the next root, on the last eighth of the bar",
+        "frequency": "one per section",
+        "range": "within the 40 to 52 MIDI bass window",
+        "melody_state": "avoid the same pitch class in the melody at that moment"
+      },
+      "forbidden": [
+        "chromatic approach on every chord change",
+        "approach in the hook bar of a bright cue"
+      ],
+      "source": [
+        "N10",
+        "N14"
+      ]
+    },
+    {
+      "id": "NIN-17",
+      "name": "Inner voice arpeggio at frame rate",
+      "family": "NIN",
+      "when_to_use": "Atmosphere cues; the corpus has an inner voice in every piece (204 against 132 melodies).",
+      "params": {
+        "channel": "pulse2",
+        "rate": "one note per frame, about 60 per second",
+        "pattern": "root, third, fifth, third",
+        "duty": "12.5 percent, low volume",
+        "role": "fills harmony the lead is not playing"
+      },
+      "forbidden": [
+        "arpeggio in the same register as the lead",
+        "arpeggio pattern that changes per bar, which turns a texture into a tune"
+      ],
+      "source": [
+        "N14",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-18",
+      "name": "Echo pulse one sixteenth late",
+      "family": "NIN",
+      "when_to_use": "Titles, caves, underground cues; the classic cheap space effect on two pulse channels.",
+      "params": {
+        "delay": "one sixteenth, or one eighth at slow tempo",
+        "volume": "3 to 6 of 15",
+        "duty": "12.5 percent where the lead is 25 or 50",
+        "content": "the lead line, unaltered, or the last note of each phrase only"
+      },
+      "forbidden": [
+        "echo louder than the lead",
+        "a second echo layer (there is no third pulse on the stock chip)",
+        "echo under a long-note ambient lead, where it just thickens the drone"
+      ],
+      "source": [
+        "N14",
+        "N13"
+      ]
+    },
+    {
+      "id": "NIN-19",
+      "name": "Noise kit, straight",
+      "family": "NIN",
+      "when_to_use": "Any bright cue with a running character.",
+      "params": {
+        "hat": "eighths or sixteenths at volume 2 to 4",
+        "snare": "noise burst, beats 2 and 4",
+        "kick": "DPCM on 1 and 3, or a short pitched noise drop if no DPCM budget",
+        "fill": "none inside 8 bars; one two-beat fill at the loop seam",
+        "swing": "written, not played"
+      },
+      "forbidden": [
+        "kick, snare and hat inside one sixteenth (one noise channel)",
+        "fills in the same bar as the hook's altered statement"
+      ],
+      "source": [
+        "N14",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-20",
+      "name": "Noise kit, pulse only",
+      "family": "NIN",
+      "when_to_use": "Atmosphere and danger cues in the Tanaka path.",
+      "params": {
+        "content": "a single noise pulse on the tonic pulse of each bar, or a low-rate noise swell",
+        "backbeat": "none",
+        "density": "one or two events per bar",
+        "volume": "5 to 8, because there is nothing else in that band"
+      },
+      "forbidden": [
+        "a backbeat in a cue whose harmony is doing the tension",
+        "noise on every beat, which reads as a machine rather than as unease"
+      ],
+      "source": [
+        "N12",
+        "N4",
+        "N14"
+      ]
+    },
+    {
+      "id": "NIN-21",
+      "name": "Long-note ambient lead",
+      "family": "NIN",
+      "when_to_use": "Metroid path; the measured Brinstar tab records 4 or more beats per melody note.",
+      "params": {
+        "note_length_beats": [
+          2,
+          8
+        ],
+        "chord_changes_per_bar": 1,
+        "melody_scale_degrees": [
+          1,
+          3,
+          5
+        ],
+        "range_semitones": [
+          7,
+          18
+        ],
+        "vibrato": "from 120 ms into notes of 2 beats or longer",
+        "inner_voice": "arpeggio or drone, never a countermelody"
+      },
+      "forbidden": [
+        "sixteenth runs in the lead",
+        "a drum backbeat under it",
+        "a melody that moves more than an octave and a half across the cue"
+      ],
+      "source": [
+        "N12",
+        "N4",
+        "N14"
+      ]
+    },
+    {
+      "id": "NIN-22",
+      "name": "Melody on chord tones under dense harmony",
+      "family": "NIN",
+      "when_to_use": "Atmosphere cues where the harmony carries the interest (Brinstar tension 8 with chord complexity 95).",
+      "params": {
+        "chord_tones_share": 0.85,
+        "chord_changes_per_bar": [
+          2,
+          4
+        ],
+        "melody_intervals": [
+          0,
+          1,
+          -1,
+          2,
+          -2
+        ],
+        "chromaticism": "in the inner voices and the bass only",
+        "novelty_target": "high (the tab scores 95), so borrow chords freely underneath"
+      },
+      "forbidden": [
+        "chromatic notes in the lead in the same bar as a borrowed chord",
+        "two borrowed chords in adjacent bars in a non-boss cue"
+      ],
+      "source": [
+        "N12",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-23",
+      "name": "Melody against simple harmony, high tension",
+      "family": "NIN",
+      "when_to_use": "Kondo path: the Mario overworld tab scores tension 96 over chord complexity 45.",
+      "params": {
+        "harmony": "I, IV, V, vi only, one chord per two beats",
+        "melody": "leans on ninths, fourths and suspensions over the chord",
+        "chord_tones_share": [
+          0.4,
+          0.6
+        ],
+        "rhythm": "sixteenth surface, 80 percent or more single sixteenths",
+        "tempo_bpm": [
+          96,
+          112
+        ]
+      },
+      "forbidden": [
+        "dense harmony underneath (it turns tension into mud)",
+        "more than four chords in the loop"
+      ],
+      "source": [
+        "N9",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-24",
+      "name": "Hurry-up variant",
+      "family": "NIN",
+      "when_to_use": "Time limit in any stage cue; the SMB archive holds separate Hurry entries for six cues.",
+      "params": {
+        "tempo_lift_percent": [
+          10,
+          20
+        ],
+        "voices_dropped": 1,
+        "drop_priority": [
+          "inner arpeggio",
+          "echo",
+          "bass octave answers"
+        ],
+        "drum": "hat doubles, fill removed",
+        "length": "same bars as the parent cue"
+      },
+      "forbidden": [
+        "changing the melody (the listener must recognise it instantly)",
+        "dropping the bass (the cue loses its pulse at higher tempo)"
+      ],
+      "source": [
+        "N20",
+        "N1"
+      ]
+    },
+    {
+      "id": "NIN-25",
+      "name": "Theme reuse as variation",
+      "family": "NIN",
+      "when_to_use": "Across one game: title, overworld, underground, boss.",
+      "params": {
+        "shared": "the one bar rhythm cell",
+        "changed_per_variation": 2,
+        "changeable": [
+          "tempo",
+          "mode",
+          "register",
+          "duty",
+          "drum pattern"
+        ],
+        "boss_variation_changes": 3,
+        "max_variations_per_game": 3
+      },
+      "forbidden": [
+        "a variation that keeps the cell, the key, the register and the drums (that is the same cue)",
+        "more than three variations, which spends the identity"
+      ],
+      "source": [
+        "N1",
+        "N4",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-26",
+      "name": "Title jingle under four bars, half cadence",
+      "family": "NIN",
+      "when_to_use": "Title screens and menus, before the loop proper.",
+      "params": {
+        "bars": [
+          2,
+          4
+        ],
+        "voices": "lead plus triangle, drums optional",
+        "cadence": "half cadence or sus4 dominant",
+        "tempo_bpm": [
+          84,
+          112
+        ],
+        "tail": "one bar of echo, then silence"
+      },
+      "forbidden": [
+        "a full authentic cadence (the jingle should hand over to the loop, not close)",
+        "sixteenth-note runs longer than one beat"
+      ],
+      "source": [
+        "N20",
+        "N1"
+      ]
+    },
+    {
+      "id": "NIN-27",
+      "name": "Stage clear fanfare, two bars, V to I",
+      "family": "NIN",
+      "when_to_use": "Stage clear, level complete, and any short reward cue.",
+      "params": {
+        "bars": 2,
+        "voices": "lead plus triangle, drums on the last beat only if any",
+        "progression": "V (or Vsus4) to I, or a rising tonic arpeggio",
+        "tempo_bpm": [
+          144,
+          156
+        ],
+        "ending": "tonic, held two beats",
+        "rhythm": "even eighths or a dotted figure, no sixteenth runs"
+      },
+      "forbidden": [
+        "looping (this is a one shot)",
+        "a half cadence, which reads as unfinished",
+        "more than two bars, which is the whole Punch-Out cue budget"
+      ],
+      "source": [
+        "N20",
+        "N1"
+      ]
+    },
+    {
+      "id": "NIN-28",
+      "name": "Optional expansion arrangement",
+      "family": "NIN",
+      "when_to_use": "Only if a cue is being arranged outside the game, for example a title theme rendered on a VRC6-capable engine.",
+      "params": {
+        "extra_channels": [
+          "vrc6_p1",
+          "vrc6_p2",
+          "vrc6_saw"
+        ],
+        "use": "pad and string doubling, melody unchanged",
+        "saw_role": "bass octave, accumulator rate 32 to 40",
+        "scope_note": "no first-party NES game in this scope shipped with an expansion chip"
+      },
+      "forbidden": [
+        "three new melodies on the new channels",
+        "claiming an expansion arrangement as authentic to this scope"
+      ],
+      "source": [
+        "N15"
+      ]
+    },
+    {
+      "id": "NIN-29",
+      "name": "Miss and death cue, descending, no drums",
+      "family": "NIN",
+      "when_to_use": "Player death, miss, game over.",
+      "params": {
+        "notes": [
+          4,
+          8
+        ],
+        "motion": "descending by step, or the last four notes of the scale",
+        "tempo_bpm": [
+          120,
+          140
+        ],
+        "voices": "lead plus triangle",
+        "duration_beats": [
+          2,
+          4
+        ],
+        "ending": "dominant or a bare fifth, not the tonic"
+      },
+      "forbidden": [
+        "drums (the silence is the joke)",
+        "the same contour as the stage clear fanfare"
+      ],
+      "source": [
+        "N20",
+        "N1"
+      ]
+    },
+    {
+      "id": "NIN-30",
+      "name": "Eight bar loop with a one bar link",
+      "family": "NIN",
+      "when_to_use": "The default form for any stage cue in this style.",
+      "params": {
+        "structure": "4 bar statement, 4 bar answer, with bar 4 and bar 8 as links",
+        "link_content": "bass octave answer, drum fill, or a single held note",
+        "loop_bars": [
+          8,
+          16
+        ],
+        "variation": "one element changed on the second pass",
+        "cadence": "open at bar 8"
+      },
+      "forbidden": [
+        "a link longer than one bar (the link becomes the theme)",
+        "changing the link every pass (it stops being a seam)"
+      ],
+      "source": [
+        "N1",
+        "N20"
+      ]
+    },
+    {
+      "id": "NIN-31",
+      "name": "One frame push on the peak note",
+      "family": "NIN",
+      "when_to_use": "The highest note of the hook, once per cue, as the human touch.",
+      "params": {
+        "offset_frames": 1,
+        "frame_ms_at_60hz": 16.7,
+        "apply_to": "the peak note only",
+        "frequency": "once per cue",
+        "companion": "vibrato on the same note if it lasts two beats"
+      },
+      "forbidden": [
+        "pushing several notes (it reads as sloppy timing)",
+        "pushing the note before a drum fill (the two smears together)"
+      ],
+      "source": [
+        "N14",
+        "N2"
+      ]
+    },
+    {
+      "id": "NIN-32",
+      "name": "Sound effects tuned to the cue's key",
+      "family": "NIN",
+      "when_to_use": "Any cue in a stage where the player triggers effects often (jump, coin, block).",
+      "params": {
+        "coin": "tonic or fifth of the current key, one short pulse blip",
+        "jump": "sweep that ends on the fifth or the tonic",
+        "stomp_or_hit": "noise burst, pitch irrelevant",
+        "rule": "the effect table takes the cue's tonic as a parameter, never a fixed pitch",
+        "reason": "effects and music share the pulse channels, so effect pitch is heard as harmony"
+      },
+      "forbidden": [
+        "a fixed-pitch coin across cues in different keys",
+        "an effect that lands on the third of the key during a sus4 chord"
+      ],
+      "source": [
+        "N1",
+        "N14"
+      ]
+    }
+  ]
+}

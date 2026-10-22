@@ -1,0 +1,2863 @@
+# Motif candidate study, card MUS-STUDY (musician lane), 2026-10-21.
+# 8 candidate rewrites of each of the four title theme leitmotifs from score_v3.yaml:
+#   K the Kronos call (A minor), Z Zeus sunny rising (C major),
+#   P Poseidon the tide (E minor), H the Hades bident (D minor).
+# This file is a study artifact: score_v3.yaml is NOT touched by this card.
+# The scores block is written by scripts in the card workspace, do not edit it by hand.
+# Two scorers, both re-runnable: score_motifs.py (the 20 item checklist) and
+# tools/hook_score.py (the project's own scorer, run over every candidate, block scores.hook_score).
+# Conventions: durations in eighth notes (6 per 3/4 bar); notes bar by bar;
+# r is a rest; both scorers check rhythm_cell against the notes.
+#
+meta:
+  card: MUS-STUDY
+  parent_score: assets/audio/title_theme_v3/score_v3.yaml
+  time: 3/4
+  eighths_per_bar: 6
+  grammar_status: knowledge/MUSIC-HOOK-GRAMMAR.md exists and was read for this reconciliation; its 20 item delivery checklist is section 9, and the interim checklist in STUDY.md section 2 is kept for the
+    cell level items the delivery checklist does not cover
+  scorer: score_motifs.py for the 20 item checklist, tools/hook_score.py for the project scorer, both run from the card workspace over the same note data
+  rule_followed: no melody of any published game was consulted, quoted or transcribed; every candidate below is new
+  hook_score_grammar_block: 'tools/hook_score.py found no fenced yaml hook_score: block in the grammar file, so its DEFAULTS applied; every report says grammar: defaults'
+motifs:
+  K:
+    name: Kronos, the family call
+    parent: 'dotted quarter then three stepwise eighths, starting on the fifth: E5 C5 D5 E5, one bar'
+    key: A minor
+    scale:
+    - A
+    - B
+    - C
+    - D
+    - E
+    - F
+    - G
+    chromatic_allowed:
+    - G#
+    register_band:
+    - 60
+    - 81
+    parent_notes:
+    - - E5
+      - 3
+    - - C5
+      - 1
+    - - D5
+      - 1
+    - - E5
+      - 1
+    brief: 'an announcement: a horn or a clock, identifiable in the first two notes, singable in one breath, at home over Am and able to lead to Dm or E7'
+    candidates:
+    - id: K1
+      label: the long call
+      bars: 2
+      chords:
+      - Am
+      - Am
+      notes:
+      - - - E5
+          - 4
+        - - C5
+          - 2
+      - - - D5
+          - 2
+        - - E5
+          - 2
+        - - A4
+          - 2
+      rhythm_cell: 4 2 | 2 2 2
+      why: 'the parent cell turned inside out: the dotted value arrives first, the answer climbs, then the line drops a fourth to the tonic; the shape is recognised before the rhythm is, and the drop is
+        what tells it apart from the parent'
+      cites: parent K; CLS-02 (shared motif across the period); MOT-07 (one breath)
+    - id: K2
+      label: the horn fifth
+      bars: 1
+      chords:
+      - Am
+      notes:
+      - - - E5
+          - 2
+        - - A4
+          - 1
+        - - B4
+          - 1
+        - - C5
+          - 2
+      rhythm_cell: 2 1 1 2
+      why: a dropped fifth is the oldest horn call there is, and after it the line climbs back by step, so the ear files it as one gesture with a hole in the middle; the palindrome rhythm makes it land
+        the same way forwards and backwards
+      cites: parent K; UEM-05 (fanfare figure); FOX-05 (one signature interval)
+    - id: K3
+      label: the three knocks
+      bars: 1
+      chords:
+      - Am
+      notes:
+      - - - E5
+          - 1
+        - - r
+          - 1
+        - - E5
+          - 1
+        - - r
+          - 1
+        - - E5
+          - 2
+      rhythm_cell: 1 r 1 r 2
+      why: two staccato knocks and a held one on a single pitch, which is a clock striking; identity here is rhythm and silence only, the cheapest hook on a chip and the hardest to confuse with anything
+        else in the score
+      cites: CHIP-03 (noise and silence as rhythm); MOT-05 (one rhythmic signature per place)
+    - id: K4
+      label: the descent from the octave
+      bars: 2
+      chords:
+      - Am
+      - Am
+      notes:
+      - - - A5
+          - 2
+        - - G5
+          - 1
+        - - F5
+          - 1
+        - - E5
+          - 2
+      - - - E5
+          - 2
+        - - C5
+          - 2
+        - - A4
+          - 2
+      rhythm_cell: 2 1 1 2 | 2 2 2
+      why: one uninterrupted fall from the tonic an octave up to the tonic below, so the motif is a single direction and the two repeated E5s are the hinge; the gap between the octave and the root is what
+        makes it sound like falling sand
+      cites: parent K; BAR-03 (sequence in one direction); MOT-07 (no leap past a fourth inside the descent except the hinge)
+    - id: K5
+      label: the tolling fourth
+      bars: 2
+      chords:
+      - Am
+      - E7
+      notes:
+      - - - E5
+          - 6
+      - - - B4
+          - 1
+        - - C5
+          - 1
+        - - D5
+          - 4
+      rhythm_cell: 6 | 1 1 4
+      why: a whole bar of one pitch is a bell, then a three step staircase back to the seventh of E7; the identity is the extreme duration contrast, one attack against three, which no other K candidate
+        has
+      cites: BAR-11 (a held voice against motion); CLS-03 (phrase ends on the dominant)
+    - id: K6
+      label: the semitone neighbour
+      bars: 1
+      chords:
+      - Am
+      notes:
+      - - - E5
+          - 2
+        - - F5
+          - 1
+        - - E5
+          - 3
+      rhythm_cell: 2 1 3
+      why: the call is a single upper neighbour and back, the smallest possible ornament; it reads as a clock tick rather than a tune, and a listener can hold three notes without effort
+      cites: BAR-07 (mordent on an accent); MOT-07 (three pitches, one finger)
+    - id: K7
+      label: the offbeat summons
+      bars: 2
+      chords:
+      - Am
+      - Am
+      notes:
+      - - - r
+          - 1
+        - - E5
+          - 1
+        - - C5
+          - 1
+        - - D5
+          - 1
+        - - E5
+          - 2
+      - - - A4
+          - 4
+        - - r
+          - 2
+      rhythm_cell: r 1 1 1 2 | 4 r
+      why: it enters off the beat, which is the one thing an accompanist cannot cover up; the pickup makes the downbeat of the next bar feel like an answer, and the phrase then stops early and leaves a
+        hole
+      cites: RCK-10 (approach from outside the beat); CLS-02 (antecedent leaves a question)
+    - id: K8
+      label: the two peaks
+      bars: 2
+      chords:
+      - Am
+      - C
+      notes:
+      - - - E5
+          - 2
+        - - D5
+          - 1
+        - - C5
+          - 1
+        - - D5
+          - 2
+      - - - E5
+          - 2
+        - - G5
+          - 4
+      rhythm_cell: 2 1 1 2 | 2 4
+      why: a call then a louder reply a third higher, the second peak held; the repeated 2 1 1 2 opening makes the second bar feel earned, and the G5 is the brightest note K ever reaches
+      cites: parent K; FOX-04 (one deliberate deviation in a narrow line); UEM-05 (rising close)
+  Z:
+    name: Zeus, the sunny rising arpeggio
+    parent: 'three rising quarter notes through the chord: G4 C5 E5, one bar, C major'
+    key: C major
+    scale:
+    - C
+    - D
+    - E
+    - F
+    - G
+    - A
+    - B
+    chromatic_allowed: []
+    register_band:
+    - 64
+    - 86
+    parent_notes:
+    - - G4
+      - 2
+    - - C5
+      - 2
+    - - E5
+      - 2
+    brief: 'open, upward, major, no shadow: a figure a child can sing, with a clear high point, over C and G7'
+    candidates:
+    - id: Z1
+      label: the rising steps
+      bars: 1
+      chords:
+      - C
+      notes:
+      - - - C5
+          - 1
+        - - D5
+          - 1
+        - - E5
+          - 1
+        - - F5
+          - 1
+        - - G5
+          - 1
+        - - r
+          - 1
+      rhythm_cell: 1 1 1 1 1 r
+      why: a plain scale is the simplest upward shape and it passes through every degree, so it cannot be mistaken for the arpeggio Z it replaces; the final rest is what stops it sounding like an exercise
+      cites: MOT-07 (stepwise, one octave); FOX-04 (a narrow line that grows)
+    - id: Z2
+      label: the leap and roll
+      bars: 1
+      chords:
+      - C
+      notes:
+      - - - C5
+          - 2
+        - - G5
+          - 3
+        - - E5
+          - 1
+      rhythm_cell: 2 3 1
+      why: 'the sunburst: a fifth up to the brightest note in the bar, held twice as long as the note it left, then a clipped third back down. It is the only Z that peaks on its second note and the only
+        one that both rises and gets slower, so it is the most abrupt of the eight and the one that cannot be confused with the parent, whose three quarter notes are all the same length'
+      cites: parent Z; UEM-05 (rising figure then settle)
+    - id: Z3
+      label: the triplet shine
+      bars: 1
+      chords:
+      - C
+      notes:
+      - - - E5
+          - 1
+        - - G5
+          - 1
+        - - C6
+          - 1
+        - - r
+          - 1
+        - - G5
+          - 1
+        - - r
+          - 1
+      rhythm_cell: 1 1 1 r 1 r
+      why: three fast notes up to the top of the chip's usable range then two isolated drops; the gaps are the shine, and C6 is the highest note any motif in the score reaches, so it marks the section by
+        register alone
+      cites: CHIP-01 (duty separation); MOT-05 (register as place signature)
+    - id: Z4
+      label: the bell arpeggio
+      bars: 1
+      chords:
+      - C
+      notes:
+      - - - G4
+          - 1
+        - - C5
+          - 1
+        - - E5
+          - 1
+        - - G5
+          - 1
+        - - E5
+          - 1
+        - - C5
+          - 1
+      rhythm_cell: 1 1 1 1 1 1
+      why: up four and down two through the same triad, which is the shape a hand makes on a bell; it repeats the parent's arpeggio identity at a faster rate and adds the descent, so it reads as the same
+        sun going behind a cloud and coming back
+      cites: parent Z; BAR-08 (arpeggiated chord); UEM-01 (up then down broken chord)
+    - id: Z5
+      label: the held sunrise
+      bars: 2
+      chords:
+      - C
+      - C
+      notes:
+      - - - C5
+          - 4
+        - - E5
+          - 2
+      - - - G5
+          - 6
+      rhythm_cell: 4 2 | 6
+      why: two long rises then a whole bar sitting on the fifth; nothing moves in the second bar, so the listener has time to memorise the note and the phrase ends on it rather than leaving it
+      cites: BAR-11 (held voice); CLS-02 (consequent closes)
+    - id: Z6
+      label: the two note motto
+      bars: 1
+      chords:
+      - C
+      notes:
+      - - - G4
+          - 2
+        - - E5
+          - 4
+      rhythm_cell: 2 4
+      why: two notes and one interval, a major sixth; the fewest possible events, which is the most a listener can be asked to remember, and the long second note keeps it from sounding clipped
+      cites: MOT-07 (singable, one finger); FOX-05 (a fixed two note figure)
+    - id: Z7
+      label: the dotted climb
+      bars: 2
+      chords:
+      - C
+      - C
+      notes:
+      - - - C5
+          - 3
+        - - D5
+          - 3
+      - - - E5
+          - 3
+        - - G5
+          - 3
+      rhythm_cell: 3 3 | 3 3
+      why: four dotted quarters lift two notes per bar; the second attack of every bar falls off the beat, so the waltz is pulled forward and the motif has a lilt no other Z candidate has, while the pitches
+        still only rise
+      cites: CLS-07 (dotted rhythms against the waltz); BAR-03 (sequence)
+    - id: Z8
+      label: the fanfare third
+      bars: 1
+      chords:
+      - C
+      notes:
+      - - - C5
+          - 2
+        - - E5
+          - 2
+        - - G5
+          - 1
+        - - A5
+          - 1
+      rhythm_cell: 2 2 1 1
+      why: the triad then one more step that is not in the chord, so the phrase ends leaning upward instead of closing; that unresolved end is what makes it a fanfare rather than a cadence
+      cites: UEM-05 (rising close); MET-06 (end the cell on the tension tone)
+  P:
+    name: Poseidon, the tide
+    parent: rising minor arpeggio E4 G4 B4, then crest and fall E5 D5 B4, E minor
+    key: E minor
+    scale:
+    - E
+    - F#
+    - G
+    - A
+    - B
+    - C
+    - D
+    chromatic_allowed:
+    - D#
+    register_band:
+    - 45
+    - 72
+    parent_notes:
+    - - E4
+      - 2
+    - - G4
+      - 2
+    - - B4
+      - 2
+    - - E5
+      - 3
+    - - D5
+      - 1
+    - - B4
+      - 2
+    brief: 'water: motion in one direction, a crest, a fall, low register, and enough length that the ear hears a swell rather than a jingle'
+    candidates:
+    - id: P1
+      label: the swell
+      bars: 2
+      chords:
+      - Em
+      - Em
+      notes:
+      - - - E4
+          - 2
+        - - G4
+          - 2
+        - - B4
+          - 2
+      - - - E5
+          - 3
+        - - B4
+          - 3
+      rhythm_cell: 2 2 2 | 3 3
+      why: the parent's rise kept exactly and its fall made symmetrical, so the second bar is the first bar's mirror at twice the note length; the tide is heard as one wave with a crest, not as a run
+      cites: parent P; BAR-11 (slow voice against motion)
+    - id: P2
+      label: the undertow
+      bars: 2
+      chords:
+      - Em
+      - Em
+      notes:
+      - - - B4
+          - 3
+        - - A4
+          - 3
+      - - - G4
+          - 3
+        - - E4
+          - 3
+      rhythm_cell: 3 3 | 3 3
+      why: 'the same water going out: two-note groups falling by thirds in dotted quarters, so it is the parent read backwards and slowed; the descent is the identity and the listener hears the ebb even
+        without the rise'
+      cites: BAR-03 (sequence down); MOT-05 (same place, opposite mood)
+    - id: P3
+      label: the double wave
+      bars: 1
+      chords:
+      - Em
+      notes:
+      - - - E4
+          - 1
+        - - G4
+          - 1
+        - - B4
+          - 1
+        - - E5
+          - 1
+        - - B4
+          - 1
+        - - G4
+          - 1
+      rhythm_cell: 1 1 1 1 1 1
+      why: 'one bar equals one wave: up the triad and straight back down, so the motif is a unit that can repeat as an ostinato without ever needing variation; the symmetry is the hook'
+      cites: BAR-05 (ground figure); UEM-01 (up then down arpeggio)
+    - id: P4
+      label: the crest
+      bars: 2
+      chords:
+      - Em
+      - Em
+      notes:
+      - - - E4
+          - 2
+        - - B4
+          - 4
+      - - - E5
+          - 6
+      rhythm_cell: 2 4 | 6
+      why: 'two attacks then one held peak: the leap of a fifth is the swell and the whole second bar is the crest hanging; with three attacks in the motif there is nothing to misremember'
+      cites: BAR-11 (held voice); CLS-02 (the consequent ends on the peak)
+    - id: P5
+      label: the deep swell
+      bars: 2
+      chords:
+      - Em
+      - Em
+      notes:
+      - - - E4
+          - 6
+      - - - G4
+          - 2
+        - - B4
+          - 1
+        - - E5
+          - 3
+      rhythm_cell: 6 | 2 1 3
+      why: a bar of the lowest E is the sea floor, then a three step staircase arrives at the crest; the extreme contrast between one attack and three is the identity, and the low E is the register marker
+        for the sea
+      cites: BAR-11; MET-10 (low register weight)
+    - id: P6
+      label: the tide turn
+      bars: 2
+      chords:
+      - Em
+      - Em
+      notes:
+      - - - E5
+          - 2
+        - - D5
+          - 1
+        - - C5
+          - 1
+        - - B4
+          - 2
+      - - - A4
+          - 1
+        - - B4
+          - 1
+        - - E5
+          - 4
+      rhythm_cell: 2 1 1 2 | 1 1 4
+      why: 'it starts at the crest and curls: a stepwise fall to the fifth, then a turn and a climb back up the same line; the turn is what makes it a wave rather than a scale, and the long final E5 is
+        the arrival'
+      cites: BAR-03 (tonal sequence then cadence); CLS-03 (phrase closes on the tonic)
+    - id: P7
+      label: the trident
+      bars: 1
+      chords:
+      - Em
+      notes:
+      - - - E4
+          - 1
+        - - r
+          - 1
+        - - B4
+          - 1
+        - - r
+          - 1
+        - - E5
+          - 1
+        - - r
+          - 1
+      rhythm_cell: 1 r 1 r 1 r
+      why: three separated rising notes, one per prong, with silence between them; the gaps do the work, so the motif is a shape in the air instead of a line, and it is the only P a player can start cold
+      cites: CHIP-03 (silence as rhythm); MOT-05 (place signature)
+    - id: P8
+      label: the surge
+      bars: 2
+      chords:
+      - Em
+      - Em
+      notes:
+      - - - B4
+          - 2
+        - - E5
+          - 4
+      - - - D5
+          - 1
+        - - B4
+          - 1
+        - - G4
+          - 4
+      rhythm_cell: 2 4 | 1 1 4
+      why: 'the wave breaks on the weak side: peak first, then a stepwise roll down to the third and a held landing; starting high is the difference from the parent and it makes the motif read as a crash
+        rather than a lift'
+      cites: parent P; RCK-09 (contrast by register, not by notes)
+  H:
+    name: Hades, the bident
+    parent: 'two descending half steps with a gap: D5 C#5, rest, A4 G#4, D minor'
+    key: D minor
+    scale:
+    - D
+    - E
+    - F
+    - G
+    - A
+    - Bb
+    - C
+    chromatic_allowed:
+    - C#
+    - G#
+    register_band:
+    - 48
+    - 78
+    parent_notes:
+    - - D5
+      - 2
+    - - C#5
+      - 2
+    - - A4
+      - 2
+    - - G#4
+      - 2
+    brief: 'cold, exact, mechanical: semitones, a defined silence, two prongs, a low register and no ornament that would soften it'
+    candidates:
+    - id: H1
+      label: the two prongs, faster
+      bars: 1
+      chords:
+      - Dm
+      notes:
+      - - - D5
+          - 1
+        - - C#5
+          - 1
+        - - r
+          - 1
+        - - G#4
+          - 1
+        - - A4
+          - 1
+        - - r
+          - 1
+      rhythm_cell: 1 1 r 1 1 r
+      why: the parent compressed into one bar, so both prongs are heard inside a single beat group and the silences become the pulse; the second prong answers upward, which is the one contour change that
+        keeps the two stabs identical in rhythm while making the figure a question and an answer rather than two falls. A listener hears two sharp stabs and a hole, which is the bident in one gesture
+      cites: parent H; MET-08 (tritone stab on the beat); CHIP-03
+    - id: H2
+      label: the double prong
+      bars: 2
+      chords:
+      - Dm
+      - Dm
+      notes:
+      - - - D5
+          - 2
+        - - C#5
+          - 2
+        - - D5
+          - 2
+      - - - A4
+          - 2
+        - - G#4
+          - 2
+        - - A4
+          - 2
+      rhythm_cell: 2 2 2 | 2 2 2
+      why: each prong is a neighbour that returns, so the motif is two identical cells a fourth apart; the repetition is the machine, and the semitone is the edge of the blade
+      cites: BAR-07 (mordent figure); MET-05 (flat second as the signature)
+    - id: H3
+      label: the cold descent
+      bars: 2
+      chords:
+      - Dm
+      - A7
+      notes:
+      - - - D5
+          - 1
+        - - C#5
+          - 1
+        - - B4
+          - 1
+        - - Bb4
+          - 1
+        - - A4
+          - 1
+        - - r
+          - 1
+      - - - G#4
+          - 6
+      rhythm_cell: 1 1 1 1 1 r | 6
+      why: four semitone-related pitches in a row are the most exposed chromatic line in the score, and it lands on a held G sharp, the leading tone of the dominant; the ear remembers the shiver, not a
+        tune
+      cites: MET-07 (harmonic minor over V7); CLS-11 (secondary dominant)
+    - id: H4
+      label: the held prong
+      bars: 2
+      chords:
+      - Dm
+      - Dm
+      notes:
+      - - - D5
+          - 6
+      - - - r
+          - 1
+        - - C#5
+          - 1
+        - - A4
+          - 4
+      rhythm_cell: 6 | r 1 4
+      why: a whole bar on the cold high D, then the drop and the second prong inside one bar; the patience before the fall is the threat, and the silence is written at the start of the second bar where
+        it can be heard
+      cites: BAR-11 (held voice); MET-09 (rest before the hit)
+    - id: H5
+      label: the rising bident
+      bars: 2
+      chords:
+      - A7
+      - Dm
+      notes:
+      - - - G#4
+          - 1
+        - - A4
+          - 3
+        - - r
+          - 2
+      - - - C#5
+          - 1
+        - - D5
+          - 3
+        - - r
+          - 2
+      rhythm_cell: 1 3 r | 1 3 r
+      why: the same two semitone prongs turned upward, so it is the parent seen from the other side; each prong is a short note bending into a long one instead of two equal steps, so the rhythm is a lean
+        forward rather than the parent's even tread, and rising to the tonic instead of falling away from it makes it usable where H would sound like an ending
+      cites: parent H; MET-06 (resolve the raised seventh up to the tonic)
+    - id: H6
+      label: the knocking prong
+      bars: 1
+      chords:
+      - Dm
+      notes:
+      - - - D5
+          - 1
+        - - D5
+          - 1
+        - - C#5
+          - 2
+        - - A4
+          - 2
+      rhythm_cell: 1 1 2 2
+      why: 'the first note is struck twice before it slides: a hammer on metal, then the semitone, then the drop; the doubled attack is the whole difference from the parent and it reads as a mechanism'
+      cites: CHIP-03 (mechanical hit); BAR-07
+    - id: H7
+      label: the thin line
+      bars: 1
+      chords:
+      - Dm
+      notes:
+      - - - D5
+          - 4
+        - - C#5
+          - 2
+      rhythm_cell: 4 2
+      why: one prong only, slowed to a half and a quarter; the missing second prong is the point, because the listener hears the motif start and stop, which is colder than hearing it finish
+      cites: parent H; MOT-08 (a motif withheld)
+    - id: H8
+      label: the low growl
+      bars: 2
+      chords:
+      - A7
+      - Dm
+      notes:
+      - - - A4
+          - 2
+        - - G#4
+          - 1
+        - - A4
+          - 1
+        - - G#4
+          - 2
+      - - - D4
+          - 6
+      rhythm_cell: 2 1 1 2 | 6
+      why: the low prong hammers its semitone four times and then the motif falls an octave to D4; the repeated G sharp is a shudder, and the drop to the bottom of the usable range is the floor of the character
+      cites: MET-10 (low register weight); BAR-07 (repeated ornament)
+scores:
+  checklist_source: STUDY.md section 2, 20 items derived from knowledge/MUSIC-STYLE-BIBLE.md
+  items:
+  - one_to_two_bars
+  - range_within_octave
+  - diatonic_to_key
+  - conjunct_or_arpeggio
+  - salient_leap
+  - duration_contrast
+  - attacks_per_bar
+  - starts_on_chord_tone
+  - ends_on_chord_tone
+  - ends_with_breath
+  - gap_or_offbeat
+  - repeated_element
+  - contour_simplicity
+  - peak_on_strong_beat
+  - rhythm_differs_from_parent
+  - contour_differs_from_parent
+  - chromatic_near_diatonic
+  - register_character
+  - meter_clarity
+  - no_exact_bar_copy
+  scored_by: score_motifs.py for the 20 item checklist, from the note data; tools/hook_score.py ran separately over all 32, see scores.hook_score
+  tie_break: higher total, then fewer attacks, then id
+  motifs:
+    K:
+      candidates:
+      - id: K3
+        label: the three knocks
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: false
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: false
+          gap_or_offbeat: true
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 76.0
+        range: 0
+        intervals:
+        - 0
+        - 0
+        durations:
+        - 1
+        - 1
+        - 2
+        copy_hits: []
+      - id: K6
+        label: the semitone neighbour
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: false
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 76.2
+        range: 1
+        intervals:
+        - 1
+        - -1
+        durations:
+        - 2
+        - 1
+        - 3
+        copy_hits: []
+      - id: K2
+        label: the horn fifth
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 72.7
+        range: 7
+        intervals:
+        - -7
+        - 2
+        - 1
+        durations:
+        - 2
+        - 1
+        - 1
+        - 2
+        copy_hits: []
+      - id: K5
+        label: the tolling fourth
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 74.6
+        range: 5
+        intervals:
+        - -5
+        - 1
+        - 2
+        durations:
+        - 6
+        - 1
+        - 1
+        - 4
+        copy_hits: []
+      - id: K7
+        label: the offbeat summons
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: true
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 72.2
+        range: 7
+        intervals:
+        - -4
+        - 2
+        - 2
+        - -7
+        durations:
+        - 1
+        - 1
+        - 1
+        - 2
+        - 4
+        copy_hits: []
+      - id: K8
+        label: the two peaks
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 76.2
+        range: 7
+        intervals:
+        - -2
+        - -2
+        - 2
+        - 2
+        - 3
+        durations:
+        - 2
+        - 1
+        - 1
+        - 2
+        - 2
+        - 4
+        copy_hits: []
+      - id: K1
+        label: the long call
+        total: 17
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 73.8
+        range: 7
+        intervals:
+        - -4
+        - 2
+        - 2
+        - -7
+        durations:
+        - 4
+        - 2
+        - 2
+        - 2
+        - 2
+        copy_hits: []
+      - id: K4
+        label: the descent from the octave
+        total: 17
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 75.3
+        range: 12
+        intervals:
+        - -2
+        - -2
+        - -1
+        - 0
+        - -4
+        - -3
+        durations:
+        - 2
+        - 1
+        - 1
+        - 2
+        - 2
+        - 2
+        - 2
+        copy_hits: []
+      top_two:
+      - id: K3
+        label: the three knocks
+        score: 18
+        why: two staccato knocks and a held one on a single pitch, which is a clock striking; identity here is rhythm and silence only, the cheapest hook on a chip and the hardest to confuse with anything
+          else in the score
+        fails:
+        - salient_leap
+        - ends_with_breath
+      - id: K6
+        label: the semitone neighbour
+        score: 18
+        why: the call is a single upper neighbour and back, the smallest possible ornament; it reads as a clock tick rather than a tune, and a listener can hold three notes without effort
+        fails:
+        - salient_leap
+        - gap_or_offbeat
+      all_eight_unique: true
+    Z:
+      candidates:
+      - id: Z3
+        label: the triplet shine
+        total: 19
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: false
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: true
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 79.5
+        range: 8
+        intervals:
+        - 3
+        - 5
+        - -5
+        durations:
+        - 1
+        - 1
+        - 1
+        - 1
+        copy_hits: []
+      - id: Z6
+        label: the two note motto
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: false
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 73.0
+        range: 9
+        intervals:
+        - 9
+        durations:
+        - 2
+        - 4
+        copy_hits: []
+      - id: Z1
+        label: the rising steps
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: false
+          duration_contrast: false
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: true
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 75.6
+        range: 7
+        intervals:
+        - 2
+        - 2
+        - 1
+        - 2
+        durations:
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        copy_hits: []
+      - id: Z2
+        label: the leap and roll
+        total: 17
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: false
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 76.2
+        range: 7
+        intervals:
+        - 7
+        - -3
+        durations:
+        - 2
+        - 3
+        - 1
+        copy_hits: []
+      - id: Z5
+        label: the held sunrise
+        total: 17
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: false
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 76.2
+        range: 7
+        intervals:
+        - 4
+        - 3
+        durations:
+        - 4
+        - 2
+        - 6
+        copy_hits: []
+      - id: Z7
+        label: the dotted climb
+        total: 16
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: false
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 75.2
+        range: 7
+        intervals:
+        - 2
+        - 2
+        - 3
+        durations:
+        - 3
+        - 3
+        - 3
+        - 3
+        copy_hits: []
+      - id: Z8
+        label: the fanfare third
+        total: 15
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: false
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: false
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 76.0
+        range: 9
+        intervals:
+        - 4
+        - 3
+        - 2
+        durations:
+        - 2
+        - 2
+        - 1
+        - 1
+        copy_hits: []
+      - id: Z4
+        label: the bell arpeggio
+        total: 15
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: false
+          attacks_per_bar: false
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 73.7
+        range: 12
+        intervals:
+        - 5
+        - 4
+        - 3
+        - -3
+        - -4
+        durations:
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        copy_hits: []
+      top_two:
+      - id: Z3
+        label: the triplet shine
+        score: 19
+        why: three fast notes up to the top of the chip's usable range then two isolated drops; the gaps are the shine, and C6 is the highest note any motif in the score reaches, so it marks the section
+          by register alone
+        fails:
+        - duration_contrast
+      - id: Z6
+        label: the two note motto
+        score: 18
+        why: two notes and one interval, a major sixth; the fewest possible events, which is the most a listener can be asked to remember, and the long second note keeps it from sounding clipped
+        fails:
+        - gap_or_offbeat
+        - repeated_element
+      all_eight_unique: true
+    P:
+      candidates:
+      - id: P7
+        label: the trident
+        total: 19
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: false
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: true
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 70.3
+        range: 12
+        intervals:
+        - 7
+        - 5
+        durations:
+        - 1
+        - 1
+        - 1
+        copy_hits: []
+      - id: P8
+        label: the surge
+        total: 17
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: false
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 71.6
+        range: 9
+        intervals:
+        - 5
+        - -2
+        - -3
+        - -4
+        durations:
+        - 2
+        - 4
+        - 1
+        - 1
+        - 4
+        copy_hits: []
+      - id: P6
+        label: the tide turn
+        total: 17
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: false
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 73.7
+        range: 7
+        intervals:
+        - -2
+        - -2
+        - -1
+        - -2
+        - 2
+        - 5
+        durations:
+        - 2
+        - 1
+        - 1
+        - 2
+        - 1
+        - 1
+        - 4
+        copy_hits: []
+      - id: P4
+        label: the crest
+        total: 16
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: false
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: false
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 72.3
+        range: 12
+        intervals:
+        - 7
+        - 5
+        durations:
+        - 2
+        - 4
+        - 6
+        copy_hits: []
+      - id: P2
+        label: the undertow
+        total: 16
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: false
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: false
+        mean_midi: 67.8
+        range: 7
+        intervals:
+        - -2
+        - -2
+        - -3
+        durations:
+        - 3
+        - 3
+        - 3
+        - 3
+        copy_hits:
+        - bar: 2
+          signature:
+          - - -3
+          - - 3
+            - 3
+      - id: P5
+        label: the deep swell
+        total: 16
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: false
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 68.1
+        range: 12
+        intervals:
+        - 3
+        - 4
+        - 5
+        durations:
+        - 6
+        - 2
+        - 1
+        - 3
+        copy_hits: []
+      - id: P1
+        label: the swell
+        total: 16
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: false
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: false
+        mean_midi: 70.4
+        range: 12
+        intervals:
+        - 3
+        - 4
+        - 5
+        - -5
+        durations:
+        - 2
+        - 2
+        - 2
+        - 3
+        - 3
+        copy_hits:
+        - bar: 1
+          signature:
+          - - 3
+            - 4
+          - - 2
+            - 2
+            - 2
+      - id: P3
+        label: the double wave
+        total: 15
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: false
+          attacks_per_bar: false
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 69.3
+        range: 12
+        intervals:
+        - 3
+        - 4
+        - 5
+        - -5
+        - -4
+        durations:
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        copy_hits: []
+      top_two:
+      - id: P7
+        label: the trident
+        score: 19
+        why: three separated rising notes, one per prong, with silence between them; the gaps do the work, so the motif is a shape in the air instead of a line, and it is the only P a player can start cold
+        fails:
+        - duration_contrast
+      - id: P8
+        label: the surge
+        score: 17
+        why: 'the wave breaks on the weak side: peak first, then a stepwise roll down to the third and a held landing; starting high is the difference from the parent and it makes the motif read as a crash
+          rather than a lift'
+        fails:
+        - conjunct_or_arpeggio
+        - gap_or_offbeat
+        - meter_clarity
+      all_eight_unique: true
+    H:
+      candidates:
+      - id: H1
+        label: the two prongs, faster
+        total: 19
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: false
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: true
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 71.0
+        range: 6
+        intervals:
+        - -1
+        - -5
+        - 1
+        durations:
+        - 1
+        - 1
+        - 1
+        - 1
+        copy_hits: []
+      - id: H8
+        label: the low growl
+        total: 19
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 65.2
+        range: 7
+        intervals:
+        - -1
+        - 1
+        - -1
+        - -6
+        durations:
+        - 2
+        - 1
+        - 1
+        - 2
+        - 6
+        copy_hits: []
+      - id: H4
+        label: the held prong
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: true
+          repeated_element: false
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 72.1
+        range: 5
+        intervals:
+        - -1
+        - -4
+        durations:
+        - 6
+        - 1
+        - 4
+        copy_hits: []
+      - id: H3
+        label: the cold descent
+        total: 18
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: false
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: false
+          ends_with_breath: true
+          gap_or_offbeat: true
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 69.5
+        range: 6
+        intervals:
+        - -1
+        - -2
+        - -1
+        - -1
+        - -1
+        durations:
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 6
+        copy_hits: []
+      - id: H5
+        label: the rising bident
+        total: 17
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: false
+          ends_on_chord_tone: true
+          ends_with_breath: true
+          gap_or_offbeat: true
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: false
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: false
+          no_exact_bar_copy: true
+        mean_midi: 71.2
+        range: 6
+        intervals:
+        - 1
+        - 4
+        - 1
+        durations:
+        - 1
+        - 3
+        - 1
+        - 3
+        copy_hits: []
+      - id: H6
+        label: the knocking prong
+        total: 17
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: false
+          salient_leap: true
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 72.0
+        range: 5
+        intervals:
+        - 0
+        - -1
+        - -4
+        durations:
+        - 1
+        - 1
+        - 2
+        - 2
+        copy_hits: []
+      - id: H2
+        label: the double prong
+        total: 16
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: true
+          duration_contrast: false
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: true
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: true
+          contour_simplicity: false
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 71.2
+        range: 6
+        intervals:
+        - -1
+        - 1
+        - -5
+        - -1
+        - 1
+        durations:
+        - 2
+        - 2
+        - 2
+        - 2
+        - 2
+        - 2
+        copy_hits: []
+      - id: H7
+        label: the thin line
+        total: 15
+        items:
+          one_to_two_bars: true
+          range_within_octave: true
+          diatonic_to_key: true
+          conjunct_or_arpeggio: true
+          salient_leap: false
+          duration_contrast: true
+          attacks_per_bar: true
+          starts_on_chord_tone: true
+          ends_on_chord_tone: false
+          ends_with_breath: false
+          gap_or_offbeat: false
+          repeated_element: false
+          contour_simplicity: true
+          peak_on_strong_beat: true
+          rhythm_differs_from_parent: true
+          contour_differs_from_parent: true
+          chromatic_near_diatonic: true
+          register_character: true
+          meter_clarity: true
+          no_exact_bar_copy: true
+        mean_midi: 73.7
+        range: 1
+        intervals:
+        - -1
+        durations:
+        - 4
+        - 2
+        copy_hits: []
+      top_two:
+      - id: H1
+        label: the two prongs, faster
+        score: 19
+        why: the parent compressed into one bar, so both prongs are heard inside a single beat group and the silences become the pulse; the second prong answers upward, which is the one contour change that
+          keeps the two stabs identical in rhythm while making the figure a question and an answer rather than two falls. A listener hears two sharp stabs and a hole, which is the bident in one gesture
+        fails:
+        - duration_contrast
+      - id: H8
+        label: the low growl
+        score: 19
+        why: the low prong hammers its semitone four times and then the motif falls an octave to D4; the repeated G sharp is a shudder, and the drop to the bottom of the usable range is the floor of the
+          character
+        fails:
+        - gap_or_offbeat
+      all_eight_unique: true
+  hook_score:
+    tool: tools/hook_score.py
+    command: python tools/hook_score.py --melody-json <candidate>.json --json <report>.json, once per candidate per mode, 64 runs
+    grammar_source: 'defaults (no hook_score: yaml block in knowledge/MUSIC-HOOK-GRAMMAR.md)'
+    modes:
+      cell: 'the candidate exactly as written, 1 or 2 bars: the cell''s own shape'
+      tiled: the same candidate repeated 4 times, so the repetition items have something to measure
+    scale_note: the tool is out of 100, but motif_returns (12), third_return (8) and loop_length (6) cannot be earned by a bare 1 to 2 bar cell, so compare cell scores against 74 and do not read a cell
+      score of 72 as a failure
+    ranking_rule: cell score, then tiled score, then checklist total, then id; the cell score leads because the cell is what the card asked for, and the tiled score breaks ties in favour of the figure that survives a loop; one override is recorded in STUDY.md section 3.3, where H8 is the second H pick instead of H5 for its checklist score and its octave drop
+    agreement_with_checklist: both methods put K3 first in K, P8 second in P and H8 second in H; they differ on Z (tool Z7 Z1, checklist Z3 Z6), on P's head (tool P6, checklist P7) and on H's head (tool
+      H6, checklist H8)
+    by_motif:
+      K:
+        ranking:
+        - K3
+        - K5
+        - K2
+        - K6
+        - K4
+        - K8
+        - K1
+        - K7
+        candidates:
+        - id: K3
+          label: the three knocks
+          cell_score: 64
+          cell_points: 64.0
+          cell_fails: &id001
+          - hook_cell
+          - motif_returns
+          - third_return
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 86
+          tiled_points: 86.4
+          tiled_fails:
+          - loop_length
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: K5
+          label: the tolling fourth
+          cell_score: 62
+          cell_points: 62.0
+          cell_fails: &id002
+          - hook_cell
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 89
+          tiled_points: 89.2
+          tiled_fails:
+          - repeat_pitch
+          - third_return
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: K2
+          label: the horn fifth
+          cell_score: 62
+          cell_points: 62.0
+          cell_fails:
+          - hook_cell
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 67
+          tiled_points: 66.95
+          tiled_fails:
+          - contour
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          - third_return
+          - step_ratio
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: K6
+          label: the semitone neighbour
+          cell_score: 58
+          cell_points: 58.0
+          cell_fails:
+          - hook_cell
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 86
+          tiled_points: 86.4
+          tiled_fails:
+          - loop_length
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: K4
+          label: the descent from the octave
+          cell_score: 58
+          cell_points: 58.0
+          cell_fails:
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - loop_length
+          tiled_score: 85
+          tiled_points: 85.2
+          tiled_fails:
+          - contour
+          - third_return
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: K8
+          label: the two peaks
+          cell_score: 58
+          cell_points: 58.0
+          cell_fails:
+          - hook_cell
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 85
+          tiled_points: 85.2
+          tiled_fails:
+          - repeat_pitch
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: K1
+          label: the long call
+          cell_score: 45
+          cell_points: 45.23
+          cell_fails:
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          - step_ratio
+          tiled_score: 72
+          tiled_points: 72.43
+          tiled_fails:
+          - contour
+          - repeat_pitch
+          - third_return
+          - leaps_per_motif
+          - step_ratio
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: K7
+          label: the offbeat summons
+          cell_score: 45
+          cell_points: 45.23
+          cell_fails:
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          - step_ratio
+          tiled_score: 72
+          tiled_points: 72.43
+          tiled_fails:
+          - contour
+          - repeat_pitch
+          - third_return
+          - leaps_per_motif
+          - step_ratio
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        top_two:
+        - id: K3
+          label: the three knocks
+          headline: cell 64 of 74 and tiled 86 of 100, the best cell score in K
+          evidence: the tool passes contour, range, step_ratio and repeat_pitch, because the three E5 knocks are a repeated pitch, and it fails hook_cell only because the three durations differ 1 1 2, so
+            it does not read the knocks as one cell; tiled it returns 3 times at coverage 1.5
+          cell_fails: *id001
+          recognisability_reason: two staccato knocks and a held one on a single pitch, which is a clock striking; identity here is rhythm and silence only, the cheapest hook on a chip and the hardest to
+            confuse with anything else in the score
+        - id: K5
+          label: the tolling fourth
+          headline: cell 62 and tiled 89, the highest tiled score in K
+          evidence: 'the whole bar of E5 is what the tiled run rewards: returns 4 and coverage 1.0 with only repeat_pitch failing, so the motif is built to survive a loop, which is what a four bar call
+            in the score needs'
+          cell_fails: *id002
+          recognisability_reason: a whole bar of one pitch is a bell, then a three step staircase back to the seventh of E7; the identity is the extreme duration contrast, one attack against three, which
+            no other K candidate has
+        also_hear:
+          id: K6
+          note: '58 of 74, checklist 18 of 20, the checklist''s other pick: the upper neighbour is the most singable K line and the tool marks it down only for having no repeat'
+      Z:
+        ranking:
+        - Z7
+        - Z1
+        - Z8
+        - Z3
+        - Z4
+        - Z5
+        - Z2
+        - Z6
+        candidates:
+        - id: Z7
+          label: the dotted climb
+          cell_score: 48
+          cell_points: 48.0
+          cell_fails: &id003
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 65
+          tiled_points: 65.2
+          tiled_fails:
+          - hook_cell
+          - contour
+          - repeat_pitch
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: Z1
+          label: the rising steps
+          cell_score: 48
+          cell_points: 48.0
+          cell_fails: &id004
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 64
+          tiled_points: 64.4
+          tiled_fails:
+          - hook_cell
+          - contour
+          - repeat_pitch
+          - loop_length
+          - third_return
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: Z8
+          label: the fanfare third
+          cell_score: 46
+          cell_points: 46.15
+          cell_fails:
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - step_ratio
+          tiled_score: 62
+          tiled_points: 61.67
+          tiled_fails:
+          - contour
+          - step_ratio
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          - third_return
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: Z3
+          label: the triplet shine
+          cell_score: 46
+          cell_points: 46.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 46
+          tiled_points: 46.4
+          tiled_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          - third_return
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: Z4
+          label: the bell arpeggio
+          cell_score: 44
+          cell_points: 44.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - motif_returns
+          - third_return
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          tiled_score: 46
+          tiled_points: 46.4
+          tiled_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          - third_return
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: Z5
+          label: the held sunrise
+          cell_score: 40
+          cell_points: 40.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 67
+          tiled_points: 67.2
+          tiled_fails:
+          - step_ratio
+          - contour
+          - repeat_pitch
+          - third_return
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: Z2
+          label: the leap and roll
+          cell_score: 40
+          cell_points: 40.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 56
+          tiled_points: 56.4
+          tiled_fails:
+          - step_ratio
+          - contour
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          - third_return
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: Z6
+          label: the two note motto
+          cell_score: 40
+          cell_points: 40.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 56
+          tiled_points: 56.4
+          tiled_fails:
+          - step_ratio
+          - contour
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          - third_return
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        top_two:
+        - id: Z7
+          label: the dotted climb
+          headline: cell 48 and tiled 65, the highest tiled score in Z
+          evidence: its two pairs of equal dotted quarters are the only Z rhythm the tool reads as a stable cell shape over a repeat, and step_ratio passes because the four notes move by whole steps
+          cell_fails: *id003
+          recognisability_reason: four dotted quarters lift two notes per bar; the second attack of every bar falls off the beat, so the waltz is pulled forward and the motif has a lilt no other Z candidate
+            has, while the pitches still only rise
+        - id: Z1
+          label: the rising steps
+          headline: cell 48 with the same score as Z7 and 18 of 20 on the checklist
+          evidence: the single rising line with a closing rest is the only Z contour the tool reads as one direction; it fails hook_cell and contour, so the restatement in the cue has to supply the repetition
+            the cell cannot
+          cell_fails: *id004
+          recognisability_reason: a plain scale is the simplest upward shape and it passes through every degree, so it cannot be mistaken for the arpeggio Z it replaces; the final rest is what stops it
+            sounding like an exercise
+        also_hear:
+          id: Z3
+          note: '46 of 74, checklist 19 of 20, the checklist''s first pick: the tool cannot see silence as a hook, so the two isolated drops after C6 cost it step_ratio and hook_cell'
+      P:
+        ranking:
+        - P6
+        - P8
+        - P2
+        - P1
+        - P3
+        - P4
+        - P5
+        - P7
+        candidates:
+        - id: P6
+          label: the tide turn
+          cell_score: 72
+          cell_points: 72.0
+          cell_fails: &id005
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 95
+          tiled_points: 95.2
+          tiled_fails:
+          - third_return
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: P8
+          label: the surge
+          cell_score: 51
+          cell_points: 50.62
+          cell_fails: &id006
+          - hook_cell
+          - motif_returns
+          - third_return
+          - step_ratio
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 78
+          tiled_points: 77.82
+          tiled_fails:
+          - step_ratio
+          - repeat_pitch
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: P2
+          label: the undertow
+          cell_score: 48
+          cell_points: 48.0
+          cell_fails:
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 65
+          tiled_points: 65.2
+          tiled_fails:
+          - hook_cell
+          - contour
+          - repeat_pitch
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: P1
+          label: the swell
+          cell_score: 44
+          cell_points: 44.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - motif_returns
+          - third_return
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          tiled_score: 71
+          tiled_points: 71.2
+          tiled_fails:
+          - step_ratio
+          - leaps_per_motif
+          - repeat_pitch
+          - third_return
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: P3
+          label: the double wave
+          cell_score: 44
+          cell_points: 44.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - motif_returns
+          - third_return
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          tiled_score: 46
+          tiled_points: 46.4
+          tiled_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          - third_return
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: P4
+          label: the crest
+          cell_score: 36
+          cell_points: 36.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 63
+          tiled_points: 63.2
+          tiled_fails:
+          - step_ratio
+          - contour
+          - repeat_pitch
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: P5
+          label: the deep swell
+          cell_score: 36
+          cell_points: 36.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 63
+          tiled_points: 63.2
+          tiled_fails:
+          - step_ratio
+          - contour
+          - repeat_pitch
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: P7
+          label: the trident
+          cell_score: 36
+          cell_points: 36.0
+          cell_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 46
+          tiled_points: 46.4
+          tiled_fails:
+          - step_ratio
+          - hook_cell
+          - contour
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          - third_return
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        top_two:
+        - id: P6
+          label: the tide turn
+          headline: cell 72 of 74 and tiled 95 of 100, the strongest result in the study
+          evidence: 'it is the only candidate in all 32 whose cell passes hook_cell: the 2 1 1 2 rhythm repeats inside the two bars, which is the tool''s definition of a hook cell; only the three repetition
+            items, which a bare cell cannot earn, are missing, and tiled it fails nothing except third_return, because a literal repeat is more than 85 percent similar'
+          cell_fails: *id005
+          recognisability_reason: 'it starts at the crest and curls: a stepwise fall to the fifth, then a turn and a climb back up the same line; the turn is what makes it a wave rather than a scale, and
+            the long final E5 is the arrival'
+        - id: P8
+          label: the surge
+          headline: cell 51 and tiled 78, second in P and the checklist's other pick
+          evidence: 'peak first then a stepwise roll: contour and step_ratio pass at the cell, and the tiled run keeps coverage at 1.0, so the figure bears repetition without sounding like an exercise'
+          cell_fails: *id006
+          recognisability_reason: 'the wave breaks on the weak side: peak first, then a stepwise roll down to the third and a held landing; starting high is the difference from the parent and it makes the
+            motif read as a crash rather than a lift'
+        also_hear:
+          id: P7
+          note: '36 of 74, checklist 19 of 20, the checklist''s first pick: three separated notes have no step motion and no repeated pitch, so the tool ranks it last in P while the ear hears the gaps as
+            the hook'
+      H:
+        ranking:
+        - H6
+        - H5
+        - H1
+        - H8
+        - H2
+        - H4
+        - H7
+        - H3
+        candidates:
+        - id: H6
+          label: the knocking prong
+          cell_score: 68
+          cell_points: 68.0
+          cell_fails: &id007
+          - hook_cell
+          - motif_returns
+          - third_return
+          - loop_length
+          tiled_score: 83
+          tiled_points: 82.95
+          tiled_fails:
+          - leaps_per_motif
+          - loop_length
+          - third_return
+          - step_ratio
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: H5
+          label: the rising bident
+          cell_score: 62
+          cell_points: 62.0
+          cell_fails:
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 79
+          tiled_points: 79.2
+          tiled_fails:
+          - contour
+          - repeat_pitch
+          - third_return
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: H1
+          label: the two prongs, faster
+          cell_score: 62
+          cell_points: 62.0
+          cell_fails:
+          - hook_cell
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 57
+          tiled_points: 56.95
+          tiled_fails:
+          - hook_cell
+          - contour
+          - leaps_per_motif
+          - repeat_pitch
+          - loop_length
+          - third_return
+          - step_ratio
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: H8
+          label: the low growl
+          cell_score: 52
+          cell_points: 52.0
+          cell_fails: &id008
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 79
+          tiled_points: 79.2
+          tiled_fails:
+          - contour
+          - repeat_pitch
+          - third_return
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: H2
+          label: the double prong
+          cell_score: 52
+          cell_points: 52.0
+          cell_fails:
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          tiled_score: 69
+          tiled_points: 69.2
+          tiled_fails:
+          - hook_cell
+          - contour
+          - repeat_pitch
+          - third_return
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: H4
+          label: the held prong
+          cell_score: 49
+          cell_points: 49.23
+          cell_fails:
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - step_ratio
+          tiled_score: 76
+          tiled_points: 76.43
+          tiled_fails:
+          - contour
+          - repeat_pitch
+          - third_return
+          - step_ratio
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        - id: H7
+          label: the thin line
+          cell_score: 48
+          cell_points: 48.0
+          cell_fails:
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 80
+          tiled_points: 80.4
+          tiled_fails:
+          - repeat_pitch
+          - loop_length
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 3
+          tiled_coverage: 1.5
+        - id: H3
+          label: the cold descent
+          cell_score: 48
+          cell_points: 48.0
+          cell_fails:
+          - hook_cell
+          - contour
+          - motif_returns
+          - third_return
+          - repeat_pitch
+          - loop_length
+          - leaps_per_motif
+          tiled_score: 75
+          tiled_points: 75.2
+          tiled_fails:
+          - contour
+          - repeat_pitch
+          - third_return
+          - leaps_per_motif
+          tiled_returns: 4
+          tiled_coverage: 1.0
+        top_two:
+        - id: H6
+          label: the knocking prong
+          headline: cell 68 and tiled 83, the best cell score in H
+          evidence: the doubled first attack and the semitone are the only H cell that passes range, step_ratio and leaps_per_motif together; tiled it fails only hook_cell, so a loop of it keeps its shape
+          cell_fails: *id007
+          recognisability_reason: 'the first note is struck twice before it slides: a hammer on metal, then the semitone, then the drop; the doubled attack is the whole difference from the parent and it
+            reads as a mechanism'
+        - id: H8
+          label: the low growl
+          headline: cell 52 and tiled 79, with 19 of 20 on the checklist
+          evidence: the repeated G sharp is the tool's repeat_pitch and the octave drop is the leap; the tiled run holds coverage at 1.0, and no other H pick scores 19 on the checklist
+          cell_fails: *id008
+          recognisability_reason: the low prong hammers its semitone four times and then the motif falls an octave to D4; the repeated G sharp is a shudder, and the drop to the bottom of the usable range
+            is the floor of the character
+        also_hear:
+          id: H4
+          note: '49 of 74, checklist 18 of 20, the checklist''s other pick: a held bar then a drop, penalised by step_ratio because the only moves it has are the rests and one semitone'

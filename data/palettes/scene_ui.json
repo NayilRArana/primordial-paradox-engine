@@ -1,0 +1,126 @@
+{
+  "format": 1,
+  "kind": "scene_palette",
+  "scene": "ui",
+  "backdrop": 15,
+  "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
+  "notes": [
+    "written by tools/art/make_ui_nes.py for the UI-NES card; the card that asked for the screens owns this file",
+    "backdrop $0F black is the shared backdrop of all three screens",
+    "bg0 is the window itself: the fill $02 and a 2 px border plus the text in $30",
+    "bg1 is the accent: gold $28 with the blue fill and the white text (name tab, gold headings)",
+    "bg2 is the placeholder blocks: white edge, grey body, gold marker",
+    "bg3 is spare and unused; the screens need 3 background palettes",
+    "sp0 covers the cursor and the enemy block (black $0F, gold $28, white $30)",
+    "sp1 covers the party block (grey $00, white $30, gold $28)",
+    "sp2 and sp3 are spare; the screens need 2 sprite palettes"
+  ],
+  "background": [
+    {
+      "name": "bg0",
+      "colours": [
+        2,
+        48,
+        0
+      ],
+      "hex": [
+        "#0000bc",
+        "#fcfcfc",
+        "#7c7c7c"
+      ]
+    },
+    {
+      "name": "bg1",
+      "colours": [
+        2,
+        48,
+        40
+      ],
+      "hex": [
+        "#0000bc",
+        "#fcfcfc",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "bg2",
+      "colours": [
+        48,
+        0,
+        40
+      ],
+      "hex": [
+        "#fcfcfc",
+        "#7c7c7c",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "bg3",
+      "colours": [
+        2,
+        0,
+        40
+      ],
+      "hex": [
+        "#0000bc",
+        "#7c7c7c",
+        "#f8b800"
+      ]
+    }
+  ],
+  "sprites": [
+    {
+      "name": "sp0",
+      "colours": [
+        15,
+        40,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#f8b800",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "sp1",
+      "colours": [
+        0,
+        48,
+        40
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#fcfcfc",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "sp2",
+      "colours": [
+        2,
+        48,
+        40
+      ],
+      "hex": [
+        "#0000bc",
+        "#fcfcfc",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "sp3",
+      "colours": [
+        2,
+        0,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#7c7c7c",
+        "#fcfcfc"
+      ]
+    }
+  ]
+}

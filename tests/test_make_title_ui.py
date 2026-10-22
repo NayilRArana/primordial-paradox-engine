@@ -1,7 +1,8 @@
 """Tests for tools/art/make_title_ui.py: the title logo, the 8x8 font and the menu cursor.
 
-The generator writes into a throwaway root (a copy of data\\palette.json plus empty output folders), so the test
-never writes into the live tree and never depends on files another lane is writing.
+The generator writes into a throwaway root (a copy of data\\, a copy of the committed title art and empty
+output folders), so the test never writes into the live tree and never depends on a file another lane is
+editing in place.
 
 What is proved here, rather than asserted in a comment:
   - two runs of the same script produce byte identical files, so the art is deterministic;
@@ -53,15 +54,33 @@ def generated(tmp_path_factory):
     spawn can fail with "The request is not supported" (WinError 50) or with a stale inherited handle (WinError 6)
     when an earlier test has left the process in an odd state, and then the failure reads like a fault in the logo when
     it is a fault in the harness. Calling the generator directly removes that whole failure class.
+
+    The title art is copied in, not left as an empty folder, because generate() ends with
+    scene_palette.apply_title(): it composes data\\title.json's layers and remaps the UI sprites into the title
+    scene's sprite palettes. The committed spr_pp_menu_cursor.png is the post pass art, so a root without the
+    strips measures the pre pass sprite and reports drift that exists only in the harness. Measured 2026-10-22:
+    the pre pass cursor is sha256 6a15feed..., the committed and live one is 7e15e4ad..., and the font strip is
+    unchanged by the pass because it is drawn in one colour. The copies are still throwaway: apply_title rewrites
+    the copies under the temporary root and never the live files.
+
+    spr_pp_title_logo is deliberately NOT copied, so test_this_generator_writes_no_logo keeps measuring what it
+    says it measures: the file is absent before the run and absent after it.
     """
     sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
     import make_title_ui as gen
+
+    with open(os.path.join(ROOT, "data", "title.json"), "r", encoding="utf-8-sig") as handle:
+        layer_names = [row["name"] for row in json.load(handle)["layers"]]
 
     runs = []
     for name in ("run_a", "run_b"):
         root = tmp_path_factory.mktemp(name)
         shutil.copytree(os.path.join(ROOT, "data"), root / "data")
-        (root / "game" / "sprites_src" / "title").mkdir(parents=True)
+        sprite_dir = root / "game" / "sprites_src" / "title"
+        sprite_dir.mkdir(parents=True)
+        for layer in layer_names:
+            for suffix in (".png", ".json"):
+                shutil.copyfile(os.path.join(SPRITES, layer + suffix), sprite_dir / (layer + suffix))
         (root / "output").mkdir(parents=True)
         assert gen.generate(str(root)) == 0, "the generator reported a failure"
         runs.append(root)

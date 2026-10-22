@@ -1,0 +1,75 @@
+{
+  "name": "dialogue",
+  "windows": [
+    {
+      "name": "dialogue",
+      "x": 0,
+      "y": 21,
+      "w": 32,
+      "h": 9,
+      "style": "window"
+    },
+    {
+      "name": "nametab",
+      "x": 2,
+      "y": 18,
+      "w": 8,
+      "h": 3,
+      "style": "tab"
+    }
+  ],
+  "bands": [
+    {
+      "name": "sky",
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 15,
+      "colour": 15
+    },
+    {
+      "name": "ground",
+      "x": 0,
+      "y": 15,
+      "w": 32,
+      "h": 3,
+      "colour": 0,
+      "edge": "dither2"
+    }
+  ],
+  "text": {
+    "name": "KONRAD",
+    "lines": [
+      "THE TIDE IS TURNING, PERCY.",
+      "DO YOU TRUST THE CLOUD?"
+    ]
+  },
+  "cursors": [
+    {
+      "name": "continue",
+      "x": 29,
+      "y": 27,
+      "blink": {
+        "on_frames": 30,
+        "off_frames": 15
+      }
+    }
+  ],
+  "sprites": [
+    {
+      "x": 48,
+      "y": 96,
+      "w": 24,
+      "h": 32,
+      "role": "party"
+    },
+    {
+      "x": 232,
+      "y": 216,
+      "w": 8,
+      "h": 8,
+      "role": "cursor",
+      "transparent": "#0000bc"
+    }
+  ]
+}

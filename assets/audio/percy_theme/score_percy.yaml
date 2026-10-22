@@ -1,0 +1,82 @@
+# Percy, the Tyrant: boss cue for Percy (Poseidon). Written by the musician lane 2026-10-21 from card MUS-PERCY.
+# Everything here is original. No melody, riff or bass line of any published game is quoted; the technique comes from
+# knowledge\MUSIC-STYLE-BIBLE.md recipes (cited per section) which are rules, not tunes.
+#
+# A tyrant waltz in G minor, 3/4, 132 bpm, 32 bars. Durations are in eighth notes; a 3/4 bar holds 6.
+# "X|Y" in a chord slot means X on beats 1 and 2, Y on beat 3. Names after notes: A4 is concert A at 440 Hz.
+# A sharp is written A#, a flat Ab. r is a rest.
+meta:
+  profile: percy
+  key: G minor
+  time: 3/4
+  bpm: 132
+  loop_start_section: intro
+  loop_end_section: cadence
+  form: "Intro 4 + A 8 + B 8 + A' 8 + cadence 4 = 32 bars, 43.6 s at 132 bpm; the whole file loops"
+
+motifs:
+  # Identify these by ear. They are the same shapes the title theme uses; the tide is transposed to G minor here.
+  P:  "Percy / Poseidon motif, the tide: a rising minor arpeggio G3 Bb3 D4, then a crest and fall G4 F4 D4. Six eighths, one bar. Sea, strength, a trident of three notes. Home key G minor."
+  Pr: "The tide in retrograde, G4 F4 D4 G3 Bb3 D4: the wave pulls back before it breaks again."
+
+sections:
+  intro:
+    bars: 4
+    chords: [Gm, Gm, Cm, D7]
+    melody:
+      - [[r, 6]]
+      - [[r, 6]]
+      - [[r, 6]]
+      - [[r, 6]]
+    texture: "the low riff only, no lead: pulse 1 the chord root and pulse 2 the fifth, palm muted eighths on slots 1, 2, 3 and 5 (RCK-01, RCK-03), triangle a G pedal on every beat (RCK-04), saw a low held root and fifth, no hats, one dpcm kick on bar 4 beat 3 as a pickup into A"
+  A:
+    bars: 8
+    chords: [Gm, Gm, Bb, Bb, Cm, Cm, D7, D7]      # i i III III iv iv V7 V7
+    melody:
+      - [[G3, 1], [Bb3, 1], [D4, 1], [G4, 1], [F4, 1], [D4, 1]]     # P, the tide breaks
+      - [[G3, 1], [Bb3, 1], [D4, 1], [G4, 1], [F4, 1], [D4, 1]]     # P again, the tyrant repeats himself
+      - [[Bb3, 1], [D4, 1], [F4, 1], [Bb4, 1], [A4, 1], [F4, 1]]    # P a third up over III
+      - [[Bb3, 1], [D4, 1], [F4, 1], [Bb4, 1], [A4, 1], [G4, 1]]    # the crest falls back to the tonic
+      - [[G3, 1], [Bb3, 1], [D4, 1], [G4, 1], [F4, 1], [D4, 1]]     # P
+      - [[C4, 1], [Eb4, 1], [G4, 1], [C5, 1], [Bb4, 1], [G4, 1]]    # P a fourth up over iv
+      - [[D4, 1], [F#4, 1], [A4, 1], [D5, 1], [C5, 1], [A4, 1]]     # V7, harmonic minor, the highest point
+      - [[G4, 1], [D4, 1], [Bb3, 1], [G3, 3]]                       # the wave pulls back
+    texture: "pulse 1 the riff itself: each note of P is the root of a power chord, palm muted short envelopes (gate 40 percent, RCK-03); pulse 2 the perfect fifth above it, no third anywhere (RCK-01), and an octave doubling where a fifth would leave G minor; pulse b the root octave doubled at 70 percent (RCK-02); triangle a G pedal, root on beat 1 and the octave on beats 2 and 3 (RCK-04); dpcm kick on beat 1 and dpcm snare on beat 3, no hats, scaled down rock (RCK-05 in 3/4); the VRC6 lead is silent here, it arrives in A prime"
+  B:
+    bars: 8
+    chords: [Gm, Dm, Eb, D7, Gm, Dm, Eb, D7]      # the chaconne, four chords, two passes
+    melody:
+      - [[G3, 2], [Bb3, 2], [D4, 2]]                # P in quarters over i
+      - [[D4, 2], [F4, 2], [A4, 2]]                 # P over iv, the tide climbing
+      - [[Eb4, 2], [G4, 2], [Bb4, 2]]               # P over VI
+      - [[D4, 2], [F#4, 2], [A4, 2]]                # P over V7
+      - [[G4, 2], [Bb4, 2], [D5, 2]]                # pass two, the tide at its height
+      - [[D5, 2], [C5, 2], [A4, 2]]                 # crest and fall
+      - [[Eb5, 2], [D5, 2], [Bb4, 2]]               # the wave recedes
+      - [[D4, 2], [F#4, 2], [A4, 2]]                # V7 again, ready for the riff
+    texture: "Baroque over a chaconne: triangle the ground bass in quarters, root, fifth and octave of each chord, one fixed figure repeated twice while the parts above it change (BAR-05); pulse 1 a fast countermelody in sixteenths, root third fifth octave across two octaves, rising in bars 1 to 4 and falling in bars 5 to 8 (BAR-08); pulse a duty 0.25 the lead in quarters with vibrato; pulse b a held shell pad, third and seventh, the continuo (BAR-12); no saw, no kick; noise a soft hat on beats 2 and 3"
+  A_prime:
+    bars: 8
+    chords: [Gm, Gm, Bb, Bb, Cm, Cm, D7, D7]
+    melody: "same notes as A, one octave up in bars 1 to 8, with the palm mute released on the lead and the full band under it"
+    texture: "pulse a duty 0.5 the lead an octave up, long envelopes, vibrato; pulse 1 and pulse 2 the muted power chord as in A (RCK-01, RCK-03); pulse b the root octave doubled (RCK-02); triangle the G pedal as in A, with the octave jump on the last beat of bars 4 and 8 (RCK-04); dpcm kick on beat 1 and dpcm snare on beat 3, plus a noise hat on beat 2 (RCK-05); a noise fill on the last bar"
+  cadence:
+    bars: 4
+    chords: [Gm, Cm, D7, Gm]                      # i iv V7 i, one bar each
+    melody:
+      - [[G4, 2], [Bb4, 2], [D5, 2]]                # i, the tide rises
+      - [[C5, 2], [Eb5, 2], [G5, 2]]                # iv
+      - [[D5, 2], [F#5, 2], [A5, 2]]                # V7, the top of the wave
+      - [[G5, 6]]                                   # i, the arrival, held
+    texture: "the close, counted, i iv V7 i with the dominant held a full bar (CLS-09); the full band with the mute released on the lead; pulse 1 the root and pulse 2 the fifth of each chord, pulse b the root octave, triangle root on beat 1 and the fifth on beat 3, saw a low held root and fifth, dpcm kick on beat 1 and snare on beat 3, one noise crash on beat 1 of bar 4 (RCK-12 without the two bar tail, because the cue loops)"
+
+voices:
+  vrc6_pulse_a:   {role: "the lead, the riff melody in A and the tide in B and the cadence; duty 0.5 except in B", duty: 0.5, vibrato: {after_eighths: 1, min_note_eighths: 3, depth_cents: 12, rate_hz: 5.5}}
+  vrc6_pulse_b:   {role: "the root octave doubling of the power chord in A and A prime (RCK-02); a held shell pad in B (BAR-12)"}
+  vrc6_saw:       {role: "a low held root and fifth in the intro and the cadence, silent in A, B and A prime where the mix already carries two pulses and a lead"}
+  pulse_1:        {role: "the chord root of the power chord in A, A prime and the cadence (RCK-01); the low riff in the intro; a sixteenth arpeggio countermelody in B (BAR-08)", duty: 0.5}
+  pulse_2:        {role: "the perfect fifth of the power chord, no third anywhere (RCK-01); the low riff fifth in the intro; silent in B and the cadence, where pulse 1 holds the arpeggio", duty: 0.5}
+  triangle:       {role: "a G pedal in A and A prime (RCK-04), the ground bass in B (BAR-05), root then fifth in the cadence"}
+  noise:          {role: "soft hats in B on beats 2 and 3, a hat on beat 2 in A prime, a fill on the last bar of A prime, one crash on the cadence"}
+  dpcm:           {role: "the kick on beat 1 and the snare on beat 3, the scaled down rock kit in 3/4 (RCK-05); one pickup kick at the end of the intro"}
+originality: "every melody is built from motif P, which is our own leitmotif cell from the title theme; the arranger runs tools\\melody_guard.py against the reference folder before delivery"

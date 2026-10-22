@@ -1,0 +1,180 @@
+{
+  "format": 1,
+  "kind": "nes_icon_sheet",
+  "name": "spr_pp_icon_status_8",
+  "size": "40x8",
+  "frame_w": 8,
+  "frame_h": 8,
+  "frames": 5,
+  "grid": {
+    "cols": 5,
+    "rows": 1,
+    "cell_w": 8,
+    "cell_h": 8,
+    "sheet_w": 40,
+    "sheet_h": 8
+  },
+  "group": "status",
+  "title": "status effects, 8x8",
+  "transparent": true,
+  "sprite_palettes_used": [
+    "sp0",
+    "sp2",
+    "sp3"
+  ],
+  "sprite_palette_count": 3,
+  "sprite_objects_per_frame": 1,
+  "max_sprite_objects_if_all_frames_on_screen": 5,
+  "colours_used": [
+    {
+      "index": 15,
+      "hex": "#000000",
+      "hue": "black",
+      "usable": true
+    },
+    {
+      "index": 18,
+      "hex": "#0058f8",
+      "hue": "blue",
+      "usable": true
+    },
+    {
+      "index": 26,
+      "hex": "#00a800",
+      "hue": "green",
+      "usable": true
+    },
+    {
+      "index": 48,
+      "hex": "#fcfcfc",
+      "hue": "grey",
+      "usable": true
+    }
+  ],
+  "colour_count": 4,
+  "rule": "sprite art: at most 3 opaque colours plus transparency on any 8x8 tile; entry 0 of a sprite palette is transparency; black is $0F; no gradient, no anti aliasing, no dithering; each icon wears one of the four sprite palettes in data\\palettes\\scene_icons.json",
+  "size_variants": [
+    "poison",
+    "shadow"
+  ],
+  "size_variant_note": "these five are simplified drawings made for 8x8, not the 16x16 art seen smaller: at 8x8 one pixel is 2 design units, so their 16x16 features would vanish",
+  "palette_file": "data\\palettes\\scene_icons.json",
+  "built_by": "tools\\art\\make_icons_nes.py",
+  "frames_detail": [
+    {
+      "index": 0,
+      "name": "poison",
+      "x": 0,
+      "y": 0,
+      "w": 8,
+      "h": 8,
+      "tiles_w": 1,
+      "tiles_h": 1,
+      "sprite_objects": 1,
+      "sprite_palette": "sp2",
+      "colours": {
+        "dark": 15,
+        "mid": 26,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#00a800",
+        "light": "#fcfcfc"
+      },
+      "note": "skull, two sockets, jaw"
+    },
+    {
+      "index": 1,
+      "name": "sleep",
+      "x": 8,
+      "y": 0,
+      "w": 8,
+      "h": 8,
+      "tiles_w": 1,
+      "tiles_h": 1,
+      "sprite_objects": 1,
+      "sprite_palette": "sp3",
+      "colours": {
+        "dark": 15,
+        "mid": 18,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#0058f8",
+        "light": "#fcfcfc"
+      },
+      "note": "Z, two bars and a diagonal"
+    },
+    {
+      "index": 2,
+      "name": "wet",
+      "x": 16,
+      "y": 0,
+      "w": 8,
+      "h": 8,
+      "tiles_w": 1,
+      "tiles_h": 1,
+      "sprite_objects": 1,
+      "sprite_palette": "sp3",
+      "colours": {
+        "dark": 15,
+        "mid": 18,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#0058f8",
+        "light": "#fcfcfc"
+      },
+      "note": "drop with one glint"
+    },
+    {
+      "index": 3,
+      "name": "charged",
+      "x": 24,
+      "y": 0,
+      "w": 8,
+      "h": 8,
+      "tiles_w": 1,
+      "tiles_h": 1,
+      "sprite_objects": 1,
+      "sprite_palette": "sp3",
+      "colours": {
+        "dark": 15,
+        "mid": 18,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#0058f8",
+        "light": "#fcfcfc"
+      },
+      "note": "four point spark"
+    },
+    {
+      "index": 4,
+      "name": "shadow",
+      "x": 32,
+      "y": 0,
+      "w": 8,
+      "h": 8,
+      "tiles_w": 1,
+      "tiles_h": 1,
+      "sprite_objects": 1,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 15,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#000000",
+        "light": "#fcfcfc"
+      },
+      "note": "black silhouette, white eyes, white rim"
+    }
+  ]
+}

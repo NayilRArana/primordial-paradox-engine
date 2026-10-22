@@ -1,0 +1,178 @@
+{
+  "name": "battle",
+  "windows": [
+    {
+      "name": "message",
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 4,
+      "style": "window"
+    },
+    {
+      "name": "command",
+      "x": 0,
+      "y": 21,
+      "w": 10,
+      "h": 9,
+      "style": "window"
+    },
+    {
+      "name": "status",
+      "x": 11,
+      "y": 21,
+      "w": 21,
+      "h": 9,
+      "style": "window"
+    }
+  ],
+  "bands": [
+    {
+      "name": "sky",
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 12,
+      "colour": 15
+    },
+    {
+      "name": "ground",
+      "x": 0,
+      "y": 12,
+      "w": 32,
+      "h": 9,
+      "colour": 0,
+      "edge": "dither2"
+    }
+  ],
+  "enemies": [
+    {
+      "x": 3,
+      "y": 8,
+      "w": 4,
+      "h": 4,
+      "pixels": "32x32"
+    },
+    {
+      "x": 12,
+      "y": 11,
+      "w": 4,
+      "h": 4,
+      "pixels": "32x32"
+    }
+  ],
+  "party": [
+    {
+      "member": "KONRAD",
+      "x": 28,
+      "y": 4,
+      "w": 3,
+      "h": 4,
+      "pixels": "24x32"
+    },
+    {
+      "member": "ZANDER",
+      "x": 28,
+      "y": 8,
+      "w": 3,
+      "h": 4,
+      "pixels": "24x32"
+    },
+    {
+      "member": "PERCY",
+      "x": 28,
+      "y": 12,
+      "w": 3,
+      "h": 4,
+      "pixels": "24x32"
+    },
+    {
+      "member": "HADRIAN",
+      "x": 28,
+      "y": 16,
+      "w": 3,
+      "h": 4,
+      "pixels": "24x32"
+    }
+  ],
+  "text": {
+    "message": [
+      "A STORM CLOUD BLOCKS THE ROAD.",
+      "PERCY RAISES THE TRIDENT."
+    ],
+    "commands": [
+      "FIGHT",
+      "POWER",
+      "TALK",
+      "SPARE",
+      "ITEM"
+    ],
+    "status_header": "NAME      HP",
+    "status_rows": [
+      "KONRAD  HP 24",
+      "ZANDER  HP 18",
+      "PERCY   HP 31",
+      "HADRIAN HP 21"
+    ]
+  },
+  "cursors": [
+    {
+      "name": "command",
+      "x": 1,
+      "y": 22,
+      "sprite": "spr_pp_ui_cursor"
+    }
+  ],
+  "sprites": [
+    {
+      "x": 224,
+      "y": 32,
+      "w": 24,
+      "h": 32,
+      "role": "party"
+    },
+    {
+      "x": 224,
+      "y": 64,
+      "w": 24,
+      "h": 32,
+      "role": "party"
+    },
+    {
+      "x": 224,
+      "y": 96,
+      "w": 24,
+      "h": 32,
+      "role": "party"
+    },
+    {
+      "x": 224,
+      "y": 128,
+      "w": 24,
+      "h": 32,
+      "role": "party"
+    },
+    {
+      "x": 24,
+      "y": 64,
+      "w": 32,
+      "h": 32,
+      "role": "enemy"
+    },
+    {
+      "x": 96,
+      "y": 88,
+      "w": 32,
+      "h": 32,
+      "role": "enemy"
+    },
+    {
+      "x": 8,
+      "y": 176,
+      "w": 8,
+      "h": 8,
+      "role": "cursor",
+      "transparent": "#0000bc"
+    }
+  ]
+}

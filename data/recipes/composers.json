@@ -1,0 +1,782 @@
+{
+ "meta": {
+  "title": "Primordial Paradox music recipes, twelve composer techniques (Kondo, Tanaka, Uematsu, Sugiyama, Yamashita, Matsumae, Suzuki, Shimomura, Mitsuda, Sakuraba, Yamane, Wise)",
+  "generated_at": "2026-10-21",
+  "card": "t_ef135a2f (STUDY-COMPOSERS)",
+  "scope": "composers",
+  "study": "knowledge/music-styles/composers.md",
+  "source_of_truth": "knowledge/music-styles/composers.md sections 3 to 18",
+  "citation_note": "Every recipe cites source ids from knowledge/music-styles/composers.md section 19. Full titles, URLs and read dates live there, not here, because this directory is scanned by the project's clean-room gate.",
+  "chip": "NES 2A03 (2 pulse, triangle, noise, DPCM) plus the Konami VRC6 expansion where a recipe says so",
+  "family_count": 32,
+  "conventions": {
+   "frames": "one frame is 1/60 s (16.7 ms) on NTSC; at 120 bpm a beat is 30 frames, an eighth 15 and a sixteenth 7.5, so sixteenth grids use 7 and 8 frame alternation",
+   "bpm_frame_table": {
+    "75": {
+     "beat": 48,
+     "eighth": 24,
+     "sixteenth": 12
+    },
+    "100": {
+     "beat": 36,
+     "eighth": 18,
+     "sixteenth": 9
+    },
+    "104": {
+     "beat": 34.6,
+     "eighth": 17.3,
+     "sixteenth": 8.7
+    },
+    "120": {
+     "beat": 30,
+     "eighth": 15,
+     "sixteenth": 7.5
+    },
+    "150": {
+     "beat": 24,
+     "eighth": 12,
+     "sixteenth": 6
+    },
+    "180": {
+     "beat": 20,
+     "eighth": 10,
+     "sixteenth": 5
+    }
+   },
+   "duty": "0.125, 0.25, 0.5, 0.75 on the 2A03",
+   "volume": "16 steps, 0 to 15; a 2 step change is audible, a 1 step change is not",
+   "no_long_dashes": true,
+   "guard": "every generated melody passes tools/melody_guard.py before use"
+  },
+  "recipe_count": 32
+ },
+ "recipes": [
+  {
+   "id": "CMP-01",
+   "name": "Cell plus step transposition",
+   "from": "Koji Kondo",
+   "when_to_use": "Any overworld, menu or title cue that needs a second phrase without new material. The default answer phrase in this idiom.",
+   "params": {
+    "cell_notes": "8 to 12",
+    "cell_bars": 1,
+    "transpose_semitones": -2,
+    "chord_quality_change": "none",
+    "rhythm_change": "none on the first transposition",
+    "placement": "cell in bars 1 to 2, transposed cell in bars 3 to 4",
+    "channels": "pulse1 melody, pulse2 harmony, triangle bass"
+   },
+   "forbidden": [
+    "changing the chord quality with the transposition, which breaks the hand shift effect",
+    "transposing by more than a whole step in the same section",
+    "transposing a cell that is longer than one bar",
+    "reusing the exact horn call shape of the Super Mario Bros overworld cell"
+   ],
+   "source": [
+    "CO3",
+    "S58"
+   ]
+  },
+  {
+   "id": "CMP-02",
+   "name": "Parallel voice leading, same shape new root",
+   "from": "Koji Kondo",
+   "when_to_use": "A chord change inside a phrase where a full progression would cost too many notes or too many frames. Two chords, one shape.",
+   "params": {
+    "voices": 2,
+    "interval_within_chord": "third or fifth, held constant",
+    "root_motion": "step or third",
+    "bars_per_chord": 2,
+    "register": "pulse1 and pulse2 within 12 semitones of each other",
+    "triangle": "root of each chord on the strong beat"
+   },
+   "forbidden": [
+    "contrary motion in both voices at once here, which is CMP-16 instead",
+    "three or more consecutive chords moved this way, which reads as a machine",
+    "a chord quality change on the move"
+   ],
+   "source": [
+    "CO3"
+   ]
+  },
+  {
+   "id": "CMP-03",
+   "name": "Tempo locked to movement",
+   "from": "Koji Kondo",
+   "when_to_use": "Before writing any gameplay cue. Pick the tempo from the player cycle (walk, run, swim, menu blink), not from taste.",
+   "params": {
+    "overworld_walk_bpm": 100,
+    "overworld_run_bpm": 120,
+    "menu_bpm": 90,
+    "battle_bpm": 150,
+    "rule": "one bar must equal a whole number of movement cycles or a simple fraction of one",
+    "verification": "count frames of the walk cycle, divide by frames per bar, result within 0.5 of an integer"
+   },
+   "forbidden": [
+    "keeping a tempo that does not divide the movement cycle, which was Kondo's own reason for discarding drafts",
+    "tempos between 126 and 144 bpm for menu cues, which read as neither calm nor urgent"
+   ],
+   "source": [
+    "CO1",
+    "S58"
+   ]
+  },
+  {
+   "id": "CMP-04",
+   "name": "Organ three part split",
+   "from": "Koji Kondo",
+   "when_to_use": "Any cue that has to sound full with three voices only. Assign each voice a body part and never let two share a job.",
+   "params": {
+    "pulse1": "right hand, melody, duty 0.5",
+    "pulse2": "left hand, chord or countermelody, duty 0.25",
+    "triangle": "pedal, sustained root or stepwise bass",
+    "maximum_simultaneous_notes": 3,
+    "handover": "when pulse2 takes the tune for 2 bars, pulse1 drops to chord duty 0.125"
+   },
+   "forbidden": [
+    "both pulses playing the same rhythm at the same pitch class",
+    "the triangle leaving its register for a melody note above the pulses",
+    "a fourth voice implied by an arpeggio on all three channels at once"
+   ],
+   "source": [
+    "CO1"
+   ]
+  },
+  {
+   "id": "CMP-05",
+   "name": "Compound metre ostinato identity",
+   "from": "Hirokazu Tanaka",
+   "when_to_use": "A dungeon, cave or tension cue that must be recognisable from two bars with no melody memory at all.",
+   "params": {
+    "metre": "6/8",
+    "bpm": 152,
+    "ostinato_cell": "6 sixteenths, accent on 1 and 4",
+    "channel": "pulse2 ostinato, pulse1 free for fragments",
+    "bar_seconds": 1.58,
+    "melody_density": "no more than 2 notes per bar in the first 4 bars"
+   },
+   "forbidden": [
+    "a 4/4 drum pattern underneath the 6/8 ostinato",
+    "a melody that also groups in 3, which removes the cross rhythm",
+    "using this metre twice in the same area"
+   ],
+   "source": [
+    "S55"
+   ]
+  },
+  {
+   "id": "CMP-06",
+   "name": "Noise as motif carrier",
+   "from": "Hirokazu Tanaka",
+   "when_to_use": "An intro, a bridge or a whole atmosphere cue where the noise channel states the motif before a pulse takes it.",
+   "params": {
+    "noise_bars": 2,
+    "noise_rate": "periodic mode off, one rate per hit",
+    "pitch_tracking": "three distinct noise pitches mapped to the three main degrees of the motif",
+    "handover": "pulse1 repeats the same rhythm at the same accents, one octave up",
+    "volume": "noise at 10 to 13, pulse at 12 initially"
+   },
+   "forbidden": [
+    "using noise as a melodic voice for more than 4 bars, which reads as a drum solo",
+    "an untuned noise slide on the peak note of the motif",
+    "the same noise figure under a full drum pattern"
+   ],
+   "source": [
+    "S10"
+   ]
+  },
+  {
+   "id": "CMP-07",
+   "name": "Repeated note pulse with one frame gap",
+   "from": "Hirokazu Tanaka and the Konami and Capcom houses",
+   "when_to_use": "Any insistent melody where identity should come from rhythm rather than pitch travel. Measured at about one interval in six across Mother and the rock family.",
+   "params": {
+    "repeat_count": "2 to 4 notes on the same pitch",
+    "gap": "1 frame of silence between repeats",
+    "volume": "re-trigger at level 13 on each repeat, drop to 11 on the last",
+    "placement": "on the strong beat of bars 1 and 3",
+    "share_target": "15 to 17 percent of all melody intervals in the cue"
+   },
+   "forbidden": [
+    "repeats with no gap, which fuse into one long note",
+    "more than 4 repeats in a row without an ornament",
+    "repeated notes on the bass channel, where they read as a stuck note"
+   ],
+   "source": [
+    "CO32",
+    "CO34",
+    "S62"
+   ]
+  },
+  {
+   "id": "CMP-08",
+   "name": "Sus4 as a structural chord",
+   "from": "Hirokazu Tanaka",
+   "when_to_use": "The colour chord of a cue. Measured as one chord in five in the Mother corpus, second only to plain major.",
+   "params": {
+    "chord": "sus4 on the tonic, subdominant or flat seven",
+    "duration": "2 beats",
+    "resolution": "to the major triad on beat 3, only on the last bar of the phrase",
+    "melody": "the fourth degree held or repeated over the chord",
+    "share": "one sus4 chord per 4 bars"
+   },
+   "forbidden": [
+    "sus4 on a strong beat of the final bar of a loop",
+    "sus4 and sus2 in the same phrase",
+    "resolving every sus4, since the unresolved one is the colour"
+   ],
+   "source": [
+    "CO32"
+   ]
+  },
+  {
+   "id": "CMP-09",
+   "name": "Chord via arpeggio on one pulse",
+   "from": "Manami Matsumae and Nobuo Uematsu",
+   "when_to_use": "Whenever a triad has to exist with only two free channels. The harmony channel plays one note at a time.",
+   "params": {
+    "channel": "pulse2, duty 0.25",
+    "frames_per_note": 2,
+    "pattern_length": "3 or 4 notes",
+    "register": "between the melody and the bass, at least 5 semitones below the melody",
+    "restart": "on every chord change, never carried across",
+    "volume": "11 to 13, at least 2 steps below the lead"
+   },
+   "forbidden": [
+    "1 frame per note on a slow cue, which reads as a buzz rather than a chord",
+    "arpeggiating the same chord for a whole bar without a rhythm",
+    "putting the arpeggio on the melody channel",
+    "two channels arpeggiating at once"
+   ],
+   "source": [
+    "CO8",
+    "CO10",
+    "CO31",
+    "S62"
+   ]
+  },
+  {
+   "id": "CMP-10",
+   "name": "Late quiet second voice, harp echo",
+   "from": "Nobuo Uematsu",
+   "when_to_use": "A calm, magical or menu cue that needs to sound like two instruments rather than one doubled line.",
+   "params": {
+    "voices": 2,
+    "delay": "one eighth note, 15 frames at 120 bpm",
+    "volume_offset": "-2 steps on the second voice",
+    "detune": "0 to 3 cents",
+    "pattern": "identical notes, identical durations",
+    "rare_exception": "change the last note of the second voice only, once per 8 bars"
+   },
+   "forbidden": [
+    "delaying by more than one eighth, which reads as a mistake",
+    "putting the delay on the bass",
+    "quantising the delay onto the grid, which removes the effect"
+   ],
+   "source": [
+    "S54",
+    "S7",
+    "S8"
+   ]
+  },
+  {
+   "id": "CMP-11",
+   "name": "Narrow insistent riff over rich changes",
+   "from": "Nobuo Uematsu",
+   "when_to_use": "A battle or boss cue that has to feel complex without a wide melody. Range stays small, harmony does the work.",
+   "params": {
+    "melody_range_semitones": 8,
+    "beats_per_note": 0.88,
+    "chord_changes_per_bar": 3.5,
+    "chord_vocabulary": "minor seventh, half diminished, diminished seventh, dominant seventh",
+    "bass": "one pitch per beat, protected register",
+    "melody_register": "high, above the arpeggio"
+   },
+   "forbidden": [
+    "a wide melody over this much chord change, which turns into mud",
+    "more than one accidental per bar in the melody",
+    "a drum fill in the first 4 bars"
+   ],
+   "source": [
+    "S53",
+    "CO31"
+   ]
+  },
+  {
+   "id": "CMP-12",
+   "name": "Secondary dominant every 8 bars",
+   "from": "Nobuo Uematsu",
+   "when_to_use": "A cue that has settled into a key and needs a lift before the loop seam, without a modulation.",
+   "params": {
+    "interval": "every 8 bars, or every second statement of the phrase",
+    "choice": "V of ii, V of vi or V of IV",
+    "duration": "1 to 2 beats",
+    "melody": "a raised note on the same beat, approached by step",
+    "resolution": "immediately to the target chord, then home"
+   },
+   "forbidden": [
+    "two secondary dominants in the same 8 bars",
+    "using it on the final bar of the loop",
+    "the melody leaping into the new chromatic note"
+   ],
+   "source": [
+    "CO31"
+   ]
+  },
+  {
+   "id": "CMP-13",
+   "name": "Overture with a real return",
+   "from": "Koichi Sugiyama",
+   "when_to_use": "The title theme, a credits cue, or any cue that will be heard once rather than looped.",
+   "params": {
+    "sections": 3,
+    "fanfare_bars": 8,
+    "lyrical_middle_bars": 16,
+    "return_bars": 8,
+    "material": "the return restates the fanfare with the melody an octave up and the harmony a third higher",
+    "total_bars": 32,
+    "tempo": "single tempo for all three sections"
+   },
+   "forbidden": [
+    "new melodic material in the third section",
+    "a tempo change at the return",
+    "looping this form, which is why it is for a title cue and not a stage"
+   ],
+   "source": [
+    "CO12"
+   ]
+  },
+  {
+   "id": "CMP-14",
+   "name": "Horn fifths approach figure",
+   "from": "Koichi Sugiyama",
+   "when_to_use": "The house cadence. Two voices approaching a perfect interval at the end of a phrase.",
+   "params": {
+    "voices": 2,
+    "motion": "oblique or contrary into a perfect fifth or octave",
+    "duration": "1 to 2 beats at the cadence",
+    "placement": "the last 2 beats of every 8 bar phrase",
+    "register": "pulses in the middle register, triangle on the root"
+   },
+   "forbidden": [
+    "using it on every phrase of a fast cue, where it reads as a formula",
+    "parallel perfect intervals for more than two moves",
+    "the figure in a cue with a rock drum kit under it"
+   ],
+   "source": [
+    "CO12",
+    "CO13"
+   ]
+  },
+  {
+   "id": "CMP-15",
+   "name": "No note longer than an eighth",
+   "from": "Koichi Sugiyama",
+   "when_to_use": "Any fast or martial cue, where sustain on the 2A03 thins out and exposes the envelope.",
+   "params": {
+    "maximum_duration": "one eighth note",
+    "enforcement": "split a longer note into two articulated notes with the same pitch and a 1 frame gap",
+    "exception": "the final note of a section, up to a dotted quarter",
+    "bass": "unchanged, the triangle sustains acceptably"
+   },
+   "forbidden": [
+    "whole notes on a pulse channel",
+    "splitting a note in a way that changes the syncopation of the phrase",
+    "applying the rule to the pad in an atmosphere cue, which needs the opposite"
+   ],
+   "source": [
+    "CO13"
+   ]
+  },
+  {
+   "id": "CMP-16",
+   "name": "Two leads, one beat apart, opposite contours",
+   "from": "Kinuyo Yamashita",
+   "when_to_use": "The main texture of a horror or action cue. Two square voices that answer rather than double.",
+   "params": {
+    "voices": 2,
+    "delay": "one beat, 30 frames at 120 bpm",
+    "contour": "if the call rises, the answer falls, and the reverse",
+    "silence_rule": "the calling voice rests while the answering voice speaks",
+    "pitch_tracking": "95 to 100 percent diatonic, one chromatic passing note allowed",
+    "bass": "continuous, one note per eighth, no rest"
+   },
+   "forbidden": [
+    "both voices playing the same rhythm",
+    "the answer starting on the same beat as the call",
+    "a third voice joining this texture before bar 9"
+   ],
+   "source": [
+    "S61",
+    "S56"
+   ]
+  },
+  {
+   "id": "CMP-17",
+   "name": "Sixteen bar loop, unbroken bass pulse",
+   "from": "Kinuyo Yamashita",
+   "when_to_use": "Stage and boss cues where the loop has to be felt as a machine that does not stop.",
+   "params": {
+    "loop_bars": 16,
+    "bass": "triangle, one pitch per eighth, no rests except the last eighth of bar 16",
+    "melody_beats_per_note": 0.62,
+    "range_semitones": 41,
+    "diatonic_share": 0.82,
+    "chord_tone_share": 0.76
+   },
+   "forbidden": [
+    "a bass rest inside bars 1 to 15",
+    "a bass note held longer than an eighth in this cue type",
+    "a range under 24 semitones here, which leaves the texture too plain"
+   ],
+   "source": [
+    "S56",
+    "S61"
+   ]
+  },
+  {
+   "id": "CMP-18",
+   "name": "Flat seven colour chord",
+   "from": "Kinuyo Yamashita",
+   "when_to_use": "A minor cue that has to sound gothic or threatening rather than sad.",
+   "params": {
+    "key": "minor",
+    "chord": "major triad on the flat seventh degree",
+    "duration": "2 beats",
+    "frequency": "once per 4 bars, usually bar 4",
+    "melody": "the flat seventh sounded on the first beat of the chord",
+    "bass": "root of the flat seven, approached by step from below"
+   },
+   "forbidden": [
+    "the flat seven in the final bar of the loop, which weakens the return",
+    "flat seven and a raised seventh in the same phrase",
+    "using it in a major key cue"
+   ],
+   "source": [
+    "S61"
+   ]
+  },
+  {
+   "id": "CMP-19",
+   "name": "One modulation per cue, melody keeps its shape",
+   "from": "Manami Matsumae",
+   "when_to_use": "The B section of a stage cue that is running out of ideas without a modulation.",
+   "params": {
+    "modulations_per_cue": 1,
+    "target": "up a whole step or to the relative major",
+    "placement": "start of the B section",
+    "melody_rule": "same intervals, new absolute pitches, no new motif",
+    "prep": "one bar of a dominant chord in the new key before the move"
+   },
+   "forbidden": [
+    "two modulations in one loop",
+    "a modulation in the last 4 bars",
+    "introducing new melodic material at the modulation"
+   ],
+   "source": [
+    "CO8"
+   ]
+  },
+  {
+   "id": "CMP-20",
+   "name": "Channel budget, one reserved for harmony",
+   "from": "Manami Matsumae",
+   "when_to_use": "Arrangement planning for every cue. Decides what gets dropped when the score gets dense.",
+   "params": {
+    "pulse1": "melody, protected",
+    "pulse2": "harmony, protected",
+    "triangle": "bass, protected",
+    "noise": "percussion, expendable",
+    "thinning_order": [
+     "noise hats",
+     "noise kit",
+     "pulse2 arpeggio to one note per beat",
+     "pulse2 rests for 2 bars"
+    ],
+    "never_thin": [
+     "melody",
+     "bass downbeat"
+    ]
+   },
+   "forbidden": [
+    "borrowing the harmony channel for a countermelody mid phrase",
+    "thinning the melody to fit an arpeggio",
+    "all four channels at maximum density for more than 4 bars"
+   ],
+   "source": [
+    "CO8",
+    "CO9"
+   ]
+  },
+  {
+   "id": "CMP-21",
+   "name": "Pop phrase with a breath rest",
+   "from": "Keiichi Suzuki",
+   "when_to_use": "A town, house or character cue that should feel sung rather than played.",
+   "params": {
+    "phrase_bars": 4,
+    "rest": "one eighth to one quarter of silence at the end of the phrase, melody voice only",
+    "phrase_shape": "2 bars of statement, 1 bar of development, 1 bar of breath",
+    "range_semitones": "12 to 16",
+    "harmony": "one chord per bar, major sevenths and added sixths allowed",
+    "bass": "root and fifth, pop pattern"
+   },
+   "forbidden": [
+    "a rest longer than a quarter note in a 4 bar phrase",
+    "a harmony change inside the breath bar",
+    "the accompaniment filling the rest on the same channel"
+   ],
+   "source": [
+    "CO15",
+    "CO16"
+   ]
+  },
+  {
+   "id": "CMP-22",
+   "name": "Percussion as arrangement, not as a kit",
+   "from": "Keiichi Suzuki",
+   "when_to_use": "Any cue that wants groove without a rock kit, especially towns and cutscene cues.",
+   "params": {
+    "channel": "noise plus one pulse for a tom",
+    "tom_pulse": "triangle or pulse2 at a low pitch with a 3 frame volume staircase",
+    "pattern": "hand pattern on offbeats, tom on beats 2 and 4, no continuous hats",
+    "density": "2 to 3 hits per bar",
+    "fills": "one 2 beat fill every 8 bars"
+   },
+   "forbidden": [
+    "a rock backbeat under this pattern",
+    "hats on every eighth, which turns it into a kit",
+    "more noise hits than melody notes"
+   ],
+   "source": [
+    "CO16"
+   ]
+  },
+  {
+   "id": "CMP-23",
+   "name": "Motif as a game mechanic",
+   "from": "Keiichi Suzuki",
+   "when_to_use": "A collectible, a memory sequence, or an ending cue where repetition should be motivated by story.",
+   "params": {
+    "fragments": 8,
+    "fragment_bars": 1,
+    "assembly": "each fragment is the next bar of the full motif, same key, same tempo",
+    "full_statement": "8 bars, once, at the payoff",
+    "reuse": "the same motif appears in the title cue at half volume"
+   },
+   "forbidden": [
+    "a fragment that does not loop into the next one",
+    "changing key between fragments",
+    "stating the full motif before the payoff scene"
+   ],
+   "source": [
+    "CO16",
+    "S9"
+   ]
+  },
+  {
+   "id": "CMP-24",
+   "name": "Three plus three in a four bar frame",
+   "from": "Yoko Shimomura",
+   "when_to_use": "One cue per score, as the character theme or the boss intro. It makes the ear stumble in a good way.",
+   "params": {
+    "unit_bars": 3,
+    "statements": 2,
+    "intro_bars": 6,
+    "body_metre": "4/4",
+    "internal_division": "2 plus 1",
+    "accent": "the first beat of the third bar of each unit"
+   },
+   "forbidden": [
+    "two cues with an odd grouping in the same area",
+    "a 5 bar or 7 bar unit, which reads as an editing error rather than a device",
+    "an odd unit in a menu loop"
+   ],
+   "source": [
+    "CO20"
+   ]
+  },
+  {
+   "id": "CMP-25",
+   "name": "Major bed under a minor melody",
+   "from": "Yoko Shimomura",
+   "when_to_use": "A character or stage cue that needs a bright surface and a sad centre, held for a whole section.",
+   "params": {
+    "backing": "major key, rhythm led, one chord per bar, duty 0.25",
+    "melody": "the same tonic minor, duty 0.5",
+    "clash": "only the third degree differs, so one note per bar disagrees",
+    "length_bars": 8,
+    "resolution": "bars 9 to 16 either agree or repeat the clash"
+   },
+   "forbidden": [
+    "changing the backing to minor mid section",
+    "a second clash, such as a major seventh over a minor tonic",
+    "this device on a battle cue, where the harmony needs to move faster"
+   ],
+   "source": [
+    "CO22"
+   ]
+  },
+  {
+   "id": "CMP-26",
+   "name": "Bass priority rule",
+   "from": "Yasunori Mitsuda",
+   "when_to_use": "Every cue with story weight, and every cue where a sound effect may play over the music.",
+   "params": {
+    "bass_register": "at least 12 semitones below the lowest melody note",
+    "strong_beats": "bass always sounds on beats 1 and 3",
+    "pitch_clarity": "no bass note shorter than an eighth",
+    "volume": "triangle at maximum, since the triangle has no volume control on the 2A03",
+    "melody_rule": "the melody never crosses into the bass octave"
+   },
+   "forbidden": [
+    "a melody note below the bass",
+    "a bass rest on beat 1 of a section start",
+    "an arpeggio in the bass register"
+   ],
+   "source": [
+    "CO23"
+   ]
+  },
+  {
+   "id": "CMP-27",
+   "name": "Same sus4 shape, opposite bass direction",
+   "from": "Yasunori Mitsuda",
+   "when_to_use": "A pair of cues, or a cue and its reprise, where one should feel like going forward and the other like going back.",
+   "params": {
+    "chord_family": "sus4, then sus4 with a raised bass, then sus4 with a bass a semitone below",
+    "bass_motion_forward": "up a whole step, then up a semitone",
+    "bass_motion_back": "up a whole step, then back down a semitone",
+    "duration": "2 bars per chord",
+    "upper_voices": "held, identical in both cues",
+    "key_shift": "the reprise may sit a semitone lower"
+   },
+   "forbidden": [
+    "resolving the sus4 in either cue",
+    "changing the upper voices between the two versions",
+    "using this pair inside one loop, where the contrast has no time to land"
+   ],
+   "source": [
+    "CO23"
+   ]
+  },
+  {
+   "id": "CMP-28",
+   "name": "Substitute chords so minor stops sounding minor",
+   "from": "Yasunori Mitsuda",
+   "when_to_use": "A minor key cue that needs to avoid the default sad sound, especially a hero or travel theme.",
+   "params": {
+    "base": "natural minor",
+    "substitutions": "flat VI for i every 4 bars, ii half diminished for iv, a major triad on the flat two for one beat",
+    "substitutes_per_phrase": "1 to 2",
+    "melody": "stays diatonic to the natural minor",
+    "bass": "root of the substitute on the strong beat"
+   },
+   "forbidden": [
+    "more than two substitutes in 4 bars",
+    "substituting the final chord of the loop",
+    "the melody following the substitute chromatically, which removes the modal ambiguity"
+   ],
+   "source": [
+    "CO23"
+   ]
+  },
+  {
+   "id": "CMP-29",
+   "name": "Hand played timing spread",
+   "from": "Motoi Sakuraba",
+   "when_to_use": "Every cue that has to read as performed. Applied after the score is finished, as a pass.",
+   "params": {
+    "timing_deviation": "1 to 3 frames early or late",
+    "which_voices": "melody and harmony only, never the bass downbeat",
+    "distribution": "70 percent on time, 20 percent one frame late, 10 percent one frame early",
+    "volume_spread": "plus or minus 1 step per note",
+    "note_length_spread": "plus or minus 1 frame on notes longer than an eighth",
+    "maximum_per_bar": "3 deviations, and never on every note"
+   },
+   "forbidden": [
+    "deviation on the bass, which destroys the groove",
+    "a fixed alternating pattern of deviations, which is just another grid",
+    "more than 3 frames, which reads as a mistake"
+   ],
+   "source": [
+    "CO27",
+    "S62"
+   ]
+  },
+  {
+   "id": "CMP-30",
+   "name": "Limb written drum part with an improvised fill",
+   "from": "Motoi Sakuraba",
+   "when_to_use": "A battle or boss cue that needs a drummer rather than a loop.",
+   "params": {
+    "limbs": {
+     "kick": "noise or DPCM on beats 1 and 3",
+     "snare": "noise with periodic mode off, beats 2 and 4",
+     "hats": "noise, short decay, every eighth"
+    },
+    "fill_interval": "every 8 bars",
+    "fill_length": "1 bar",
+    "fill_content": "one limb breaks the pattern, the others keep it",
+    "variation": "the hats change rate once per section"
+   },
+   "forbidden": [
+    "all three limbs filling at once",
+    "the kick pattern changing inside a section",
+    "a fill in the last bar of the loop, which breaks the seam"
+   ],
+   "source": [
+    "CO27"
+   ]
+  },
+  {
+   "id": "CMP-31",
+   "name": "Genre declared, then baroque semiquaver engine",
+   "from": "Michiru Yamane",
+   "when_to_use": "A gothic, castle or boss cue. One line declares the world, then the engine runs underneath.",
+   "params": {
+    "declaration": "one of classical, metal or regional, written before any note",
+    "engine": "triangle or VRC6 saw, one note per sixteenth, continuous, stepwise with occasional thirds",
+    "rock": "noise backbeat with kick on 1 and 3, snare on 2 and 4",
+    "boss_variant": "the lead becomes a soloist, phrases of 8 to 16 bars, sequences up twice before breaking",
+    "chord_rhythm": "one chord per half bar"
+   },
+   "forbidden": [
+    "mixing two declarations in one cue",
+    "a semiquaver engine with rests inside a bar, which stops it reading as baroque",
+    "the lead playing the same rhythm as the engine"
+   ],
+   "source": [
+    "CO29",
+    "CO28",
+    "CO30"
+   ]
+  },
+  {
+   "id": "CMP-32",
+   "name": "Bassline first, off grid echo, semitone clash",
+   "from": "David Wise",
+   "when_to_use": "An underwater, night, space or dream cue. A slow atmospheric cue that still has to be memorable.",
+   "params": {
+    "bpm": 75,
+    "order": "bassline, then pad, then melody",
+    "pad": "VRC6 saw with a slow staircase swell, attack 8 frames",
+    "echo": "a quieter copy of the lead, 3 to 6 frames late, on the other pulse, delay deliberately not quantised",
+    "clash": "the tonic and the raised tonic sounding together inside a major seventh chord, resolved only at the section change",
+    "bar_seconds": 3.2,
+    "loop_length": "about 2 minutes before returning to section two"
+   },
+   "forbidden": [
+    "quantising the echo delay",
+    "a drum kit in the first section",
+    "resolving the semitone clash early",
+    "a melody in the same register as the bass"
+   ],
+   "source": [
+    "CO17",
+    "CO18",
+    "CO19",
+    "S62"
+   ]
+  }
+ ]
+}

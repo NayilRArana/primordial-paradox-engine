@@ -1,0 +1,12 @@
+{
+  "sprites": [
+    {
+      "x": 16,
+      "y": 192,
+      "w": 8,
+      "h": 8,
+      "role": "cursor",
+      "transparent": "#0000bc"
+    }
+  ]
+}

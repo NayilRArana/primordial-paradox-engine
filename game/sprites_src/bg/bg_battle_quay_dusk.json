@@ -1,0 +1,297 @@
+{
+  "format": 1,
+  "kind": "battle_background",
+  "name": "bg_battle_quay_dusk",
+  "title": "Southampton quay at dusk",
+  "png": "bg_battle_quay_dusk.png",
+  "width": 256,
+  "height": 112,
+  "tile_size": 8,
+  "attribute_area": 16,
+  "grid": {
+    "columns": 16,
+    "rows": 7
+  },
+  "frame": {
+    "width": 256,
+    "height": 240,
+    "strip_y": 0,
+    "note": "strip sits at the top of the 256x240 frame; the command window draws below it on black"
+  },
+  "palette_source": "data/nes_palette.json",
+  "scene_palette": "data/palettes/scene_battle_quay_dusk.json",
+  "backdrop": {
+    "index": 15,
+    "hex": "#000000"
+  },
+  "background_palettes": [
+    {
+      "name": "bg0",
+      "colours": [
+        38,
+        22,
+        40
+      ],
+      "hex": [
+        "#f87858",
+        "#f83800",
+        "#f8b800"
+      ],
+      "areas": 28
+    },
+    {
+      "name": "bg1",
+      "colours": [
+        0,
+        16,
+        2
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#0000bc"
+      ],
+      "areas": 32
+    },
+    {
+      "name": "bg2",
+      "colours": [
+        1,
+        17,
+        38
+      ],
+      "hex": [
+        "#0000fc",
+        "#0078f8",
+        "#f87858"
+      ],
+      "areas": 39
+    },
+    {
+      "name": "bg3",
+      "colours": [
+        15,
+        2,
+        38
+      ],
+      "hex": [
+        "#000000",
+        "#0000bc",
+        "#f87858"
+      ],
+      "areas": 13
+    }
+  ],
+  "sprite_palettes": [
+    {
+      "name": "sp0",
+      "colours": [
+        0,
+        16,
+        15
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#000000"
+      ]
+    },
+    {
+      "name": "sp1",
+      "colours": [
+        7,
+        23,
+        40
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "sp2",
+      "colours": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "sp3",
+      "colours": [
+        22,
+        38,
+        40
+      ],
+      "hex": [
+        "#f83800",
+        "#f87858",
+        "#f8b800"
+      ]
+    }
+  ],
+  "unique_tiles": 41,
+  "unique_tile_budget": 128,
+  "tiles_used_once": 17,
+  "tile_reuse": {
+    "max_times_a_tile_repeats": 58,
+    "total_tile_slots": 448
+  },
+  "colours_used": [
+    "#000000",
+    "#0000bc",
+    "#0000fc",
+    "#0078f8",
+    "#7c7c7c",
+    "#bcbcbc",
+    "#f83800",
+    "#f87858",
+    "#f8b800"
+  ],
+  "colour_count": 9,
+  "colour_budget": 25,
+  "attributes": {
+    "rule": "one background palette per 16x16 area, 3 colours plus the shared backdrop",
+    "grid": [
+      [
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0",
+        "a/bg0"
+      ],
+      [
+        "y/bg0",
+        "y/bg0",
+        "y/bg0",
+        "y/bg0",
+        "y/bg0",
+        "G/bg3",
+        "H/bg3",
+        "I/bg3",
+        "J/bg3",
+        "y/bg0",
+        "y/bg0",
+        "y/bg0",
+        "y/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0"
+      ],
+      [
+        "B/bg3",
+        "B/bg3",
+        "B/bg3",
+        "B/bg3",
+        "B/bg3",
+        "K/bg3",
+        "L/bg3",
+        "M/bg3",
+        "N/bg3",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2"
+      ],
+      [
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2",
+        "w/bg2"
+      ],
+      [
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2",
+        "n/bg2"
+      ],
+      [
+        "s/bg1",
+        "s/bg1",
+        "b/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "b/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "b/bg1",
+        "s/bg1",
+        "s/bg1"
+      ],
+      [
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1",
+        "s/bg1"
+      ]
+    ]
+  },
+  "dithering": "2x2 checker only, at palette band edges; no gradients, no rescaling, no anti aliasing",
+  "generator": "tools/art/make_battle_bg.py",
+  "notes": [
+    "dusk sky in flat bands with a 2 px checker at each band edge, the town roofline, a crane silhouette, water, granite quay with bollards",
+    "bg0 the sky, bg1 the quay stone, bg2 the water, bg3 the silhouettes, which put the sky colour in role 2 so the crane reads as a hole in the sky",
+    "the crane is a 64x32 block, so its four cells are quadrants of one shape"
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "format": 1,
+  "kind": "scene_palette",
+  "scene": "icons",
+  "backdrop": 15,
+  "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
+  "notes": [
+    "written by tools/art/make_icons_nes.py for the ICONS-NES card; no scene_icons.json existed, so this card defines it in the same format as scene_ui.json, as the card allows",
+    "backdrop $0F black is the shared backdrop, the same choice as scene_ui.json and scene_title.json",
+    "bg0 is the menu window from scene_ui.json bg0: fill $02, border and labels $30, ground band $00",
+    "sp0 gold: metal, currency, food, the two cursors",
+    "sp1 red: the potion and the gem",
+    "sp2 green: poison",
+    "sp3 blue: the electronics (phone, tablet), the two prongs of steel (bident, cutlass), sleep, wet and charged",
+    "every icon uses 3 entries or fewer of its triple; the shadow icon uses 2 (black silhouette, white eyes) because a shadow is an absence of light",
+    "scene_ui.json already draws a menu cursor in sp0 [15,40,48]; the cursor icons here wear the same triple, so either art can replace the other without a palette change",
+    "a battle scene that shows an item icon must be checked against its own sprite palettes (data/palettes/scene_battle_*.json hold the battle cast); an icon is recoloured to the nearest of that scene's four triples, the drawing does not change"
+  ],
+  "background": [
+    {
+      "name": "bg0",
+      "colours": [
+        2,
+        48,
+        0
+      ],
+      "hex": [
+        "#0000bc",
+        "#fcfcfc",
+        "#7c7c7c"
+      ]
+    },
+    {
+      "name": "bg1",
+      "colours": [
+        2,
+        48,
+        0
+      ],
+      "hex": [
+        "#0000bc",
+        "#fcfcfc",
+        "#7c7c7c"
+      ],
+      "spare": true
+    },
+    {
+      "name": "bg2",
+      "colours": [
+        2,
+        48,
+        0
+      ],
+      "hex": [
+        "#0000bc",
+        "#fcfcfc",
+        "#7c7c7c"
+      ],
+      "spare": true
+    },
+    {
+      "name": "bg3",
+      "colours": [
+        2,
+        48,
+        0
+      ],
+      "hex": [
+        "#0000bc",
+        "#fcfcfc",
+        "#7c7c7c"
+      ],
+      "spare": true
+    }
+  ],
+  "sprites": [
+    {
+      "name": "sp0",
+      "colours": [
+        15,
+        40,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#f8b800",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "sp1",
+      "colours": [
+        15,
+        22,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#f83800",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "sp2",
+      "colours": [
+        15,
+        26,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#00a800",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "sp3",
+      "colours": [
+        15,
+        18,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#0058f8",
+        "#fcfcfc"
+      ]
+    }
+  ]
+}

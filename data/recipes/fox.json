@@ -1,0 +1,924 @@
+{
+  "meta": {
+    "title": "Primordial Paradox music recipes, scope fox (soundfont era RPG score technique, described from public analysis)",
+    "generated_at": "2026-10-21",
+    "card": "t_64617080 (STUDY-FOX)",
+    "scope": "fox",
+    "study": "knowledge/music-styles/fox.md",
+    "source_of_truth": "knowledge/music-styles/fox.md sections 3 to 11 and 13",
+    "citation_note": "Every recipe cites source ids from knowledge/music-styles/fox.md section 15. Full titles, URLs and read dates live there, not here, because this directory is scanned by the project's clean-room gate.",
+    "chip": "NES 2A03 (2 pulse, triangle, noise, DPCM) plus optional VRC6 (2 pulse, saw). Fox's own scores are soundfont and sample based; these recipes translate the technique, they do not reproduce the palette",
+    "family_count": 38,
+    "conventions": {
+      "frames": "one frame is 1/60 s (16.7 ms) on NTSC; at 124.5 bpm a beat is 29 frames and a sixteenth 7 frames",
+      "duty": "0.125, 0.25, 0.5, 0.75 on the 2A03",
+      "beats_per_note_target": "0.42 to 1.12, measured in the Fox reference set",
+      "diatonic_target": "0.85 to 1.0",
+      "chord_tone_target": "0.47 to 0.68",
+      "chord_complexity_band": "11 to 59 on a scale where 50 is average",
+      "no_long_dashes": true
+    },
+    "recipe_count": 38
+  },
+  "recipes": [
+    {
+      "id": "FOX-01",
+      "name": "One cell, many dresses transformation ladder",
+      "family": "FOX",
+      "when_to_use": "Whole score planning. One cell per character, transformed rather than rewritten, in the order listed here.",
+      "params": {
+        "cell_length_notes": "3 to 6",
+        "ladder": "statement; rhythm variation; inversion; augmentation; mode swap on the accompaniment only; fragment extraction; instrumentation swap; tempo remap",
+        "full_statements_max_share_of_appearances": 0.33,
+        "quoted_as_fragment": "3 to 7 other cues",
+        "never_change": "interval vector shape and first three note contour"
+      },
+      "forbidden": [
+        "rewriting the interval vector to fit a new chord",
+        "stating the cell in full in every cue that uses it",
+        "applying two operations in the same statement"
+      ],
+      "source": [
+        "F1",
+        "F13",
+        "F14"
+      ]
+    },
+    {
+      "id": "FOX-02",
+      "name": "Fragment extraction from a parent cell",
+      "family": "FOX",
+      "when_to_use": "Creating a second or third theme that must feel related to a character cell without restating it.",
+      "params": {
+        "window_start_note": "2 to 5 of the parent cell",
+        "window_length_notes": "3 to 4",
+        "rhythm_change_factor": "at least 2x against the parent rhythm",
+        "register": "same octave band as the parent",
+        "assignment": "new meaning, carried in the cue the listener hears third"
+      },
+      "forbidden": [
+        "a window that spans more than half the parent cell",
+        "reusing the parent rhythm unchanged",
+        "more than two derived cells from one parent"
+      ],
+      "source": [
+        "F13",
+        "S47"
+      ]
+    },
+    {
+      "id": "FOX-03",
+      "name": "Re-bar the cell instead of changing metre",
+      "family": "FOX",
+      "when_to_use": "A cue that needs to feel like a different time signature while the grid and the loop stay simple.",
+      "params": {
+        "base_meter": "4/4",
+        "cell_beats": 3,
+        "operation": "give the long first note a whole 3/4 bar, or start the cell on the and of 1 in 4/4",
+        "loop_bars": "8 in 3/4, 6 in 4/4",
+        "state_in_full_once": true,
+        "spin_off_cents": 0
+      },
+      "forbidden": [
+        "changing the notes at the same time as the accents",
+        "meter changes at section boundaries with no scene reason",
+        "a 7/8 or 5/4 bar presented as a Fox device"
+      ],
+      "source": [
+        "F1",
+        "F0"
+      ]
+    },
+    {
+      "id": "FOX-04",
+      "name": "Whole-track detune, 25 to 40 cents",
+      "family": "FOX",
+      "when_to_use": "A cue that must sound slightly wrong or slightly elsewhere: a memory, a distortion, a false room.",
+      "params": {
+        "cents": "25 to 40",
+        "applies_to": "every pitched channel of the cue, cue level decision",
+        "not_at_note_level": true,
+        "documented_cases": "25 cents above C sharp major, 40 cents above A minor",
+        "noise_channel": "unchanged"
+      },
+      "forbidden": [
+        "per note detune used as vibrato",
+        "detune above 50 cents, which reads as a wrong key, not a colour",
+        "detuning the bass only"
+      ],
+      "source": [
+        "F1",
+        "F11",
+        "F15"
+      ]
+    },
+    {
+      "id": "FOX-05",
+      "name": "Fifteen percent speed memory cue",
+      "family": "FOX",
+      "when_to_use": "A flashback, a dream, or a location the player has already left.",
+      "params": {
+        "tempo_factor": 0.15,
+        "source_material": "an existing cue in the same cell family",
+        "length": "60 to 120 s",
+        "voices": "1 or 2",
+        "decay": "fast, music box or piano per FOX-20",
+        "pitch_shift": "none, tempo only"
+      },
+      "forbidden": [
+        "using the stretched cue as a boss or battle cue",
+        "adding a drum kit",
+        "more than two voices",
+        "pitch shifting as well as stretching"
+      ],
+      "source": [
+        "F1"
+      ]
+    },
+    {
+      "id": "FOX-06",
+      "name": "Retrograde a finished cue",
+      "family": "FOX",
+      "when_to_use": "A false victory, a bad route, or a track that must feel like the same music with the meaning inverted.",
+      "params": {
+        "operation": "time reverse the melodic voices only",
+        "drums": "re-written forward, not reversed",
+        "length": "same as the source cue",
+        "documented_case": "a final boss cue that is the hopeful cue reversed",
+        "loudness": "match the source cue within 1 dB"
+      },
+      "forbidden": [
+        "reversing the drum kit, which produces pre-echo artefacts",
+        "reversing and transposing in the same cue",
+        "using retrograde as the only change in a cue the player hears twice"
+      ],
+      "source": [
+        "F1"
+      ]
+    },
+    {
+      "id": "FOX-07",
+      "name": "Medley coda over a 4 bar grid",
+      "family": "FOX",
+      "when_to_use": "A finale or credits cue that must pay off every character cell in the score.",
+      "params": {
+        "grid_bars": 4,
+        "sections": "one cell family per section, 4, 8 or 12 bars each",
+        "section_order": "the order the cells were introduced in the story",
+        "one_shared_engine": "the same rhythm section under every section",
+        "total_length": "120 to 190 s",
+        "documented_reference": "four cells across 3:01 with section starts near bars 31, 48, 56, 63, 80 and 95 at 171 bpm"
+      },
+      "forbidden": [
+        "changing the drum feel between sections",
+        "a new cell introduced in the coda",
+        "quoting all four of our cells in full in any other cue"
+      ],
+      "source": [
+        "F1",
+        "F17"
+      ]
+    },
+    {
+      "id": "FOX-08",
+      "name": "Suspended dominant as the default",
+      "family": "FOX",
+      "when_to_use": "Every cue. The dominant in this style is a sus chord that resolves late or not at all.",
+      "params": {
+        "dominant_quality": "sus4 first, res2 second",
+        "resolution": "at the next bar, or omit and let the tonic arrive directly",
+        "measured_share": "sus4 plus sus2 is 0.207 of chord beats in the reference corpus",
+        "voicing": "root and fifth on the two pulses, fourth on the second pulse at the octave",
+        "bass": "root, re-attacked, not held"
+      },
+      "forbidden": [
+        "a plain major dominant triad as the resting chord",
+        "resolving the fourth upward on the same beat it sounds",
+        "sus4 on the final chord of a cue"
+      ],
+      "source": [
+        "F0",
+        "F7"
+      ]
+    },
+    {
+      "id": "FOX-09",
+      "name": "Flat six shadow bar",
+      "family": "FOX",
+      "when_to_use": "Two to four bars in a sad or approaching-threat cue, where the tonic should feel borrowed from elsewhere.",
+      "params": {
+        "chord": "bVI major, or bVI in first inversion",
+        "duration_bars": "2 to 4",
+        "measured_share": "bVI is 0.034 of chord singles, bVI6 0.027",
+        "melody": "hold a note of the tonic triad across the change so the third of bVI clashes by a semitone",
+        "return": "to i through the dominant or directly"
+      },
+      "forbidden": [
+        "two consecutive bVI bars with the same voicing",
+        "using bVI as the cadence chord",
+        "combining with a tritone pivot in the same four bars"
+      ],
+      "source": [
+        "F0",
+        "F15"
+      ]
+    },
+    {
+      "id": "FOX-10",
+      "name": "Neapolitan sus4 two bar shadow",
+      "family": "FOX",
+      "when_to_use": "Dread, dungeon and boss approach cues, where the tonic should sound watched.",
+      "params": {
+        "chord": "bIIsus4",
+        "duration_bars": 2,
+        "measured_share": "0.026 of chord singles, the fourth largest single label behind i, i7 and Vsus4",
+        "voicing": "flat second in the bass, fourth and flat seventh above",
+        "melody": "oscillate on the fifth above the tonic, which stays consonant over bIIsus4",
+        "placement": "one statement per 16 bar section, never the last two bars"
+      },
+      "forbidden": [
+        "resolving bIIsus4 to the tonic without a dominant in between",
+        "more than one statement per 16 bars",
+        "using it under a melody that also moves chromatically"
+      ],
+      "source": [
+        "F0"
+      ]
+    },
+    {
+      "id": "FOX-11",
+      "name": "Chromatic slip pivot with a held melody note",
+      "family": "FOX",
+      "when_to_use": "One moment per boss cue, where the fight turns or the character drops the mask.",
+      "params": {
+        "pivot": "tonic minor triad to the diminished triad a semitone above",
+        "duration_bars": "1 to 2",
+        "melody": "hold a note that becomes a tritone against the new chord",
+        "resolution": "back to the tonic, or to the subdominant, within 2 bars",
+        "documented_bar": "bar 10 of a 144 bpm boss cue",
+        "voicing": "the diminished chord on the second pulse, root and the conflicting note on the first"
+      },
+      "forbidden": [
+        "holding the pivot for a whole section",
+        "two pivots in the same 8 bars",
+        "resolving the tritone immediately, which removes the effect"
+      ],
+      "source": [
+        "F15",
+        "F11"
+      ]
+    },
+    {
+      "id": "FOX-12",
+      "name": "Augmented sixth substitution",
+      "family": "FOX",
+      "when_to_use": "The climax bar of a boss cue, one statement only.",
+      "params": {
+        "substitute_for": "the dominant",
+        "chord": "loose augmented sixth: flat sixth degree, tonic, raised fourth, and the dominant in the bass",
+        "duration": "1 chord, half a bar to a bar",
+        "melody": "descend chromatically across the bar",
+        "resolution": "the tonic in first inversion, or the dominant",
+        "documented_bar": "bar 40 of a 144 bpm boss cue"
+      },
+      "forbidden": [
+        "more than one per cue",
+        "placing it before the hook's first statement",
+        "using it in a town or field cue"
+      ],
+      "source": [
+        "F15"
+      ]
+    },
+    {
+      "id": "FOX-13",
+      "name": "Diatonic melody over a chromatic bass",
+      "family": "FOX",
+      "when_to_use": "Battle and boss cues where the melody must stay singable while the floor moves.",
+      "params": {
+        "melody_diatonic_share": "0.85 to 1.0",
+        "bass_chromatic_share": "up to 0.25 of bass notes outside the key",
+        "bass_motion": "half step approach into each chord root",
+        "chord_bass_melody": "keep the counter line within 12 semitones of the melody motion, aim high on that metric",
+        "chord_tone_share_melody": "0.47 to 0.68, deliberately low"
+      },
+      "forbidden": [
+        "chromatic melody and chromatic bass at the same time",
+        "bass approach notes on a strong beat of the hook",
+        "chord tone share above 0.75, which removes the Fox lean"
+      ],
+      "source": [
+        "F7",
+        "F8",
+        "F9"
+      ]
+    },
+    {
+      "id": "FOX-14",
+      "name": "Repeated note pedal hook",
+      "family": "FOX",
+      "when_to_use": "Battle, boss and field hooks that must be recognisable from rhythm alone.",
+      "params": {
+        "repeated_attacks": "3 to 6 on the same pitch",
+        "unison_share_target": "0.20 to 0.25 of melody intervals",
+        "measured_reference": "0.237 of intervals in the reference corpus are unison, and the top two interval patterns are 0 0 and 0 0 0",
+        "duration_cell": "one sixteenth per attack at battle tempo",
+        "movement_after": "one leap of a fourth or larger, then step back"
+      },
+      "forbidden": [
+        "more than 6 repeats without a change of pitch or timbre",
+        "repeating on the tonic only, which flattens the hook",
+        "a repeated note with no rhythmic variation on the second statement"
+      ],
+      "source": [
+        "F0",
+        "F8"
+      ]
+    },
+    {
+      "id": "FOX-15",
+      "name": "Narrow chorus, wide verse",
+      "family": "FOX",
+      "when_to_use": "Title, boss and finale cues with a singable core and a busy accompaniment.",
+      "params": {
+        "chorus_range_semitones": "10 to 12",
+        "verse_range_semitones": "20 to 30",
+        "total_span_allowed": "up to 52",
+        "wide_material": "arpeggios and register jumps in the sections where the harmony is static",
+        "narrow_material": "the hook itself, one voice, no doubling"
+      },
+      "forbidden": [
+        "the hook living in the wide section",
+        "range above 12 semitones on the hook",
+        "doubling the hook in the wide section, which hides the narrowing"
+      ],
+      "source": [
+        "F7",
+        "F8"
+      ]
+    },
+    {
+      "id": "FOX-16",
+      "name": "Two bar hook with an 8 to 16 bar drop",
+      "family": "FOX",
+      "when_to_use": "Boss cues. Thin texture first, full texture at the drop.",
+      "params": {
+        "hook_complete_by": "bar 2",
+        "drop_at_bar": "8 to 16",
+        "drop_seconds_at_144bpm": "13.3 to 26.7",
+        "pre_drop_instrumentation": "one lead and one percussion element, or lead only",
+        "post_drop_instrumentation": "full kit, bass, second voice",
+        "drop_marker": "one bar fill and a one beat silence before the drop"
+      },
+      "forbidden": [
+        "an intro longer than 16 bars without a new idea",
+        "the hook first appearing after the drop",
+        "two drops in the same loop"
+      ],
+      "source": [
+        "F15",
+        "F19"
+      ]
+    },
+    {
+      "id": "FOX-17",
+      "name": "Ostinato boss engine plus one interval cell",
+      "family": "FOX",
+      "when_to_use": "Boss themes that must be memorable from the first loop without a long melody.",
+      "params": {
+        "tempo_band": "140 to 180",
+        "surface": "sixteenths, 0.42 to 0.67 beats per note",
+        "harmony": "flat seven as the most used chord, or i to bVII as the two chord engine",
+        "cell": "3 to 5 notes, one leap, repeated per bar",
+        "drum": "four on the floor or a rock backbeat, fills every 4 bars",
+        "bass": "eighth pulse with an octave jump at the section change"
+      },
+      "forbidden": [
+        "a tempo below 140 in a boss cue",
+        "the cell changing every bar",
+        "more than four chords in the loop"
+      ],
+      "source": [
+        "F8",
+        "F0"
+      ]
+    },
+    {
+      "id": "FOX-18",
+      "name": "Tempo ladder per cue type",
+      "family": "FOX",
+      "when_to_use": "Whole score planning, to stop every cue landing on the corpus median.",
+      "params": {
+        "emotional_band": "95 to 105",
+        "town_field_shop_band": "105 to 130",
+        "battle_band": "118 to 132",
+        "boss_band": "140 to 180",
+        "panic_band": "200 to 240",
+        "measured_corpus": "median 124.5, mean 145.3, min 100, max 240, 43 percent in 120 to 139",
+        "rule": "no more than one third of the score inside a single 20 bpm band"
+      },
+      "forbidden": [
+        "using 124.5 as the default for every cue",
+        "a boss cue under 140",
+        "two adjacent cues within 4 bpm of each other in different cue types"
+      ],
+      "source": [
+        "F0",
+        "F8",
+        "F11",
+        "F12"
+      ]
+    },
+    {
+      "id": "FOX-19",
+      "name": "Serious idiom comedy cue, 15 to 40 seconds",
+      "family": "FOX",
+      "when_to_use": "Joke encounters and absurd characters.",
+      "params": {
+        "length_seconds": "15 to 40",
+        "idiom": "polka, march, waltz or fanfare played completely straight",
+        "wrong_instrument": "exactly one instrument that does not belong",
+        "harmony": "functional, no jokes in the chords",
+        "measured_reference": "comedy tracks in the reference OST run 0:17 to 0:57 while set pieces run 2:30 to 4:44",
+        "loop": "8 bars, no bridge"
+      },
+      "forbidden": [
+        "a comedy cue longer than 60 s",
+        "comedy in the harmony as well as the timbre",
+        "two wrong instruments, which reads as noise rather than a joke"
+      ],
+      "source": [
+        "F2",
+        "S13"
+      ]
+    },
+    {
+      "id": "FOX-20",
+      "name": "Two voice restraint cue",
+      "family": "FOX",
+      "when_to_use": "Memory, death, home and sleep scenes. The default answer when a section feels weak.",
+      "params": {
+        "voices": 2,
+        "palette": "pulse 0.125 with fast decay plus pulse 0.25 with 16 step decay, or pulse plus triangle",
+        "noise": "none, or one hit per 8 bars",
+        "cell": "the character cell in full, once per 8 bars",
+        "tempo": "95 to 105",
+        "dynamics": "keep 10 to 12 dB below the full band version of the same cue"
+      },
+      "forbidden": [
+        "arpeggiated chords in a restraint cue",
+        "a drum kit",
+        "adding a third voice to fix a weak bar instead of removing one"
+      ],
+      "source": [
+        "S13",
+        "F14"
+      ]
+    },
+    {
+      "id": "FOX-21",
+      "name": "Fragment quote on the second pulse",
+      "family": "FOX",
+      "when_to_use": "Any cue that quotes another character's cell without stating it in full.",
+      "params": {
+        "quote_length_notes": "3 to 4",
+        "quote_voice": "pulse 2, or VRC6 pulse 3 when the lead is busy",
+        "octave": "same as the parent, or one octave below",
+        "duration": "one bar, at a section boundary or under a held chord",
+        "rhythm": "changed by at least 2x from the parent"
+      },
+      "forbidden": [
+        "quoting on the lead voice while the cue's own cell is stated",
+        "two different quotes in the same bar",
+        "quoting the first three notes of the parent cell, which is the recognisable head and reads as a reprise rather than a hint"
+      ],
+      "source": [
+        "F13",
+        "F1"
+      ]
+    },
+    {
+      "id": "FOX-22",
+      "name": "Arrangement changes before the melody",
+      "family": "FOX",
+      "when_to_use": "Every re-use of a location or character cell. The rule that keeps a small score from sounding repetitive.",
+      "params": {
+        "order_of_change": "instrumentation, then register, then tempo, then metre, then mode, and the melody last",
+        "min_changes_per_reuse": "two of duty, decay, octave, voice count",
+        "melody_change": "only when the story changes the character's meaning",
+        "documented_model": "the same melody as solo guitar, then piano and strings, then a music box"
+      },
+      "forbidden": [
+        "changing the melody and the instrumentation in the same statement",
+        "reusing a cell with only a volume change",
+        "adding a voice on a reuse"
+      ],
+      "source": [
+        "S13",
+        "F15"
+      ]
+    },
+    {
+      "id": "FOX-23",
+      "name": "Polka one-two with a driving kit",
+      "family": "FOX",
+      "when_to_use": "Comedy boss cues and any character who is ridiculous and dangerous at once.",
+      "params": {
+        "accent": "1 and 2 in a two beat feel, strong weak strong weak",
+        "bass": "root and fifth alternating on the two beats",
+        "kit": "backbeat snare on 2 and 4, driving eighths on the hat",
+        "tempo": "140 to 160",
+        "harmony": "i to V, or i to bVII to i",
+        "cell": "two beats, repeated four times per 8 bar phrase"
+      },
+      "forbidden": [
+        "swinging the eighths",
+        "a drum kit that follows the polka accent, which doubles the joke and kills it",
+        "more than two chords in the loop"
+      ],
+      "source": [
+        "S13"
+      ]
+    },
+    {
+      "id": "FOX-24",
+      "name": "Drum genre switch",
+      "family": "FOX",
+      "when_to_use": "Per location. The kit, not the harmony, tells the player what kind of scene this is.",
+      "params": {
+        "boss_or_battle": "four on the floor or rock backbeat, 16th hats, fill every 4 bars",
+        "town": "half time, no kick on 1 and 3, soft decay noise",
+        "emotional": "no kit, or one hit per phrase",
+        "comedy": "the idiom accent pattern exactly",
+        "dance": "four on the floor, clap on 2 and 4, offbeat hats",
+        "kick_route": "noise burst, or DPCM kick in battle cues",
+        "hat_route": "noise with a 1 to 2 frame decay, periodic mode for metallic hits"
+      },
+      "forbidden": [
+        "the same kit in a town and a boss cue",
+        "a fill landing a frame late",
+        "a drum machine pattern with no swing in a comedy cue"
+      ],
+      "source": [
+        "F8",
+        "F10",
+        "S62",
+        "S63"
+      ]
+    },
+    {
+      "id": "FOX-25",
+      "name": "Triangle as a soundfont bass replacement",
+      "family": "FOX",
+      "when_to_use": "Every cue. Fox's bass comes from a soundfont, and the triangle is the nearest chip equivalent.",
+      "params": {
+        "median_pitch": "MIDI 36, two and a half octaves under the melody",
+        "note_length_median": "0.44 s, so re-attack rather than hold",
+        "articulation": "2 frame gap between notes, no sustain overlap",
+        "motion": "approach notes into each chord change, one per change",
+        "chord_bass_melody_target": "high, keep within 12 semitones of the melody's motion direction",
+        "vrc6_alternative": "sawtooth octave down for weight, triangle kept for definition"
+      },
+      "forbidden": [
+        "a held root for a whole bar",
+        "the bass doubling the melody in the same octave",
+        "sub bass below the triangle range"
+      ],
+      "source": [
+        "F0",
+        "F7",
+        "F8",
+        "F9"
+      ]
+    },
+    {
+      "id": "FOX-26",
+      "name": "Harpsichord pluck for royalty",
+      "family": "FOX",
+      "when_to_use": "Castle, throne and royal court cues, where one instrument must signify rank.",
+      "params": {
+        "route": "pulse 0.5",
+        "attack": "1 frame",
+        "decay": "fast pluck, 4 to 6 frames to half volume, no sustain",
+        "register": "one octave above the lead",
+        "role": "countermelody or doubled descent, never the hook",
+        "documented_use": "a harpsichord descent from bar 41 of a 144 bpm boss cue"
+      },
+      "forbidden": [
+        "the harpsichord carrying the hook",
+        "arpeggiating the harpsichord part, which turns plucks into a buzz",
+        "using it in a town or field cue"
+      ],
+      "source": [
+        "F15"
+      ]
+    },
+    {
+      "id": "FOX-27",
+      "name": "One DPCM vocal event per cue",
+      "family": "FOX",
+      "when_to_use": "Character cues that need a voice where a choir is impossible.",
+      "params": {
+        "events_per_cue": 1,
+        "sample_length": "one word or one shout, under 0.5 s",
+        "placement": "section boundary or the hook's second statement",
+        "pitch": "fixed, or one repeat an octave down",
+        "documented_model": "unintelligible vocals plus one audible phrase from an earlier track"
+      },
+      "forbidden": [
+        "a sung line longer than two words",
+        "a DPCM voice under the hook",
+        "more than one vocal event in a loop"
+      ],
+      "source": [
+        "F12"
+      ]
+    },
+    {
+      "id": "FOX-28",
+      "name": "Loop seam by fragment, not by cadence",
+      "family": "FOX",
+      "when_to_use": "Every loop. The last bar must point at bar 1 without closing.",
+      "params": {
+        "last_bar": "state the cell's first 2 notes, or a fragment, and stop before resolution",
+        "cadence": "avoid an authentic cadence in the last bar",
+        "bass": "land on the dominant or on a note that steps into bar 1's root",
+        "drums": "end the fill on the beat, not before it",
+        "check": "play bars 15 to 16 then 1 to 2 and listen for a seam"
+      },
+      "forbidden": [
+        "a tonic resolution in the final bar",
+        "a reversed fill",
+        "a full stop and restart"
+      ],
+      "source": [
+        "F1",
+        "F17"
+      ]
+    },
+    {
+      "id": "FOX-29",
+      "name": "Three key areas in a boss track",
+      "family": "FOX",
+      "when_to_use": "A final boss cue of 2 minutes or more that must escalate without new cells.",
+      "params": {
+        "key_plan": "home key for 55 s, a bright key a minor third up or a major third away for 28 s, a darker key for 14 s, then return",
+        "documented_plan": "B flat minor to C sharp major at 0:55, then E flat minor at 2:03, in a 2:22 track at 140 bpm",
+        "transition": "one bar of the new key's dominant, or a chromatic bass walk",
+        "cells": "same cells in all three areas"
+      },
+      "forbidden": [
+        "more than three key areas",
+        "a key change under the hook's first statement",
+        "a key change with no bass preparation"
+      ],
+      "source": [
+        "F12"
+      ]
+    },
+    {
+      "id": "FOX-30",
+      "name": "Recognition budget guard",
+      "family": "FOX",
+      "when_to_use": "Every transformed statement, before delivery.",
+      "params": {
+        "invariants": [
+          "first interval sign and rough size",
+          "rhythm ratio first to last attack",
+          "register within 12 semitones of the original median",
+          "direction of the first three notes"
+        ],
+        "max_invariants_changed": 2,
+        "contour_rule": "contour carries recognition first, exact intervals later",
+        "tool": "tools/melody_guard.py must pass, and the cell must be listed in the cue's motif spans"
+      },
+      "forbidden": [
+        "changing three or more invariants in one statement",
+        "a transformed statement that the motif span record cannot identify",
+        "passing the guard by shortening the cell below 3 notes"
+      ],
+      "source": [
+        "S47",
+        "F1"
+      ]
+    },
+    {
+      "id": "FOX-31",
+      "name": "Unison recitation surface",
+      "family": "FOX",
+      "when_to_use": "Battle and field cues where the rhythm, not the pitch, must carry the identity.",
+      "params": {
+        "unison_share_of_intervals": "0.20 to 0.25",
+        "duration_surface": "0.60 of durations are a single sixteenth, 0.25 two sixteenths, 0.10 four",
+        "step_share": "0.45 to 0.55",
+        "leap_target": "at least one leap of a 5th or more per 4 bars",
+        "octave_leap_share": "up to 0.05 of intervals"
+      },
+      "forbidden": [
+        "a surface of held notes in a battle cue",
+        "unison share above 0.35, which stops being rhythmic and starts being a drone",
+        "all steps and no leaps"
+      ],
+      "source": [
+        "F0",
+        "F8"
+      ]
+    },
+    {
+      "id": "FOX-32",
+      "name": "Late resolution on the hook peak",
+      "family": "FOX",
+      "when_to_use": "Every hook. The memorable note is the one that is not in the chord.",
+      "params": {
+        "chord_tone_share": "0.47 to 0.68",
+        "peak_note": "a suspension, ninth or fourth over the chord, sounding on the strong beat",
+        "resolution": "at the next bar, or on the weak half of the same bar",
+        "chord_melody_tension": "aim high, the reference set runs 69 to 92 on a 50 average scale",
+        "harmony": "keep the chord simple so the tension is audible, chord complexity 11 to 59"
+      },
+      "forbidden": [
+        "resolving on the same beat the peak sounds",
+        "chord tone share above 0.75",
+        "adding harmonic complexity to create tension instead of a non-chord melody note"
+      ],
+      "source": [
+        "F7",
+        "F8",
+        "F9"
+      ]
+    },
+    {
+      "id": "FOX-33",
+      "name": "Inversion with rhythm and register held",
+      "family": "FOX",
+      "when_to_use": "A cue where a character's meaning turns: loyalty to threat, sun to defeat, tide to storm.",
+      "params": {
+        "operation": "negate every interval in semitones, keep the rhythm and the register band",
+        "cells": {
+          "K": "plus 4, minus 2, minus 2",
+          "Z": "minus 5, minus 4",
+          "P": "minus 3, minus 4, minus 5, plus 2, plus 3",
+          "H": "plus 1, plus 4, plus 1"
+        },
+        "invariants_kept": 3,
+        "max_invariants_changed": 2,
+        "guard": "FOX-30"
+      },
+      "forbidden": [
+        "inverting the rhythm as well as the intervals",
+        "inverting and swapping the mode in the same statement",
+        "inverting a three note cell twice and calling the third statement a variation"
+      ],
+      "source": [
+        "S47",
+        "F1"
+      ]
+    },
+    {
+      "id": "FOX-34",
+      "name": "Augmentation and diminution ladder",
+      "family": "FOX",
+      "when_to_use": "Memory cue, harmonic ground, or a rhythmic tag inside a battle loop.",
+      "params": {
+        "factors": {
+          "diminution": 0.5,
+          "default": 1.0,
+          "augmentation": 2.0,
+          "double augmentation": 4.0
+        },
+        "beats_per_cell": {
+          "0.5": 1.5,
+          "1.0": 3,
+          "2.0": 6,
+          "4.0": 12
+        },
+        "seconds_at_124_5": {
+          "0.5": 0.72,
+          "1.0": 1.45,
+          "2.0": 2.89,
+          "4.0": 5.79
+        },
+        "tempo_compensation": "to keep the same sounding length at half tempo, double the factor twice",
+        "bar_fit": "factor 2 fills 1.5 bars of 4/4, factor 4 fills 3 bars"
+      },
+      "forbidden": [
+        "augmenting and changing the mode in the same statement",
+        "factor 4 on a cell longer than 4 notes at battle tempo",
+        "diminution on a cell shorter than 3 attacks, which reads as a drum fill"
+      ],
+      "source": [
+        "F0",
+        "F1"
+      ]
+    },
+    {
+      "id": "FOX-35",
+      "name": "Mode swap on the accompaniment only",
+      "family": "FOX",
+      "when_to_use": "The default way to recolour a cue when the cell must survive unchanged.",
+      "params": {
+        "target_modes": {
+          "K": "A Dorian or A Phrygian",
+          "Z": "C Lydian",
+          "P": "E Aeolian or E Dorian",
+          "H": "D Phrygian"
+        },
+        "melody_rule": "leave the cell's intervals untouched, the mode change happens in the chords",
+        "vector_preserved": true,
+        "one_exception": "one story moment may change the cell's vector, for example K from A minor to A major where minus 4 becomes minus 3",
+        "check": "re-measure the interval vector after the swap, it must equal the original"
+      },
+      "forbidden": [
+        "swapping the mode and inverting the intervals in the same statement",
+        "a swap that moves the first interval by two or more semitones without a story reason",
+        "changing mode twice inside one loop"
+      ],
+      "source": [
+        "F1",
+        "S47"
+      ]
+    },
+    {
+      "id": "FOX-36",
+      "name": "Tempo multiplier ladder",
+      "family": "FOX",
+      "when_to_use": "Any cue that reuses a cell at a new speed, and every flashback, panic and machine cue.",
+      "params": {
+        "multipliers": {
+          "0.5": "62 bpm, grief, needs augmentation",
+          "0.8": "100 bpm, memory, the flashback default",
+          "1.0": "124.5 bpm, the family call",
+          "1.5": "187 bpm, panic",
+          "2.0": "249 bpm, machine, no reverb"
+        },
+        "arithmetic": "at 124.5 bpm one beat is 0.482 s and a 3 beat cell is 1.45 s",
+        "documented_extremes": "15 percent speed on a whole track, and 92 percent playback in game"
+      },
+      "forbidden": [
+        "a multiplier above 1.5 with reverb on the lead",
+        "changing tempo mid section without a drum fill or a bar of silence",
+        "0.5 on a cell that contains a dotted quarter and no augmentation"
+      ],
+      "source": [
+        "F1",
+        "F21",
+        "F0"
+      ]
+    },
+    {
+      "id": "FOX-37",
+      "name": "Rhythmic displacement set",
+      "family": "FOX",
+      "when_to_use": "Cheapest variation available: it costs no new material and changes at most one invariant.",
+      "params": {
+        "shift_eighth": "start the cell on the and of 1, the first leap lands on beat 2",
+        "shift_sixteenth": "start on the e of 1, reads as an error until it repeats, then reads as style",
+        "rebar_3_4": "keep the notes, give the dotted quarter a whole bar, the loop becomes 8 bars instead of 6",
+        "rotate": "start from the third attack, a new cell related to the parent by fragment extraction",
+        "silence_subtraction": "remove one attack, the cell becomes a call with a gap",
+        "invariant_cost": "displacement alone changes at most one invariant"
+      },
+      "forbidden": [
+        "displacing and transposing by more than a fifth in the same statement",
+        "a sixteenth shift that does not repeat within 4 bars",
+        "re-barring without recomputing the loop length in bars"
+      ],
+      "source": [
+        "F1",
+        "S47"
+      ]
+    },
+    {
+      "id": "FOX-38",
+      "name": "Instrumentation swap with the two invariant rule",
+      "family": "FOX",
+      "when_to_use": "Reusing a cell in a new scene, where the arrangement should change before the melody does.",
+      "params": {
+        "routes": {
+          "pulse 0.5 lead": "full statement",
+          "pulse 0.125 fast decay": "music box memory or a child scene",
+          "triangle one octave down": "threat, or the deep sea",
+          "vrc6 saw": "pad or drone, never the lead",
+          "vrc6 pulse 3": "fragment quote, a fifth or an octave from the lead"
+        },
+        "must_change": [
+          "duty",
+          "decay",
+          "octave",
+          "voice count"
+        ],
+        "min_changes": 2,
+        "documented_models": "the same melody as solo guitar, then piano and strings, then music box; the same cell as orchestra, polka and harpsichord"
+      },
+      "forbidden": [
+        "swapping the instrument and the mode in the same statement",
+        "a swap that changes only the pitch",
+        "the saw as the lead voice"
+      ],
+      "source": [
+        "S13",
+        "F15"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,778 @@
+{
+  "meta": {
+    "title": "Primordial Paradox pacing, text and cutscene recipes",
+    "generated_at": "2026-10-22",
+    "card": "t_0ef1125d (MECH-STUDY-3)",
+    "scope": "pacing",
+    "study": "knowledge/mechanics/PACING-AND-CUTSCENES.md",
+    "source_of_truth": "knowledge/mechanics/PACING-AND-CUTSCENES.md sections 1 to 9 and 10",
+    "citation_note": "Recipes carry source ids only. Every id resolves to a title, a link and a read date in section 10 of the study, never here, because this directory is scanned by tools/check_cleanroom.py and that gate refuses several game names as whole words anywhere under data/. Do not paste a source URL into this file.",
+    "reference_rule": "study only, measured in words and numbers; no asset, text, layout, notation or code was copied, ripped, traced or decompiled",
+    "recipe_count": 32,
+    "families": {
+      "OP": 6,
+      "TX": 5,
+      "CS": 6,
+      "AR": 5,
+      "TR": 6,
+      "PL": 3,
+      "GT": 1
+    },
+    "units": {
+      "time": "steps, 60 steps to a second",
+      "distance": "tiles of 16 by 16 pixels, and metres for real places",
+      "screen": "16 by 15 tiles visible in a 256 by 240 frame"
+    },
+    "key_constants": {
+      "fps_steps": 60,
+      "frame_px": [256, 240],
+      "tiles_visible": [16, 15],
+      "tile_px": 16,
+      "free_walk_steps_per_tile": 12,
+      "rail_walk_steps_per_tile": 8,
+      "text_columns": 30,
+      "text_lines": 3,
+      "text_steps_per_character": 2,
+      "fade_steps": 12,
+      "act_fade_steps": 24,
+      "camera_steps": 24,
+      "music_crossfade_steps": 30,
+      "metres_per_tile_osm": 8.0
+    },
+    "sources_block": "see the study, section 10, ids P-01 to P-23"
+  },
+  "recipes": [
+    {
+      "id": "PAC-01",
+      "name": "Title to first input",
+      "family": "OP",
+      "when_to_use": "Every cold boot. This is the whole budget between power on and the player pressing anything.",
+      "params": {
+        "attract_budget_seconds": 32,
+        "logo_legible_by_seconds": 3,
+        "press_start_blink_steps_on": 30,
+        "press_start_blink_steps_off": 30,
+        "first_audio_bar_by_seconds": 1.0,
+        "attract_loop_seconds": 74.3,
+        "reference_title_state_change_seconds": 9
+      },
+      "forbidden": [
+        "a logo that needs more than 3 seconds to read at 256 by 240",
+        "a publisher or engine splash between the logo and PRESS START",
+        "a blink faster than 30 steps on and off, which reads as a fault rather than a prompt"
+      ],
+      "source": ["P-01", "P-03", "P-22"]
+    },
+    {
+      "id": "PAC-02",
+      "name": "Cold boot to PRESS START",
+      "family": "OP",
+      "when_to_use": "Building the boot path and the first scene.",
+      "params": {
+        "black_to_logo_max_seconds": 2.0,
+        "audio_start_by_seconds": 0.5,
+        "splash_screens": 0,
+        "first_frame_must_be_drawn": true
+      },
+      "forbidden": [
+        "a black screen longer than 2 seconds on a machine with no loading to hide",
+        "any text before the logo other than the licence and publisher line"
+      ],
+      "source": ["P-01"]
+    },
+    {
+      "id": "PAC-03",
+      "name": "Intro crawl length",
+      "family": "OP",
+      "when_to_use": "Writing or editing data/intro_text.json.",
+      "params": {
+        "beats": 6,
+        "characters_total": 258,
+        "columns": 32,
+        "lines_per_beat_max": 4,
+        "seconds_budget": 25,
+        "final_hold_steps": 300,
+        "characters_per_second": 20
+      },
+      "forbidden": [
+        "a crawl over 25 seconds, which is longer than the drive's shortest three shots together",
+        "more than 4 lines in one beat at 32 columns",
+        "moving the crop of the crawl upward: our crawl reveals line by line in place, it does not scroll like a chapter card"
+      ],
+      "source": ["P-01", "P-03"]
+    },
+    {
+      "id": "PAC-04",
+      "name": "Crawl typing speed and beat pauses",
+      "family": "OP",
+      "when_to_use": "The crawl runner, and any other full screen text that is not the dialogue box.",
+      "params": {
+        "steps_per_character": 3,
+        "characters_per_second": 20,
+        "pause_after_beat_steps": 72,
+        "fade_between_beats_steps": 0,
+        "seconds_typing_all_beats": 12.9,
+        "seconds_paused_all_beats": 7.2,
+        "beat_split_seconds": [8, 9, 8]
+      },
+      "forbidden": [
+        "the box's 2 steps a character here: 30 characters a second across 32 columns reads as a glitch at full screen",
+        "an auto advance that cuts off the last line of a beat"
+      ],
+      "source": ["P-03", "P-05"]
+    },
+    {
+      "id": "PAC-05",
+      "name": "Skip guard on the crawl",
+      "family": "OP",
+      "when_to_use": "Any story text the player has already seen once, and the first view too, because a lost first view is unforgivable and a forced second view is worse.",
+      "params": {
+        "skip_key": "start",
+        "hold_steps_required": 45,
+        "ignore_window_steps": 60,
+        "skippable_after_beat": 1,
+        "skips_to": "the next gameplay scene, not a chapter card",
+        "replay_skips_automatically": false
+      },
+      "forbidden": [
+        "a single tap skipping the story, because a double tap on START during the fade would take it",
+        "a skip that lands on a black screen",
+        "a skip available during beat 1"
+      ],
+      "source": ["P-01", "P-16"]
+    },
+    {
+      "id": "PAC-06",
+      "name": "Idle attract loop",
+      "family": "OP",
+      "when_to_use": "The title when the player walks away, and every demo kiosk build.",
+      "params": {
+        "idle_before_attract_seconds": 30,
+        "attract_loop_seconds": 74.3,
+        "menu_items": 4,
+        "music_restarts_on_return": false
+      },
+      "forbidden": [
+        "an attract loop that shows content the player has not reached, beyond the first two minutes",
+        "a loop that resets the save file list"
+      ],
+      "source": ["P-01", "P-22"]
+    },
+    {
+      "id": "PAC-07",
+      "name": "Dialogue box type speed",
+      "family": "TX",
+      "when_to_use": "Every page in the box, from the first caption in the car to the last line of the ending.",
+      "params": {
+        "steps_per_character": 2,
+        "characters_per_second": 30,
+        "fast_forward_multiplier": 3,
+        "floor_steps_per_character": 1,
+        "max_characters_per_second": 90,
+        "hold_button": "confirm",
+        "tap_completes_line_then_advances_on_next_tap": true
+      },
+      "forbidden": [
+        "a text speed setting in a menu the player must find, which was the shipped patch for a slow battle message in the reference JRPG",
+        "fast forward that skips a whole page",
+        "two advances from one press"
+      ],
+      "source": ["P-04", "P-05", "P-06", "P-22"]
+    },
+    {
+      "id": "PAC-08",
+      "name": "Punctuation pauses",
+      "family": "TX",
+      "when_to_use": "The typewriter loop.",
+      "params": {
+        "period_question_exclaim_steps": 8,
+        "comma_steps": 3,
+        "hyphen_or_dash_steps": 0,
+        "source_line_break": "waits for confirm",
+        "seconds_at_8_steps": 0.13,
+        "reference_range_frames": [5, 150],
+        "reference_range_seconds_at_30fps": [0.17, 5.0]
+      },
+      "forbidden": [
+        "a pause longer than 30 steps inside a page, which belongs to a cutscene command rather than punctuation",
+        "any fade or blink in the middle of a page"
+      ],
+      "source": ["P-05", "P-22"]
+    },
+    {
+      "id": "PAC-09",
+      "name": "Page geometry and page cycle",
+      "family": "TX",
+      "when_to_use": "Sizing every dialogue page and estimating a scene's cost against the beat sheet.",
+      "params": {
+        "columns": 30,
+        "lines": 3,
+        "characters_per_page": 90,
+        "typing_seconds": 3.0,
+        "minimum_dwell_seconds": 1.2,
+        "page_cycle_seconds": 4.5,
+        "word_length_average": 5,
+        "words_per_line": 6
+      },
+      "forbidden": [
+        "a page of one line when two lines fit, because the press costs the same",
+        "text that overflows the box; the checker refuses it, the runtime never truncates"
+      ],
+      "source": ["P-18", "P-22"]
+    },
+    {
+      "id": "PAC-10",
+      "name": "Dialogue budget per scene",
+      "family": "TX",
+      "when_to_use": "Authoring any cutscene or conversation, and reviewing one that feels long.",
+      "params": {
+        "pages_per_scene_max": 12,
+        "characters_per_scene_max": 1080,
+        "pages_per_npc_line": 1,
+        "pages_per_cutscene_beat_max": 4,
+        "seconds_at_max_scene": 54,
+        "share_of_fifteen_minutes_at_max": 0.06
+      },
+      "forbidden": [
+        "a scene over 12 pages, which should be two scenes",
+        "a page that exists only to explain what the previous page explained"
+      ],
+      "source": ["P-03", "P-19", "P-22"]
+    },
+    {
+      "id": "PAC-11",
+      "name": "Text speed benchmark table",
+      "family": "TX",
+      "when_to_use": "Any argument about whether our text is too fast or too slow. Quote this table instead of an opinion.",
+      "params": {
+        "slowest_reference_frames_per_character": 10,
+        "slowest_reference_characters_per_second": 3,
+        "engine_fastest_frames_per_character": 1,
+        "engine_fastest_characters_per_second": 30,
+        "our_default_characters_per_second": 30,
+        "our_maximum_characters_per_second": 90,
+        "our_default_over_slowest_reference": 10.0,
+        "reference_box_columns_estimate": 40
+      },
+      "forbidden": [
+        "citing a frames a character figure for a game that shipped a bare 1 to 8 slider, because the two are not convertible"
+      ],
+      "source": ["P-04", "P-05", "P-06"]
+    },
+    {
+      "id": "PAC-12",
+      "name": "Cutscene shot length",
+      "family": "CS",
+      "when_to_use": "Boarding out a scene, especially the drive.",
+      "params": {
+        "shot_seconds_min": 8,
+        "shot_seconds_max": 20,
+        "shot_seconds_median": 14,
+        "hard_floor_seconds": 6,
+        "composition_read_seconds": 4,
+        "drive_shots": 12,
+        "drive_mean_seconds": 14.8
+      },
+      "forbidden": [
+        "a shot under 6 seconds on a 256 by 240 screen",
+        "two shots of the same composition back to back",
+        "a hard cut that does not land on a musical downbeat"
+      ],
+      "source": ["P-01", "P-03"]
+    },
+    {
+      "id": "PAC-13",
+      "name": "Fade lengths",
+      "family": "CS",
+      "when_to_use": "Every scene change and act boundary.",
+      "params": {
+        "scene_change_steps": 12,
+        "scene_change_seconds": 0.2,
+        "act_boundary_steps": 24,
+        "act_boundary_seconds": 0.4,
+        "hard_cut_steps": 0,
+        "map_change_steps_each_way": 12
+      },
+      "forbidden": [
+        "a fade longer than 24 steps, which reads as a loading pause",
+        "a fade out and fade in with no frame held between them"
+      ],
+      "source": ["P-22", "P-03"]
+    },
+    {
+      "id": "PAC-14",
+      "name": "Camera move",
+      "family": "CS",
+      "when_to_use": "Any scripted pan, and the intro's only camera led shot.",
+      "params": {
+        "steps_per_move": 24,
+        "seconds_per_move": 0.4,
+        "max_moves_per_beat": 3,
+        "look_ahead_pixels": 16,
+        "move_while_box_open": false
+      },
+      "forbidden": [
+        "a camera move behind an open text box",
+        "more than 3 moves in one beat, which makes the beat about the camera",
+        "an eased or interpolated move: the move is linear and floored to whole pixels"
+      ],
+      "source": ["P-22", "P-01"]
+    },
+    {
+      "id": "PAC-15",
+      "name": "Music as the clock",
+      "family": "CS",
+      "when_to_use": "Placing every music change in a cutscene.",
+      "params": {
+        "cues_per_scene": 1,
+        "crossfade_steps": 30,
+        "silence_before_reveal_steps": 90,
+        "silence_before_reveal_seconds": 1.5,
+        "change_allowed_on": ["hard cut", "fade", "act boundary"],
+        "crawl_length_matches_track_share": 0.34
+      },
+      "forbidden": [
+        "a music change in the middle of a page of text",
+        "a cue that starts under the fade in and is replaced before the fade ends"
+      ],
+      "source": ["P-03", "P-22"]
+    },
+    {
+      "id": "PAC-16",
+      "name": "Lightning flash and screen shake",
+      "family": "CS",
+      "when_to_use": "The storm that follows the car, and every impact that needs weight without a cut.",
+      "params": {
+        "flash_frames": 2,
+        "flash_palette": "the NES flash palette already used on the title",
+        "shake_pixels": 1,
+        "shake_change_every_steps": 2,
+        "shake_max_steps": 60,
+        "min_steps_between_flashes": 120
+      },
+      "forbidden": [
+        "a flash longer than 2 frames, which is a strobe and a health risk",
+        "more than one flash every 2 seconds",
+        "shake on a text box"
+      ],
+      "source": ["P-22", "P-01"]
+    },
+    {
+      "id": "PAC-17",
+      "name": "No car interior",
+      "family": "CS",
+      "when_to_use": "Every beat that happens while the car is moving. This is Nayil's decision of 2026-10-21 and it is not a style preference.",
+      "params": {
+        "car_interior_shots_allowed": 0,
+        "portrait_in_a_moving_car": 0,
+        "caption_lines_max": 3,
+        "drive_shots": 9,
+        "dialogue_device": "radio, captions at the bottom of the frame, the car in long shot"
+      },
+      "forbidden": [
+        "a windscreen view from inside",
+        "a rear view mirror shot",
+        "a portrait or face in the car",
+        "any HUD readable inside the car"
+      ],
+      "source": ["P-22", "P-12"]
+    },
+    {
+      "id": "PAC-18",
+      "name": "The screen as the unit of map",
+      "family": "AR",
+      "when_to_use": "Sizing any map, and comparing our areas with the NES reference rooms.",
+      "params": {
+        "frame_px": [256, 240],
+        "tiles_visible": [16, 15],
+        "tile_px": 16,
+        "reference_room_tiles": [16, 11],
+        "extra_rows_versus_reference": 4,
+        "extra_tile_share_versus_reference": 0.36,
+        "reference_overworld_rooms": 128
+      },
+      "forbidden": [
+        "quoting a map size in tiles when talking to Nayil, who reads maps in screens",
+        "a screen with fewer than 3 interactables or none, at any point in the first hour"
+      ],
+      "source": ["P-09", "P-22"]
+    },
+    {
+      "id": "PAC-19",
+      "name": "First area size and first reward",
+      "family": "AR",
+      "when_to_use": "Laying out the dock yard, which is the first place the player walks.",
+      "params": {
+        "screens_min": 6,
+        "screens_max": 12,
+        "doors": [6, 10],
+        "npcs": [3, 5],
+        "save_points": 1,
+        "first_reward_within_seconds": 120,
+        "reference_first_area": "one room and one cave, reward in under a minute"
+      },
+      "forbidden": [
+        "an opening area larger than 12 screens",
+        "a first reward that is money rather than capability"
+      ],
+      "source": ["P-02", "P-09", "P-22"]
+    },
+    {
+      "id": "PAC-20",
+      "name": "First hub size",
+      "family": "AR",
+      "when_to_use": "The dock office and the ship's public rooms.",
+      "params": {
+        "screens_min": 12,
+        "screens_max": 20,
+        "enterable_doors": [6, 10],
+        "shops": 1,
+        "signs": 3,
+        "save_points": 1
+      },
+      "forbidden": [
+        "a hub with one door and five facades",
+        "a shop that opens before the first fight"
+      ],
+      "source": ["P-14", "P-19", "P-22"]
+    },
+    {
+      "id": "PAC-21",
+      "name": "Interest density along a route",
+      "family": "AR",
+      "when_to_use": "Every route between two places a player must walk.",
+      "params": {
+        "interactables_per_screens": 0.5,
+        "max_gap_screens": 2,
+        "empty_screens_in_a_row_max": 1,
+        "signs_count_as_interactables": true
+      },
+      "forbidden": [
+        "two consecutive screens with nothing to press",
+        "an interactable placed on a screen the player can only cross once"
+      ],
+      "source": ["P-19", "P-20"]
+    },
+    {
+      "id": "PAC-22",
+      "name": "Screen crossing time",
+      "family": "AR",
+      "when_to_use": "Converting any walk into seconds when filling a beat sheet.",
+      "params": {
+        "free_walk_steps_per_tile": 12,
+        "rail_walk_steps_per_tile": 8,
+        "tiles_per_screen": 16,
+        "tiles_per_second": 5.0,
+        "free_cross_seconds": 3.2,
+        "rail_cross_seconds": 2.1,
+        "seconds_per_ten_screens": 32
+      },
+      "forbidden": [
+        "budgeting a cutscene by walking time alone, because ten screens is only 32 seconds",
+        "a walk longer than 4 screens with no text and no encounter"
+      ],
+      "source": ["P-22"]
+    },
+    {
+      "id": "PAC-23",
+      "name": "Encounter model, and why the reference roll is refused",
+      "family": "TR",
+      "when_to_use": "Any proposal to add random encounters, and any argument about encounter frequency.",
+      "params": {
+        "our_model": "visible markers, touched to start a battle",
+        "random_roll": false,
+        "reference_rate_denominators_by_terrain": {
+          "bridge": 48,
+          "meadow": 24,
+          "swamp": 16,
+          "forest": 16,
+          "hills": 8,
+          "desert": 8
+        },
+        "reference_start_zone_denominators": {
+          "grass": 48,
+          "forest": 32,
+          "hills": 32,
+          "desert": 16
+        },
+        "reference_possible_dry_spell_steps": 100,
+        "fight_interval_at_1_in_24_seconds": 4.8,
+        "fight_interval_at_1_in_8_seconds": 1.6,
+        "fights_per_screen_at_1_in_8": 2.0,
+        "verdict": "refused"
+      },
+      "forbidden": [
+        "a per tile roll at our walking speed, which would be a fight every 1.6 to 4.8 seconds",
+        "citing the reference rates as a target rather than as a ceiling"
+      ],
+      "source": ["P-07", "P-08", "P-14", "P-22"]
+    },
+    {
+      "id": "PAC-24",
+      "name": "Marker density",
+      "family": "TR",
+      "when_to_use": "Placing encounter markers on any outdoor map.",
+      "params": {
+        "tiles_per_marker_min": 40,
+        "tiles_per_marker_max": 60,
+        "seconds_between_fights": [8, 12],
+        "screens_per_marker": 2.5,
+        "markers_on_one_screen_max": 2,
+        "respawn_steps": 30
+      },
+      "forbidden": [
+        "a marker every 8 tiles, which is the reference's most generous terrain and still too often here",
+        "a marker placed where the player cannot see it before touching it"
+      ],
+      "source": ["P-07", "P-08", "P-22"]
+    },
+    {
+      "id": "PAC-25",
+      "name": "Encounter and trigger grace",
+      "family": "TR",
+      "when_to_use": "Every map entry, door, and the tile where a cutscene hands control back.",
+      "params": {
+        "clear_radius_tiles": 6,
+        "door_radius_tiles": 6,
+        "trigger_inert_steps_after_scene": 20,
+        "spawn_grace_steps": 60,
+        "spawn_grace_seconds": 1.0,
+        "marker_count_inside_clear_radius": 0,
+        "marker_on_spawn_tile": false,
+        "marker_within_six_tiles_of_a_door": false
+      },
+      "forbidden": [
+        "a fight in the first second of control",
+        "a door tile that re-fires its own scene on the way out"
+      ],
+      "source": ["P-22", "P-19"]
+    },
+    {
+      "id": "PAC-26",
+      "name": "Battle length by kind",
+      "family": "TR",
+      "when_to_use": "Balancing any fight that appears in the first hour, and judging a boss that feels long.",
+      "params": {
+        "first_fight_seconds": [45, 60],
+        "field_fight_seconds": [25, 40],
+        "boss_fight_seconds": [90, 150],
+        "first_fight_one_command_win": true,
+        "first_fight_can_be_lost": false,
+        "turns_in_a_field_fight": [2, 4]
+      },
+      "forbidden": [
+        "a first fight that can be lost",
+        "a field fight over 60 seconds before the third area",
+        "a boss over 150 seconds with no phase change"
+      ],
+      "source": ["P-15", "P-16", "P-19"]
+    },
+    {
+      "id": "PAC-27",
+      "name": "Save spacing",
+      "family": "TR",
+      "when_to_use": "Any stretch of dangerous walking, and the first save point in the opening.",
+      "params": {
+        "screens_between_saves": [8, 12],
+        "danger_seconds_between_saves": 120,
+        "first_save_start_seconds_max": 600,
+        "first_save_end_seconds_max": 660,
+        "autosave_on": "entering a new map, after the fade in",
+        "autosave_in_battle": false,
+        "backup_copies": 1
+      },
+      "forbidden": [
+        "a save point behind a wall the player has to find",
+        "an autosave during a battle or a cutscene",
+        "more than 12 screens between saves on a route with markers"
+      ],
+      "source": ["P-14", "P-19", "P-20", "P-22"]
+    },
+    {
+      "id": "PAC-28",
+      "name": "Save models in the reference set",
+      "family": "TR",
+      "when_to_use": "Deciding what a save point looks like in the fiction, and writing its one page of text.",
+      "params": {
+        "zelda": "the death prompt, then continue, losing the room and not the run",
+        "first_jrpg": "talk to the king in the first castle",
+        "mother_style": "pick up any telephone and call the father",
+        "indie_2015": "star points, the first one a room after the rescue, free and healing nothing",
+        "ours": "the ship's log terminal, plus autosave on map entry",
+        "first_save_room_offset_from_control": 2,
+        "saves_in_the_first_hour": [3, 5],
+        "text_pages_per_save": 1,
+        "seconds_cost_per_save": 4.5
+      },
+      "forbidden": [
+        "a save point with a menu of its own",
+        "a save prompt that costs more than one page"
+      ],
+      "source": ["P-14", "P-16", "P-19", "P-22"]
+    },
+    {
+      "id": "PAC-29",
+      "name": "Tile to metres for real places",
+      "family": "PL",
+      "when_to_use": "Any map drafted from OpenStreetMap, and any claim of the form this is really that street.",
+      "params": {
+        "metres_per_tile": 8.0,
+        "screen_metres": [128, 120],
+        "town_quay_sample_tiles": [53, 56],
+        "town_quay_sample_metres": [424, 448],
+        "town_quay_sample_screens": [3.3, 3.7],
+        "walk_500m_tiles": 62,
+        "walk_500m_screens": 3.9,
+        "walk_500m_seconds": 12.5
+      },
+      "forbidden": [
+        "a tile smaller than 4 m, because a street then cannot fit a car and two pavements",
+        "reusing an OSM draft without the ODbL attribution line"
+      ],
+      "source": ["P-22"]
+    },
+    {
+      "id": "PAC-30",
+      "name": "Drive compression",
+      "family": "PL",
+      "when_to_use": "Boarding out any journey that is real road, and defending the number of shots it gets.",
+      "params": {
+        "m3_length_km": 95,
+        "london_to_southampton_km": 129,
+        "journey_minutes": [83, 105],
+        "journey_seconds": [4980, 6300],
+        "drive_block_seconds": 218,
+        "drive_cutscene_seconds": 178,
+        "playable_interlude_seconds": 40,
+        "shots": 12,
+        "mean_seconds_per_shot": 14.8,
+        "km_per_shot": 10.8,
+        "compression_ratio": 28.0,
+        "distinct_locations": 8
+      },
+      "forbidden": [
+        "fewer than 6 distinct locations for a journey over 60 minutes",
+        "a compression ratio better than 40 to 1, which stops being a journey and becomes a slideshow",
+        "two shots of the same road type in a row"
+      ],
+      "source": ["P-12", "P-13", "P-21"]
+    },
+    {
+      "id": "PAC-31",
+      "name": "City map compression",
+      "family": "PL",
+      "when_to_use": "Any walk in a real town, including Southampton Town Quay and Winchester High Street.",
+      "params": {
+        "city_walk_metres": 1400,
+        "tiles_at_8m": 175,
+        "screens": 10.9,
+        "seconds_at_free_walk": 35,
+        "interactables_per_route": [5, 7],
+        "buildings_enterable_share": 0.08
+      },
+      "forbidden": [
+        "mapping a whole town at 8 m a tile, which is 11 screens of walking for a street two minutes long in life",
+        "a real landmark placed at the wrong end of the street, because the real order is the one thing the draft gives for free"
+      ],
+      "source": ["P-22", "P-21"]
+    },
+    {
+      "id": "PAC-32",
+      "name": "The fifteen minute gates",
+      "family": "GT",
+      "when_to_use": "Any change to the opening, and the review question when the first fifteen minutes is re-cut.",
+      "params": {
+        "total_seconds": 900,
+        "first_input_seconds_max": 150,
+        "full_control_seconds_max": 360,
+        "first_fight_start_seconds_max": 480,
+        "first_save_start_seconds_max": 600,
+        "first_interior_seconds_max": 600,
+        "cutscene_share_max": 0.6,
+        "play_share_min": 0.2,
+        "measured_first_input_seconds": 150,
+        "measured_full_control_seconds": 342,
+        "measured_first_fight_seconds": 442,
+        "measured_first_save_seconds": 592,
+        "measured_cutscene_share": 0.517,
+        "measured_play_share": 0.353
+      },
+      "forbidden": [
+        "a first input later than 2 min 30 s, which every reference opening in the study beats",
+        "a cutscene share over 60 percent in the first fifteen minutes",
+        "a first save later than the tenth minute"
+      ],
+      "source": ["P-01", "P-02", "P-03", "P-19", "P-22"]
+    }
+  ],
+  "beat_sheet": {
+    "title": "Primordial Paradox, first fifteen minutes, proposed 2026-10-22",
+    "total_seconds": 900,
+    "beats": [
+      {"n": 1, "id": "title_attract", "beat": "Title attract: logo, moon, storm cloud, one lightning flash, loops until START", "kind": "title", "seconds": 32, "running_total": 32},
+      {"n": 2, "id": "menu_confirm", "beat": "PRESS START, menu, NEW GAME confirmed", "kind": "menu", "seconds": 10, "running_total": 42},
+      {"n": 3, "id": "fade_and_stars", "beat": "Fade to black, star field, sickle and bolt constellations", "kind": "cutscene", "seconds": 5, "running_total": 47},
+      {"n": 4, "id": "crawl_1", "beat": "Crawl beats 1 to 2, the gods forgotten", "kind": "crawl", "seconds": 8, "running_total": 55},
+      {"n": 5, "id": "crawl_2", "beat": "Crawl beats 3 to 4, the four who do not know", "kind": "crawl", "seconds": 9, "running_total": 64},
+      {"n": 6, "id": "crawl_3", "beat": "Crawl beats 5 to 6, entropy, Southampton, October, and hold", "kind": "crawl", "seconds": 8, "running_total": 72},
+      {"n": 7, "id": "big_ben_pan", "beat": "Fade in on Big Ben at night, camera pans down to the street", "kind": "cutscene", "seconds": 10, "running_total": 82},
+      {"n": 8, "id": "london_street_car", "beat": "London street, the car pulls away, the Thames", "kind": "cutscene", "seconds": 12, "running_total": 94},
+      {"n": 9, "id": "m3_gantry", "beat": "M3 gantry with the Southampton distance sign", "kind": "cutscene", "seconds": 8, "running_total": 102},
+      {"n": 10, "id": "rain_wipers", "beat": "Rain starts, wipers seen from outside the car", "kind": "cutscene", "seconds": 12, "running_total": 114},
+      {"n": 11, "id": "radio_one", "beat": "Radio, four caption pages, no portrait, car in long shot", "kind": "cutscene", "seconds": 36, "running_total": 150},
+      {"n": 12, "id": "services_interlude", "beat": "Winchester services, the player walks one screen and reads a sign (first input)", "kind": "walk", "seconds": 40, "running_total": 190},
+      {"n": 13, "id": "twyford_down", "beat": "Twyford Down cutting at night, headlight pool on chalk", "kind": "cutscene", "seconds": 12, "running_total": 202},
+      {"n": 14, "id": "winchester_cathedral", "beat": "Winchester Cathedral silhouette far off, one caption", "kind": "cutscene", "seconds": 14, "running_total": 216},
+      {"n": 15, "id": "radio_two", "beat": "Radio, three caption pages, the subject turns to the sea", "kind": "cutscene", "seconds": 24, "running_total": 240},
+      {"n": 16, "id": "storm_first_bolt", "beat": "Storm cloud over the car, first lightning, 2 frame palette flash", "kind": "cutscene", "seconds": 14, "running_total": 254},
+      {"n": 17, "id": "downland_moon", "beat": "Chalk downland, moon, road markers, the storm keeping pace", "kind": "cutscene", "seconds": 10, "running_total": 264},
+      {"n": 18, "id": "slip_road", "beat": "Hard cut to the slip road, Southampton sign, headlights", "kind": "cutscene", "seconds": 8, "running_total": 272},
+      {"n": 19, "id": "docks_approach", "beat": "The docks, cranes, containers, the ship lit at the quay", "kind": "cutscene", "seconds": 18, "running_total": 290},
+      {"n": 20, "id": "gate_checkpoint", "beat": "Gate checkpoint, guard, four pages, one three option choice", "kind": "cutscene", "seconds": 52, "running_total": 342},
+      {"n": 21, "id": "yard_walk", "beat": "Full control, the dock yard, 3 screens, no text", "kind": "walk", "seconds": 28, "running_total": 370},
+      {"n": 22, "id": "dock_office", "beat": "Dock office, two people, six pages, the boarding pass", "kind": "cutscene", "seconds": 72, "running_total": 442},
+      {"n": 23, "id": "first_encounter_hound", "beat": "First encounter marker, the hold hound, one command win", "kind": "battle", "seconds": 48, "running_total": 490},
+      {"n": 24, "id": "quayside_walk", "beat": "Quay side walk, 2 screens, one short caption about the water", "kind": "walk", "seconds": 30, "running_total": 520},
+      {"n": 25, "id": "gangway_deck_horn", "beat": "Gangway, deck, the ship's horn, the door", "kind": "cutscene", "seconds": 32, "running_total": 552},
+      {"n": 26, "id": "ship_corridor", "beat": "Ship corridor, 3 rooms, free walk", "kind": "walk", "seconds": 40, "running_total": 592},
+      {"n": 27, "id": "cabin_save", "beat": "Cabin, the ship's log, first save, two pages and the menu", "kind": "save", "seconds": 50, "running_total": 642},
+      {"n": 28, "id": "hold_encounter_talk", "beat": "Second encounter in the hold, teaches TALK, cannot be lost", "kind": "battle", "seconds": 90, "running_total": 732},
+      {"n": 29, "id": "stairwell_upper_deck", "beat": "Stairwell and upper deck, free walk", "kind": "walk", "seconds": 42, "running_total": 774},
+      {"n": 30, "id": "ship_departs", "beat": "The ship leaves port, the Quay receding, no text", "kind": "cutscene", "seconds": 36, "running_total": 810},
+      {"n": 31, "id": "kronos_deck", "beat": "Kronos seen from the deck, sickle of stars, no text", "kind": "cutscene", "seconds": 50, "running_total": 860},
+      {"n": 32, "id": "chapter_card", "beat": "Chapter card and fade to black", "kind": "cutscene", "seconds": 40, "running_total": 900}
+    ],
+    "totals_by_kind": {
+      "cutscene": 465,
+      "walk": 180,
+      "battle": 138,
+      "save": 50,
+      "title": 32,
+      "crawl": 25,
+      "menu": 10
+    },
+    "play_seconds": 318,
+    "cutscene_share": 0.517,
+    "play_share": 0.353
+  },
+  "checks": {
+    "recipe_count": 32,
+    "recipe_count_minimum": 25,
+    "beat_sheet_sum_seconds": 900,
+    "beat_sheet_target_seconds": 900,
+    "running_totals_recompute": true,
+    "cutscene_share_measured": 0.517,
+    "cutscene_share_max": 0.6,
+    "play_share_measured": 0.353,
+    "play_share_min": 0.2,
+    "first_input_seconds": 150,
+    "full_control_seconds": 342,
+    "first_fight_start_seconds": 442,
+    "first_save_start_seconds": 592,
+    "first_interior_seconds": 442,
+    "source_ids_used": ["P-01", "P-02", "P-03", "P-04", "P-05", "P-06", "P-07", "P-08", "P-09", "P-12", "P-13", "P-14", "P-15", "P-16", "P-18", "P-19", "P-20", "P-21", "P-22"],
+    "source_ids_resolved_in": "knowledge/mechanics/PACING-AND-CUTSCENES.md section 10, ids P-01 to P-23",
+    "unused_source_ids": ["P-10", "P-11", "P-17", "P-23"],
+    "unused_note": "P-10 and P-11 are the reference JRPG world map measurements, cited in the study section 5 table and not needed by a recipe parameter; P-17 and P-23 are background and the local spec set."
+  }
+}

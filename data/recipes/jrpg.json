@@ -1,0 +1,973 @@
+{
+  "meta": {
+    "title": "Primordial Paradox recipes: jrpg scope (Final Fantasy I to III, Dragon Quest I to IV, Mother, Crystalis)",
+    "scope": "jrpg",
+    "card": "t_49c5e0b9 (STUDY-JRPG)",
+    "author": "job-discovery",
+    "generated_at": "2026-10-21",
+    "source_of_truth": "knowledge/music-styles/jrpg.md (sections 2 to 11)",
+    "study_base": [
+      "knowledge/MUSIC-HOOK-GRAMMAR.md",
+      "knowledge/MUSIC-STYLE-BIBLE.md",
+      "D:/Musikage-Corpus/style-pp/stats/nobuo_uematsu.json",
+      "D:/Musikage-Corpus/style-pp/stats/hirokazu_tanaka.json"
+    ],
+    "chip": "NES 2A03 (pulse1, pulse2, triangle, noise, DPCM) plus Konami VRC6 (vrc6_p1, vrc6_p2, vrc6_saw)",
+    "reference_rule": "study only; no melody transcribed, copied or reconstructed from these rows",
+    "recipe_count": 30,
+    "families": {
+      "FFU": 9,
+      "DQ": 8,
+      "MOT": 8,
+      "FMT": 5
+    },
+    "param_types": "numbers are JSON numbers, channel and enum values are strings; params_text is the same content as one line for the arranger prompt",
+    "corpus_caveat": "the two statistics files are normalised to 120 bpm and 4/4, so no recipe takes tempo or metre from them; tempo and metre come from published analyses and are cited per recipe",
+    "citation_note": "S ids are reused from MUSIC-STYLE-BIBLE.md section 6 and MUSIC-HOOK-GRAMMAR.md section 10. JR ids are new and are listed with link and read date at the end of knowledge/music-styles/jrpg.md section 13."
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "title": "NESdev Wiki, APU",
+      "url": "https://www.nesdev.org/wiki/APU",
+      "supports": "five channels, duty values, envelope, sweep, length counter"
+    },
+    {
+      "id": "S2",
+      "title": "NESdev Wiki, APU period table",
+      "url": "https://www.nesdev.org/wiki/APU_period_table",
+      "supports": "note to period bytes, triangle one octave below the pulses"
+    },
+    {
+      "id": "S3",
+      "title": "NESdev Wiki, APU Noise",
+      "url": "https://www.nesdev.org/wiki/APU_Noise",
+      "supports": "15 rates, periodic mode, noise as percussion"
+    },
+    {
+      "id": "S4",
+      "title": "NESdev Wiki, APU DMC",
+      "url": "https://www.nesdev.org/wiki/APU_DMC",
+      "supports": "1 bit samples, rate index, short kick samples"
+    },
+    {
+      "id": "S5",
+      "title": "NESdev Wiki, VRC6",
+      "url": "https://www.nesdev.org/wiki/VRC6",
+      "supports": "the Konami expansion chip and its two pulses plus sawtooth"
+    },
+    {
+      "id": "S6",
+      "title": "NESdev Wiki, VRC6 audio",
+      "url": "https://www.nesdev.org/wiki/VRC6_audio",
+      "supports": "8 duty steps, sawtooth accumulator rate, distortion above 42"
+    },
+    {
+      "id": "S7",
+      "title": "The Line of Best Fit, the lasting impact of Nobuo Uematsu and the music of Final Fantasy",
+      "url": "https://www.thelineofbestfit.com/features/articles/nobuo-uematsu-music-final-fantasy",
+      "supports": "Prelude as two pulses with the second an eighth late, FF II Baroque shape, FF III character themes, arpeggio trick"
+    },
+    {
+      "id": "S8",
+      "title": "Red Bull Music Academy Daily, interview with Nobuo Uematsu",
+      "url": "https://daily.redbullmusicacademy.com/2014/10/nobuo-uematsu-interview/",
+      "supports": "the shifted second voice shimmer, the Prelude written in 30 minutes, limits breed invention"
+    },
+    {
+      "id": "S9",
+      "title": "Wikipedia, Music of the Mother series",
+      "url": "https://en.wikipedia.org/wiki/Music_of_the_Mother_series",
+      "supports": "Suzuki on the three note limit, Itoi on vibrato and jazzy pieces, the broad style spread"
+    },
+    {
+      "id": "S11",
+      "title": "Nindori.com Itoi interview (Mother 3 fan translation)",
+      "url": "https://mother3.fobby.net/interview/m3int_02.html",
+      "supports": "the request for a song anyone could hum and play with one finger"
+    },
+    {
+      "id": "S16",
+      "title": "Primordial Paradox, assets/audio/title_theme_v2/score.yaml (internal)",
+      "url": "<repo>/assets/audio/title_theme_v2/score.yaml",
+      "supports": "the seven voice target, the A minor waltz at 104 bpm, existing voice roles"
+    },
+    {
+      "id": "S28",
+      "title": "Wikipedia, Period (music)",
+      "url": "https://en.wikipedia.org/wiki/Period_(music)",
+      "supports": "antecedent and consequent, about eight bars, weak then strong cadence"
+    },
+    {
+      "id": "S45",
+      "title": "BBC News, people recognise songs in five seconds (Hooked on Music)",
+      "url": "https://www.bbc.com/news/science-environment-29847739",
+      "supports": "about 5 second average recognition, fastest 2.29 to 2.62 s"
+    },
+    {
+      "id": "S49",
+      "title": "Temperley, Melodic pattern repetition and efficient encoding, 2024",
+      "url": "https://doi.org/10.18061/emr.v18i2.9289",
+      "supports": "varied repetition over literal repetition, R-I-I 2.7 times I-I-I"
+    },
+    {
+      "id": "S50",
+      "title": "Bechtold, Curry and Witek, the perceived catchiness of music affects the experience of groove, 2024",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0303309",
+      "supports": "60.7 percent recognition from drums alone, 54.7 percent from bass alone"
+    },
+    {
+      "id": "S53",
+      "title": "Hooktheory theorytab, Final Fantasy Battle (Uematsu)",
+      "url": "https://www.hooktheory.com/theorytab/view/nobuo-uematsu/final-fantasy---battle",
+      "supports": "G minor, 150 bpm, 8 semitone melody range, 0.88 beats per note over 106 beats, chord complexity 94"
+    },
+    {
+      "id": "S54",
+      "title": "Hooktheory theorytab, Final Fantasy Prelude (Uematsu)",
+      "url": "https://www.hooktheory.com/theorytab/view/nobuo-uematsu/final-fantasy---prelude",
+      "supports": "B flat major, 100 bpm, one arpeggio pattern, melodic complexity 93 to 94, progression novelty 95"
+    },
+    {
+      "id": "S55",
+      "title": "Hooktheory theorytab, Kid Icarus Underworld (Tanaka)",
+      "url": "https://www.hooktheory.com/theorytab/view/hirokazu-tanaka/underworld---kid-icarus",
+      "supports": "152 bpm, 6/8, 22 semitone range, chord progression novelty 88"
+    },
+    {
+      "id": "S61",
+      "title": "Eurogamer, Castlevania Vampire Killer beats",
+      "url": "https://www.eurogamer.net/castlevanias-vampire-killer-beats",
+      "supports": "16 bar loop, two square voices taking turns, flat seven chord"
+    },
+    {
+      "id": "S62",
+      "title": "Music Production Wiki, how to recreate the chiptune sound",
+      "url": "https://musicproductionwiki.com/articles/how-to-recreate-the-chiptune-sound",
+      "supports": "duty timbres, 60 Hz frame engine, delayed vibrato, noise percussion by envelope"
+    },
+    {
+      "id": "S63",
+      "title": "NESdev Wiki, APU basics",
+      "url": "https://www.nesdev.org/wiki/APU_basics",
+      "supports": "16 step volume, envelope behaviour, high period byte write pops and phase reset"
+    },
+    {
+      "id": "S64",
+      "title": "WiKirby, Green Greens theme",
+      "url": "https://wikirby.com/wiki/Green_Greens_(theme)",
+      "supports": "two sections in C major then C minor, rewritten ending, deceptive cadence on the repeat"
+    },
+    {
+      "id": "JR1",
+      "title": "Shmuplations, Koichi Sugiyama 1988 developer interview",
+      "url": "https://shmuplations.com/sugiyama/",
+      "read": "2026-10-21",
+      "supports": "RPG as drama, drama music method, demo tape then music programmer sequences"
+    },
+    {
+      "id": "JR2",
+      "title": "Shmuplations, same page, 2003 interview section",
+      "url": "https://shmuplations.com/sugiyama/",
+      "read": "2026-10-21",
+      "supports": "a pro can write with three voices, he hears horns in the opening theme, three part choir as the Famicom PSG"
+    },
+    {
+      "id": "JR3",
+      "title": "SLEEP FREAKS DTM, Dragon Quest Overture orchestration and DAW production explained (2022)",
+      "url": "https://sleepfreaks-dtm.com/en/chord-analize/dq-opening/",
+      "read": "2026-10-21",
+      "supports": "Maestoso fanfare, march main theme with snare, quiet passage then Piu Lento close, horn fifths in the introduction"
+    },
+    {
+      "id": "JR4",
+      "title": "Wikipedia, Consecutive fifths, horn fifths section",
+      "url": "https://en.wikipedia.org/wiki/Consecutive_fifths",
+      "read": "2026-10-21",
+      "supports": "horn fifths as acceptable hidden fifths, in pairs, from the valveless brass harmonic series"
+    },
+    {
+      "id": "JR5",
+      "title": "SoraNews24, the Dragon Quest theme took an amazingly short time to write (2020-10-31)",
+      "url": "https://soranews24.com/2020/10/31/the-unforgettable-dragon-quest-theme-music-took-an-amazingly-short-time-to-write-composer-says",
+      "read": "2026-10-21",
+      "supports": "five minutes, or fifty five years"
+    },
+    {
+      "id": "JR6",
+      "title": "sackchief, the music of Dragon Quest retrospective (video essay, transcript)",
+      "url": "https://youtube.com/watch?v=6HXA-x3LazM",
+      "read": "2026-10-21",
+      "supports": "one week to score Dragon Quest I with eight songs, horn fifths in the Overture, three simultaneous sounds on the Famicom"
+    },
+    {
+      "id": "JR7",
+      "title": "Enjoy Game Japan Museum, Koichi Sugiyama creator page",
+      "url": "https://museum.enjoygamejapan.online/en/creators/koichi-sugiyama",
+      "read": "2026-10-21",
+      "supports": "his test for a theme was survival on loop for hours, answered with Beethoven and Mozart; the whole score in a week"
+    },
+    {
+      "id": "JR8",
+      "title": "Wikipedia, Koichi Sugiyama",
+      "url": "https://en.wikipedia.org/wiki/Koichi_Sugiyama",
+      "read": "2026-10-21",
+      "supports": "nearly identical Overture in every entry, more than 500 pieces across 35 years"
+    },
+    {
+      "id": "JR9",
+      "title": "Hooktheory theorytab, Dragon Quest VI Pegasus",
+      "url": "http://devhookpad.hooktheory.com/theorytab/view/koichi-sugiyama/dragon-quest-vi---pegasus",
+      "read": "2026-10-21",
+      "supports": "132 bpm, 4/4 (crowd sourced, yardstick only)"
+    },
+    {
+      "id": "JR10",
+      "title": "Wikipedia, Crystalis (God Slayer)",
+      "url": "https://en.wikipedia.org/wiki/God_Slayer",
+      "read": "2026-10-21",
+      "supports": "composer Yoko Osaka, release dates, soundtrack praise"
+    },
+    {
+      "id": "JR11",
+      "title": "Retrocean, Crystalis (NES) history page",
+      "url": "https://retrocean.com/nes/crystalis",
+      "read": "2026-10-21",
+      "supports": "music by Yoko Osaka, director and producer Kazuto Kawano, release dates"
+    },
+    {
+      "id": "JR12",
+      "title": "Hooktheory theorytab, Final Fantasy VII Victory Fanfare",
+      "url": "http://hooktheory.com/theorytab/view/nobuo-uematsu/final-fantasy-vii---victory-fanfare",
+      "read": "2026-10-21",
+      "supports": "107 bpm, 3/4, flat seven as the most used chord, chord complexity 100 (crowd sourced, used for the metre claim)"
+    },
+    {
+      "id": "JR13",
+      "title": "Video Game Music Preservation Foundation wiki, Koichi Sugiyama",
+      "url": "http://vgmpf.com/Wiki?title=Koichi_Sugiyama",
+      "read": "2026-10-21",
+      "supports": "sheet music arranged for the Ricoh 2A03 in assembly by named sound programmers"
+    }
+  ],
+  "recipes": [
+    {
+      "id": "JR-01",
+      "name": "Octave punctuation",
+      "lineage": "Uematsu, FF I to III",
+      "when_to_use": ["field", "town", "title", "character"],
+      "rule": "Place one leap of exactly an octave in each 2 to 4 bar phrase, on a strong beat, and bring the line back inside the phrase's range within two beats. The octave is the phrase's punctuation mark and the cheapest identity device the chip has.",
+      "params": {
+        "octave_leaps_per_phrase": 1,
+        "interval_semitones": 12,
+        "place_on": "strong_beat",
+        "return_within_beats": 2,
+        "hold_frames_after_leap": 3
+      },
+      "params_text": "octave_leaps_per_phrase=1; interval_semitones=12; place_on=strong_beat; return_within_beats=2; hold_frames_after_leap=3",
+      "forbidden": [
+        "two octave leaps inside one phrase",
+        "an octave leap on the last note of the hook",
+        "an octave leap on the triangle bass, which reads as a mistake"
+      ],
+      "evidence": "measured: 5.39 percent of Uematsu melody intervals are up 12 semitones and 2.75 percent down 12; the two most common two-interval windows in the corpus are octave up then back (262) and octave down then back (248), together 4.7 percent of all windows",
+      "sources": ["JR-STATS-UEM", "S53"]
+    },
+    {
+      "id": "JR-02",
+      "name": "Dotted sixteenth lurch",
+      "lineage": "Uematsu, FF I to III",
+      "when_to_use": ["field", "battle", "boss", "title"],
+      "rule": "Build the cell from sixteenths and favour the dotted eighth over the plain eighth, so the line lurches forward instead of gliding. Keep the leading sixteenth short and put the long value across the beat.",
+      "params": {
+        "subdivision": "16ths",
+        "sixteenth_share_pct": 60,
+        "dotted_eighth_share_pct": 12,
+        "plain_eighth_share_pct": 11,
+        "accent": "long_value_after_short"
+      },
+      "params_text": "subdivision=16ths; sixteenth_share_pct=60; dotted_eighth_share_pct=12; plain_eighth_share_pct=11; accent=long_value_after_short",
+      "forbidden": [
+        "dotted rhythms in every bar, which flattens the contrast",
+        "a dotted figure on the bass under a sixteenth melody",
+        "swing feel applied on top of dotted sixteenths"
+      ],
+      "evidence": "measured: melody duration histogram in sixteenths is 59.6 percent for 1, 12.4 percent for 3, 11.4 percent for 2, and the commonest pair is sixteenth plus sixteenth (5665 windows)",
+      "sources": ["JR-STATS-UEM"]
+    },
+    {
+      "id": "JR-03",
+      "name": "Narrow battle riff over rich harmony",
+      "lineage": "Uematsu, FF I battle",
+      "when_to_use": ["battle", "boss"],
+      "rule": "Keep the battle melody inside 12 semitones and let the harmony do the work. Write two to four repeated notes, one step, and a fixed rhythmic cell that survives the whole cue, while the chords move under it.",
+      "params": {
+        "melody_range_max_semitones": 12,
+        "beats_per_note": 0.88,
+        "repeated_notes_min": 2,
+        "chord_changes_per_bar": 2,
+        "tempo_bpm": 150,
+        "meter": "4/4"
+      },
+      "params_text": "melody_range_max_semitones=12; beats_per_note=0.88; repeated_notes_min=2; chord_changes_per_bar=2; tempo_bpm=150; meter=4/4",
+      "forbidden": [
+        "a wide, singable battle melody",
+        "one chord per bar",
+        "a melody that changes direction every beat"
+      ],
+      "evidence": "published: FF I Battle is G minor at 150 bpm with an 8 semitone range, 0.88 beats per note over 106 beats, 80 percent diatonic, 69 percent chord tones, chord complexity 94 against an average of 50",
+      "sources": ["S53"]
+    },
+    {
+      "id": "JR-04",
+      "name": "Two voice broken chord cue",
+      "lineage": "Uematsu, FF I Prelude",
+      "when_to_use": ["title", "sad", "cutscene", "character"],
+      "rule": "Write the whole cue as one broken chord pattern on pulse1 and its delayed twin on pulse2, with no drums, no bass and no melody. The figure has to be interesting enough to loop for a minute without help.",
+      "params": {
+        "voices": 2,
+        "pattern": "up_then_down_over_two_octaves",
+        "subdivision": "16ths",
+        "delay_eighths": 1,
+        "vol_pct_second": 40,
+        "drums": "none",
+        "triangle": "unused"
+      },
+      "params_text": "voices=2; pattern=up_then_down_over_two_octaves; subdivision=16ths; delay_eighths=1; vol_pct_second=40; drums=none; triangle=unused",
+      "forbidden": [
+        "adding a bass to rescue a weak arpeggio",
+        "a drum layer in a two voice cue",
+        "changing the pattern mid cue, which removes the only identity the cue has"
+      ],
+      "evidence": "published: B flat major, 100 bpm, one arpeggio pattern, melodic complexity 93 to 94, progression novelty 95; measured: the Prelude is 19 bars and the only two voice cue in the FF I corpus",
+      "sources": ["S54", "S7", "JR-STATS-UEM"]
+    },
+    {
+      "id": "JR-05",
+      "name": "Delayed detuned twin",
+      "lineage": "Uematsu, the shimmer",
+      "when_to_use": ["town", "sad", "character", "title"],
+      "rule": "Double the lead on the second pulse, a few cents flat and a fraction of a beat late, at reduced volume. The pair reads as one expressive instrument rather than two square waves.",
+      "params": {
+        "cents_offset": -8,
+        "delay_ms": 18,
+        "vol_pct": 70,
+        "envelope": "soft_decay",
+        "channel_pair": "pulse1+pulse2"
+      },
+      "params_text": "cents_offset=-8; delay_ms=18; vol_pct=70; envelope=soft_decay; channel_pair=pulse1+pulse2",
+      "forbidden": [
+        "detuning the bass",
+        "three voices all detuned at once, which reads as a mistake rather than an ensemble",
+        "detuning a staccato sixteenth line, where the delay is inaudible"
+      ],
+      "evidence": "published in his own words: the same line on two pulses with the second shifted in pitch and time makes plain electronic tones feel emotional; and the Prelude is described as two pulses with the second about an eighth late",
+      "sources": ["S8", "S7"]
+    },
+    {
+      "id": "JR-06",
+      "name": "Three voice town warmth",
+      "lineage": "Uematsu, FF I to III towns",
+      "when_to_use": ["town", "shop", "inn"],
+      "rule": "Melody on pulse1 at 25 percent duty, a horn pair or a light arpeggio on pulse2, walking bass on the triangle, and at most a soft noise rim. Warmth comes from the duty and from the number of notes per bar, not from added voices.",
+      "params": {
+        "voices": 3,
+        "lead_duty": 0.25,
+        "notes_per_bar": 5.3,
+        "bass": "walking",
+        "bass_beats_per_note": 1.0,
+        "noise": "soft_rim_every_other_bar",
+        "tempo_bpm_min": 100,
+        "tempo_bpm_max": 132
+      },
+      "params_text": "voices=3; lead_duty=0.25; notes_per_bar=5.3; bass=walking; bass_beats_per_note=1.0; noise=soft_rim_every_other_bar; tempo_bpm_min=100; tempo_bpm_max=132",
+      "forbidden": [
+        "eighth note driving bass in a town cue",
+        "lead duty below 0.25, which reads as thin and cold",
+        "a full drum kit under a town cue"
+      ],
+      "evidence": "measured: median 5.3 melody notes per bar and 0.66 beats per note in the Uematsu corpus, median three voices per piece; published: FF I Town is C major, 11 bars, FF II Town 24 bars, FF III Town of Water 28 bars",
+      "sources": ["JR-STATS-UEM", "S62"]
+    },
+    {
+      "id": "JR-07",
+      "name": "Event sting, two to three bars",
+      "lineage": "Uematsu and Tanaka stings",
+      "when_to_use": ["item", "event", "save", "door", "reward"],
+      "rule": "End the sting before the listener can predict it: two or three bars, no loop, last note held on the tonic. A sting that reaches a full cadence in the middle has already failed.",
+      "params": {
+        "bars_min": 2,
+        "bars_max": 3,
+        "loop": false,
+        "final_note": "held_tonic",
+        "voices_max": 3,
+        "drums": "one_hit"
+      },
+      "params_text": "bars_min=2; bars_max=3; loop=false; final_note=held_tonic; voices_max=3; drums=one_hit",
+      "forbidden": [
+        "a drum fill in a sting",
+        "an arpeggio run of more than one octave",
+        "a sting that ends on the dominant"
+      ],
+      "evidence": "measured: FF I Fanfare 2 bars (G major), Save Jingle 3 bars (A major), FF III Item Get 2 bars (F major), A Comrade Joins 3 bars, Garuda Defeated 3 bars, Rest at the Inn 3 bars; Mother Fanfare 2 bars, Sleep 2 bars, Level Up 3 bars",
+      "sources": ["JR-STATS-UEM", "JR-STATS-TAN"]
+    },
+    {
+      "id": "JR-08",
+      "name": "Victory cadence a third away",
+      "lineage": "Uematsu victory and level up cues",
+      "when_to_use": ["victory", "level_up", "boss_clear"],
+      "rule": "Write the victory six to eight bars, put its key a third away from the battle key on the flat side, and close with a full authentic cadence. This is the one sting allowed a drum fill and a crash, and the only one that does not loop.",
+      "params": {
+        "bars_min": 6,
+        "bars_max": 8,
+        "key_relation_to_battle": "minor_third_down_or_minor_sixth_up",
+        "cadence": "authentic",
+        "drums": "fanfare_crash_on_last_bar",
+        "loop": false
+      },
+      "params_text": "bars_min=6; bars_max=8; key_relation_to_battle=minor_third_down_or_minor_sixth_up; cadence=authentic; drums=fanfare_crash_on_last_bar; loop=false",
+      "forbidden": [
+        "the victory in the battle's own key, which sounds like a continuation",
+        "a half cadence anywhere in a victory",
+        "reusing the battle melody with new words, which reads as a remix"
+      ],
+      "evidence": "measured: FF I Battle is G minor and FF I Victory is E flat major over 8 bars, a minor sixth up from the battle tonic; Mother Victory is one bar in C major and Level Up three bars in E flat major",
+      "sources": ["JR-STATS-UEM", "JR-STATS-TAN"]
+    },
+    {
+      "id": "JR-09",
+      "name": "Inner voice in thirds below the lead",
+      "lineage": "Uematsu, FF III character cues",
+      "when_to_use": ["character", "sad", "town"],
+      "rule": "Give the second pulse a line that runs a third to a sixth below the lead, moving slower than the lead and never crossing it in the same rhythm. This fills the texture without spending a melody.",
+      "params": {
+        "interval_below": ["third", "fourth", "sixth"],
+        "inner_median_pitch_midi": 62,
+        "inner_beats_per_note": 0.47,
+        "same_rhythm_as_lead": false,
+        "register": "below_lead_above_bass"
+      },
+      "params_text": "interval_below=third_or_fourth_or_sixth; inner_median_pitch_midi=62; inner_beats_per_note=0.47; same_rhythm_as_lead=false; register=below_lead_above_bass",
+      "forbidden": [
+        "the inner voice in unison with the lead for more than two bars",
+        "a parallel third line for a whole cue, which sounds like an exercise",
+        "the inner voice louder than 70 percent of the lead"
+      ],
+      "evidence": "measured: the Uematsu corpus has 183 inner voice roles against 104 melody roles, with a median inner pitch of MIDI 62 and 0.47 beats per note, so the inner line moves faster and sits a ninth below the lead",
+      "sources": ["JR-STATS-UEM", "S7"]
+    },
+    {
+      "id": "JR-10",
+      "name": "Horn fifth pair",
+      "lineage": "Sugiyama, Dragon Quest",
+      "when_to_use": ["title", "fanfare", "town", "castle"],
+      "rule": "Write the two upper voices as a horn pair: one moves by step while the other holds or steps inside the chord tones, arriving on a perfect fifth or sixth, and repeat the figure in a mirrored pair. This is the texture of a brass section on two pulse channels.",
+      "params": {
+        "voices_in_pair": 2,
+        "arrival_intervals": ["fifth", "sixth"],
+        "upper_moves": "by_step",
+        "lower_moves": "chord_tones",
+        "pair_repeats": 2,
+        "duty_upper": 0.25,
+        "duty_lower": 0.5
+      },
+      "params_text": "voices_in_pair=2; arrival_intervals=fifth_or_sixth; upper_moves=by_step; lower_moves=chord_tones; pair_repeats=2; duty_upper=0.25; duty_lower=0.5",
+      "forbidden": [
+        "parallel fifths for three consecutive moves without a step in the upper voice",
+        "a fourth voice attempting the same texture",
+        "the pair played on the triangle and the noise channel"
+      ],
+      "evidence": "published: the Overture introduction is built on exchanges between horns and trumpets in horn fifths; horn fifths are the acceptable case of hidden fifths where the top voice moves by step, and they come in pairs",
+      "sources": ["JR3", "JR4"]
+    },
+    {
+      "id": "JR-11",
+      "name": "Maestoso fanfare frame",
+      "lineage": "Sugiyama, Dragon Quest Overture",
+      "when_to_use": ["title", "boss_intro", "quest_start"],
+      "rule": "Open with two to four bars of fanfare at a stately tempo, building voice by voice: one pulse alone, then the horn pair, then the bass, then a noise crash on the arrival. The frame exists to be recognised in the first two bars.",
+      "params": {
+        "bars": 4,
+        "tempo_bpm_min": 100,
+        "tempo_bpm_max": 110,
+        "entry_order": ["pulse1", "pulse2", "triangle", "noise"],
+        "bars_between_entries": 1,
+        "arrival": "tonic_with_crash",
+        "marking": "maestoso"
+      },
+      "params_text": "bars=4; tempo_bpm_min=100; tempo_bpm_max=110; entry_order=pulse1_then_pulse2_then_triangle_then_noise; bars_between_entries=1; arrival=tonic_with_crash; marking=maestoso",
+      "forbidden": [
+        "a drum groove inside the fanfare",
+        "starting with a full texture",
+        "more than four bars before the march arrives"
+      ],
+      "evidence": "published: the Overture has three sections, a majestic fanfare marked Maestoso, a march main theme, and a quiet passage into a Piu Lento close; the fanfare is where the horn and trumpet exchanges live",
+      "sources": ["JR3"]
+    },
+    {
+      "id": "JR-12",
+      "name": "March main section with snare",
+      "lineage": "Sugiyama, Dragon Quest Overture",
+      "when_to_use": ["title", "field", "town", "victory_march"],
+      "rule": "Write the main section as a march: steady quarters in the melody, root on every beat on the triangle, and a snare figure on the noise channel that plays a short roll into each phrase start. The snare is what makes it a march.",
+      "params": {
+        "meter": "4/4",
+        "tempo_bpm": 120,
+        "bass": "root_per_beat",
+        "melody_durations": "quarters_and_eighths",
+        "snare": "noise_mid_rate",
+        "snare_roll": "one_beat_before_phrase",
+        "bars": 16
+      },
+      "params_text": "meter=4/4; tempo_bpm=120; bass=root_per_beat; melody_durations=quarters_and_eighths; snare=noise_mid_rate; snare_roll=one_beat_before_phrase; bars=16",
+      "forbidden": [
+        "a march with no snare",
+        "syncopated bass under a march melody",
+        "sixteenth note runs longer than one beat"
+      ],
+      "evidence": "published: the main section adds a lively snare drum rhythm that gives it the character of a march, and marches were chosen as a natural fit for the opening of an RPG",
+      "sources": ["JR3", "S3"]
+    },
+    {
+      "id": "JR-13",
+      "name": "Quiet passage into a slower close",
+      "lineage": "Sugiyama, Overture ending",
+      "when_to_use": ["title", "ending", "cutscene"],
+      "rule": "Before the last two bars, drop to one voice and one or two bars of near silence, then close slower than the rest of the cue. The sudden quiet is the drama, and the slower close is the resolution.",
+      "params": {
+        "quiet_bars": 2,
+        "voices_in_quiet": 1,
+        "tempo_drop_pct": 15,
+        "final_hold_bars": 2,
+        "marking": "piu_lento",
+        "drums": "none_in_quiet"
+      },
+      "params_text": "quiet_bars=2; voices_in_quiet=1; tempo_drop_pct=15; final_hold_bars=2; marking=piu_lento; drums=none_in_quiet",
+      "forbidden": [
+        "the quiet passage held for more than two bars",
+        "a fade instead of a tempo drop",
+        "a new melody in the quiet passage"
+      ],
+      "evidence": "published: the ending begins with a sudden quiet passage and then a slower conclusion marked Piu Lento, and the melodic string passage leads into a lavish close",
+      "sources": ["JR3"]
+    },
+    {
+      "id": "JR-14",
+      "name": "Classical cadence over a walking bass",
+      "lineage": "Sugiyama",
+      "when_to_use": ["town", "castle", "field", "character"],
+      "rule": "Give every four or eight bar phrase a real cadence, with the bass walking in step motion into the cadence chord and an approach note on the last beat. Chord changes run one per beat to one per two beats.",
+      "params": {
+        "phrase_bars": 8,
+        "cadence": "authentic_or_half_alternating",
+        "bass": "walking_step_motion",
+        "approach_note": "last_beat_of_phrase",
+        "chord_changes_per_bar": 2,
+        "melody_durations": "quarters_and_eighths"
+      },
+      "params_text": "phrase_bars=8; cadence=authentic_or_half_alternating; bass=walking_step_motion; approach_note=last_beat_of_phrase; chord_changes_per_bar=2; melody_durations=quarters_and_eighths",
+      "forbidden": [
+        "a phrase with no cadence",
+        "a bass pedal under a cadence",
+        "a cadence on every two bars, which turns the cue into a jingle"
+      ],
+      "evidence": "published: he wrote game music as drama music, with the grammar of the common practice period, on the logic that an RPG is a kind of drama; measured: chord changes per bar 3.94 in the Uematsu corpus and 3.55 in the Mother corpus show how fast harmony moves in the genre",
+      "sources": ["JR1", "S28", "JR-STATS-UEM", "JR-STATS-TAN"]
+    },
+    {
+      "id": "JR-15",
+      "name": "Fixed identity piece, reorchestrated",
+      "lineage": "Sugiyama, the Overture ritual",
+      "when_to_use": ["title", "sequel", "act_open"],
+      "rule": "Write one short identity piece and never rewrite it. When the game or the act changes, change the instrumentation, the register and the drum weight only. The melody is a logo.",
+      "params": {
+        "melody": "fixed",
+        "changes_allowed": ["instrumentation", "register", "drum_weight", "tempo_pct_10"],
+        "length_bars": 16,
+        "reuse": "every_act_or_sequel",
+        "rewrites": 0
+      },
+      "params_text": "melody=fixed; changes_allowed=instrumentation_register_drum_weight_tempo_pct_10; length_bars=16; reuse=every_act_or_sequel; rewrites=0",
+      "forbidden": [
+        "changing notes between versions",
+        "reharmonising the identity piece, which breaks the recognition",
+        "adding a new section to it"
+      ],
+      "evidence": "published: every Dragon Quest entry he scored carries a nearly identical upbeat Overture, across more than 500 pieces and 35 years",
+      "sources": ["JR8"]
+    },
+    {
+      "id": "JR-16",
+      "name": "Middle section to the dominant or relative key",
+      "lineage": "Sugiyama, classical binary shape",
+      "when_to_use": ["title", "field", "town", "dungeon"],
+      "rule": "At bar 9 or 17, move the middle section to the dominant or the relative major, then return. One key change per loop, at a section boundary, with the same rhythmic cell continuing underneath.",
+      "params": {
+        "change_at_bar": [9, 17],
+        "targets": ["dominant", "relative_major", "relative_minor"],
+        "keys_per_loop_max": 2,
+        "rhythm_cell": "unchanged",
+        "return": "by_bar_17_or_25"
+      },
+      "params_text": "change_at_bar=9_or_17; targets=dominant_or_relative_major_or_relative_minor; keys_per_loop_max=2; rhythm_cell=unchanged; return=by_bar_17_or_25",
+      "forbidden": [
+        "a key change inside a phrase",
+        "more than two keys in one loop",
+        "two key changes in the same loop"
+      ],
+      "evidence": "published: FF II's main piece is described as Baroque in shape building to a fanfare; the Kirby two section model is a move to the parallel minor at the section boundary; measured: chord progression novelty 88 against 50 average for the Kid Icarus 6/8 cue shows how far the genre will move harmonically",
+      "sources": ["S7", "S64", "S55"]
+    },
+    {
+      "id": "JR-17",
+      "name": "Orchestra inside three voices",
+      "lineage": "Sugiyama, as he described it",
+      "when_to_use": ["title", "fanfare", "town", "castle"],
+      "rule": "With three voices, write two as a brass or horn pair and one as the bass. Do not attempt a four note chord, do not arpeggiate to fake it in a march, and let the ear supply the missing third or root.",
+      "params": {
+        "voices": 3,
+        "pair": "upper_two",
+        "bass": "triangle_root_and_fifth_only",
+        "four_note_chords": false,
+        "arpeggio_in_march": false,
+        "implied_root": true
+      },
+      "params_text": "voices=3; pair=upper_two; bass=triangle_root_and_fifth_only; four_note_chords=false; arpeggio_in_march=false; implied_root=true",
+      "forbidden": [
+        "two voices doubling at the octave through a whole phrase",
+        "arpeggiating a chord in a march, which breaks the march rhythm",
+        "a seventh chord stated in three voices in a slow fanfare"
+      ],
+      "evidence": "published in his own words: a real professional should be able to write music with three voices only, in his head he hears a whole orchestra inside two or three sounds, and in the opening theme he hears horns very clearly, because he sang three part choir",
+      "sources": ["JR2"]
+    },
+    {
+      "id": "JR-18",
+      "name": "Repeated note melody",
+      "lineage": "Suzuki and Tanaka, Mother",
+      "when_to_use": ["town", "field", "character", "playful"],
+      "rule": "Build the tune from one pitch repeated on the beat, then one step away and back. The repeat is the tune: it carries the pulse so the harmony can stay plain.",
+      "params": {
+        "repeat_share_pct": 16,
+        "repeat_count_min": 3,
+        "step_away_max_semitones": 2,
+        "range_max_semitones": 12,
+        "notes_per_bar": 4.66,
+        "envelope_on_repeat": "re_trigger_volume_nibble"
+      },
+      "params_text": "repeat_share_pct=16; repeat_count_min=3; step_away_max_semitones=2; range_max_semitones=12; notes_per_bar=4.66; envelope_on_repeat=re_trigger_volume_nibble",
+      "forbidden": [
+        "a repeated note at the same volume for every repeat",
+        "an octave leap in a repeated note phrase",
+        "a repeat held for a full bar"
+      ],
+      "evidence": "measured: 16.2 percent of Tanaka corpus melody intervals are zero against 6.0 percent for Uematsu, and step plus repeat motion is 61.8 percent of all intervals against 49.2 percent",
+      "sources": ["JR-STATS-TAN", "S62"]
+    },
+    {
+      "id": "JR-19",
+      "name": "One finger singable theme",
+      "lineage": "Mother, Eight Melodies brief",
+      "when_to_use": ["title", "sad", "ending", "character"],
+      "rule": "Write the theme so a child can play it with one finger: no leap larger than a fourth, one octave of range, one chromatic note at most, and a rhythm a beginner can count. No cadence is required, so it can stop anywhere.",
+      "params": {
+        "max_leap_semitones": 5,
+        "range_max_semitones": 12,
+        "chromatic_notes_max": 1,
+        "stepwise": true,
+        "rhythm": "quarters_and_eighths_with_one_dotted_pair",
+        "cadence_required": false
+      },
+      "params_text": "max_leap_semitones=5; range_max_semitones=12; chromatic_notes_max=1; stepwise=true; rhythm=quarters_and_eighths_with_one_dotted_pair; cadence_required=false",
+      "forbidden": [
+        "an octave leap in a one finger theme",
+        "a melody that needs the harmony to make sense",
+        "a dominant seventh cadence at the end"
+      ],
+      "evidence": "published: Itoi asked for a song anyone could hum along with, imagined a child who cannot really play the piano playing it with a single finger; measured: Tanaka median range 22.5 semitones, leaps over 19 semitones 0.58 percent",
+      "sources": ["S11", "JR-STATS-TAN"]
+    },
+    {
+      "id": "JR-20",
+      "name": "Suspended chord held over the tonic",
+      "lineage": "Suzuki and Tanaka, the playful strange",
+      "when_to_use": ["playful", "secret", "town", "dream"],
+      "rule": "Hold a fourth over the tonic triad for a full bar and do not resolve it. The chord never becomes a dominant, so the cue sounds unresolved in a friendly way, which is the Mother brand of strange.",
+      "params": {
+        "chord": "Isus4",
+        "hold_bars": 1,
+        "resolution": "none",
+        "sus4_share_pct": 22,
+        "melody": "diatonic_chord_tones"
+      },
+      "params_text": "chord=Isus4; hold_bars=1; resolution=none; sus4_share_pct=22; melody=diatonic_chord_tones",
+      "forbidden": [
+        "resolving the suspension to the third in the same bar",
+        "two suspensions in consecutive bars",
+        "a suspended chord in a battle cue, where tension must be functional"
+      ],
+      "evidence": "measured: sus4 is 21.8 percent of chord changes in the Tanaka corpus, the second largest category after plain major, while diminished 7 is 0.2 percent",
+      "sources": ["JR-STATS-TAN"]
+    },
+    {
+      "id": "JR-21",
+      "name": "One flat key cue per game",
+      "lineage": "Mother tonic spread",
+      "when_to_use": ["dream", "mystery", "secret", "sad"],
+      "rule": "Most cues sit in common keys. Give one cue per game a flat key that no other cue uses, such as A flat major or D flat major, and keep its texture plain so the key is the strangeness.",
+      "params": {
+        "flat_key_share_pct": 12,
+        "examples": ["Ab major", "Db major", "Gb major", "F minor"],
+        "texture": "plain_three_voice",
+        "tempo_bpm": 120
+      },
+      "params_text": "flat_key_share_pct=12; examples=Ab_major_Db_major_Gb_major_F_minor; texture=plain_three_voice; tempo_bpm=120",
+      "forbidden": [
+        "two flat key cues in the same act",
+        "a flat key cue with a full drum kit",
+        "a flat key that is used for the battle music"
+      ],
+      "evidence": "measured: 29 major against 11 minor in the Mother corpus, with A flat major three times in 40 pieces and D flat, F minor, E flat major once each, so the odd keys are rare and specific",
+      "sources": ["JR-STATS-TAN"]
+    },
+    {
+      "id": "JR-22",
+      "name": "One genre per location",
+      "lineage": "Suzuki and Tanaka, the disorderly spread",
+      "when_to_use": ["town", "shop", "factory", "cave", "school"],
+      "rule": "Give each location its own genre reference (jazz, lullaby, march, surf, waltz) and keep only the melodic language shared across locations. The spread of styles is the world design, not an inconsistency.",
+      "params": {
+        "genres_per_score_min": 5,
+        "shared_across_locations": ["melodic_language", "lead_timbre"],
+        "changed_per_location": ["groove", "drum_kit", "bass_type", "tempo"],
+        "reuse_recurring_theme": "across_acts"
+      },
+      "params_text": "genres_per_score_min=5; shared_across_locations=melodic_language_and_lead_timbre; changed_per_location=groove_drum_kit_bass_type_tempo; reuse_recurring_theme=across_acts",
+      "forbidden": [
+        "the same drum kit in every location",
+        "one genre stretched across the whole game",
+        "a location genre that contradicts the melodic language of the score"
+      ],
+      "evidence": "published: Itoi credits Suzuki and Tanaka with a broad, disorderly spread of styles, says EarthBound carried more jazzy pieces than Mother, and names the first use of vibrato in a game soundtrack",
+      "sources": ["S9"]
+    },
+    {
+      "id": "JR-23",
+      "name": "Slow pedal under a stepwise tune",
+      "lineage": "Mother bass habit",
+      "when_to_use": ["sad", "cave", "night", "dream"],
+      "rule": "Put one bass note per bar, or one per two bars, low on the triangle, and let the melody do the moving. A slow pedal leaves the listener free to hear a plain tune.",
+      "params": {
+        "bass_beats_per_note": 2.0,
+        "bass_median_pitch_midi": 44,
+        "bass_changes_per_bar": 0.5,
+        "melody": "stepwise",
+        "drums": "none_or_one_hit_per_bar"
+      },
+      "params_text": "bass_beats_per_note=2.0; bass_median_pitch_midi=44; bass_changes_per_bar=0.5; melody=stepwise; drums=none_or_one_hit_per_bar",
+      "forbidden": [
+        "a walking bass under a stepwise tune",
+        "pedal bass with a syncopated melody in the same register",
+        "pedal bass on the pulse channel"
+      ],
+      "evidence": "measured: Tanaka bass median pitch is MIDI 44 with 0.445 beats per note, lower and longer than the Uematsu bass at MIDI 48 and 0.364 beats per note",
+      "sources": ["JR-STATS-TAN", "JR-STATS-UEM"]
+    },
+    {
+      "id": "JR-24",
+      "name": "Blue third with late vibrato",
+      "lineage": "Mother and EarthBound jazz inflection",
+      "when_to_use": ["town", "shop", "character", "sad"],
+      "rule": "Bend the third of a major chord down toward the blue third on its long note, and add vibrato after the attack rather than at it. One bend per phrase, on the longest note.",
+      "params": {
+        "bend_interval": "major_third_down_to_blue_third",
+        "bend_cents": 40,
+        "bend_time_frames": 6,
+        "vibrato_start_frames_after_attack": 3,
+        "vibrato_depth_cents": 15,
+        "vibrato_rate_hz": 5,
+        "register_byte": "low_only"
+      },
+      "params_text": "bend_interval=major_third_down_to_blue_third; bend_cents=40; bend_time_frames=6; vibrato_start_frames_after_attack=3; vibrato_depth_cents=15; vibrato_rate_hz=5; register_byte=low_only",
+      "forbidden": [
+        "vibrato on every note",
+        "writing the high period byte for vibrato, which resets phase and pops",
+        "a bend on the bass"
+      ],
+      "evidence": "published: Itoi says EarthBound was the first game soundtrack with vibrato or string bending and carried more jazzy pieces; chip: vibrato must go through the low period byte or the phase resets and pops",
+      "sources": ["S9", "S63", "S62"]
+    },
+    {
+      "id": "JR-25",
+      "name": "One bar victory, three bar level up",
+      "lineage": "Mother stings",
+      "when_to_use": ["victory", "level_up", "pickup"],
+      "rule": "Compress the reward to its minimum: one bar for a battle win, three bars for a level up, each ending on a held tonic. Anything longer competes with the next screen.",
+      "params": {
+        "victory_bars": 1,
+        "level_up_bars": 3,
+        "final_note": "held_tonic",
+        "voices_max": 3,
+        "loop": false,
+        "key": "bright_major"
+      },
+      "params_text": "victory_bars=1; level_up_bars=3; final_note=held_tonic; voices_max=3; loop=false; key=bright_major",
+      "forbidden": [
+        "a victory over four bars",
+        "a drum fill in a one bar sting",
+        "a level up sting that changes key halfway"
+      ],
+      "evidence": "measured: Mother Victory is 1 bar in C major, Fanfare 1 is 1 bar in C major, Level Up is 3 bars in E flat major, Sleep is 2 bars in B flat major",
+      "sources": ["JR-STATS-TAN"]
+    },
+    {
+      "id": "JR-26",
+      "name": "Waltz with root and two stabs",
+      "lineage": "the FF fanfare 3/4 lineage",
+      "when_to_use": ["title", "town", "ballroom", "character"],
+      "rule": "In 3/4, put the root on beat 1 on the triangle and the chord on beats 2 and 3, either as a saw stab or a two note pulse dyad, and let the melody breathe on beat 1. A waltz is a slow cue with a fast accompaniment.",
+      "params": {
+        "meter": "3/4",
+        "tempo_bpm_min": 100,
+        "tempo_bpm_max": 120,
+        "bass": "root_on_beat_1",
+        "chord_stabs": "beats_2_and_3",
+        "stab_channel": "vrc6_saw",
+        "saw_rate_max": 40,
+        "melody_on": "beat_1",
+        "seventh_chord_most_used": "flat_seven"
+      },
+      "params_text": "meter=3/4; tempo_bpm_min=100; tempo_bpm_max=120; bass=root_on_beat_1; chord_stabs=beats_2_and_3; stab_channel=vrc6_saw; saw_rate_max=40; melody_on=beat_1; seventh_chord_most_used=flat_seven",
+      "forbidden": [
+        "a drum backbeat in 3/4",
+        "sixteenth note stabs, which the saw accumulator cannot reset",
+        "a four bar waltz phrase that never lands on beat 1"
+      ],
+      "evidence": "published: the Final Fantasy victory fanfare lineage is in 3/4 at 107 bpm with the flat seven as its most used chord and chord complexity 100; chip: saw accumulator rates above 42 distort",
+      "sources": ["JR12", "S6", "S16"]
+    },
+    {
+      "id": "JR-27",
+      "name": "6/8 travel cue",
+      "lineage": "Tanaka compound metre",
+      "when_to_use": ["field", "travel", "sea", "flight"],
+      "rule": "In 6/8, put the bass on groups 1 and 4 only and let the melody skip across the three eighth groups. The metre, not the melody, does the identifying.",
+      "params": {
+        "meter": "6/8",
+        "tempo_bpm": 152,
+        "bass_hits": "groups_1_and_4",
+        "melody_grouping": "across_the_beat",
+        "drums": "shaker_on_every_eighth_or_none",
+        "progression_novelty": "high"
+      },
+      "params_text": "meter=6/8; tempo_bpm=152; bass_hits=groups_1_and_4; melody_grouping=across_the_beat; drums=shaker_on_every_eighth_or_none; progression_novelty=high",
+      "forbidden": [
+        "bass on every eighth, which turns 6/8 into 3/4",
+        "a straight eighth melody that erases the compound feel",
+        "a 6/8 cue with a march snare"
+      ],
+      "evidence": "published: Kid Icarus Underworld is 152 bpm in 6/8 with a 22 semitone range and chord progression novelty 88 against an average of 50",
+      "sources": ["S55"]
+    },
+    {
+      "id": "JR-28",
+      "name": "Driving eighth bass and noise backbeat",
+      "lineage": "Uematsu battle texture",
+      "when_to_use": ["battle", "boss", "chase"],
+      "rule": "Run the triangle on one root per eighth with no rests, put the noise snare on beats 2 and 4, and keep a two bar riff cell on pulse1 that repeats with one operation every third statement.",
+      "params": {
+        "bass": "eighth_notes_root_only",
+        "bass_beats_per_note": 0.5,
+        "snare": "noise_mid_rate_on_2_and_4",
+        "kick": "dpcm_on_1_and_3",
+        "riff_cell_bars": 2,
+        "operations_every": 3,
+        "tempo_bpm_min": 140,
+        "tempo_bpm_max": 160
+      },
+      "params_text": "bass=eighth_notes_root_only; bass_beats_per_note=0.5; snare=noise_mid_rate_on_2_and_4; kick=dpcm_on_1_and_3; riff_cell_bars=2; operations_every=3; tempo_bpm_min=140; tempo_bpm_max=160",
+      "forbidden": [
+        "a bass rest in a battle cue",
+        "the same riff cell five times with no operation",
+        "a tom fill in a two bar riff"
+      ],
+      "evidence": "measured: Uematsu bass median duration is 0.364 beats per note, the fastest of the two corpora; published: battle cues sit at 150 bpm in 4/4 (FF I Battle); chip: noise and DPCM are the cheap kick and snare pair",
+      "sources": ["JR-STATS-UEM", "S53", "S3", "S4"]
+    },
+    {
+      "id": "JR-29",
+      "name": "Dungeon tick with no snare",
+      "lineage": "JRPG dungeon texture",
+      "when_to_use": ["dungeon", "cave", "ruins"],
+      "rule": "Remove the snare. Give the noise channel one periodic mode tick per bar, keep the triangle on a slow pedal, and let the melody sit low and sparse. A dungeon cue is defined by what it removes.",
+      "params": {
+        "snare": "none",
+        "noise": "periodic_mode_tick_per_bar",
+        "bass": "slow_pedal",
+        "note_density_per_bar_max": 4,
+        "melody_register": "low",
+        "tempo_bpm_min": 90,
+        "tempo_bpm_max": 120
+      },
+      "params_text": "snare=none; noise=periodic_mode_tick_per_bar; bass=slow_pedal; note_density_per_bar_max=4; melody_register=low; tempo_bpm_min=90; tempo_bpm_max=120",
+      "forbidden": [
+        "a backbeat snare in a dungeon",
+        "a bright lead duty with a fast line",
+        "a drum fill into the loop point"
+      ],
+      "evidence": "chip: periodic mode shortens the LFSR sequence so the noise reads as a metallic tick rather than a hit; measured: FF I Dungeon is 12 bars in C minor, FF III The Dungeon 16 bars in F minor, Mother Cave 23 bars in A minor at a median 4.66 notes per bar",
+      "sources": ["S3", "JR-STATS-UEM", "JR-STATS-TAN"]
+    },
+    {
+      "id": "JR-30",
+      "name": "Changed ending that points back to bar one",
+      "lineage": "the genre loop seam",
+      "when_to_use": ["field", "battle", "town", "dungeon"],
+      "rule": "Write the last two beats of the loop so they lead into the first note of bar 1, and change that ending on every second repeat, either by a deceptive cadence or by rewriting the last two notes. The seam is where a 16 bar loop is won or lost.",
+      "params": {
+        "seam_bars": 2,
+        "endings": 2,
+        "alternate_endings": true,
+        "exact_repeats_max": 2,
+        "deceptive_cadence_on_repeat": true,
+        "loop_bars": [16, 8, 24]
+      },
+      "params_text": "seam_bars=2; endings=2; alternate_endings=true; exact_repeats_max=2; deceptive_cadence_on_repeat=true; loop_bars=16_or_8_or_24",
+      "forbidden": [
+        "a last bar identical to the first bar in every voice",
+        "more than two exact repeats in a row",
+        "an ending that resolves so strongly that the loop restart sounds like an edit"
+      ],
+      "evidence": "published: varied repetition is preferred to literal at 2.7 to 1, and the Kirby model rewrites the repeat ending as a deceptive cadence into the relative minor; measured: 16 bars is the workhorse loop length in both corpora",
+      "sources": ["S49", "S64", "S61", "JR-STATS-UEM"]
+    }
+  ],
+  "statistics_refs": {
+    "JR-STATS-UEM": {
+      "file": "D:/Musikage-Corpus/style-pp/stats/nobuo_uematsu.json",
+      "generated_at": "2026-10-21T19:49:50",
+      "composer": "nobuo_uematsu",
+      "pieces": 104,
+      "bars": 1758,
+      "melody_notes": 10912,
+      "used_for": "intervals, durations, range, note density, chord qualities, cue lengths, role medians",
+      "caveat": "tempo and metre in this file are normalised to 120 bpm and 4/4 and are never used as evidence"
+    },
+    "JR-STATS-TAN": {
+      "file": "D:/Musikage-Corpus/style-pp/stats/hirokazu_tanaka.json",
+      "generated_at": "2026-10-21T19:49:50",
+      "composer": "hirokazu_tanaka",
+      "pieces": 40,
+      "bars": 878,
+      "melody_notes": 4495,
+      "used_for": "intervals, durations, range, note density, chord qualities, cue lengths, role medians",
+      "caveat": "same normalisation as above; the corpus is Mother only, so no Dragon Quest or Crystalis data exists"
+    }
+  },
+  "gaps": [
+    "no measured corpus for Sugiyama or for Crystalis, so Dragon Quest recipes rest on published interviews and analyses",
+    "no bar level published analysis of Crystalis was found in the study window, so it contributes no recipe",
+    "no melodic transcription of any theme was made or used"
+  ]
+}

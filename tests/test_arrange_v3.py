@@ -3,7 +3,7 @@
 What is proved here, rather than asserted in a comment:
 
   - the version 3 score reads as seven sections in the order the score lists
-    them, 52 bars at 108 bpm (86.667 s);
+    them, 52 bars at 126 bpm (74.286 s);
   - every bar holds six eighths, and the chord written in the MIDI is the
     chord in the score, section by section;
   - the melodies the card names read exactly as composed: the Kronos motif in
@@ -12,7 +12,7 @@ What is proved here, rather than asserted in a comment:
     the loop turns on in the last bar of A return;
   - no voice writes outside its register and at most 8 notes sound at once;
   - running the arranger twice gives the same bytes, and the file it writes is
-    a format 1 MIDI, 3/4, 108 bpm, with the eight tracks the renderer expects;
+    a format 1 MIDI, 3/4, 126 bpm, with the eight tracks the renderer expects;
   - the loop starts at the first bar of section A.
 
 The test writes only into a throwaway folder and never opens a window.
@@ -66,10 +66,10 @@ def test_sections_are_in_the_order_the_score_lists(score):
     assert arrange.v3_section_names(score) == SECTIONS
 
 
-def test_the_piece_is_52_bars_at_108_bpm(bars, arrangement):
+def test_the_piece_is_52_bars_at_126_bpm(bars, arrangement):
     assert len(bars) == 52
-    assert arrangement.meta["bpm"] == 108
-    assert round(len(bars) * 3 * 60.0 / arrangement.meta["bpm"], 3) == 86.667
+    assert arrangement.meta["bpm"] == 126
+    assert round(len(bars) * 3 * 60.0 / arrangement.meta["bpm"], 3) == 74.286
 
 
 def test_section_lengths(score, bars):
@@ -201,7 +201,7 @@ def test_the_tempo_and_the_time_signature_are_in_the_file(tmp_path, score):
     path = str(tmp_path / "v3.mid")
     data = arrange.write_midi(arrange.build_arrangement_v3(score), path)
     parsed = arrange.read_midi(data)
-    assert parsed["tempo_us"] == arrange._microseconds_per_quarter(108)
+    assert parsed["tempo_us"] == arrange._microseconds_per_quarter(126)
     assert parsed["time_sig"] == (3, 4)
 
 
@@ -211,7 +211,7 @@ def test_the_self_check_reads_the_whole_piece(tmp_path, score):
     data = arrange.write_midi(arrangement, path)
     report = arrange.self_check_v3(arrangement, data)
     assert report["bars"] == 52
-    assert report["midi_bpm"] == 108
+    assert report["midi_bpm"] == 126
     assert report["midi_time_signature"] == "3/4"
     assert report["chords_match_score"] is True
     assert report["tempo_meta_matches_score"] is True

@@ -1,0 +1,388 @@
+{
+  "source_midi": "<repo>\\assets\\audio\\percy_theme\\percy_theme.mid",
+  "sample_rate": 44100,
+  "channels": 1,
+  "bit_depth": 16,
+  "bpm": 132.0001,
+  "beats_per_bar": 3,
+  "time_signature": "3/4",
+  "voice_map": {
+    "vrc6_pulse_a": "vrc6 pulse a",
+    "vrc6_pulse_b": "vrc6 pulse b",
+    "vrc6_saw": "vrc6 saw",
+    "pulse1": "pulse 1",
+    "pulse2": "pulse 2",
+    "triangle": "triangle",
+    "noise": "noise",
+    "dpcm": "dpcm"
+  },
+  "source_duration_seconds": 43.628744,
+  "source_samples": 1924029,
+  "renderer": "v2",
+  "loop_trimmed": false,
+  "loop_bars": 32,
+  "loop_seconds": 43.636327,
+  "loop_start_sample": 0,
+  "loop_end_sample": 1924362,
+  "fade_ms": 5.0,
+  "fade_samples": 220,
+  "fade_shape": "raised_cosine",
+  "peak_before_normalize": 1.104417,
+  "limiter": "soft (knee 0.80)",
+  "peak_target_dbfs": -1.0,
+  "voice_gains": {
+    "dpcm": 0.55,
+    "noise": 0.25,
+    "pulse1": 0.35,
+    "pulse2": 0.3,
+    "triangle": 0.45,
+    "vrc6_pulse_a": 0.32,
+    "vrc6_pulse_b": 0.3,
+    "vrc6_saw": 0.34
+  },
+  "duration_seconds": 43.636327,
+  "samples": 1924362,
+  "peak": 29203,
+  "peak_dbfs": -1.0,
+  "rms": 4803.491,
+  "rms_dbfs": -16.68,
+  "loop_seam_sample_difference": 0,
+  "loop_edge_window_ms": 1,
+  "loop_edge_peak_head": 601,
+  "loop_edge_peak_tail": 0,
+  "loop_edge_max_jump": 37,
+  "wav": "<repo>\\assets\\audio\\percy_theme\\percy_theme.wav",
+  "mp3": "<repo>\\assets\\audio\\percy_theme\\percy_theme.mp3",
+  "mp3_bitrate": "192k",
+  "score_facts": {
+    "score": "<repo>\\assets\\audio\\percy_theme\\score_percy.yaml",
+    "bars": 32,
+    "bpm": 132.0,
+    "beats_per_bar": 3,
+    "key": "G minor",
+    "time": "3/4",
+    "sections": [
+      "intro",
+      "A",
+      "B",
+      "A_prime",
+      "cadence"
+    ],
+    "bar_seconds": 1.363636,
+    "duration_seconds": 43.636364,
+    "wav_seconds": 43.636327,
+    "wav_samples": 1924362,
+    "sample_rate": 44100
+  },
+  "loop": {
+    "loop_start_section": "intro",
+    "loop_end_section": "cadence",
+    "loop_start_bar": 1,
+    "loop_start_sample": 0,
+    "loop_start_seconds": 0.0,
+    "loop_end_bar": 32,
+    "loop_end_sample": 1924362,
+    "loop_bars": 32,
+    "loop_seconds": 43.636327,
+    "wrap_step": 0,
+    "wrap_step_dbfs": -90.31,
+    "wrap_step_rel_peak_dbfs": -89.31,
+    "edge_max_jump": 37,
+    "edge_max_jump_rel_peak_dbfs": -57.94,
+    "head_peak": 601,
+    "tail_peak": 0,
+    "peak_sample": 29203,
+    "head_peak_dbfs": -34.73,
+    "tail_peak_dbfs": null,
+    "edge_window_ms": 1,
+    "seam_rule": "the wrap step is at most 1 percent of the peak and the largest 1 ms edge jump at most 2 percent"
+  },
+  "per_voice": {
+    "dpcm": {
+      "notes": 42,
+      "peak_dbfs": -7.62,
+      "rms_dbfs": -32.45,
+      "clipping": false,
+      "silent": false
+    },
+    "noise": {
+      "notes": 28,
+      "peak_dbfs": -19.26,
+      "rms_dbfs": -38.1,
+      "clipping": false,
+      "silent": false
+    },
+    "pulse1": {
+      "notes": 214,
+      "peak_dbfs": -15.26,
+      "rms_dbfs": -28.7,
+      "clipping": false,
+      "silent": false
+    },
+    "pulse2": {
+      "notes": 118,
+      "peak_dbfs": -16.6,
+      "rms_dbfs": -31.05,
+      "clipping": false,
+      "silent": false
+    },
+    "triangle": {
+      "notes": 96,
+      "peak_dbfs": -10.95,
+      "rms_dbfs": -18.36,
+      "clipping": false,
+      "silent": false
+    },
+    "vrc6_pulse_a": {
+      "notes": 80,
+      "peak_dbfs": -13.92,
+      "rms_dbfs": -26.45,
+      "clipping": false,
+      "silent": false
+    },
+    "vrc6_pulse_b": {
+      "notes": 133,
+      "peak_dbfs": -18.63,
+      "rms_dbfs": -31.05,
+      "clipping": false,
+      "silent": false
+    },
+    "vrc6_saw": {
+      "notes": 12,
+      "peak_dbfs": -22.8,
+      "rms_dbfs": -38.86,
+      "clipping": false,
+      "silent": false
+    }
+  },
+  "fft_bar_check": {
+    "bar": 5,
+    "section": "A",
+    "voice_measured": "pulse1",
+    "expected_triad": [
+      "G",
+      "Bb",
+      "D"
+    ],
+    "expected_riff_classes": [
+      "Bb",
+      "D",
+      "F",
+      "G"
+    ],
+    "riff_notes": {
+      "measured_on": "pulse1 rendered on its own",
+      "bar": 5,
+      "section": "A",
+      "notes": [
+        {
+          "note": "G3",
+          "midi_pitch": 55,
+          "slot": 0,
+          "length_eighths": 1,
+          "bar_number": 5,
+          "score_seconds": 5.455,
+          "expected_hz": 196.0,
+          "found_hz": 196.81,
+          "cents_off": 7.16,
+          "within_1_percent": true
+        },
+        {
+          "note": "A#3",
+          "midi_pitch": 58,
+          "slot": 1,
+          "length_eighths": 1,
+          "bar_number": 5,
+          "score_seconds": 5.682,
+          "expected_hz": 233.08,
+          "found_hz": 233.83,
+          "cents_off": 5.55,
+          "within_1_percent": true
+        },
+        {
+          "note": "D4",
+          "midi_pitch": 62,
+          "slot": 2,
+          "length_eighths": 1,
+          "bar_number": 5,
+          "score_seconds": 5.909,
+          "expected_hz": 293.66,
+          "found_hz": 294.22,
+          "cents_off": 3.25,
+          "within_1_percent": true
+        },
+        {
+          "note": "G4",
+          "midi_pitch": 67,
+          "slot": 3,
+          "length_eighths": 1,
+          "bar_number": 5,
+          "score_seconds": 6.136,
+          "expected_hz": 392.0,
+          "found_hz": 392.05,
+          "cents_off": 0.23,
+          "within_1_percent": true
+        },
+        {
+          "note": "F4",
+          "midi_pitch": 65,
+          "slot": 4,
+          "length_eighths": 1,
+          "bar_number": 5,
+          "score_seconds": 6.364,
+          "expected_hz": 349.23,
+          "found_hz": 349.03,
+          "cents_off": -1.0,
+          "within_1_percent": true
+        },
+        {
+          "note": "D4",
+          "midi_pitch": 62,
+          "slot": 5,
+          "length_eighths": 1,
+          "bar_number": 5,
+          "score_seconds": 6.591,
+          "expected_hz": 293.66,
+          "found_hz": 294.22,
+          "cents_off": 3.25,
+          "within_1_percent": true
+        }
+      ],
+      "all_within_1_percent": true
+    },
+    "measured_pitch_classes": {
+      "A#": 1,
+      "D": 2,
+      "F": 1,
+      "G": 2
+    },
+    "triad_present": true,
+    "no_foreign_class": true,
+    "pitched_chroma": {
+      "shares": {
+        "C": 0.00621,
+        "C#": 0.00211,
+        "D": 0.03774,
+        "D#": 0.00268,
+        "E": 0.00285,
+        "F": 0.0124,
+        "F#": 0.01945,
+        "G": 0.87625,
+        "G#": 0.02045,
+        "A": 0.01208,
+        "A#": 0.00419,
+        "B": 0.0036
+      },
+      "ranked": [
+        "G",
+        "D",
+        "G#",
+        "F#",
+        "F",
+        "A",
+        "C",
+        "A#",
+        "B",
+        "E",
+        "D#",
+        "C#"
+      ],
+      "top_three": [
+        "G",
+        "D",
+        "G#"
+      ]
+    },
+    "pitched_tonic_is_strongest": true,
+    "mix_energy_chroma_information_only": {
+      "shares": {
+        "C": 0.00614,
+        "C#": 0.00204,
+        "D": 0.03755,
+        "D#": 0.00258,
+        "E": 0.00274,
+        "F": 0.01256,
+        "F#": 0.02144,
+        "G": 0.8734,
+        "G#": 0.0212,
+        "A": 0.01238,
+        "A#": 0.00435,
+        "B": 0.00362
+      },
+      "ranked": [
+        "G",
+        "D",
+        "F#",
+        "G#",
+        "F",
+        "A",
+        "C",
+        "A#",
+        "B",
+        "E",
+        "D#",
+        "C#"
+      ],
+      "top_three": [
+        "G",
+        "D",
+        "F#"
+      ]
+    },
+    "mix_chroma_note": "the raw energy chroma of the mix is reported, not checked: the G pedal dominates it and its window skirt lands in G# and F#"
+  },
+  "ogg": "<repo>\\assets\\audio\\percy_theme\\percy_theme.ogg",
+  "ogg_bytes": 587914,
+  "preview": {
+    "preview_png": "<repo>\\output\\percy_theme_preview_3x.png",
+    "scale": 3,
+    "size_px": [
+      1536,
+      384
+    ],
+    "panels": [
+      "waveform with bar lines",
+      "spectrogram",
+      "chroma of bar 5"
+    ],
+    "chroma_bar": 5,
+    "chroma_top_three": [
+      "G",
+      "D",
+      "F#"
+    ],
+    "chroma_note": "panel 3 is the raw energy chroma of the mix, drawn because the panel shows what the ear would see; the harmony check reads the measured fundamentals of the bar instead",
+    "total_seconds": 43.636,
+    "bars_drawn": 32,
+    "bpm": 132.0,
+    "beats_per_bar": 3,
+    "preview_json": "<repo>\\output\\percy_theme_preview_3x.json"
+  },
+  "checks": {
+    "bars_is_32": true,
+    "bpm_is_132": true,
+    "meter_is_3_4": true,
+    "key_is_g_minor": true,
+    "bar_5_triad_is_present": true,
+    "bar_5_only_the_riff_classes": true,
+    "bar_5_riff_notes_tune": true,
+    "bar_5_tonic_strongest": true,
+    "loop_seam_step_samples": 0,
+    "loop_seam_step_rel_peak_dbfs": -89.31,
+    "loop_seam_edge_jump_samples": 37,
+    "loop_seam_edge_jump_rel_peak_dbfs": -57.94,
+    "loop_seam_is_quiet": true,
+    "silent_voices": [],
+    "clipping_voices": [],
+    "voices_present": [
+      "dpcm",
+      "noise",
+      "pulse1",
+      "pulse2",
+      "triangle",
+      "vrc6_pulse_a",
+      "vrc6_pulse_b",
+      "vrc6_saw"
+    ]
+  }
+}

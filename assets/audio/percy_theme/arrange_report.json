@@ -1,0 +1,262 @@
+{
+  "bars": 32,
+  "beats_per_bar": 3,
+  "bpm": 132.0,
+  "chords_by_section": {
+    "A": [
+      "Gm",
+      "Gm",
+      "Bb",
+      "Bb",
+      "Cm",
+      "Cm",
+      "D7",
+      "D7"
+    ],
+    "A_prime": [
+      "Gm",
+      "Gm",
+      "Bb",
+      "Bb",
+      "Cm",
+      "Cm",
+      "D7",
+      "D7"
+    ],
+    "B": [
+      "Gm",
+      "Dm",
+      "Eb",
+      "D7",
+      "Gm",
+      "Dm",
+      "Eb",
+      "D7"
+    ],
+    "cadence": [
+      "Gm",
+      "Cm",
+      "D7",
+      "Gm"
+    ],
+    "intro": [
+      "Gm",
+      "Gm",
+      "Cm",
+      "D7"
+    ]
+  },
+  "chords_match_score": true,
+  "duration_seconds": 43.636,
+  "ground_bass_first_pass": [
+    [
+      0,
+      480,
+      43
+    ],
+    [
+      2,
+      480,
+      50
+    ],
+    [
+      4,
+      480,
+      55
+    ],
+    [
+      0,
+      480,
+      38
+    ],
+    [
+      2,
+      480,
+      45
+    ],
+    [
+      4,
+      480,
+      50
+    ],
+    [
+      0,
+      480,
+      39
+    ],
+    [
+      2,
+      480,
+      46
+    ],
+    [
+      4,
+      480,
+      51
+    ],
+    [
+      0,
+      480,
+      38
+    ],
+    [
+      2,
+      480,
+      45
+    ],
+    [
+      4,
+      480,
+      50
+    ]
+  ],
+  "ground_bass_repeats": true,
+  "ground_bass_second_pass": [
+    [
+      0,
+      480,
+      43
+    ],
+    [
+      2,
+      480,
+      50
+    ],
+    [
+      4,
+      480,
+      55
+    ],
+    [
+      0,
+      480,
+      38
+    ],
+    [
+      2,
+      480,
+      45
+    ],
+    [
+      4,
+      480,
+      50
+    ],
+    [
+      0,
+      480,
+      39
+    ],
+    [
+      2,
+      480,
+      46
+    ],
+    [
+      4,
+      480,
+      51
+    ],
+    [
+      0,
+      480,
+      38
+    ],
+    [
+      2,
+      480,
+      45
+    ],
+    [
+      4,
+      480,
+      50
+    ]
+  ],
+  "key": "G minor",
+  "loop_bars": 32,
+  "loop_end_bar": 32,
+  "loop_start_bar": 1,
+  "max_simultaneous_by_section": {
+    "A": 5,
+    "A_prime": 7,
+    "B": 6,
+    "cadence": 8,
+    "intro": 7
+  },
+  "max_simultaneous_notes": 8,
+  "midi": "<repo>\\assets\\audio\\percy_theme\\percy_theme.mid",
+  "midi_bpm": 132.0,
+  "midi_bytes": 8895,
+  "midi_division": 480,
+  "midi_ntracks": 9,
+  "midi_tempo_us_per_qn": 454545,
+  "midi_time_signature": "3/4",
+  "midi_tracks": [
+    "meta",
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "notes": {
+    "dpcm": 42,
+    "noise": 28,
+    "pulse 1": 214,
+    "pulse 2": 118,
+    "triangle": 96,
+    "vrc6 pulse a": 80,
+    "vrc6 pulse b": 133,
+    "vrc6 saw": 12
+  },
+  "out_of_range": [],
+  "power_chord_has_a_fifth": true,
+  "power_chord_has_no_third": true,
+  "power_chord_intervals": [
+    7,
+    12
+  ],
+  "profile": "percy",
+  "schema": "v3",
+  "score": "<repo>\\assets\\audio\\percy_theme\\score_percy.yaml",
+  "section_bars": {
+    "A": 8,
+    "A_prime": 8,
+    "B": 8,
+    "cadence": 4,
+    "intro": 4
+  },
+  "section_first_bar": {
+    "A": 5,
+    "A_prime": 21,
+    "B": 13,
+    "cadence": 29,
+    "intro": 1
+  },
+  "sections": [
+    "intro",
+    "A",
+    "B",
+    "A_prime",
+    "cadence"
+  ],
+  "tempo_meta_matches_score": true,
+  "tracks": [
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "triangle_pedal_is_g": true,
+  "triangle_pedal_pitch_classes": [
+    7
+  ]
+}

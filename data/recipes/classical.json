@@ -1,0 +1,691 @@
+{
+  "meta": {
+    "title": "Primordial Paradox music recipes, Baroque and Classical family",
+    "generated_at": "2026-10-21",
+    "card": "t_4b89e9b6 (STUDY-CLASSICAL)",
+    "scope": "classical",
+    "study": "knowledge/music-styles/classical.md",
+    "source_of_truth": "knowledge/music-styles/classical.md sections 3 to 8",
+    "citation_note": "Every recipe cites source ids from knowledge/music-styles/classical.md section 13. Full titles, URLs and read dates live there, not here, because this directory is scanned by the project's clean-room gate.",
+    "chip": "NES 2A03 (2 pulse, triangle, noise, DPCM) plus Konami VRC6 (2 pulse, saw)",
+    "reference_rule": "study only; no melody transcribed, copied or sampled; public domain editions measured as statistics only",
+    "recipe_count": 30,
+    "families": {
+      "INV": 6,
+      "GRD": 4,
+      "SEQ": 4,
+      "PER": 6,
+      "WZ": 5,
+      "ORN": 3,
+      "MEM": 2
+    },
+    "default_tempo_bpm": {
+      "town_invention": 90,
+      "court_minuet": 120,
+      "title_waltz_104": 104,
+      "viennese_waltz": 180,
+      "scherzo": 168,
+      "ballad": 80
+    },
+    "default_keys": ["G major", "C major", "F major", "Bb major", "A minor", "C minor"],
+    "measured_anchors": {
+      "pieces": 200,
+      "bars_total": 18942,
+      "melody_notes_total": 119057,
+      "major_to_minor": "132 major, 68 minor",
+      "tempo_median_bpm": 90.0,
+      "tempo_mean_bpm": 98.7,
+      "meter_3_4_share": "56 of 200",
+      "tempo_median_3_4_bpm": 104.0,
+      "chord_changes_per_bar": 3.17,
+      "top_trigram": "I6/4 V7 I (66)",
+      "top_bigram": "V7 I (285)",
+      "melody_step_share": 0.4171,
+      "melody_leap_share": 0.5829,
+      "melody_single_sixteenth_share": 0.4837,
+      "melody_median_pitch": 72,
+      "inner_median_pitch": 58,
+      "bass_median_pitch": 48,
+      "phrase_median_bars": 7,
+      "modal_phrase_unit_bars": 16,
+      "half_cadence_share": 0.2217,
+      "authentic_cadence_share": 0.0584,
+      "one_bar_motif_repeat_share": 0.5923,
+      "two_bar_motif_repeat_share": 0.4336,
+      "note": "all from the corpus statistics file cited as C1 in the study; tempi are the typesetters' playback values, not historical performance tempi"
+    },
+    "frame_conventions": {
+      "frame_hz": 60,
+      "frame_ms": 16.67,
+      "frames_per_16th": "900 / bpm",
+      "frames_per_32nd": "450 / bpm",
+      "frames_per_64th": "225 / bpm",
+      "minimum_playable_frames": 2,
+      "ornament_floor_bpm_64th": 75
+    }
+  },
+  "recipes": [
+    {
+      "id": "CLC-01",
+      "name": "Two voice invention exposition",
+      "family": "INV",
+      "when_to_use": "The backbone of any town, menu or library cue. Two pulses, one subject, one answer, no third voice needed.",
+      "params": {
+        "subject_bars": 1,
+        "entry_delay_bars": 1,
+        "entry_interval": "octave_above",
+        "answer_key_offset": "dominant",
+        "countersubject": "free_or_rhythmic_complement",
+        "pulse1_duty_pct": 50,
+        "pulse2_duty_pct": 12.5,
+        "tempo_range_bpm": [80, 110],
+        "range_between_voices_semitones": [7, 12],
+        "subject_max_range": "ninth"
+      },
+      "forbidden": [
+        "both pulses in the same rhythm for a whole bar",
+        "parallel perfect fifths or octaves between the pulses",
+        "a subject wider than a ninth, which makes the answer uninvertible",
+        "pulse 2 at the same duty as pulse 1"
+      ],
+      "source": ["C7", "C29", "C18"]
+    },
+    {
+      "id": "CLC-02",
+      "name": "Answer at the fifth, delayed one bar",
+      "family": "INV",
+      "when_to_use": "The moment the second voice enters in a Baroque cue, so the ear hears an answer and not an echo.",
+      "params": {
+        "entry_interval": "perfect_fifth_above",
+        "entry_delay_bars": 1,
+        "entry_late_frames": 1,
+        "entry_volume_delta": -1,
+        "entry_restatement": "subject_head_only",
+        "tempo_range_bpm": [80, 120]
+      },
+      "forbidden": [
+        "an answer transposed to an unrelated key",
+        "delaying every entry by ear, because only the first one sounds intentional",
+        "an answer that starts on the same pitch as the subject's last note held by the other pulse"
+      ],
+      "source": ["C7", "C25", "C18"]
+    },
+    {
+      "id": "CLC-03",
+      "name": "Episode of one to two bars by sequence",
+      "family": "INV",
+      "when_to_use": "Between subject entries, to reach the dominant or the relative major without a modulation chord.",
+      "params": {
+        "episode_bars": [1, 2],
+        "sequence_segments": [2, 3],
+        "sequence_step_semitones": [-3, -2, 2],
+        "sequence_direction": "one_direction_only",
+        "bass_motion": "fifths_down",
+        "voice_activity": "one_moves_one_holds"
+      },
+      "forbidden": [
+        "changing the interval distance inside one sequence",
+        "more than three segments",
+        "forward then backward motion inside one episode"
+      ],
+      "source": ["C7", "C22", "C26"]
+    },
+    {
+      "id": "CLC-04",
+      "name": "Half cadence before the final entry",
+      "family": "INV",
+      "when_to_use": "Two bars before the subject returns for the last time, so the return sounds new.",
+      "params": {
+        "bars_before_last_entry": 2,
+        "cadence_type": "half",
+        "ending_chord": "V",
+        "melody_end_degree": [2, 7],
+        "rest_frames_at_end": [3, 6],
+        "pulse_activity": "sixteenths_stop"
+      },
+      "forbidden": [
+        "an authentic cadence here, which closes the piece too early",
+        "filling the silence with a drum hit"
+      ],
+      "source": ["C7", "C23", "C1"]
+    },
+    {
+      "id": "CLC-05",
+      "name": "Three voice entry on the VRC6",
+      "family": "INV",
+      "when_to_use": "Title or ending cue where the expansion chip is already loaded and the texture should feel bigger than the rest of the score.",
+      "params": {
+        "voices": 3,
+        "channel_map": {"pulse1": "subject", "vrc6_pulse1": "answer", "vrc6_saw": "cantus_held"},
+        "entry_delay_bars": [1, 2],
+        "entry_intervals": ["octave_above", "fifth_below"],
+        "saw_volume": [4, 7],
+        "saw_role": "sustained_pad_not_melody"
+      },
+      "forbidden": [
+        "three voices all moving in sixteenths",
+        "the saw doubling the melody pitch for pitch, which thickens instead of harmonises"
+      ],
+      "source": ["C18", "C7"]
+    },
+    {
+      "id": "CLC-06",
+      "name": "Invention digest for a 16 bar game loop",
+      "family": "INV",
+      "when_to_use": "A full invention compressed to one loop: subject, answer, two episodes, one return, half cadence at the loop point.",
+      "params": {
+        "bars_total": 16,
+        "plan": "subject 0-2, answer 2-4, episode 4-6, subject_relative_major 6-8, episode 8-11, return 11-14, half_cadence 14-16",
+        "phrase_bars": 8,
+        "cadence_a": "half",
+        "cadence_b": "half",
+        "loop_point": "bar 16 to bar 1"
+      },
+      "forbidden": [
+        "an authentic cadence at bar 16, which makes the loop restart sound like a mistake",
+        "a new motif after bar 8"
+      ],
+      "source": ["C7", "C1", "C19"]
+    },
+    {
+      "id": "CLC-07",
+      "name": "Chaconne ground on the triangle",
+      "family": "GRD",
+      "when_to_use": "Any cue that needs a long variation section over a fixed bass: a castle, a ritual, a slow title bed.",
+      "params": {
+        "ground_bars": 4,
+        "statements": [8, 16],
+        "bass_channel": "triangle",
+        "ground_shape": "tonic_to_dominant_descent",
+        "harmony": "fifths_outline",
+        "melody_restatement_every_n_statements": 2,
+        "mode_turn_at_statement": 9,
+        "mode_turn_bars": 4,
+        "tempo_range_bpm": [66, 96]
+      },
+      "forbidden": [
+        "changing the ground's rhythm mid piece",
+        "putting the ground on a pulse channel, which makes it read as a melody",
+        "a ground longer than 4 bars at this tempo"
+      ],
+      "source": ["C8", "C18", "C26"]
+    },
+    {
+      "id": "CLC-08",
+      "name": "Passacaglia variant, ground in the melody",
+      "family": "GRD",
+      "when_to_use": "The rare case where the repeating figure should be heard as the tune, for a character cue.",
+      "params": {
+        "ground_bars": 2,
+        "statements": [6, 10],
+        "ground_channel": "pulse1",
+        "harmony_changes_per_statement": 2,
+        "texture_below": "pulse2_dyad_plus_triangle",
+        "statement_variation": "last_note_only"
+      },
+      "forbidden": [
+        "varying the ground before its third statement, because the pattern has to be learned first",
+        "a ground under 2 bars, which reads as a riff"
+      ],
+      "source": ["C8", "C22"]
+    },
+    {
+      "id": "CLC-09",
+      "name": "Ground with a waltz bass",
+      "family": "GRD",
+      "when_to_use": "The bridge between the chaconne and the waltz: 3/4, four bar ground, oom pah above it.",
+      "params": {
+        "meter": "3/4",
+        "ground_bars": 4,
+        "bass_grid": "beat_1_only",
+        "chord_grid": [2, 3],
+        "tempo_range_bpm": [104, 144],
+        "statements": [4, 8]
+      },
+      "forbidden": [
+        "a drum kit under a chaconne ground",
+        "changing the harmonic rhythm inside one statement"
+      ],
+      "source": ["C8", "C4", "C16"]
+    },
+    {
+      "id": "CLC-10",
+      "name": "Circle of fifths descent as the ground",
+      "family": "GRD",
+      "when_to_use": "The most singable four bar frame in the style; use it when the cue must be remembered after one listen.",
+      "params": {
+        "progression": ["I", "V", "vi", "iii", "IV", "I", "IV", "V"],
+        "bar_counts": "one chord per bar over 8 bars, or two beats per chord over 4 bars",
+        "bass_motion": "fifths",
+        "chord_changes_per_bar": 1,
+        "loop_bars": 8
+      },
+      "forbidden": [
+        "seventh chords on every step, which blurs the fifths motion",
+        "starting on a chord other than I or vi if the loop is short"
+      ],
+      "source": ["C26", "C1", "C8"]
+    },
+    {
+      "id": "CLC-11",
+      "name": "Sequence cell, three statements",
+      "family": "SEQ",
+      "when_to_use": "Any rising passage that needs drive without new material: a build to a door opening, a reveal.",
+      "params": {
+        "cell_bars": 2,
+        "sequence_segments": 3,
+        "step_semitones": 2,
+        "direction": "up",
+        "bass_under_static_cell": "fifths_down",
+        "total_bars": 6,
+        "last_segment_variation": "final_note_changed_to_chord_tone"
+      },
+      "forbidden": [
+        "four or more segments",
+        "step of a minor third upward inside a major key without a chord change",
+        "ornaments inside the sequenced cell"
+      ],
+      "source": ["C22", "C15", "C26"]
+    },
+    {
+      "id": "CLC-12",
+      "name": "Ritornello return, partial statement",
+      "family": "SEQ",
+      "when_to_use": "A cue with an orchestral feel where the opening material returns shortened, as in a Vivaldi concerto movement.",
+      "params": {
+        "opening_units_bars": [2, 4],
+        "return_units": [1, 2],
+        "keys": "tonic, dominant, tonic",
+        "return_variation": "one_unit_only",
+        "episode_between_returns_bars": [4, 8]
+      },
+      "forbidden": [
+        "returning the full opening every time, which turns the form into a rondo",
+        "returning in a third key"
+      ],
+      "source": ["C15"]
+    },
+    {
+      "id": "CLC-13",
+      "name": "Handel style drive, eighth note engine",
+      "family": "SEQ",
+      "when_to_use": "A ceremonial or victory cue that must feel forward moving with no drums.",
+      "params": {
+        "pulse1_grid": "continuous_eighths",
+        "pulse2_grid": "quarters_on_beats",
+        "triangle_grid": "beats_1_and_3",
+        "articulation_gate_pct": [70, 80],
+        "tempo_range_bpm": [96, 126],
+        "harmony_changes_per_bar": 2,
+        "cadence_every_bars": 8
+      },
+      "forbidden": [
+        "swing or shuffle inside the eighths",
+        "legato gate above 90 percent, which smears the drive",
+        "noise percussion beyond a single beat 1 hit"
+      ],
+      "source": ["C15", "C22", "C1"]
+    },
+    {
+      "id": "CLC-14",
+      "name": "Episode over a pedal",
+      "family": "SEQ",
+      "when_to_use": "A held triangle note while the two pulses exchange fragments; cheapest possible tension.",
+      "params": {
+        "pedal_channel": "triangle",
+        "pedal_bars": [4, 8],
+        "pedal_pitch": "tonic_or_dominant",
+        "upper_activity": "fragments_of_two_to_four_notes",
+        "exchange_every_bars": 1,
+        "chords_above": "moves_while_bass_holds"
+      },
+      "forbidden": [
+        "changing the pedal pitch mid section",
+        "both pulses resting at the same time before the pedal resolves"
+      ],
+      "source": ["C22", "C18"]
+    },
+    {
+      "id": "CLC-15",
+      "name": "Eight bar period, half then authentic",
+      "family": "PER",
+      "when_to_use": "The default Classical phrase for court, menu and character cues. Two phrases of four bars.",
+      "params": {
+        "phrase_bars": 8,
+        "plan": "antecedent 1-4, consequent 5-8",
+        "cadence_a": "half",
+        "cadence_b": "authentic",
+        "shared_material": "first_two_bars_identical",
+        "difference": "last_two_notes_of_the_consequent",
+        "tempo_range_bpm": [92, 128]
+      },
+      "forbidden": [
+        "a new theme in the consequent",
+        "an authentic cadence at bar 4, which closes the loop early",
+        "more than two chords per bar"
+      ],
+      "source": ["C27", "C28", "C23"]
+    },
+    {
+      "id": "CLC-16",
+      "name": "Sentence, basic idea plus fragmentation",
+      "family": "PER",
+      "when_to_use": "A cue that must accelerate in feel without changing tempo: a chase, a boss approach.",
+      "params": {
+        "basic_idea_bars": 2,
+        "complementary_repetition_bars": 2,
+        "continuation_bars": 4,
+        "fragmentation": "half_bar_units_then_quarter_bar_units",
+        "cadence_at_bar": 8,
+        "rhythmic_acceleration": "note_values_double_once_per_bar",
+        "tempo_range_bpm": [104, 144]
+      },
+      "forbidden": [
+        "introducing new melodic material after bar 4",
+        "halving the note values for more than four bars, which turns to noise at 60 Hz resolution"
+      ],
+      "source": ["C11"]
+    },
+    {
+      "id": "CLC-17",
+      "name": "Minuet, 16 bar binary",
+      "family": "PER",
+      "when_to_use": "Court, ballroom and formal interior scenes. The most idiomatic use of 3/4 before the waltz arrives.",
+      "params": {
+        "meter": "3/4",
+        "form": "AA BB",
+        "section_bars": 8,
+        "tempo_range_bpm": [100, 130],
+        "bass_grid": "beat_1",
+        "chord_grid": [2, 3],
+        "cadence_end_of_A": "half_or_authentic_in_dominant",
+        "cadence_end_of_B": "authentic",
+        "noise_events": "beat_1_of_bars_1_and_5_only"
+      },
+      "forbidden": [
+        "a drum kit",
+        "sixteenth note runs in the accompaniment",
+        "a tempo above 134 bpm, which makes it a scherzo"
+      ],
+      "source": ["C24", "C1", "C3"]
+    },
+    {
+      "id": "CLC-18",
+      "name": "Scherzo, two bar cell at 168 to 200",
+      "family": "PER",
+      "when_to_use": "Battle, chase and comic danger. The minuet turned savage, per Beethoven's use of the form.",
+      "params": {
+        "meter": "3/4_or_6/8_one_beat_per_bar",
+        "cell_bars": 2,
+        "tempo_range_bpm": [168, 200],
+        "form": "ABA_with_trio",
+        "accent": "second_eighth_of_beat_3",
+        "noise_grid": "beat_3_only",
+        "sequence_segments": 3,
+        "triangle": "roots_only_with_octave_jumps"
+      },
+      "forbidden": [
+        "quarter note accompaniment on beats 2 and 3 at this tempo, which reads as a fast minuet",
+        "a phrase longer than 4 bars before the trio"
+      ],
+      "source": ["C9", "C1"]
+    },
+    {
+      "id": "CLC-19",
+      "name": "Alberti bass on pulse 2",
+      "family": "PER",
+      "when_to_use": "Any Classical cue that needs harmonic filling from two channels: lowest, highest, middle, highest, four notes per bar.",
+      "params": {
+        "channel": "pulse2",
+        "pattern": ["lowest", "highest", "middle", "highest"],
+        "grid": "eighths",
+        "notes_per_bar": 4,
+        "duty_pct": 12.5,
+        "volume": [7, 10],
+        "pedal_note_present": false
+      },
+      "forbidden": [
+        "Alberti under a melody that is also in continuous eighths",
+        "using a seventh chord shape, which muddies the pattern",
+        "putting the pattern on the same channel as the melody"
+      ],
+      "source": ["C18", "C24"]
+    },
+    {
+      "id": "CLC-20",
+      "name": "Cadential 6/4 frame",
+      "family": "PER",
+      "when_to_use": "The strongest two bar close in the style; the top measured trigram in the corpus.",
+      "params": {
+        "progression": ["I6/4", "V7", "I"],
+        "bars": 2,
+        "timing": "6/4 half bar, V7 half bar, I one bar",
+        "bass": "dominant_then_tonic",
+        "melody_degrees": [3, 2, 1],
+        "trill_on": "second_degree_in_the_V7_bar"
+      },
+      "forbidden": [
+        "using it at every phrase end, which flattens the form",
+        "a drum hit on the 6/4, which pre-empts the resolution"
+      ],
+      "source": ["C1", "C23", "C24"]
+    },
+    {
+      "id": "CLC-21",
+      "name": "Waltz chain, introduction plus five waltzes plus coda",
+      "family": "WZ",
+      "when_to_use": "Ballroom, party and set piece cues, and the title theme's existing 3/4 shape.",
+      "params": {
+        "meter": "3/4",
+        "introduction_bars": [8, 16],
+        "waltz_numbers": 5,
+        "strain_bars": 8,
+        "bars_per_waltz": 16,
+        "intrada_bars": [4, 8],
+        "coda_bars": [8, 16],
+        "total_bars": [120, 137],
+        "tempo_range_bpm": [150, 180],
+        "key_plan": "tonic, tonic, subdominant_or_relative, mediant, dominant_family",
+        "climax": "waltz 5 B strain"
+      },
+      "forbidden": [
+        "two waltz numbers in the same key in a row after the third",
+        "a coda shorter than 8 bars, which makes the chain end flat",
+        "a drum kit under the chain"
+      ],
+      "source": ["C16", "C4", "C5"]
+    },
+    {
+      "id": "CLC-22",
+      "name": "Oom pah with two pulses",
+      "family": "WZ",
+      "when_to_use": "Every 3/4 dance number. The accompaniment IS the percussion in this style.",
+      "params": {
+        "triangle": "root_on_beat_1",
+        "pulse_chord": "beats_2_and_3",
+        "chord_notes": 2,
+        "pulse_duty_pair": [12.5, 25],
+        "gate_pct": [60, 75],
+        "chord_voice_spacing_semitones": [3, 7],
+        "second_beat_lift_frames": [0, 2]
+      },
+      "forbidden": [
+        "three notes in the chord on one pulse",
+        "the chord louder than the melody",
+        "a kick sample on beat 1 in addition to the triangle root"
+      ],
+      "source": ["C4", "C16", "C18"]
+    },
+    {
+      "id": "CLC-23",
+      "name": "Hemiola across two bars",
+      "family": "WZ",
+      "when_to_use": "The last two bars before a coda, a trio, or a loop return. The largest accent available without a tempo change.",
+      "params": {
+        "meter": "3/4",
+        "window_bars": 2,
+        "regrouping": "3_groups_of_2_beats",
+        "triangle_grid": [1, 4],
+        "pulse_accent_beats": [1, 3, 5],
+        "light_beats": [2, 4, 6],
+        "resolution": "back_to_3/4_at_the_next_bar",
+        "max_length_bars": 2
+      },
+      "forbidden": [
+        "holding the hemiola for a whole section",
+        "a hemiola on the first bar of a cue, because the 3/4 must be established first"
+      ],
+      "source": ["C3", "C16"]
+    },
+    {
+      "id": "CLC-24",
+      "name": "Rubato budget at 60 Hz",
+      "family": "WZ",
+      "when_to_use": "Any waltz or slow movement where the machine timing should stop being audible.",
+      "params": {
+        "max_frames_per_beat": 3,
+        "max_percent_of_tempo": 5,
+        "places": ["last_two_beats_of_a_phrase", "strain_repeat", "before_a_coda"],
+        "melody_lags_bass": true,
+        "bass_keeps_time": true,
+        "never_on": "the loop point"
+      },
+      "forbidden": [
+        "a global tempo change inside a loop",
+        "rubato on both the melody and the bass, which just sounds like a slower tempo",
+        "a 1 frame offset, which is below audibility and only wastes frames"
+      ],
+      "source": ["C6", "C17"]
+    },
+    {
+      "id": "CLC-25",
+      "name": "Waltz coda in eight bars",
+      "family": "WZ",
+      "when_to_use": "The ending of any waltz chain, and the model for a staff roll.",
+      "params": {
+        "bars": 8,
+        "plan": "bars 1-4 fragment the waltz 1 head, bars 5-6 hemiola, bars 7-8 cadential 6/4 to I",
+        "cadence": "authentic",
+        "triangle": "tonic_pedal_in_bars_5_to_8",
+        "noise": "none",
+        "final_frames_of_silence": [3, 6]
+      },
+      "forbidden": [
+        "introducing the waltz 5 climax again here",
+        "an unresolved final chord on a cue that is not looping"
+      ],
+      "source": ["C16", "C3", "C23"]
+    },
+    {
+      "id": "CLC-26",
+      "name": "Cadential trill in frames",
+      "family": "ORN",
+      "when_to_use": "One to two beats before the tonic at a phrase or section close.",
+      "params": {
+        "note": "principal",
+        "alternation": "diatonic_upper_neighbour",
+        "ornament_rate": "32nd",
+        "frames_per_note": "450 / bpm rounded to at least 3",
+        "duration_beats": [1, 2],
+        "end_with_turn": true,
+        "turn_rate": "64th",
+        "volume_on_auxiliary": -1,
+        "period_write": "low_byte_only"
+      },
+      "forbidden": [
+        "a trill under 3 frames per note",
+        "writing the period high byte mid trill, which resets phase and pops",
+        "a trill on both pulses at once"
+      ],
+      "source": ["C13", "C17", "C12"]
+    },
+    {
+      "id": "CLC-27",
+      "name": "Mordent and turn, frame counts",
+      "family": "ORN",
+      "when_to_use": "Decoration on a phrase opening or on the last long note of a strain, on the repeat only.",
+      "params": {
+        "mordent_upper": ["principal", "upper", "principal"],
+        "mordent_lower": ["principal", "lower", "principal"],
+        "frames_per_note": "225 / bpm rounded to at least 2",
+        "minimum_note_frames_to_qualify": 6,
+        "turn_notes": ["upper", "principal", "lower", "principal"],
+        "turn_total_frames": "4 x (225 / bpm), at least 8",
+        "turn_placement": "end_of_a_long_note"
+      },
+      "forbidden": [
+        "a mordent on a note shorter than 6 frames",
+        "a turn inside a running passage",
+        "two ornaments in the same two bars"
+      ],
+      "source": ["C14", "C12", "C17"]
+    },
+    {
+      "id": "CLC-28",
+      "name": "Long appoggiatura resolving on the beat",
+      "family": "ORN",
+      "when_to_use": "One per section, on the strongest beat, where the style wants yearning: a sad cue or a cadence.",
+      "params": {
+        "note": "auxiliary_one_degree_above_or_below",
+        "duration": "half_the_principal_value",
+        "resolution": "on_the_beat_to_the_chord_tone",
+        "chromatic_allowed": true,
+        "where": "strong_beat_only",
+        "max_per_8_bars": 2
+      },
+      "forbidden": [
+        "an appoggiatura that does not resolve",
+        "an appoggiatura on a weak beat, which is a passing tone and should be written as one",
+        "an appoggiatura on the root at a final cadence, which blurs the arrival"
+      ],
+      "source": ["C10", "C12"]
+    },
+    {
+      "id": "CLC-29",
+      "name": "Classical hook in eight bars",
+      "family": "MEM",
+      "when_to_use": "Every cue that must be remembered: the theme statement itself, before any development.",
+      "params": {
+        "hook_notes": [8, 18],
+        "hook_bars": [2, 4],
+        "seconds_to_recognise": [2.3, 5.0],
+        "range_semitones": [7, 12],
+        "repeat_one_bar_token_share_target": 0.45,
+        "interval_recipe": "mostly_steps_down_with_one_leap",
+        "leap_options_semitones": [7, 12],
+        "pitch_placement": "melody_median_near_C5_bass_near_C3",
+        "cadence_at_end_of_hook": "half"
+      },
+      "forbidden": [
+        "a hook that starts after bar 2",
+        "a hook wider than a tenth",
+        "an authentic cadence inside the hook, which ends the memory before it forms",
+        "ornaments inside the hook's first statement"
+      ],
+      "source": ["C19", "C1", "C27"]
+    },
+    {
+      "id": "CLC-30",
+      "name": "Human touch bundle for this style",
+      "family": "MEM",
+      "when_to_use": "Applied on top of any recipe in this file, once, at the end of arrangement.",
+      "params": {
+        "gate_pct": [80, 92],
+        "volume_shape_per_4_bars": [10, 14, 11],
+        "vibrato_start_delay_frames": 4,
+        "vibrato_depth_period_units": [1, 3],
+        "duty_change_once_per_cue": true,
+        "late_entry_frames": 1,
+        "silence_before_final_I_frames": [3, 6],
+        "ornament_on_repeat_only": true
+      },
+      "forbidden": [
+        "vibrato from the attack",
+        "gate at 100 percent for a whole cue",
+        "the same volume on every channel",
+        "any of these applied inside the first statement of the hook"
+      ],
+      "source": ["C19", "C6", "C12"]
+    }
+  ]
+}

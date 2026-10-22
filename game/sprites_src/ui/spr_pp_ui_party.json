@@ -1,0 +1,16 @@
+{
+  "name": "spr_pp_ui_party",
+  "frame_w": 24,
+  "frame_h": 32,
+  "frames": 1,
+  "frames_detail": [
+    "idle placeholder"
+  ],
+  "pixels": "24x32",
+  "colours": {
+    "edge": 48,
+    "body": 0,
+    "marker": 40
+  },
+  "rule": "24x32 is 3x4 tiles, 3 sprites wide by 4 tall; 3 colours per tile"
+}

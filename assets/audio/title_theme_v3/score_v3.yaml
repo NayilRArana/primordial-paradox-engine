@@ -6,10 +6,10 @@
 meta:
   key: A minor
   time: 3/4
-  bpm: 108
+  bpm: 126
   loop_start_section: A
   loop_end_section: A_return
-  form: "Intro 4 + A 8 + A' 8 + B 8 + B' 8 + C trio 8 + A return 8 = 52 bars, about 87 s; the loop returns to the start of A"
+  form: "Intro 4 + A 8 + A' 8 + B 8 + B' 8 + C trio 8 + A return 8 = 52 bars, about 74 s at 126 bpm; the loop returns to the start of A"
 
 motifs:
   # Identify these by ear. Each is at most one bar. Every melody bar below is built from one of them.

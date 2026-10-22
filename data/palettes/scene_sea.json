@@ -1,0 +1,121 @@
+{
+  "backdrop": 15,
+  "background": [
+    {
+      "colours": [
+        0,
+        16,
+        48
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "name": "bg0"
+    },
+    {
+      "colours": [
+        2,
+        18,
+        33
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#3cbcfc"
+      ],
+      "name": "bg1"
+    },
+    {
+      "colours": [
+        7,
+        23,
+        40
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ],
+      "name": "bg2"
+    },
+    {
+      "colours": [
+        12,
+        2,
+        18
+      ],
+      "hex": [
+        "#004058",
+        "#0000bc",
+        "#0058f8"
+      ],
+      "name": "bg3"
+    }
+  ],
+  "format": 1,
+  "kind": "scene_palette",
+  "notes": [
+    "backdrop $0F black is the hull shadow and the night sea",
+    "bg0 steel deck and bulkhead, bg1 open sea, bg2 rust and hazard, bg3 night water",
+    "four sprite palettes cover the seven enemies: a battle frame draws one enemy plus the player, so at most two of the four are on screen at once, which is inside the hardware ceiling",
+    "written by tools/art/make_enemies.py; it is not yet wired into tools/check_scene_palettes.py, whose SCENE_NAMES list still names title and ship"
+  ],
+  "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
+  "scene": "sea",
+  "sprites": [
+    {
+      "colours": [
+        15,
+        2,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#0000bc",
+        "#fcfcfc"
+      ],
+      "name": "sp0_navy_white"
+    },
+    {
+      "colours": [
+        15,
+        7,
+        40
+      ],
+      "hex": [
+        "#000000",
+        "#881400",
+        "#f8b800"
+      ],
+      "name": "sp1_brown_gold"
+    },
+    {
+      "colours": [
+        15,
+        26,
+        42
+      ],
+      "hex": [
+        "#000000",
+        "#00a800",
+        "#58d854"
+      ],
+      "name": "sp2_green"
+    },
+    {
+      "colours": [
+        2,
+        33,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#3cbcfc",
+        "#fcfcfc"
+      ],
+      "name": "sp3_sea"
+    }
+  ]
+}

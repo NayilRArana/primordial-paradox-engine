@@ -1,0 +1,139 @@
+{
+  "format": 1,
+  "kind": "tileset",
+  "name": "ts_exterior",
+  "image": "ts_exterior.png",
+  "columns": 16,
+  "rows": 4,
+  "frames": 64,
+  "frame_w": 16,
+  "frame_h": 16,
+  "imagewidth": 256,
+  "imageheight": 64,
+  "tilecount": 64,
+  "tile_size": 16,
+  "margin": 0,
+  "spacing": 0,
+  "backdrop": {
+    "entry": 15,
+    "hex": "#000000"
+  },
+  "rule": "NES: 5 background palettes of 3 entries, a scene spends at most 4 of them, a 16x16 tile carries at most 3 colours besides the shared backdrop $0F",
+  "animations": {
+    "water": [
+      "water_a",
+      "water_b"
+    ]
+  },
+  "provenance": "original art drawn by tools/art/make_ts_exterior.py; no reference asset copied (PLAN-V2-2026-10-21.md section 0)",
+  "palette": [
+    {
+      "entry": 0,
+      "hex": "#7c7c7c",
+      "key": "M",
+      "palette": "bg0_stone"
+    },
+    {
+      "entry": 16,
+      "hex": "#bcbcbc",
+      "key": "L",
+      "palette": "bg0_stone"
+    },
+    {
+      "entry": 48,
+      "hex": "#fcfcfc",
+      "key": "W",
+      "palette": "bg0_stone"
+    },
+    {
+      "entry": 7,
+      "hex": "#881400",
+      "key": "A",
+      "palette": "bg1_brick"
+    },
+    {
+      "entry": 23,
+      "hex": "#e45c10",
+      "key": "B",
+      "palette": "bg1_brick"
+    },
+    {
+      "entry": 40,
+      "hex": "#f8b800",
+      "key": "C",
+      "palette": "bg1_brick"
+    },
+    {
+      "entry": 9,
+      "hex": "#007800",
+      "key": "G",
+      "palette": "bg2_green"
+    },
+    {
+      "entry": 10,
+      "hex": "#006800",
+      "key": "D",
+      "palette": "bg2_green"
+    },
+    {
+      "entry": 42,
+      "hex": "#58d854",
+      "key": "H",
+      "palette": "bg2_green"
+    },
+    {
+      "entry": 2,
+      "hex": "#0000bc",
+      "key": "N",
+      "palette": "bg3_water"
+    },
+    {
+      "entry": 18,
+      "hex": "#0058f8",
+      "key": "O",
+      "palette": "bg3_water"
+    },
+    {
+      "entry": 48,
+      "hex": "#fcfcfc",
+      "key": "P",
+      "palette": "bg3_water"
+    },
+    {
+      "entry": 0,
+      "hex": "#7c7c7c",
+      "key": "M",
+      "palette": "bg4_red"
+    },
+    {
+      "entry": 22,
+      "hex": "#f83800",
+      "key": "S",
+      "palette": "bg4_red"
+    },
+    {
+      "entry": 48,
+      "hex": "#fcfcfc",
+      "key": "W",
+      "palette": "bg4_red"
+    },
+    {
+      "entry": 9,
+      "hex": "#007800",
+      "key": "G",
+      "palette": "bg5_plant"
+    },
+    {
+      "entry": 7,
+      "hex": "#881400",
+      "key": "A",
+      "palette": "bg5_plant"
+    },
+    {
+      "entry": 0,
+      "hex": "#7c7c7c",
+      "key": "M",
+      "palette": "bg5_plant"
+    }
+  ]
+}

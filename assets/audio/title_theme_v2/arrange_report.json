@@ -16,9 +16,14 @@
     "E5"
   ],
   "midi": "<repo>\\assets\\audio\\title_theme_v2\\title_theme_v2.mid",
+  "midi_bar_ticks": 1440,
+  "midi_bpm": 104.0,
   "midi_bytes": 12825,
   "midi_division": 480,
+  "midi_duration_seconds": 90.0,
   "midi_ntracks": 9,
+  "midi_tempo_us_per_qn": 576923,
+  "midi_time_signature": "3/4",
   "midi_tracks": [
     "meta",
     "vrc6 pulse a",
@@ -42,6 +47,7 @@
   },
   "out_of_range": [],
   "score": "<repo>\\assets\\audio\\title_theme_v2\\score.yaml",
+  "tempo_meta_matches_score": true,
   "tracks": [
     "vrc6 pulse a",
     "vrc6 pulse b",

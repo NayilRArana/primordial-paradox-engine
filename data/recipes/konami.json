@@ -1,0 +1,619 @@
+{
+  "meta": {
+    "title": "Primordial Paradox music recipes, Konami gothic rock and metal family",
+    "generated_at": "2026-10-21",
+    "card": "t_b5632857 (STUDY-KONAMI)",
+    "scope": "konami",
+    "study": "knowledge/music-styles/konami.md",
+    "source_of_truth": "knowledge/music-styles/konami.md sections 3 to 11",
+    "citation_note": "Every recipe cites source ids from knowledge/music-styles/konami.md section 13. Full titles, URLs and read dates live there, not here, because this directory is scanned by the project's clean-room gate.",
+    "chip": "NES 2A03 (2 pulse, triangle, noise, DPCM) plus Konami VRC6 (2 pulse, saw)",
+    "reference_rule": "study only; no melody transcribed, ripped, traced or decompiled",
+    "recipe_count": 30,
+    "families": {
+      "KON": 30
+    },
+    "default_tempo_bpm": {
+      "stage": 129,
+      "boss": 141,
+      "title_fanfare": 100,
+      "title_loop": 129,
+      "stage_clear": 154
+    },
+    "default_keys": ["D minor", "C minor", "G minor", "A minor"],
+    "measured_anchors": {
+      "castlevania_minor_share": "13 of 16",
+      "contra_minor_share": "10 of 13",
+      "median_piece_bars_castlevania": 15,
+      "median_piece_bars_contra": 17,
+      "chord_changes_per_bar": 3.78,
+      "melody_single_sixteenth_share": 0.7599,
+      "melody_step_share": 0.5159,
+      "half_cadence_share": 0.1538,
+      "authentic_cadence_share": 0.0342,
+      "note": "all from the corpus statistics file cited as K22 in the study; tempo in that file is normalised and is not used"
+    }
+  },
+  "recipes": [
+    {
+      "id": "KON-01",
+      "name": "Gallop cell, long plus two shorts",
+      "family": "KON",
+      "when_to_use": "The main riff of any stage or boss cue in this style, in place of straight eighths.",
+      "params": {
+        "cell": "eighth+sixteenth+sixteenth",
+        "beat_split_16ths": [2, 1, 1],
+        "counted": "1 _ & a",
+        "be_on_triplet": false,
+        "channel_riff": "pulse1",
+        "channel_low_end": "triangle root on the long note only",
+        "channel_hat": "noise on the two short notes",
+        "tempo_range_bpm": [118, 150],
+        "riff_cell_bars": 1
+      },
+      "forbidden": [
+        "triplet or shuffle feel inside the cell",
+        "putting the kick on a short note instead of the long one",
+        "running the cell below 110 bpm where the shorts merge into the long note"
+      ],
+      "source": ["K17", "K18", "K25"]
+    },
+    {
+      "id": "KON-02",
+      "name": "Reverse gallop answer",
+      "family": "KON",
+      "when_to_use": "The answering half of a two bar riff, so the second bar pushes into the next downbeat rather than restarting on it.",
+      "params": {
+        "cell": "sixteenth+sixteenth+eighth",
+        "beat_split_16ths": [1, 1, 2],
+        "counted": "1 e & _",
+        "placement": "bars 2 and 4 of a 4 bar group",
+        "channel_riff": "pulse1",
+        "kick": "on the final eighth"
+      },
+      "forbidden": [
+        "using it as the opening cell, because it reads as a pickup and the hook then has no downbeat",
+        "mixing it inside the same bar as the standard gallop"
+      ],
+      "source": ["K17", "K18"]
+    },
+    {
+      "id": "KON-03",
+      "name": "Driving eighth bass under a sixteenth riff",
+      "family": "KON",
+      "when_to_use": "Whenever the melody is on sixteenths and the low end needs to stay legible; the default bass of the whole style.",
+      "params": {
+        "subdivision": "eighths",
+        "motion": "root only, one pitch per eighth",
+        "channel": "triangle",
+        "octave_range_midi": [40, 52],
+        "octave_jumps": "only at the last eighth of a 4 bar group",
+        "contrast_target": "melody at 0.62 to 0.89 beats per note against bass at 0.5 beats per note"
+      },
+      "forbidden": [
+        "walking a new bass note every eighth when the harmony changes only once per bar",
+        "bass above MIDI 58, which collides with the inner voice median of 61.5"
+      ],
+      "source": ["K22", "K14"]
+    },
+    {
+      "id": "KON-04",
+      "name": "Harmonic minor riff frame",
+      "family": "KON",
+      "when_to_use": "The scale skeleton of a stage or boss riff when the cue must sound old and gothic rather than merely sad.",
+      "params": {
+        "scale": "harmonic_minor",
+        "degrees": [1, 2, 3, 4, 5, 6, 7],
+        "leading_tone": "raised seventh, 11 semitones above the tonic",
+        "augmented_second": "between flat 6 and raised 7, allowed once per 2 bars",
+        "cadence_chord": "major dominant from the raised seventh",
+        "harmonic_rhythm": "1 chord per beat"
+      },
+      "forbidden": [
+        "the augmented second in a title hook",
+        "natural seventh and raised seventh in the same bar",
+        "two augmented seconds in one phrase"
+      ],
+      "source": ["K20", "K19", "K22"]
+    },
+    {
+      "id": "KON-05",
+      "name": "Raised seventh cadence",
+      "family": "KON",
+      "when_to_use": "End of every 4 bar group where the loop must feel finished but still push on.",
+      "params": {
+        "penultimate": "V or V7 built on the raised seventh",
+        "final": "i",
+        "bars": 2,
+        "melody_at_cadence": "approach the tonic by semitone from below or by the raised seventh",
+        "bass": "dominant root then tonic root"
+      },
+      "forbidden": [
+        "a minor v at the cadence, which flattens the style into modal rock",
+        "more than one cadence per 4 bars"
+      ],
+      "source": ["K20", "K22"]
+    },
+    {
+      "id": "KON-06",
+      "name": "Flat two Neapolitan stab",
+      "family": "KON",
+      "when_to_use": "Crypt, castle hall, boss entrance, anywhere the cue must sound older and stranger than the key allows.",
+      "params": {
+        "chord": "major triad a semitone above the tonic",
+        "length": "one beat or one sixteenth stab",
+        "frequency": "one per 4 bars maximum",
+        "voice_leading": "bass steps up a semitone to the tonic after the stab",
+        "melody": "hold the tonic over the stab for the tritone against the chord root"
+      },
+      "forbidden": [
+        "the flat two chord in the same bar as the raised seventh",
+        "two flat two stabs in a 4 bar group",
+        "using it in a stage clear or ending cue"
+      ],
+      "source": ["K19", "K21"]
+    },
+    {
+      "id": "KON-07",
+      "name": "Flat five dominant",
+      "family": "KON",
+      "when_to_use": "The dominant before the tonic in a stage theme that wants harmonic bite without jazz vocabulary.",
+      "params": {
+        "chord": "dominant triad with a flat five added",
+        "position": "last beat before the tonic",
+        "bar_count": "1 of every 4",
+        "melody_note": "flat five above the bass for the tritone, resolved by semitone",
+        "example_reading": "the measured Mad Forest intro and verse opens on a V with a flat five"
+      },
+      "forbidden": [
+        "resolving the flat five upward by whole tone",
+        "stacking a seventh on top of the flat five in a stage cue",
+        "more than one flat five dominant per 4 bars"
+      ],
+      "source": ["K16", "K21"]
+    },
+    {
+      "id": "KON-08",
+      "name": "Diminished hinge chord",
+      "family": "KON",
+      "when_to_use": "Mid riff, at the weakest metric point of the bar, to make the ear expect a resolution the riff then delays.",
+      "params": {
+        "chord": "diminished triad or half diminished seventh on the second degree",
+        "length_16ths": 2,
+        "position": "the and of 2 or the and of 3",
+        "bass": "second degree",
+        "resolution": "up a fourth to the dominant or down a semitone to a chord tone"
+      },
+      "forbidden": [
+        "diminished chord on a downbeat",
+        "a diminished seventh held longer than an eighth",
+        "two different diminished chords in one bar"
+      ],
+      "source": ["K22", "K21", "K16"]
+    },
+    {
+      "id": "KON-09",
+      "name": "Second inversion climb",
+      "family": "KON",
+      "when_to_use": "The Mad Forest path: a rising harmonic sequence for boss and crypt cues where the harmony, not the melody, carries the identity.",
+      "params": {
+        "bass_motion": "step up by semitone or tone for 3 or 4 chords",
+        "chords": "second inversion shapes with the third or fifth in the bass",
+        "hinge": "one diminished chord in the middle of the climb",
+        "landing": "sus4 dominant then tonic",
+        "changes_per_bar": 3.78,
+        "melody_behaviour": "stay on chord tones, tension under 25",
+        "example_reading": "the measured Mad Forest intro and verse climbs through ii42, III42 and IV42 with a mixture before V42 and i"
+      },
+      "forbidden": [
+        "climbing more than 5 chords without a landing",
+        "a melodic counterline that also climbs, which doubles the motion and kills it",
+        "using the climb on a 4 bar stage clear"
+      ],
+      "source": ["K16", "K22"]
+    },
+    {
+      "id": "KON-10",
+      "name": "Chromatic bass walk",
+      "family": "KON",
+      "when_to_use": "The transition bar between two 4 bar groups, when the cue needs to move to a new harmony without a cadence.",
+      "params": {
+        "walk_length_beats": 2,
+        "step": "semitone",
+        "direction": "up to the next chord root",
+        "chord_above": "keep a common tone in the upper voice if possible",
+        "channel": "triangle, or vrc6_saw when the chip allows"
+      },
+      "forbidden": [
+        "chromatic walks in both directions inside one 4 bar group",
+        "a chromatic walk under a melody that is also chromatic"
+      ],
+      "source": ["K16", "K22"]
+    },
+    {
+      "id": "KON-11",
+      "name": "Organ arpeggio at frame rate",
+      "family": "KON",
+      "when_to_use": "Title, crypt and boss intro, where the harmony must be a wall rather than a progression.",
+      "params": {
+        "notes_per_frame": 1,
+        "engine_hz": 60,
+        "arp_notes": 3,
+        "repeat_rate_hz": 20,
+        "order": "root, third, fifth, third",
+        "duty": 0.5,
+        "channel": "pulse1 plus vrc6_p1 alternating notes to raise the repeat rate to 30 Hz",
+        "register": "one octave below the lead"
+      },
+      "forbidden": [
+        "arpeggiating at less than 15 notes per second, which sounds like an arpeggio rather than a chord",
+        "two channels playing the same arpeggio in phase, which produces one louder voice with no width",
+        "arpeggio above the melody"
+      ],
+      "source": ["K14", "K1", "K24"]
+    },
+    {
+      "id": "KON-12",
+      "name": "Held organ chord on VRC6",
+      "family": "KON",
+      "when_to_use": "Only on VRC6 cues: a sustained chord under a riff, the string imitation the extra channels were used for.",
+      "params": {
+        "channel": "vrc6_p1 and vrc6_p2",
+        "duty_mode": "100 percent for a flat organ tone, or 12.5 percent for strings",
+        "hold": "whole bar or longer",
+        "voicing": "root and fifth only, third supplied by the arpeggio",
+        "volume": "40 to 55 percent of the lead"
+      },
+      "forbidden": [
+        "three held notes on two channels at once",
+        "held organ in a five channel arrangement, where it takes the channel the riff needs",
+        "vibrato on a held organ chord"
+      ],
+      "source": ["K7", "K14", "K6"]
+    },
+    {
+      "id": "KON-13",
+      "name": "Saw bass riff",
+      "family": "KON",
+      "when_to_use": "VRC6 stage themes: the bass line is the riff, not just the roots.",
+      "params": {
+        "channel": "vrc6_saw",
+        "accumulator_rate": [32, 40],
+        "hard_cap": 42,
+        "motion": "riff root plus one passing note per bar",
+        "subdivision": "eighths",
+        "octave": "one below the melody median of MIDI 71",
+        "triangle": "silent while the saw plays"
+      },
+      "forbidden": [
+        "accumulator rate above 42, which distorts",
+        "saw and triangle doubling the same line for a whole cue",
+        "saw bass above MIDI 55"
+      ],
+      "source": ["K14", "K7"]
+    },
+    {
+      "id": "KON-14",
+      "name": "Saw and triangle split octaves",
+      "family": "KON",
+      "when_to_use": "The first 4 bars only, as an intro weight device before one channel drops out.",
+      "params": {
+        "saw_octave": "root as written",
+        "triangle_octave": "one octave below",
+        "duration_bars": 4,
+        "drop": "triangle out at bar 5, or saw out if the cue needs a thinner middle"
+      },
+      "forbidden": [
+        "running the split for a whole cue",
+        "splitting at the octave above, which puts the saw in the inner voice register"
+      ],
+      "source": ["K14", "K7"]
+    },
+    {
+      "id": "KON-15",
+      "name": "Two pulse register crossing",
+      "family": "KON",
+      "when_to_use": "The Vampire Killer path: the lead and the second guitar trade the same cell and cross registers.",
+      "params": {
+        "voice_a": "pulse1, duty 0.125",
+        "voice_b": "pulse2, duty 0.5",
+        "trade_interval": "1 bar",
+        "crossing": "voice_b plays one octave up on its second trade, then back",
+        "harmonic_rhythm": "1 chord per beat",
+        "measured_reference": "16 bar loop with the squares crossing registers in the published commentary"
+      },
+      "forbidden": [
+        "both pulses on the same duty",
+        "crossing more than twice in a 16 bar loop",
+        "register crossing on a held note rather than on the cell"
+      ],
+      "source": ["K24", "K15"]
+    },
+    {
+      "id": "KON-16",
+      "name": "Call and response bars",
+      "family": "KON",
+      "when_to_use": "A section stage theme of 15 to 45 bars, where one riff must cover the whole length.",
+      "params": {
+        "call": "pulse1, bars 1 and 2",
+        "response": "vrc6_p1 or pulse2, bars 3 and 4",
+        "response_relation": "same rhythm, contour inverted",
+        "harmony": "same progression under both",
+        "loop": "8 or 16 bars"
+      },
+      "forbidden": [
+        "response in a different key",
+        "a response that is longer than the call, which unbalances the 4 bar group"
+      ],
+      "source": ["K22", "K23"]
+    },
+    {
+      "id": "KON-17",
+      "name": "Dotted eighth echo voice",
+      "family": "KON",
+      "when_to_use": "Title and crypt cues on a five channel arrangement, to fake space without losing a voice to a pad.",
+      "params": {
+        "delay": "three sixteenths, a dotted eighth",
+        "volume_pct": 35,
+        "channel": "pulse2 when the riff is not using it",
+        "pitch": "same as the lead",
+        "duty": "different from the lead by one step"
+      },
+      "forbidden": [
+        "an echo on a gallop cell, where the delay lands on the short notes and smears them",
+        "echo volume above 45 percent"
+      ],
+      "source": ["K14", "K1"]
+    },
+    {
+      "id": "KON-18",
+      "name": "Fast sixteenth fill, two beats",
+      "family": "KON",
+      "when_to_use": "Every 8 bars, or at the end of a phrase group, to turn the corner into the next riff.",
+      "params": {
+        "length_beats": 2,
+        "subdivision": "sixteenths",
+        "direction": "downward run",
+        "instrument": "pulse1 or pulse2",
+        "kit_double": "snare noise sixteenths under the last beat",
+        "end": "DPCM tom or kick on the downbeat after the fill"
+      },
+      "forbidden": [
+        "fills longer than 3 beats",
+        "a fill in every 4 bar group",
+        "a fill on the same channel as a held note, which forces a cut"
+      ],
+      "source": ["K22", "K14"]
+    },
+    {
+      "id": "KON-19",
+      "name": "Descending harmonic minor run",
+      "family": "KON",
+      "when_to_use": "Phrase end in a boss cue, when the melody has to fall away rather than cadence.",
+      "params": {
+        "length_16ths": 8,
+        "degrees": "5, 4, 3, 2, raised 7, 1",
+        "direction": "down",
+        "harmonic_support": "diminished hinge on the second degree at the midpoint",
+        "register_drop": "one octave at the end"
+      },
+      "forbidden": [
+        "the run on a title hook",
+        "two runs in one 8 bar group",
+        "the run in parallel thirds on both pulses"
+      ],
+      "source": ["K20", "K22"]
+    },
+    {
+      "id": "KON-20",
+      "name": "Stop time break",
+      "family": "KON",
+      "when_to_use": "Boss transition, or the last bar before a loop restarts, to reset the ear.",
+      "params": {
+        "length": "1 bar",
+        "content": "DPCM kick on beats 1 and 3 only, everything else silent",
+        "return": "full riff plus organ arpeggio on the downbeat after",
+        "frequency": "once per 16 bars"
+      },
+      "forbidden": [
+        "a stop time break in the first 4 bars of a cue",
+        "silence longer than 1 bar",
+        "a break before a half cadence, which double stalls the loop"
+      ],
+      "source": ["K22", "K23"]
+    },
+    {
+      "id": "KON-21",
+      "name": "Boss tempo lift plus minor second pedal",
+      "family": "KON",
+      "when_to_use": "The boss version of a stage cue, when the two cues should sound related but not the same.",
+      "params": {
+        "tempo_delta_bpm": [8, 15],
+        "pedal": "tonic in the bass on eighths",
+        "pedal_neighbour": "flat second above the tonic as a sixteenth neighbour once per bar",
+        "riff": "same cell as the stage theme, register up an octave",
+        "drum": "kick doubled on the second sixteenth of each beat",
+        "metre": "keep 4/4 unless the boss cue is the odd metre exception"
+      },
+      "forbidden": [
+        "the flat second neighbour in every bar, which becomes the melody",
+        "a boss cue that shares the stage theme's full melody, which erases the difference",
+        "tempo lift above 155 bpm on a five channel arrangement"
+      ],
+      "source": ["K11", "K19", "K22"]
+    },
+    {
+      "id": "KON-22",
+      "name": "Four bar riff to hook, one change on repeat three",
+      "family": "KON",
+      "when_to_use": "The standard construction for any stage hook in this style.",
+      "params": {
+        "riff_bars": 4,
+        "seconds_at_129_bpm": 7.44,
+        "identifying_cell_bars": [1, 2],
+        "note_share_sixteenths": 0.76,
+        "leap": "one leap of a fourth or more at a fixed position in every repetition",
+        "wobble": "neighbour tone oscillation around one pitch, the measured most common interval pair",
+        "change_on_repeat": ["register", "duty", "last two sixteenths"],
+        "changes_per_pass": 1,
+        "loop_end": "sus4 dominant or half cadence"
+      },
+      "forbidden": [
+        "changing the identifying two bars on the third repetition",
+        "more than one variation per 7.4 s pass",
+        "ending the fourth bar on a full authentic cadence every pass"
+      ],
+      "source": ["K15", "K16", "K22"]
+    },
+    {
+      "id": "KON-23",
+      "name": "Half cadence loop ending",
+      "family": "KON",
+      "when_to_use": "Default ending for any loop, because the measured repertoire ends open far more often than closed.",
+      "params": {
+        "final_chord": "V or V sus4",
+        "share_reference": "half cadence 15.4 percent of measured phrases against authentic 3.4 percent",
+        "melody": "end on the second degree or the fifth, not the tonic",
+        "last_bar": "one beat of riff then the dominant held"
+      },
+      "forbidden": [
+        "a tonic final chord on a stage loop unless the cue is a one shot",
+        "ending on the tonic in the melody while the chord is the dominant, which fights the loop"
+      ],
+      "source": ["K22"]
+    },
+    {
+      "id": "KON-24",
+      "name": "Transposition ladder",
+      "family": "KON",
+      "when_to_use": "Boss escalation or the last 8 bars of a long stage theme, when the riff must climb without new material.",
+      "params": {
+        "step": "up a fourth or up a minor third",
+        "period_bars": 2,
+        "max_steps": 2,
+        "return": "back to the tonic for the final 2 bars",
+        "adjustment": "keep the riff inside a 45 semitone window"
+      },
+      "forbidden": [
+        "more than two ladder steps",
+        "transposing the bass and the melody by different intervals",
+        "a ladder in a 15 bar loop that has not yet stated the riff three times"
+      ],
+      "source": ["K23", "K16"]
+    },
+    {
+      "id": "KON-25",
+      "name": "Run and gun march kit",
+      "family": "KON",
+      "when_to_use": "Contra style stage cues: straight 4/4, snare backbeat, bass eighths, melody in the middle register.",
+      "params": {
+        "snare": "noise mid rate on beats 2 and 4",
+        "kick": "beats 1 and 3 plus the and of 3",
+        "hats": "noise eighths at low volume",
+        "bass": "root eighths on the triangle",
+        "melody": "steps and neighbour tones, leap share under 40 percent",
+        "key_preference": ["A minor", "C minor"],
+        "tempo_range_bpm": [126, 140]
+      },
+      "forbidden": [
+        "swing on the hats",
+        "snare on beat 3 only, which is the Castlevania pattern not the Contra one",
+        "fills longer than one beat in a 17 bar loop"
+      ],
+      "source": ["K8", "K10", "K22"]
+    },
+    {
+      "id": "KON-26",
+      "name": "Odd metre arpeggio wall",
+      "family": "KON",
+      "when_to_use": "The one boss cue per game that is allowed to break 4/4, following the Gradius boss lineage.",
+      "params": {
+        "metre": ["7/8", "5/4"],
+        "bars": [8, 16],
+        "content": "rising arpeggio on the pulses, pedal bass on every beat",
+        "mode_colour": "Lydian raised fourth for the space or dread colour",
+        "drums": "kick on 1 and 4, snare on the last beat of the bar",
+        "tempo_range_bpm": [138, 152]
+      },
+      "forbidden": [
+        "odd metre more than once per game",
+        "odd metre with a gallop cell, which loses the pulse",
+        "an odd metre cue under 8 bars, which cannot establish the metre"
+      ],
+      "source": ["K11"]
+    },
+    {
+      "id": "KON-27",
+      "name": "Stage clear fanfare under 4 bars",
+      "family": "KON",
+      "when_to_use": "Stage clear, all clear, item get, and the short one shots, which in the measured set are 1 to 4 bars.",
+      "params": {
+        "bars": [2, 4],
+        "shape": "rising arpeggio, dominant, tonic",
+        "channels": "pulse1 lead, pulse2 harmony, noise roll on the last beat",
+        "tempo_range_bpm": [150, 160],
+        "ending": "tonic, held, with the noise decay as the tail"
+      },
+      "forbidden": [
+        "a stage clear longer than 4 bars",
+        "a half cadence here, because these cues are the one place the style closes",
+        "drum kit beyond one roll"
+      ],
+      "source": ["K22"]
+    },
+    {
+      "id": "KON-28",
+      "name": "Duty change inside a note",
+      "family": "KON",
+      "when_to_use": "Human touch on any held note longer than a quarter, once per cue.",
+      "params": {
+        "change": "12.5 to 25 percent or the reverse",
+        "timing": "120 to 200 ms after the attack",
+        "applies_to": "notes of a quarter or longer",
+        "avoid": "the hook note and the cadence note"
+      },
+      "forbidden": [
+        "two duty changes inside one note",
+        "a duty change on a sixteenth, which is inaudible and costs engine time"
+      ],
+      "source": ["K14"]
+    },
+    {
+      "id": "KON-29",
+      "name": "One frame push on short notes",
+      "family": "KON",
+      "when_to_use": "Any gallop or sixteenth riff that sounds quantised after rendering.",
+      "params": {
+        "offset_ms": [-20, -10],
+        "applies_to": "the short notes of the gallop cell only",
+        "grid": "60 Hz frame, so the smallest legal step is 16.7 ms",
+        "long_notes": "unchanged"
+      },
+      "forbidden": [
+        "pushing the downbeat, which destroys the lock with the kick",
+        "pushing beyond one frame, which reads as a mistake rather than as drive"
+      ],
+      "source": ["K14", "K17"]
+    },
+    {
+      "id": "KON-30",
+      "name": "Layered loop with 1, 2 and 4 bar periods",
+      "family": "KON",
+      "when_to_use": "Any stage loop of 15 bars or more, so the piece never sounds identical across two passes.",
+      "params": {
+        "bass_period_bars": 1,
+        "harmony_period_bars": 2,
+        "melody_period_bars": 4,
+        "total_loop_bars": [8, 16],
+        "variation": "drop one of the three layers for 2 bars at bar 9, then restore it",
+        "reference": "short units recombined with nested loops across voices"
+      },
+      "forbidden": [
+        "all layers on the same period, which produces an audibly identical repeat",
+        "dropping the melody layer, which the ear hears as a gap rather than as variety",
+        "a loop longer than 16 bars without a new element at bar 9"
+      ],
+      "source": ["K23", "K22", "K24"]
+    }
+  ]
+}

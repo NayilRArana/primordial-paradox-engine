@@ -1,0 +1,15 @@
+{
+  "name": "spr_pp_ui_cursor",
+  "frame_w": 16,
+  "frame_h": 8,
+  "frames": 2,
+  "frames_detail": [
+    "arrow",
+    "blank (the off phase of the blink)"
+  ],
+  "fps": 2.0,
+  "colours": {
+    "arrow": 40
+  },
+  "rule": "one colour plus transparency; 1 sprite per scanline"
+}

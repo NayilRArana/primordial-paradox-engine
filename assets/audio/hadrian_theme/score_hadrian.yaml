@@ -1,0 +1,135 @@
+# Hadrian theme, cue hadrian_theme (MUS-HADRIAN). Composed for card MUS-HADRIAN 2026-10-22.
+# Hadrian Skye (Hades), the data centre CEO who has not seen sunlight: cold, precise, no warmth anywhere
+# except the Picardy third in the last four bars. Written in the schema of
+# assets\audio\title_theme_v3\score_v3.yaml so the same arranger and renderer can read it.
+# Durations are in eighth notes; a 4/4 bar holds 8. "X|Y" in a chord slot means X on beats 1 and 2,
+# Y on beats 3 and 4. Names after notes: A4 is concert A at 440 Hz. A sharp is written A#, a flat Ab.
+# r is a rest. Every melody bar must sum to 8 eighths, and tools\check_hadrian_score.py proves it.
+#
+# SCHEMA NOTE (one extension, because this cue has a second voice with its own notes): a section may
+# carry a "second_voice" block of 8 bars, read exactly like "melody", which the vrc6 pulse b plays.
+# score_v3.yaml expressed the equivalent thing (the third below the melody) in prose only. Everything
+# else here is v3 schema unchanged.
+meta:
+  # meta.profile selects the arranger's recipe set (tools/arrange.py). "hadrian"
+  # is the 4/4 cold-texture profile: hum, drone, beat-1 triangle, sparse hats.
+  profile: hadrian
+  key: D minor
+  time: 4/4
+  bpm: 92
+  loop_start_section: A
+  loop_end_section: close
+  form: "A 8 + A_fugue 8 (the middle 8, second entry of H in the fourth on pulse b) + A_second 8 + close 8 = 32 bars, about 83.5 s at 92 bpm; the whole 32 bars loop, last bar a D major tonic"
+  texture_family: "cold electronic: one repeated pitch as the server hum, a low saw drone, and silence used as an instrument"
+
+motifs:
+  # Identify these by ear. Each is at most one bar, and slightly less here: the bident is deliberately
+  # short so the silence around it is as loud as the notes.
+  H:  "Hadrian / Hades motif, the bident: two descending half steps, D5 C#5 then, a fourth lower, A4 G#4, with silence between the two prongs. Written here as D5 (quarter) C#5 (quarter) rest (quarter) A4 G#4 (eighths). Home key D minor."
+  H4: "H answered up a fourth, the fugue entry: G5 F#5 then D5 C#5, same rhythm, same silence. The second prong stays a fourth below the first, so it is the same shape, not a new one."
+  Hu: "H inverted, in the last four bars: D5 C#5 then up to D5 again, the half step rising. knowledge/music-styles/fox.md section 11.2 calls this the bident pointing up, the god form reveal; it doubles as the Picardy turn."
+  N:  "Neapolitan: Eb5 held over the Eb chord, then a semitone down to D5. One bar, once per 8 bar phrase (bars 7, 15, 23)."
+  P:  "Percy / Poseidon motif, quoted only as a refusal: it does not appear in this cue. Noted here so the arranger cannot mistake a rising minor arpeggio for Hadrian's material. The tide is his brother's, not his."
+
+sections:
+  A:
+    bars: 8
+    chords: [Dm, Bb, Gm, A7, Dm, Bb, Eb, A7]     # i, VI, iv, V7 four times; bar 7 is the Neapolitan bII
+    melody:
+      - [[D5, 2], [C#5, 2], [r, 2], [A4, 1], [G#4, 1]]   # H: the bident, stated plainly
+      - [[r, 8]]                                        # silence is the second instrument
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[D5, 2], [C#5, 2], [r, 2], [A4, 1], [G#4, 1]]   # H again, same pitch, no variation: he does not improvise
+      - [[r, 8]]
+      - [[Eb5, 4], [D5, 2], [r, 2]]                      # N over Eb, the semitone down to D
+      - [[A4, 8]]                                        # the dominant, held, no gesture
+    texture: "the machine at rest. pulse 2 runs the server hum: sixteenth notes on D4 (MIDI 62) for the whole section, duty 12.5 percent, level 4 of 15, no accent, no vibrato. vrc6 saw holds a low D drone (D3 then A2 under the A7 bars), one note per bar, level 5. triangle plays the bass root only on beat 1 of each bar, octave 2, level 6. noise hats in eighths, soft, on beats 1 and 3 only (four per bar, sparse), level 3. dpcm kick on beats 1 and 3, nothing else. pulse 1 rests for the whole cue. vrc6 pulse b rests here."
+
+  A_fugue:
+    bars: 8
+    chords: [Dm, Bb, Gm, A7, Dm, Gm, Eb, A7]
+    melody:
+      - [[D5, 2], [C#5, 2], [r, 2], [A4, 1], [G#4, 1]]   # H: the subject, bar 9, the card's check
+      - [[r, 8]]                                        # one bar episode, the fugue habit: subject, episode, answer
+      - [[r, 8]]                                        # the answer entry lands here on pulse b
+      - [[D5, 2], [C#5, 2], [r, 2], [A4, 1], [G#4, 1]]   # the subject returns after the answer
+      - [[r, 8]]
+      - [[r, 8]]                                        # the answer's return is on pulse b
+      - [[Eb5, 4], [D5, 2], [r, 2]]                      # N, bar 15
+      - [[A4, 8]]
+    second_voice:
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[G5, 2], [F#5, 2], [r, 2], [D5, 1], [C#5, 1]]   # H4: the fugue answer in the fourth, bar 11, over Gm
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[G5, 2], [F#5, 2], [r, 2], [D5, 1], [C#5, 1]]   # H4 again, bar 14, the answer's return
+      - [[r, 8]]
+      - [[r, 8]]
+    texture: "as A, plus the second entry: vrc6 pulse b plays H4 at level 9 with duty 50 percent, so the answer is the one slightly warmer voice in the cue, and it keeps the same silence between its prongs. The F# of the answer is a chromatic neighbour over Gm, never a sustained note. The saw drone moves to the chord root each bar (D3, Bb2, G2, A2). Hum unchanged, no accent anywhere, no vibrato anywhere."
+
+  A_second:
+    bars: 8
+    chords: [Dm, Bb, Gm, A7, Dm, Bb, Eb, A7]
+    melody:
+      - [[D5, 2], [C#5, 2], [r, 2], [A4, 1], [G#4, 1]]   # H
+      - [[r, 8]]
+      - [[r, 8]]                                        # pulse b answers again: the two of them, taking turns
+      - [[r, 8]]
+      - [[D5, 2], [C#5, 2], [r, 2], [A4, 1], [G#4, 1]]   # H
+      - [[r, 8]]
+      - [[Eb5, 4], [D5, 2], [r, 2]]                      # N, bar 23
+      - [[A4, 8]]
+    second_voice:
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[G5, 2], [F#5, 2], [r, 2], [D5, 1], [C#5, 1]]   # H4, bar 19
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[G5, 2], [F#5, 2], [r, 2], [D5, 1], [C#5, 1]]   # H4, bar 22
+      - [[r, 8]]
+      - [[r, 8]]
+    texture: "as A_fugue, with the hats thinned to beat 1 only from bar 17, and the triangle dropping to a whole note per bar. The texture gets sparser as the cue goes on, never louder: the cold does not build, it closes in."
+
+  close:
+    bars: 8
+    chords: [Dm, Bb, Gm, A7, D, Bb, A7, D]      # bars 29 to 32 are D major: the Picardy turn
+    melody:
+      - [[D5, 2], [C#5, 2], [r, 2], [A4, 1], [G#4, 1]]   # H for the last time in the minor
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[A4, 4], [r, 4]]                                # the dominant, then a whole beat of nothing before the turn
+      - [[D5, 2], [C#5, 2], [D5, 4]]                     # Hu: the half step rises, the bident points up, D major
+      - [[D5, 4], [F5, 4]]                               # the third of D major, warm for four eighths only
+      - [[E5, 4], [C#5, 4]]                              # A7: the last time the minor seventh is anywhere near
+      - [[D5, 8]]                                        # D major tonic, whole bar, and the loop starts again
+    second_voice:
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[r, 8]]
+      - [[r, 8]]                                        # the answer withdraws for the close
+    texture: "the same machine, one notch quieter: hum still sixteenths on D4 but level 3, hats on beat 1 only, kick on beats 1 and 3 unchanged (the pulse is what makes it a loop, not a piece). Bar 32 is the only bar with a sustained chord: the saw takes D major, D3 A3 D4 F#4, and it is the only time in 32 bars that a full triad sounds. Then it cuts, exactly on the bar line, so the loop seam is audible and dry."
+
+voices:
+  vrc6_pulse_a:   {role: "the melody, H and N only", duty: 0.25, vibrato: none}
+  vrc6_pulse_b:   {role: "H4, the fugue answer in the fourth (bars 11, 14, 19, 22); rests everywhere else", duty: 0.5, vibrato: none}
+  pulse_2:        {role: "the server hum: sixteenth notes on one pitch, MIDI 62, for all 32 bars, duty 0.125, no accent, no vibrato", duty: 0.125, vibrato: none}
+  vrc6_saw:       {role: "low drone on the chord root, one note per bar (D3, Bb2, G2, A2); the only full triad in the cue is bar 32", vibrato: none}
+  triangle:       {role: "bass root on beat 1 only in A, A_fugue and close; whole notes in A_second; octave 2", vibrato: none}
+  noise:          {role: "sparse closed hats in eighths on beats 1 and 3 (A, A_fugue), beat 1 only (A_second, close); no fills, no snare, no wash", vibrato: none}
+  dpcm:           {role: "kick on beats 1 and 3 of every bar, all 32 bars, identical every time; no snare, no tom", vibrato: none}
+  pulse_1:        {role: "silent for the whole cue, so the hum and the melody have room; duty 0.125 if it is ever used", duty: 0.125, vibrato: none}
+
+arrangement_notes:
+  - "Vibrato is off on every voice. The brief says no vibrato, and the cold read comes from exact rhythm, not from pitch movement."
+  - "Silence is written as rests on the lead, not as a shorter note: bars 2 to 4, 10 to 11, 13 to 14, 18 and 20 to 21 are empty on purpose."
+  - "The Neapolitan lands on the seventh bar of the three D minor phrases (bars 7, 15, 23). The fourth phrase (the close) spends its one chromatic move on the Picardy instead, so it is once per 8 bars throughout."
+  - "Every phrase is 8 bars and every 8 bar phrase begins with H. That is the whole form: eight bars, the bident, eight bars, the answer, eight bars, the bident, eight bars, the door opens onto D major."
+  - "The render target is a loop of the full 32 bars (83.5 s at 92 bpm). tools\\arrange.py is 3/4 only (module constants BAR = 6 * EIGHTH and SLOTS = 6, and the waltz recipes in build_arrangement_v3), so this 4/4 score cannot be arranged by it yet. See the card's Q."
+
+originality: "Melody, form, textures and the Picardy turn are new. Only technique is borrowed (fugue entry by fourth, Neapolitan, Picardy third, the bident cell from this project's own motif table), per PLAN-V2 section 0. No game music was transcribed or sampled."

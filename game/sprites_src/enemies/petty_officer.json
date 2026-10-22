@@ -1,0 +1,21 @@
+{
+  "name": "petty_officer",
+  "frame_w": 32,
+  "frame_h": 32,
+  "frames": 3,
+  "fps": 8.0,
+  "frame_names": [
+    "idle0",
+    "idle1",
+    "hit"
+  ],
+  "hit_frame": 2,
+  "palette": "sp0_navy_white",
+  "palette_entries": [
+    15,
+    2,
+    48
+  ],
+  "sprite": "spr_pp_petty_officer",
+  "note": "3 frames left to right: idle0, idle1, hit flash; transparent background"
+}

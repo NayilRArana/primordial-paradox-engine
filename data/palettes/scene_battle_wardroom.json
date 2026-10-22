@@ -1,0 +1,124 @@
+{
+  "format": 1,
+  "kind": "scene_palette",
+  "scene": "battle_wardroom",
+  "backdrop": 15,
+  "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
+  "notes": [
+    "written by tools/art/make_battle_bg.py for the BG-BATTLE card (t_1c5a8599); no scene_battle_*.json existed before this card, so this file defines the set in the format scene_ship.json uses",
+    "backdrop $0F black is the shared backdrop of all four battle strips",
+    "background palettes cover the 16x7 attribute cells of the strip, one palette per cell",
+    "wood panelling under a beamed deckhead with two lamps, three portholes, a laid table",
+    "bg0 the panelling, bg1 the beams, chairs and deck, bg2 the portholes at night, bg3 the linen and brass",
+    "the table is two rows: linen on top, the wooden apron in front, so it reads as a long table in perspective",
+    "sprite palettes are declared for the battle cast the scene draws; the strip itself draws no sprites"
+  ],
+  "background": [
+    {
+      "name": "bg0",
+      "colours": [
+        23,
+        7,
+        40
+      ],
+      "hex": [
+        "#e45c10",
+        "#881400",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "bg1",
+      "colours": [
+        8,
+        7,
+        23
+      ],
+      "hex": [
+        "#503000",
+        "#881400",
+        "#e45c10"
+      ]
+    },
+    {
+      "name": "bg2",
+      "colours": [
+        2,
+        1,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0000fc",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "bg3",
+      "colours": [
+        48,
+        16,
+        40
+      ],
+      "hex": [
+        "#fcfcfc",
+        "#bcbcbc",
+        "#f8b800"
+      ]
+    }
+  ],
+  "sprites": [
+    {
+      "name": "sp0",
+      "colours": [
+        0,
+        16,
+        15
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#000000"
+      ]
+    },
+    {
+      "name": "sp1",
+      "colours": [
+        7,
+        23,
+        40
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "sp2",
+      "colours": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "sp3",
+      "colours": [
+        8,
+        23,
+        48
+      ],
+      "hex": [
+        "#503000",
+        "#e45c10",
+        "#fcfcfc"
+      ]
+    }
+  ]
+}

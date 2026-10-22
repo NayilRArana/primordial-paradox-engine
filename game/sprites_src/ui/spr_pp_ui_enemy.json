@@ -1,0 +1,15 @@
+{
+  "name": "spr_pp_ui_enemy",
+  "frame_w": 32,
+  "frame_h": 32,
+  "frames": 1,
+  "frames_detail": [
+    "idle placeholder"
+  ],
+  "pixels": "32x32",
+  "colours": {
+    "edge": 48,
+    "body": 40
+  },
+  "rule": "32x32 is 4x4 tiles; 2 colours per tile"
+}

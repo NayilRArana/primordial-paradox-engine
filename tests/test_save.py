@@ -701,3 +701,33 @@ def test_a_counter_renamed_away_from_the_four_is_refused_by_name():
 def test_a_well_formed_save_shaped_document_passes_the_mirror():
     """The mirror must not refuse a good document, or every refusal above proves nothing."""
     assert save_document_errors(_save_document()) == []
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# 7. The container the writer and the reader have to agree on (added by the review, card t_edf0aafe)
+
+
+def test_the_file_starts_with_the_byte_count_the_reader_checks():
+    """The four byte count is the whole reason a cut file is a refusal and not a half parsed document.
+
+    Nothing else in this file reads the writer and the reader against each other, so without this
+    test the count could leave the write path and every other test would still pass: the game would
+    then write files its own reader refuses, which is the failure this pins. The count, the seek and
+    the comparison are asserted as the three parts of one agreement, and the slot ceiling is pinned
+    beside them because spec 11 numbers say a larger save is a clear error and never a truncation.
+    """
+    text = read_code(SAVE_GML)
+    write = function_body(text, "pp_save_write")
+    assert "buffer_write(_buf, buffer_u32, string_byte_length(_json))" in write, \
+        "the file no longer starts with the count of the text it holds"
+    assert "buffer_write(_buf, buffer_string, _json)" in write
+    assert "string_byte_length(_json) > PP_SAVE_BUFFER - 5" in write, \
+        "a document larger than the slot is not refused before it is written"
+
+    reader = function_body(text, "pp_save_payload_text")
+    assert "buffer_seek(_buf, buffer_seek_start, 0)" in reader, "the reader does not start at the count"
+    assert "buffer_read(_buf, buffer_u32)" in reader, "the reader does not read the count"
+    assert "buffer_read(_buf, buffer_string)" in reader
+    assert "string_byte_length(_text) != _size" in reader, \
+        "the reader does not compare the text it read with the count it was given"
+    assert "_size > PP_SAVE_BUFFER - 5" in reader, "a count larger than the slot is not refused"

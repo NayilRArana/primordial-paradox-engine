@@ -634,6 +634,11 @@ def generate(root: str) -> int:
         print("\n%d sprite(s) failed the palette check" % failures)
         return 1
     print("\nevery sprite uses at most 16 colours and every colour is an exact data/palette.json entry")
+    # The scene palette pass: the UI sprites are drawn in sprite palettes of three entries plus
+    # transparency, from data/palettes/scene_title.json. It runs here so a regenerated UI cannot leave
+    # the sheets outside the budget the rest of the title frame is held to.
+    import scene_palette
+    scene_palette.apply_title(root)
     return 0
 
 

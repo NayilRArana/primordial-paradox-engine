@@ -9,7 +9,7 @@
 /// The glyph set of spr_pp_font8, in the ASCII order the art lane uses: one frame per character.
 /// The set is the characters the game can write, and the sheet has exactly one frame for each of them.
 function pp_font_glyphs() {
-    return " !',-.0123456789:?ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    return " !'(),-.0123456789:?ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 }
 
 /// The frame number of one character, or -1 when the character is not in the sheet.

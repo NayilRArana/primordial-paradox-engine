@@ -1,0 +1,82 @@
+{
+  "name": "menu",
+  "windows": [
+    {
+      "name": "header",
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 3,
+      "style": "window"
+    },
+    {
+      "name": "party",
+      "x": 0,
+      "y": 3,
+      "w": 15,
+      "h": 17,
+      "style": "window"
+    },
+    {
+      "name": "items",
+      "x": 16,
+      "y": 3,
+      "w": 16,
+      "h": 17,
+      "style": "window"
+    },
+    {
+      "name": "save",
+      "x": 0,
+      "y": 20,
+      "w": 32,
+      "h": 10,
+      "style": "window"
+    }
+  ],
+  "bands": [],
+  "text": {
+    "header": "MENU",
+    "party": [
+      "KONRAD  L7",
+      "ZANDER  L5",
+      "PERCY   L6",
+      "HADRIAN L8"
+    ],
+    "party_hp": [
+      "HP 24",
+      "HP 18",
+      "HP 31",
+      "HP 21"
+    ],
+    "items": [
+      "POTION   3",
+      "ETHER    2",
+      "SICKLE   1",
+      "TRIDENT  1",
+      "MAP      1"
+    ],
+    "save": [
+      "SAVE GAME?",
+      "YES",
+      "NO"
+    ]
+  },
+  "cursors": [
+    {
+      "name": "save_yes",
+      "x": 2,
+      "y": 24
+    }
+  ],
+  "sprites": [
+    {
+      "x": 16,
+      "y": 192,
+      "w": 8,
+      "h": 8,
+      "role": "cursor",
+      "transparent": "#0000bc"
+    }
+  ]
+}

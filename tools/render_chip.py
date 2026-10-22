@@ -570,13 +570,21 @@ def dpcm_kick(count: int) -> np.ndarray:
 
 
 def dpcm_snare(count: int) -> np.ndarray:
-    """A short snare: a filtered noise burst with a fast decay."""
+    """A short snare: a filtered noise burst with a fast decay.
+
+    The high pass of white noise is unbounded, so it is normalised to its own
+    peak before it is mixed. Without that, the burst level depends on the
+    random draw and the drum track can leave full scale on its own.
+    """
     if count <= 0:
         return np.zeros(0, dtype=np.float64)
     times = np.arange(count) / SR
     noise = np.random.default_rng(20261021).standard_normal(count)
     # A one pole high pass, so the burst is bright like a snare and not a hiss.
     bright = np.diff(noise, prepend=0.0)
+    peak = float(np.abs(bright).max())
+    if peak > 0:
+        bright = bright / peak
     env = np.exp(-times / 0.035)
     body = 0.6 * np.sin(2.0 * np.pi * 190.0 * times) * np.exp(-times / 0.020)
     return (0.9 * bright * env + 0.3 * body)
@@ -874,6 +882,12 @@ def main(argv: list[str] | None = None) -> int:
                         help="keep the raw mix level instead of scaling the peak to the target")
     parser.add_argument("--force-v2", action="store_true",
                         help="use the version 2 voice path even for a four voice file")
+    parser.add_argument("--hook-report", nargs="?", const="", default=None,
+                        metavar="JSON",
+                        help="score the melody's memorability (optional JSON path)")
+    parser.add_argument("--humanize", action="store_true",
+                        help="render the chip legal humanization of the MIDI "
+                             "(written next to the WAV as <wav stem>_humanized.mid)")
     args = parser.parse_args(argv)
 
     wav_path = args.wav
@@ -889,7 +903,35 @@ def main(argv: list[str] | None = None) -> int:
         stem = os.path.splitext(wav_path)[0]
         loop_json_path = stem + "_loop.json"
 
-    report = render_file(args.midi, wav_path, args.loop_bars, mp3_path, loop_json_path,
+    midi_path = args.midi
+
+    if args.hook_report is not None:
+        import hook_score
+        hook = hook_score.score_file(midi_path)
+        print(hook_score.format_report(hook))
+        if args.hook_report:
+            directory = os.path.dirname(os.path.abspath(args.hook_report))
+            if directory:
+                os.makedirs(directory, exist_ok=True)
+            with open(args.hook_report, "w", encoding="utf-8", newline="\n") as handle:
+                json.dump(hook, handle, indent=2, sort_keys=True)
+                handle.write("\n")
+
+    if args.humanize:
+        import humanize
+        with open(midi_path, "rb") as handle:
+            source_bytes = handle.read()
+        human_bytes, human_report = humanize.humanize_bytes(source_bytes, name=midi_path)
+        human_path = os.path.splitext(wav_path)[0] + "_humanized.mid"
+        directory = os.path.dirname(os.path.abspath(human_path))
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+        with open(human_path, "wb") as handle:
+            handle.write(human_bytes)
+        print(humanize.format_report(human_report))
+        midi_path = human_path
+
+    report = render_file(midi_path, wav_path, args.loop_bars, mp3_path, loop_json_path,
                          normalize=not args.no_normalize, force_v2=args.force_v2)
 
     print("render_chip: %s -> %s" % (os.path.basename(args.midi), wav_path))

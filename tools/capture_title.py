@@ -156,6 +156,18 @@ INTRO_TIMES = (1.0, 4.0, 8.0, 14.0)
 INTRO_MIN_DIFF = 0.001
 INTRO_START_TIMEOUT_S = 12.0
 INTRO_NUDGE_S = 4.0
+# The nes check on a grabbed frame (card INTRO-1). A window copy is only a frame of the game when it carries the
+# game's own 3x viewport, and the only honest test of that is the NES palette test: the box inside the capture whose
+# pixels are all legal 2C02 colours, found by the same search record_viewport and nes_composite_check.py --crop auto
+# run. Measured on this PC: a real window capture of the title scores 0.986 (the rest is desktop scaling blend, see
+# DEVLOG), and a copy of a terminal or of the desktop scores 0.000. The gate sits between the two.
+INTRO_VIEWPORT_MIN_SCORE = 0.90
+# A grab that fails the nes check is retried after the window is raised again: the first pass's frames were the
+# terminal because SetForegroundWindow was refused, so the raise is retried rather than trusted once.
+INTRO_GRAB_ATTEMPTS = 3
+# How long before a target time the copy is started, so the BitBlt lands on the target and not a PowerShell spawn
+# after it. It is replaced by the measured cost of the first copy as the run goes on.
+INTRO_COPY_LEAD_S = 0.25
 # The band the title logo occupies inside the window screenshot: the viewport sits at (8, 31) at 3x, and the
 # logo fills most of the top third of the 256x240 frame. Fewer than this many grey pixels there means the intro
 # has begun, because the intro shot never draws the logo.
@@ -1706,6 +1718,39 @@ def run_ship_capture():
             pass
 
 
+def intro_probe_capture(hwnd, out_path):
+    """Copy the window rectangle quickly, for the start probe only. PIL first: a probe has to be cheap."""
+    rect = get_window_rect(hwnd)
+    if rect is None:
+        return None, "the window has no rectangle, cannot capture"
+    ok, note = capture_with_pil(rect, out_path)
+    if not ok:
+        ok, note = capture(rect, out_path)
+    if not ok:
+        return None, "capture failed: %s" % note
+    return rect, note
+
+
+def viewport_box_and_score(path):
+    """The 3x viewport inside a window capture, as (box, score, note).
+
+    This is the nes check card INTRO-1 asks for before a frame is saved: the same search record_viewport and
+    nes_composite_check.py --crop auto run, so a copy is only accepted when the box inside it is made of legal 2C02
+    colours. A copy of a terminal, of the desktop or of a covered window finds no such box and returns score 0.0.
+    """
+    try:
+        from PIL import Image  # imported here so the other captures never pay for it
+        sys.path.insert(0, TOOLS_DIR)
+        import nes_composite_check as ncc
+        palette = ncc.load_palette(ncc.default_palette_path(ROOT))
+        with Image.open(path) as handle:
+            image = handle.convert("RGBA")
+        found = ncc.find_viewport(image, palette["allowed"])
+        return list(found["box"]), float(found["score"]), "a 3x viewport at %s" % list(found["box"])
+    except Exception as error:  # gate: ok A copy with no legal viewport is reported, never guessed at
+        return None, 0.0, str(error).split(";")[0]
+
+
 def logo_grey_pixels(path):
     """Count the grey pixels in the band the title logo occupies, inside a window screenshot.
 
@@ -1729,28 +1774,114 @@ def logo_grey_pixels(path):
     return total
 
 
-def press_until_intro(hwnd, attempts=8, gap=1.2):
-    """Press Enter until the title logo leaves the frame, then return that time; None if it never goes.
+def press_until_intro(hwnd, attempts=TITLE_INTRO_PRESS_CAP, gap=1.2):
+    """Press Enter while the title card is still on screen, and return the time the intro started.
 
-    Two fixed presses are not enough: the title's opening shot can eat the first one and the menu the second,
-    which is exactly what put the first pass's t=1 s frame on the title card. Watching for the logo to go is
-    proof the intro really started, so the four capture times hang off a frame instead of off a stopwatch.
+    Enter is the confirm key (game/scripts/pp_input/pp_input.gml: confirm is Z, space and vk_enter). On the intro a
+    confirm FINISHES the crawl (game/scripts/pp_title/pp_title.gml, pp_title_step_intro: menu, cancel or confirm jump
+    the crawl to its end), so a press sent after the intro has begun would destroy the frames this capture exists to
+    prove. The loop therefore probes first and presses only while the title logo is still in the frame, and it
+    returns None when the logo never goes.
     """
     probe = os.path.join(BUILD_DIR, "_intro_probe.png")
     deadline = time.time() + attempts * gap + 6.0
+    presses = 0
+    next_press_at = 0.0
     while time.time() < deadline:
-        print("enter %s" % send_vk(hwnd, VK_RETURN))
-        pressed = time.time()
-        while time.time() - pressed < gap:
-            rect, written, note = capture_window(hwnd, probe)
-            if written is not None:
-                grey = logo_grey_pixels(probe)
-                if grey is not None and grey < LOGO_GONE_PIXELS:
-                    discard(probe)
-                    return time.time()
+        rect, _note = intro_probe_capture(hwnd, probe)
+        if rect is None:
+            ensure_key_focus(hwnd, attempts=3, settle=0.2)
             time.sleep(0.2)
+            continue
+        grey = logo_grey_pixels(probe)
+        if grey is None:
+            discard(probe)
+            return None
+        if grey < LOGO_GONE_PIXELS:
+            # The logo has gone. Believe it only when the copy is the game's own screen: a window that slipped over
+            # the game would also lose the logo band, and that mistake is what the first pass saved as four frames.
+            box, score, why = viewport_box_and_score(probe)
+            if box is not None and score >= INTRO_VIEWPORT_MIN_SCORE:
+                discard(probe)
+                return time.time()
+            print("the logo is gone but the copy is not the game (%s, score %.3f), raising the window" % (why, score))
+            ensure_key_focus(hwnd, attempts=3, settle=0.2)
+            time.sleep(0.15)
+            continue
+        if time.time() >= next_press_at:
+            if presses >= attempts:
+                break
+            presses += 1
+            # A press is only ever sent on a frame where the title card was just measured to be up, so it cannot
+            # land on the intro.
+            print("enter %d %s" % (presses, send_vk(hwnd, VK_RETURN)))
+            next_press_at = time.time() + gap
+        time.sleep(0.15)
     discard(probe)
     return None
+
+
+def copy_rect_verified(rect, out_path):
+    """Copy the window rectangle and return (box, score, route, cost), keeping only a copy that is the game.
+
+    The PowerShell CopyFromScreen helper is the method DEVLOG records as working on this PC, but a fresh PowerShell
+    with System.Drawing costs about 6 s a frame here (tools/measure_title_scroll.py measured 7.5 s), which makes a
+    timed capture of a 14 s cutscene impossible: the first pass of this card copied at 6.8, 13.2, 17.7 and 21.8 s
+    for targets of 1, 4, 8 and 14 s. PIL's ImageGrab is the same BitBlt through an already loaded library, so it is
+    tried first; the nes check decides whether its copy is the game, and PowerShell stays the fallback when it is not.
+    """
+    before = time.time()
+    ok, note = capture_with_pil(rect, out_path)
+    cost = time.time() - before
+    if ok:
+        box, score, why = viewport_box_and_score(out_path)
+        if box is not None and score >= INTRO_VIEWPORT_MIN_SCORE:
+            return box, score, "PIL", cost
+    else:
+        why = note
+    discard(out_path)
+    before = time.time()
+    ok, note = capture_with_powershell(rect, out_path)
+    cost = time.time() - before
+    if not ok:
+        return None, 0.0, "PIL: %s; powershell: %s" % (why, note), cost
+    box, score, powershell_why = viewport_box_and_score(out_path)
+    if box is not None and score >= INTRO_VIEWPORT_MIN_SCORE:
+        return box, score, "powershell", cost
+    discard(out_path)
+    return None, score, "PIL: %s; powershell: %s" % (why, powershell_why), cost
+
+
+def capture_intro_frame(hwnd, out_path, target, started, lead=INTRO_COPY_LEAD_S):
+    """Copy the game window at target seconds into the intro, keeping the copy only if the nes check passes.
+
+    Every grab raises the window with SetForegroundWindow first, because a refused raise is exactly what put the
+    terminal in the previous pass's four frames. The copy is then tested with the same search
+    nes_composite_check.py --crop auto runs: the frame must hold the game's own 3x viewport made of legal 2C02
+    colours. A rejected copy is deleted and tried again instead of being saved as if it were a frame.
+
+    Returns (rect, box, score, route, taken_at, cost) or (None, None, 0.0, note, taken_at, lead).
+    """
+    last = "not attempted"
+    for _attempt in range(INTRO_GRAB_ATTEMPTS):
+        ok, focus_note = ensure_key_focus(hwnd, attempts=3, settle=0.15)
+        if not ok:
+            print("could not raise the game window for the frame at t=%.0f s: %s" % (target, focus_note))
+        # The copy costs a few milliseconds through PIL and about six seconds through PowerShell, so it is started
+        # early by the measured cost of the previous one: the copy then lands on the card's timestamp.
+        remaining = started + target - lead - time.time()
+        if remaining > 0:
+            time.sleep(remaining)
+        rect = get_window_rect(hwnd)
+        if rect is None:
+            last = "the window has no rectangle, cannot capture"
+            continue
+        box, score, route, cost = copy_rect_verified(rect, out_path)
+        if box is not None:
+            return rect, box, score, route, time.time(), cost
+        last = "no legal 3x NES viewport in the copy (%s, score %.3f), so it is not the game" % (route, score)
+        print("frame at t=%.0f s rejected: %s" % (target, last))
+    return None, None, 0.0, last, time.time(), lead
 
 
 def wait_for_intro_start(log_path, hwnd, timeout_s=INTRO_START_TIMEOUT_S):
@@ -1809,6 +1940,7 @@ def run_intro_capture():
         stderr=subprocess.STDOUT,
     )
     start_watchdog(process, WATCHDOG_S)
+    hwnd = None
     try:
         match = find_window(
             lambda hwnd, pid, title, visible, rect: visible
@@ -1824,9 +1956,20 @@ def run_intro_capture():
         if image_name.lower() != GAME_EXE_NAME.lower():
             print("the window belongs to %r, not to %s" % (image_name, GAME_EXE_NAME))
             return 1
-        print("game window found: %s (hwnd %s)" % (match[2], hwnd))
+        print("game window found: %s (hwnd %s), process image %s" % (match[2], hwnd, image_name))
 
         time.sleep(GAME_SETTLE_S + INTRO_OPEN_WAIT_S)
+        # Card INTRO-1, the fix: the first pass's four frames were the terminal, because the copy was taken from the
+        # screen while another window sat on the game. The window is raised once here and held topmost for the whole
+        # shot, so nothing can land in the rectangle the copies are read from.
+        focused, focus_note = ensure_key_focus(hwnd)
+        print("keyboard focus: %s" % focus_note)
+        if not focused:
+            print("the game never took the keyboard focus, so the intro cannot be started")
+            return 1
+        hold_on_top(hwnd)
+        print("the game window is held topmost until the last frame is copied")
+
         # Press until the title logo leaves the frame: that frame is the intro's first step, and it is the only
         # honest start time. The game's own log line is block buffered when stdout is a file, so it cannot be
         # read live, and a stopwatch started at the key press drifts whenever the title eats a press.
@@ -1838,21 +1981,24 @@ def run_intro_capture():
         time.sleep(INTRO_LEAD_S)
 
         frames = []
+        lead = INTRO_COPY_LEAD_S
         for index, target in enumerate(INTRO_TIMES, start=1):
-            remaining = started + target - time.time()
-            if remaining > 0:
-                time.sleep(remaining)
             out_path = os.path.join(OUTPUT_DIR, "intro_%d.png" % index)
-            rect, written, note = capture_window(hwnd, out_path)
-            if rect is None or written is None:
-                print("intro capture %d failed: %s" % (index, note))
+            rect, box, score, route, taken, cost = capture_intro_frame(hwnd, out_path, target, started, lead)
+            # The next copy is started early by what this one cost, so its BitBlt lands on the card's time.
+            lead = max(0.05, cost)
+            if rect is None:
+                print("intro capture %d failed: %s" % (index, route))
                 return 1
             real, why = frame_is_real(out_path)
             if not real:
                 print("intro capture %d rejected: %s" % (index, why))
                 discard(out_path)
                 return 1
-            print("captured %s at t=%.1f s %sx%s (%s)" % (out_path, target, rect[2], rect[3], why))
+            # The viewport sidecar, so the audit and the manager read the box instead of searching a second time.
+            record_viewport(out_path, 3)
+            print("captured %s at t=%.1f s (copy at %.2f s) %sx%s via %s, nes score %.3f, viewport %s"
+                  % (out_path, target, taken - started, rect[2], rect[3], route, score, box))
             frames.append(out_path)
 
         close_window(hwnd)
@@ -1903,6 +2049,10 @@ def run_intro_capture():
             print(path)
         return 0
     finally:
+        # The topmost flag is given back whether the run worked or not, so the game window never stays pinned over
+        # the desktop after the harness ends.
+        if hwnd is not None:
+            release_on_top(hwnd)
         kill_tree(process)
         try:
             game_log.close()

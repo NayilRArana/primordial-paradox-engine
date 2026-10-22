@@ -1,0 +1,359 @@
+{
+  "dissonance": {
+    "anchors_kept": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      11,
+      12,
+      13
+    ],
+    "applied_count": 12,
+    "devices_per_8_bars": 1.85,
+    "dropped_count": 0,
+    "min_spacing_ok": true,
+    "moments": [
+      {
+        "applied": true,
+        "bar": 7,
+        "beat": 2.0,
+        "device": "DIS-02",
+        "note": "chromatic lower neighbour in the counter, over Am",
+        "pitch_after": 59,
+        "pitch_before": 60,
+        "resolution_semitones": 1,
+        "resolves_to": 60,
+        "risk": 1,
+        "section": "A",
+        "voice": "vrc6 pulse b"
+      },
+      {
+        "applied": true,
+        "bar": 11,
+        "beat": 2.0,
+        "device": "DIS-17",
+        "note": "flat six over the E7b9, falling to the fifth",
+        "pitch_after": 51,
+        "pitch_before": 50,
+        "resolution_semitones": -1,
+        "resolves_to": 50,
+        "risk": 1,
+        "section": "A",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 14,
+        "beat": 2.5,
+        "device": "DIS-07",
+        "note": "accented passing tone on beat 2 over E7",
+        "pitch_after": 78,
+        "pitch_before": 77,
+        "resolution_semitones": -1,
+        "resolves_to": 77,
+        "risk": 2,
+        "section": "A_prime",
+        "voice": "vrc6 pulse b"
+      },
+      {
+        "applied": true,
+        "bar": 20,
+        "beat": 1.0,
+        "device": "DIS-03",
+        "note": "appoggiatura on the arpeggio at the cadence",
+        "pitch_after": 65,
+        "pitch_before": 57,
+        "resolution_semitones": -1,
+        "resolves_to": 64,
+        "risk": 2,
+        "section": "A_prime",
+        "voice": "pulse 1"
+      },
+      {
+        "applied": true,
+        "bar": 25,
+        "beat": 2.5,
+        "device": "DIS-02",
+        "note": "chromatic lower neighbour in the arpeggio over F",
+        "pitch_after": 64,
+        "pitch_before": 60,
+        "resolution_semitones": 1,
+        "resolves_to": 65,
+        "risk": 1,
+        "section": "B",
+        "voice": "pulse 1"
+      },
+      {
+        "applied": true,
+        "bar": 27,
+        "beat": 1.0,
+        "device": "DIS-11",
+        "note": "flat nine in the E7 pad, released on the next bar line",
+        "pitch_after": 53,
+        "pitch_before": 50,
+        "resolution_semitones": -3,
+        "resolves_to": 50,
+        "risk": 3,
+        "section": "B",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 31,
+        "beat": 2.0,
+        "device": "DIS-02",
+        "note": "chromatic lower neighbour in the arpeggio over C",
+        "pitch_after": 66,
+        "pitch_before": 64,
+        "resolution_semitones": 1,
+        "resolves_to": 67,
+        "risk": 1,
+        "section": "B_prime",
+        "voice": "pulse 1"
+      },
+      {
+        "applied": true,
+        "bar": 35,
+        "beat": 1.0,
+        "device": "DIS-11",
+        "note": "flat nine again, eight bars later",
+        "pitch_after": 53,
+        "pitch_before": 50,
+        "resolution_semitones": -3,
+        "resolves_to": 50,
+        "risk": 3,
+        "section": "B_prime",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 39,
+        "beat": 2.0,
+        "device": "DIS-07",
+        "note": "passing tone over B7b9, the D against D sharp",
+        "pitch_after": 49,
+        "pitch_before": 51,
+        "resolution_semitones": 2,
+        "resolves_to": 51,
+        "risk": 2,
+        "section": "C_trio",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 42,
+        "beat": 1.0,
+        "device": "DIS-03",
+        "note": "appoggiatura over the D minor bar of the cold half",
+        "pitch_after": 70,
+        "pitch_before": 74,
+        "resolution_semitones": -1,
+        "resolves_to": 69,
+        "risk": 2,
+        "section": "C_trio",
+        "voice": "pulse 1"
+      },
+      {
+        "applied": true,
+        "bar": 47,
+        "beat": 2.0,
+        "device": "DIS-02",
+        "note": "lower neighbour in the return of the theme",
+        "pitch_after": 47,
+        "pitch_before": 48,
+        "resolution_semitones": 1,
+        "resolves_to": 48,
+        "risk": 1,
+        "section": "A_return",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 51,
+        "beat": 3.0,
+        "device": "DIS-18",
+        "note": "echo clash on the way back to the loop",
+        "pitch_after": 73,
+        "pitch_before": 74,
+        "resolution_semitones": -1,
+        "resolves_to": 72,
+        "risk": 3,
+        "section": "A_return",
+        "voice": "pulse 2"
+      }
+    ],
+    "policy_devices_per_8_bars": [
+      1.0,
+      2.0
+    ],
+    "policy_min_spacing_beats": 2.0,
+    "policy_risk_3_min_gap_bars": 4.0,
+    "risk_3_count": 3,
+    "risk_3_min_gap_bars": 8,
+    "risk_3_spacing_ok": true,
+    "variant": "spicy"
+  },
+  "drum_cycle_bars": {
+    "A": 4,
+    "A_prime": 4,
+    "A_return": 8,
+    "B": 4,
+    "B_prime": 4,
+    "C_trio": 8
+  },
+  "drum_hits": {
+    "dpcm": 103,
+    "noise": 106
+  },
+  "drum_ladder": {
+    "A": {
+      "bars": [
+        5,
+        12
+      ],
+      "cycle": [
+        "0:k,2:h,4:s,5:g",
+        "0:k,2:h,3:g,4:s",
+        "0:k,2:o,4:s",
+        "0:k,2:h,3:r,4:g,5:r"
+      ],
+      "hits": 32
+    },
+    "A_prime": {
+      "bars": [
+        13,
+        20
+      ],
+      "cycle": [
+        "0:k,1.5:g,2:h,4:h",
+        "0:k,2:h,4:h,5:g",
+        "0:k,2:o,4:h",
+        "0:k,2:h,3:r,4:s,5:r"
+      ],
+      "hits": 32
+    },
+    "A_return": {
+      "bars": [
+        45,
+        52
+      ],
+      "cycle": [
+        "0:k,1.5:g,2:h,4:s,5:g",
+        "0:k,2:h,3:g,4:s",
+        "0:k,2:o,4:s,5:g",
+        "0:k,2:h,3:r,4:s,4.5:r,5:r",
+        "0:k,1.5:g,2:h,4:s",
+        "0.0:k,1.5:g,2.0:h,4.0:s"
+      ],
+      "hits": 35
+    },
+    "B": {
+      "bars": [
+        21,
+        28
+      ],
+      "cycle": [
+        "0:k,0:h,2:g,3:h,4:s",
+        "0:k,1.5:g,2:h,4:s",
+        "0:k,2:h,4:s,5:g",
+        "0:k,3:r,3.5:r,4:r,5:s"
+      ],
+      "hits": 36
+    },
+    "B_prime": {
+      "bars": [
+        29,
+        36
+      ],
+      "cycle": [
+        "0:k,1.5:g,2:h,4:s,5:g",
+        "0:k,2:h,3:g,4:s",
+        "0:k,2:o,4:s,5:g",
+        "0:k,2:h,3:r,4:s,4.5:r,5:r"
+      ],
+      "hits": 38
+    },
+    "C_trio": {
+      "bars": [
+        37,
+        44
+      ],
+      "cycle": [
+        "0:k,1:g,2:t,4:t",
+        "0:k,1:g,2:t,3:g,4:t",
+        "0:k,2:t,2.5:g,4:t",
+        "0:k,1:g,2:t,4:t,5:g",
+        "0:k,0:w,2:w,3:g,4:w",
+        "0:k,0:w,2:w,4:w",
+        "0:k,0:w,2:g,4:w",
+        "0:k,0:w,2:w,4:w,5:g"
+      ],
+      "hits": 36
+    }
+  },
+  "out_midi": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_spicy_spice.mid",
+  "score": "<repo>\\assets\\audio\\title_theme_v4\\score_v4.yaml",
+  "seed": 20261021,
+  "source_midi": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_base.mid",
+  "timing_feel_ticks": {
+    "g": [
+      -1,
+      5
+    ],
+    "h": [
+      -2,
+      4
+    ],
+    "k": [
+      -2,
+      3
+    ],
+    "o": [
+      -1,
+      4
+    ],
+    "r": [
+      0,
+      5
+    ],
+    "s": [
+      -2,
+      4
+    ],
+    "t": [
+      0,
+      3
+    ],
+    "w": [
+      0,
+      0
+    ]
+  },
+  "variant": "spicy",
+  "velocity_jitter": {
+    "g": 3,
+    "h": 4,
+    "k": 3,
+    "o": 4,
+    "r": 3,
+    "s": 3,
+    "t": 3,
+    "w": 3
+  },
+  "voice_dropout": {
+    "applied": true,
+    "bars": [
+      45,
+      48
+    ],
+    "notes_dropped": 24,
+    "section": "A_return"
+  }
+}

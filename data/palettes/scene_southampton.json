@@ -1,0 +1,124 @@
+{
+  "format": 1,
+  "kind": "scene_palette",
+  "scene": "southampton",
+  "backdrop": 15,
+  "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
+  "background": [
+    {
+      "name": "bg0",
+      "palette": "bg0_stone",
+      "colours": [
+        0,
+        16,
+        48
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "bg1",
+      "palette": "bg1_brick",
+      "colours": [
+        7,
+        23,
+        40
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "bg2",
+      "palette": "bg2_green",
+      "colours": [
+        9,
+        10,
+        42
+      ],
+      "hex": [
+        "#007800",
+        "#006800",
+        "#58d854"
+      ]
+    },
+    {
+      "name": "bg3",
+      "palette": "bg3_water",
+      "colours": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ]
+    }
+  ],
+  "sprites": [
+    {
+      "name": "sp0",
+      "colours": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#000000",
+        "#bcbcbc"
+      ]
+    },
+    {
+      "name": "sp1",
+      "colours": [
+        7,
+        23,
+        40
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "sp2",
+      "colours": [
+        9,
+        10,
+        42
+      ],
+      "hex": [
+        "#007800",
+        "#006800",
+        "#58d854"
+      ]
+    },
+    {
+      "name": "sp3",
+      "colours": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ]
+    }
+  ],
+  "notes": [
+    "written by tools/art/make_exterior_maps.py because no NES-PALETTES scene file existed for this tileset; same format as data/palettes/scene_ship.json",
+    "background palettes are the 4 groups the scene map actually spends, in tileset order",
+    "sprite palettes carry no art in this card: they are the same entries as the background set, reserved for the CHAR lane so a character cannot add a 14th colour to the frame"
+  ]
+}

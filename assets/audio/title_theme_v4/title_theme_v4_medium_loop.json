@@ -1,0 +1,562 @@
+{
+  "source_midi": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_medium.mid",
+  "sample_rate": 44100,
+  "channels": 1,
+  "bit_depth": 16,
+  "bpm": 126.0001,
+  "beats_per_bar": 3,
+  "time_signature": "3/4",
+  "voice_map": {
+    "vrc6_pulse_a": "vrc6 pulse a",
+    "vrc6_pulse_b": "vrc6 pulse b",
+    "vrc6_saw": "vrc6 saw",
+    "pulse1": "pulse 1",
+    "pulse2": "pulse 2",
+    "triangle": "triangle",
+    "noise": "noise",
+    "dpcm": "dpcm"
+  },
+  "source_duration_seconds": 74.266791,
+  "source_samples": 3275166,
+  "renderer": "v2",
+  "loop_bars": null,
+  "loop_seconds": 74.266803,
+  "loop_start_sample": 0,
+  "loop_end_sample": 3275166,
+  "fade_ms": 5.0,
+  "fade_samples": 220,
+  "fade_shape": "raised_cosine",
+  "peak_before_normalize": 0.999725,
+  "limiter": "soft (knee 0.80)",
+  "peak_target_dbfs": -1.0,
+  "voice_gains": {
+    "dpcm": 0.55,
+    "noise": 0.25,
+    "pulse1": 0.35,
+    "pulse2": 0.3,
+    "triangle": 0.45,
+    "vrc6_pulse_a": 0.32,
+    "vrc6_pulse_b": 0.3,
+    "vrc6_saw": 0.34
+  },
+  "duration_seconds": 74.266803,
+  "samples": 3275166,
+  "peak": 29203,
+  "peak_dbfs": -1.0,
+  "rms": 4578.821,
+  "rms_dbfs": -17.09,
+  "loop_seam_sample_difference": 0,
+  "loop_edge_window_ms": 1,
+  "loop_edge_peak_head": 128,
+  "loop_edge_peak_tail": 0,
+  "loop_edge_max_jump": 8,
+  "wav": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_medium.wav",
+  "mp3": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_medium.mp3",
+  "mp3_bitrate": "192k",
+  "loop": {
+    "loop_start_section": "A",
+    "loop_end_section": "A_return",
+    "loop_start_bar": 5,
+    "loop_start_sample": 252000,
+    "loop_start_seconds": 5.714286,
+    "loop_end_bar": 52,
+    "loop_end_sample": 3275166,
+    "loop_bars": 48,
+    "loop_seconds": 68.552517,
+    "wrap_step": 0,
+    "wrap_step_dbfs": -90.31,
+    "head_peak_dbfs": -9.26,
+    "tail_peak_dbfs": -59.43,
+    "edge_window_ms": 5
+  },
+  "per_voice": {
+    "dpcm": {
+      "notes": 89,
+      "peak_dbfs": -6.18,
+      "rms_dbfs": -30.91,
+      "clipping": false,
+      "silent": false
+    },
+    "noise": {
+      "notes": 88,
+      "peak_dbfs": -20.14,
+      "rms_dbfs": -35.64,
+      "clipping": false,
+      "silent": false
+    },
+    "pulse1": {
+      "notes": 288,
+      "peak_dbfs": -13.69,
+      "rms_dbfs": -33.87,
+      "clipping": false,
+      "silent": false
+    },
+    "pulse2": {
+      "notes": 97,
+      "peak_dbfs": -28.84,
+      "rms_dbfs": -49.14,
+      "clipping": false,
+      "silent": false
+    },
+    "triangle": {
+      "notes": 120,
+      "peak_dbfs": -9.59,
+      "rms_dbfs": -18.56,
+      "clipping": false,
+      "silent": false
+    },
+    "vrc6_pulse_a": {
+      "notes": 137,
+      "peak_dbfs": -12.9,
+      "rms_dbfs": -26.67,
+      "clipping": false,
+      "silent": false
+    },
+    "vrc6_pulse_b": {
+      "notes": 90,
+      "peak_dbfs": -16.39,
+      "rms_dbfs": -31.45,
+      "clipping": false,
+      "silent": false
+    },
+    "vrc6_saw": {
+      "notes": 157,
+      "peak_dbfs": -9.33,
+      "rms_dbfs": -24.89,
+      "clipping": false,
+      "silent": false
+    }
+  },
+  "fft_checks": {
+    "A_bar_1_kronos": {
+      "melody_voice": {
+        "measured_on": "vrc6_pulse_a rendered on its own",
+        "bar": 5,
+        "section": "A",
+        "notes": [
+          {
+            "note": "E5",
+            "midi_pitch": 76,
+            "slot": 0,
+            "length_eighths": 3,
+            "bar_number": 5,
+            "score_seconds": 5.714,
+            "window_seconds": 0.357,
+            "expected_hz": 659.26,
+            "found_hz": 659.18,
+            "cents_off": -0.19,
+            "within_1_percent": true
+          },
+          {
+            "note": "C5",
+            "midi_pitch": 72,
+            "slot": 3,
+            "length_eighths": 1,
+            "bar_number": 5,
+            "score_seconds": 6.429,
+            "window_seconds": 0.119,
+            "expected_hz": 523.25,
+            "found_hz": 522.83,
+            "cents_off": -1.4,
+            "within_1_percent": true
+          },
+          {
+            "note": "D5",
+            "midi_pitch": 74,
+            "slot": 4,
+            "length_eighths": 1,
+            "bar_number": 5,
+            "score_seconds": 6.667,
+            "window_seconds": 0.119,
+            "expected_hz": 587.33,
+            "found_hz": 587.49,
+            "cents_off": 0.46,
+            "within_1_percent": true
+          },
+          {
+            "note": "E5",
+            "midi_pitch": 76,
+            "slot": 5,
+            "length_eighths": 1,
+            "bar_number": 5,
+            "score_seconds": 6.905,
+            "window_seconds": 0.119,
+            "expected_hz": 659.26,
+            "found_hz": 659.16,
+            "cents_off": -0.24,
+            "within_1_percent": true
+          }
+        ],
+        "all_within_1_percent": true
+      },
+      "in_mix_broadband": {
+        "measured_on": "the full mix",
+        "bar": 5,
+        "section": "A",
+        "notes": [
+          {
+            "note": "E5",
+            "midi_pitch": 76,
+            "slot": 0,
+            "length_eighths": 3,
+            "bar_number": 5,
+            "score_seconds": 5.714,
+            "window_seconds": 0.357,
+            "expected_hz": 659.26,
+            "found_hz": 659.27,
+            "cents_off": 0.03,
+            "within_1_percent": true
+          },
+          {
+            "note": "C5",
+            "midi_pitch": 72,
+            "slot": 3,
+            "length_eighths": 1,
+            "bar_number": 5,
+            "score_seconds": 6.429,
+            "window_seconds": 0.119,
+            "expected_hz": 523.25,
+            "found_hz": 522.84,
+            "cents_off": -1.37,
+            "within_1_percent": true
+          },
+          {
+            "note": "D5",
+            "midi_pitch": 74,
+            "slot": 4,
+            "length_eighths": 1,
+            "bar_number": 5,
+            "score_seconds": 6.667,
+            "window_seconds": 0.119,
+            "expected_hz": 587.33,
+            "found_hz": 165.22,
+            "cents_off": -2195.69,
+            "within_1_percent": false
+          },
+          {
+            "note": "E5",
+            "midi_pitch": 76,
+            "slot": 5,
+            "length_eighths": 1,
+            "bar_number": 5,
+            "score_seconds": 6.905,
+            "window_seconds": 0.119,
+            "expected_hz": 659.26,
+            "found_hz": 1318.33,
+            "cents_off": 1199.77,
+            "within_1_percent": false
+          }
+        ],
+        "all_within_1_percent": false
+      },
+      "in_mix_melody_band": {
+        "measured_on": "the full mix, searched in 380 to 900 Hz",
+        "bar": 5,
+        "section": "A",
+        "notes": [
+          {
+            "note": "E5",
+            "midi_pitch": 76,
+            "slot": 0,
+            "length_eighths": 3,
+            "bar_number": 5,
+            "score_seconds": 5.714,
+            "window_seconds": 0.357,
+            "expected_hz": 659.26,
+            "found_hz": 659.27,
+            "cents_off": 0.03,
+            "within_1_percent": true
+          },
+          {
+            "note": "C5",
+            "midi_pitch": 72,
+            "slot": 3,
+            "length_eighths": 1,
+            "bar_number": 5,
+            "score_seconds": 6.429,
+            "window_seconds": 0.119,
+            "expected_hz": 523.25,
+            "found_hz": 522.84,
+            "cents_off": -1.37,
+            "within_1_percent": true
+          },
+          {
+            "note": "D5",
+            "midi_pitch": 74,
+            "slot": 4,
+            "length_eighths": 1,
+            "bar_number": 5,
+            "score_seconds": 6.667,
+            "window_seconds": 0.119,
+            "expected_hz": 587.33,
+            "found_hz": 587.51,
+            "cents_off": 0.53,
+            "within_1_percent": true
+          },
+          {
+            "note": "E5",
+            "midi_pitch": 76,
+            "slot": 5,
+            "length_eighths": 1,
+            "bar_number": 5,
+            "score_seconds": 6.905,
+            "window_seconds": 0.119,
+            "expected_hz": 659.26,
+            "found_hz": 658.41,
+            "cents_off": -2.23,
+            "within_1_percent": true
+          }
+        ],
+        "all_within_1_percent": true
+      }
+    },
+    "C_trio_bar_1_percy": {
+      "melody_voice": {
+        "measured_on": "vrc6_pulse_a rendered on its own",
+        "bar": 37,
+        "section": "C_trio",
+        "notes": [
+          {
+            "note": "E4",
+            "midi_pitch": 64,
+            "slot": 0,
+            "length_eighths": 2,
+            "bar_number": 37,
+            "score_seconds": 51.429,
+            "window_seconds": 0.238,
+            "expected_hz": 329.63,
+            "found_hz": 329.59,
+            "cents_off": -0.22,
+            "within_1_percent": true
+          },
+          {
+            "note": "G4",
+            "midi_pitch": 67,
+            "slot": 2,
+            "length_eighths": 2,
+            "bar_number": 37,
+            "score_seconds": 51.905,
+            "window_seconds": 0.238,
+            "expected_hz": 392.0,
+            "found_hz": 391.79,
+            "cents_off": -0.91,
+            "within_1_percent": true
+          },
+          {
+            "note": "B4",
+            "midi_pitch": 71,
+            "slot": 4,
+            "length_eighths": 2,
+            "bar_number": 37,
+            "score_seconds": 52.381,
+            "window_seconds": 0.238,
+            "expected_hz": 493.88,
+            "found_hz": 494.05,
+            "cents_off": 0.58,
+            "within_1_percent": true
+          }
+        ],
+        "all_within_1_percent": true
+      },
+      "in_mix_broadband": {
+        "measured_on": "the full mix",
+        "bar": 37,
+        "section": "C_trio",
+        "notes": [
+          {
+            "note": "E4",
+            "midi_pitch": 64,
+            "slot": 0,
+            "length_eighths": 2,
+            "bar_number": 37,
+            "score_seconds": 51.429,
+            "window_seconds": 0.238,
+            "expected_hz": 329.63,
+            "found_hz": 329.63,
+            "cents_off": 0.04,
+            "within_1_percent": true
+          },
+          {
+            "note": "G4",
+            "midi_pitch": 67,
+            "slot": 2,
+            "length_eighths": 2,
+            "bar_number": 37,
+            "score_seconds": 51.905,
+            "window_seconds": 0.238,
+            "expected_hz": 392.0,
+            "found_hz": 247.51,
+            "cents_off": -795.99,
+            "within_1_percent": false
+          },
+          {
+            "note": "B4",
+            "midi_pitch": 71,
+            "slot": 4,
+            "length_eighths": 2,
+            "bar_number": 37,
+            "score_seconds": 52.381,
+            "window_seconds": 0.238,
+            "expected_hz": 493.88,
+            "found_hz": 492.81,
+            "cents_off": -3.75,
+            "within_1_percent": true
+          }
+        ],
+        "all_within_1_percent": false
+      },
+      "in_mix_melody_band": {
+        "measured_on": "the full mix, searched in 380 to 900 Hz",
+        "bar": 37,
+        "section": "C_trio",
+        "notes": [
+          {
+            "note": "E4",
+            "midi_pitch": 64,
+            "slot": 0,
+            "length_eighths": 2,
+            "bar_number": 37,
+            "score_seconds": 51.429,
+            "window_seconds": 0.238,
+            "expected_hz": 329.63,
+            "found_hz": 493.91,
+            "cents_off": 700.1,
+            "within_1_percent": false
+          },
+          {
+            "note": "G4",
+            "midi_pitch": 67,
+            "slot": 2,
+            "length_eighths": 2,
+            "bar_number": 37,
+            "score_seconds": 51.905,
+            "window_seconds": 0.238,
+            "expected_hz": 392.0,
+            "found_hz": 391.75,
+            "cents_off": -1.08,
+            "within_1_percent": true
+          },
+          {
+            "note": "B4",
+            "midi_pitch": 71,
+            "slot": 4,
+            "length_eighths": 2,
+            "bar_number": 37,
+            "score_seconds": 52.381,
+            "window_seconds": 0.238,
+            "expected_hz": 493.88,
+            "found_hz": 492.81,
+            "cents_off": -3.75,
+            "within_1_percent": true
+          }
+        ],
+        "all_within_1_percent": false
+      }
+    },
+    "C_trio_bar_5_hadrian": {
+      "melody_voice": {
+        "measured_on": "vrc6_pulse_a rendered on its own",
+        "bar": 41,
+        "section": "C_trio",
+        "notes": [
+          {
+            "note": "D5",
+            "midi_pitch": 74,
+            "slot": 0,
+            "length_eighths": 2,
+            "bar_number": 41,
+            "score_seconds": 57.143,
+            "window_seconds": 0.238,
+            "expected_hz": 587.33,
+            "found_hz": 587.48,
+            "cents_off": 0.43,
+            "within_1_percent": true
+          },
+          {
+            "note": "C#5",
+            "midi_pitch": 73,
+            "slot": 2,
+            "length_eighths": 2,
+            "bar_number": 41,
+            "score_seconds": 57.619,
+            "window_seconds": 0.238,
+            "expected_hz": 554.37,
+            "found_hz": 554.37,
+            "cents_off": 0.02,
+            "within_1_percent": true
+          }
+        ],
+        "all_within_1_percent": true
+      },
+      "in_mix_broadband": {
+        "measured_on": "the full mix",
+        "bar": 41,
+        "section": "C_trio",
+        "notes": [
+          {
+            "note": "D5",
+            "midi_pitch": 74,
+            "slot": 0,
+            "length_eighths": 2,
+            "bar_number": 41,
+            "score_seconds": 57.143,
+            "window_seconds": 0.238,
+            "expected_hz": 587.33,
+            "found_hz": 185.03,
+            "cents_off": -1999.65,
+            "within_1_percent": false
+          },
+          {
+            "note": "C#5",
+            "midi_pitch": 73,
+            "slot": 2,
+            "length_eighths": 2,
+            "bar_number": 41,
+            "score_seconds": 57.619,
+            "window_seconds": 0.238,
+            "expected_hz": 554.37,
+            "found_hz": 554.3,
+            "cents_off": -0.2,
+            "within_1_percent": true
+          }
+        ],
+        "all_within_1_percent": false
+      },
+      "in_mix_melody_band": {
+        "measured_on": "the full mix, searched in 380 to 900 Hz",
+        "bar": 41,
+        "section": "C_trio",
+        "notes": [
+          {
+            "note": "D5",
+            "midi_pitch": 74,
+            "slot": 0,
+            "length_eighths": 2,
+            "bar_number": 41,
+            "score_seconds": 57.143,
+            "window_seconds": 0.238,
+            "expected_hz": 587.33,
+            "found_hz": 587.81,
+            "cents_off": 1.42,
+            "within_1_percent": true
+          },
+          {
+            "note": "C#5",
+            "midi_pitch": 73,
+            "slot": 2,
+            "length_eighths": 2,
+            "bar_number": 41,
+            "score_seconds": 57.619,
+            "window_seconds": 0.238,
+            "expected_hz": 554.37,
+            "found_hz": 554.3,
+            "cents_off": -0.2,
+            "within_1_percent": true
+          }
+        ],
+        "all_within_1_percent": true
+      }
+    }
+  },
+  "ogg": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_medium.ogg"
+}

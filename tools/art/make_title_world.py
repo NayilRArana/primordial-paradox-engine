@@ -18,7 +18,7 @@ What this writes, all deterministic (no clock, no window, no network):
   game\\sprites_src\\title\\title_L5_verge.png   512x92,  1 frame (hedge, dry stone wall, poles)
   game\\sprites_src\\title\\title_L6_road.png    512x44,  1 frame (tarmac, lane markings)
   game\\sprites_src\\title\\title_L7_fg.png      512x44,  1 frame (foreground grass and fence posts)
-  game\\sprites_src\\title\\spr_title_sign.png   96x24,  4 frames (SOUTHAMPTON 31, 22, 13, 4 MILES)
+  game\\sprites_src\\title\\spr_title_sign.png   96x24,  4 frames (Basingstoke and Winchester over Southampton 55, 43, 30, 20)
   game\\sprites_src\\title\\spr_title_cone.png   90x40,  1 frame (headlight cone overlay)
   game\\sprites_src\\title\\title_BG_bigben.png  256x240, 1 frame (the opening shot, Big Ben at night)
   the same eight strips again with the flash palette applied, as *_flash.png
@@ -802,8 +802,15 @@ def build_fg():
 # The sign sprite: a green UK motorway sign, and the miles counting down.
 # -----------------------------------------------------------------------------------------------------------------
 
-SIGN_TEXTS = [("SOUTHAMPTON", "31 MILES"), ("SOUTHAMPTON", "22 MILES"),
-              ("SOUTHAMPTON", "13 MILES"), ("SOUTHAMPTON", "4 MILES")]
+# Four fixed signs along the real drive from Big Ben to Southampton Docks (OSRM on OpenStreetMap, 2026-10-22):
+# 84.7 road miles via A4, M4, M25, M3 (53 miles), M27, A33. The route passes Basingstoke at mile 50.0 and
+# Winchester at mile 67.2. The signs stand at miles 30, 42, 55 and 65 from Big Ben, so each shows the miles left
+# to the next city and to Southampton. A sign never changes while it is on screen; the next one has smaller
+# numbers. UK signs list the destination and the miles, with no unit.
+SIGN_TEXTS = [(("BASINGSTOKE", "20"), ("SOUTHAMPTON", "55")),
+              (("BASINGSTOKE", "8"), ("SOUTHAMPTON", "43")),
+              (("WINCHESTER", "12"), ("SOUTHAMPTON", "30")),
+              (("WINCHESTER", "2"), ("SOUTHAMPTON", "20"))]
 
 
 def sign_plate(top_line, bottom_line):
@@ -816,8 +823,9 @@ def sign_plate(top_line, bottom_line):
     tile.rect(0, 0, SIGN_W - 1, SIGN_H - 1, BRIGHT)
     tile.rect(1, 1, SIGN_W - 2, SIGN_H - 2, GREEN_LIT)
     tile.rect(2, 2, SIGN_W - 3, SIGN_H - 3, GREEN_LIT)
-    tile.text((SIGN_W - text_width(top_line)) // 2, 4, top_line, BRIGHT)
-    tile.text((SIGN_W - text_width(bottom_line)) // 2, 13, bottom_line, BRIGHT)
+    for y, (name, miles) in ((4, top_line), (13, bottom_line)):
+        tile.text(5, y, name, BRIGHT)
+        tile.text(SIGN_W - 5 - text_width(miles), y, miles, BRIGHT)
     return tile
 
 

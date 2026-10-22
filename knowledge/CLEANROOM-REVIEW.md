@@ -27,7 +27,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_game/Create_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/objects/obj_pp_game/Draw_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_game/Other_72.gml | confirmed | code-review | 2026-10-22 |
-| game/objects/obj_pp_game/Step_0.gml | pending | code-review | 2026-10-22 |
+| game/objects/obj_pp_game/Step_0.gml | confirmed | code-review | 2026-10-22 |
 | game/objects/obj_pp_game/Step_1.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_title/Create_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/objects/obj_pp_title/Draw_0.gml | reviewed | gamedev | 2026-10-21 |
@@ -35,7 +35,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_title/Step_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_app/pp_app.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_art/pp_art.gml | reviewed | gamedev | 2026-10-21 |
-| game/scripts/pp_audio/pp_audio.gml | pending | code-review | 2026-10-22 |
+| game/scripts/pp_audio/pp_audio.gml | confirmed | code-review | 2026-10-22 |
 | game/scripts/pp_battle_commands/pp_battle_commands.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_battle_director/pp_battle_director.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_battle_text/pp_battle_text.gml | rewritten | gamedev | 2026-10-22 |
@@ -53,7 +53,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_save/pp_save.gml | confirmed | code-review | 2026-10-22 |
-| game/scripts/pp_scene/pp_scene.gml | pending | code-review | 2026-10-22 |
+| game/scripts/pp_scene/pp_scene.gml | confirmed | code-review | 2026-10-22 |
 | game/scripts/pp_text/pp_text.gml | rewritten | gamedev | 2026-10-22 |
 | game/scripts/pp_title/pp_title.gml | reviewed | gamedev | 2026-10-21 |
 
@@ -66,6 +66,12 @@ recorded under "the save module" below. What the run measured is narrower than "
 2026-10-21 the game was built and run on this machine, the boot read of the slot was exercised through the Save/Load
 event and the title drew its continue line, so the read path and the event number are measured; the write path through
 a save point reached on foot, the `.bak` rotation and the panel timing are not, and nothing in this file claims they are.
+
+The three rows raised on 2026-10-22 for card t_8de1aca9 (`pp_audio.gml`, `pp_scene.gml`, `obj_pp_game/Step_0.gml`) are a
+clean-room verdict only. The reviewer read the changed text in each and ran `tools/check_cleanroom.py`, which reports no
+blacklist hit, no reference to a study copy and no foreign name. That review did not sign the change off: the audio work
+was returned with required code changes, listed on the card. A confirmed row here means the text was read and holds no
+foreign material; it is not an approval of the logic.
 
 `rewritten` means the file text changed in this review. All eight rewrites are comment only: each one removed a
 provenance parenthetical that described the internals of the quarantined copy, and replaced it with the spec the

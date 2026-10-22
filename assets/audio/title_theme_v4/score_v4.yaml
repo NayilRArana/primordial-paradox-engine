@@ -1,0 +1,99 @@
+# Title theme v4, cue title_theme. Copied from score_v3.yaml (unchanged) for card MUS-V4, 2026-10-21:
+# music by the Claude manager; the melody, motifs and form are the v3 ones and are NOT touched here.
+# What changed from v3: four chords take more colour (A bar 7 and both closing bars of A return to E7b9,
+# B prime bar 6 to Dm7b5, trio bar 3 to B7b9). The drums and the injected dissonances live in
+# tools\theme_v4.py, not in this file, because they are per variant.
+# Durations are in eighth notes; a 3/4 bar holds 6. "X|Y" in a chord slot means X on beats 1 and 2, Y on beat 3.
+# Names after notes: A4 is concert A at 440 Hz. A sharp is written A#, a flat Ab. r is a rest.
+meta:
+  key: A minor
+  time: 3/4
+  bpm: 126
+  loop_start_section: A
+  loop_end_section: A_return
+  form: "Intro 4 + A 8 + A' 8 + B 8 + B' 8 + C trio 8 + A return 8 = 52 bars, about 74 s at 126 bpm; the loop returns to the start of A"
+
+motifs:
+  # Identify these by ear. Each is at most one bar. Every melody bar below is built from one of them.
+  K:  "Kronos motif: dotted quarter then three stepwise eighths, starting on the fifth (E5 C5 D5 E5). The family call; returns in A, A' and A return."
+  K2: "K sequenced down a fourth over the dominant (B4 G#4 A4 B4): the answer."
+  Z:  "Zeus motif, section B only: a rising arpeggio of three quarter notes in C major (G4 C5 E5); sunny, simple, the same shape each time."
+  P:  "Percy / Poseidon motif, the tide: a rising minor arpeggio E4 G4 B4, then a crest and fall E5 D5 B4. Sea, strength, a trident of three notes. Home key E minor (the dominant minor of A minor); in the boss theme it moves to G minor."
+  H:  "Hadrian / Hades motif, the bident: two descending half steps, D5 C#5 then, a fourth lower, A4 G#4. Two prongs, cold and exact, a gap of silence between them. Home key D minor (the subdominant)."
+  W:  "Waltz bell: the last bar of every phrase is one long note, so each 4 bar phrase ends with a breath."
+
+sections:
+  intro:
+    bars: 4
+    chords: [Am, Am, E7, E7]
+    melody:
+      - [[r, 6]]
+      - [[r, 6]]
+      - [[E5, 3], [D5, 1], [C5, 1], [B4, 1]]
+      - [[B4, 6]]
+    texture: "pulse 1 arpeggios and waltz bass only; vrc6 saw pad; no drums; dynamics pp to mp"
+  A:
+    bars: 8
+    chords: [Am, E7, Am, E, Am, Dm, E7b9, Am]     # v4: the half cadence takes a flat nine; antecedent (V), consequent (i)
+    melody:
+      - [[E5, 3], [C5, 1], [D5, 1], [E5, 1]]      # K
+      - [[B4, 3], [G#4, 1], [A4, 1], [B4, 1]]     # K2
+      - [[C5, 3], [A4, 1], [B4, 1], [C5, 1]]      # K a third lower
+      - [[B4, 6]]                                  # W: half cadence on the dominant
+      - [[E5, 3], [C5, 1], [D5, 1], [E5, 1]]      # K again, the consequent begins like the antecedent
+      - [[F5, 3], [D5, 1], [E5, 1], [F5, 1]]      # K over Dm
+      - [[E5, 3], [D5, 1], [C5, 1], [B4, 1]]      # stepwise descent over E7
+      - [[A4, 6]]                                  # W: tonic, authentic cadence
+    texture: "vrc6 pulse a melody (duty 0.25, light vibrato on long notes); pulse 1 broken chord arpeggio eighths; triangle bass root on beat 1 and chord tone on beat 3; vrc6 saw oom pah chord stabs on beats 2 and 3; pulse 2 echo; noise soft hat on beats 2 and 3 from bar 5"
+  A_prime:
+    bars: 8
+    chords: [Am, E7, Am, E, Am, Dm, E7, Am]
+    melody: "same notes as A, one octave up in bars 1 to 4; bars 5 to 8 as in A. vrc6 pulse b plays the melody a diatonic third below (E7 bars use G#)."
+    texture: "as A plus vrc6 pulse b in thirds; dpcm kick on beat 1 from bar 5"
+  B:
+    bars: 8
+    chords: [C, G, C, G7, F, C, E7, E7]            # relative major, then back to the dominant of A minor
+    melody:
+      - [[G4, 2], [C5, 2], [E5, 2]]                # Z
+      - [[D5, 3], [B4, 3]]
+      - [[G4, 2], [C5, 2], [E5, 2]]                # Z again
+      - [[D5, 4], [B4, 2]]
+      - [[F5, 3], [A5, 3]]
+      - [[G5, 3], [E5, 3]]
+      - [[B4, 3], [G#4, 3]]                        # turning back toward A minor
+      - [[B4, 4], [r, 2]]                          # dominant, ready for the return
+    texture: "brighter: vrc6 pulse a duty 0.5; saw pad; triangle walking quarters root, third, fifth; noise hat on every beat; pulse 1 plays rising arpeggios; fuller"
+  B_prime:
+    bars: 8
+    chords: [C, G, C, G7, F, Dm7b5, E7, E7]       # v4: Dm7b5, the flat five falling to the G sharp of E7
+    melody: "Z and the B melody, with an upper third on vrc6 pulse b; bars 5 and 6 raise the melody one octave; the last two bars are the same as B"
+    texture: "as B plus kick and snare on beats 1 and 3"
+  C_trio:
+    bars: 8
+    chords: [Em, Em, B7b9, Em, Dm, Dm, E7, E7]     # v4: B7b9 under the rising arpeggio; E minor (v) for Percy, D minor (iv) for Hadrian, then V of A minor
+    melody:
+      - [[E4, 2], [G4, 2], [B4, 2]]                # P: the tide rises
+      - [[E5, 3], [D5, 1], [B4, 2]]                # P: crest and fall
+      - [[B4, 2], [D#5, 2], [F#5, 2]]              # P over B7, rising arpeggio, tension
+      - [[E5, 6]]                                  # W: long note, the sea settles
+      - [[D5, 2], [C#5, 2], [r, 2]]                # H: first prong
+      - [[A4, 2], [G#4, 2], [r, 2]]                # H: second prong, a fourth lower
+      - [[B4, 3], [G#4, 3]]                        # turning back toward A minor
+      - [[B4, 4], [r, 2]]                          # dominant, ready for the return
+    texture: "bars 1 to 4 sea: triangle bass strong on beat 1, noise long soft washes on beats 1 to 3 like waves, pulse 1 rolling arpeggios, vrc6 pulse a lead with fuller vibrato; bars 5 to 8 cold: vrc6 saw low drone on D, pulse 2 duty 0.125 repeated eighth notes on one pitch like server hum, no vibrato, no hats, kick only on beat 1; both halves keep the waltz oom pah on the saw or pulse b"
+  A_return:
+    bars: 8
+    chords: [Am, E7, Am, E, Am, Dm, E7b9, E7b9]   # v4: both closing bars flat nine, so the loop point leans hardest
+    melody: "same notes as A; the last bar is B4 held (dominant) instead of A4"
+    texture: "full band as A prime; final snare fill on the last beat"
+
+voices:
+  vrc6_pulse_a:   {role: melody, duty: 0.25, vibrato: {after_eighths: 1, min_note_eighths: 3, depth_cents: 14, rate_hz: 5.5}}
+  vrc6_pulse_b:   {role: "diatonic third below the melody in A prime and B prime; guide tone countermelody otherwise"}
+  pulse_1:        {role: "broken chord arpeggio in eighths, Alberti style (root, fifth, third, fifth), octave 4; duty 0.125", duty: 0.125}
+  pulse_2:        {role: "melody echo delayed one eighth at 40 percent; duty 0.125"}
+  vrc6_saw:       {role: "oom pah pah: beat 1 rest, beats 2 and 3 shell voicing (third and seventh) octave 3 to 4; sustained pad in B"}
+  triangle:       {role: "bass: root on beat 1, fifth on beat 3; diatonic approach note on beat 3 when the next bar changes chord; B: walking quarter notes"}
+  noise:          {role: "soft closed hat; snare fill on the last beat of bars 8, 16, 24, 32 and 40"}
+  dpcm:           {role: "kick on beat 1 in A prime, B prime and A return"}
+originality: "melodies are new; the arranger must run tools\\melody_guard.py against the reference folder before delivery"

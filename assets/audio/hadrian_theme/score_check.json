@@ -1,0 +1,294 @@
+{
+  "answer_bars": [
+    11,
+    14,
+    19,
+    22
+  ],
+  "bars": 32,
+  "beats_per_bar": 4,
+  "bpm": 92.0,
+  "checks": [
+    {
+      "check": "32 bars",
+      "detail": "32 bars declared, 32 bars walked",
+      "pass": true
+    },
+    {
+      "check": "92 bpm",
+      "detail": "meta bpm 92",
+      "pass": true
+    },
+    {
+      "check": "key D minor",
+      "detail": "meta key D minor",
+      "pass": true
+    },
+    {
+      "check": "time 4/4",
+      "detail": "meta time 4/4",
+      "pass": true
+    },
+    {
+      "check": "loop covers all 32 bars",
+      "detail": "loop A to close",
+      "pass": true
+    },
+    {
+      "check": "every lead bar is 8 eighths",
+      "detail": "off: none",
+      "pass": true
+    },
+    {
+      "check": "every second voice bar is 8 eighths",
+      "detail": "off: none",
+      "pass": true
+    },
+    {
+      "check": "one chord per bar",
+      "detail": "bars {'A': 8, 'A_fugue': 8, 'A_second': 8, 'close': 8} chords {'A': 8, 'A_fugue': 8, 'A_second': 8, 'close': 8}",
+      "pass": true
+    },
+    {
+      "check": "four phrases of 8 bars",
+      "detail": "{'A': 8, 'A_fugue': 8, 'A_second': 8, 'close': 8}",
+      "pass": true
+    },
+    {
+      "check": "frame is Dm, Bb, Gm, A7 plus the Neapolitan (bars 1 to 28)",
+      "detail": "outside: none",
+      "pass": true
+    },
+    {
+      "check": "Neapolitan Eb at bars 7, 15, 23",
+      "detail": "Eb bars [7, 15, 23]",
+      "pass": true
+    },
+    {
+      "check": "bar 9 lead is D5 C#5 on beats 1 and 2",
+      "detail": "bar 9 starts ['D5', 'C#5'] durations [2, 2], section A_fugue",
+      "pass": true
+    },
+    {
+      "check": "H opens all four phrases",
+      "detail": "['D5', 'C#5', 'A4', 'G#4']; ['D5', 'C#5', 'A4', 'G#4']; ['D5', 'C#5', 'A4', 'G#4']; ['D5', 'C#5', 'A4', 'G#4']",
+      "pass": true
+    },
+    {
+      "check": "H4 answer in the fourth on pulse b in the middle 8",
+      "detail": "answer bars [11, 14, 19, 22] (middle 8: [11, 14])",
+      "pass": true
+    },
+    {
+      "check": "last 4 bars are a Picardy turn to D major",
+      "detail": "roots [2, 10, 9, 2] qualities ['major', 'major', 'major', 'major']",
+      "pass": true
+    },
+    {
+      "check": "hum on pulse 2 at duty 12.5 percent",
+      "detail": "pulse_2 {'role': 'the server hum: sixteenth notes on one pitch, MIDI 62, for all 32 bars, duty 0.125, no accent, no vibrato', 'duty': 0.125, 'vibrato': 'none'}",
+      "pass": true
+    },
+    {
+      "check": "no vibrato on any voice",
+      "detail": {
+        "dpcm": "none",
+        "noise": "none",
+        "pulse_1": "none",
+        "pulse_2": "none",
+        "triangle": "none",
+        "vrc6_pulse_a": "none",
+        "vrc6_pulse_b": "none",
+        "vrc6_saw": "none"
+      },
+      "pass": true
+    },
+    {
+      "check": "lead is vrc6 pulse a, duty 25 percent",
+      "detail": "{'role': 'the melody, H and N only', 'duty': 0.25, 'vibrato': 'none'}",
+      "pass": true
+    },
+    {
+      "check": "lead silent in at least 10 bars",
+      "detail": "14 silent bars: [2, 3, 4, 6, 10, 11, 13, 14, 18, 19, 20, 22, 26, 27]",
+      "pass": true
+    }
+  ],
+  "eighths_per_bar": 8,
+  "failed": 0,
+  "key": "D minor",
+  "loop_seconds": 83.478,
+  "melody_by_bar": {
+    "1": [
+      "D5",
+      "C#5",
+      "r",
+      "A4",
+      "G#4"
+    ],
+    "2": [
+      "r"
+    ],
+    "3": [
+      "r"
+    ],
+    "4": [
+      "r"
+    ],
+    "5": [
+      "D5",
+      "C#5",
+      "r",
+      "A4",
+      "G#4"
+    ],
+    "6": [
+      "r"
+    ],
+    "7": [
+      "Eb5",
+      "D5",
+      "r"
+    ],
+    "8": [
+      "A4"
+    ],
+    "9": [
+      "D5",
+      "C#5",
+      "r",
+      "A4",
+      "G#4"
+    ],
+    "10": [
+      "r"
+    ],
+    "11": [
+      "r"
+    ],
+    "12": [
+      "D5",
+      "C#5",
+      "r",
+      "A4",
+      "G#4"
+    ],
+    "13": [
+      "r"
+    ],
+    "14": [
+      "r"
+    ],
+    "15": [
+      "Eb5",
+      "D5",
+      "r"
+    ],
+    "16": [
+      "A4"
+    ],
+    "17": [
+      "D5",
+      "C#5",
+      "r",
+      "A4",
+      "G#4"
+    ],
+    "18": [
+      "r"
+    ],
+    "19": [
+      "r"
+    ],
+    "20": [
+      "r"
+    ],
+    "21": [
+      "D5",
+      "C#5",
+      "r",
+      "A4",
+      "G#4"
+    ],
+    "22": [
+      "r"
+    ],
+    "23": [
+      "Eb5",
+      "D5",
+      "r"
+    ],
+    "24": [
+      "A4"
+    ],
+    "25": [
+      "D5",
+      "C#5",
+      "r",
+      "A4",
+      "G#4"
+    ],
+    "26": [
+      "r"
+    ],
+    "27": [
+      "r"
+    ],
+    "28": [
+      "A4",
+      "r"
+    ],
+    "29": [
+      "D5",
+      "C#5",
+      "D5"
+    ],
+    "30": [
+      "D5",
+      "F5"
+    ],
+    "31": [
+      "E5",
+      "C#5"
+    ],
+    "32": [
+      "D5"
+    ]
+  },
+  "neapolitan_bars": [
+    7,
+    15,
+    23
+  ],
+  "passed": 19,
+  "picardy_bars": [
+    29,
+    30,
+    31,
+    32
+  ],
+  "score": "<repo>\\assets\\audio\\hadrian_theme\\score_hadrian.yaml",
+  "sections": {
+    "A": 8,
+    "A_fugue": 8,
+    "A_second": 8,
+    "close": 8
+  },
+  "silent_lead_bars": [
+    2,
+    3,
+    4,
+    6,
+    10,
+    11,
+    13,
+    14,
+    18,
+    19,
+    20,
+    22,
+    26,
+    27
+  ],
+  "time": "4/4"
+}

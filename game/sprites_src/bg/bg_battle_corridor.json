@@ -1,0 +1,297 @@
+{
+  "format": 1,
+  "kind": "battle_background",
+  "name": "bg_battle_corridor",
+  "title": "ship corridor",
+  "png": "bg_battle_corridor.png",
+  "width": 256,
+  "height": 112,
+  "tile_size": 8,
+  "attribute_area": 16,
+  "grid": {
+    "columns": 16,
+    "rows": 7
+  },
+  "frame": {
+    "width": 256,
+    "height": 240,
+    "strip_y": 0,
+    "note": "strip sits at the top of the 256x240 frame; the command window draws below it on black"
+  },
+  "palette_source": "data/nes_palette.json",
+  "scene_palette": "data/palettes/scene_battle_corridor.json",
+  "backdrop": {
+    "index": 15,
+    "hex": "#000000"
+  },
+  "background_palettes": [
+    {
+      "name": "bg0",
+      "colours": [
+        0,
+        16,
+        2
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#0000bc"
+      ],
+      "areas": 62
+    },
+    {
+      "name": "bg1",
+      "colours": [
+        2,
+        0,
+        18
+      ],
+      "hex": [
+        "#0000bc",
+        "#7c7c7c",
+        "#0058f8"
+      ],
+      "areas": 28
+    },
+    {
+      "name": "bg2",
+      "colours": [
+        22,
+        6,
+        38
+      ],
+      "hex": [
+        "#f83800",
+        "#a81000",
+        "#f87858"
+      ],
+      "areas": 6
+    },
+    {
+      "name": "bg3",
+      "colours": [
+        16,
+        48,
+        18
+      ],
+      "hex": [
+        "#bcbcbc",
+        "#fcfcfc",
+        "#0058f8"
+      ],
+      "areas": 16
+    }
+  ],
+  "sprite_palettes": [
+    {
+      "name": "sp0",
+      "colours": [
+        0,
+        16,
+        15
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#000000"
+      ]
+    },
+    {
+      "name": "sp1",
+      "colours": [
+        7,
+        23,
+        40
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "sp2",
+      "colours": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "sp3",
+      "colours": [
+        22,
+        38,
+        48
+      ],
+      "hex": [
+        "#f83800",
+        "#f87858",
+        "#fcfcfc"
+      ]
+    }
+  ],
+  "unique_tiles": 40,
+  "unique_tile_budget": 128,
+  "tiles_used_once": 12,
+  "tile_reuse": {
+    "max_times_a_tile_repeats": 64,
+    "total_tile_slots": 448
+  },
+  "colours_used": [
+    "#000000",
+    "#0000bc",
+    "#0058f8",
+    "#7c7c7c",
+    "#a81000",
+    "#bcbcbc",
+    "#f83800",
+    "#f87858",
+    "#fcfcfc"
+  ],
+  "colour_count": 9,
+  "colour_budget": 25,
+  "attributes": {
+    "rule": "one background palette per 16x16 area, 3 colours plus the shared backdrop",
+    "grid": [
+      [
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0",
+        "c/bg0"
+      ],
+      [
+        "p/bg3",
+        "p/bg3",
+        "p/bg3",
+        "v/bg3",
+        "p/bg3",
+        "p/bg3",
+        "p/bg3",
+        "p/bg3",
+        "p/bg3",
+        "p/bg3",
+        "p/bg3",
+        "p/bg3",
+        "v/bg3",
+        "p/bg3",
+        "p/bg3",
+        "p/bg3"
+      ],
+      [
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "r/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "A/bg2",
+        "B/bg2",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0"
+      ],
+      [
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "r/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "C/bg2",
+        "D/bg2",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0"
+      ],
+      [
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "r/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "E/bg2",
+        "F/bg2",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0",
+        "b/bg0"
+      ],
+      [
+        "./bg1",
+        "./bg1",
+        "r/bg0",
+        "./bg1",
+        "./bg1",
+        "./bg1",
+        "r/bg0",
+        "./bg1",
+        "./bg1",
+        "./bg1",
+        "./bg1",
+        "r/bg0",
+        "./bg1",
+        "./bg1",
+        "./bg1",
+        "r/bg0"
+      ],
+      [
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1",
+        "f/bg1"
+      ]
+    ]
+  },
+  "dithering": "2x2 checker only, at palette band edges; no gradients, no rescaling, no anti aliasing",
+  "generator": "tools/art/make_battle_bg.py",
+  "notes": [
+    "grey steel bulkheads with a rivet seam, a pipe run under the deckhead, a red access hatch",
+    "bg0 the bulkhead plate and the deckhead, bg1 the deck floor grating, bg2 the hatch, bg3 the pipes",
+    "the hatch is a 32x48 block, so its cells are quadrants of one shape rather than four shapes"
+  ]
+}

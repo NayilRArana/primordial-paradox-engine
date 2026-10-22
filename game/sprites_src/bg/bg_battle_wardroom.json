@@ -1,0 +1,296 @@
+{
+  "format": 1,
+  "kind": "battle_background",
+  "name": "bg_battle_wardroom",
+  "title": "wardroom",
+  "png": "bg_battle_wardroom.png",
+  "width": 256,
+  "height": 112,
+  "tile_size": 8,
+  "attribute_area": 16,
+  "grid": {
+    "columns": 16,
+    "rows": 7
+  },
+  "frame": {
+    "width": 256,
+    "height": 240,
+    "strip_y": 0,
+    "note": "strip sits at the top of the 256x240 frame; the command window draws below it on black"
+  },
+  "palette_source": "data/nes_palette.json",
+  "scene_palette": "data/palettes/scene_battle_wardroom.json",
+  "backdrop": {
+    "index": 15,
+    "hex": "#000000"
+  },
+  "background_palettes": [
+    {
+      "name": "bg0",
+      "colours": [
+        23,
+        7,
+        40
+      ],
+      "hex": [
+        "#e45c10",
+        "#881400",
+        "#f8b800"
+      ],
+      "areas": 34
+    },
+    {
+      "name": "bg1",
+      "colours": [
+        8,
+        7,
+        23
+      ],
+      "hex": [
+        "#503000",
+        "#881400",
+        "#e45c10"
+      ],
+      "areas": 63
+    },
+    {
+      "name": "bg2",
+      "colours": [
+        2,
+        1,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0000fc",
+        "#fcfcfc"
+      ],
+      "areas": 3
+    },
+    {
+      "name": "bg3",
+      "colours": [
+        48,
+        16,
+        40
+      ],
+      "hex": [
+        "#fcfcfc",
+        "#bcbcbc",
+        "#f8b800"
+      ],
+      "areas": 12
+    }
+  ],
+  "sprite_palettes": [
+    {
+      "name": "sp0",
+      "colours": [
+        0,
+        16,
+        15
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#000000"
+      ]
+    },
+    {
+      "name": "sp1",
+      "colours": [
+        7,
+        23,
+        40
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ]
+    },
+    {
+      "name": "sp2",
+      "colours": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ]
+    },
+    {
+      "name": "sp3",
+      "colours": [
+        8,
+        23,
+        48
+      ],
+      "hex": [
+        "#503000",
+        "#e45c10",
+        "#fcfcfc"
+      ]
+    }
+  ],
+  "unique_tiles": 30,
+  "unique_tile_budget": 128,
+  "tiles_used_once": 0,
+  "tile_reuse": {
+    "max_times_a_tile_repeats": 64,
+    "total_tile_slots": 448
+  },
+  "colours_used": [
+    "#0000bc",
+    "#0000fc",
+    "#503000",
+    "#881400",
+    "#bcbcbc",
+    "#e45c10",
+    "#f8b800",
+    "#fcfcfc"
+  ],
+  "colour_count": 8,
+  "colour_budget": 25,
+  "attributes": {
+    "rule": "one background palette per 16x16 area, 3 colours plus the shared backdrop",
+    "grid": [
+      [
+        "L/bg1",
+        "L/bg1",
+        "L/bg1",
+        "L/bg1",
+        "o/bg1",
+        "L/bg1",
+        "L/bg1",
+        "L/bg1",
+        "L/bg1",
+        "L/bg1",
+        "o/bg1",
+        "L/bg1",
+        "L/bg1",
+        "L/bg1",
+        "L/bg1",
+        "L/bg1"
+      ],
+      [
+        "w/bg0",
+        "w/bg0",
+        "O/bg2",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "O/bg2",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "O/bg2",
+        "w/bg0",
+        "w/bg0"
+      ],
+      [
+        "w/bg0",
+        "w/bg0",
+        "k/bg1",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "k/bg1",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "w/bg0",
+        "k/bg1",
+        "w/bg0",
+        "w/bg0"
+      ],
+      [
+        "h/bg0",
+        "h/bg0",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "T/bg3",
+        "h/bg0",
+        "h/bg0"
+      ],
+      [
+        "w/bg0",
+        "w/bg0",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "t/bg1",
+        "w/bg0",
+        "w/bg0"
+      ],
+      [
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1"
+      ],
+      [
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1",
+        "F/bg1"
+      ]
+    ]
+  },
+  "dithering": "2x2 checker only, at palette band edges; no gradients, no rescaling, no anti aliasing",
+  "generator": "tools/art/make_battle_bg.py",
+  "notes": [
+    "wood panelling under a beamed deckhead with two lamps, three portholes, a laid table",
+    "bg0 the panelling, bg1 the beams, chairs and deck, bg2 the portholes at night, bg3 the linen and brass",
+    "the table is two rows: linen on top, the wooden apron in front, so it reads as a long table in perspective"
+  ]
+}

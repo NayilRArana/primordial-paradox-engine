@@ -1,0 +1,743 @@
+{
+  "format": 1,
+  "kind": "enemy_roster",
+  "rule": "specs/16-talk-command.md card fields; hp here is the battle value, not the final balance table",
+  "notes": [
+    "the Navy Sailor card copies the approved card in specs/16-talk-command.md section 10 word for word, so the roster cannot contradict the decided spec",
+    "the other six enemies are new here: their voice, wants, fears, weak and strong topics are new data and the TALK-CARDS card should turn each one into a full talk card with pools and lines",
+    "mercy_to_spare is trust_to_spare x 20 per specs/16-talk-command.md section 2",
+    "sprite is the GameMaker resource name; for navy_sailor it matches the id already in data/enemies/all.json (spr_pp_sailor), so the battle director needs no name change"
+  ],
+  "sprite_palettes": {
+    "sp0_navy_white": {
+      "entries": [
+        15,
+        2,
+        48
+      ],
+      "hex": {
+        "k": "#000000",
+        "m": "#0000bc",
+        "l": "#fcfcfc"
+      },
+      "role": "black outline, Royal Navy blue, white shirt and cap"
+    },
+    "sp1_brown_gold": {
+      "entries": [
+        15,
+        7,
+        40
+      ],
+      "hex": {
+        "k": "#000000",
+        "m": "#881400",
+        "l": "#f8b800"
+      },
+      "role": "black outline, brown fur and rope, amber light"
+    },
+    "sp2_green": {
+      "entries": [
+        15,
+        26,
+        42
+      ],
+      "hex": {
+        "k": "#000000",
+        "m": "#00a800",
+        "l": "#58d854"
+      },
+      "role": "black outline, bilge green, lit green"
+    },
+    "sp3_sea": {
+      "entries": [
+        2,
+        33,
+        48
+      ],
+      "hex": {
+        "k": "#0000bc",
+        "m": "#3cbcfc",
+        "l": "#fcfcfc"
+      },
+      "role": "navy outline, sea cyan, white foam and gull body"
+    }
+  },
+  "enemies": [
+    {
+      "id": "navy_sailor",
+      "name": "Navy Sailor",
+      "sprite": "spr_pp_sailor",
+      "sheet": "game/sprites_src/enemies/navy_sailor.png",
+      "palette": "sp0_navy_white",
+      "palette_entries": [
+        15,
+        2,
+        48
+      ],
+      "colours": {
+        "k": "#000000",
+        "m": "#0000bc",
+        "l": "#fcfcfc"
+      },
+      "max_hp": 15,
+      "hp": 15,
+      "role": "tutorial enemy",
+      "phase_note": "",
+      "trust_to_spare": 3,
+      "mercy_to_spare": 60,
+      "personality": "Two years of night watches and a mop he treats like a rifle: tired, decent, and not paid enough to care who you are.",
+      "voice": "Lower deck watch keeper, tired, clipped, short flat sentences, no poetry, nothing warmer than dry.",
+      "wants": [
+        "a smoke and ten minutes off his feet",
+        "to be asked his name instead of his rank"
+      ],
+      "fears": [
+        "the officer finding the deck unswabbed",
+        "being put on report"
+      ],
+      "weak_topics": [
+        {
+          "topic": "the long watch",
+          "keywords": [
+            "watch",
+            "hours",
+            "standing",
+            "shift"
+          ],
+          "examples": [
+            "how long have you been out here"
+          ]
+        },
+        {
+          "topic": "tiredness",
+          "keywords": [
+            "tired",
+            "sleep",
+            "rest",
+            "wrecked",
+            "exhausted"
+          ],
+          "examples": [
+            "you look wrecked"
+          ]
+        },
+        {
+          "topic": "weather and sea",
+          "keywords": [
+            "sea",
+            "weather",
+            "swell",
+            "storm",
+            "rain",
+            "salt"
+          ],
+          "examples": [
+            "rough night"
+          ]
+        },
+        {
+          "topic": "home port",
+          "keywords": [
+            "home",
+            "port",
+            "family",
+            "where are you from"
+          ],
+          "examples": [
+            "where are you from"
+          ]
+        },
+        {
+          "topic": "a smoke",
+          "keywords": [
+            "smoke",
+            "cigarette",
+            "break",
+            "fag"
+          ],
+          "examples": [
+            "want a smoke"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "the bridge",
+          "keywords": [
+            "bridge",
+            "captain",
+            "officer",
+            "radio"
+          ],
+          "examples": [
+            "the bridge will hear about this"
+          ]
+        },
+        {
+          "topic": "orders and the list",
+          "keywords": [
+            "orders",
+            "the list",
+            "allowed",
+            "permission",
+            "rules"
+          ],
+          "examples": [
+            "you are not on the list"
+          ]
+        },
+        {
+          "topic": "threats",
+          "keywords": [
+            "move",
+            "hurt",
+            "kill",
+            "shoot",
+            "push",
+            "force"
+          ],
+          "examples": [
+            "move or I move you"
+          ]
+        },
+        {
+          "topic": "his watch being pointless",
+          "keywords": [
+            "pointless",
+            "waste",
+            "useless",
+            "nobody cares"
+          ],
+          "examples": [
+            "this is a waste of time"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "petty_officer",
+      "name": "Petty Officer",
+      "sprite": "spr_pp_petty_officer",
+      "sheet": "game/sprites_src/enemies/petty_officer.png",
+      "palette": "sp0_navy_white",
+      "palette_entries": [
+        15,
+        2,
+        48
+      ],
+      "colours": {
+        "k": "#000000",
+        "m": "#0000bc",
+        "l": "#fcfcfc"
+      },
+      "max_hp": 28,
+      "hp": 28,
+      "role": "tougher regular enemy",
+      "phase_note": "",
+      "trust_to_spare": 3,
+      "mercy_to_spare": 60,
+      "personality": "A clipboard with a man attached: he has written your name down already and he is disappointed in the handwriting.",
+      "voice": "Brisk, clipped, faintly bored authority; short sentences.",
+      "wants": [
+        "a deck that passes inspection",
+        "the paperwork to be correct the first time"
+      ],
+      "fears": [
+        "the captain walking past during an inspection",
+        "an untidy ledger"
+      ],
+      "weak_topics": [
+        {
+          "topic": "the paperwork",
+          "keywords": [
+            "form",
+            "paper",
+            "ledger",
+            "sign",
+            "stamp"
+          ],
+          "examples": [
+            "May I see the form"
+          ]
+        },
+        {
+          "topic": "the young crew",
+          "keywords": [
+            "lad",
+            "kid",
+            "training",
+            "recruit",
+            "teach"
+          ],
+          "examples": [
+            "They are still learning"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "rank and respect",
+          "keywords": [
+            "sir",
+            "rank",
+            "salute",
+            "officer",
+            "respect"
+          ],
+          "examples": [
+            "Show some respect"
+          ]
+        },
+        {
+          "topic": "shirking",
+          "keywords": [
+            "skip",
+            "lazy",
+            "later",
+            "tomorrow",
+            "slack"
+          ],
+          "examples": [
+            "We will do it tomorrow"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deck_rat",
+      "name": "Deck Rat",
+      "sprite": "spr_pp_deck_rat",
+      "sheet": "game/sprites_src/enemies/deck_rat.png",
+      "palette": "sp1_brown_gold",
+      "palette_entries": [
+        15,
+        7,
+        40
+      ],
+      "colours": {
+        "k": "#000000",
+        "m": "#881400",
+        "l": "#f8b800"
+      },
+      "max_hp": 12,
+      "hp": 12,
+      "role": "regular enemy",
+      "phase_note": "",
+      "trust_to_spare": 3,
+      "mercy_to_spare": 60,
+      "personality": "Has eaten better than the crew for three years and knows exactly which stores hatch is loose.",
+      "voice": "Fast, greedy, unbothered; talks about food and escape routes.",
+      "wants": [
+        "biscuits",
+        "the loose hatch left open"
+      ],
+      "fears": [
+        "the ship's cat",
+        "traps"
+      ],
+      "weak_topics": [
+        {
+          "topic": "food",
+          "keywords": [
+            "food",
+            "biscuit",
+            "cheese",
+            "eat",
+            "ration"
+          ],
+          "examples": [
+            "I brought biscuits"
+          ]
+        },
+        {
+          "topic": "escape routes",
+          "keywords": [
+            "hatch",
+            "hole",
+            "gap",
+            "vent",
+            "way out"
+          ],
+          "examples": [
+            "That hatch looks loose"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "cats",
+          "keywords": [
+            "cat",
+            "mouser",
+            "paws",
+            "whiskers"
+          ],
+          "examples": [
+            "Here kitty"
+          ]
+        },
+        {
+          "topic": "traps and poison",
+          "keywords": [
+            "trap",
+            "poison",
+            "snap",
+            "kill"
+          ],
+          "examples": [
+            "I set a trap"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gull",
+      "name": "Gull",
+      "sprite": "spr_pp_gull",
+      "sheet": "game/sprites_src/enemies/gull.png",
+      "palette": "sp3_sea",
+      "palette_entries": [
+        2,
+        33,
+        48
+      ],
+      "colours": {
+        "k": "#0000bc",
+        "m": "#3cbcfc",
+        "l": "#fcfcfc"
+      },
+      "max_hp": 10,
+      "hp": 10,
+      "role": "regular enemy",
+      "phase_note": "",
+      "trust_to_spare": 3,
+      "mercy_to_spare": 60,
+      "personality": "Screaming, thieving, entirely convinced the ship was built as a restaurant for one.",
+      "voice": "Loud, rude, gleeful; short bursts, food obsessed.",
+      "wants": [
+        "chips",
+        "the bin bag on the aft deck"
+      ],
+      "fears": [
+        "a closed bin lid",
+        "the ship's cat"
+      ],
+      "weak_topics": [
+        {
+          "topic": "chips and scraps",
+          "keywords": [
+            "chips",
+            "food",
+            "scraps",
+            "bread",
+            "bin"
+          ],
+          "examples": [
+            "Want a chip"
+          ]
+        },
+        {
+          "topic": "flying and the wind",
+          "keywords": [
+            "fly",
+            "wind",
+            "sky",
+            "updraft",
+            "wing"
+          ],
+          "examples": [
+            "Good wind today"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "being shooed",
+          "keywords": [
+            "shoo",
+            "go away",
+            "pest",
+            "vermin"
+          ],
+          "examples": [
+            "Shoo, pest"
+          ]
+        },
+        {
+          "topic": "the cat",
+          "keywords": [
+            "cat",
+            "paws",
+            "teeth"
+          ],
+          "examples": [
+            "The cat is coming"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rogue_wave",
+      "name": "Rogue Wave",
+      "sprite": "spr_pp_rogue_wave",
+      "sheet": "game/sprites_src/enemies/rogue_wave.png",
+      "palette": "sp3_sea",
+      "palette_entries": [
+        2,
+        33,
+        48
+      ],
+      "colours": {
+        "k": "#0000bc",
+        "m": "#3cbcfc",
+        "l": "#fcfcfc"
+      },
+      "max_hp": 40,
+      "hp": 40,
+      "role": "minion in the Percy fight",
+      "phase_note": "",
+      "trust_to_spare": 3,
+      "mercy_to_spare": 60,
+      "personality": "The sea got tired of being told what to do and grew eyes about it.",
+      "voice": "Slow, swelling, ancient; speaks in tide and weather, never in names.",
+      "wants": [
+        "to reach the deck",
+        "to be left to rise"
+      ],
+      "fears": [
+        "the wind dropping",
+        "being named and bounded"
+      ],
+      "weak_topics": [
+        {
+          "topic": "the tide and the moon",
+          "keywords": [
+            "tide",
+            "moon",
+            "pull",
+            "rise",
+            "swell"
+          ],
+          "examples": [
+            "The moon is pulling you"
+          ]
+        },
+        {
+          "topic": "open water",
+          "keywords": [
+            "ocean",
+            "deep",
+            "horizon",
+            "open",
+            "far"
+          ],
+          "examples": [
+            "Out past the horizon you are free"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "being named and bound",
+          "keywords": [
+            "name",
+            "bound",
+            "command",
+            "obey",
+            "order"
+          ],
+          "examples": [
+            "I name you"
+          ]
+        },
+        {
+          "topic": "the ship and its steel",
+          "keywords": [
+            "ship",
+            "steel",
+            "hull",
+            "deck",
+            "boat"
+          ],
+          "examples": [
+            "This ship stops you"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rope_knot",
+      "name": "Rope Knot",
+      "sprite": "spr_pp_rope_knot",
+      "sheet": "game/sprites_src/enemies/rope_knot.png",
+      "palette": "sp1_brown_gold",
+      "palette_entries": [
+        15,
+        7,
+        40
+      ],
+      "colours": {
+        "k": "#000000",
+        "m": "#881400",
+        "l": "#f8b800"
+      },
+      "max_hp": 22,
+      "hp": 22,
+      "role": "regular enemy",
+      "phase_note": "",
+      "trust_to_spare": 3,
+      "mercy_to_spare": 60,
+      "personality": "Nobody tied it and nobody can untie it, and it has opinions about both facts.",
+      "voice": "Tight, tangled, grumbling; repeats itself, corrects itself.",
+      "wants": [
+        "to be left alone",
+        "someone to try and fail to untie it"
+      ],
+      "fears": [
+        "a sharp knife",
+        "being pulled apart"
+      ],
+      "weak_topics": [
+        {
+          "topic": "untangling",
+          "keywords": [
+            "untie",
+            "loose",
+            "pull",
+            "end",
+            "free"
+          ],
+          "examples": [
+            "Let me find the end"
+          ]
+        },
+        {
+          "topic": "being useful",
+          "keywords": [
+            "useful",
+            "hold",
+            "moor",
+            "tie",
+            "job"
+          ],
+          "examples": [
+            "The ship still needs a line"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "cutting",
+          "keywords": [
+            "cut",
+            "knife",
+            "slice",
+            "burn"
+          ],
+          "examples": [
+            "I will cut you"
+          ]
+        },
+        {
+          "topic": "who tied it",
+          "keywords": [
+            "who",
+            "tied",
+            "your fault",
+            "blame"
+          ],
+          "examples": [
+            "Who tied you"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bilge_slime",
+      "name": "Bilge Slime",
+      "sprite": "spr_pp_bilge_slime",
+      "sheet": "game/sprites_src/enemies/bilge_slime.png",
+      "palette": "sp2_green",
+      "palette_entries": [
+        15,
+        26,
+        42
+      ],
+      "colours": {
+        "k": "#000000",
+        "m": "#00a800",
+        "l": "#58d854"
+      },
+      "max_hp": 18,
+      "hp": 18,
+      "role": "regular enemy",
+      "phase_note": "",
+      "trust_to_spare": 3,
+      "mercy_to_spare": 60,
+      "personality": "The bottom of the ship learned to want things: warmth, a biscuit, and the sound of someone saying its name.",
+      "voice": "Slow, bubbling, friendly, slightly sad; asks small questions.",
+      "wants": [
+        "a warm pipe",
+        "someone to talk to down here"
+      ],
+      "fears": [
+        "the pumps",
+        "being pumped overboard"
+      ],
+      "weak_topics": [
+        {
+          "topic": "loneliness",
+          "keywords": [
+            "alone",
+            "friend",
+            "talk",
+            "stay",
+            "company"
+          ],
+          "examples": [
+            "It must be quiet down here"
+          ]
+        },
+        {
+          "topic": "warmth",
+          "keywords": [
+            "warm",
+            "pipe",
+            "heat",
+            "cosy"
+          ],
+          "examples": [
+            "That pipe is warm"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "the pumps",
+          "keywords": [
+            "pump",
+            "drain",
+            "flush",
+            "empty"
+          ],
+          "examples": [
+            "Turn on the pump"
+          ]
+        },
+        {
+          "topic": "being called filth",
+          "keywords": [
+            "filth",
+            "dirty",
+            "disgusting",
+            "sludge",
+            "gross"
+          ],
+          "examples": [
+            "You are filth"
+          ]
+        }
+      ]
+    }
+  ]
+}

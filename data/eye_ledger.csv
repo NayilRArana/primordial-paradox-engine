@@ -1,0 +1,15 @@
+at,file,role,model,nes,readability,charm,colours,seconds,status,review
+2026-10-22T15:02:18Z,<repo>\output\keys_run.png,review,gemini-3.5-flash,2,4,5,1036,51.02,ok,<repo>\output\eye_reviews\keys_run_20261022T150218Z.md
+2026-10-22T15:03:06Z,<repo>\output\nes_title_frame.png,review,gemini-3.5-flash,4,3,3,11,47.46,ok,<repo>\output\eye_reviews\nes_title_frame_20261022T150306Z.md
+2026-10-22T15:10:31Z,<repo>\output\title_run_1_nes.png,review,gemini-3.5-flash,,,,,29.02,rate_limited,
+2026-10-22T15:10:32Z,<repo>\output\title_run_1_marks_overlay.png,review,gemini-3.5-flash,,,,,29.14,rate_limited,
+2026-10-22T15:10:32Z,<repo>\output\title_run_1.png,review,gemini-3.5-flash,,,,,29.48,rate_limited,
+2026-10-22T15:10:32Z,<repo>\output\title_open_bigben.png,review,gemini-3.5-flash,,,,,29.65,rate_limited,
+2026-10-22T15:11:00Z,<repo>\output\title_run_1_nes_3x.png,review,gemini-3.5-flash,,,,,28.88,rate_limited,
+2026-10-22T15:11:01Z,<repo>\output\title_run_2.png,review,gemini-3.5-flash,,,,,29.11,rate_limited,
+2026-10-22T15:11:01Z,<repo>\output\title_run_reference_3x.png,review,gemini-3.5-flash,,,,,29.01,rate_limited,
+2026-10-22T15:11:01Z,<repo>\output\title_scroll_1.png,review,gemini-3.5-flash,,,,,29.0,rate_limited,
+2026-10-22T15:11:29Z,<repo>\output\title_scroll_2.png,review,gemini-3.5-flash,,,,,28.82,rate_limited,
+2026-10-22T15:11:30Z,<repo>\output\title_tempo_1.png,review,gemini-3.5-flash,,,,,28.81,rate_limited,
+2026-10-22T15:11:30Z,<repo>\output\title_tempo_1_nes.png,review,gemini-3.5-flash,,,,,28.8,rate_limited,
+2026-10-22T15:11:30Z,<repo>\output\title_tempo_2.png,review,gemini-3.5-flash,,,,,28.96,rate_limited,

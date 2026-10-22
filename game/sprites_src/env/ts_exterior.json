@@ -1,0 +1,1285 @@
+{
+  "format": 1,
+  "kind": "tileset",
+  "name": "ts_exterior",
+  "image": "ts_exterior.png",
+  "columns": 16,
+  "rows": 4,
+  "frames": 64,
+  "frame_w": 16,
+  "frame_h": 16,
+  "imagewidth": 256,
+  "imageheight": 64,
+  "tilecount": 64,
+  "tile_size": 16,
+  "margin": 0,
+  "spacing": 0,
+  "backdrop": {
+    "entry": 15,
+    "hex": "#000000"
+  },
+  "rule": "NES: 5 background palettes of 3 entries, a scene spends at most 4 of them, a 16x16 tile carries at most 3 colours besides the shared backdrop $0F",
+  "palettes": {
+    "bg0_stone": [
+      {
+        "key": "M",
+        "entry": 0,
+        "hex": "#7c7c7c"
+      },
+      {
+        "key": "L",
+        "entry": 16,
+        "hex": "#bcbcbc"
+      },
+      {
+        "key": "W",
+        "entry": 48,
+        "hex": "#fcfcfc"
+      }
+    ],
+    "bg1_brick": [
+      {
+        "key": "A",
+        "entry": 7,
+        "hex": "#881400"
+      },
+      {
+        "key": "B",
+        "entry": 23,
+        "hex": "#e45c10"
+      },
+      {
+        "key": "C",
+        "entry": 40,
+        "hex": "#f8b800"
+      }
+    ],
+    "bg2_green": [
+      {
+        "key": "G",
+        "entry": 9,
+        "hex": "#007800"
+      },
+      {
+        "key": "D",
+        "entry": 10,
+        "hex": "#006800"
+      },
+      {
+        "key": "H",
+        "entry": 42,
+        "hex": "#58d854"
+      }
+    ],
+    "bg3_water": [
+      {
+        "key": "N",
+        "entry": 2,
+        "hex": "#0000bc"
+      },
+      {
+        "key": "O",
+        "entry": 18,
+        "hex": "#0058f8"
+      },
+      {
+        "key": "P",
+        "entry": 48,
+        "hex": "#fcfcfc"
+      }
+    ],
+    "bg4_red": [
+      {
+        "key": "M",
+        "entry": 0,
+        "hex": "#7c7c7c"
+      },
+      {
+        "key": "S",
+        "entry": 22,
+        "hex": "#f83800"
+      },
+      {
+        "key": "W",
+        "entry": 48,
+        "hex": "#fcfcfc"
+      }
+    ],
+    "bg5_plant": [
+      {
+        "key": "M",
+        "entry": 0,
+        "hex": "#7c7c7c"
+      },
+      {
+        "key": "A",
+        "entry": 7,
+        "hex": "#881400"
+      },
+      {
+        "key": "G",
+        "entry": 9,
+        "hex": "#007800"
+      }
+    ]
+  },
+  "animations": {
+    "water": [
+      "water_a",
+      "water_b"
+    ]
+  },
+  "features": {
+    "road with white line": [
+      "road_a",
+      "road_b",
+      "road_line",
+      "road_line_h"
+    ],
+    "kerb": [
+      "kerb_w",
+      "kerb_e"
+    ],
+    "pavement": [
+      "pavement_a",
+      "pavement_b",
+      "pavement_grate"
+    ],
+    "cobbles": [
+      "cobble_a",
+      "cobble_b",
+      "cobble_c"
+    ],
+    "brick building walls (3 variants)": [
+      "brick_a",
+      "brick_b",
+      "brick_c"
+    ],
+    "shop front with awning": [
+      "shop_front",
+      "shop_door",
+      "awning",
+      "awning_green"
+    ],
+    "doors": [
+      "door_a",
+      "door_b"
+    ],
+    "windows with light": [
+      "window_lit",
+      "window_dark"
+    ],
+    "red phone box": [
+      "phone_box_top",
+      "phone_box_body"
+    ],
+    "post box": [
+      "post_box"
+    ],
+    "hedge": [
+      "hedge_a",
+      "hedge_b"
+    ],
+    "tree": [
+      "tree_trunk",
+      "tree_canopy_a",
+      "tree_canopy_b",
+      "tree_canopy_c"
+    ],
+    "lamp post": [
+      "lamp_post",
+      "lamp_head"
+    ],
+    "bollard": [
+      "bollard"
+    ],
+    "quay stone": [
+      "quay_stone",
+      "quay_flag",
+      "shore_stone"
+    ],
+    "water (2 frames)": [
+      "water_a",
+      "water_b"
+    ],
+    "railing": [
+      "railing_a",
+      "railing_b"
+    ],
+    "bench": [
+      "bench"
+    ],
+    "traffic light": [
+      "traffic_top",
+      "traffic_body"
+    ],
+    "crosswalk": [
+      "crosswalk"
+    ],
+    "Big Ben tower pieces (4 tiles tall)": [
+      "tower_base",
+      "tower_mid",
+      "tower_clock",
+      "tower_roof"
+    ],
+    "cathedral wall pieces": [
+      "cath_wall",
+      "cath_window",
+      "cath_buttress",
+      "cath_door"
+    ]
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "road_a",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c"
+      ],
+      "solid": false
+    },
+    {
+      "index": 1,
+      "name": "road_b",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 2,
+      "name": "road_line",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#fcfcfc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 3,
+      "name": "road_line_h",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 4,
+      "name": "crosswalk",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        48
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#fcfcfc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 5,
+      "name": "kerb_w",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 6,
+      "name": "kerb_e",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 7,
+      "name": "pavement_a",
+      "palette": "bg0_stone",
+      "entries": [
+        16
+      ],
+      "hex": [
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 8,
+      "name": "pavement_b",
+      "palette": "bg0_stone",
+      "entries": [
+        16
+      ],
+      "hex": [
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 9,
+      "name": "pavement_grate",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 10,
+      "name": "cobble_a",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        16
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 11,
+      "name": "cobble_b",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        16
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 12,
+      "name": "cobble_c",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        16
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 13,
+      "name": "grass_a",
+      "palette": "bg2_green",
+      "entries": [
+        9,
+        10,
+        42
+      ],
+      "hex": [
+        "#006800",
+        "#007800",
+        "#58d854"
+      ],
+      "solid": false
+    },
+    {
+      "index": 14,
+      "name": "grass_b",
+      "palette": "bg2_green",
+      "entries": [
+        9,
+        10,
+        42
+      ],
+      "hex": [
+        "#006800",
+        "#007800",
+        "#58d854"
+      ],
+      "solid": false
+    },
+    {
+      "index": 15,
+      "name": "quay_stone",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        16
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 16,
+      "name": "water_a",
+      "palette": "bg3_water",
+      "entries": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 17,
+      "name": "water_b",
+      "palette": "bg3_water",
+      "entries": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 18,
+      "name": "water_deep",
+      "palette": "bg3_water",
+      "entries": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 19,
+      "name": "shore_stone",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 20,
+      "name": "quay_flag",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        16
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 21,
+      "name": "brick_a",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        23
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10"
+      ],
+      "solid": true
+    },
+    {
+      "index": 22,
+      "name": "brick_b",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        23,
+        40
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 23,
+      "name": "brick_c",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        23,
+        40
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 24,
+      "name": "brick_cornice",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        15,
+        23,
+        40
+      ],
+      "hex": [
+        "#000000",
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 25,
+      "name": "shop_front",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        15,
+        23,
+        40
+      ],
+      "hex": [
+        "#000000",
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 26,
+      "name": "shop_door",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        15,
+        23,
+        40
+      ],
+      "hex": [
+        "#000000",
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 27,
+      "name": "window_lit",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        15,
+        40
+      ],
+      "hex": [
+        "#000000",
+        "#881400",
+        "#f8b800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 28,
+      "name": "window_dark",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        15,
+        23
+      ],
+      "hex": [
+        "#000000",
+        "#881400",
+        "#e45c10"
+      ],
+      "solid": true
+    },
+    {
+      "index": 29,
+      "name": "awning",
+      "palette": "bg4_red",
+      "entries": [
+        0,
+        22,
+        48
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#f83800",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 30,
+      "name": "door_a",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        15,
+        23,
+        40
+      ],
+      "hex": [
+        "#000000",
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 31,
+      "name": "door_b",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        15,
+        23,
+        40
+      ],
+      "hex": [
+        "#000000",
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 32,
+      "name": "roof_slate",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 33,
+      "name": "phone_box_top",
+      "palette": "bg4_red",
+      "entries": [
+        0,
+        15,
+        22,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#f83800",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 34,
+      "name": "phone_box_body",
+      "palette": "bg4_red",
+      "entries": [
+        0,
+        15,
+        22
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#f83800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 35,
+      "name": "post_box",
+      "palette": "bg4_red",
+      "entries": [
+        0,
+        15,
+        22,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#f83800",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 36,
+      "name": "lamp_head",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 37,
+      "name": "lamp_post",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 38,
+      "name": "bollard",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 39,
+      "name": "bench",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 40,
+      "name": "railing_a",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 41,
+      "name": "railing_b",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 42,
+      "name": "traffic_top",
+      "palette": "bg4_red",
+      "entries": [
+        0,
+        15,
+        22,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#f83800",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 43,
+      "name": "traffic_body",
+      "palette": "bg4_red",
+      "entries": [
+        0,
+        15,
+        22,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#f83800",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 44,
+      "name": "tree_canopy_a",
+      "palette": "bg2_green",
+      "entries": [
+        9,
+        10,
+        15,
+        42
+      ],
+      "hex": [
+        "#000000",
+        "#006800",
+        "#007800",
+        "#58d854"
+      ],
+      "solid": true
+    },
+    {
+      "index": 45,
+      "name": "tree_canopy_b",
+      "palette": "bg2_green",
+      "entries": [
+        9,
+        10,
+        15,
+        42
+      ],
+      "hex": [
+        "#000000",
+        "#006800",
+        "#007800",
+        "#58d854"
+      ],
+      "solid": true
+    },
+    {
+      "index": 46,
+      "name": "tree_trunk",
+      "palette": "bg5_plant",
+      "entries": [
+        0,
+        7,
+        9,
+        15
+      ],
+      "hex": [
+        "#000000",
+        "#007800",
+        "#7c7c7c",
+        "#881400"
+      ],
+      "solid": true
+    },
+    {
+      "index": 47,
+      "name": "hedge_a",
+      "palette": "bg2_green",
+      "entries": [
+        9,
+        10,
+        15,
+        42
+      ],
+      "hex": [
+        "#000000",
+        "#006800",
+        "#007800",
+        "#58d854"
+      ],
+      "solid": true
+    },
+    {
+      "index": 48,
+      "name": "hedge_b",
+      "palette": "bg2_green",
+      "entries": [
+        9,
+        10,
+        15,
+        42
+      ],
+      "hex": [
+        "#000000",
+        "#006800",
+        "#007800",
+        "#58d854"
+      ],
+      "solid": true
+    },
+    {
+      "index": 49,
+      "name": "tower_base",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 50,
+      "name": "tower_mid",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 51,
+      "name": "tower_clock",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 52,
+      "name": "tower_roof",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 53,
+      "name": "cath_wall",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        16,
+        48
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 54,
+      "name": "cath_window",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 55,
+      "name": "cath_buttress",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        16,
+        48
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 56,
+      "name": "cath_door",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 57,
+      "name": "wall_top",
+      "palette": "bg1_brick",
+      "entries": [
+        7,
+        15,
+        23,
+        40
+      ],
+      "hex": [
+        "#000000",
+        "#881400",
+        "#e45c10",
+        "#f8b800"
+      ],
+      "solid": true
+    },
+    {
+      "index": 58,
+      "name": "gutter",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc"
+      ],
+      "solid": false
+    },
+    {
+      "index": 59,
+      "name": "sign_street",
+      "palette": "bg0_stone",
+      "entries": [
+        0,
+        15,
+        16,
+        48
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "solid": true
+    },
+    {
+      "index": 60,
+      "name": "blank",
+      "palette": "bg0_stone",
+      "entries": [
+        15
+      ],
+      "hex": [
+        "#000000"
+      ],
+      "solid": false
+    },
+    {
+      "index": 61,
+      "name": "tree_canopy_c",
+      "palette": "bg2_green",
+      "entries": [
+        9,
+        10,
+        15,
+        42
+      ],
+      "hex": [
+        "#000000",
+        "#006800",
+        "#007800",
+        "#58d854"
+      ],
+      "solid": true
+    },
+    {
+      "index": 62,
+      "name": "grass_c",
+      "palette": "bg2_green",
+      "entries": [
+        9,
+        10,
+        42
+      ],
+      "hex": [
+        "#006800",
+        "#007800",
+        "#58d854"
+      ],
+      "solid": false
+    },
+    {
+      "index": 63,
+      "name": "awning_green",
+      "palette": "bg2_green",
+      "entries": [
+        9,
+        10,
+        42
+      ],
+      "hex": [
+        "#006800",
+        "#007800",
+        "#58d854"
+      ],
+      "solid": true
+    }
+  ],
+  "provenance": "original art drawn by tools/art/make_ts_exterior.py; no reference asset copied (PLAN-V2-2026-10-21.md section 0)"
+}

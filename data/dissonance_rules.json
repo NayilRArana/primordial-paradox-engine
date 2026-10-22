@@ -1,0 +1,1176 @@
+{
+  "format": "pp-dissonance-rules",
+  "version": 1,
+  "card": "t_baafc947",
+  "written": "2026-10-21",
+  "currency": "title theme v3, A minor waltz, 3/4, 126 bpm, seven voices on NES 2A03 plus Konami VRC6",
+  "rate_policy": {
+    "basis": "Fallback of the card: 3 to 6 percent of melody notes carry a resolved dissonance, plus at most one risk 3 clash per 8 bars. MUS-DATA-STATS does not exist in this repository (checked 2026-10-21), so the band is derived from the published per theme chromatic shares already recorded in knowledge/MUSIC-STYLE-BIBLE.md.",
+    "note_count_per_8_bars_3_4": 27.0,
+    "note_count_per_8_bars_4_4": 36.0,
+    "device_rate_min_percent": 3.0,
+    "device_rate_max_percent": 6.0,
+    "devices_per_8_bars_min": 1.0,
+    "devices_per_8_bars_max": 2.0,
+    "strong_clash_max_per_8_bars": 1,
+    "risk_2_max_per_8_bars": 2,
+    "min_spacing_beats_any": 2.0,
+    "min_spacing_bars_risk_3": 4.0,
+    "derivation": [
+      "Notes per 8 bars: the Hooktheory analyses give 0.88 to 0.89 beats per melody note in 4/4 [S51, S52, S53], which is 4.49 notes per bar and 36.0 notes per 8 bars; the waltz case is 3 beats per bar at 0.89 beats per note, which is 3.37 notes per bar and 27.0 notes per 8 bars.",
+      "Three percent of 27 to 36 notes is 0.8 to 1.1 devices and six percent is 1.6 to 2.2 devices, so the working budget is 1 or 2 devices per 8 bars, which is one per phrase.",
+      "The measured chromatic share of melody notes across four NES themes is 5, 9, 20 and 18 percent, mean 13.0 [S51, S52, S53, S56]; 3 to 6 percent is therefore 23 to 46 percent of the chromatic notes those themes actually carry, so the band is a taste budget and not a cap on everything chromatic.",
+      "At 126 bpm in 3/4 one bar is 1.43 s and 8 bars is 11.4 s, so one device per phrase lands every 11 s in the title theme, which is often enough to be heard and rare enough to stay a device.",
+      "Risk 3 devices are capped at one per 8 bars and spaced at least 4 bars apart, because a strong clash that repeats stops being a clash and starts being the style of the piece."
+    ],
+    "measured_chromatic_share": {
+      "mean_percent": 13.0,
+      "min_percent": 5.0,
+      "max_percent": 20.0,
+      "sources": ["S51", "S52", "S53", "S56"]
+    }
+  },
+  "risk_levels": {
+    "1": {
+      "name": "colour",
+      "meaning": "An adult chromatic note a listener hears as style, not as a mistake: passing tones, neighbour tones, prepared suspensions, anticipations. Safe on any bar that the forbidden list allows.",
+      "max_per_8_bars": 3
+    },
+    "2": {
+      "name": "edge",
+      "meaning": "A deliberate oddity that a first time listener notices once, such as an appoggiatura on a strong beat, a borrowed iv, a secondary dominant, a deceptive cadence. Needs a clean resolution and at least 2 beats of quiet after it.",
+      "max_per_8_bars": 2
+    },
+    "3": {
+      "name": "clash",
+      "meaning": "A strong dissonance: b9 over a dominant, a tritone in the riff, a semitone clash between two voices, a cluster stab, a Neapolitan, a tritone substitution, the wrong note gag. Never more than one per 8 bars, never on a leitmotif end, never in the final cadence bar.",
+      "max_per_8_bars": 1
+    }
+  },
+  "forbidden": [
+    {
+      "id": "F1",
+      "rule": "Never on the first or the last note of a leitmotif statement: K, K2, Z, P or H, in any section, including the reprise in the title theme and the transpositions in the character themes.",
+      "check": "the note index is not 0 and not the final index of any motif span tagged K, K2, Z, P or H in the score"
+    },
+    {
+      "id": "F2",
+      "rule": "Never in the final cadence bar of a section, of the loop, or of the cue, and never on the tonic arrival the cadence lands on.",
+      "check": "the device bar is not the last bar of any section and not the bar of a cadence arrival"
+    },
+    {
+      "id": "F3",
+      "rule": "Never on the first note of the loop and never in the first bar of the cue, because the listener has not yet heard the key and a clash reads as a wrong note.",
+      "check": "the bar index is at least the value of first_allowed_bar in the injector settings, which is 1 for the cue and 1 after the loop point"
+    },
+    {
+      "id": "F4",
+      "rule": "Never closer than 2 beats to another device, and never closer than 4 bars to a risk 3 device.",
+      "check": "the gap in beats to the previous and next device is at least 2, and the gap in bars to any risk 3 device is at least 4"
+    },
+    {
+      "id": "F5",
+      "rule": "Never on a note that is itself the resolution of another device, and never in the same beat as another device's resolution.",
+      "check": "the device slot is not the resolution slot of any other device"
+    },
+    {
+      "id": "F6",
+      "rule": "Never on the last beat before a section change, because the release happens where the harmony changes and the resolution is lost.",
+      "check": "the resolution slot lies inside the same section as the device slot"
+    },
+    {
+      "id": "F7",
+      "rule": "Never under a note that is held longer than 2 beats unless the score gives an earlier resolution slot, because a clash with nowhere to go is the one thing that sounds like a bug.",
+      "check": "the resolution slot exists in the written melody, not only in the harmony"
+    },
+    {
+      "id": "F8",
+      "rule": "Never on a bar where fewer than 2 melody notes remain after the device slot, and never in a bar whose chord is the tonic of the final cadence.",
+      "check": "the count of remaining melody notes after the device slot is at least 2"
+    }
+  ],
+  "rules": [
+    {
+      "id": "DIS-01",
+      "name": "Chromatic passing tone, rising",
+      "family": "chromatic_passing",
+      "trigger": "Two melody notes on the same chord are a whole tone apart and the lower one is at least a beat long, so one semitone can be inserted between them.",
+      "recipe": [
+        "Take the lower chord tone on its beat.",
+        "Insert a note one semitone below the upper chord tone on the second half of the beat or on the next eighth.",
+        "Move by semitone to the upper chord tone, which is a chord tone of the same chord or of the next chord in the bar.",
+        "Keep the inserted note at the same loudness as its neighbours and one frame of duty brighter, so it reads as a slide and not as an accent."
+      ],
+      "where": {
+        "voice": ["lead", "countermelody"],
+        "beat_position": ["weak_beat", "offbeat_eighth", "second_half_of_beat"],
+        "chord_context": ["any diatonic chord where the two melody notes are a whole tone apart", "the same chord across the bar line"],
+        "section": ["any non cadence bar", "any bar except the intro"]
+      },
+      "duration_beats": { "min": 0.25, "max": 0.5 },
+      "resolution": {
+        "target": "the upper chord tone that the semitone leads into",
+        "direction": "up",
+        "interval_semitones": 1,
+        "within_beats_min": 0.0,
+        "within_beats_max": 0.5,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 1, "max": 3 },
+      "risk": 1,
+      "chip": "Lead pulse 1, one frame of duty change; the echo voice stays diatonic so the semitone is heard once, not twice.",
+      "test": "the inserted pitch class is not in the key's scale, the next note is a chord tone of the sounding chord, and the gap is one semitone",
+      "sources": ["S68", "S51"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F5", "F8"],
+      "example_key": "A minor: A to B filled with A#, or G to A filled with G#"
+    },
+    {
+      "id": "DIS-02",
+      "name": "Chromatic lower neighbour",
+      "family": "chromatic_neighbour",
+      "trigger": "A melody note is held at least 2 beats and the bar has room for a dip and a return.",
+      "recipe": [
+        "Keep the chord tone on its beat.",
+        "On the next weak position, step down one semitone and hold for one eighth or one beat.",
+        "Return to the same chord tone, the same octave, so the neighbour resolves to the note it left.",
+        "Change the duty one step for the neighbour only, and put the echo voice a third below and diatonic, so the semitone is not doubled."
+      ],
+      "where": {
+        "voice": ["lead", "arpeggio"],
+        "beat_position": ["weak_beat", "beat_2", "offbeat_eighth"],
+        "chord_context": ["any chord where the melody note is the root, third or fifth", "a static chord held for 2 bars"],
+        "section": ["A", "A_prime", "B", "C_trio", "A_return"]
+      },
+      "duration_beats": { "min": 0.25, "max": 1.0 },
+      "resolution": {
+        "target": "the same chord tone the neighbour left, same pitch class and octave",
+        "direction": "up",
+        "interval_semitones": 1,
+        "within_beats_min": 0.0,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 1, "max": 3 },
+      "risk": 1,
+      "chip": "Lead pulse 1 with a one frame duty step; the VRC6 saw pad holds the chord tone underneath so the return is audible.",
+      "test": "the neighbour is one semitone below the resolving note and the resolving note equals the prepared note",
+      "sources": ["S68", "S36"],
+      "forbidden": ["F1", "F2", "F4", "F5", "F7"],
+      "example_key": "A minor: E to D# and back to E, or A to G# and back to A"
+    },
+    {
+      "id": "DIS-03",
+      "name": "Appoggiatura on a strong beat, resolving down by step",
+      "family": "appoggiatura",
+      "trigger": "A phrase has a strong beat chord tone that can be approached by leap, and the next beat is available for the resolution.",
+      "recipe": [
+        "On beat 1 or beat 2, enter by a leap of a third to a seventh from a chord tone of the previous beat.",
+        "Land on a note one semitone or one whole tone above the chord tone that belongs on that beat, so the strong beat carries the dissonance.",
+        "Hold one beat, or half the value of the note it replaces.",
+        "Resolve down by step to the chord tone on the next beat, at the same loudness, with no echo doubling on the dissonance."
+      ],
+      "where": {
+        "voice": ["lead", "countermelody"],
+        "beat_position": ["downbeat", "beat_2"],
+        "chord_context": ["the tonic, subdominant or dominant chord of the section", "a chord that lasts at least 2 beats"],
+        "section": ["A", "A_prime", "B_prime", "C_trio"]
+      },
+      "duration_beats": { "min": 0.5, "max": 1.0 },
+      "resolution": {
+        "target": "the chord tone a step below the appoggiatura, a member of the same chord",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0.5, "max": 2 },
+      "risk": 2,
+      "chip": "Lead pulse 1 or VRC6 pulse, with the vibrato delayed until the resolution so the dissonance is steady and the release sings.",
+      "test": "the strong beat note is not a chord tone, the following note is a chord tone one or two semitones below, and the duration is at most one beat",
+      "sources": ["S68", "S57"],
+      "forbidden": ["F1", "F2", "F4", "F6", "F8"],
+      "example_key": "A minor over Am: B held on the beat, resolving to A; or F held on the beat over Am, resolving to E"
+    },
+    {
+      "id": "DIS-04",
+      "name": "Suspension 4 to 3",
+      "family": "suspension",
+      "trigger": "The previous chord contains the note a fourth above the coming bass, so it can be prepared as a chord tone before the chord changes.",
+      "recipe": [
+        "Prepare the fourth above the coming bass as a chord tone in the previous bar.",
+        "Tie or repeat that same pitch into the new chord, where it is now a dissonance against the bass.",
+        "Hold the suspension for one beat, over the bass sounding the new root.",
+        "Resolve down a semitone to the third above the bass, on the next beat."
+      ],
+      "where": {
+        "voice": ["lead", "countermelody", "pad"],
+        "beat_position": ["downbeat", "beat_2", "beat_3"],
+        "chord_context": ["V resolving to i", "i resolving to iv", "any chord change where the fourth above the new bass was a chord tone in the old chord"],
+        "section": ["any bar except cadence bars", "the bar before a phrase end"]
+      },
+      "duration_beats": { "min": 0.5, "max": 1.0 },
+      "resolution": {
+        "target": "the third above the sounding bass, a chord tone of the new chord",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 2 },
+      "risk": 1,
+      "chip": "Two pulse voices, one holding the suspended note and one taking the third; the triangle plays the new root so the interval is measurable against the bass.",
+      "test": "the suspended pitch equals the previous chord's fourth above the new bass, and the resolution is a semitone down onto the new chord's third",
+      "sources": ["S68", "S24"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F5"],
+      "example_key": "A minor: D suspended over an E bass, resolving to C#; or A suspended over an F bass, resolving to G#"
+    },
+    {
+      "id": "DIS-05",
+      "name": "Suspension 7 to 6",
+      "family": "suspension",
+      "trigger": "A seventh above the coming bass is available as a chord tone in the previous chord, which happens on any stepwise descending bass or a circle of fifths move.",
+      "recipe": [
+        "Sound the seventh above the coming bass in the previous chord.",
+        "Carry that pitch across the chord change, where it is a seventh against the new bass and not a chord tone.",
+        "Hold it for one beat.",
+        "Resolve down a whole tone to the sixth above the bass, or down a semitone when the key is minor and the sixth is raised."
+      ],
+      "where": {
+        "voice": ["lead", "pad", "countermelody"],
+        "beat_position": ["downbeat", "beat_2"],
+        "chord_context": ["ii to V", "vi to ii", "V to i in a descending bass passage"],
+        "section": ["A", "B", "C_trio", "A_return"]
+      },
+      "duration_beats": { "min": 0.5, "max": 1.0 },
+      "resolution": {
+        "target": "the sixth above the sounding bass, or the chord tone a step below the suspended note",
+        "direction": "down",
+        "interval_semitones": 2,
+        "within_beats_min": 0.5,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 2 },
+      "risk": 1,
+      "chip": "Pad sawtooth holds the seventh while the lead takes the sixth; the echo channel is muted for that beat so the suspension is one interval, not two.",
+      "test": "the suspended pitch is the seventh above the sounding bass and the resolution is one or two semitones down onto a chord tone",
+      "sources": ["S68", "S36"],
+      "forbidden": ["F1", "F2", "F4", "F5", "F7"],
+      "example_key": "A minor: G suspended over an A bass resolving to F; or F suspended over a G bass resolving to E"
+    },
+    {
+      "id": "DIS-06",
+      "name": "Suspension 9 to 8 over a dominant",
+      "family": "suspension",
+      "trigger": "A dominant chord is held for at least 2 beats and the ninth above its root was a chord tone of the chord before it.",
+      "recipe": [
+        "Prepare the ninth above the dominant root as a chord tone in the previous chord, for example the fifth of the tonic chord.",
+        "Hold it into the dominant, where it is a dissonant ninth above the bass.",
+        "Keep the bass on the dominant root for the whole suspension.",
+        "Resolve down a whole tone, or a semitone in a minor key with a flat ninth, to the octave above the bass, which is the dominant root."
+      ],
+      "where": {
+        "voice": ["lead", "pad"],
+        "beat_position": ["downbeat", "beat_2", "beat_3"],
+        "chord_context": ["V or V7 held for 2 or more beats", "a half cadence approached by a prepared ninth"],
+        "section": ["the bar before a half cadence", "A", "B"]
+      },
+      "duration_beats": { "min": 0.5, "max": 1.0 },
+      "resolution": {
+        "target": "the octave above the bass, which is the dominant root",
+        "direction": "down",
+        "interval_semitones": 2,
+        "within_beats_min": 0.5,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 2 },
+      "risk": 2,
+      "chip": "Lead holds the ninth, pad takes the octave, triangle stays on the dominant root; no vibrato during the suspension.",
+      "test": "the suspended pitch is a ninth above the sounding dominant bass and the resolution is the same pitch class as that bass",
+      "sources": ["S68", "S24"],
+      "forbidden": ["F1", "F2", "F4", "F5", "F8"],
+      "example_key": "A minor: F held over an E7 bass, resolving to E; or B held over an E bass, resolving to E in another octave"
+    },
+    {
+      "id": "DIS-07",
+      "name": "Accented passing tone on beat 2 of a waltz bar",
+      "family": "chromatic_passing",
+      "trigger": "A 3/4 bar has a melody note on beat 1 and another on beat 3 with a whole tone between them.",
+      "recipe": [
+        "Keep the beat 1 note.",
+        "Put the chromatic note that lies between beat 1 and beat 3 on beat 2 instead of the passing note of the scale, so the beat itself is the dissonance.",
+        "Hold beat 2 for its full beat, then step to the beat 3 chord tone.",
+        "Drop the bass and arpeggio one dynamic level under beat 2 so the clash is exposed and not muddy."
+      ],
+      "where": {
+        "voice": ["lead"],
+        "beat_position": ["beat_2"],
+        "chord_context": ["any chord held for the whole bar", "a bar where beat 1 and beat 3 are a whole tone apart"],
+        "section": ["A", "A_prime", "B", "A_return"]
+      },
+      "duration_beats": { "min": 1.0, "max": 1.0 },
+      "resolution": {
+        "target": "the beat 3 chord tone that the passing note leads to",
+        "direction": "up",
+        "interval_semitones": 1,
+        "within_beats_min": 1.0,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0.5, "max": 2 },
+      "risk": 2,
+      "chip": "Lead pulse 1 only; the echo voice plays the beat 1 note again, diatonic, so the accented passing note is unique in the texture.",
+      "test": "the beat 2 note is not a chord tone, beat 3 is a chord tone, and the interval between them is one semitone",
+      "sources": ["S68", "S57"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F8"],
+      "example_key": "A minor over Am: A on beat 1, A# on beat 2, B on beat 3"
+    },
+    {
+      "id": "DIS-08",
+      "name": "Escape tone",
+      "family": "chromatic_neighbour",
+      "trigger": "A weak position sits between two chord tones and the line can afford a skip back in the opposite direction.",
+      "recipe": [
+        "Approach the weak position by step from a chord tone.",
+        "Place a note outside the chord there, either chromatic or a scale note that is not in the chord.",
+        "Resolve by a leap of a third or a fourth in the opposite direction onto a chord tone of the same chord.",
+        "Keep both notes short, half a beat each, with the same duty so the shape, not the timbre, carries the oddity."
+      ],
+      "where": {
+        "voice": ["lead", "countermelody"],
+        "beat_position": ["weak_beat", "offbeat_eighth", "second_half_of_beat"],
+        "chord_context": ["any chord held for at least one beat", "the approach chord and the resolution chord may differ"],
+        "section": ["A_prime", "B", "B_prime", "C_trio"]
+      },
+      "duration_beats": { "min": 0.25, "max": 0.5 },
+      "resolution": {
+        "target": "a chord tone of the sounding chord reached by a leap in the opposite direction",
+        "direction": "either",
+        "interval_semitones": 3,
+        "within_beats_min": 0.0,
+        "within_beats_max": 0.5,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0.5, "max": 2 },
+      "risk": 1,
+      "chip": "Lead pulse 1, with the echo a third below on the resolution only; the skip is what makes it read as an ornament rather than a wrong note.",
+      "test": "the escape note is approached by step, left by a leap of 3 to 5 semitones, and the landing note is a chord tone",
+      "sources": ["S68"],
+      "forbidden": ["F1", "F2", "F4", "F5", "F8"],
+      "example_key": "A minor over Am: A up to B, then down a third to G, or E up to F and down to D"
+    },
+    {
+      "id": "DIS-09",
+      "name": "Anticipation of the next chord's third",
+      "family": "anticipation",
+      "trigger": "A bar line is one eighth away and the next chord's third is a semitone or a tone from the melody note being played.",
+      "recipe": [
+        "On the last eighth of the bar, play the next chord's third early.",
+        "Hold or repeat that pitch across the bar line, where it becomes a chord tone.",
+        "Keep it one eighth long at most, at reduced loudness.",
+        "Do not double it in the echo channel until after the bar line."
+      ],
+      "where": {
+        "voice": ["lead", "countermelody"],
+        "beat_position": ["offbeat_eighth", "second_half_of_beat"],
+        "chord_context": ["any chord change at the bar line", "a phrase where the next chord is the relative major or the dominant"],
+        "section": ["A", "B", "A_return"]
+      },
+      "duration_beats": { "min": 0.25, "max": 0.5 },
+      "resolution": {
+        "target": "the same pitch class, now a chord tone of the next chord after the bar line",
+        "direction": "up",
+        "interval_semitones": 0,
+        "within_beats_min": 0.0,
+        "within_beats_max": 0.5,
+        "verdict_if_missing": "warn"
+      },
+      "rate_per_8_bars": { "min": 0.5, "max": 2 },
+      "risk": 1,
+      "chip": "Lead pulse 1, one step quieter on the anticipation; the triangle changes root on the bar line, which is what makes the early note sound like a forward lean.",
+      "test": "the anticipated pitch equals the next chord's third and the same pitch class sounds inside that chord after the bar line",
+      "sources": ["S68", "S24"],
+      "forbidden": ["F1", "F2", "F4", "F6"],
+      "example_key": "A minor to C major: E played on the last eighth of the Am bar, held into the C chord"
+    },
+    {
+      "id": "DIS-10",
+      "name": "Retardation 7 to 8",
+      "family": "suspension",
+      "trigger": "A tied note sits a tone below the coming chord tone and the upward resolution is the point of the gesture.",
+      "recipe": [
+        "Prepare the lower note as a chord tone of the previous chord.",
+        "Tie it across the chord change, where it is a dissonance below the chord tone it will become.",
+        "Hold for one beat.",
+        "Resolve upward by step, the one legitimate upward resolution of a tied dissonance, and mark it with a one frame volume lift so the ear catches the direction."
+      ],
+      "where": {
+        "voice": ["lead", "pad"],
+        "beat_position": ["downbeat", "beat_2"],
+        "chord_context": ["V to i with the leading tone tied", "any chord change where the prepared note is a tone below a new chord tone"],
+        "section": ["A_prime", "C_trio"]
+      },
+      "duration_beats": { "min": 0.5, "max": 1.0 },
+      "resolution": {
+        "target": "the chord tone one or two semitones above the tied note",
+        "direction": "up",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 2,
+      "chip": "Lead ties the note, pad takes the resolution, no echo doubling on the dissonance beat; the VRC6 pulse duty is one step narrower on the resolution.",
+      "test": "the tied note is a nonchord tone against the new chord and the resolution is a step above it onto a chord tone",
+      "sources": ["S68", "S36"],
+      "forbidden": ["F1", "F2", "F4", "F5", "F7"],
+      "example_key": "A minor: G sharp tied over an A minor chord, resolving up to A"
+    },
+    {
+      "id": "DIS-11",
+      "name": "Dominant seven flat nine",
+      "family": "dominant_colour",
+      "trigger": "A dominant chord lands on a strong beat and lasts at least 2 beats, and the tonic note is a semitone above its fifth.",
+      "recipe": [
+        "Write the dominant seventh as root, major third, fifth and minor seventh, which is the ordinary V7.",
+        "Add the flat ninth above the root in the lead or the pad, not in both.",
+        "Hold the flat nine for one beat or until the chord changes, with the bass stationary on the root.",
+        "Resolve the flat nine down a semitone to the fifth of the tonic chord; if the lead cannot reach it, drop the pad instead and keep the lead diatonic."
+      ],
+      "where": {
+        "voice": ["lead", "pad"],
+        "beat_position": ["downbeat", "beat_2"],
+        "chord_context": ["V7 in a minor key", "a dominant that resolves to the tonic within 2 bars", "a secondary dominant that lands on a minor chord"],
+        "section": ["the bar before a cadence", "B_prime", "A_return"]
+      },
+      "duration_beats": { "min": 0.5, "max": 2.0 },
+      "resolution": {
+        "target": "the fifth of the chord the dominant resolves to, or any chord tone a semitone below the flat nine",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 2.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 3,
+      "chip": "Lead holds the flat nine as a VRC6 pulse, the pad plays the seventh, the triangle plays the root; the two pulse channels are never both on the flat nine, because the mixer beats.",
+      "test": "the chord contains root, third, fifth, minor seventh and a note nine semitones above the root, and the flat nine falls a semitone at the resolution",
+      "sources": ["S74", "S36", "S24"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F5", "F8"],
+      "example_key": "A minor: E7 flat 9 spelled E, G sharp, B, D, F with F resolving to E"
+    },
+    {
+      "id": "DIS-12",
+      "name": "Tritone as a riff note",
+      "family": "harmonic_colour",
+      "trigger": "A bass or stab riff repeats over a static root and there is no third in the harmony, so the tritone is the only colour.",
+      "recipe": [
+        "Build the riff on the root plus the fifth, with no third, so the harmony stays open.",
+        "Alternate the root with the note a tritone above it on the eighth notes or on the offbeats.",
+        "Keep the harmonic rhythm stagnant for 2 or 4 bars, which is what makes the interval read as colour instead of a mistake.",
+        "End the riff on the root, and never put the tritone on the final note of the loop."
+      ],
+      "where": {
+        "voice": ["bass", "stab"],
+        "beat_position": ["downbeat", "offbeat_eighth", "weak_beat"],
+        "chord_context": ["a static minor tonic with no third", "a dominant where the tritone is already the chord's own tension"],
+        "section": ["B", "B_prime", "the boss theme", "the dungeon cue"]
+      },
+      "duration_beats": { "min": 0.25, "max": 0.5 },
+      "resolution": {
+        "target": "the riff's own root at the end of the 2 or 4 bar figure, and a chord tone of the next chord when the harmony changes",
+        "direction": "either",
+        "interval_semitones": 6,
+        "within_beats_min": 0.25,
+        "within_beats_max": 8.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 3,
+      "chip": "Bass pulse or triangle alternating root and tritone; the VRC6 saw doubles the root only, so the tritone never gains a second voice and never becomes a cluster.",
+      "test": "the riff contains a note 6 semitones above the root, the chord voicing has no third, and the last note of the figure is the root",
+      "sources": ["S77", "S75", "S29", "S56"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F8"],
+      "example_key": "E minor riff: E and A sharp alternating under an open fifth, returning to E"
+    },
+    {
+      "id": "DIS-13",
+      "name": "Neapolitan flat two in first inversion",
+      "family": "modal_mixture",
+      "trigger": "A minor key section needs a stronger subdominant before the dominant, and the melody note on the strong beat is the flat second or can be reached by step.",
+      "recipe": [
+        "Replace the subdominant or the supertonic with a major chord on the flat second, in first inversion so the bass is the fourth degree.",
+        "Hold it for one bar or for two beats.",
+        "Resolve to the dominant on the next beat or bar.",
+        "Take the flat second in the melody down a semitone to the tonic, so the alteration is heard as a colour and not as a key change."
+      ],
+      "where": {
+        "voice": ["pad", "lead", "bass"],
+        "beat_position": ["downbeat", "beat_2"],
+        "chord_context": ["the bar before V in a minor key", "a half cadence approach", "iv or ii replaced"],
+        "section": ["C_trio", "the bar before a half cadence", "B_prime"]
+      },
+      "duration_beats": { "min": 2.0, "max": 3.0 },
+      "resolution": {
+        "target": "the dominant root or the tonic, a chord tone of the next chord, with the flat second falling a semitone",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 3.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 3,
+      "chip": "Pad sawtooth plays the triad, triangle plays the fourth degree in the bass, lead takes the flat second and resolves it by semitone; the echo voice is silent for the bar.",
+      "test": "the chord root is one semitone above the tonic and the chord is major with its third in the bass, and the flat second in the melody falls a semitone",
+      "sources": ["S70", "S36", "S24"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F5", "F8"],
+      "example_key": "A minor: B flat major with D in the bass, resolving to E7"
+    },
+    {
+      "id": "DIS-14",
+      "name": "Deceptive cadence",
+      "family": "cadence",
+      "trigger": "A phrase is written to end on the tonic and the melody's leading tone resolves upward as usual, so only the bass can be diverted.",
+      "recipe": [
+        "Keep the dominant on the beat before the expected tonic.",
+        "Move the bass and the chord to the sixth degree instead of the tonic, or to the flat sixth in a minor key for a darker turn.",
+        "Resolve the leading tone in the melody up to the tonic as written, so the ear hears the arrival without the bass confirming it.",
+        "Return to the dominant within 2 bars, or start the next phrase a fourth higher so the withheld tonic is paid back later."
+      ],
+      "where": {
+        "voice": ["pad", "bass", "lead"],
+        "beat_position": ["downbeat"],
+        "chord_context": ["V to vi in a major key", "V to flat VI in a minor key", "the phrase end that the score marks as an authentic cadence"],
+        "section": ["the end of A_prime", "the end of B", "the end of the trio"]
+      },
+      "duration_beats": { "min": 2.0, "max": 3.0 },
+      "resolution": {
+        "target": "the dominant or the tonic within 2 bars, with the leading tone resolving up a semitone to the tonic in the melody",
+        "direction": "up",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 3.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 0.5 },
+      "risk": 2,
+      "chip": "Pad and triangle take the substituted chord, lead keeps the leading tone; one extra frame of release on the pad so the surprise is heard as harmony, not as a cut.",
+      "test": "the chord after the dominant is not the tonic, and the melody's leading tone still rises to the tonic",
+      "sources": ["S24", "S64"],
+      "forbidden": ["F1", "F2", "F4", "F6", "F8"],
+      "example_key": "A minor: E7 to F major instead of E7 to Am, with G sharp rising to A in the melody"
+    },
+    {
+      "id": "DIS-15",
+      "name": "Secondary dominant",
+      "family": "secondary_function",
+      "trigger": "A diatonic chord lands on a strong beat and can be preceded by its own dominant for one beat or one bar.",
+      "recipe": [
+        "Pick the target chord inside the progression, usually the subdominant, the supertonic or the dominant.",
+        "Write the dominant seventh of that target for one beat or one bar, which brings in one chromatic note, the raised third of the target.",
+        "Resolve the chromatic note by step to a chord tone of the target chord.",
+        "Do not modulate: the target must arrive on the next beat or bar and must not be tonicised for longer than a phrase."
+      ],
+      "where": {
+        "voice": ["pad", "lead", "bass"],
+        "beat_position": ["beat_2", "beat_3", "downbeat"],
+        "chord_context": ["V7 of V", "V7 of iv", "V7 of ii", "V7 of VI"],
+        "section": ["A", "A_prime", "B_prime", "C_trio", "A_return"]
+      },
+      "duration_beats": { "min": 1.0, "max": 3.0 },
+      "resolution": {
+        "target": "the target chord on the next beat or bar, with the chromatic third resolving by step into a chord tone of it",
+        "direction": "either",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 3.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0.5, "max": 2 },
+      "risk": 2,
+      "chip": "Pad sawtooth plays the seventh chord, bass takes the root, lead takes the chromatic third and resolves it; the lead's duty is one step brighter for the chromatic note.",
+      "test": "the inserted chord is major with a minor seventh, its root is a fifth above the target root, and the target chord follows inside the allowed window",
+      "sources": ["S71", "S24", "S36"],
+      "forbidden": ["F1", "F2", "F4", "F6", "F8"],
+      "example_key": "A minor: B7 to E7, or A7 to Dm, or G7 to C"
+    },
+    {
+      "id": "DIS-16",
+      "name": "Borrowed minor four from the parallel minor",
+      "family": "modal_mixture",
+      "trigger": "A major key section reaches the subdominant, which is the moment a borrowed minor subdominant can darken the phrase.",
+      "recipe": [
+        "Replace the major subdominant with the minor subdominant from the parallel minor, which lowers the third by a semitone.",
+        "Hold it for one bar or for two beats.",
+        "Resolve the lowered sixth in the melody down to the fifth of the tonic, or keep it in the pad and let the lead stay diatonic.",
+        "Return to the diatonic key on the next chord so the borrowing stays brief."
+      ],
+      "where": {
+        "voice": ["pad", "lead"],
+        "beat_position": ["downbeat", "beat_2"],
+        "chord_context": ["IV to iv in a major key", "the bar before the tonic or the dominant"],
+        "section": ["B", "C_trio", "A_return"]
+      },
+      "duration_beats": { "min": 2.0, "max": 3.0 },
+      "resolution": {
+        "target": "the fifth of the tonic, or any chord tone of the next chord that the lowered sixth can reach by step",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 3.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 2,
+      "chip": "Pad sawtooth holds the minor subdominant; the lead's lowered sixth is a VRC6 pulse so it stands out from the 2A03 texture; bass stays on the fourth degree.",
+      "test": "the chord is minor on the fourth degree of a major key, and the lowered sixth resolves down by step",
+      "sources": ["S72", "S74", "S24"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F8"],
+      "example_key": "C major: F minor instead of F major, with A flat falling to G"
+    },
+    {
+      "id": "DIS-17",
+      "name": "Flat six to five approach",
+      "family": "modal_mixture",
+      "trigger": "A minor key phrase can walk down the bass from the flat sixth to the fifth before the dominant.",
+      "recipe": [
+        "Write the flat sixth chord for one beat or one bar, borrowed from the parallel minor of the relative major or drawn from harmonic minor.",
+        "Move the bass down a semitone, or the melody down a semitone, to the fifth degree.",
+        "Land on the dominant, or on the tonic six four, on the next beat.",
+        "Keep the rest of the texture diatonic so only one note is chromatically altered."
+      ],
+      "where": {
+        "voice": ["pad", "bass", "lead"],
+        "beat_position": ["beat_2", "beat_3", "downbeat"],
+        "chord_context": ["flat VI to V in a minor key", "the approach to a half cadence"],
+        "section": ["A", "B", "the bar before a cadence"]
+      },
+      "duration_beats": { "min": 1.0, "max": 3.0 },
+      "resolution": {
+        "target": "the dominant root, reached by a falling semitone from the flat sixth",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 3.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0.5, "max": 2 },
+      "risk": 1,
+      "chip": "Pad and triangle move together on the semitone; the noise channel is silent for the approach beat, which makes the bass motion audible.",
+      "test": "the chord root is a minor sixth above the tonic, the next chord is the dominant, and the bass falls exactly one semitone",
+      "sources": ["S36", "S72", "S32"],
+      "forbidden": ["F1", "F2", "F4", "F6"],
+      "example_key": "A minor: F major to E7, with F falling to E in the bass"
+    },
+    {
+      "id": "DIS-18",
+      "name": "Cross voice minor second between echo and lead",
+      "family": "cross_voice_clash",
+      "trigger": "The echo channel is echoing the lead with a delay, and the lead moves to a note a semitone from the echo's held pitch.",
+      "recipe": [
+        "Let the echo channel hold the lead's previous note.",
+        "Move the lead to a note one semitone above or below the echo's held pitch, on a weak or a strong position the forbidden list allows.",
+        "Hold the clash for exactly one beat, or for as long as the echo's delay makes it unavoidable.",
+        "Resolve the lead by a semitone, or release the echo, so the two voices meet on a unison or a chord tone on the next beat."
+      ],
+      "where": {
+        "voice": ["lead", "echo"],
+        "beat_position": ["beat_2", "beat_3", "offbeat_eighth"],
+        "chord_context": ["a chord where the semitone is a flat ninth or a major seventh against the echo's note", "any harmony, since the clash is horizontal"],
+        "section": ["B", "B_prime", "the boss theme", "A_return"]
+      },
+      "duration_beats": { "min": 0.25, "max": 1.0 },
+      "resolution": {
+        "target": "a unison with the echo, or a chord tone one semitone away from the clash, reached by the lead or by the echo's release",
+        "direction": "either",
+        "interval_semitones": 1,
+        "within_beats_min": 0.0,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 3,
+      "chip": "Lead on pulse 1, echo on pulse 2 at one half volume, so the semitone is a beating shimmer; never put the clash between the two VRC6 pulses, which are too close in timbre and turn to mud.",
+      "test": "the two voices' pitches differ by one semitone, the clash lasts at most one beat, and the next event in either voice is a unison or a chord tone",
+      "sources": ["S68", "S62"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F5", "F8"],
+      "example_key": "A minor: lead on E while the echo holds F, then the lead falls to E flat or the echo releases to E"
+    },
+    {
+      "id": "DIS-19",
+      "name": "Augmented chord on a pickup",
+      "family": "harmonic_colour",
+      "trigger": "A phrase or a section begins on a downbeat and the bar before it has an eighth or a beat free.",
+      "recipe": [
+        "On the pickup, play an augmented triad built on the root a semitone below the coming chord's root, or on the same root with a raised fifth.",
+        "Hold it for one eighth or one beat only.",
+        "Resolve at the downbeat onto the coming chord, with the raised fifth rising a semitone to the new root or the new third.",
+        "Keep the bass out of the pickup, so the augmented chord is a stab and not a harmony."
+      ],
+      "where": {
+        "voice": ["stab", "pad"],
+        "beat_position": ["pickup", "offbeat_eighth", "second_half_of_beat"],
+        "chord_context": ["the beat before a section downbeat", "the beat before a secondary dominant", "the beat before a deceptive resolution"],
+        "section": ["the pickup into B", "the pickup into the trio", "the pickup into A_return"]
+      },
+      "duration_beats": { "min": 0.25, "max": 1.0 },
+      "resolution": {
+        "target": "a chord tone of the chord at the following downbeat, with the raised fifth rising a semitone",
+        "direction": "up",
+        "interval_semitones": 1,
+        "within_beats_min": 0.25,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 3,
+      "chip": "Both pulse channels plus one VRC6 pulse for the third note of the triad, four frames long, one frame of release; the triangle rests.",
+      "test": "the three pitches form a major third and an augmented fifth, the stab lasts at most one beat, and the raised fifth rises a semitone at the downbeat",
+      "sources": ["S76", "S74"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F8"],
+      "example_key": "A minor: G augmented as the pickup into an Am downbeat, with D sharp rising to E"
+    },
+    {
+      "id": "DIS-20",
+      "name": "Wrong note then resolve gag",
+      "family": "gag",
+      "trigger": "A cue needs one moment of humour or panic, once, and the phrase has a note the listener already expects.",
+      "recipe": [
+        "On a weak position, play a note a semitone away from the expected note, or a tritone away from the bass.",
+        "Hold it for one eighth at most, then correct it to the expected note within one beat.",
+        "Use it once per cue, never in the same 16 bars, and never in the title theme's first statement of K.",
+        "Make the correction louder than the mistake, so the ear reads the first note as a slip and the second as the truth."
+      ],
+      "where": {
+        "voice": ["lead"],
+        "beat_position": ["weak_beat", "offbeat_eighth"],
+        "chord_context": ["any chord, since the gag is horizontal", "the second bar of a phrase, never the first"],
+        "section": ["a comic or panic cue", "the shop theme", "the enemy turn sting"]
+      },
+      "duration_beats": { "min": 0.25, "max": 0.5 },
+      "resolution": {
+        "target": "the note the listener expected, a chord tone of the sounding chord, one or two semitones away",
+        "direction": "either",
+        "interval_semitones": 1,
+        "within_beats_min": 0.0,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 0.5 },
+      "risk": 3,
+      "chip": "Lead pulse 1 only, with the echo muted on the gag and the correction, so the joke is dry; a one frame duty change marks the correction.",
+      "test": "exactly one out of key note per cue, corrected within one beat to a chord tone, and the cue contains no second gag",
+      "sources": ["S68", "S57", "S62"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F5", "F8"],
+      "example_key": "A minor over Am: D sharp on the offbeat, corrected to E on the next eighth"
+    },
+    {
+      "id": "DIS-21",
+      "name": "Pedal tone against changing chords",
+      "family": "pedal",
+      "trigger": "A section holds its root for 2 bars or the dominant for 2 bars while the chords above move.",
+      "recipe": [
+        "Choose the tonic or the dominant as the pedal.",
+        "Hold it in the triangle or in a low pulse for 2 to 4 bars, repeated on every beat or held as one long note.",
+        "Let the chords above change normally, so the pedal becomes a nonchord tone for one or two chords and then a chord tone again.",
+        "End the pedal on a bar where it is a chord tone, and never release it on a dissonance."
+      ],
+      "where": {
+        "voice": ["bass", "pad"],
+        "beat_position": ["downbeat", "any"],
+        "chord_context": ["a section that leaves the pedal's chord and returns to it", "a dominant pedal before the loop point"],
+        "section": ["the last 2 bars before the loop point", "B", "C_trio"]
+      },
+      "duration_beats": { "min": 6.0, "max": 12.0 },
+      "resolution": {
+        "target": "a bar where the pedal pitch is a chord tone of the sounding chord, at the end of the pedal",
+        "direction": "none_required",
+        "interval_semitones": 0,
+        "within_beats_min": 6.0,
+        "within_beats_max": 12.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 0.5 },
+      "risk": 2,
+      "chip": "Triangle holds the pedal, because it has no volume envelope to decay; the two chords above it go in the pulse channels and the VRC6 saw, so the pedal is a floor and not a voice.",
+      "test": "the pedal pitch is constant across the span, at least one chord in the span does not contain it, and the last bar of the span does",
+      "sources": ["S69", "S68"],
+      "forbidden": ["F1", "F2", "F4", "F6"],
+      "example_key": "A minor: A held in the triangle while the chords go Am, F, E7, Am"
+    },
+    {
+      "id": "DIS-22",
+      "name": "Cluster stab",
+      "family": "cluster",
+      "trigger": "A downbeat or a section start needs a hit rather than a chord, and the noise channel can carry the attack.",
+      "recipe": [
+        "Choose a chord tone and add the note a semitone or a whole tone above it in a second voice.",
+        "Play both together for one to four frames, staccato, with a sharp release.",
+        "Put the same figure an octave lower in the bass if the stab needs weight, but never add a third pitch in the low register.",
+        "Resolve by silence: the next event in that voice is a chord tone, at least an eighth later."
+      ],
+      "where": {
+        "voice": ["stab", "pad"],
+        "beat_position": ["downbeat", "section_downbeat", "pickup"],
+        "chord_context": ["the tonic or the flat six at a section start", "the chord under a boss entrance"],
+        "section": ["the first bar of B", "the first bar of the trio", "a boss entrance", "the loop point if the last bar allows it"]
+      },
+      "duration_beats": { "min": 0.05, "max": 0.5 },
+      "resolution": {
+        "target": "silence, then a chord tone at the next event in the same voice, at least an eighth note later",
+        "direction": "none_required",
+        "interval_semitones": 0,
+        "within_beats_min": 0.25,
+        "within_beats_max": 2.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 3,
+      "chip": "Pulse 1 and pulse 2 a semitone or a tone apart, four frames, maximum volume, immediate silence; add one frame of noise volume 4 for the transient, not more.",
+      "test": "two voices sound pitches a semitone or a tone apart for at most four frames, and the next event in those voices is a chord tone",
+      "sources": ["S73", "S3"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F8"],
+      "example_key": "A minor: A and B flat together on a downbeat, four frames, then silence"
+    },
+    {
+      "id": "DIS-23",
+      "name": "Secondary leading tone chord",
+      "family": "secondary_function",
+      "trigger": "A chord on a strong beat can be approached from a semitone below in the bass.",
+      "recipe": [
+        "Write the diminished seventh or the diminished triad on the leading tone of the target chord.",
+        "Put its root, a semitone below the target root, in the bass.",
+        "Hold it for one beat.",
+        "Resolve the bass up a semitone into the target root, and resolve the diminished seventh's own seventh down a semitone."
+      ],
+      "where": {
+        "voice": ["pad", "bass"],
+        "beat_position": ["beat_2", "beat_3", "offbeat_eighth"],
+        "chord_context": ["vii dim 7 of V", "vii dim 7 of iv", "vii dim 7 of the tonic in a deceptive move"],
+        "section": ["A_prime", "B", "C_trio"]
+      },
+      "duration_beats": { "min": 0.5, "max": 1.0 },
+      "resolution": {
+        "target": "the target chord's root, reached by the bass rising one semitone; the chordal seventh falls one semitone",
+        "direction": "up",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 2,
+      "chip": "Pad sawtooth plays the diminished seventh, bass takes the semitone approach; the echo channel doubles the resolution, never the approach.",
+      "test": "the chord is diminished, built on a root one semitone below the following chord's root, and the bass rises exactly one semitone",
+      "sources": ["S71", "S36"],
+      "forbidden": ["F1", "F2", "F4", "F5", "F8"],
+      "example_key": "A minor: D sharp diminished seventh resolving to E7, or G sharp diminished seventh resolving to Am"
+    },
+    {
+      "id": "DIS-24",
+      "name": "Tritone substitution at a cadence approach",
+      "family": "dominant_colour",
+      "trigger": "A dominant is approaching the tonic and the bass can fall a semitone instead of rising a fourth.",
+      "recipe": [
+        "Replace the dominant seventh with the dominant seventh whose root is a tritone away, which shares the same tritone between third and seventh.",
+        "Keep the two tritone notes in the same voices, so the resolution is unchanged.",
+        "Put the substituted root in the bass for one bar or two beats.",
+        "Resolve the bass down a semitone to the tonic, and resolve the tritone as written."
+      ],
+      "where": {
+        "voice": ["pad", "bass"],
+        "beat_position": ["downbeat", "beat_2"],
+        "chord_context": ["the bar before the tonic", "a ii to V cadence where the V is replaced"],
+        "section": ["C_trio", "the bar before the final loop cadence but not the cadence bar itself"]
+      },
+      "duration_beats": { "min": 2.0, "max": 3.0 },
+      "resolution": {
+        "target": "the tonic, with the bass falling one semitone and the tritone resolving inward or outward as written",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 3.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 3,
+      "chip": "Pad plays the substitute seventh, triangle plays its root, the lead keeps the tritone note it already had so the swap is heard only in the bass.",
+      "test": "the substituted root is 6 semitones from the replaced dominant root, the tritone pitch classes are identical, and the bass falls one semitone to the tonic",
+      "sources": ["S75", "S74", "S70"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F8"],
+      "example_key": "A minor: B flat 7 instead of E7, with B flat falling to A"
+    },
+    {
+      "id": "DIS-25",
+      "name": "Suspension chain",
+      "family": "suspension",
+      "trigger": "The bass descends stepwise for 3 or 4 bars and each chord change can carry a prepared dissonance.",
+      "recipe": [
+        "Prepare each suspension as a chord tone of the chord before it.",
+        "Tie it across each bar line so every chord change begins with a dissonance on beat 1.",
+        "Resolve each one down by step on beat 2 or beat 3, then reprepare the next.",
+        "Keep two voices at most, so the chain is a two part texture and not a thicket."
+      ],
+      "where": {
+        "voice": ["lead", "countermelody", "pad"],
+        "beat_position": ["downbeat", "beat_2"],
+        "chord_context": ["a descending bass of a fourth or more", "a circle of fifths passage"],
+        "section": ["C_trio", "A_return"]
+      },
+      "duration_beats": { "min": 0.5, "max": 1.0 },
+      "resolution": {
+        "target": "the chord tone a step below the suspended note, in each bar of the chain",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 2,
+      "chip": "Two pulse voices in fourth species fashion; the pad is silent during the chain so the two lines are clean, and the triangle carries the descending bass.",
+      "test": "each bar of the chain begins with a nonchord tone that is a chord tone of the previous bar, and each resolves down by step within one beat",
+      "sources": ["S68", "S17"],
+      "forbidden": ["F1", "F2", "F4", "F5", "F6"],
+      "example_key": "A minor descending bass A, G, F, E with suspensions resolving on beat 2 of each bar"
+    },
+    {
+      "id": "DIS-26",
+      "name": "Changing tones around a chord tone",
+      "family": "chromatic_neighbour",
+      "trigger": "A melody note is repeated or held and the bar has room for a two note ornament that leaves the harmony and returns.",
+      "recipe": [
+        "Start on a chord tone.",
+        "Step to a note outside the chord, then leap to a second note outside the chord, usually on the other side of the chord tone.",
+        "Return by step to the chord tone, or to another chord tone of the same chord.",
+        "Keep the whole figure inside one beat, with the same duty on both outside notes so it reads as one gesture."
+      ],
+      "where": {
+        "voice": ["lead", "countermelody"],
+        "beat_position": ["weak_beat", "beat_2", "beat_3"],
+        "chord_context": ["a chord held for a whole bar or more", "a tonic or dominant chord that can absorb two nonchord tones"],
+        "section": ["A_prime", "B", "C_trio"]
+      },
+      "duration_beats": { "min": 0.25, "max": 1.0 },
+      "resolution": {
+        "target": "a chord tone of the sounding chord, reached by step from the second nonchord tone",
+        "direction": "either",
+        "interval_semitones": 1,
+        "within_beats_min": 0.0,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 1,
+      "chip": "Lead pulse 1 only, both nonchord tones on the same duty; the echo holds the chord tone underneath so the return is unambiguous.",
+      "test": "two successive nonchord tones followed by a step onto a chord tone, all inside one beat",
+      "sources": ["S68"],
+      "forbidden": ["F1", "F2", "F4", "F5", "F8"],
+      "example_key": "A minor over Am: A up to B, down to G, back up to A"
+    },
+    {
+      "id": "DIS-27",
+      "name": "Chromatic bass descent under a held melody",
+      "family": "chromatic_passing",
+      "trigger": "A melody note is held for 2 bars and the bass can walk down by semitones beneath it.",
+      "recipe": [
+        "Choose a bass line that descends by semitones for 2 to 4 beats, from a chord tone to a chord tone.",
+        "Hold the melody constant above it, so each bass note turns the held pitch into a different interval.",
+        "Let the chords above change only on the beats where the bass lands on a chord tone.",
+        "End the descent on the fifth or the root of the next chord."
+      ],
+      "where": {
+        "voice": ["bass"],
+        "beat_position": ["beat_2", "beat_3", "offbeat_eighth"],
+        "chord_context": ["a chord held for at least 2 bars", "a tonic or subdominant chord that can sit while the bass walks"],
+        "section": ["C_trio", "the bridge into B_prime"]
+      },
+      "duration_beats": { "min": 0.5, "max": 1.0 },
+      "resolution": {
+        "target": "a chord tone of the next chord, with the bass arriving from a semitone below or above",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 4.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 2,
+      "chip": "Triangle walks the semitones, because it has no envelope decay; the pad holds the chord, and the noise channel is off so the walk is exposed.",
+      "test": "each bass step in the descent is one semitone, the melody pitch does not change during the descent, and the last bass note is a chord tone of the next chord",
+      "sources": ["S68", "S72", "S69"],
+      "forbidden": ["F1", "F2", "F4", "F6"],
+      "example_key": "A minor: bass A, G sharp, G, F sharp under a held C"
+    },
+    {
+      "id": "DIS-28",
+      "name": "Major seventh held over the tonic, resolving down",
+      "family": "harmonic_colour",
+      "trigger": "A tonic chord is held at the end of a phrase and the leading tone can be sustained above it.",
+      "recipe": [
+        "Hold the tonic chord with the major seventh above the root, so the chord sounds like a major seventh for one beat or one bar.",
+        "Keep the seventh in the lead or the pad, never both.",
+        "Resolve the seventh down a semitone to the fifth of the chord, or up a semitone to the tonic if the line is rising.",
+        "Never end a phrase on the unresolved seventh, because a tonic major seventh has no dominant function."
+      ],
+      "where": {
+        "voice": ["lead", "pad"],
+        "beat_position": ["downbeat", "beat_2"],
+        "chord_context": ["the tonic triad held for at least 2 beats", "a tonic chord in a major key or a Picardy third in a minor key"],
+        "section": ["B", "C_trio", "A_return"]
+      },
+      "duration_beats": { "min": 0.5, "max": 2.0 },
+      "resolution": {
+        "target": "the fifth of the tonic, a semitone below the seventh, or the tonic a semitone above",
+        "direction": "down",
+        "interval_semitones": 1,
+        "within_beats_min": 0.5,
+        "within_beats_max": 2.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 2,
+      "chip": "Pad holds the triad, lead holds the seventh at reduced volume; the seventh must be a VRC6 pulse so it does not fight the 2A03 lead's own fifth.",
+      "test": "the sounding interval includes a major seventh above the root and the next melody event falls a semitone onto a chord tone",
+      "sources": ["S68", "S74"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F8"],
+      "example_key": "A minor with a Picardy third: A, C sharp, E with G sharp above, resolving to E"
+    },
+    {
+      "id": "DIS-29",
+      "name": "Blue third slide",
+      "family": "chromatic_passing",
+      "trigger": "A major chord is held and the melody reaches for the minor third before settling on the major third.",
+      "recipe": [
+        "Play the minor third of the chord on a weak position.",
+        "Hold it for an eighth or half a beat, at the same loudness as the major third that follows.",
+        "Slide up a semitone to the major third on the next eighth.",
+        "Do it only over a major chord or a power chord with a major third implied; never over a minor chord, where the minor third is already the chord tone."
+      ],
+      "where": {
+        "voice": ["lead"],
+        "beat_position": ["weak_beat", "offbeat_eighth", "second_half_of_beat"],
+        "chord_context": ["a major tonic, subdominant or dominant chord", "a power chord with no third"],
+        "section": ["B", "the town theme", "the victory sting"]
+      },
+      "duration_beats": { "min": 0.25, "max": 0.5 },
+      "resolution": {
+        "target": "the major third of the sounding chord, one semitone above the blue note",
+        "direction": "up",
+        "interval_semitones": 1,
+        "within_beats_min": 0.0,
+        "within_beats_max": 0.5,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 1 },
+      "risk": 2,
+      "chip": "Lead pulse 1 with the same duty for both notes, so the slide is a pitch gesture; the echo stays on the major third to anchor the resolution.",
+      "test": "the first note is a minor third above the chord root, the second is the major third, and the interval is one semitone",
+      "sources": ["S33", "S68"],
+      "forbidden": ["F1", "F2", "F4", "F5", "F8"],
+      "example_key": "C major: E flat sliding up to E"
+    },
+    {
+      "id": "DIS-30",
+      "name": "Tritone leap answered by step",
+      "family": "gag",
+      "trigger": "A melody can afford one wide, sour leap in a bar and the bar has a step left to answer it.",
+      "recipe": [
+        "Leap a tritone from a chord tone on a weak or a strong position, exactly one beat before the bar's last note.",
+        "Answer the leap by step in the opposite direction on the next note, onto a chord tone.",
+        "Keep both notes short, one eighth or one quarter, and change the duty on the leap so the interval is marked.",
+        "Use it at most once per 16 bars, never on a leitmotif statement and never in a cadence bar."
+      ],
+      "where": {
+        "voice": ["lead"],
+        "beat_position": ["weak_beat", "beat_2", "offbeat_eighth"],
+        "chord_context": ["a dominant or diminished chord where the tritone is native", "a tonic chord in a comic or sinister cue"],
+        "section": ["the boss theme", "a comic cue", "B_prime"]
+      },
+      "duration_beats": { "min": 0.25, "max": 1.0 },
+      "resolution": {
+        "target": "a chord tone one or two semitones from the tritone note, reached by a step in the opposite direction to the leap",
+        "direction": "either",
+        "interval_semitones": 1,
+        "within_beats_min": 0.25,
+        "within_beats_max": 1.0,
+        "verdict_if_missing": "reject"
+      },
+      "rate_per_8_bars": { "min": 0, "max": 0.5 },
+      "risk": 3,
+      "chip": "Lead pulse 1, one duty step brighter on the leap, and the echo answers on the resolution only, so the leap is a single sour event.",
+      "test": "one melodic leap of 6 semitones, followed within one beat by a step onto a chord tone in the opposite direction",
+      "sources": ["S75", "S68", "S61"],
+      "forbidden": ["F1", "F2", "F3", "F4", "F8"],
+      "example_key": "A minor over E7: leap from E up to A sharp, then step down to A"
+    }
+  ],
+  "sources": {
+    "S68": {
+      "title": "Wikipedia, Nonchord tone",
+      "url": "https://en.wikipedia.org/wiki/Nonchord_tone",
+      "read": "2026-10-21",
+      "supports": "Definitions of passing tone, neighbour tone, escape tone, anticipation, suspension (4 to 3, 7 to 6, 9 to 8), retardation, appoggiatura, changing tones, pedal point and chromatic nonharmonic tones; the statement that nonharmonic tones usually form dissonant seconds, fourths or sevenths and resolve to a chord tone; the Fux 1725 quotation urging suspensions; the note that chromatic appoggiaturas and passing tones increased in the Romantic period"
+    },
+    "S69": {
+      "title": "Wikipedia, Pedal point",
+      "url": "https://en.wikipedia.org/wiki/Pedal_point",
+      "read": "2026-10-21",
+      "supports": "A pedal point as a sustained tone, usually in the bass, against at least one foreign harmony; it begins as a chord tone, becomes a nonchord tone, and is a chord tone again when the harmony resolves; usually on the tonic or the dominant; the thrash metal muted low string as a pedal"
+    },
+    "S70": {
+      "title": "Wikipedia, Neapolitan chord",
+      "url": "https://en.wikipedia.org/wiki/Neapolitan_chord",
+      "read": "2026-10-21",
+      "supports": "The Neapolitan as a major chord on the lowered second, most often in first inversion as the Neapolitan sixth, functioning as a subdominant substitute that prepares the dominant, and far more common in minor keys"
+    },
+    "S71": {
+      "title": "Wikipedia, Secondary chord",
+      "url": "https://en.wikipedia.org/wiki/Secondary_dominant",
+      "read": "2026-10-21",
+      "supports": "Secondary dominants as a major triad or dominant seventh built to resolve to a scale degree other than the tonic; V of V as the most common; the purpose being to emphasise a chord inside the diatonic progression; a tonicisation longer than a phrase counts as a modulation"
+    },
+    "S72": {
+      "title": "Wikipedia, Borrowed chord",
+      "url": "https://en.wikipedia.org/wiki/Borrowed_chord",
+      "read": "2026-10-21",
+      "supports": "Mode mixture as chords borrowed from the parallel key; in major the most common borrowings lower the sixth (iv, ii half diminished, flat VI); flat III and flat VII come from the parallel minor or Mixolydian; borrowed chords are brief enough that the tonic is not lost"
+    },
+    "S73": {
+      "title": "Wikipedia, Tone cluster",
+      "url": "https://en.wikipedia.org/wiki/Cluster_chord",
+      "read": "2026-10-21",
+      "supports": "A tone cluster as a chord of at least three adjacent tones, prototypically semitone separated; in most Western music clusters are heard as dissonant"
+    },
+    "S74": {
+      "title": "Wikipedia, Altered chord",
+      "url": "https://en.wikipedia.org/wiki/Altered_chord",
+      "read": "2026-10-21",
+      "supports": "Alterations on dominant chords of flat five, sharp five, flat nine and sharp nine, and the statement that using one in a resolving dominant greatly increases the bite of the chord and the power of the resolution; altered notes used as leading tones to their diatonic neighbours"
+    },
+    "S75": {
+      "title": "Wikipedia, Tritone",
+      "url": "https://en.wikipedia.org/wiki/Tritone",
+      "read": "2026-10-21",
+      "supports": "The tritone as six semitones, a harmonic and melodic dissonance in functional harmony, and the interval whose notes push toward resolution in dominant and diminished chords; also the note that a tritone against the keynote can be used to avoid tonality"
+    },
+    "S76": {
+      "title": "Wikipedia, Augmented triad",
+      "url": "https://en.wikipedia.org/wiki/Augmented_chord",
+      "read": "2026-10-21",
+      "supports": "The augmented triad as a major third plus an augmented fifth; H.R. Palmer on its resolution, where the fifth rises a minor second and the third either rises a minor second or stays; the augmented chord on V as a substitute dominant; examples in popular song introductions"
+    },
+    "S77": {
+      "title": "Wikipedia, Black Sabbath (song)",
+      "url": "https://en.wikipedia.org/wiki/Black_Sabbath_(song)",
+      "read": "2026-10-21",
+      "supports": "The main riff as a G5 power chord followed by an octave into a tritone away from the root, described as highlighting the dissonant dark sound of the tritone against a stagnant harmonic rhythm, and as one of the earliest metal uses of the interval"
+    }
+  }
+}

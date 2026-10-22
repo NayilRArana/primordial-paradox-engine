@@ -1,0 +1,482 @@
+{
+  "format": 1,
+  "kind": "nes_icon_sheet",
+  "name": "spr_pp_icon_items_16",
+  "size": "96x48",
+  "frame_w": 16,
+  "frame_h": 16,
+  "frames": 18,
+  "grid": {
+    "cols": 6,
+    "rows": 3,
+    "cell_w": 16,
+    "cell_h": 16,
+    "sheet_w": 96,
+    "sheet_h": 48
+  },
+  "group": "items",
+  "title": "items and weapons, 16x16",
+  "transparent": true,
+  "sprite_palettes_used": [
+    "sp0",
+    "sp1",
+    "sp3"
+  ],
+  "sprite_palette_count": 3,
+  "sprite_objects_per_frame": 4,
+  "max_sprite_objects_if_all_frames_on_screen": 72,
+  "colours_used": [
+    {
+      "index": 15,
+      "hex": "#000000",
+      "hue": "black",
+      "usable": true
+    },
+    {
+      "index": 18,
+      "hex": "#0058f8",
+      "hue": "blue",
+      "usable": true
+    },
+    {
+      "index": 22,
+      "hex": "#f83800",
+      "hue": "red",
+      "usable": true
+    },
+    {
+      "index": 40,
+      "hex": "#f8b800",
+      "hue": "yellow",
+      "usable": true
+    },
+    {
+      "index": 48,
+      "hex": "#fcfcfc",
+      "hue": "grey",
+      "usable": true
+    }
+  ],
+  "colour_count": 5,
+  "rule": "sprite art: at most 3 opaque colours plus transparency on any 8x8 tile; entry 0 of a sprite palette is transparency; black is $0F; no gradient, no anti aliasing, no dithering; each icon wears one of the four sprite palettes in data\\palettes\\scene_icons.json",
+  "size_variants": [],
+  "size_variant_note": "",
+  "palette_file": "data\\palettes\\scene_icons.json",
+  "built_by": "tools\\art\\make_icons_nes.py",
+  "frames_detail": [
+    {
+      "index": 0,
+      "name": "potion",
+      "x": 0,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp1",
+      "colours": {
+        "dark": 15,
+        "mid": 22,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f83800",
+        "light": "#fcfcfc"
+      },
+      "note": "round flask, cork, one glint"
+    },
+    {
+      "index": 1,
+      "name": "ration",
+      "x": 16,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "loaf with two crust cuts"
+    },
+    {
+      "index": 2,
+      "name": "tea",
+      "x": 32,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 48,
+        "light": 40
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#fcfcfc",
+        "light": "#f8b800"
+      },
+      "note": "cup with a handle and a saucer"
+    },
+    {
+      "index": 3,
+      "name": "key",
+      "x": 48,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "ring, shaft, two teeth; Konrad's keyring shape"
+    },
+    {
+      "index": 4,
+      "name": "map",
+      "x": 64,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 48,
+        "light": 40
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#fcfcfc",
+        "light": "#f8b800"
+      },
+      "note": "folded sheet, two folds, a plotted route"
+    },
+    {
+      "index": 5,
+      "name": "phone",
+      "x": 80,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp3",
+      "colours": {
+        "dark": 15,
+        "mid": 18,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#0058f8",
+        "light": "#fcfcfc"
+      },
+      "note": "slab, screen, speaker, home button"
+    },
+    {
+      "index": 6,
+      "name": "trident",
+      "x": 0,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "three prongs; Percy"
+    },
+    {
+      "index": 7,
+      "name": "bident",
+      "x": 16,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp3",
+      "colours": {
+        "dark": 15,
+        "mid": 18,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#0058f8",
+        "light": "#fcfcfc"
+      },
+      "note": "two prongs; Hadrian"
+    },
+    {
+      "index": 8,
+      "name": "sickle",
+      "x": 32,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "crescent blade and a short handle; Konrad"
+    },
+    {
+      "index": 9,
+      "name": "thunderbolt",
+      "x": 48,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp3",
+      "colours": {
+        "dark": 15,
+        "mid": 18,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#0058f8",
+        "light": "#fcfcfc"
+      },
+      "note": "zigzag bolt; Zander"
+    },
+    {
+      "index": 10,
+      "name": "helm",
+      "x": 64,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "dome, brow band, eye slit; Hadrian's helm"
+    },
+    {
+      "index": 11,
+      "name": "wristwatch",
+      "x": 80,
+      "y": 16,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "round face on a strap; Konrad's tell"
+    },
+    {
+      "index": 12,
+      "name": "badge",
+      "x": 0,
+      "y": 32,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 48,
+        "light": 40
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#fcfcfc",
+        "light": "#f8b800"
+      },
+      "note": "lanyard cord, card, three text lines"
+    },
+    {
+      "index": 13,
+      "name": "tablet",
+      "x": 16,
+      "y": 32,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp3",
+      "colours": {
+        "dark": 15,
+        "mid": 18,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#0058f8",
+        "light": "#fcfcfc"
+      },
+      "note": "slab, screen, one button"
+    },
+    {
+      "index": 14,
+      "name": "sword",
+      "x": 32,
+      "y": 32,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp3",
+      "colours": {
+        "dark": 15,
+        "mid": 18,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#0058f8",
+        "light": "#fcfcfc"
+      },
+      "note": "modern cutlass: curved blade, guard, grip"
+    },
+    {
+      "index": 15,
+      "name": "shield",
+      "x": 48,
+      "y": 32,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "heater shield, inset field, boss"
+    },
+    {
+      "index": 16,
+      "name": "gem",
+      "x": 64,
+      "y": 32,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp1",
+      "colours": {
+        "dark": 15,
+        "mid": 22,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f83800",
+        "light": "#fcfcfc"
+      },
+      "note": "faceted stone, setting line"
+    },
+    {
+      "index": 17,
+      "name": "coin",
+      "x": 80,
+      "y": 32,
+      "w": 16,
+      "h": 16,
+      "tiles_w": 2,
+      "tiles_h": 2,
+      "sprite_objects": 4,
+      "sprite_palette": "sp0",
+      "colours": {
+        "dark": 15,
+        "mid": 40,
+        "light": 48
+      },
+      "hex": {
+        "dark": "#000000",
+        "mid": "#f8b800",
+        "light": "#fcfcfc"
+      },
+      "note": "disc, inner ring, a struck mark"
+    }
+  ]
+}
