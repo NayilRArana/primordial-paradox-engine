@@ -1,0 +1,121 @@
+{
+  "backdrop": 15,
+  "background": [
+    {
+      "colours": [
+        0,
+        17,
+        32
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#0078f8",
+        "#f8f8f8"
+      ],
+      "name": "bg0"
+    },
+    {
+      "colours": [
+        12,
+        18,
+        32
+      ],
+      "hex": [
+        "#004058",
+        "#0058f8",
+        "#f8f8f8"
+      ],
+      "name": "bg1"
+    },
+    {
+      "colours": [
+        9,
+        10,
+        11
+      ],
+      "hex": [
+        "#007800",
+        "#006800",
+        "#005800"
+      ],
+      "name": "bg2"
+    },
+    {
+      "colours": [
+        0,
+        2,
+        8
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#0000bc",
+        "#503000"
+      ],
+      "name": "bg3"
+    }
+  ],
+  "format": 1,
+  "kind": "scene_palette",
+  "notes": [
+    "backdrop $0F black is background palette 0 entry 0 and is shared with every sprite palette",
+    "background palettes cover the composite of the seven scrolling layers in data/title.json, 16x16 screen areas",
+    "sprite palettes cover every 8x8 tile of the car, the logo, the sign, the cone, the window, the font and the cursor, 3 colours plus transparency",
+    "solved by tools/art/scene_palette.py from the art on disk, then checked again by tools/nes_composite_check.py"
+  ],
+  "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
+  "scene": "title",
+  "sprites": [
+    {
+      "colours": [
+        9,
+        32,
+        48
+      ],
+      "hex": [
+        "#007800",
+        "#f8f8f8",
+        "#fcfcfc"
+      ],
+      "name": "sp0"
+    },
+    {
+      "colours": [
+        0,
+        15,
+        40
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#000000",
+        "#f8b800"
+      ],
+      "name": "sp1"
+    },
+    {
+      "colours": [
+        10,
+        12,
+        16
+      ],
+      "hex": [
+        "#006800",
+        "#004058",
+        "#bcbcbc"
+      ],
+      "name": "sp2"
+    },
+    {
+      "colours": [
+        2,
+        7,
+        22
+      ],
+      "hex": [
+        "#0000bc",
+        "#881400",
+        "#f83800"
+      ],
+      "name": "sp3"
+    }
+  ]
+}

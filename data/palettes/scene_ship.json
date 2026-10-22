@@ -1,0 +1,121 @@
+{
+  "backdrop": 15,
+  "background": [
+    {
+      "colours": [
+        0,
+        16,
+        48
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "name": "bg0"
+    },
+    {
+      "colours": [
+        18,
+        40,
+        48
+      ],
+      "hex": [
+        "#0058f8",
+        "#f8b800",
+        "#fcfcfc"
+      ],
+      "name": "bg1"
+    },
+    {
+      "colours": [
+        2,
+        7,
+        23
+      ],
+      "hex": [
+        "#0000bc",
+        "#881400",
+        "#e45c10"
+      ],
+      "name": "bg2"
+    },
+    {
+      "colours": [
+        0,
+        2,
+        33
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#0000bc",
+        "#3cbcfc"
+      ],
+      "name": "bg3"
+    }
+  ],
+  "format": 1,
+  "kind": "scene_palette",
+  "notes": [
+    "backdrop $0F black is the hull shadow and the hatch void",
+    "background palettes cover the 48 16x16 tiles of ts_ship.png, one palette per tile; unchanged from the committed sheet so the tileset does not have to be redrawn",
+    "sprite palettes cover the ship's cast (sailor_ow, sailor_battle) and the sheet cut to 8x8, three colours plus transparency per 8x16 sprite; solved with the cast in the pool so navy, trim and skin have a palette instead of being mapped into rust",
+    "solved by tools/art/scene_palette.py and checked by tools/check_scene_palettes.py"
+  ],
+  "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
+  "scene": "ship",
+  "sprites": [
+    {
+      "colours": [
+        0,
+        15,
+        16
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#000000",
+        "#bcbcbc"
+      ],
+      "name": "sp0"
+    },
+    {
+      "colours": [
+        2,
+        18,
+        48
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#fcfcfc"
+      ],
+      "name": "sp1"
+    },
+    {
+      "colours": [
+        7,
+        23,
+        54
+      ],
+      "hex": [
+        "#881400",
+        "#e45c10",
+        "#f0d0b0"
+      ],
+      "name": "sp2"
+    },
+    {
+      "colours": [
+        8,
+        39,
+        40
+      ],
+      "hex": [
+        "#503000",
+        "#fca044",
+        "#f8b800"
+      ],
+      "name": "sp3"
+    }
+  ]
+}

@@ -741,3 +741,18 @@ capture the game writes from inside its own draw event instead of a screen copy 
 
 Copied expression: none.
 
+
+## NES-PALETTES, 2026-10-22: scene palettes for the title and the ship
+Source studied: published NES hardware behaviour (Ricoh 2C02 PPU palettes and attribute tables: four background
+palettes of three plus a shared backdrop, four sprite palettes of three plus transparency, one attribute entry per
+16x16 area) and the manager's 2026-10-21 research note on how NES artists worked inside it (transparent as an
+apparent colour, stacked sprites for a fourth colour, tiled variation, flicker to hide the 8 per scanline limit).
+Those sources are documented technique and public hardware facts, not art.
+Mechanic learned: the budget is a property of the composed frame, not of each layer, so the palette must be decided
+before the art and enforced at the moment each asset is written.
+Our implementation differs by: making the scene palette a data file per scene (data/palettes/scene_title.json,
+scene_ship.json) with a solver that picks the four triples from the art, an enforcement pass that runs inside the
+generators (title_car_v2, title_logo_v2, make_characters, make_title_world, make_title_ui, make_env_ship) so a
+regeneration cannot undo it, and a checker that re-measures the pixels without trusting the solver.
+Copied expression: none. No sprite, tile, palette swatch, font, sound or code text from any published game is in
+this change; the drawing code, the solver and the checker are ours, written from the hardware rules above.

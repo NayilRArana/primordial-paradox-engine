@@ -1,0 +1,1597 @@
+{
+  "columns": 16,
+  "format": 1,
+  "image": "ts_ship.png",
+  "imageheight": 48,
+  "imagewidth": 256,
+  "kind": "tileset",
+  "margin": 0,
+  "name": "ts_ship",
+  "palette": [
+    {
+      "entry": 15,
+      "hex": "#000000",
+      "key": "k",
+      "use": "backdrop: hull shadow, seams, hatch void"
+    },
+    {
+      "entry": 0,
+      "hex": "#7c7c7c",
+      "key": "m",
+      "use": "steel mid: deck plates, lower bulkhead, stone"
+    },
+    {
+      "entry": 16,
+      "hex": "#bcbcbc",
+      "key": "l",
+      "use": "steel light: upper bulkhead, rivets, fittings"
+    },
+    {
+      "entry": 48,
+      "hex": "#fcfcfc",
+      "key": "w",
+      "use": "white paint: corridor lines, rim light, foam"
+    },
+    {
+      "entry": 2,
+      "hex": "#0000bc",
+      "key": "a",
+      "use": "sea deep, navy"
+    },
+    {
+      "entry": 18,
+      "hex": "#0058f8",
+      "key": "b",
+      "use": "sea mid"
+    },
+    {
+      "entry": 33,
+      "hex": "#3cbcfc",
+      "key": "c",
+      "use": "sea crest"
+    },
+    {
+      "entry": 7,
+      "hex": "#881400",
+      "key": "r",
+      "use": "rust dark, wardroom wood dark"
+    },
+    {
+      "entry": 23,
+      "hex": "#e45c10",
+      "key": "o",
+      "use": "rust, wardroom wood grain"
+    },
+    {
+      "entry": 40,
+      "hex": "#f8b800",
+      "key": "y",
+      "use": "brass, hazard yellow"
+    }
+  ],
+  "properties": [
+    {
+      "name": "scene",
+      "type": "string",
+      "value": "map2_royal_navy_ship"
+    },
+    {
+      "name": "palette_source",
+      "type": "string",
+      "value": "data/nes_palette.json (Ricoh 2C02), 10 colours: black backdrop plus steel, sea, rust groups"
+    },
+    {
+      "name": "colour_budget",
+      "type": "string",
+      "value": "3 non backdrop colours per 16x16 tile, 10 in the scene"
+    }
+  ],
+  "spacing": 0,
+  "tilecount": 48,
+  "tiledversion": "1.11.0",
+  "tileheight": 16,
+  "tiles": [
+    {
+      "id": 0,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "deck_a"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 1,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "deck_b"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 2,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "deck_plain"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 3,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "deck_grate"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 4,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "deck_rivets"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 5,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "deck_line_h"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,w"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 6,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "deck_line_v"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,w"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 7,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "deck_line_corner"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,w"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 8,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "bulkhead"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 9,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "bulkhead_plain"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 10,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "bulkhead_vent"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 11,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "bulkhead_light"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,y"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 12,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "hatch_closed"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,y"
+        }
+      ],
+      "type": "door"
+    },
+    {
+      "id": 13,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "hatch_open"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "door"
+    },
+    {
+      "id": 14,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "deck_sill"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,w"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 15,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "ladder"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "l,w"
+        }
+      ],
+      "type": "climb"
+    },
+    {
+      "id": 16,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "stairs_up"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "climb"
+    },
+    {
+      "id": 17,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "stairs_down"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "climb"
+    },
+    {
+      "id": 18,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "pipes"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,y"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 19,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "pipe_vert"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,y"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 20,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "cable_run"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,y"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 21,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "crate"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "rust"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "r,o,y"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 22,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "crate_stack"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "rust"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "r,o,y"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 23,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "barrel"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "rust"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "r,o,y"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 24,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "lifebuoy"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "l,w,o"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 25,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "warning"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "rust"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "y"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 26,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "locker"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,y"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "animation": [
+        {
+          "duration": 500,
+          "tileid": 28
+        }
+      ],
+      "id": 27,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "porthole_a"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "sea"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,b"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 28,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "porthole_b"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "sea"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,b"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 29,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "sign_wardroom"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,w"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 30,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "sign_machinery"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,w"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 31,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "sign_bridge"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,w"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 32,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "wood_floor_a"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "rust"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "r,o"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 33,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "wood_floor_b"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "rust"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "r,o"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 34,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "table"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "rust"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "r,o,y"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 35,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "bunk"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l,r"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 36,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "quay_stone_a"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 37,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "quay_stone_b"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 38,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "quay_dark"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m"
+        }
+      ],
+      "type": "wall"
+    },
+    {
+      "id": 39,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "quay_cap"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "floor"
+    },
+    {
+      "id": 40,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "bollard"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "rust"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "r,y"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 41,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "rail_post"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "id": 42,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "rail_bar"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "steel"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "m,l"
+        }
+      ],
+      "type": "prop"
+    },
+    {
+      "animation": [
+        {
+          "duration": 500,
+          "tileid": 44
+        }
+      ],
+      "id": 43,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "water_a"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "sea"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "a,b,c"
+        }
+      ],
+      "type": "water"
+    },
+    {
+      "id": 44,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "water_b"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "sea"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "a,b,c"
+        }
+      ],
+      "type": "water"
+    },
+    {
+      "id": 45,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "water_edge"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "sea"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "a,b,c"
+        }
+      ],
+      "type": "water"
+    },
+    {
+      "id": 46,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "water_deep"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "sea"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "a,b,c"
+        }
+      ],
+      "type": "water"
+    },
+    {
+      "id": 47,
+      "properties": [
+        {
+          "name": "tile_name",
+          "type": "string",
+          "value": "water_foam"
+        },
+        {
+          "name": "solid",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "climb",
+          "type": "bool",
+          "value": false
+        },
+        {
+          "name": "palette_group",
+          "type": "string",
+          "value": "sea"
+        },
+        {
+          "name": "colours",
+          "type": "string",
+          "value": "a,b,c"
+        }
+      ],
+      "type": "water"
+    }
+  ],
+  "tilewidth": 16,
+  "type": "tileset"
+}

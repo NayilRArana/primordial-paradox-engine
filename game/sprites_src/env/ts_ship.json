@@ -1,0 +1,10 @@
+{
+  "columns": 16,
+  "fps": 0.0,
+  "frame_h": 16,
+  "frame_w": 16,
+  "frames": 48,
+  "kind": "tileset",
+  "name": "ts_ship",
+  "rows": 3
+}
