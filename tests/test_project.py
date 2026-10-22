@@ -10,6 +10,7 @@ import json
 import os
 import re
 
+import check_build_inputs
 import check_cleanroom
 import check_data
 import check_project
@@ -87,6 +88,15 @@ def test_provenance_covers_every_module():
 
 def test_data_passes():
     assert check_data.check(ROOT) == []
+
+
+def test_build_inputs_are_committed():
+    """Every Included File the project declares must resolve to a source the commit carries.
+
+    This is the assertion that turns "HEAD references a file HEAD lacks" from dozens of unrelated
+    FileNotFoundError in the nightly worktree into one named failure here.
+    """
+    assert check_build_inputs.check(ROOT) == []
 
 
 def test_no_em_or_en_dashes_anywhere():
