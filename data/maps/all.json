@@ -11,6 +11,7 @@
       "height": 15,
       "music": "PP-05",
       "story_flag": "ship_door_open",
+      "room_palette": "deck_day",
       "palette_indices": [0, 1, 3, 10, 16, 17, 23, 40, 41, 53],
       "tiles": [
         "####################",
@@ -69,6 +70,7 @@
       "height": 15,
       "music": "PP-05",
       "story_flag": "",
+      "room_palette": "ship_cabin",
       "palette_indices": [0, 1, 3, 10, 16, 17, 40],
       "tiles": [
         "################",

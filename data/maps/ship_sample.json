@@ -8,6 +8,7 @@
       "name": "Navy Ship, Lower Deck",
       "tileset": "ts_ship",
       "music": "PP-05",
+      "room_palette": "lower_deck",
       "width": 24,
       "height": 18,
       "tile_legend": {
