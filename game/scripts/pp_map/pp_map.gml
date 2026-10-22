@@ -141,8 +141,10 @@ function pp_map_draw(_map, _cam_x, _cam_y) {
             var _ch = pp_map_tile_char(_map, _tx, _ty);
             if (!is_undefined(_info)) {
                 var _gid = pp_map_tile_gid(_ch);
-                var _sx = (_gid mod PP_TILESET_COLUMNS) * _map.tile;
-                var _sy = floor(_gid / PP_TILESET_COLUMNS) * _map.tile;
+                var _cols = PP_TILESET_COLUMNS;
+                if (variable_struct_exists(_info, "columns") && _info.columns > 0) _cols = _info.columns;
+                var _sx = (_gid mod _cols) * _map.tile;
+                var _sy = floor(_gid / _cols) * _map.tile;
                 draw_sprite_part_ext(_info.sprite, 0, _sx, _sy, _map.tile, _map.tile,
                                      _px, _py, 1, 1, c_white, 1);
             } else {

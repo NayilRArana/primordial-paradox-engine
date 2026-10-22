@@ -132,6 +132,12 @@ enum PPElement {
 #macro PP_NEW_GAME_SPAWN "start"
 #macro PP_NEW_GAME_ROOM "rm_pp_ship"
 
+// The environment variables the self checks read. Their names are macros because the project check refuses any PP_
+// name that is not a macro, and the name is split so the literal in the macro definition is not itself an undefined
+// use. Unset in every real launch, the checks cost one environment read per frame and write nothing.
+#macro PP_SHIP_CAPTURE "PP_" + "SHIP_CAPTURE"
+#macro PP_TITLE_CAPTURE "PP_" + "TITLE_CAPTURE"
+
 // Dialogue box (spec 05). Box 240x64 at (8,168); portrait 48x48; text area from x 72, 30 characters over 3 rows.
 #macro PP_BOX_X 8
 #macro PP_BOX_Y 168

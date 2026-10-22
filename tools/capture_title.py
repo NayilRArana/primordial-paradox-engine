@@ -127,10 +127,19 @@ VK_RETURN = 0x0D
 VK_RIGHT = 0x27
 # The ship room capture (card ASSEMBLE): the wait covers NEW GAME's 240 step drive (4 s at 60 steps) and the fade,
 # the walk is the card's eight Right presses, and the minimum difference rejects two copies of one still frame.
-SHIP_DRIVE_WAIT_S = 5.5
+SHIP_DRIVE_WAIT_S = 40.0
+# The line pp_title prints when the crawl ends and pp_save_new_game starts the run. The capture waits for it instead
+# of trusting a stopwatch, and SHIP_ROOM_SETTLE_S then covers pp_app's 12 step fade and the first drawn frames.
+SHIP_RUN_MARKER = "starting the run in"
+SHIP_ROOM_SETTLE_S = 1.5
+# The title's own line when NEW GAME is chosen. The capture reads it to know the opening shot and the prompt are
+# behind it, so it presses Enter until it appears rather than assuming one press is enough.
+TITLE_INTRO_MARKER = "PP title: intro started"
+TITLE_INTRO_PRESS_CAP = 5
+TITLE_PRESS_GAP_S = 0.9
 SHIP_WALK_STEPS = 8
 SHIP_KEY_GAP_S = 0.18
-SHIP_AFTER_WALK_S = 0.5
+SHIP_AFTER_WALK_S = 2.0
 SHIP_MIN_DIFF = 0.001
 # The intro capture (card INTRO-1): the opening shot lasts 3 s on a first boot and any key skips it, so the first
 # wait covers it either way; then Enter opens the menu and Enter again chooses NEW GAME. The four timestamps are the
@@ -1400,17 +1409,57 @@ def run_game_capture():
             pass
 
 
+def log_has_line(path, needle):
+    """True when the game's log already carries a line. The log is the game's own account, so the harness reads it
+    instead of guessing how many key presses or seconds a screen takes."""
+    if not os.path.isfile(path):
+        return False
+    with open(path, "r", encoding="utf-8", errors="replace") as handle:
+        return needle in handle.read()
+
+
+def wait_for_log_line(path, needle, timeout_s):
+    """Wait until the game's own log carries a line, and say whether it did.
+
+    The run start is a fact the game prints itself, so the capture does not guess at how long the title's opening
+    shots take. The marker is written by pp_title when the crawl ends and pp_save_new_game begins.
+    """
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        # The log does not exist on the first polls, which is a normal state: no handler to swallow, just a check.
+        if os.path.isfile(path):
+            with open(path, "r", encoding="utf-8", errors="replace") as handle:
+                if needle in handle.read():
+                    return True
+        time.sleep(0.2)
+    return False
+
+
+def self_frame_paths():
+    """Where the room writes its own two frames.
+
+    GameMaker's screen_save writes beside the game's save area, which is the folder the runtime derives from the
+    project name under the user's local AppData, not the folder the runner was started in. Measured 2026-10-22:
+    the files land in %LOCALAPPDATA%\\PrimordialParadox while the runner runs from output\\PrimordialParadox.
+    """
+    base = os.path.join(os.environ.get("LOCALAPPDATA", ""), "PrimordialParadox")
+    return [os.path.join(base, "pp_ship_frame.png"), os.path.join(base, "pp_ship_frame_2.png")]
+
+
 def run_ship_capture():
     """Enter the ship room from the title, walk right, and capture the room twice.
 
     Steps, and why each wait is the number it is:
       1. Launch the built game and wait for its own window (the same guard run_game_capture uses).
-      2. Enter once to pass the title's opening shot, wait, Enter again to choose NEW GAME. NEW GAME plays the
-         240 step night drive before the run starts, so the wait after the second Enter covers the drive (4 s
-         at 60 steps a second) plus the fade.
-      3. Capture output\\ship_run_1.png.
-      4. Press Right eight times, the card's own walk, then capture output\\ship_run_2.png.
-      5. Fail if the two frames are the same picture, or if the game log carries "PP CRASH".
+      2. Take the keyboard focus, then press Enter until the game's own "intro started" line appears, once more to
+         skip the crawl, and wait for its "starting the run in rm_pp_ship" line.
+      3. Copy one screen rectangle (output\\ship_window_1.png) and, more importantly, ask the game for its own frame:
+         with PP_SHIP_CAPTURE set the room writes pp_ship_frame.png at draw 90 and pp_ship_frame_2.png at draw 240.
+         The screen copy cannot be trusted on a DirectX11 window, and this session measured exactly that: two window
+         copies 0.65 apart with the desktop's colours in them, while the room's own frame is 88% tileset steel.
+      4. Press Right eight times, the card's own walk.
+      5. Copy output\\ship_run_1.png and output\\ship_run_2.png from the room's own frames, then fail if they are the
+         same picture, if the walker did not move, or if the game log carries "PP CRASH".
 
     Usage: python tools\\capture_title.py --room ship
     """
@@ -1425,12 +1474,22 @@ def run_ship_capture():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     game_log_path = os.path.join(BUILD_DIR, "capture-ship-game.log")
     game_log = open(game_log_path, "wb")
+    # Card ASSEMBLE: the room writes its own two frames when this is set, so the proof is the game's frame and not a
+    # copy of whatever the desktop shows inside the window rectangle. The old pair is removed first so a stale file
+    # can never be mistaken for this run's.
+    ship_self_paths = self_frame_paths()
+    for old in ship_self_paths:
+        if os.path.exists(old):
+            os.remove(old)
+    child_env = dict(os.environ)
+    child_env["PP_SHIP_CAPTURE"] = "1"
     process = subprocess.Popen(
         [exe_path, "-game", win_path],
         cwd=os.path.dirname(exe_path),
         stdin=subprocess.DEVNULL,
         stdout=game_log,
         stderr=subprocess.STDOUT,
+        env=child_env,
     )
     start_watchdog(process, WATCHDOG_S)
     try:
@@ -1451,42 +1510,68 @@ def run_ship_capture():
         print("game window found: %s (hwnd %s)" % (match[2], hwnd))
 
         time.sleep(GAME_SETTLE_S)
-        print("title enter 1 %s" % send_vk(hwnd, VK_RETURN))
-        time.sleep(AFTER_ENTER_S)
-        print("title enter 2 (NEW GAME) %s" % send_vk(hwnd, VK_RETURN))
-        time.sleep(SHIP_DRIVE_WAIT_S)
+        # Card ASSEMBLE: the game reads key STATE, not posted window messages, so a posted Enter is a dud (the file's
+        # own note of 2026-10-22 records a menu that never moved after four "posted" keys). The harness takes the
+        # keyboard focus first and every key below goes through the input queue.
+        focused, focus_note = ensure_key_focus(hwnd)
+        print("keyboard focus: %s" % focus_note)
 
-        first_path = os.path.join(OUTPUT_DIR, "ship_run_1.png")
-        rect, written, note = capture_window(hwnd, first_path)
+        def press(vk):
+            return send_vk_focused(vk) if focused else send_vk(hwnd, vk)
+
+        presses = 0
+        while presses < TITLE_INTRO_PRESS_CAP:
+            presses += 1
+            print("title enter %d %s" % (presses, press(VK_RETURN)))
+            time.sleep(TITLE_PRESS_GAP_S)
+            if log_has_line(game_log_path, TITLE_INTRO_MARKER):
+                print("the game reported the intro starting after %d Enters" % presses)
+                break
+        else:
+            print("no intro marker after %d Enters" % TITLE_INTRO_PRESS_CAP)
+
+        if log_has_line(game_log_path, TITLE_INTRO_MARKER):
+            # The crawl is 540 steps of quiet before the words; one more confirm is the game's own skip to its end.
+            print("title enter skip %s" % press(VK_RETURN))
+            time.sleep(TITLE_PRESS_GAP_S)
+
+        # The wait is the game's own marker line, not a guessed sleep. When the game says the run has started, the
+        # room is one short fade away.
+        if wait_for_log_line(game_log_path, SHIP_RUN_MARKER, SHIP_DRIVE_WAIT_S):
+            print("the game reported the run starting")
+            time.sleep(SHIP_ROOM_SETTLE_S)
+        else:
+            print("no run marker within %.1f s, capturing on the clock instead" % SHIP_DRIVE_WAIT_S)
+            time.sleep(SHIP_DRIVE_WAIT_S)
+
+        # The window copies are kept under their own names as a second opinion. They are not the card's proof: a
+        # screen rectangle copy of a DirectX11 window measured the desktop's colours in this session, so the pair the
+        # card names comes from the room's own frames below.
+        window_first = os.path.join(OUTPUT_DIR, "ship_window_1.png")
+        raised, raise_note = ensure_key_focus(hwnd, attempts=3, settle=0.2)
+        print("capture raise: %s" % raise_note)
+        rect, written, note = capture_window(hwnd, window_first)
         if rect is None or written is None:
-            print("ship capture 1 failed: %s" % note)
-            return 1
-        real, why = frame_is_real(first_path)
-        if not real:
-            print("ship capture 1 rejected: %s" % why)
-            discard(first_path)
-            return 1
-        print("captured %s %sx%s (%s)" % (first_path, rect[2], rect[3], why))
+            print("window copy 1 failed (not fatal, the room's own frame is the proof): %s" % note)
+        else:
+            print("copied window rectangle %s %sx%s" % (window_first, rect[2], rect[3]))
 
         sent = 0
         for _step in range(SHIP_WALK_STEPS):
-            if send_vk(hwnd, VK_RIGHT) in ("sent", "posted"):
+            if press(VK_RIGHT) in ("sent", "posted"):
                 sent += 1
             time.sleep(SHIP_KEY_GAP_S)
         print("right key sent %d times" % sent)
         time.sleep(SHIP_AFTER_WALK_S)
 
-        second_path = os.path.join(OUTPUT_DIR, "ship_run_2.png")
-        rect, written, note = capture_window(hwnd, second_path)
+        window_second = os.path.join(OUTPUT_DIR, "ship_window_2.png")
+        raised, raise_note = ensure_key_focus(hwnd, attempts=3, settle=0.2)
+        print("capture raise: %s" % raise_note)
+        rect, written, note = capture_window(hwnd, window_second)
         if rect is None or written is None:
-            print("ship capture 2 failed: %s" % note)
-            return 1
-        real, why = frame_is_real(second_path)
-        if not real:
-            print("ship capture 2 rejected: %s" % why)
-            discard(second_path)
-            return 1
-        print("captured %s %sx%s (%s)" % (second_path, rect[2], rect[3], why))
+            print("window copy 2 failed (not fatal, the room's own frame is the proof): %s" % note)
+        else:
+            print("copied window rectangle %s %sx%s" % (window_second, rect[2], rect[3]))
 
         close_window(hwnd)
         deadline = time.time() + CLOSE_GRACE_S
@@ -1506,6 +1591,25 @@ def run_ship_capture():
             print("the game reported a crash: %s" % crash_lines[0][:200])
             return 1
         print("no PP CRASH in %s" % game_log_path)
+
+        first_path = os.path.join(OUTPUT_DIR, "ship_run_1.png")
+        second_path = os.path.join(OUTPUT_DIR, "ship_run_2.png")
+        self_first, self_second = ship_self_paths
+        missing = [p for p in (self_first, self_second) if not os.path.isfile(p)]
+        if missing:
+            print("the room wrote no frame at %s, so the run cannot be proven from the game's own pixels" % missing[0])
+            return 1
+        shutil.copyfile(self_first, first_path)
+        shutil.copyfile(self_second, second_path)
+        print("the pair is the room's own frames: %s and %s" % (first_path, second_path))
+
+        # The walker really walked: pp_overworld plays one footstep cue per tile it starts. A key pressed while the
+        # walker is between tiles is correctly ignored, so the count is five or so out of eight presses, never zero.
+        footsteps = len([line for line in log_text.splitlines() if "footstep played" in line])
+        print("footstep cues in the log: %d" % footsteps)
+        if footsteps == 0:
+            print("the walker never moved, so the Right presses did not reach the room")
+            return 1
 
         share = frames_differ(first_path, second_path)
         if share is None:

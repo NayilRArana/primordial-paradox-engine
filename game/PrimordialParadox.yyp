@@ -213,6 +213,105 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "hadrian_battle.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "hadrian_battle.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "hadrian_god_battle.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "hadrian_god_battle.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "hadrian_ow.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "hadrian_ow.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "konrad_battle.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "konrad_battle.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "konrad_god_battle.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "konrad_god_battle.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "konrad_ow.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "konrad_ow.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "percy_battle.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "percy_battle.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "percy_god_battle.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "percy_god_battle.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "percy_ow.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "percy_ow.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "sailor_battle.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "sailor_battle.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "sailor_ow.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "sailor_ow.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_pp_font8.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -942,6 +1041,51 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "ts_exterior.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "ts_exterior.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "ts_ship.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "ts_ship.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "zander_battle.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "zander_battle.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "zander_god_battle.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "zander_god_battle.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "zander_ow.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "zander_ow.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "party.json",
       "CopyToMask": -1,
       "filePath": "datafiles/characters",
@@ -978,6 +1122,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "roster.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/enemies",
+      "name": "roster.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "all.json",
       "CopyToMask": -1,
       "filePath": "datafiles/maps",
@@ -1000,6 +1153,33 @@
       "CopyToMask": -1,
       "filePath": "datafiles/maps",
       "name": "ship_sample_tiled.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "southampton_sample.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps",
+      "name": "southampton_sample.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "westminster_sample.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps",
+      "name": "westminster_sample.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "winchester_sample.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps",
+      "name": "winchester_sample.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -1104,10 +1284,28 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "scene_sea.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_sea.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "scene_ship.json",
       "CopyToMask": -1,
       "filePath": "datafiles/palettes",
       "name": "scene_ship.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "scene_southampton.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_southampton.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -1126,6 +1324,24 @@
       "CopyToMask": -1,
       "filePath": "datafiles/palettes",
       "name": "scene_ui.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "scene_westminster.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_westminster.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "scene_winchester.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/palettes",
+      "name": "scene_winchester.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },

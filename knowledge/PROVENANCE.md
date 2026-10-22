@@ -756,3 +756,18 @@ generators (title_car_v2, title_logo_v2, make_characters, make_title_world, make
 regeneration cannot undo it, and a checker that re-measures the pixels without trusting the solver.
 Copied expression: none. No sprite, tile, palette swatch, font, sound or code text from any published game is in
 this change; the drawing code, the solver and the checker are ours, written from the hardware rules above.
+
+## 2026-10-22, card ASSEMBLE: a playable tile room on a 16 pixel grid
+
+Studied: the project's own specs 03 (camera and integer scale), 04 (tile map, collision grid, triggers, spawn
+points) and 14 (title drive), the GameMaker manual pages for screen_save, sprite_add and draw_sprite_part_ext, and the
+FOX-STYLE dossier "rooms and doors" for the one owner per room pattern already in the codebase.
+Mechanics learned: a room is three separate data pieces (tile art per cell, a collision byte grid, a list of triggers)
+and the camera is a clamp over the map's pixel size; a room of 256x240 can show a map larger than itself and the frame
+is scaled by an integer, never a fraction.
+Our implementation differs by: the map loads from data\maps\ship_sample.json with a character legend and a separate
+collision row per tile row; the tileset cell is chosen by a small explicit table (wall 8, floor 2, door 13, crate 21,
+pipe 18, grate 3) read from the index's column count; the figures are frame math over a single row sheet with the
+frames per direction measured at runtime; and the proof of the room is the room's own screen_save frame written from
+inside its draw, not a copy of the desktop.
+Copied expression: none. No sprite, tile, font, sound or code text from any published game is in this change.

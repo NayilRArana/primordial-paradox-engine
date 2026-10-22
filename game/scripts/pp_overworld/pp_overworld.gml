@@ -483,6 +483,25 @@ function pp_overworld_draw(_world) {
         draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
         draw_set_alpha(1);
     }
+
+    // Card ASSEMBLE self check: with PP_SHIP_CAPTURE set in the environment, the room writes one PNG of its own frame
+    // from inside the draw, so the room can be proven without a screen copy of whatever window sits on top of the game.
+    // The 90th draw is 1.5 s in, past pp_app's 12 step fade in, so the file shows the room and not a black fade frame.
+    // Unset, which is every real launch, this costs one environment read per frame and writes nothing.
+    if (environment_get_variable(PP_SHIP_CAPTURE) != "") {
+        if (!variable_global_exists("pp_ship_draws")) global.pp_ship_draws = 0;
+        global.pp_ship_draws += 1;
+        if (global.pp_ship_draws == 90) {
+            screen_save("pp_ship_frame.png");
+            show_debug_message("PP ship: wrote pp_ship_frame.png from the room itself at draw " + string(global.pp_ship_draws));
+        }
+        // The second file is five seconds in, after the harness has pressed Right eight times, so the pair proves the
+        // walker moved and the camera followed it inside the room's own pixels.
+        if (global.pp_ship_draws == 360) {
+            screen_save("pp_ship_frame_2.png");
+            show_debug_message("PP ship: wrote pp_ship_frame_2.png from the room itself at draw " + string(global.pp_ship_draws));
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -491,18 +510,32 @@ function pp_overworld_draw(_world) {
 // same silhouette is drawn from blocks at the same size, which is the card's stated fallback and keeps the
 // walk cycle, the facing and the dialogue reach working before any art lands.
 
-#macro PP_HERO_SHEET "spr_pp_zander_ow"
-#macro PP_SAILOR_SHEET "spr_pp_sailor_ow"
+#macro PP_HERO_SHEET "zander_ow"
+#macro PP_SAILOR_SHEET "sailor_ow"
 
-/// Row of a direction inside a 4 by 3 sheet. The order is the one the card names: down, left, right, up.
+/// Row of a direction inside an overworld sheet. The sheet the character lane draws is 128x16, eight frames in
+/// one row: down 0, down 1, up 0, up 1, right 0, right 1, left 0, left 1. So the direction order is down, up,
+/// right, left, two frames each: frame 0 stands (idle) and frame 1 steps.
 function pp_world_dir_row(_dir) {
     switch (_dir) {
         case "down":  return 0;
-        case "left":  return 1;
+        case "up":    return 1;
         case "right": return 2;
-        case "up":    return 3;
+        case "left":  return 3;
     }
     return 0;
+}
+
+/// The frame of one figure in its sheet: direction times frames per direction, plus the walk step. Frames per
+/// direction is read off the sheet (eight frames over four directions is two), so a twelve frame sheet with three
+/// frames per direction would animate without a code change. Idle is frame 0 of the direction; a move cycles.
+function pp_world_sheet_frame(_name, _dir, _moving, _steps) {
+    var _per = 2;
+    var _info = pp_art_info(_name);
+    if (!is_undefined(_info) && _info.frames > 0 && (_info.frames mod 4) == 0) _per = _info.frames div 4;
+    var _step = 0;
+    if (_moving && _per > 1) _step = floor(_steps / 4) mod _per;
+    return pp_world_dir_row(_dir) * _per + _step;
 }
 
 /// The walk step of a figure: 0 standing, 1 and 2 while a move is under way. Two frames, 4 steps apart, so the
@@ -517,7 +550,7 @@ function pp_overworld_draw_hero(_world, _ox, _oy) {
     var _sx = _hero.px - _world.cam_x + _ox;
     var _sy = _hero.py - _world.cam_y + _oy;
     var _step = pp_world_walk_frame(_hero.moving, _hero.steps);
-    var _frame = pp_world_dir_row(_hero.facing) * 3 + _step;
+    var _frame = pp_world_sheet_frame(PP_HERO_SHEET, _hero.facing, _hero.moving, _hero.steps);
     if (pp_art_draw(PP_HERO_SHEET, _frame, _sx, _sy, c_white, 1)) return;
 
     // Blocks: blond head, light blue bomber, dark trousers. 12 wide, 14 tall inside the 16 pixel tile.
@@ -547,7 +580,7 @@ function pp_overworld_draw_actors(_world, _ox, _oy) {
         var _a = _world.actors[$ _names[_i]];
         var _sx = _a.px - _world.cam_x + _ox;
         var _sy = _a.py - _world.cam_y + _oy;
-        var _frame = pp_world_dir_row(_a.facing) * 3;
+        var _frame = pp_world_sheet_frame(PP_SAILOR_SHEET, _a.facing, false, 0);
         if (!pp_art_draw(PP_SAILOR_SHEET, _frame, _sx, _sy, c_white, 1)) {
             // Blocks: navy jacket with a white collar, cap, so a sailor does not read as the hero.
             draw_set_colour(pp_role_colour("dim"));

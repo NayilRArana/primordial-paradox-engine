@@ -30,7 +30,10 @@ SRC = os.path.join(ROOT, "game", "sprites_src", "title")
 # The environment lane writes its tileset into game\sprites_src\env\ with the same PNG plus JSON contract, so the
 # mirror reads both folders and the runtime needs no second index. Card ASSEMBLE loads ts_ship from it.
 ENV_SRC = os.path.join(ROOT, "game", "sprites_src", "env")
-SOURCES = (SRC, ENV_SRC)
+# Card ASSEMBLE: the character lane writes the overworld and battle sheets into game\sprites_src\chars\ with the same
+# contract, so the mirror reads three folders and the walker in rm_pp_ship draws its own sheet without a second index.
+CHARS_SRC = os.path.join(ROOT, "game", "sprites_src", "chars")
+SOURCES = (SRC, ENV_SRC, CHARS_SRC)
 DST = os.path.join(ROOT, "game", "datafiles", "art")
 INDEX = "title_manifest.json"
 
@@ -52,25 +55,40 @@ def source_entries() -> list[dict]:
     source_pngs() below, because the committed .yyp lists them as Included Files.
     """
     entries = []
+    seen = set()
     for folder in _folders():
         for fname in sorted(os.listdir(folder)):
             if not fname.endswith(".json"):
                 continue
             with open(os.path.join(folder, fname), "r", encoding="utf-8") as fh:
                 meta = json.load(fh)
-            if meta.get("kind") == "tileset" or "name" not in meta or "frame_w" not in meta:
+            if "name" not in meta or "frame_w" not in meta:
+                continue
+            if meta["name"] in seen:
                 continue
             png = fname[:-5] + ".png"
             if not os.path.isfile(os.path.join(folder, png)):
+                # A Tiled export (ts_ship_tiled.json) names its sheet in "image" and carries no frame_w, so it never
+                # reaches this line. A tileset sidecar that does carry frame_w but no PNG is the Tiled export's twin
+                # and is skipped; a character or title animation without its PNG is still an error.
+                if meta.get("kind") == "tileset":
+                    continue
                 raise SystemExit("sync_art: %s has no PNG beside it" % fname)
-            entries.append({
+            entry = {
                 "name": meta["name"],
                 "file": meta["name"] + ".png",
                 "frame_w": int(meta["frame_w"]),
                 "frame_h": int(meta["frame_h"]),
                 "frames": int(meta["frames"]),
                 "fps": float(meta.get("fps", 0.0)),
-            })
+            }
+            # Card ASSEMBLE: a tileset is a grid, not a strip, so the index carries the column count and the kind.
+            # The runtime reads "columns" to turn a tile id into a cell; a strip keeps the old shape untouched.
+            if meta.get("kind") == "tileset":
+                entry["kind"] = "tileset"
+                entry["columns"] = int(meta.get("columns", 1))
+            seen.add(meta["name"])
+            entries.append(entry)
     return entries
 
 
