@@ -204,6 +204,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "talk_cards.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "talk_cards.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title.json",
       "CopyToMask": -1,
       "filePath": "datafiles",

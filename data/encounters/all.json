@@ -26,7 +26,7 @@
       },
       "talk": {
         "card": "navy_sailor",
-        "card_home": "the card content is carried in data/enemies/roster.json; specs/16-talk-command.md section 10 puts the shipping copy in data/talk_cards.json, which no card has written yet",
+        "card_home": "data/talk_cards.json, id navy_sailor (the specs/16-talk-command.md section 10 card, kept word for word); the fallback lines below stay on this encounter because tests/test_first_fight.py pins them here and no director code reads a card yet, and they are the same three lines as that card's neutral pool",
         "options_dialogue": "talk_navy_sailor",
         "option_count": 3,
         "mercy_per_option": 20,
@@ -68,6 +68,7 @@
       },
       "talk": {
         "card": "deck_hound",
+        "card_home": "data/talk_cards.json, id deck_hound; the fallback lines below stay on this encounter because tests/test_first_fight.py pins them here and no director code reads a card yet, and with the leading '* ' narration marker removed they are the same three lines as that card's neutral pool",
         "options_dialogue": "talk_deck_hound",
         "option_count": 3,
         "mercy_per_option": 20,

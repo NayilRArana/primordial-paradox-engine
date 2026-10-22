@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://primordial-paradox.local/schemas/talk_cards.schema.json",
+  "title": "Primordial Paradox TALK cards",
+  "description": "The shipping TALK personality cards, one per enemy per phase, per specs/16-talk-command.md section 10. Data only: no GML module ever tests an enemy name. A card's enemy must be an enemy id in data/enemies/roster.json, and every enemy in data/enemies/all.json must have a card here; that cross reference is a job for tools/check_talk.py (spec section 15 check 5), because a schema cannot read a second file. Every reply line is printable ASCII, 1 to 60 characters: 60 is two full lines at 30 characters (spec 05), so a checked reply can never overflow the message box. The navy_sailor and percy cards carry the approved cards from spec section 10 word for word, so the decided spec and the shipping data cannot drift.",
+  "type": "object",
+  "required": ["format", "kind", "rule", "cards"],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": 1 },
+    "kind": { "const": "talk_cards" },
+    "rule": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One line naming the spec and the content source, the way data/enemies/roster.json carries its rule line."
+    },
+    "cards": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/card" },
+      "description": "One card per enemy per phase. The base card for an enemy has an empty phase."
+    }
+  },
+  "$defs": {
+    "line": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60,
+      "pattern": "^[ -~]+$",
+      "description": "One reply_line: printable ASCII only, no leading or trailing space, 60 characters at most. The box draws it as '* ' plus this text (spec 05), so the asterisk is not part of the line."
+    },
+    "topic": {
+      "type": "object",
+      "required": ["topic", "keywords", "examples"],
+      "additionalProperties": false,
+      "properties": {
+        "topic": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "keywords": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[a-z0-9' ]+$",
+            "description": "Lowercase only (spec section 15 check 5). A hit is a keyword appearing as a whole word, or a two word phrase appearing as a substring (spec section 9 step 2)."
+          }
+        },
+        "examples": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+        }
+      }
+    },
+    "bucketLineList": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/line" },
+      "description": "The lines for one mercy bucket. Two lines per bucket is legal: spec section 10's own navy_sailor card ships two, and that card is kept byte identical."
+    },
+    "classLines": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "$ref": "#/$defs/line" },
+      "description": "The lines for one class when the three mercy buckets do not differ: one array of at least 3 lines (spec section 10)."
+    },
+    "bucketedPool": {
+      "type": "object",
+      "description": "A class pool whose low, mid and high replies differ. All three buckets are required, and each holds at least one line, so the class carries at least 3 lines in total, which is spec section 15 check 5's floor.",
+      "required": ["low", "mid", "high"],
+      "additionalProperties": false,
+      "properties": {
+        "low": { "$ref": "#/$defs/bucketLineList" },
+        "mid": { "$ref": "#/$defs/bucketLineList" },
+        "high": { "$ref": "#/$defs/bucketLineList" }
+      }
+    },
+    "classPool": {
+      "oneOf": [
+        { "$ref": "#/$defs/classLines" },
+        { "$ref": "#/$defs/bucketedPool" }
+      ]
+    },
+    "pools": {
+      "type": "object",
+      "description": "Five classes, chosen by the fallback's scoring class (spec section 9 step 5). Weak and strong need buckets in the demo cards because the tone has to move with the meter; neutral, rude and cheat are one array unless a card genuinely needs buckets.",
+      "required": ["weak", "strong", "neutral", "rude", "cheat"],
+      "additionalProperties": false,
+      "properties": {
+        "weak": { "$ref": "#/$defs/classPool" },
+        "strong": { "$ref": "#/$defs/classPool" },
+        "neutral": { "$ref": "#/$defs/classPool" },
+        "rude": { "$ref": "#/$defs/classPool" },
+        "cheat": { "$ref": "#/$defs/classPool" }
+      }
+    },
+    "card": {
+      "type": "object",
+      "required": ["id", "enemy", "phase", "version", "voice", "wants", "fears", "weak_topics", "strong_topics", "pools"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Card id. For a base card this equals enemy; for a phase card it is the phase id, so the cache key never collides (spec section 8)."
+        },
+        "enemy": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "An enemy id. Every enemy in data/enemies/all.json must resolve to a card; the six roster enemies that have no fight row yet are carded here in advance, because data/enemies/roster.json is where their voice, wants, fears and topics already live."
+        },
+        "phase": {
+          "type": "string",
+          "pattern": "^$|^[a-z][a-z0-9_]*$",
+          "description": "Empty for the base card. A phase card names the phase, and data/enemies/all.json's phase row must name the same set, so the director never guesses (spec section 10)."
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Bumped on any edit. Part of the cache key (spec section 8)."
+        },
+        "voice": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240,
+          "description": "One sentence the model must match (spec section 10)."
+        },
+        "wants": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "items": { "type": "string", "minLength": 1, "maxLength": 80 }
+        },
+        "fears": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "items": { "type": "string", "minLength": 1, "maxLength": 80 }
+        },
+        "weak_topics": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": { "$ref": "#/$defs/topic" }
+        },
+        "strong_topics": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": { "$ref": "#/$defs/topic" }
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "$ref": "#/$defs/line" },
+          "description": "Optional flat copy of every reply line in the pools, for a checker that wants one list. When present it must equal the union of the pool lines, which no schema can compare; tools/check_talk.py owns that rule (spec section 15 check 5). The navy_sailor card ships without it, because the spec's card is reproduced exactly."
+        },
+        "pools": { "$ref": "#/$defs/pools" }
+      }
+    }
+  }
+}

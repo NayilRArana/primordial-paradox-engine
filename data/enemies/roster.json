@@ -6,7 +6,8 @@
     "the Navy Sailor card copies the approved card in specs/16-talk-command.md section 10 word for word, so the roster cannot contradict the decided spec",
     "the other six enemies are new here: their voice, wants, fears, weak and strong topics are new data and the TALK-CARDS card should turn each one into a full talk card with pools and lines",
     "mercy_to_spare is trust_to_spare x 20 per specs/16-talk-command.md section 2",
-    "sprite is the GameMaker resource name; for navy_sailor it matches the id already in data/enemies/all.json (spr_pp_sailor), so the battle director needs no name change"
+    "sprite is the GameMaker resource name; for navy_sailor it matches the id already in data/enemies/all.json (spr_pp_sailor), so the battle director needs no name change",
+    "the deck_hound row is hand maintained: it is the first fight (S6, R05) and tools/art/make_enemies.py does not know the hound yet, so regenerating the roster with that tool would drop this row until the art pass gives the hound a drawn sheet"
   ],
   "sprite_palettes": {
     "sp0_navy_white": {
@@ -210,6 +211,120 @@
           ],
           "examples": [
             "this is a waste of time"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deck_hound",
+      "name": "Deck Hound",
+      "sprite": "spr_pp_hound",
+      "sheet": "game/sprites_src/enemies/deck_hound.png",
+      "palette": "sp1_brown_gold",
+      "palette_entries": [
+        15,
+        7,
+        40
+      ],
+      "colours": {
+        "k": "#000000",
+        "m": "#881400",
+        "l": "#f8b800"
+      },
+      "max_hp": 2,
+      "hp": 2,
+      "role": "first fight tutorial enemy",
+      "phase_note": "",
+      "trust_to_spare": 3,
+      "mercy_to_spare": 60,
+      "personality": "A thin rope yard dog on the foredeck: it holds the line nobody else was given, and it has decided you are the thing to watch.",
+      "voice": "Thin rope yard dog, wary and terse: a reply is a movement, not speech, three or four flat words of narration, never warm, never a plea.",
+      "wants": [
+        "the rope end in its teeth",
+        "the salt off a hand",
+        "to be left where it lies"
+      ],
+      "fears": [
+        "the boot",
+        "being dragged off the rope"
+      ],
+      "weak_topics": [
+        {
+          "topic": "the rope",
+          "keywords": [
+            "rope",
+            "line",
+            "knot",
+            "tied",
+            "chew"
+          ],
+          "examples": [
+            "Is that your rope"
+          ]
+        },
+        {
+          "topic": "the salt on your hands",
+          "keywords": [
+            "salt",
+            "hand",
+            "smell",
+            "brine",
+            "sea"
+          ],
+          "examples": [
+            "Hold out your hand"
+          ]
+        },
+        {
+          "topic": "being left alone",
+          "keywords": [
+            "alone",
+            "quiet",
+            "leave",
+            "stay",
+            "rest"
+          ],
+          "examples": [
+            "I will leave you be"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "the boot",
+          "keywords": [
+            "boot",
+            "kick",
+            "heel",
+            "step"
+          ],
+          "examples": [
+            "Move or I kick"
+          ]
+        },
+        {
+          "topic": "being called a pet",
+          "keywords": [
+            "pet",
+            "good boy",
+            "whistle",
+            "here boy",
+            "collar"
+          ],
+          "examples": [
+            "Here boy"
+          ]
+        },
+        {
+          "topic": "taking the rope",
+          "keywords": [
+            "grab",
+            "pull",
+            "drag",
+            "lead"
+          ],
+          "examples": [
+            "I will take the rope"
           ]
         }
       ]

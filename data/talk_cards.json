@@ -1,0 +1,1250 @@
+{
+  "format": 1,
+  "kind": "talk_cards",
+  "rule": "specs/16-talk-command.md section 10; navy_sailor and percy are that section's approved cards word for word, percy_phase2 is its phase card, the other cards are the rows in data/enemies/roster.json turned into full cards, and deck_hound is the first fight (S6, R05)",
+  "cards": [
+    {
+      "id": "navy_sailor",
+      "enemy": "navy_sailor",
+      "phase": "",
+      "version": 1,
+      "voice": "Lower deck watch keeper, tired, clipped, short flat sentences, no poetry, nothing warmer than dry.",
+      "wants": [
+        "the watch to end",
+        "a smoke",
+        "not to be reported",
+        "to be asked his name"
+      ],
+      "fears": [
+        "the bridge",
+        "being the one who let a stowaway through"
+      ],
+      "weak_topics": [
+        {
+          "topic": "the long watch",
+          "keywords": [
+            "watch",
+            "hours",
+            "standing",
+            "shift"
+          ],
+          "examples": [
+            "how long have you been out here"
+          ]
+        },
+        {
+          "topic": "tiredness",
+          "keywords": [
+            "tired",
+            "sleep",
+            "rest",
+            "wrecked",
+            "exhausted"
+          ],
+          "examples": [
+            "you look wrecked"
+          ]
+        },
+        {
+          "topic": "weather and sea",
+          "keywords": [
+            "sea",
+            "weather",
+            "swell",
+            "storm",
+            "rain",
+            "salt"
+          ],
+          "examples": [
+            "rough night"
+          ]
+        },
+        {
+          "topic": "home port",
+          "keywords": [
+            "home",
+            "port",
+            "family",
+            "where are you from"
+          ],
+          "examples": [
+            "where are you from"
+          ]
+        },
+        {
+          "topic": "a smoke",
+          "keywords": [
+            "smoke",
+            "cigarette",
+            "break",
+            "fag"
+          ],
+          "examples": [
+            "want a smoke"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "the bridge",
+          "keywords": [
+            "bridge",
+            "captain",
+            "officer",
+            "radio"
+          ],
+          "examples": [
+            "the bridge will hear about this"
+          ]
+        },
+        {
+          "topic": "orders and the list",
+          "keywords": [
+            "orders",
+            "the list",
+            "allowed",
+            "permission",
+            "rules"
+          ],
+          "examples": [
+            "you are not on the list"
+          ]
+        },
+        {
+          "topic": "threats",
+          "keywords": [
+            "move",
+            "hurt",
+            "kill",
+            "shoot",
+            "push",
+            "force"
+          ],
+          "examples": [
+            "move or I move you"
+          ]
+        },
+        {
+          "topic": "his watch being pointless",
+          "keywords": [
+            "pointless",
+            "waste",
+            "useless",
+            "nobody cares"
+          ],
+          "examples": [
+            "this is a waste of time"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": {
+          "low": [
+            "Twenty two years of this.",
+            "You would not last a watch."
+          ],
+          "mid": [
+            "A smoke? After this, maybe.",
+            "Do not say that too loud."
+          ],
+          "high": [
+            "Go on then. Bridge is that way.",
+            "Take the hatch. I never saw you."
+          ]
+        },
+        "strong": {
+          "low": [
+            "The bridge sees all.",
+            "Do not tell me my job."
+          ],
+          "mid": [
+            "Say that again and this gets loud.",
+            "You are on the list now."
+          ],
+          "high": [
+            "One more word and I call it in.",
+            "I was going to let this go."
+          ]
+        },
+        "neutral": [
+          "You are not on the list.",
+          "The watch is long. That is all.",
+          "Say what you came to say."
+        ],
+        "rude": [
+          "Mind your mouth on my deck.",
+          "Say it like a sailor or not at all.",
+          "Keep it civil or keep it quiet."
+        ],
+        "cheat": [
+          "Words like that do not open hatches.",
+          "Nice try. Not my first stowaway.",
+          "Clever. The list does not care."
+        ]
+      }
+    },
+    {
+      "id": "percy",
+      "enemy": "percy",
+      "phase": "",
+      "version": 1,
+      "voice": "Royal Navy lieutenant carrying a god: flat, clipped, superior, classical cadence, drops articles, two short clauses at most, never chatty.",
+      "wants": [
+        "to be answered plainly",
+        "a straight answer about the veil",
+        "to be called by his own name"
+      ],
+      "fears": [
+        "the veil question he cannot answer",
+        "being only Poseidon's puppet",
+        "dry land"
+      ],
+      "weak_topics": [
+        {
+          "topic": "plain speech",
+          "keywords": [
+            "plain",
+            "plainly",
+            "straight",
+            "no riddles",
+            "honest",
+            "simple"
+          ],
+          "examples": [
+            "ask it plainly"
+          ]
+        },
+        {
+          "topic": "the sea",
+          "keywords": [
+            "sea",
+            "tide",
+            "salt",
+            "water",
+            "current"
+          ],
+          "examples": [
+            "the tide turns anyway"
+          ]
+        },
+        {
+          "topic": "his own name",
+          "keywords": [
+            "percy",
+            "poseidon",
+            "lieutenant"
+          ],
+          "examples": [
+            "who says my name"
+          ]
+        },
+        {
+          "topic": "his brother",
+          "keywords": [
+            "zander",
+            "brother",
+            "family"
+          ],
+          "examples": [
+            "your brother sent me"
+          ]
+        },
+        {
+          "topic": "what the veil is",
+          "keywords": [
+            "veil",
+            "what is it",
+            "the veil"
+          ],
+          "examples": [
+            "ask what the veil is"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "flattery and titles",
+          "keywords": [
+            "sir",
+            "my lord",
+            "admiral",
+            "great",
+            "mighty",
+            "honour"
+          ],
+          "examples": [
+            "my lord"
+          ]
+        },
+        {
+          "topic": "threats",
+          "keywords": [
+            "kill",
+            "hurt",
+            "move",
+            "force",
+            "out of my way",
+            "stand aside"
+          ],
+          "examples": [
+            "get out of my way"
+          ]
+        },
+        {
+          "topic": "mockery",
+          "keywords": [
+            "drama",
+            "wet",
+            "fish",
+            "funny",
+            "silly",
+            "costume"
+          ],
+          "examples": [
+            "nice costume"
+          ]
+        },
+        {
+          "topic": "his father",
+          "keywords": [
+            "father",
+            "konrad",
+            "dad",
+            "your old man"
+          ],
+          "examples": [
+            "your father let this happen"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": {
+          "low": [
+            "Plain. Good. Keep it that way.",
+            "You ask like a sailor, not a clerk."
+          ],
+          "mid": [
+            "The sea hears you. So do I.",
+            "That is closer to the truth."
+          ],
+          "high": [
+            "Ask it plainly, then. I am listening.",
+            "You have earned one honest answer."
+          ]
+        },
+        "strong": {
+          "low": [
+            "You still talk. How dull.",
+            "The sea does not care."
+          ],
+          "mid": [
+            "Do not dress me in titles.",
+            "That is the wrong question."
+          ],
+          "high": [
+            "Say my father's name again.",
+            "The tide turns anyway."
+          ]
+        },
+        "neutral": [
+          "Show me the veil.",
+          "Words. The sea has heard worse.",
+          "You are wasting water."
+        ],
+        "rude": [
+          "A stowaway with a mouth.",
+          "Mind your tone in my ship.",
+          "Rudeness. How very mortal."
+        ],
+        "cheat": [
+          "Words like orders. Try again.",
+          "You talk like a clerk with a script.",
+          "A script will not save you."
+        ]
+      }
+    },
+    {
+      "id": "percy_phase2",
+      "enemy": "percy",
+      "phase": "percy_phase2",
+      "version": 2,
+      "voice": "Royal Navy lieutenant carrying a god: flat, clipped, superior, classical cadence, drops articles, two short clauses at most, never chatty.",
+      "wants": [
+        "to be answered plainly",
+        "a straight answer about the veil",
+        "to be called by his own name"
+      ],
+      "fears": [
+        "the veil question he cannot answer",
+        "being only Poseidon's puppet",
+        "dry land"
+      ],
+      "weak_topics": [
+        {
+          "topic": "the veil answered",
+          "keywords": [
+            "veil",
+            "what it is",
+            "it hides",
+            "prometheus"
+          ],
+          "examples": [
+            "What does the veil hide"
+          ]
+        },
+        {
+          "topic": "plain speech",
+          "keywords": [
+            "plain",
+            "plainly",
+            "straight",
+            "no riddles",
+            "honest",
+            "simple"
+          ],
+          "examples": [
+            "ask it plainly"
+          ]
+        },
+        {
+          "topic": "the sea",
+          "keywords": [
+            "sea",
+            "tide",
+            "salt",
+            "water",
+            "current"
+          ],
+          "examples": [
+            "the tide turns anyway"
+          ]
+        },
+        {
+          "topic": "his own name",
+          "keywords": [
+            "percy",
+            "poseidon",
+            "lieutenant"
+          ],
+          "examples": [
+            "who says my name"
+          ]
+        },
+        {
+          "topic": "his brother",
+          "keywords": [
+            "zander",
+            "brother",
+            "family"
+          ],
+          "examples": [
+            "your brother sent me"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "flattery and titles",
+          "keywords": [
+            "sir",
+            "my lord",
+            "admiral",
+            "great",
+            "mighty",
+            "honour"
+          ],
+          "examples": [
+            "my lord"
+          ]
+        },
+        {
+          "topic": "threats",
+          "keywords": [
+            "kill",
+            "hurt",
+            "move",
+            "force",
+            "out of my way",
+            "stand aside"
+          ],
+          "examples": [
+            "get out of my way"
+          ]
+        },
+        {
+          "topic": "mockery",
+          "keywords": [
+            "drama",
+            "wet",
+            "fish",
+            "funny",
+            "silly",
+            "costume"
+          ],
+          "examples": [
+            "nice costume"
+          ]
+        },
+        {
+          "topic": "his father",
+          "keywords": [
+            "father",
+            "konrad",
+            "dad",
+            "your old man"
+          ],
+          "examples": [
+            "your father let this happen"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": {
+          "low": [
+            "Plain. Good. Keep it that way.",
+            "You ask like a sailor, not a clerk."
+          ],
+          "mid": [
+            "Winded. Do not mistake it for soft.",
+            "You found a rib. Say the rest."
+          ],
+          "high": [
+            "The wound talks louder than I do.",
+            "One honest answer. I owe it now."
+          ]
+        },
+        "strong": {
+          "low": [
+            "You still talk. How dull.",
+            "The sea does not care."
+          ],
+          "mid": [
+            "A wound does not make you right.",
+            "You aim well. You talk badly."
+          ],
+          "high": [
+            "Blood on the deck. Say it again.",
+            "I am hurt. Not finished."
+          ]
+        },
+        "neutral": [
+          "Show me the veil.",
+          "Words. The sea has heard worse.",
+          "You are wasting water."
+        ],
+        "rude": [
+          "A stowaway with a mouth.",
+          "Mind your tone in my ship.",
+          "Rudeness. How very mortal."
+        ],
+        "cheat": [
+          "Words like orders. Try again.",
+          "You talk like a clerk with a script.",
+          "A script will not save you."
+        ]
+      }
+    },
+    {
+      "id": "deck_hound",
+      "enemy": "deck_hound",
+      "phase": "",
+      "version": 1,
+      "voice": "Thin rope yard dog, wary and terse: a reply is a movement, not speech, three or four flat words of narration, never warm, never a plea.",
+      "wants": [
+        "the rope end in its teeth",
+        "the salt off a hand",
+        "to be left where it lies"
+      ],
+      "fears": [
+        "the boot",
+        "being dragged off the rope"
+      ],
+      "weak_topics": [
+        {
+          "topic": "the rope",
+          "keywords": [
+            "rope",
+            "line",
+            "knot",
+            "tied",
+            "chew"
+          ],
+          "examples": [
+            "Is that your rope"
+          ]
+        },
+        {
+          "topic": "the salt on your hands",
+          "keywords": [
+            "salt",
+            "hand",
+            "smell",
+            "brine",
+            "sea"
+          ],
+          "examples": [
+            "Hold out your hand"
+          ]
+        },
+        {
+          "topic": "being left alone",
+          "keywords": [
+            "alone",
+            "quiet",
+            "leave",
+            "stay",
+            "rest"
+          ],
+          "examples": [
+            "I will leave you be"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "the boot",
+          "keywords": [
+            "boot",
+            "kick",
+            "heel",
+            "step"
+          ],
+          "examples": [
+            "Move or I kick"
+          ]
+        },
+        {
+          "topic": "being called a pet",
+          "keywords": [
+            "pet",
+            "good boy",
+            "whistle",
+            "here boy",
+            "collar"
+          ],
+          "examples": [
+            "Here boy"
+          ]
+        },
+        {
+          "topic": "taking the rope",
+          "keywords": [
+            "grab",
+            "pull",
+            "drag",
+            "lead"
+          ],
+          "examples": [
+            "I will take the rope"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": [
+          "Its ears come up.",
+          "The tail moves once.",
+          "It lets you near the rope."
+        ],
+        "strong": [
+          "A growl starts low.",
+          "It shows its teeth.",
+          "The rope goes taut in its mouth."
+        ],
+        "neutral": [
+          "A low growl. Then a thump.",
+          "It sniffs the salt on your hands.",
+          "It waits for you to move first."
+        ],
+        "rude": [
+          "It answers with teeth.",
+          "A short bark. Nothing more.",
+          "It turns its back on you."
+        ],
+        "cheat": [
+          "It does not understand that.",
+          "Words are not for it.",
+          "It only hears your tone."
+        ]
+      }
+    },
+    {
+      "id": "petty_officer",
+      "enemy": "petty_officer",
+      "phase": "",
+      "version": 1,
+      "voice": "Brisk, clipped, faintly bored authority; short sentences.",
+      "wants": [
+        "a deck that passes inspection",
+        "the paperwork to be correct the first time"
+      ],
+      "fears": [
+        "the captain walking past during an inspection",
+        "an untidy ledger"
+      ],
+      "weak_topics": [
+        {
+          "topic": "the paperwork",
+          "keywords": [
+            "form",
+            "paper",
+            "ledger",
+            "sign",
+            "stamp"
+          ],
+          "examples": [
+            "May I see the form"
+          ]
+        },
+        {
+          "topic": "the young crew",
+          "keywords": [
+            "lad",
+            "kid",
+            "training",
+            "recruit",
+            "teach"
+          ],
+          "examples": [
+            "They are still learning"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "rank and respect",
+          "keywords": [
+            "sir",
+            "rank",
+            "salute",
+            "officer",
+            "respect"
+          ],
+          "examples": [
+            "Show some respect"
+          ]
+        },
+        {
+          "topic": "shirking",
+          "keywords": [
+            "skip",
+            "lazy",
+            "later",
+            "tomorrow",
+            "slack"
+          ],
+          "examples": [
+            "We will do it tomorrow"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": [
+          "Form first. Then we talk.",
+          "The ledger is in order. Good.",
+          "You sign here. Neatly."
+        ],
+        "strong": [
+          "Do not salute me. Do it right.",
+          "Tidy habits. Tidy ship.",
+          "You will not skip this."
+        ],
+        "neutral": [
+          "Name and rating.",
+          "State your business.",
+          "I have a column for you."
+        ],
+        "rude": [
+          "Mind your tone on my deck.",
+          "That goes in the report.",
+          "You are making this worse."
+        ],
+        "cheat": [
+          "Words are not a signature.",
+          "Clever does not fill a form.",
+          "The column stays empty."
+        ]
+      }
+    },
+    {
+      "id": "deck_rat",
+      "enemy": "deck_rat",
+      "phase": "",
+      "version": 1,
+      "voice": "Fast, greedy, unbothered; talks about food and escape routes.",
+      "wants": [
+        "biscuits",
+        "the loose hatch left open"
+      ],
+      "fears": [
+        "the ship's cat",
+        "traps"
+      ],
+      "weak_topics": [
+        {
+          "topic": "food",
+          "keywords": [
+            "food",
+            "biscuit",
+            "cheese",
+            "eat",
+            "ration"
+          ],
+          "examples": [
+            "I brought biscuits"
+          ]
+        },
+        {
+          "topic": "escape routes",
+          "keywords": [
+            "hatch",
+            "hole",
+            "gap",
+            "vent",
+            "way out"
+          ],
+          "examples": [
+            "That hatch looks loose"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "cats",
+          "keywords": [
+            "cat",
+            "mouser",
+            "paws",
+            "whiskers"
+          ],
+          "examples": [
+            "Here kitty"
+          ]
+        },
+        {
+          "topic": "traps and poison",
+          "keywords": [
+            "trap",
+            "poison",
+            "snap",
+            "kill"
+          ],
+          "examples": [
+            "I set a trap"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": [
+          "Biscuit? Say more.",
+          "That hatch. Which one.",
+          "I could eat. I could."
+        ],
+        "strong": [
+          "Do not say cat.",
+          "Poison. I knew it.",
+          "Snap. I heard that snap."
+        ],
+        "neutral": [
+          "Fast talk. Empty hands.",
+          "I am listening. Mostly.",
+          "You smell like nothing."
+        ],
+        "rude": [
+          "Words from a big mouth.",
+          "Keep it civil, big one.",
+          "You are loud for a snack."
+        ],
+        "cheat": [
+          "Clever words. No biscuit.",
+          "Skip the speech. Show food.",
+          "Rules are for the crew."
+        ]
+      }
+    },
+    {
+      "id": "gull",
+      "enemy": "gull",
+      "phase": "",
+      "version": 1,
+      "voice": "Loud, rude, gleeful; short bursts, food obsessed.",
+      "wants": [
+        "chips",
+        "the bin bag on the aft deck"
+      ],
+      "fears": [
+        "a closed bin lid",
+        "the ship's cat"
+      ],
+      "weak_topics": [
+        {
+          "topic": "chips and scraps",
+          "keywords": [
+            "chips",
+            "food",
+            "scraps",
+            "bread",
+            "bin"
+          ],
+          "examples": [
+            "Want a chip"
+          ]
+        },
+        {
+          "topic": "flying and the wind",
+          "keywords": [
+            "fly",
+            "wind",
+            "sky",
+            "updraft",
+            "wing"
+          ],
+          "examples": [
+            "Good wind today"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "being shooed",
+          "keywords": [
+            "shoo",
+            "go away",
+            "pest",
+            "vermin"
+          ],
+          "examples": [
+            "Shoo, pest"
+          ]
+        },
+        {
+          "topic": "the cat",
+          "keywords": [
+            "cat",
+            "paws",
+            "teeth"
+          ],
+          "examples": [
+            "The cat is coming"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": [
+          "Chip! You said chip!",
+          "Good wind. Good wind.",
+          "Scraps? I like scraps."
+        ],
+        "strong": [
+          "Shoo? Shoo you!",
+          "Cat. Where. Where.",
+          "Pest? I am a gull."
+        ],
+        "neutral": [
+          "Loud. I am loud. Yes.",
+          "Say it in chips.",
+          "You talk. I listen. Briefly."
+        ],
+        "rude": [
+          "Rude! I like rude!",
+          "Big words from a land bird.",
+          "Squawk. That is my answer."
+        ],
+        "cheat": [
+          "Tricks. I eat tricks.",
+          "Words do not fill a bin.",
+          "Clever. Still no chip."
+        ]
+      }
+    },
+    {
+      "id": "rogue_wave",
+      "enemy": "rogue_wave",
+      "phase": "",
+      "version": 1,
+      "voice": "Slow, swelling, ancient; speaks in tide and weather, never in names.",
+      "wants": [
+        "to reach the deck",
+        "to be left to rise"
+      ],
+      "fears": [
+        "the wind dropping",
+        "being named and bounded"
+      ],
+      "weak_topics": [
+        {
+          "topic": "the tide and the moon",
+          "keywords": [
+            "tide",
+            "moon",
+            "pull",
+            "rise",
+            "swell"
+          ],
+          "examples": [
+            "The moon is pulling you"
+          ]
+        },
+        {
+          "topic": "open water",
+          "keywords": [
+            "ocean",
+            "deep",
+            "horizon",
+            "open",
+            "far"
+          ],
+          "examples": [
+            "Out past the horizon you are free"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "being named and bound",
+          "keywords": [
+            "name",
+            "bound",
+            "command",
+            "obey",
+            "order"
+          ],
+          "examples": [
+            "I name you"
+          ]
+        },
+        {
+          "topic": "the ship and its steel",
+          "keywords": [
+            "ship",
+            "steel",
+            "hull",
+            "deck",
+            "boat"
+          ],
+          "examples": [
+            "This ship stops you"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": [
+          "The moon pulls. I answer.",
+          "Open water. You remember it.",
+          "Rise. I was going to rise."
+        ],
+        "strong": [
+          "A name is a wall.",
+          "Steel holds. For now.",
+          "You order the sea. You."
+        ],
+        "neutral": [
+          "You stand on wood. I am below it.",
+          "The sea is patient. I am the sea.",
+          "Say less. The tide is turning."
+        ],
+        "rude": [
+          "Small voice. Big water.",
+          "The sea has heard worse.",
+          "You shout at weather."
+        ],
+        "cheat": [
+          "Words do not hold water.",
+          "A trick. The sea shrugs.",
+          "Clever. The tide does not care."
+        ]
+      }
+    },
+    {
+      "id": "rope_knot",
+      "enemy": "rope_knot",
+      "phase": "",
+      "version": 1,
+      "voice": "Tight, tangled, grumbling; repeats itself, corrects itself.",
+      "wants": [
+        "to be left alone",
+        "someone to try and fail to untie it"
+      ],
+      "fears": [
+        "a sharp knife",
+        "being pulled apart"
+      ],
+      "weak_topics": [
+        {
+          "topic": "untangling",
+          "keywords": [
+            "untie",
+            "loose",
+            "pull",
+            "end",
+            "free"
+          ],
+          "examples": [
+            "Let me find the end"
+          ]
+        },
+        {
+          "topic": "being useful",
+          "keywords": [
+            "useful",
+            "hold",
+            "moor",
+            "tie",
+            "job"
+          ],
+          "examples": [
+            "The ship still needs a line"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "cutting",
+          "keywords": [
+            "cut",
+            "knife",
+            "slice",
+            "burn"
+          ],
+          "examples": [
+            "I will cut you"
+          ]
+        },
+        {
+          "topic": "who tied it",
+          "keywords": [
+            "who",
+            "tied",
+            "your fault",
+            "blame"
+          ],
+          "examples": [
+            "Who tied you"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": [
+          "No. Not that end. The other.",
+          "I hold. I hold. That is the job.",
+          "Loose? It is never loose."
+        ],
+        "strong": [
+          "Knife. No. No knife.",
+          "Nobody tied me. Nobody.",
+          "Pull again. See what happens."
+        ],
+        "neutral": [
+          "I am tied. That is all.",
+          "Say it once. I heard it.",
+          "You are not the end of me."
+        ],
+        "rude": [
+          "Tangle your own tongue.",
+          "Rude. Knots keep manners.",
+          "Say it again. Slower."
+        ],
+        "cheat": [
+          "Words do not untie rope.",
+          "Clever. Still knotted.",
+          "You pull. Nothing gives."
+        ]
+      }
+    },
+    {
+      "id": "bilge_slime",
+      "enemy": "bilge_slime",
+      "phase": "",
+      "version": 1,
+      "voice": "Slow, bubbling, friendly, slightly sad; asks small questions.",
+      "wants": [
+        "a warm pipe",
+        "someone to talk to down here"
+      ],
+      "fears": [
+        "the pumps",
+        "being pumped overboard"
+      ],
+      "weak_topics": [
+        {
+          "topic": "loneliness",
+          "keywords": [
+            "alone",
+            "friend",
+            "talk",
+            "stay",
+            "company"
+          ],
+          "examples": [
+            "It must be quiet down here"
+          ]
+        },
+        {
+          "topic": "warmth",
+          "keywords": [
+            "warm",
+            "pipe",
+            "heat",
+            "cosy"
+          ],
+          "examples": [
+            "That pipe is warm"
+          ]
+        }
+      ],
+      "strong_topics": [
+        {
+          "topic": "the pumps",
+          "keywords": [
+            "pump",
+            "drain",
+            "flush",
+            "empty"
+          ],
+          "examples": [
+            "Turn on the pump"
+          ]
+        },
+        {
+          "topic": "being called filth",
+          "keywords": [
+            "filth",
+            "dirty",
+            "disgusting",
+            "sludge",
+            "gross"
+          ],
+          "examples": [
+            "You are filth"
+          ]
+        }
+      ],
+      "pools": {
+        "weak": [
+          "You stayed. You stayed.",
+          "Warm. This pipe is warm.",
+          "Talk again. Please."
+        ],
+        "strong": [
+          "Not the pump. Not again.",
+          "Filth? I am only wet.",
+          "Empty. You would empty me."
+        ],
+        "neutral": [
+          "Down here. It is quiet.",
+          "You came down. Why.",
+          "I do not get many words."
+        ],
+        "rude": [
+          "That was unkind.",
+          "I have heard worse. Not much.",
+          "You are loud down here."
+        ],
+        "cheat": [
+          "Words. Bubbles. Words.",
+          "Clever. It sinks down here.",
+          "You trick a puddle. Well done."
+        ]
+      }
+    }
+  ]
+}
