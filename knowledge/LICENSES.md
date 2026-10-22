@@ -57,7 +57,7 @@ becomes the better link.
 
 | Thing | Why not |
 | --- | --- |
-| Any Undertale or Deltarune decompilation, its data files, its strings, its "engine" clones | A decompilation is a copy of Toby Fox's code. Reading it, even to reword it, makes our code a derivative. This is the clean-room rule and it outranks every convenience. |
+| Any Undertale or Deltarune decompilation, its data files, its strings, its "engine" clones | COPYING ONLY. Nayil's order of 2026-10-19 permits reading a decompilation to understand architecture (see PLAN.md section 1 and knowledge\FOX-STYLE.md). What stays forbidden is expression: their code text, a reworded copy of it, their sprites, fonts, sounds, music, data tables, names or dialogue, and any module whose structure traces one to one onto one of their objects. Study copies live under knowledge\study\, are gitignored and are never shipped. |
 | Marketplace assets with a "no redistribution" or "single project" licence we have not read | Some paid assets forbid reuse in a source-visible repo. Nothing is bought in this lane anyway; a purchase is Nayil's decision. |
 | Projects with no licence file | Absence of a licence means all rights reserved, not "free to use". |
 | GPL or AGPL GML libraries | They would force the game to be GPL. |
