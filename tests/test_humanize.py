@@ -103,8 +103,9 @@ def notes_by_start(track):
 # ------------------------------------------------------------- read and write
 
 def test_read_write_round_trip_keeps_everything():
-    if not os.path.exists(V3_MIDI):
-        pytest.skip("asset not present")
+    # No skip when the input is missing (card t_50a290de, 2026-10-22). The score is tracked, and a
+    # skip here was how a HEAD checkout reported this test as healthy while it measured nothing.
+    assert os.path.isfile(V3_MIDI), V3_MIDI
     song = hook_score.read_smf(V3_MIDI)
     again = hook_score.parse_smf(humanize.write_smf(song))
     assert again["division"] == song["division"]
@@ -244,8 +245,7 @@ def test_no_track_holds_more_than_eight_notes_at_once():
 # ------------------------------------------------------------------ the MIDIs
 
 def test_the_real_theme_is_humanized_and_stays_readable(tmp_path):
-    if not os.path.exists(V3_MIDI):
-        pytest.skip("asset not present")
+    assert os.path.isfile(V3_MIDI), V3_MIDI
     out_path = str(tmp_path / "theme_human.mid")
     report = humanize.humanize_file(V3_MIDI, out_path)
     assert report["notes_changed"] / float(report["notes"]) >= 0.30
@@ -271,8 +271,7 @@ def test_the_real_theme_is_humanized_and_stays_readable(tmp_path):
 
 
 def test_the_cli_reports_and_can_dry_run(tmp_path, capsys):
-    if not os.path.exists(V3_MIDI):
-        pytest.skip("asset not present")
+    assert os.path.isfile(V3_MIDI), V3_MIDI
     report_path = tmp_path / "human.json"
     assert humanize.main([V3_MIDI, "--dry-run", "--report", str(report_path)]) == 0
     report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -286,8 +285,7 @@ def test_the_cli_reports_and_can_dry_run(tmp_path, capsys):
 # --------------------------------------------------------------- the pipeline
 
 def test_arrange_hook_report_and_humanize_flags(tmp_path):
-    if not os.path.exists(V3_SCORE):
-        pytest.skip("score not present")
+    assert os.path.isfile(V3_SCORE), V3_SCORE
     midi = tmp_path / "theme.mid"
     hook_path = tmp_path / "hook.json"
     report_path = tmp_path / "arrange.json"

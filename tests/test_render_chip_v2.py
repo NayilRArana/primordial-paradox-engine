@@ -340,18 +340,22 @@ def test_the_four_bar_demo_renders_to_the_expected_file(tmp_path):
 
 
 def test_the_old_four_voice_title_theme_still_renders_identically(tmp_path):
-    """The old theme must not change: the difference has to sit below -60 dB."""
-    old = os.path.join(ROOT, "assets", "audio", "title_theme", "title_theme.mid")
-    if not os.path.isfile(old):
-        pytest.skip("the old title theme is not on this machine")
+    """The old theme must not change: the difference has to sit below -60 dB.
 
+    Both inputs are tracked (card t_50a290de, 2026-10-22): title_theme.mid is the four voice score and
+    title_theme.wav is the golden render it has to keep matching. Neither may be skipped when absent.
+    A skip on a missing input was how the nightly worktree reported this test as healthy while it
+    measured nothing at all, so a missing file is an assertion failure now.
+    """
+    old = os.path.join(ROOT, "assets", "audio", "title_theme", "title_theme.mid")
     reference = os.path.join(ROOT, "assets", "audio", "title_theme", "title_theme.wav")
+    assert os.path.isfile(old), old
+    assert os.path.isfile(reference), reference
+
     wav = str(tmp_path / "title_theme.wav")
     report = render_chip.render_file(old, wav, 32, None, None)
     assert report["renderer"] == "v1", report["voice_map"]
 
-    if not os.path.isfile(reference):
-        pytest.skip("the old title theme render is not on this machine")
     new = read_wav(wav)
     old_data = read_wav(reference)
     length = min(new.size, old_data.size)

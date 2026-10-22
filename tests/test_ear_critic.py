@@ -540,8 +540,9 @@ def test_a_nayil_score_outside_1_to_10_is_refused():
 def test_the_saved_manager_review_matches_this_rubric(tmp_path):
     """The card says the prompt is the one used in EAR_REVIEW_126.md; keep them in step."""
     path = os.path.join(ROOT, "assets", "audio", "title_theme_v3", "EAR_REVIEW_126.md")
-    if not os.path.exists(path):
-        pytest.skip("the manager's review is not in this checkout")
+    # No skip when the note is missing (card t_50a290de, 2026-10-22): it is tracked, and the skip was
+    # the reason a HEAD checkout passed this test without comparing anything.
+    assert os.path.isfile(path), path
     text = read_text(path)
     prompt = ear_critic.rubric_prompt()
     for needle in ("Section overview", "Evaluation & Scores", "5 Concrete Changes",

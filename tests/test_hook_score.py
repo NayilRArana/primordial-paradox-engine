@@ -32,8 +32,8 @@ import hook_score  # noqa: E402
 V2_MIDI = os.path.join(ROOT, "assets", "audio", "title_theme_v2", "title_theme_v2.mid")
 V3_MIDI = os.path.join(ROOT, "assets", "audio", "title_theme_v3", "title_theme_v3.mid")
 
-# A hooky melody: a two bar motif in 4/4 that returns six times, the third
-# return varied in its last note, steps with one leap, an arch, a pedal A
+# A hooky melody: a two bar motif in 4/4 that returns six times, with the third
+# occurrence varying its last note, steps with one leap, an arch, a pedal A
 # repeated, 16 bars.
 MOTIF = [(0.0, 1.0, 69), (1.0, 1.0, 71), (2.0, 1.0, 72), (3.0, 1.0, 74),
          (0.0, 1.0, 76), (1.0, 1.0, 74), (2.0, 1.0, 69), (3.0, 1.0, 69)]
@@ -180,8 +180,10 @@ def test_a_melody_without_a_return_names_the_missing_return(tmp_path):
 
 @pytest.mark.parametrize("path", [V2_MIDI, V3_MIDI])
 def test_the_real_themes_read_and_score(path):
-    if not os.path.exists(path):
-        pytest.skip("asset not present")
+    # No skip when the file is missing. Both MIDIs are tracked (card t_50a290de, 2026-10-22), and the
+    # old "asset not present" guard is exactly how a HEAD checkout passed this test while reading
+    # nothing: the nightly worktree had neither file and reported a skip instead of a defect.
+    assert os.path.isfile(path), path
     report = hook_score.score_file(path)
     assert report["melody_track"] == "vrc6 pulse a"
     assert report["bars"] == 52
@@ -211,7 +213,6 @@ def test_the_cli_writes_the_report(tmp_path):
 
 
 def test_a_named_track_that_does_not_exist_is_an_error():
-    if not os.path.exists(V3_MIDI):
-        pytest.skip("asset not present")
+    assert os.path.isfile(V3_MIDI), V3_MIDI
     with pytest.raises(ValueError, match="no track named"):
         hook_score.score_file(V3_MIDI, track="no such voice")
