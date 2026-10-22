@@ -35,13 +35,13 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_title/Step_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/scripts/pp_app/pp_app.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_art/pp_art.gml | reviewed | gamedev | 2026-10-21 |
-| game/scripts/pp_audio/pp_audio.gml | pending | card t_73f08da5 changed the text | 2026-10-22 |
+| game/scripts/pp_audio/pp_audio.gml | confirmed | gamedev review | 2026-10-22 |
 | game/scripts/pp_battle_commands/pp_battle_commands.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_battle_director/pp_battle_director.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_battle_text/pp_battle_text.gml | rewritten | gamedev | 2026-10-22 |
 | game/scripts/pp_camera/pp_camera.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_config/pp_config.gml | reviewed | gamedev | 2026-10-22 |
-| game/scripts/pp_data/pp_data.gml | pending | card t_73f08da5 changed the text | 2026-10-22 |
+| game/scripts/pp_data/pp_data.gml | confirmed | gamedev review | 2026-10-22 |
 | game/scripts/pp_dialogue/pp_dialogue.gml | rewritten | gamedev | 2026-10-22 |
 | game/scripts/pp_dodge_arena/pp_dodge_arena.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | confirmed | code-review | 2026-10-19 |
@@ -52,9 +52,9 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_map/pp_map.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
-| game/scripts/pp_save/pp_save.gml | pending | card t_73f08da5 changed the text | 2026-10-22 |
+| game/scripts/pp_save/pp_save.gml | confirmed | gamedev review | 2026-10-22 |
 | game/scripts/pp_scene/pp_scene.gml | confirmed | code-review | 2026-10-22 |
-| game/scripts/pp_text/pp_text.gml | pending | card t_73f08da5 changed the text | 2026-10-22 |
+| game/scripts/pp_text/pp_text.gml | confirmed | gamedev review | 2026-10-22 |
 | game/scripts/pp_title/pp_title.gml | reviewed | gamedev | 2026-10-21 |
 
 The two rows that were `pending` were reviewed by gamedev on 2026-10-21 and raised to `confirmed` by code-review on
@@ -81,6 +81,15 @@ is what turned the "PP-05 loads clean" claim into evidence on 2026-10-22). Nothi
 cites material outside this repository: the audio rules are specs 05 and 12, the cue ids are the musician lane's own
 list, the save rules are spec 11, and every engine call's behaviour is the manual page named next to it. A reviewer
 still has to read the new text before a row says `confirmed` again.
+
+Those four rows were read again on 2026-10-22 in the review of commit `6780273` (the fix round of the same card) and
+raised to `confirmed` as a clean-room verdict only, not as an approval of the logic. What the review read: `pp_audio.gml`
+and its three `theme_inst` guards with the fade handoff and the cited header; `pp_save.gml` and its read, retry and parse
+path plus the one log line the fix round added; `pp_data.gml` and the cue index built beside the sounds; `pp_text.gml` and
+the blip call site. Every engine behaviour named on those lines is a GameMaker manual page, every rule is a spec under
+`specs/`, the cue ids are the musician lane's own list, and `tools/check_cleanroom.py` reports no blacklist hit, no
+reference to a study copy and no foreign name in any of the four. The clean-room failures still reported on this tree are
+`data/maps/real_places.json:1099` and its mirror under `game/datafiles/maps/`, which are the map lane's file.
 
 `rewritten` means the file text changed in this review. All eight rewrites are comment only: each one removed a
 provenance parenthetical that described the internals of the quarantined copy, and replaced it with the spec the
