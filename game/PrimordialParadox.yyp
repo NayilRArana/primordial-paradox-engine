@@ -150,6 +150,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "palette_recipes.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "palette_recipes.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "powers.json",
       "CopyToMask": -1,
       "filePath": "datafiles",
@@ -172,6 +181,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles",
       "name": "room_palettes.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "scene_palettes.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "scene_palettes.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -618,10 +636,10 @@
     },
     {
       "$GMIncludedFile": "",
-      "%Name": "spr_title_ronan.png",
+      "%Name": "spr_title_konrad.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
-      "name": "spr_title_ronan.png",
+      "name": "spr_title_konrad.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -690,19 +708,19 @@
     },
     {
       "$GMIncludedFile": "",
-      "%Name": "spr_title_theo.png",
+      "%Name": "spr_title_wheel.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
-      "name": "spr_title_theo.png",
+      "name": "spr_title_wheel.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
     {
       "$GMIncludedFile": "",
-      "%Name": "spr_title_wheel.png",
+      "%Name": "spr_title_zander.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
-      "name": "spr_title_wheel.png",
+      "name": "spr_title_zander.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -1216,6 +1234,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/maps",
       "name": "all.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "real_places.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/maps",
+      "name": "real_places.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -1873,6 +1900,33 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "percy_theme.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_03_harbor.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_03_harbor.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_04_navy_sailors.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_04_navy_sailors.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_05_small_ship.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_05_small_ship.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
