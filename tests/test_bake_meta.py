@@ -13,12 +13,18 @@ What is pinned here, in the order the card argues it:
    the file honest: a URL or a key name, a hash that does not recompute, an offline row claiming a live
    answer, and a bake block whose counts disagree with its rows.
 4. The offline bake never calls the client, a valid live answer is written as live, and a refused answer
-   falls back with the reason recorded, so no row can claim a call it did not make (R43's check 4).
-5. The file is ASCII with no long dash, which the manager and the pre-commit hook both require.
+   falls back with the reason recorded, so no row can claim a call it did not make (R43's check 4). R43 B1
+   is pinned the way the review measured it: backend meta, a placeholder key and replay mode with nothing
+   cached writes mode offline, network false and an offline note over 18 fallback rows, and the live header
+   the old code wrote over those same rows is refused.
+5. R43 B2 is pinned the same way: a fallback row whose text, mood, effect or hint is not its fallback's is
+   refused, and a reason that names none of the bake's causes ("because") is refused too.
+6. The file is ASCII with no long dash, which the manager and the pre-commit hook both require.
 """
 
 from __future__ import annotations
 
+import io
 import json
 import os
 
@@ -236,11 +242,33 @@ def test_the_offline_bake_never_calls_the_client(monkeypatch):
     assert all(row["source"] == "fallback" for row in document["rows"])
 
 
-def _live_document(monkeypatch, answer):
+def _door(monkeypatch, answer=None, verdict=None, error=None, backend="meta", chosen="live"):
+    """A stand in for tools/meta_client.py: fill `transport` the way chat() does, then answer or raise.
+
+    R43 B1: the bake reads where an answer came from out of this verdict, never out of the
+    environment, so a test that wants a wire answer has to say so here.
+    """
     monkeypatch.setenv("MODEL_API_KEY", "dummy-not-a-real-key")
     monkeypatch.delenv("META_API_KEY", raising=False)
-    monkeypatch.setenv("PP_AI_BACKEND", "meta")
-    monkeypatch.setattr(bake_meta, "call_model", lambda messages, schema=None, sleep=None: answer)
+    monkeypatch.setenv("PP_AI_BACKEND", backend)
+    monkeypatch.setenv("PP_AI_MODE", chosen)
+
+    def call(messages, schema=None, sleep=None, transport=None):
+        if error is not None:
+            raise error
+        if transport is not None and verdict is not None:
+            transport.update(verdict)
+        return answer
+
+    monkeypatch.setattr(bake_meta, "call_model", call)
+
+
+WIRE = {"backend": "meta", "mode": "live", "cached": False, "network": True}
+CACHED = {"backend": "meta", "mode": "replay", "cached": True, "network": False}
+
+
+def _live_document(monkeypatch, answer):
+    _door(monkeypatch, answer=answer, verdict=dict(WIRE))
     document, _mode, state, _skipped, _units = bake_meta.run_bake(offline=False)
     return document, state
 
@@ -271,6 +299,115 @@ def test_an_npc_row_refuses_an_effect_that_only_a_fight_allows(monkeypatch):
     npc = [row for row in document["rows"] if row["scene"] == "npc" and row["source"] == "fallback"]
     assert npc, "spec 19 section 6 rule 2 refuses soften in the npc scene"
     assert all("not legal in the npc scene" in row["reason"] for row in npc)
+
+
+# ----------------------------------------------------------------- R43 B1: the header is the calls
+
+def _dump(path, document):
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(document, handle, indent=2, ensure_ascii=True)
+        handle.write("\n")
+    return str(path)
+
+
+def test_a_replay_run_cannot_write_a_live_header_and_the_old_one_is_refused(monkeypatch, tmp_path):
+    """R43 B1, measured the way the review measured it: backend meta, a placeholder key, replay mode.
+
+    Every call raises CacheMiss, so all 18 rows are honest fallbacks. The block the old code built
+    from the environment said mode live, network true and the live note over these rows; the run now
+    writes mode offline, and that old block pasted onto the same rows is refused.
+    """
+    _door(monkeypatch, chosen="replay",
+          error=RuntimeError("CacheMiss: replay mode found no recorded answer for this request"))
+    document, _mode, state, _skipped, _units = bake_meta.run_bake(offline=False)
+    rows = document["rows"]
+    bake = document["bake"]
+    assert state["calls"] == len(rows) == 18, "every row asks, so every row can answer"
+    assert state["live"] == 0
+    assert all(row["source"] == "fallback" for row in rows)
+    assert all(row["reason"].startswith("no live answer:") for row in rows)
+    assert bake["mode"] == "offline", "a run that answered nothing is not live, however it was configured"
+    assert (bake["live"], bake["fallback"]) == (0, 18)
+    assert bake["network"] is False and bake["offline"] is True
+    assert bake["note"].startswith("offline:"), bake["note"]
+
+    bake.update({"mode": "live", "network": True, "offline": False,
+                 "note": "live answers from the Meta client, each one schema validated before it was "
+                         "written"})
+    emitted = io.StringIO()
+    refused = bake_meta.check_file(_dump(tmp_path / "meta_bake.json", document), stream=emitted)
+    assert refused > 0, "the live header over 0 live rows must be refused"
+    text = emitted.getvalue()
+    assert "claims the network over 0 live rows" in text
+    assert "is mode live over 0 live rows" in text
+
+
+def test_a_cached_answer_is_mode_replay_and_the_calls_none_of_the_network(monkeypatch):
+    """The same block, one case over: answers read back from the recorded cache are not a live run.
+
+    Row `network` keeps D5's meaning (this row is a model answer, not the fallback); the block's
+    `network` is the run's, and a cached run never touched the wire, so the two are read at their own
+    level and the note starts with "cached:".
+    """
+    answer = {"text": ["IT SNIFFS YOUR HAND."], "mood": "warm", "effect": "soften", "hint": "THE ROPE."}
+    _door(monkeypatch, answer=answer, verdict=dict(CACHED))
+    document, _mode, state, _skipped, _units = bake_meta.run_bake(offline=False)
+    live = [row for row in document["rows"] if row["source"] == "live"]
+    bake = document["bake"]
+    assert live and state["live"] == len(live) == bake["live"]
+    assert all(row["network"] is True for row in live)
+    assert bake["mode"] == "replay", "cached answers are a replay, not a live run"
+    assert bake["network"] is False and bake["offline"] is True
+    assert bake["note"].startswith("cached:"), bake["note"]
+
+
+def test_a_live_answer_the_door_cannot_place_stops_the_bake(monkeypatch):
+    """No verdict, or a verdict naming neither the wire nor the cache, is not something to guess at."""
+    answer = {"text": ["IT SNIFFS YOUR HAND."], "mood": "warm", "effect": "soften", "hint": "THE ROPE."}
+    _door(monkeypatch, answer=answer)
+    with pytest.raises(bake_meta.BakeError):
+        bake_meta.run_bake(offline=False)
+    _door(monkeypatch, answer=answer, verdict={"backend": "meta", "mode": "live", "cached": False,
+                                               "network": False})
+    with pytest.raises(bake_meta.BakeError):
+        bake_meta.run_bake(offline=False)
+
+
+# ----------------------------------------------------------------- R43 B2: a fallback row shows its fallback
+
+def test_check_refuses_a_fallback_row_whose_text_no_fallback_holds(copy_of_the_file):
+    """R43 B2, measured the way the review measured it: a live looking sentence over a fallback."""
+    def mutate(document):
+        row = document["rows"][0]
+        assert row["source"] == "fallback", "the committed file is an offline bake"
+        row["text"] = ["A LIVE LOOKING SENTENCE."]
+
+    emitted = io.StringIO()
+    assert bake_meta.check_file(copy_of_the_file(mutate), stream=emitted) > 0
+    assert "is a fallback and its text is" in emitted.getvalue(), emitted.getvalue()
+
+
+def test_check_refuses_a_fallback_row_whose_mood_or_hint_is_not_its_fallback(copy_of_the_file):
+    def mutate_mood(document):
+        document["rows"][0]["mood"] = "warm"
+
+    def mutate_hint(document):
+        document["rows"][0]["hint"] = "THE ROPE."
+
+    for mutate, field in ((mutate_mood, "mood"), (mutate_hint, "hint")):
+        emitted = io.StringIO()
+        assert bake_meta.check_file(copy_of_the_file(mutate), stream=emitted) > 0
+        assert "is a fallback and its %s is" % field in emitted.getvalue(), emitted.getvalue()
+
+
+def test_check_refuses_a_fallback_reason_that_names_no_cause(copy_of_the_file):
+    """R43's smaller item: "because" was a reason only because it was non empty."""
+    def mutate(document):
+        document["rows"][0]["reason"] = "because"
+
+    emitted = io.StringIO()
+    assert bake_meta.check_file(copy_of_the_file(mutate), stream=emitted) > 0
+    assert "is none of the bake's causes" in emitted.getvalue(), emitted.getvalue()
 
 
 def test_a_rerun_that_changes_nothing_keeps_the_previous_stamp(baked, tmp_path, monkeypatch):

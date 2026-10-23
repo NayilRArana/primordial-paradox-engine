@@ -853,8 +853,14 @@ def _finish(kind, model, response, cached, backend, chosen_mode, **extra):
     return out
 
 
-def chat(messages, model=None, json_schema=None, sleep=None):
-    """A chat completion. Returns the text, or the JSON string when a schema was asked for."""
+def chat(messages, model=None, json_schema=None, sleep=None, transport=None):
+    """A chat completion. Returns the text, or the JSON string when a schema was asked for.
+
+    `transport` is an optional dict this call fills with what the door actually did: `backend`,
+    `mode`, `cached` and `network`, exactly the values `_dispatch()` computed. A caller that has to
+    report where an answer came from (R43 B1: the bake header) reads it here instead of reading the
+    environment and guessing what happened.
+    """
     model = model or model_for("chat")
     turns = normalise_messages(messages)
     payload = {"model": model, "messages": turns}
@@ -864,12 +870,29 @@ def chat(messages, model=None, json_schema=None, sleep=None):
                                                       "schema": json_schema}}
     response, cached, backend, chosen_mode = _dispatch("chat", model, payload,
                                                        schema=json_schema, sleep=sleep)
+    if transport is not None:
+        transport.update(transport_verdict(backend, chosen_mode, cached))
     return response["text"]
 
 
-def chat_structured(messages, schema, model=None, sleep=None):
+def transport_verdict(backend, chosen_mode, cached):
+    """What one dispatched call did, as the four fields a reporting caller needs."""
+    return {"backend": backend, "mode": chosen_mode, "cached": bool(cached),
+            "network": network_used(backend, chosen_mode, cached)}
+
+
+def network_used(backend, chosen_mode, cached=False):
+    """True only when this call's answer came over the wire now, not from the cache and not from mock."""
+    if cached:
+        return False
+    if backend == "gemini":
+        return chosen_mode == "live"
+    return backend == "meta" and chosen_mode in ("live", "record")
+
+
+def chat_structured(messages, schema, model=None, sleep=None, transport=None):
     """chat() with a schema, parsed. Raises BadResponse when the answer is not a JSON object."""
-    text = chat(messages, model=model, json_schema=schema, sleep=sleep)
+    text = chat(messages, model=model, json_schema=schema, sleep=sleep, transport=transport)
     return parse_json(text)
 
 

@@ -20,7 +20,26 @@ Every row records what D5 asks for: `model`, `request_hash`, `created_at` and `f
 
 A row whose source is `fallback` says so (`"source": "fallback"`, `"network": false`) and carries the
 reason it fell back (`"reason"`: no key, no network, a refusal, a cap). A row never claims a live call it
-did not make; R43 REVIEW-META-BAKE checks exactly that.
+did not make; R43 REVIEW-META-BAKE checks exactly that, and a fallback row's `text`, `mood`, `effect` and
+`hint` must be its fallback's four fields byte for byte, so a fallback row cannot show words no fallback
+holds (`--check` compares them, R43 B2).
+
+The `bake` block is derived from the calls, not from the environment (R43 B1)
+==================================================================================
+`resolve_mode()` reads what the environment permits; it is never evidence that a call happened. The block
+is built by `bake_header()` from the run's own tally: `live` counts the validated answers written into
+rows, and each one is either `live_wire` (answered over the network now) or `live_cached` (read back from
+the recorded cache). So:
+
+    mode live      at least one validated answer crossed the network this run, and `network` is true
+    mode replay    the rows are validated answers read back from the recorded cache, `network` false
+    mode offline   no row is live, whatever the environment allowed, `network` false
+
+and the note always starts with `live:`, `cached:` or `offline:` to match. A run whose every call missed
+the cache (a replay with nothing recorded) or whose key is revoked or spent writes mode offline, network
+false and an offline note, not a live header over 0 live rows. A validated answer whose transport verdict
+is missing, or which the door places neither on the wire nor in the cache, stops the bake rather than being
+labelled from a guess, so `live` always equals `live_wire` plus `live_cached`.
 
 Three modes, and none of them blocks
 ====================================
@@ -50,7 +69,11 @@ What --check refuses
        `request_hash` that does not recompute from the row's stored request echo, a duplicate id, a row
        whose scene and effects disagree, an incomplete option set, or a card phase the data can reach that
        the bake quietly dropped;
-    5. a key name, an endpoint, a URL, or an unvalidated model answer, anywhere in the file.
+    5. a key name, an endpoint, a URL, or an unvalidated model answer, anywhere in the file;
+    6. a bake block that claims more than its rows did: mode live or network true over zero live rows, an
+       offline flag that disagrees with the network flag, or a note that does not begin with the run's own
+       word (`live:`, `cached:` or `offline:`); and a row labelled fallback whose shown text, mood, effect
+       or hint is not its fallback's, or a fallback reason that names none of the four causes (R43 B1, B2).
 
 Usage
     python tools\\bake_meta.py --offline
@@ -116,6 +139,12 @@ LINK_MARKS = ("http", "www.", "@")
 # What must never appear in the bake file (D5: no endpoint, no credential, and R43 reads the file itself).
 FORBIDDEN_IN_FILE = ("http://", "https://", "www.", "api.", "model_api_key", "meta_api_key", "api_key",
                      "authorization", "bearer ", "sk-")
+# R43 B1: the header's mode, and the first word of its note. A note that does not name the run is refused,
+# so "mode live" cannot stand over 0 live rows or over a run that never left the machine.
+MODE_NOTES = {"live": "live:", "offline": "offline:", "replay": "cached:"}
+# R43: a fallback row's reason must name one of these causes and then say what happened, so "because"
+# cannot stand in for a reason.
+REASON_PREFIXES = ("offline:", "no live answer:", "refused:", "call budget ")
 NPCS = (
     {
         "id": "morgan",
@@ -499,10 +528,20 @@ def fallback_reply(text_lines, effect):
 
 # ---------------------------------------------------------------- one bake
 
-def call_model(messages, schema, sleep=None):
-    """One call through tools/meta_client.py, the only door (spec 19 section 2)."""
+def call_model(messages, schema, sleep=None, transport=None):
+    """One call through tools/meta_client.py, the only door (spec 19 section 2).
+
+    `transport` comes back filled with what the door did (`backend`, `mode`, `cached`, `network`), so
+    the bake reports the transport that happened instead of the transport the environment permitted.
+    """
     import meta_client
-    return meta_client.chat_structured(messages, schema=schema, sleep=sleep)
+    return meta_client.chat_structured(messages, schema=schema, sleep=sleep, transport=transport)
+
+
+def new_state():
+    """The bake's own tally of what its calls did. Every header count is read from here."""
+    return {"calls": 0, "live": 0, "live_wire": 0, "live_cached": 0,
+            "failed": 0, "refused": 0, "capped": 0}
 
 
 def attempt(reply_builder, base, fallback, mode, state, scene, glyphs, tokens):
@@ -510,21 +549,40 @@ def attempt(reply_builder, base, fallback, mode, state, scene, glyphs, tokens):
     if mode["offline"]:
         return bake_row(base, reply_builder(fallback), fallback, "fallback", mode["why"]), ""
     if state["calls"] >= MAX_CALLS:
+        state["capped"] += 1
         return bake_row(base, reply_builder(fallback), fallback, "fallback",
                         "call budget %d spent" % MAX_CALLS), "cap"
     state["calls"] += 1
+    transport = {}
     try:
         answer = call_model(render_messages(mode["system"], base["request"]["character"], scene,
-                                          base["request"]["player_line"]), TALK_REPLY_SCHEMA)
+                                          base["request"]["player_line"]), TALK_REPLY_SCHEMA,
+                            transport=transport)
     except Exception as exc:  # noqa: BLE001 - any client failure is a labelled fallback, never a hole
+        state["failed"] += 1
         return bake_row(base, reply_builder(fallback), fallback, "fallback",
                         "no live answer: %s" % str(exc)[:160]), "error"
+    if not transport:
+        # A validated answer whose provenance nobody recorded cannot be told from a cache read, and
+        # the header would have to guess. R43 B1 is exactly that guess, so it stops instead.
+        raise BakeError("the client returned an answer and no transport verdict (%s), so the bake "
+                        "cannot say where it came from" % base["id"])
     ok, problems = validate_reply(answer, "npc" if scene.get("scene") == "npc" else "fight",
                                   glyphs, tokens)
     if not ok:
+        state["refused"] += 1
         return bake_row(base, reply_builder(fallback), fallback, "fallback",
                         "refused: %s" % "; ".join(problems)[:200]), "refused"
     state["live"] += 1
+    if transport.get("network"):
+        state["live_wire"] += 1
+    elif transport.get("cached"):
+        state["live_cached"] += 1
+    else:
+        # A live row the door cannot place on the wire or in the cache would make the note a guess
+        # again, one level down from R43 B1, so it stops the bake instead of being labelled.
+        raise BakeError("the client said %s came from neither the wire nor the cache (%r), so the "
+                        "bake cannot say what the answer was" % (base["id"], transport))
     return bake_row(base, answer, fallback, "live", ""), "live"
 
 
@@ -596,11 +654,15 @@ def utc_stamp():
 
 
 def resolve_mode(offline):
-    """offline, live, or a labelled reason to fall back. Reads the key state, never the key."""
+    """offline, live, or a labelled reason not to call. Reads the key state, never the key.
+
+    `live_allowed` says only that the environment permits a live call. It is never evidence that one
+    happened: the header is built from `state`, the calls themselves (R43 B1).
+    """
     import meta_client
     model = meta_client.model_for("chat")
     mode = {"offline": True, "why": "offline: --offline was asked for, so every row is the fallback",
-            "model": model, "system": "", "backend": "", "network": False}
+            "model": model, "system": "", "backend": "", "live_allowed": False}
     if offline:
         return mode
     backend = meta_client.backend_name()
@@ -613,8 +675,59 @@ def resolve_mode(offline):
         mode["why"] = ("offline: no key in the environment (%s), so every row is the fallback"
                        % " then ".join(meta_client.KEY_ENVS))
         return mode
-    mode.update({"offline": False, "why": "", "network": True})
+    mode.update({"offline": False, "why": "", "live_allowed": True})
     return mode
+
+
+def bake_header(mode, state, rows, fallback_rows, reasons, system):
+    """The bake block, taken from what the calls did, never from what the environment allowed.
+
+    `mode["live_allowed"]` only says a live call was permitted. Whether one happened is `state`, the
+    rows' own provenance: a live row is a validated answer this bake wrote, `live_wire` the ones that
+    crossed the network now, `live_cached` the ones served from the recorded cache. So a run whose
+    every call missed the cache or failed is mode offline with a note that starts "offline:", and a
+    run served from the cache is mode replay with a note that starts "cached:". R43 B1 measured the
+    old block saying live and networked over 0 live rows, and this is the replacement.
+    """
+    live = state["live"]
+    wire = state["live_wire"]
+    cached = state["live_cached"]
+    network = wire > 0
+    if live == 0:
+        kind = "offline"
+        note = mode["why"] or (
+            "offline: %d call(s) were made and none came back as a validated answer (%d failed, %d "
+            "refused, %d over the call budget), so every row is the hand written fallback"
+            % (state["calls"], state["failed"], state["refused"], state["capped"]))
+    elif network:
+        kind = "live"
+        note = ("live: %d of %d rows are answers from the Meta client, each one schema validated "
+                "before it was written" % (live, len(rows)))
+        if cached:
+            note += ", and %d of those were read back from the recorded cache" % cached
+        if live < len(rows):
+            note += "; the other %d are the hand written fallback" % (len(rows) - live)
+    else:
+        kind = "replay"
+        note = ("cached: %d of %d rows are answers read back from the recorded cache, so no request "
+                "left this machine" % (live, len(rows)))
+        if live < len(rows):
+            note += "; the other %d are the hand written fallback" % (len(rows) - live)
+    return {
+        "created_at": rows[0]["created_at"] if rows else utc_stamp(),
+        "mode": kind,
+        "offline": not network,
+        "backend": mode["backend"],
+        "network": network,
+        "model": mode["model"],
+        "system_chars": len(system),
+        "calls_attempted": state["calls"],
+        "rows": len(rows),
+        "live": live,
+        "fallback": fallback_rows,
+        "fallback_reasons": reasons,
+        "note": note,
+    }
 
 
 def run_bake(offline=False):
@@ -632,7 +745,7 @@ def run_bake(offline=False):
     npc_units = npc_plan(bank, blocks)
     plans = {"npc": npc_units, "fight": fight_units, "bank": bank,
              "last_npc_reply": {}, "last_fight_reply": {}}
-    state = {"calls": 0, "live": 0}
+    state = new_state()
     rows = build_rows(mode, state, glyphs, tokens, plans)
     fallback_rows = sum(1 for row in rows if row["source"] == "fallback")
     reasons = {}
@@ -646,22 +759,7 @@ def run_bake(offline=False):
         "rule": RULE,
         "effects": list(EFFECTS),
         "moods": list(MOODS),
-        "bake": {
-            "created_at": rows[0]["created_at"] if rows else utc_stamp(),
-            "mode": "offline" if not mode["network"] else "live",
-            "offline": not mode["network"],
-            "backend": mode["backend"],
-            "network": mode["network"],
-            "model": mode["model"],
-            "system_chars": len(system),
-            "calls_attempted": state["calls"],
-            "rows": len(rows),
-            "live": state["live"],
-            "fallback": fallback_rows,
-            "fallback_reasons": reasons,
-            "note": mode["why"] or ("live answers from the Meta client, each one schema validated "
-                                    "before it was written"),
-        },
+        "bake": bake_header(mode, state, rows, fallback_rows, reasons, system),
         "coverage": {
             "talk_cards_in_data": len(cards_doc.get("cards") or []),
             "fight_phases": [{"card": unit["card"]["id"], "enemy": unit["enemy"]["id"],
@@ -728,9 +826,9 @@ def write_file(document):
 
 def report(document, state, skipped, stream=sys.stdout):
     bake = document["bake"]
-    print("meta bake: %d rows, %d live, %d fallback, %d skipped card(s), backend %r, network %s"
-          % (bake["rows"], bake["live"], bake["fallback"], len(skipped), bake["backend"] or "none",
-             str(bake["network"]).lower()), file=stream)
+    print("meta bake: %s, %d rows, %d live, %d fallback, %d skipped card(s), backend %r, network %s"
+          % (bake["mode"], bake["rows"], bake["live"], bake["fallback"], len(skipped),
+             bake["backend"] or "none", str(bake["network"]).lower()), file=stream)
     print("  system text: %d characters, model %s" % (bake["system_chars"], bake["model"]), file=stream)
     if bake["note"]:
         print("  why: %s" % bake["note"], file=stream)
@@ -823,8 +921,11 @@ def _check_row(row, seen, cards, glyphs, tokens, bank):
                                                   glyphs, tokens)[1])
     if row.get("source") not in ("live", "fallback"):
         problems.append("%s: source %r is neither live nor fallback" % (row_id, row.get("source")))
-    if row.get("source") == "fallback" and not row.get("reason"):
-        problems.append("%s: an offline row must say why it is offline" % row_id)
+    if row.get("source") == "fallback":
+        if not row.get("reason"):
+            problems.append("%s: an offline row must say why it is offline" % row_id)
+        else:
+            problems.extend(_check_reason(row, row_id))
     if row.get("source") == "fallback" and row.get("network"):
         problems.append("%s: a fallback row cannot claim the network" % row_id)
     if row.get("source") == "live" and not row.get("network"):
@@ -835,6 +936,18 @@ def _check_row(row, seen, cards, glyphs, tokens, bank):
     problems.extend(_check_hash(row, row_id))
     problems.extend(_check_fallback(row, row_id, cards, glyphs, bank))
     return problems
+
+
+def _check_reason(row, row_id):
+    """A reason has to name one of the bake's causes and then say what happened (R43's smaller item)."""
+    reason = str(row.get("reason") or "")
+    for prefix in REASON_PREFIXES:
+        if reason.startswith(prefix):
+            if len(reason) >= len(prefix) + 8:
+                return []
+            return ["%s: the reason %r names a cause and no detail" % (row_id, reason)]
+    return ["%s: the reason %r is none of the bake's causes (%s)"
+            % (row_id, reason, ", ".join(prefix.strip() for prefix in REASON_PREFIXES))]
 
 
 def _check_hash(row, row_id):
@@ -866,9 +979,14 @@ def _check_fallback(row, row_id, cards, glyphs, bank):
     if fallback.get("mood") != want_mood:
         problems.append("%s: the fallback mood is %r, the effect derives %r"
                         % (row_id, fallback.get("mood"), want_mood))
-    if fallback.get("effect") != row.get("effect") and source == "talk_cards":
-        problems.append("%s: the fallback effect %r does not match the row's %r"
-                        % (row_id, fallback.get("effect"), row.get("effect")))
+    if row.get("source") == "fallback":
+        # R43 B2: a row labelled fallback shows its fallback and nothing else, so the four fields a
+        # fallback holds are compared here byte for byte. A live row keeps its fallback as what it
+        # shadows, so its own text and effect are the model's and are not compared.
+        for field in ("text", "mood", "effect", "hint"):
+            if row.get(field) != fallback.get(field):
+                problems.append("%s: the row is a fallback and its %s is %r while its fallback holds %r"
+                                % (row_id, field, row.get(field), fallback.get(field)))
     if source == "talk_cards":
         problems.extend(_check_talk_cards_fallback(row_id, fallback, cards, glyphs))
     elif source == "gate_dialogue":
@@ -879,9 +997,6 @@ def _check_fallback(row, row_id, cards, glyphs, bank):
         elif list(fallback.get("text") or []) != [bank[line_id]]:
             problems.append("%s: the fallback text is not the GATE-DIALOGUE row %s"
                             % (row_id, line_id))
-        if fallback.get("effect") != row.get("effect"):
-            problems.append("%s: the fallback effect %r does not match the row's %r"
-                            % (row_id, fallback.get("effect"), row.get("effect")))
     else:
         problems.append("%s: fallback source %r is neither talk_cards nor gate_dialogue"
                         % (row_id, source))
@@ -966,8 +1081,35 @@ def _check_counts(document, rows):
     if bake.get("fallback") != len(rows) - live:
         problems.append("the bake block says %r fallback rows, the file holds %d"
                         % (bake.get("fallback"), len(rows) - live))
-    if not bake.get("network") and live:
-        problems.append("the bake block says no network, and %d row(s) claim a live answer" % live)
+    network = bake.get("network")
+    if not isinstance(network, bool):
+        problems.append("the bake block network is %r, not a boolean" % (network,))
+        network = bool(network)
+    if bake.get("offline") is not (not network):
+        problems.append("the bake block says offline %r with network %r, so one of the two is wrong"
+                        % (bake.get("offline"), network))
+    mode = bake.get("mode")
+    if mode not in MODE_NOTES:
+        problems.append("the bake block mode is %r, and the only modes are %s"
+                        % (mode, ", ".join(sorted(MODE_NOTES))))
+        return problems
+    note = str(bake.get("note") or "")
+    # R43 B1: the block is read against the rows, in both directions, so a header cannot say more than
+    # the calls did. `live` counts the rows the file itself calls live; network is what the run proved.
+    if network and live == 0:
+        problems.append("the bake block claims the network over 0 live rows, so it is refused")
+    if mode == "live" and not live:
+        problems.append("the bake block is mode live over 0 live rows, so it is refused")
+    if mode == "live" and not network:
+        problems.append("the bake block is mode live and records no network")
+    if mode == "offline" and live:
+        problems.append("the bake block is mode offline and %d row(s) are live" % live)
+    if mode == "replay" and (not live or network):
+        problems.append("the bake block is mode replay with %d live row(s) and network %r, and a replay "
+                        "reads the cache without the network" % (live, network))
+    if not note.startswith(MODE_NOTES[mode]):
+        problems.append("the note %r does not start with %r, so it does not say what the run was"
+                        % (note[:70], MODE_NOTES[mode]))
     return problems
 
 
