@@ -1111,3 +1111,21 @@ LoRA after the load attempt rather than the requested one, because the Kaggle im
 and a run that drops the LoRA must not claim it used it; reducing the frame with nearest neighbour so no colour enters the
 concept the model did not draw; and parking the painted report as a baseline file that a later model run cannot overwrite.
 Copied expression: none
+
+## CREDITS-PROVENANCE, 2026-10-23: the credits data proves its own citations
+Studied: this repository only, read only: data/credits.json, data/nes_palette.json (as the shape of an in-file citation
+block), tools/sync_data.py, and the refusal logic in tests/test_no_network_in_build.py, which is the test this card
+answers. The two upstream documents the credits carry were not opened again this run; the licence text already stored at
+knowledge/licences/PressStart2P-OFL.txt (4413 bytes, sha256 705960c3...) is what the file quotes. No decompiled material was
+read for this card and no expression from any game is in it.
+Mechanics learned: one. A citation pin can only be satisfied by evidence that travels WITH the data it excuses, because a
+file the game ships cannot be trusted on the strength of a commit message; so the exemption belongs in the shipped bytes as a
+provenance block, is counted and printed on every run, and a plain table stays refused. The second thing learned is a
+boundary: an address that a licence text itself names as its home, and an attribution address that ODbL obliges us to carry,
+are credits rather than endpoints, and the honest way to say so is to name them inside the file instead of widening the
+checker for everybody.
+Our implementation differs by: keeping the exemption inside data/credits.json (a top level sources block naming the holder,
+the stored copy, its sha256 and the status of each URL) rather than adding a per-file allowlist to the test, so the checker
+and its own file are untouched; and by leaving every licence line, count and screen row byte for byte as it was, adding 27
+lines and deleting none.
+Copied expression: none

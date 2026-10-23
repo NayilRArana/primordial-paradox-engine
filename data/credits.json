@@ -225,5 +225,32 @@
         }
       ]
     }
+  ],
+  "sources": [
+    {
+      "holder": "Copyright 2012 The Press Start 2P Project Authors (cody@zone38.net)",
+      "id": "ofl_pressstart2p",
+      "licence": "SIL Open Font License 1.1",
+      "note": "Both URLs in this block belong to the licence document, not to the build. One is where the text was read from; the other is the address the OFL text itself names as its home, so it travels inside the quoted text in licences[0].text. The quoted text is data, copied once and stored at repo_path under the sha256 that entry declares. No GML file names this file, so no code can hand either string to a network call, and the build fetches nothing.",
+      "repo_path": "knowledge/licences/PressStart2P-OFL.txt",
+      "serves": "licences[0], the Press Start 2P licence text",
+      "sha256": "705960c3281a5765ecc0b59bd4ed7ca59eed165748076bc2fc3e8fdbfeb944b0",
+      "url": "https://github.com/google/fonts/blob/main/ofl/pressstart2p/OFL.txt",
+      "urls_inside_the_quoted_text": [
+        "http://scripts.sil.org/OFL"
+      ]
+    },
+    {
+      "holder": "(c) OpenStreetMap contributors",
+      "id": "odbl_openstreetmap",
+      "licence": "Open Database Licence (ODbL) 1.0",
+      "note": "ODbL 1.0 obliges the copyright page address to appear in the attribution notice itself, so the same string is carried three times: as licences[1].required_line, as the place the notice was read from, and inside the notice text. Each copy is a credit line this licence requires the build to keep, not a callable address. The street geometry came from the Overpass download at data/maps/osm/southampton_town_quay.json, which records its own provenance.",
+      "repo_path": "data/maps/southampton_sample.json",
+      "serves": "licences[1], the map data attribution",
+      "url": "https://www.openstreetmap.org/copyright",
+      "urls_inside_the_required_notice": [
+        "https://www.openstreetmap.org/copyright"
+      ]
+    }
   ]
 }
