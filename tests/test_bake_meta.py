@@ -273,6 +273,35 @@ def test_an_npc_row_refuses_an_effect_that_only_a_fight_allows(monkeypatch):
     assert all("not legal in the npc scene" in row["reason"] for row in npc)
 
 
+def test_a_rerun_that_changes_nothing_keeps_the_previous_stamp(baked, tmp_path, monkeypatch):
+    """So a 53 KB generated file (and the build mirror of it) is not churned by a timestamp alone."""
+    path = tmp_path / "meta_bake.json"
+    document = json.loads(json.dumps(baked["document"]))
+    for row in document["rows"]:
+        row["created_at"] = "2026-10-22T00:00:00Z"
+    document["bake"]["created_at"] = "2026-10-22T00:00:00Z"
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(document, handle, indent=2, ensure_ascii=True)
+        handle.write("\n")
+    monkeypatch.setattr(bake_meta, "OUT_FILE", str(path))
+    fresh, _mode, _state, _skipped, _units = bake_meta.run_bake(offline=True)
+    assert bake_meta.keep_previous_stamp(fresh) is True
+    assert fresh["bake"]["created_at"] == "2026-10-22T00:00:00Z"
+    assert all(row["created_at"] == "2026-10-22T00:00:00Z" for row in fresh["rows"])
+
+
+def test_a_rerun_that_changed_a_row_takes_a_new_stamp(baked, tmp_path, monkeypatch):
+    path = tmp_path / "meta_bake.json"
+    document = json.loads(json.dumps(baked["document"]))
+    document["rows"].pop()
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(document, handle, indent=2, ensure_ascii=True)
+        handle.write("\n")
+    monkeypatch.setattr(bake_meta, "OUT_FILE", str(path))
+    fresh, _mode, _state, _skipped, _units = bake_meta.run_bake(offline=True)
+    assert bake_meta.keep_previous_stamp(fresh) is False
+
+
 # ----------------------------------------------------------------- small rules
 
 def test_wrapping_uppercases_and_never_breaks_a_word():

@@ -681,6 +681,41 @@ def run_bake(offline=False):
     return document, mode, state, skipped, fight_units
 
 
+def keep_previous_stamp(document):
+    """Reuse the previous bake's created_at when every row is otherwise identical.
+
+    A rerun of `--offline` that changes nothing must not churn a 53 KB generated file (or the mirror
+    `tools/sync_data.py` keeps of it) just to move a timestamp, so the stamp means "when this content
+    was baked", not "when this command last ran". Returns True when the previous stamp was kept.
+    """
+    if not os.path.isfile(OUT_FILE):
+        return False
+    try:
+        old = load_json(OUT_FILE)
+    except BakeError:
+        return False
+    if not isinstance(old, dict) or not isinstance(old.get("rows"), list):
+        return False
+    if len(old["rows"]) != len(document["rows"]):
+        return False
+    for new_row, old_row in zip(document["rows"], old["rows"]):
+        if not isinstance(old_row, dict):
+            return False
+        if _without_stamp(new_row) != _without_stamp(old_row):
+            return False
+    stamp = (old.get("bake") or {}).get("created_at")
+    if not stamp:
+        return False
+    for row in document["rows"]:
+        row["created_at"] = stamp
+    document["bake"]["created_at"] = stamp
+    return True
+
+
+def _without_stamp(row):
+    return {key: value for key, value in row.items() if key != "created_at"}
+
+
 def write_file(document):
     parent = os.path.dirname(OUT_FILE)
     if parent and not os.path.isdir(parent):
@@ -952,6 +987,7 @@ def main(argv=None):
         if args.check:
             return 1 if check_file() else 0
         document, _mode, state, skipped, _units = run_bake(offline=args.offline)
+        kept = keep_previous_stamp(document)
         write_file(document)
         if args.json:
             print(json.dumps({key: document["bake"][key] for key in
@@ -959,6 +995,8 @@ def main(argv=None):
                              indent=2, sort_keys=True))
         else:
             report(document, state, skipped)
+            if kept:
+                print("  content unchanged, so the previous created_at was kept", file=sys.stdout)
         return 0
     except BakeError as exc:
         print("bake stopped: %s" % exc, file=sys.stderr)
