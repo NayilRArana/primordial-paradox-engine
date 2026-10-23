@@ -1,0 +1,166 @@
+{
+  "bars": 64,
+  "criteria": [
+    {
+      "criterion": "motif coverage",
+      "fraction": 0.5247,
+      "ideal": "at least 60%",
+      "key": "motif_coverage",
+      "measured": "31% of 216 notes inside the motif",
+      "pass": false,
+      "points": 10.49,
+      "suggestion": "the motif leaves too many notes outside it; move material into the 2 bar phrase or drop the notes that do not belong",
+      "weight": 20
+    },
+    {
+      "criterion": "variation on the third return",
+      "fraction": 0.4,
+      "ideal": "30 to 85% the same",
+      "key": "third_return",
+      "measured": "100% the same as the first return",
+      "pass": false,
+      "points": 3.2,
+      "suggestion": "the third return is a copy (100% the same); change the ending, add a passing note or start it on a different chord tone",
+      "weight": 8
+    },
+    {
+      "criterion": "loop length",
+      "fraction": 0.5,
+      "ideal": "8 or 16 or 32 bars",
+      "key": "loop_length",
+      "measured": "64 bars",
+      "pass": false,
+      "points": 3.0,
+      "suggestion": "64 bars does not loop cleanly; write 8, 16 or 32 bars so the cue can repeat without a seam",
+      "weight": 6
+    },
+    {
+      "criterion": "contour",
+      "fraction": 0.7778,
+      "ideal": "every return arch or pedal",
+      "key": "contour",
+      "measured": "7 of 9 returns are arch or pedal (arch - arch arch arch arch - arch arch)",
+      "pass": false,
+      "points": 7.78,
+      "suggestion": "the phrase wanders; shape it as an arch (rise to one peak then fall) or hold a pedal pitch",
+      "weight": 10
+    },
+    {
+      "criterion": "motif returns",
+      "fraction": 1.0,
+      "ideal": "at least 3",
+      "key": "motif_returns",
+      "measured": "9 returns",
+      "pass": true,
+      "points": 12.0,
+      "suggestion": "",
+      "weight": 12
+    },
+    {
+      "criterion": "hook cell",
+      "fraction": 1.0,
+      "ideal": "2 to 6 notes with a repeated rhythm cell",
+      "key": "hook_cell",
+      "measured": "6 notes, rhythm 2/2/4/4/4/2 repeated 6 times",
+      "pass": true,
+      "points": 10.0,
+      "suggestion": "",
+      "weight": 10
+    },
+    {
+      "criterion": "steps over leaps",
+      "fraction": 1.0,
+      "ideal": "at least 65% steps",
+      "key": "step_ratio",
+      "measured": "67% steps (4 of 6 intervals), 1 leaps",
+      "pass": true,
+      "points": 12.0,
+      "suggestion": "",
+      "weight": 12
+    },
+    {
+      "criterion": "leaps per motif",
+      "fraction": 1.0,
+      "ideal": "exactly 1",
+      "key": "leaps_per_motif",
+      "measured": "1 leaps",
+      "pass": true,
+      "points": 8.0,
+      "suggestion": "",
+      "weight": 8
+    },
+    {
+      "criterion": "range",
+      "fraction": 1.0,
+      "ideal": "at most 18 semitones",
+      "key": "range",
+      "measured": "15 semitones (64 to 79)",
+      "pass": true,
+      "points": 8.0,
+      "suggestion": "",
+      "weight": 8
+    },
+    {
+      "criterion": "repeated pitch",
+      "fraction": 1.0,
+      "ideal": "at least 1",
+      "key": "repeat_pitch",
+      "measured": "23 repeated pitches in a row",
+      "pass": true,
+      "points": 6.0,
+      "suggestion": "",
+      "weight": 6
+    }
+  ],
+  "grammar": "<repo>\\knowledge\\MUSIC-HOOK-GRAMMAR.md",
+  "grid": "sixteenth",
+  "melody_track": "vrc6 pulse a",
+  "midi_tracks": [
+    "conductor",
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "motif": {
+    "bars": 2,
+    "coverage": 0.3148,
+    "notes": 7,
+    "occurrence_bars": [
+      1,
+      5,
+      9,
+      13,
+      21,
+      33,
+      37,
+      45,
+      57
+    ],
+    "returns": 9,
+    "start_bar": 44
+  },
+  "notes": 216,
+  "points": 80.47,
+  "score": 80,
+  "source": "<repo>\\assets\\audio\\pp_03_harbor_v2\\pp_03_harbor_v2.mid",
+  "suggestions": [
+    "the motif leaves too many notes outside it; move material into the 2 bar phrase or drop the notes that do not belong",
+    "the third return is a copy (100% the same); change the ending, add a passing note or start it on a different chord tone",
+    "64 bars does not loop cleanly; write 8, 16 or 32 bars so the cue can repeat without a seam",
+    "the phrase wanders; shape it as an arch (rise to one peak then fall) or hold a pedal pitch"
+  ],
+  "tempo_us": 882353,
+  "weakest": {
+    "criterion": "motif coverage",
+    "fraction": 0.5247,
+    "key": "motif_coverage",
+    "of": 20,
+    "points": 10.49
+  },
+  "weights_total": 100
+}
