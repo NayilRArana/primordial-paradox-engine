@@ -1,0 +1,267 @@
+{
+  "format": 1,
+  "kind": "tile_classes",
+  "name": "ship",
+  "card": "SHIP-TILES (t_a0c1bccf)",
+  "licence": "the project's own generated geometry: no extract, no sample, no trace, so unlike the drive and quay class files this one carries no ODbL line",
+  "source_map": "data/maps/all.json, the ship_small and ship_cabin rows, read only",
+  "rule": "every tile in assets/tiles/ship/ship_tiles.png appears here once, by index and by name, with walkable true or false and the reason, and the hatch and the rail are marked by name; a tile missing from this file cannot be placed by the map wiring",
+  "tile_size": 16,
+  "tilecount": 24,
+  "backdrop": {
+    "entry": 15,
+    "hex": "#000000"
+  },
+  "not_walkable_rule": "a tile is not walkable when it is a wall, a fitting or furniture, when it is the edge of the ship, or when it is water",
+  "marks": {
+    "hatch": {
+      "closed": 5,
+      "open": 6,
+      "flag": "ship_door_open",
+      "rule": "the closed hatch is not walkable and is the flag gated cell (collision 2 in the data/maps/all.json convention); the open hatch is walkable and carries the ladder_down trigger"
+    },
+    "rail": {
+      "bar": 18,
+      "post": 17,
+      "water_below": [
+        21,
+        22,
+        23
+      ],
+      "rule": "the rail is the edge of the ship: not walkable, stood on the deck plate it guards, with the water in the next row below it"
+    }
+  },
+  "tiles": [
+    {
+      "index": 0,
+      "name": "deck_plate",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a deck plate is the floor the fight happens on"
+    },
+    {
+      "index": 1,
+      "name": "deck_plate_worn",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a deck plate is the floor the fight happens on"
+    },
+    {
+      "index": 2,
+      "name": "deck_line",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "paint on a deck plate: it does not stop a step"
+    },
+    {
+      "index": 3,
+      "name": "deck_grating",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "grating is walked on; the engine space and the catwalk are laid in it"
+    },
+    {
+      "index": 4,
+      "name": "deck_grating_cross",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "grating is walked on, and the member is flush enough to step over"
+    },
+    {
+      "index": 5,
+      "name": "hatch_closed",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {
+        "hatch": "closed",
+        "flag": "ship_door_open"
+      },
+      "reason": "a shut hatch is a solid: the map blocks it, and it is the blocked until story flag cell"
+    },
+    {
+      "index": 6,
+      "name": "hatch_open",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": true,
+      "marked": {
+        "hatch": "open",
+        "flag": ""
+      },
+      "reason": "an open hatch is the way down: walkable, and it is the cell the ladder_down trigger sits on"
+    },
+    {
+      "index": 7,
+      "name": "door_sill",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a sill is a step of two pixels: crossable, so the map does not block it"
+    },
+    {
+      "index": 8,
+      "name": "bulkhead_rivet",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a bulkhead is a wall"
+    },
+    {
+      "index": 9,
+      "name": "bulkhead_plain",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a bulkhead is a wall"
+    },
+    {
+      "index": 10,
+      "name": "bulkhead_light",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a fitting on a wall: it is not ground"
+    },
+    {
+      "index": 11,
+      "name": "ladder",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": true,
+      "marked": {},
+      "reason": "a ladder is climbed, not walked around; the map lets a step onto it"
+    },
+    {
+      "index": 12,
+      "name": "stairs_up",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": true,
+      "marked": {},
+      "reason": "a stair is climbed, so it is not a solid"
+    },
+    {
+      "index": 13,
+      "name": "pipe_run",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a pipe run stands proud of the wall: a solid"
+    },
+    {
+      "index": 14,
+      "name": "locker",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a locker is furniture: a solid"
+    },
+    {
+      "index": 15,
+      "name": "crate",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a crate is a solid the hold is furnished with"
+    },
+    {
+      "index": 16,
+      "name": "hazard_stripes",
+      "walkable": true,
+      "class": "walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "paint on a deck: it marks a hazard, it is not one"
+    },
+    {
+      "index": 17,
+      "name": "rail_post",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {
+        "rail": true
+      },
+      "reason": "the rail is the edge of the ship: a solid, and the deck ends at it"
+    },
+    {
+      "index": 18,
+      "name": "rail_bar",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {
+        "rail": true
+      },
+      "reason": "the rail is the edge of the ship: a solid, and the water is under it"
+    },
+    {
+      "index": 19,
+      "name": "porthole",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a porthole is set in a bulkhead: a solid"
+    },
+    {
+      "index": 20,
+      "name": "log_terminal",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "a terminal is mounted on a wall: it is the save point, not ground"
+    },
+    {
+      "index": 21,
+      "name": "water_deep",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "you cannot walk on the sea"
+    },
+    {
+      "index": 22,
+      "name": "water_swell",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "you cannot walk on the sea"
+    },
+    {
+      "index": 23,
+      "name": "water_edge",
+      "walkable": false,
+      "class": "not walkable",
+      "climbable": false,
+      "marked": {},
+      "reason": "the waterline is water: the hull beside it is a solid too"
+    }
+  ],
+  "counts": {
+    "walkable": 10,
+    "not_walkable": 14,
+    "climbable": 3
+  }
+}
