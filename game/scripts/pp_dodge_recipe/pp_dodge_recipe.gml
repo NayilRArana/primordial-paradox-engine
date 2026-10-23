@@ -66,7 +66,9 @@ function pp_recipe_event(_frame, _member, _pattern_aim) {
         var _t = _member / (_frame.count - 1);
         _angle += (_t - 0.5) * _frame.spread;
     }
-    var _aims = _pattern_aim == "at_marker" || _frame.aim == true;
+    // Aim is a recipe level field only (patterns.schema.json: the frame object refuses unknown keys). Reading a per frame
+    // override here is what killed every first dodge frame in the 02:34 build, so the recipe value is the whole answer.
+    var _aims = _pattern_aim == "at_marker";
     return {
         at: _frame.at + _member * _frame.delay,
         angle: _angle,
