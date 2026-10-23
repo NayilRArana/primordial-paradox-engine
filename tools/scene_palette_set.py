@@ -235,7 +235,7 @@ def scene_from_source(root: str, path: str, colours) -> dict:
             if len(row["colours"]) != scene_palette.LIMIT:
                 raise SystemExit("scene_palette_set: %s has a %s palette of %d entries, the rule is %d"
                                  % (path, key, len(row["colours"]), scene_palette.LIMIT))
-    return {
+    entry = {
         "id": scene_id,
         "backdrop": int(payload["backdrop"]),
         "background": [{"name": row.get("name", "bg%d" % index), "colours": list(map(int, row["colours"]))}
@@ -252,6 +252,14 @@ def scene_from_source(root: str, path: str, colours) -> dict:
         "note": "solved by tools/art/scene_palette.py from the art on disk, then checked by "
                 "tools/nes_composite_check.py and tools/check_scene_palettes.py",
     }
+    # Card t_a1170172: the title scene also carries the per-band plan and the per-sprite band assignment, because a
+    # scene that scrolls along x only is legal per 16 px row band and not per area. They are derived here from the
+    # scene file rather than written by hand into data/scene_palettes.json, which is the point of this builder: the
+    # shipped set must be reproducible from the per scene files, or the file has two owners.
+    for key in ("bands", "band_sprites"):
+        if key in payload:
+            entry[key] = json.loads(json.dumps(payload[key]))
+    return entry
 
 
 def hero_block(colours) -> dict:

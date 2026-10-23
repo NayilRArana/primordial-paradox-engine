@@ -728,7 +728,16 @@ def apply_title(root: str) -> dict:
         image.save(os.path.join(root, "game", "sprites_src", "title", name + ".png"), "PNG")
         report["layers"][name] = {"checkers_flattened": checkers, "y": y}
 
+    # Which sheets the band plan paints. Those are decided by their band palette (title_bands.apply, the last pass), so
+    # the per-area enforcement must not touch them first: card t_a1170172 measured what happens when it does. The new
+    # sprite row sp0 holds the wordmark's $0F, and a car group the enforcement had no reason to move chose sp0 and took
+    # black pixels, which the band pass then skipped as the backdrop, so a black outline appeared on the car's body.
+    # The busts are not band painted (they are not drawn on the title screen), so they are the sheets this pass owns.
+    band_painted = {name for name in (scene.payload.get("band_sprites") or {}) if not name.startswith("_")}
     for name in TITLE_SPRITES:
+        if name in band_painted:
+            report["sprites"][name] = {"band_painted": True}
+            continue
         try:
             image, meta = load_strip(root, name)
         except OSError:

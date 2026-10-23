@@ -23,8 +23,8 @@ import shutil
 import subprocess
 import sys
 
-from PIL import Image
 import pytest
+from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TITLE_DIR = os.path.join(ROOT, "game", "sprites_src", "title")
@@ -92,13 +92,14 @@ def test_car_passes_nes_check():
 
 
 def test_logo_is_two_nes_colours_two_frames():
-    """The logo is 2 opaque colours and every one is a real 2C02 entry.
+    """The logo carries its outline again: three opaque colours, every one of them a real 2C02 entry.
 
-    This pin said three, and three was true while the logo had a palette of its own. Card t_a1170172 moved the title
-    onto one palette per 16 px band, and a band has three entries: one of them has to be the night sky the wordmark
-    sits on, so the mark gets the band's other two, $28 gold for the letters and $00 grey for the outline. The
-    fourth tone the logo used to carry, its drop shadow, is the backdrop now. The pin states what ships, so any drift
-    to a different palette still fails here.
+    This pin said two, and two was the count the art had after card t_a1170172 moved the title onto one palette per
+    16 px band and gave the logo a row that was a copy of its band. That row was the mistake: sprites do not share the
+    background's palette on the chip, they carry their own three entries, so pinning the logo to its band's entries
+    left the wordmark with $00 grey and $28 gold and no ink to outline the letters with. The reviewed frame was a
+    gold wordmark with no outline, which specs/13-8bit-look.md:19 asks for. The row is now the logo's own (sp0, ink
+    $0F, stone $00, gold $28) and the outline is back.
     """
     path = os.path.join(TITLE_DIR, "spr_pp_title_logo.png")
     with Image.open(path) as image:
@@ -107,8 +108,8 @@ def test_logo_is_two_nes_colours_two_frames():
         meta = json.load(handle)
     assert (meta["frame_w"], meta["frame_h"], meta["frames"]) == (224, 64, 2)
     colours = opaque_colours(path)
-    assert len(colours) == 2, colours
     assert set(colours) <= nes_palette(), set(colours) - nes_palette()
+    assert len(colours) == 3, colours
 
 
 def test_car_colours_are_nes_and_the_window_band_is_tinted():
@@ -180,6 +181,9 @@ def test_generators_are_deterministic(tmp_path):
         assert os.path.getsize(os.path.join(TITLE_DIR, sprite + ".png")) > 0
 
 
+# Card TEST-CLASSIFY-33: regenerates the busts and hashes them against the committed PNGs, so only the
+# Pillow and zlib builds that wrote the committed files pass it. The pixels agree off the box.
+@pytest.mark.host_png_bytes
 def test_the_two_busts_regenerate_from_the_committed_tree(tmp_path):
     """make_title_car.py draws the busts, the scene pass enforces them, and the committed sheets match.
 
@@ -269,15 +273,14 @@ def edge_runs(px, line_one, ink):
     return runs
 
 
-def test_the_logo_has_no_drop_shadow_because_the_band_has_no_room_for_one():
-    """A shadow that lands inside the outline ring is not a shadow: it is more of the same ink.
+def test_the_wordmark_ring_is_drawn_in_an_ink_and_the_body_fills_it():
+    """The ring is drawn in the logo's own ink and a second ink fills it, with nothing outside the ring.
 
-    This pin used to require the opposite, a 1 px shadow outside the ring, and the logo had the tone for it while it
-    drew from a palette of its own. Card t_a1170172 gives the logo the three entries of the band it sits in, and one
-    of those is the night sky: gold letters, grey outline, and no third ink left over. The shadow is the backdrop, so
-    it is transparent, and the check pins that the wordmark reads as an outline ring and nothing outside it. If a
-    later card gives the title a sprite palette (the hardware allows four), the shadow can come back and this pin
-    should go back with it.
+    This pin used to be called "no drop shadow", on the reading that card t_a1170172 had left the logo with the
+    band's two entries and no third ink to shadow with. That reading was the defect: the row the card gave the logo
+    was a copy of its band, sprites carry their own palette on the chip, and the wordmark lost its $0F outline with
+    it. sp0 now holds the mark's three entries (ink $0F, stone $00, gold $28), so there is a third ink again and
+    this pin states what the art does: an ink ring, a second ink inside it, and no ink outside the ring.
     """
     mod, line_one, body, _, _, _ = logo_geometry()
     colours, rgb_to_entry = mod.nes_tile.load_nes_palette(ROOT)
@@ -334,3 +337,50 @@ def test_the_gold_shimmer_crosses_both_lines():
         after = sum(1 for point in mask if shimmer.getpixel(point) == gold)
         assert changed > 20, "%s takes no shimmer, %d pixels changed" % (text, changed)
         assert after > before, "%s gains no gold in the shimmer frame (%d -> %d)" % (text, before, after)
+def test_the_wordmark_is_outlined_in_an_ink_its_body_is_not():
+    """The letters carry an outline, so no letter pixel touches the sky.
+
+    This is the pin review round 1 item 2 asked for: it checks the outline exists and that it is what closes the mark,
+    not just that the sheet is a legal set of colours. Measured on the committed sheet, frame 0: $0F black 2426 px, $00
+    grey 2407 px, $28 gold 313 px, 0 body pixels with a transparent 4-neighbour, 1552 ink pixels on the body's edge.
+
+    Counting colours is not enough on its own, which is why the pin below this one passed while the wordmark was a gold
+    blob: three inks is the same number whether the third one outlines the letters or fills a shadow inside them. This
+    one walks the pixels. The body has to be closed, and the ink has to be the thing closing it.
+    """
+    path = os.path.join(TITLE_DIR, "spr_pp_title_logo.png")
+    with Image.open(path) as image:
+        sheet = image.convert("RGBA")
+    frame = sheet.crop((0, 0, 224, 64))
+    px = frame.load()
+    tally = {}
+    for y in range(frame.height):
+        for x in range(frame.width):
+            pixel = px[x, y]
+            if pixel[3]:
+                tally[pixel[:3]] = tally.get(pixel[:3], 0) + 1
+    assert len(tally) >= 3, f"the wordmark carries {len(tally)} inks, so it has no outline: {tally}"
+
+    def luma(rgb):
+        return 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
+
+    ink = min(tally, key=luma)
+    body = [rgb for rgb in tally if rgb != ink]
+    assert tally[ink] > 1000, f"the outline ink {ink} is only {tally[ink]} px, too thin to be an outline"
+    assert max(luma(rgb) for rgb in body) > luma(ink), "the outline is not the darkest ink on the sheet"
+
+    open_gap = 0
+    contact = 0
+    for y in range(1, frame.height - 1):
+        for x in range(1, frame.width - 1):
+            here = px[x, y]
+            if here[3] == 0:
+                continue
+            neighbours = [px[x - 1, y], px[x + 1, y], px[x, y - 1], px[x, y + 1]]
+            if here[:3] != ink:
+                if any(n[3] == 0 for n in neighbours):
+                    open_gap += 1
+            elif any(n[3] and n[:3] != ink for n in neighbours):
+                contact += 1
+    assert open_gap == 0, f"{open_gap} body pixels touch the background, so the outline has holes"
+    assert contact > 500, f"only {contact} ink pixels sit against the body, so the ink is not the outline"

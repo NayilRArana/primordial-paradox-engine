@@ -12,6 +12,7 @@ nothing about the plan, whether the result is a frame a PPU could show.
 
 from __future__ import annotations
 
+import glob
 import json
 import os
 import sys
@@ -57,12 +58,18 @@ def load(name: str):
     return image, meta
 
 
-def compose(camera: float, words: bool = True) -> Image.Image:
+def compose(camera: float, words: bool = True, puff: int = 0) -> Image.Image:
     """The title's drive frame at one camera position: the layers, then every sprite the screen draws over them.
 
     ``words`` draws the menu box and its rows, which is the menu phase. The prompt phase the captured scroll frames
     were taken in has only the blinking PRESS START and the copyright line, so the measurement experiment asks for
     the frame without the box: a static box in the middle of a band is content that does not scroll.
+
+    ``puff`` chooses which frame of the animated sprites is drawn. The exhaust and the cloud turn over while the
+    world scrolls, and their frames are not alike: the puff that leaves the pipe is a different picture from the one
+    that has thinned. Drawing only frame 0 and calling the frame legal was how 24 blended pixels (a half transparent
+    puff blended over the road) stayed invisible to this file while the game's own capture showed them. Card
+    t_a1170172, review round 2.
     """
     with open(TABLE_PATH, "r", encoding="utf-8-sig") as handle:
         table = json.load(handle)
@@ -94,14 +101,18 @@ def compose(camera: float, words: bool = True) -> Image.Image:
     frame.alpha_composite(cone.crop((0, 0, cone_meta["frame_w"], cone_meta["frame_h"])), LAYOUT["cone"])
 
     exhaust, exhaust_meta = load("spr_title_exhaust")
-    frame.alpha_composite(exhaust.crop((0, 0, exhaust_meta["frame_w"], exhaust_meta["frame_h"])),
+    exhaust_index = puff % max(1, exhaust_meta["frames"])
+    frame.alpha_composite(exhaust.crop((exhaust_index * exhaust_meta["frame_w"], 0,
+                                        (exhaust_index + 1) * exhaust_meta["frame_w"], exhaust_meta["frame_h"])),
                           (LAYOUT["car"][0], LAYOUT["car"][1] + 14))
 
     car, car_meta = load("spr_title_car")
     frame.alpha_composite(car.crop((0, 0, car_meta["frame_w"], car_meta["frame_h"])), LAYOUT["car"])
 
     cloud, cloud_meta = load("spr_title_cloud")
-    frame.alpha_composite(cloud.crop((0, 0, cloud_meta["frame_w"], cloud_meta["frame_h"])),
+    cloud_index = puff % max(1, cloud_meta["frames"])
+    frame.alpha_composite(cloud.crop((cloud_index * cloud_meta["frame_w"], 0,
+                                      (cloud_index + 1) * cloud_meta["frame_w"], cloud_meta["frame_h"])),
                           (LAYOUT["car"][0] + 64, 80))
 
     logo, logo_meta = load("spr_pp_title_logo")
@@ -121,9 +132,12 @@ def compose(camera: float, words: bool = True) -> Image.Image:
             tile = window.crop((index * 8, 0, index * 8 + 8, 8))
             frame.alpha_composite(tile, (ox + tx * 8, oy + ty * 8))
 
-    # The words: white menu rows, one dim row and the dim copyright line, drawn from the font's two rows.
+    # The words: the font is one row of 8x8 frames in one ink, so every label is the same white. A row that cannot be
+    # chosen is marked by a 1 px rule through it in the ground band's dark green, which is what pp_title_draw_disabled
+    # draws on the screen (card t_a1170172, review round 1 item 3): the second row this model used to crop does not
+    # exist on the sheet, so it was drawing nothing and the copyright line was missing from the judged frame.
     font, font_meta = load("spr_pp_font8")
-    row_height = 8
+    dim_rgb = (0x00, 0x58, 0x00)   # PP_TITLE_DIM, 2C02 $0B, declared by both ground bands
 
     def draw_text(text, centre_x, y, dim):
         x = centre_x - (len(text) * 8) // 2
@@ -131,9 +145,11 @@ def compose(camera: float, words: bool = True) -> Image.Image:
             glyph = " !'(),-.0123456789:?ABCDEFGHIJKLMNOPQRSTUVWXYZ".find(char)
             if glyph < 0:
                 continue
-            cell = font.crop((glyph * 8, row_height if dim else 0,
-                              glyph * 8 + 8, (row_height if dim else 0) + 8))
+            cell = font.crop((glyph * 8, 0, glyph * 8 + 8, 8))
             frame.alpha_composite(cell, (x + index * 8, y))
+        if dim:
+            for dx in range(len(text) * 8):
+                frame.putpixel((x + dx, y + 4), dim_rgb + (255,))
 
     for index, label in enumerate(("CONTINUE", "NEW GAME", "SETTINGS", "QUIT")):
         if words:
@@ -230,3 +246,42 @@ def test_the_art_on_disk_matches_the_plan():
         copy = image.copy()
         moved = title_bands.map_image(copy, rows, tuple(scene.rgb(scene.backdrop)), "nearest")
         assert moved == 0, "%s is %d pixels away from its band plan" % (row["name"], moved)
+
+
+def test_every_sprite_frame_composes_a_legal_frame():
+    """Every frame the title cycles through, not just the first one.
+
+    The exhaust and the cloud animate while the world scrolls, and the frames are not alike. This file drew frame 0
+    and called the frame legal, so a half transparent puff in a later frame never reached the checker here; the game's
+    own capture caught it as 24 blended pixels (#616161, #001923, #619761) at x81-86 y211-219. Card t_a1170172, review
+    round 2.
+    """
+    _exhaust, exhaust_meta = load("spr_title_exhaust")
+    _cloud, cloud_meta = load("spr_title_cloud")
+    frames = max(exhaust_meta["frames"], cloud_meta["frames"])
+    failures = []
+    for puff in range(frames):
+        for camera in (0.0, 160.08):
+            report = check(compose(camera, puff=puff))
+            if not report["ok"]:
+                failures.append((puff, camera, [problem["detail"] for problem in report["problems"]]))
+    assert not failures, failures
+
+
+def test_no_title_sheet_carries_partial_alpha():
+    """A NES sprite pixel is on or off, so no sheet may ship a 110/255 pixel.
+
+    title_bands.map_image keeps the alpha it finds, and that is how the exhaust's half transparent puffs survived the
+    band pass and blended against the road at draw time. The pass now resolves partial alpha before it repaints, and
+    this pin holds every sheet in the folder to the same state the chips needs, whatever wrote it. Card t_a1170172,
+    review round 2.
+    """
+    offenders = {}
+    for path in sorted(glob.glob(os.path.join(TITLE, "*.png"))):
+        with Image.open(path) as handle:
+            alpha = handle.convert("RGBA").getchannel("A")
+        partial = sum(1 for value in alpha.getdata() if value not in (0, 255))
+        if partial:
+            offenders[os.path.basename(path)] = partial
+    assert not offenders, offenders
+

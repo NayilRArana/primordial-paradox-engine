@@ -711,16 +711,16 @@
         {
           "name": "bg0",
           "colours": [
+            18,
             0,
-            17,
-            32
+            40
           ]
         },
         {
           "name": "bg1",
           "colours": [
-            12,
-            18,
+            17,
+            0,
             32
           ]
         },
@@ -728,16 +728,16 @@
           "name": "bg2",
           "colours": [
             9,
-            10,
-            11
+            11,
+            32
           ]
         },
         {
           "name": "bg3",
           "colours": [
-            0,
-            2,
-            8
+            12,
+            11,
+            32
           ]
         }
       ],
@@ -745,40 +745,82 @@
         {
           "name": "sp0",
           "colours": [
-            9,
-            32,
-            48
+            15,
+            0,
+            40
           ]
         },
         {
           "name": "sp1",
           "colours": [
+            9,
             0,
-            15,
-            40
+            32
           ]
         },
         {
           "name": "sp2",
           "colours": [
-            10,
             12,
-            16
+            16,
+            32
           ]
         },
         {
           "name": "sp3",
           "colours": [
-            2,
-            7,
-            22
+            12,
+            11,
+            32
           ]
         }
       ],
       "heroes": true,
       "source": "data/palettes/scene_title.json",
       "gate": false,
-      "note": "solved by tools/art/scene_palette.py from the art on disk, then checked by tools/nes_composite_check.py and tools/check_scene_palettes.py"
+      "note": "solved by tools/art/scene_palette.py from the art on disk, then checked by tools/nes_composite_check.py and tools/check_scene_palettes.py",
+      "bands": {
+        "note": "One background palette per 16 px row band, top to bottom (tools/art/title_bands.py). The title only scrolls along x, so a screen band always takes its pixels from the same band of a strip, and this plan holds at every camera position, not just at the one a capture happens to catch. The sky is two palettes because the gold of the logo and the white of the clouds cannot share three entries. The ground is two palettes that differ only in their accent: bands 8-11 spend the lit green of the fields, bands 12-14 the teal of the road. Both ground palettes carry $0B the dark green and $20 the white, which is why the window, the font, the cursor and the copyright line cross the boundary between them without changing a pixel.",
+        "palette": [
+          "bg0",
+          "bg0",
+          "bg0",
+          "bg0",
+          "bg1",
+          "bg1",
+          "bg1",
+          "bg1",
+          "bg2",
+          "bg2",
+          "bg2",
+          "bg2",
+          "bg3",
+          "bg3",
+          "bg3"
+        ]
+      },
+      "band_sprites": {
+        "_note": "Which palette each sprite sheet is drawn inside, so that a photograph of the finished frame can be judged by the same three-entry rule the background is judged by: the checker has no sprite mask, so a sprite pixel that left its band palette would read as a fourth colour in that 16x16 area. A sheet that can touch two bands takes the colours those bands share, which is why the menu box, the font and the cursor name both ground palettes: the two of them share exactly the dark green and the white, which is all those three sheets spend. This is a compatibility pass, not the hardware rule: a sprite owns one of the four sprite palettes in \"sprites\" above. The fade twins, the intro's star sheet, the Big Ben opening frame and the retired cast are not here: the intro is a different shot with its own fade art, and giving it a band plan of its own is a separate card.",
+        "spr_pp_font8": [
+          "bg2",
+          "bg3"
+        ],
+        "spr_pp_menu_cursor": [
+          "bg2",
+          "bg3"
+        ],
+        "spr_pp_title_logo": "bg0",
+        "spr_pp_window": [
+          "bg2",
+          "bg3"
+        ],
+        "spr_title_car": "bg3",
+        "spr_title_cloud": "bg1",
+        "spr_title_cone": "bg3",
+        "spr_title_exhaust": "bg3",
+        "spr_title_sign": "bg2",
+        "spr_title_wheel": "bg3"
+      }
     },
     {
       "id": "ui",

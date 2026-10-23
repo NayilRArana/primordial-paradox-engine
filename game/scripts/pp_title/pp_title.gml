@@ -634,21 +634,25 @@ function pp_title_draw_words(_s, _d) {
     }
     if (_s.phase == "prompt") {
         if (floor(_s.steps / PP_TITLE_BLINK_STEPS) mod 2 == 0) {
-            pp_font_draw_centre("PRESS START", PP_FRAME_W / 2, PP_TITLE_PROMPT_Y, PP_TITLE_WHITE, 1);
+            pp_font_draw_centre("PRESS START", PP_FRAME_W / 2, PP_TITLE_PROMPT_Y, 1);
         }
         pp_title_draw_copy();
         return;
     }
-    // The menu, inside the window. CONTINUE is greyed when the slot holds no run: the title font has one weight, so the
-    // dim is the same dim the settings placeholder uses, and the row still answers a press with the move cue only.
+    // The menu, inside the window. A row that cannot be chosen is marked by a rule through it in the ground band's
+    // dark green, because the font sheet carries one ink and a tint would be a colour the PPU cannot output
+    // (card t_a1170172, review round 1 item 3). The disabled row still answers a press with the move cue only.
     pp_title_draw_menu_window();
     var _has_save = pp_title_has_save();
     for (var i = 0; i < array_length(_d.menu); i += 1) {
         var _label = _d.menu[i];
-        var _colour = PP_TITLE_WHITE;
-        if (_label == "CONTINUE" && !_has_save) _colour = PP_TITLE_GREY;
-        pp_font_draw_centre(_label, PP_TITLE_MENU_WIN_X + PP_TITLE_MENU_WIN_W / 2,
-                            PP_TITLE_MENU_ROW_Y + i * PP_TITLE_MENU_STEP, _colour, 1);
+        var _cx = PP_TITLE_MENU_WIN_X + PP_TITLE_MENU_WIN_W / 2;
+        var _cy = PP_TITLE_MENU_ROW_Y + i * PP_TITLE_MENU_STEP;
+        if (_label == "CONTINUE" && !_has_save) {
+            pp_title_draw_disabled(_label, _cx, _cy);
+        } else {
+            pp_font_draw_centre(_label, _cx, _cy, 1);
+        }
     }
     if (pp_art_has("spr_pp_menu_cursor")) {
         var _cursor = floor(_s.steps / PP_TITLE_CURSOR_PERIOD) mod 2;
@@ -682,16 +686,30 @@ function pp_title_draw_window_plain(_x, _y, _w, _h) {
 /// The copyright line: one quiet row at the bottom of the frame, on every phase but the opening. The font carries one
 /// ink, so the line is the same white as the menu and sits behind the frame rather than in it.
 function pp_title_draw_copy() {
-    pp_font_draw_centre(PP_TITLE_COPY_TEXT, PP_FRAME_W / 2, PP_TITLE_COPY_Y, PP_TITLE_WHITE, 1);
+    pp_font_draw_centre(PP_TITLE_COPY_TEXT, PP_FRAME_W / 2, PP_TITLE_COPY_Y, 1);
+}
+
+/// A label that cannot be chosen: the font's one ink with a 1 px rule through it, in the ground band's dark green.
+/// The font sheet is 368x8 with one ink and no second weight, and a tint is a multiply that produced #7b7b7b, a value
+/// no PPU can output (card t_a1170172). A rule in $0B is a colour both ground bands declare, so "off" reads on the
+/// hardware instead of only in the code. Returns the width drawn.
+function pp_title_draw_disabled(_text, _centre_x, _y) {
+    var _w = pp_font_width(_text);
+    var _x = _centre_x - floor(_w / 2);
+    pp_font_draw(_text, _x, _y, 1);
+    draw_set_colour(PP_TITLE_DIM);
+    draw_line_width(_x, _y + 4, _x + _w - 1, _y + 4, 1);
+    draw_set_colour(PP_TITLE_WHITE);
+    return _w;
 }
 
 /// The settings placeholder: a title and one row, BACK, inside the same window frame as the menu (26 by 9 tiles).
 function pp_title_draw_settings(_s) {
     if (!pp_window_draw(24, 84, 26, 9, 1)) pp_title_draw_window_plain(24, 84, 208, 72);
     draw_set_alpha(1);
-    pp_font_draw_centre("SETTINGS", PP_FRAME_W / 2, 92, PP_TITLE_WHITE, 1);
-    pp_font_draw_centre("NOTHING HERE YET", PP_FRAME_W / 2, 108, PP_TITLE_GREY, 1);
-    pp_font_draw_centre("BACK", PP_FRAME_W / 2, 128, PP_TITLE_WHITE, 1);
+    pp_font_draw_centre("SETTINGS", PP_FRAME_W / 2, 92, 1);
+    pp_title_draw_disabled("NOTHING HERE YET", PP_FRAME_W / 2, 108);
+    pp_font_draw_centre("BACK", PP_FRAME_W / 2, 128, 1);
     if (pp_art_has("spr_pp_menu_cursor")) {
         var _cursor = floor(_s.steps / PP_TITLE_CURSOR_PERIOD) mod 2;
         pp_art_draw("spr_pp_menu_cursor", _cursor, PP_FRAME_W / 2 - 40, 128, PP_UNTINTED, 1);
@@ -1017,8 +1035,7 @@ function pp_title_draw_crawl(_s) {
         if (i == _row) _text = string_copy(_text, 1, floor(_budget));
         if (_text == "") continue;
         var _at = i - _first;
-        pp_font_draw_centre(_text, PP_FRAME_W / 2, PP_TITLE_INTRO_TEXT_Y + _at * PP_TITLE_INTRO_LINE_H,
-                            PP_TITLE_WHITE, 1);
+        pp_font_draw_centre(_text, PP_FRAME_W / 2, PP_TITLE_INTRO_TEXT_Y + _at * PP_TITLE_INTRO_LINE_H, 1);
     }
 }
 

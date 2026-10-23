@@ -151,109 +151,18 @@
     },
     "title": {
       "backdrop": 15,
-      "background_colours": 10,
+      "background_colours": 8,
       "background_palettes": [
         [
           [
-            124,
-            124,
-            124
-          ],
-          [
-            0,
-            120,
-            248
-          ],
-          [
-            248,
-            248,
-            248
-          ]
-        ],
-        [
-          [
-            0,
-            64,
-            88
-          ],
-          [
             0,
             88,
             248
           ],
           [
-            248,
-            248,
-            248
-          ]
-        ],
-        [
-          [
-            0,
-            120,
-            0
-          ],
-          [
-            0,
-            104,
-            0
-          ],
-          [
-            0,
-            88,
-            0
-          ]
-        ],
-        [
-          [
             124,
             124,
             124
-          ],
-          [
-            0,
-            0,
-            188
-          ],
-          [
-            80,
-            48,
-            0
-          ]
-        ]
-      ],
-      "distinct_colours": 16,
-      "limit": 25,
-      "scene": "title",
-      "sprite_colours": 12,
-      "sprite_palettes": [
-        [
-          [
-            0,
-            120,
-            0
-          ],
-          [
-            248,
-            248,
-            248
-          ],
-          [
-            252,
-            252,
-            252
-          ]
-        ],
-        [
-          [
-            124,
-            124,
-            124
-          ],
-          [
-            0,
-            0,
-            0
           ],
           [
             248,
@@ -264,9 +173,95 @@
         [
           [
             0,
-            104,
+            120,
+            248
+          ],
+          [
+            124,
+            124,
+            124
+          ],
+          [
+            248,
+            248,
+            248
+          ]
+        ],
+        [
+          [
+            0,
+            120,
             0
           ],
+          [
+            0,
+            88,
+            0
+          ],
+          [
+            248,
+            248,
+            248
+          ]
+        ],
+        [
+          [
+            0,
+            64,
+            88
+          ],
+          [
+            0,
+            88,
+            0
+          ],
+          [
+            248,
+            248,
+            248
+          ]
+        ]
+      ],
+      "distinct_colours": 10,
+      "limit": 25,
+      "scene": "title",
+      "sprite_colours": 8,
+      "sprite_palettes": [
+        [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            124,
+            124,
+            124
+          ],
+          [
+            248,
+            184,
+            0
+          ]
+        ],
+        [
+          [
+            0,
+            120,
+            0
+          ],
+          [
+            124,
+            124,
+            124
+          ],
+          [
+            248,
+            248,
+            248
+          ]
+        ],
+        [
           [
             0,
             64,
@@ -276,23 +271,28 @@
             188,
             188,
             188
+          ],
+          [
+            248,
+            248,
+            248
           ]
         ],
         [
           [
             0,
-            0,
-            188
+            64,
+            88
           ],
           [
-            136,
-            20,
+            0,
+            88,
             0
           ],
           [
             248,
-            56,
-            0
+            248,
+            248
           ]
         ]
       ]
@@ -300,7 +300,7 @@
   },
   "ship_frame": {
     "exit": 0,
-    "frame": "<home>\\AppData\\Local\\Temp\\pp_ship_1egnqdew\\ship_stack.png",
+    "frame": "<home>\\AppData\\Local\\Temp\\pp_ship_bvpa2dle\\ship_stack.png",
     "report": [
       "ship_stack.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
       "  colours: 10 in the frame, 25 allowed; backdrop #7c7c7c (the most common colour in the frame)",
@@ -357,25 +357,25 @@
     "report": [
       "car.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
       "  colours: 4 in the frame, 25 allowed; backdrop #000000 (declared)",
-      "  background: 240 blocks, 2 distinct colour sets, 1 palette(s) cover them, 4 allowed",
-      "    palette #004058 #006800 #bcbcbc",
+      "  background: 240 blocks, 4 distinct colour sets, 1 palette(s) cover them, 4 allowed",
+      "    palette #004058 #005800 #f8f8f8",
       "  sprites: 16, 1 palette(s), busiest scanline 31 carries 8, 8 per line and 64 total allowed",
-      "    sprite palette #004058 #006800 #bcbcbc",
+      "    sprite palette #004058 #005800 #f8f8f8",
       "  PASS: 0 block(s) violate the background rules, 0 sprite(s) violate the sprite rules",
       "  palette: data\\nes_palette.json (55 usable of 64 entries)"
     ]
   },
   "title_frame": {
     "exit": 0,
-    "frame": "<home>\\AppData\\Local\\Temp\\pp_title_zycgsol4\\frame.png",
+    "frame": "<home>\\AppData\\Local\\Temp\\pp_title_w4ipudnh\\frame.png",
     "report": [
       "frame.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
-      "  colours: 11 in the frame, 25 allowed; backdrop #000000 (the most common colour in the frame)",
-      "  background: 240 blocks, 16 distinct colour sets, 4 palette(s) cover them, 4 allowed",
-      "    palette #0000bc #503000 #7c7c7c",
-      "    palette #004058 #0058f8 #f8f8f8",
-      "    palette #005800 #006800 #007800",
+      "  colours: 8 in the frame, 25 allowed; backdrop #000000 (the most common colour in the frame)",
+      "  background: 240 blocks, 14 distinct colour sets, 4 palette(s) cover them, 4 allowed",
+      "    palette #004058 #005800 #f8f8f8",
       "    palette #0078f8 #7c7c7c #f8f8f8",
+      "    palette #004058 #005800 #007800",
+      "    palette #004058 #0058f8 #7c7c7c",
       "  sprites: not checked (no --sprite-mask and no --sprites)",
       "  PASS: 0 block(s) violate the background rules, 0 sprite(s) violate the sprite rules",
       "  palette: data\\nes_palette.json (55 usable of 64 entries)"
@@ -510,7 +510,7 @@
       "groups_outside_a_palette": 0,
       "groups_over_three": 0,
       "oam_sprites_per_frame": 2,
-      "worst_colours": 1
+      "worst_colours": 2
     },
     "spr_title_exhaust_fade1": {
       "busiest_scanline": 2,
@@ -564,7 +564,7 @@
       "oam_sprites_per_frame": 2,
       "worst_colours": 1
     },
-    "spr_title_ronan": {
+    "spr_title_konrad": {
       "busiest_scanline": 2,
       "frame": [
         16,
@@ -601,19 +601,6 @@
       "groups_outside_a_palette": 0,
       "groups_over_three": 0,
       "oam_sprites_per_frame": 0,
-      "worst_colours": 1
-    },
-    "spr_title_theo": {
-      "busiest_scanline": 2,
-      "frame": [
-        16,
-        16
-      ],
-      "frames": 8,
-      "groups": 16,
-      "groups_outside_a_palette": 0,
-      "groups_over_three": 0,
-      "oam_sprites_per_frame": 2,
       "worst_colours": 2
     },
     "spr_title_wheel": {
@@ -627,7 +614,20 @@
       "groups_outside_a_palette": 0,
       "groups_over_three": 0,
       "oam_sprites_per_frame": 2,
-      "worst_colours": 2
+      "worst_colours": 3
+    },
+    "spr_title_zander": {
+      "busiest_scanline": 2,
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 8,
+      "groups": 16,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "oam_sprites_per_frame": 2,
+      "worst_colours": 3
     }
   }
 }

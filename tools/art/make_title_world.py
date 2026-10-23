@@ -1518,13 +1518,11 @@ def main() -> int:
     # Card t_a1170172: the flash twin is now the same picture lifted inside the band palette, so the flash table has
     # to be read back off the strips that shipped rather than off the 2C02 ladder it was written from. Anything else
     # is a table that describes a swap the game does not make.
-    import title_bands
-    flash_data["palette"] = {str(source): target for source, target
-                             in title_bands.flash_pairs(args.root).items()}
-    flash_data["note"] = ("one rung up the band palette each strip is drawn in, or the same entry where the palette "
-                          "has no higher rung; the game swaps the whole scene to these entries for two frames")
-    save_json(os.path.join(DATA_DIR, "title_flash.json"), flash_data)
-    print("flash table: %d entries read back off the strips" % len(flash_data["palette"]))
+    # Card t_a1170172: the flash table is no longer computed here. title_bands.apply, which runs inside the scene
+    # pass above and writes the flash twins, also writes data/title_flash.json from the two sheets of every strip,
+    # because the lift is per band and one table over entries cannot describe it. The file written earlier in this
+    # function is the placeholder until that pass runs.
+    print("flash table: read back off the strips by the band pass (title_bands.apply)")
     return 0
 
 

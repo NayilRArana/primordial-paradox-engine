@@ -1,5 +1,94 @@
 {
-  "format": 1,
+  "by_layer": {
+    "title_BG_bigben_flash": {
+      "0": [
+        32,
+        40
+      ],
+      "11": [
+        9
+      ],
+      "32": [
+        32
+      ],
+      "40": [
+        40
+      ]
+    },
+    "title_L1_sky_flash": {
+      "0": [
+        40,
+        32
+      ],
+      "17": [
+        0
+      ],
+      "18": [
+        0
+      ],
+      "32": [
+        32
+      ]
+    },
+    "title_L2_clouds_flash": {
+      "0": [
+        40,
+        32
+      ]
+    },
+    "title_L3_downs_flash": {
+      "0": [
+        32
+      ],
+      "17": [
+        0
+      ],
+      "32": [
+        32
+      ]
+    },
+    "title_L4_fields_flash": {
+      "11": [
+        9
+      ],
+      "9": [
+        32
+      ]
+    },
+    "title_L5_verge_flash": {
+      "11": [
+        32,
+        9
+      ],
+      "12": [
+        11
+      ],
+      "9": [
+        32
+      ]
+    },
+    "title_L6_road_flash": {
+      "11": [
+        32
+      ],
+      "12": [
+        11
+      ],
+      "32": [
+        32
+      ]
+    },
+    "title_L7_fg_flash": {
+      "11": [
+        32
+      ],
+      "12": [
+        11
+      ]
+    }
+  },
+  "derived_by": "tools/art/title_bands.py apply, from game/sprites_src/title/<layer>.png and _flash.png",
+  "format": 2,
   "frames": 2,
   "kind": "title_flash",
   "layers": [
@@ -12,17 +101,17 @@
     "title_L7_fg_flash",
     "title_BG_bigben_flash"
   ],
-  "note": "one rung up the band palette each strip is drawn in, or the same entry where the palette has no higher rung; the game swaps the whole scene to these entries for two frames",
+  "note": "the flash is the same picture lifted one rung brighter inside the palette of the 16 px band each row of the strip is drawn in. A strip covers fifteen bands, so one source entry can lift to more than one target on the same strip: `by_layer` lists them, most used first, read off the strip and its `_flash` twin on disk; `palette` is the flat summary. The runtime swaps the whole scene to the twin sheets for two frames rather than swapping entries",
   "palette": {
     "0": 32,
     "11": 32,
     "12": 11,
-    "13": 13,
     "17": 0,
     "18": 0,
     "32": 32,
     "40": 40,
     "9": 32
   },
-  "palette_space": "2C02 entry numbers (data/nes_palette.json)"
+  "palette_space": "2C02 entry numbers (data/nes_palette.json)",
+  "source": "title_flash.json"
 }

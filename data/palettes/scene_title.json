@@ -75,7 +75,7 @@
     ]
   },
   "band_sprites": {
-    "_note": "Which palette each sprite sheet is drawn inside. A sheet that can touch two bands takes the colours those bands share, which is why the menu box, the font and the cursor name both ground palettes: the two of them share exactly the dark green and the white, which is all those three sheets spend. The fade twins, the intro's star sheet, the Big Ben opening frame and the retired cast are not here: the intro is a different shot with its own fade art, and giving it a band plan of its own is a separate card.",
+    "_note": "Which palette each sprite sheet is drawn inside, so that a photograph of the finished frame can be judged by the same three-entry rule the background is judged by: the checker has no sprite mask, so a sprite pixel that left its band palette would read as a fourth colour in that 16x16 area. A sheet that can touch two bands takes the colours those bands share, which is why the menu box, the font and the cursor name both ground palettes: the two of them share exactly the dark green and the white, which is all those three sheets spend. This is a compatibility pass, not the hardware rule: a sprite owns one of the four sprite palettes in \"sprites\" above. The fade twins, the intro's star sheet, the Big Ben opening frame and the retired cast are not here: the intro is a different shot with its own fade art, and giving it a band plan of its own is a separate card.",
     "spr_pp_font8": [
       "bg2",
       "bg3"
@@ -104,20 +104,22 @@
     "the scene spends four palettes of three entries and eight colours on screen, against the PPU's twelve background entries and twenty five colours",
     "the ground band keeps two greens on purpose: a plan that spent one green flattened the fields, and the scroll measurement then followed the verge's telegraph poles at the verge's speed instead of reading the fields (card t_a1170172)",
     "the poles and posts of the verge and the foreground are the ground band's dark green, not the backdrop: nothing in the title's ground half is painted in the clear",
-    "sprite palettes repeat the background palettes: on this screen a sprite is drawn inside the band palette under it, so a photograph of the frame charges its pixels to the same three colours the PPU would",
-    "enforced by tools/art/title_bands.py, checked again from the pixels by tools/nes_composite_check.py and tools/check_scene_palettes.py"
+    "the four sprite palettes are the sprites' own, because the PPU gives sprites their own four groups and the backdrop is NOT a free colour for a sprite: a sprite's fourth state is transparency, so a sprite that draws $0F has to hold $0F in its own palette. Copying the band palettes into this section (which card t_a1170172 first did) recoloured the wordmark's 4852 black outline pixels to the body grey $00 and repainted both car busts, because no sprite row held the black they are drawn in (card t_a1170172, review round 1, item 1)",
+    "sp0 $0F $00 $28 is the wordmark's own three entries, and the two car busts: black outline, stone body, gold. sp1 $09 $00 $20 is the cloud and the road sign. sp2 $0C $10 $20 is the lit band of Zander's bust and every white sprite. sp3 $0C $0B $20 is the car, the cone, the exhaust, the wheel and the cursor",
+    "tools/art/title_bands.py still paints every sheet the title draws into the band palette under it, so the composite frame passes nes_composite_check.py, which charges a sprite's pixels to the background block they sit in; the busts are not drawn on the title screen and so are not band painted, they are held to their own sprite palette",
+    "enforced by tools/art/title_bands.py and tools/art/scene_palette.py, checked again from the pixels by tools/nes_composite_check.py and tools/check_scene_palettes.py"
   ],
   "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
   "scene": "title",
   "sprites": [
     {
       "colours": [
-        18,
+        15,
         0,
         40
       ],
       "hex": [
-        "#0058f8",
+        "#000000",
         "#7c7c7c",
         "#f8b800"
       ],
@@ -125,12 +127,12 @@
     },
     {
       "colours": [
-        17,
+        9,
         0,
         32
       ],
       "hex": [
-        "#0078f8",
+        "#007800",
         "#7c7c7c",
         "#f8f8f8"
       ],
@@ -138,13 +140,13 @@
     },
     {
       "colours": [
-        9,
-        11,
+        12,
+        16,
         32
       ],
       "hex": [
-        "#007800",
-        "#005800",
+        "#004058",
+        "#bcbcbc",
         "#f8f8f8"
       ],
       "name": "sp2"

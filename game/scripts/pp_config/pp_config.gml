@@ -22,12 +22,13 @@
 #macro PP_UNTINTED c_white
 #macro PP_COLOUR_MISSING make_colour_rgb(255, 0, 255)
 
-// The title screen's text colours and its backdrop, taken from the pixels the title art is drawn in. #f8f8f8 is 2C02
-// $20 and #005800 is 2C02 $0B, the two inks the font sheet carries a row of (data/palettes/scene_title.json, band
-// bg2), so text is drawn from the picture and never tinted. #7c7c7c ($00) is kept for the sky band, which declares
-// it. The backdrop is $0F black, what the scene declares at $3F00 and what the clear rectangle spends.
+// The title screen's inks and its backdrop, taken from the pixels the title art is drawn in. #f8f8f8 is 2C02 $20 and
+// #005800 is 2C02 $0B, the two entries both ground bands declare (data/palettes/scene_title.json, bg2 and bg3), so the
+// text and the rules are drawn from the picture and never tinted. PP_TITLE_DIM is the rule that marks an "off" row and
+// the window frame: a real PPU entry, so a rule drawn in it is a colour the chip can output. There is deliberately no
+// grey: the font sheet carries one ink, and a tinted grey came out as #7b7b7b, which no PPU can output (t_a1170172).
+// The backdrop is $0F black, what the scene declares at $3F00 and what the clear rectangle spends.
 #macro PP_TITLE_WHITE make_colour_rgb(248, 248, 248)
-#macro PP_TITLE_GREY make_colour_rgb(124, 124, 124)
 #macro PP_TITLE_DIM make_colour_rgb(0, 88, 0)
 #macro PP_TITLE_BACKDROP c_black
 

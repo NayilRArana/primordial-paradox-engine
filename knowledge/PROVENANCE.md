@@ -69,6 +69,7 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_map_tile/pp_map_tile.gml | specs alone, with card R46's tile manifest as the source of the numbers | 04, 15 |
 | game/scripts/pp_overworld/pp_overworld.gml | specs alone | 04 |
 | game/scripts/pp_scene/pp_scene.gml | specs alone | 06 |
+| game/scripts/pp_drive/pp_drive.gml | specs alone, with knowledge/DRIVE-SHOT-LIST.md as the source of the twelve durations and the signs | 06, 14 (proposed) |
 | game/scripts/pp_text/pp_text.gml | specs alone | 05 |
 | game/scripts/pp_title/pp_title.gml | specs alone | 14 (proposed) |
 | game/scripts/pp_input/pp_input.gml | specs alone | 02 |
@@ -80,6 +81,9 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/objects/obj_pp_game | specs alone | 01, 02 |
 | game/objects/obj_pp_debug_overlay | specs alone | 10 |
 | game/objects/obj_pp_title | specs alone | 14 (proposed) |
+| game/objects/obj_pp_drive | specs alone | 14 (proposed) |
+| game/rooms/rm_pp_drive | specs alone | 14 (proposed) |
+| tools/capture_drive.py | specs alone, plus the window primitives proved in tools/capture_title.py | 14 (proposed) |
 | game/rooms/rm_pp_boot | specs alone | 01 |
 | tools/art/make_title_ui.py | title art generator | 14 (proposed) |
 | tools/gen_project.py | specs alone | 14 (proposed) |
@@ -90,6 +94,42 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 
 Every "specs alone" row is owned by the entry "modules written from the specs alone" below. That entry, not either
 withdrawn entry, is what a new module must be written from.
+
+## the sprite palette rows and the title band plan (2026-10-22, card t_a1170172)
+
+Status: this entry owns the palette half of the title art pipeline and no other row of the module map above. The code
+it describes is `tools/art/scene_palette.py`, `tools/art/title_bands.py` and `tools/scene_palette_set.py`, which run at
+build time and ship nothing; the GML it feeds is `game/scripts/pp_config/pp_config.gml` and
+`game/scripts/pp_title/pp_title.gml`, both already owned by the "specs alone" entry.
+
+Studied: the 2C02's two palette systems, as the repository already states them in ART-BIBLE 1.3 and in
+`data/nes_palette.json` (which carries the four brightness rows and sixteen hue columns of the chip and the meaning of
+the entry numbers). No decompiled, ripped, fan ported or commercial material of any kind was read, opened or searched
+for this entry, and no other game's sprite sheet, code or data informed it.
+
+Mechanics learned, in plain words: a sprite palette is not a subset of the background palettes and shares no entries
+with them by rule. A sprite picks one of four rows of three colours plus a transparent state, per 8x16 group, and a
+background picks one of four rows per 16x16 attribute area. So a sprite may carry an ink that no background at that
+place spends, which is what a 1 px outline around a wordmark needs. Treating the sprite rows as copies of the band rows
+looks tidy and makes the outline impossible, and it also flattens art that was authored for a different palette.
+
+Our implementation differs by: the four sprite rows are written by hand in `data/palettes/scene_title.json`, one row per
+group of sheets that really needs it, and `tools/check_scene_palettes.py` proves every 8x16 group of every title sheet
+fits one of them. The band plan stays a background rule and only touches the strips it declares, so the two systems
+cannot bleed into each other, and a sprite's backdrop-black is repainted into its own band palette except on the two
+sheets that spend black as an ink. `data/scene_palettes.json` carries the band plan and the band sprite map as data
+instead of leaving them inside a script. The title's text is one ink and no tint, because a tint is a multiply and the
+product of that multiply was a colour the chip cannot output; a disabled row is marked with a rule in an entry both
+ground bands declare.
+
+Amended 2026-10-23, review round 2: a palette is only half of a drawable pixel, and the other half is alpha. A sprite
+pixel is on or off, so a sheet that keeps a half transparent pixel is not made legal by having the right three colours:
+the game blends it against whatever it sits on and the frame carries a value that is on no palette at all. That is how
+24 pixels of `#616161`, `#001923` and `#619761` reached the captured title frame from the exhaust puff. Every pass that
+writes a sheet now resolves partial alpha through `nes_tile.solid_alpha` before it repaints anything, which turns a fade
+into the 2 px checker the hardware can actually draw, and a test holds every title sheet to alpha 0 or 255.
+
+Copied expression: none.
 
 ## the 8 bit look: one scale, one palette set per room (2026-10-22, card G0-3)
 

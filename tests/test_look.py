@@ -106,19 +106,21 @@ NAMED_COLOUR_CONSTANTS = {
     "PP_UNTINTED": "c_white",
     "PP_COLOUR_MISSING": "make_colour_rgb(255, 0, 255)",
     "PP_TITLE_WHITE": "make_colour_rgb(248, 248, 248)",
-    "PP_TITLE_GREY": "make_colour_rgb(124, 124, 124)",
     "PP_TITLE_DIM": "make_colour_rgb(0, 88, 0)",
     "PP_TITLE_BACKDROP": "c_black",
 }
-# The files that use each one today. The four PP_TITLE constants are the title's band palette as GML: $20 white, $00
-# grey, $0B the ground band's dark green and $0F the backdrop, which are the entries data/palettes/scene_title.json
-# declares for the bands they are drawn into (card t_a1170172). They are raw RGB rather than a role because a role
-# resolves through data/palette.json, which holds no 2C02 colour at all; the frame check replaces the role rule for
+# The files that use each one today. The three PP_TITLE constants are the title's band palette as GML: $20 white, $0B
+# the ground band's dark green (the disabled rule and the window frame) and $0F the backdrop, which are the entries
+# data/palettes/scene_title.json declares for the bands they are drawn into (card t_a1170172). There is no grey: the
+# font sheet carries one ink and a tinted grey came out as #7b7b7b, which no PPU can output, so the "off" state is a
+# rule drawn in $0B (pp_title_draw_disabled). They are raw RGB rather than a role because a role resolves through
+# data/palette.json, which holds no 2C02 colour at all; the frame check replaces the role rule for
 # game/scripts/pp_title/pp_title.gml and is stricter than a role name. PP_UNTINTED is a blend factor that means "draw
 # the sprite as authored", not a colour choice (see the comment in pp_config).
 NAMED_COLOUR_USERS = {
     "PP_UNTINTED": (
         "game/scripts/pp_art/pp_art.gml",
+        "game/scripts/pp_battle_director/pp_battle_director.gml",
         "game/scripts/pp_font/pp_font.gml",
         "game/scripts/pp_map/pp_map.gml",
         "game/scripts/pp_overworld/pp_overworld.gml",
@@ -126,7 +128,6 @@ NAMED_COLOUR_USERS = {
     ),
     "PP_COLOUR_MISSING": ("game/scripts/pp_data/pp_data.gml", "game/scripts/pp_look/pp_look.gml"),
     "PP_TITLE_WHITE": ("game/scripts/pp_title/pp_title.gml",),
-    "PP_TITLE_GREY": ("game/scripts/pp_title/pp_title.gml",),
     "PP_TITLE_DIM": ("game/scripts/pp_title/pp_title.gml",),
     "PP_TITLE_BACKDROP": ("game/scripts/pp_title/pp_title.gml",),
 }

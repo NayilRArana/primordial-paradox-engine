@@ -106,20 +106,27 @@ def test_the_sign_carries_the_four_countdowns():
     assert len({frame.tobytes() for frame in frames}) == 4
 
 
-def test_the_flash_palette_lifts_every_colour_one_rung_and_keeps_the_two_frame_data():
-    """The flash is a real palette swap inside the band plan, and every flash strip stays legal.
+def test_the_flash_table_reads_off_the_strips_and_every_twin_stays_inside_its_band():
+    """The flash is a real palette swap inside the band plan, the table is measured off the strips, and every twin
+    stays legal.
 
     Card t_a1170172 replaced the one rung up the whole 2C02 ladder with the one rung up the band palette the strip is
     drawn in. A title frame may only spend the three entries of the palette its 16 px band declares, so a flash that
-    lifted $09 to a colour outside that palette would be a frame the chip cannot show: the strip would flash and the
-    composite check would refuse it. The swap is still a swap (a flash strip differs from its base), the table still
-    names only colours the night strips draw, and every flash pixel is still an entry the band declares.
+    lifted $09 to a colour outside that palette would be a frame the chip cannot show.
+
+    The lift is per band, so one source entry can lift to different targets in different strips: $00 is $28 in the
+    sky's band and $20 in the cloud's. That is why this table carries `by_layer` and no longer claims a single global
+    entry map, and why the pin below recomputes the pairs from the two sheets on disk instead of applying one map to
+    everything. It replaced an identity (`flash == map(base)`) that a per band lift cannot satisfy, which is what made
+    the old pin red while the art was correct.
     """
     table = _flash_table()
     assert table["frames"] == 2
     chip_colours, rgb_to_entry = nes_bg.load_chip_palette(ROOT)
     mapping = {int(key): value for key, value in table["palette"].items()}
-    assert mapping, "the flash palette is empty"
+    assert mapping, "the flash palette summary is empty"
+    by_layer = {name: {int(source): target for source, target in pairs.items()}
+                for name, pairs in table["by_layer"].items()}
     scene = json.loads(open(os.path.join(ROOT, "data", "palettes", "scene_title.json"), "r",
                             encoding="utf-8-sig").read())
     declared = {int(entry) for row in scene["background"] for entry in row["colours"]}
@@ -128,44 +135,59 @@ def test_the_flash_palette_lifts_every_colour_one_rung_and_keeps_the_two_frame_d
     declared |= {int(entry) for row in scene.get("sprites", []) for entry in row.get("colours", [])}
     for source, target in mapping.items():
         assert target < len(chip_colours), f"${source:02X} lifts to ${target:02X}, outside the 2C02 palette"
-        # Card t_a1170172 reads this table back off the shipped strips, so the targets are by construction colours the
-        # game draws; the check that they land inside a declared band belongs to tools/nes_composite_check.py, which
-        # measures the composed frame, and to the strip check below.
-    assert any(source != target for source, target in mapping.items()), \
-        "the flash swaps nothing, so it is not a flash"
 
     held = set()
+    moved_somewhere = False
     for flash_name in table["layers"]:
         assert flash_name.endswith("_flash"), f"{flash_name} is not a flash strip"
         name = flash_name[:-len("_flash")]
+        assert flash_name in by_layer, f"{flash_name} is not in the table's by_layer map"
         frames, _meta = _frames(name)
+        flash, _meta = _frames(flash_name)
+        assert len(frames) == len(flash)
         seen = set()
-        for frame in frames:
-            pixels = frame.load()
-            for y in range(frame.height):
-                for x in range(frame.width):
-                    r, g, b, a = pixels[x, y]
+        flash_seen = set()
+        measured = {}
+        for index, (base_frame, twin_frame) in enumerate(zip(frames, flash)):
+            base_px = base_frame.load()
+            twin_px = twin_frame.load()
+            for y in range(base_frame.height):
+                for x in range(base_frame.width):
+                    r, g, b, a = base_px[x, y]
                     if a:
                         seen.add(rgb_to_entry.get((r, g, b), -1))
-        assert -1 not in seen, f"{name} has a pixel that is not a 2C02 entry"
-        # $0F black is the backdrop, not a palette entry, so it is never swapped and never has to be in the table.
-        assert seen - {15} <= set(mapping), f"{name} draws {sorted(seen)} outside the flash palette"
-        held |= seen
-        flash, _meta = _frames(flash_name)
-        flash_seen = set()
-        for frame in flash:
-            pixels = frame.load()
-            for y in range(frame.height):
-                for x in range(frame.width):
-                    r, g, b, a = pixels[x, y]
-                    if a:
-                        flash_seen.add(rgb_to_entry.get((r, g, b), -1))
-        # $0F the backdrop is never swapped: a strip may draw it, and the twin keeps it.
+                    fr, fg, fb, fa = twin_px[x, y]
+                    if fa:
+                        flash_seen.add(rgb_to_entry.get((fr, fg, fb), -1))
+                    if not a:
+                        continue
+                    source = rgb_to_entry.get((r, g, b), -1)
+                    target = rgb_to_entry.get((fr, fg, fb), -1) if fa else -1
+                    assert source != -1 and target != -1, f"{name} has a pixel that is not a 2C02 entry"
+                    # $0F the backdrop is never swapped and is never a palette entry of its own.
+                    if source == 15:
+                        continue
+                    measured.setdefault(source, set()).add(target)
+        assert -1 not in seen and -1 not in flash_seen, f"{name} has a pixel that is not a 2C02 entry"
         assert flash_seen - {15} <= declared, \
             f"{name}_flash draws {sorted(flash_seen)}, and no band of the title declares all of them"
-        assert flash_seen - {15} == {mapping.get(index, index) for index in seen} - {15}, \
-            f"{name}_flash draws {sorted(flash_seen)}, not the band palette's lifted entries"
-    assert set(mapping) == held, f"the flash palette names {sorted(set(mapping) - held)} that no layer draws"
+        drawn = set()
+        for source, targets in measured.items():
+            listed = by_layer[flash_name].get(source)
+            assert listed is not None, f"{name}: the table has no entry for ${source:02X}"
+            assert targets <= set(listed), \
+                f"{name}: ${source:02X} lifts to {sorted(targets)} on disk, the table lists {listed}"
+            drawn |= targets
+            if targets - {source}:
+                moved_somewhere = True
+        # Every target the table lists is a colour the twin really draws, and every source it names is drawn.
+        for source, listed in by_layer[flash_name].items():
+            assert set(listed) <= drawn, \
+                f"{name}: the table lists ${sorted(set(listed) - drawn)} that the twin never draws"
+        assert set(by_layer[flash_name]) <= seen, "the table names entries the strip never draws"
+        held |= seen
+    assert moved_somewhere, "the flash swaps nothing, so it is not a flash"
+    assert set(mapping) & held, "the flash palette names no entry a layer draws"
 
 
 @pytest.mark.parametrize("name,size", [("ts2_world_preview.png", (768, 720)),
