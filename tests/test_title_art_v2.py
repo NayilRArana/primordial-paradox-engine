@@ -7,7 +7,7 @@ What these tests hold down, and why each one earns its place:
   3. the car's window band carries the dark tint, so the windows read as glass, and every car colour is a
      real 2C02 entry (the stricter "the tint never leaves rows 8 to 15" was already false in the committed
      art on HEAD ab4b80a, where the tint is the car's dark body from rows 1 to 31);
-  4. the title no longer draws spr_title_theo, spr_title_ronan or spr_title_bubble, while the sprite files stay
+  4. the title no longer draws spr_title_zander, spr_title_konrad or spr_title_bubble, while the sprite files stay
      on disk for the interior scenes later;
   5. the generators are deterministic: a second run writes byte identical PNGs.
 
