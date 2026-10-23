@@ -12,7 +12,7 @@ codeman38), whose licence text is in knowledge/licences/PressStart2P-OFL.txt, by
 Nothing is copied, traced or imported from any commercial game, and nothing outside this repository is read.
 
 Outputs, one horizontal strip plus one JSON per animation, in game/sprites_src/title/:
-    spr_pp_font8.png         8x8, 48 frames in ASCII order: space ! " ' ( ) * , - . 0-9 : ? A-Z
+    spr_pp_font8.png         8x8, 77 frames in ASCII order: space ! " ' ( ) * , - . / 0-9 : ? A-Z [ ] a-z
     spr_pp_menu_cursor.png   8x8, 2 frames: frame 0 lit, frame 1 unlit
 Preview: output/title_ui_preview.png, everything at 3x, the layout logo and the cursor and the font strip alike.
 
@@ -520,9 +520,9 @@ def upscale(img: Image.Image, factor: int) -> Image.Image:
 
 def build_preview(logo: list[Image.Image], font_sheet: Image.Image, cursor: list[Image.Image],
                   colours) -> Image.Image:
-    # Card t_a1170172: the canvas grows with the font strip instead of being fixed at 1152. The strip is 48 glyphs of
-    # 8 px (384 px, 1152 at 3x) and it sits at x=48 like every other strip here, so a 1152 wide canvas would have cut
-    # its right hand 48 pixels off and the strip would no longer be found in the preview where the test looks for it.
+    # Card t_a1170172: the canvas grows with the font strip instead of being fixed at 1152. The strip is 77 glyphs of
+    # 8 px (616 px, 1848 at 3x) and it sits at x=48 like every other strip here, so a fixed width canvas would cut its
+    # right hand pixels off and the strip would no longer be found in the preview where the test looks for it.
     preview_w = max(1152, 48 + font_sheet.width * 3 + 24)
     canvas = Image.new("RGBA", (preview_w, 784), colours[6])
     draw_text(canvas, "PRIMORDIAL PARADOX TITLE UI TS-A AT 3X", 24, 16, 2, colours[PAPER])
@@ -532,7 +532,7 @@ def build_preview(logo: list[Image.Image], font_sheet: Image.Image, cursor: list
     draw_text(canvas, "FRAME 1 GOLD SHIMMER", 24, 248, 2, colours[GOLD])
     canvas.alpha_composite(upscale(logo[1], 3), (48, 268))
     canvas.paste(colours[DIM], (24, 444, preview_w - 24, 445))
-    draw_text(canvas, "SPR PP FONT8 8X8 74 GLYPHS ASCII ORDER AT 3X", 24, 454, 2, colours[GOLD])
+    draw_text(canvas, "SPR PP FONT8 8X8 %d GLYPHS ASCII ORDER AT 3X" % len(GLYPH_ORDER), 24, 454, 2, colours[GOLD])
     canvas.alpha_composite(upscale(font_sheet, 3), (48, 474))
     draw_text(canvas, "PRESS Z OR ENTER", 48, 512, 2, colours[PAPER])
     draw_text(canvas, "SPR PP MENU CURSOR 8X8 BY 2 FRAME 0 AND 1 AT 3X", 24, 540, 2, colours[GOLD])

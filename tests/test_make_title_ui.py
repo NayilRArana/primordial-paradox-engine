@@ -177,9 +177,9 @@ def test_font_matches_the_contract(generated):
         meta = json.load(handle)
     assert meta["name"] == "spr_pp_font8"
     assert (meta["frame_w"], meta["frame_h"]) == (8, 8)
-    assert meta["frames"] == 74, "26 capitals, 26 lowercase, 10 digits, 11 marks and the space"
+    assert meta["frames"] == 77, "26 capitals, 26 lowercase, 10 digits, 12 marks, 2 brackets and the space"
     with Image.open(png_path) as img:
-        assert img.size == (8 * 74, 8)
+        assert img.size == (8 * 77, 8)
 
 
 def test_cursor_matches_the_contract(generated):
@@ -211,7 +211,7 @@ def test_font_strip_carries_every_contract_glyph_in_ascii_order(generated):
     import pressstart2p_font
 
     order = list(gen.GLYPH_ORDER)
-    assert len(order) == 74
+    assert len(order) == 77
     assert order == pressstart2p_font.GLYPHS, "the frame order must be ASCII order over the contract glyphs"
     for glyph in CONTRACT_GLYPHS:
         assert glyph in gen.FONT, "the logo grid is missing the contract glyph %r" % glyph
@@ -417,6 +417,9 @@ def test_preview_holds_the_logo_the_font_and_the_cursor(generated):
 # ---------------------------------------------------------------------------------------------------------------
 # The committed files match what the script produces.
 
+# Card TEST-CLASSIFY-33: hashes the PNG the script writes on this host against the committed copy, so
+# only the Pillow and zlib builds that wrote the committed files pass it.
+@pytest.mark.host_png_bytes
 def test_the_committed_sprites_match_a_fresh_run(generated):
     """The PNGs in the repository must be the ones the script writes, not an edited copy."""
     root = generated[0]

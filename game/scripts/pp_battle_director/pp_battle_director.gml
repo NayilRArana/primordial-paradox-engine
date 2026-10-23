@@ -921,11 +921,12 @@ function pp_battle_draw(_battle) {
     draw_set_colour(pp_role_colour("text"));
     draw_rectangle(168, 144, 168 + floor(64 * _hp_frac), 148, false);
 
-    // Player health and will. Card BATTLE-FONT-WIRE: 8 pixel cells, and the sheet carries no slash, so the two
-    // numbers are joined with OF rather than 12/12; a slash is a glyph the sheet would have to grow, which is a
-    // sheet card and not a screen. 25 characters at the slice's numbers, x 16 to x 216.
-    pp_font_draw("HP " + string(_battle.actor.hp) + " OF " + string(_battle.actor.max_hp)
-        + "   WILL " + string(_battle.actor.will) + " OF " + string(_battle.actor.will_max), 16, 156, 1);
+    // Player health and will. Card BATTLE-FONT-WIRE wrote this as `HP 12 OF 12` because the sheet had no slash;
+    // card SHEET-GLYPH-GAP (t_f476435e, decision D13) grew the sheet a slash and the two brackets, so the line now
+    // reads the way the rest of the idiom writes it. 22 characters at the slice's numbers, x 16 to x 192, inside the
+    // frame.
+    pp_font_draw("HP " + string(_battle.actor.hp) + "/" + string(_battle.actor.max_hp)
+        + "   WILL " + string(_battle.actor.will) + "/" + string(_battle.actor.will_max), 16, 156, 1);
 
     if (_battle.phase == PPBattlePhase.intro) {
         if (_battle.phase_steps < PP_INTRO_FLASH_STEPS && (_battle.phase_steps div 4) mod 2 == 0) {

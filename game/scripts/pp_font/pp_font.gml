@@ -17,7 +17,11 @@
 
 /// The glyph set of spr_pp_font8, in the ASCII order the art lane uses: one frame per character.
 /// The set is the characters the game can write, and the sheet has exactly one frame for each of them.
-/// 74 glyphs: space, the ten marks `!"'()*,-.:?`, the ten digits, the 26 capitals and the 26 lowercase letters.
+/// 77 glyphs: space, the twelve marks `!"'()*,-./:?`, the ten digits, the 26 capitals, the two brackets `[]` and the
+/// 26 lowercase letters. The three brackets and the slash were added by card t_f476435e (decision D13): the battle HP
+/// line reads `HP 12/12` and the drive caption draws `[1]`, and until the sheet carried them pp_font_draw left a space
+/// where each one stood. ASCII order places them, so no other frame moves: `/` sits between `.` and `0`, `[` and `]`
+/// between `Z` and `a`.
 /// Three groups were added by card t_41c97c88 because the slice prints them and the 46 glyph sheet did not have
 /// them: `*` is the narration marker the dialogue data carries on every line (spec 19 Q6/D6), `"` is the quote the
 /// arrival and gate lines wrap speech in, and the lowercase letters are the sentence case the authored dialogue is
@@ -26,7 +30,7 @@
 /// tools/check_font_coverage.py reads this string, proves the sheet matches it frame by frame, and refuses the
 /// build when a data file prints a character that is not in it.
 function pp_font_glyphs() {
-    return " !\"'()*,-.0123456789:?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    return " !\"'()*,-./0123456789:?ABCDEFGHIJKLMNOPQRSTUVWXYZ[]abcdefghijklmnopqrstuvwxyz";
 }
 
 /// The frame number of one character, or -1 when the character is not in the sheet.

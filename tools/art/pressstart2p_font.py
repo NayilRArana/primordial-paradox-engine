@@ -32,8 +32,11 @@ FONT_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "assets", "fonts", "PressStart2P-Regular.ttf")
 
-# The contract glyph set for spr_pp_font8, in ASCII order (TITLE-COORD.md, and tests\\test_make_title_ui.py).
-GLYPHS = sorted(" !\"'()*,-.:?0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", key=ord)
+# The contract glyph set for spr_pp_font8, in ASCII order (TITLE-COORD.md, and tests\test_make_title_ui.py).
+# 77 glyphs as of card t_f476435e (decision D13): the 74 that shipped before it plus `/`, `[` and `]`, which the
+# battle HP line and the drive caption ask for. ASCII order fixes where they sit: `/` after `.` and before `0`,
+# `[` and `]` after `Z` and before `a`.
+GLYPHS = sorted(" !\"'()*,-./0123456789:?ABCDEFGHIJKLMNOPQRSTUVWXYZ[]abcdefghijklmnopqrstuvwxyz", key=ord)
 
 _face = None
 

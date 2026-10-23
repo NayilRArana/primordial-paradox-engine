@@ -220,7 +220,7 @@ def test_a_missing_file_is_an_error_not_a_pass(tmp_path):
 def test_the_committed_font_passes_as_a_sprite():
     code, out = run(os.path.join(SPRITES, "spr_pp_font8.png"), "sprite")
     assert code == 0, out
-    assert "592x8" in out and "74 tiles" in out and "1 colours" in out
+    assert "616x8" in out and "77 tiles" in out and "1 colours" in out
 
 
 def test_the_committed_window_passes_as_a_sprite():

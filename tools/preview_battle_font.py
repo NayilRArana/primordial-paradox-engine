@@ -354,8 +354,9 @@ def battle_frame(config, roles, sheet, glyphs, labels, enemy, party, message, cu
     frame.fill("dim", 168, 144, 232, 148)
     frame.fill("text", 168, 144, 168 + int(64 * enemy_frac), 148)
 
-    hp_line = "HP %d OF %d   WILL %d OF %d" % (party["max_hp"], party["max_hp"], party["will_max"],
-                                               party["will_max"])
+    # The HP line as pp_battle_draw joins it since card t_f476435e: a slash, because the sheet now carries one.
+    hp_line = "HP %d/%d   WILL %d/%d" % (party["max_hp"], party["max_hp"], party["will_max"],
+                                         party["will_max"])
     frame.text(hp_line, 16, 156, (0, 152, frame.width - 1, 167), "the player's HP and WILL line")
 
     # The message window: pp_battle_text_box_* is the top 48 px of the frame, filled and bordered.

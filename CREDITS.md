@@ -138,13 +138,14 @@ generated asset here carries a vendor attribution requirement.
 ## 9. The in game screen
 
 `data/credits.json` is the one screen the credits display draws. Its shape is deliberate, because the screen is drawn
-with `spr_pp_font8`, which is an 8x8 sheet with one ink and 74 glyphs:
+with `spr_pp_font8`, which is an 8x8 sheet with one ink and 77 glyphs:
 
 - 32 characters per row (256 px of frame at 8 px a glyph) and 30 rows (240 px at 8 px a row). One screen, no scrolling,
   no second page.
-- Only characters the font has: space, `! " ' ( ) * , - .` digits, `:`, `?`, capitals and lowercase. There is no `/`
-  and no `;` in the sheet, which is why the OpenStreetMap line on screen is split across rows and the full address is
-  carried in `notices` instead of being drawn.
+- Only characters the font has: space, `! " ' ( ) * , - . /` digits, `:`, `?`, `[`, `]`, capitals and lowercase. The
+  sheet carries a `/` since card t_f476435e grew the slash and the two brackets, and it still has no `;`, which is why
+  the OpenStreetMap line on screen is split across rows (it is 40 characters against a 32 column row) and the full
+  address is carried in `notices` instead of being drawn.
 - Every string in the file is checked against that glyph set and against the row budget, so a row added later cannot
   quietly run off the frame.
 - The full text of the notices that must travel with the build (the SIL OFL 1.1 text, 4413 bytes as published) sits in

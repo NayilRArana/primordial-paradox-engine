@@ -43,7 +43,7 @@
       "text": "(c) OpenStreetMap contributors, Open Database Licence (ODbL) 1.0, https://www.openstreetmap.org/copyright"
     }
   ],
-  "notes": "One screen, drawn with spr_pp_font8 at 8 px a glyph: 32 characters a row and 30 rows. The font has one ink, so style is a role for a future second weight and never a colour today. Every text row is checked against the runtime glyph set from pp_font_glyphs() and against the row budget, because the sheet has no slash and no semicolon and a row that runs past the frame cannot be seen. The notices below are data that must travel inside the build, not screen text: data/ is mirrored into game/datafiles/, knowledge/ is not.",
+  "notes": "One screen, drawn with spr_pp_font8 at 8 px a glyph: 32 characters a row and 30 rows. The font has one ink, so style is a role for a future second weight and never a colour today. Every text row is checked against the runtime glyph set from pp_font_glyphs() and against the row budget, because a row that runs past the frame cannot be seen and the sheet has no semicolon. The notices below are data that must travel inside the build, not screen text: data/ is mirrored into game/datafiles/, knowledge/ is not.",
   "screens": [
     {
       "id": "credits",

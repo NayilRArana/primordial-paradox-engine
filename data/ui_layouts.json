@@ -45,7 +45,7 @@
   "font": {
     "name": "spr_pp_font8",
     "cell": "8x8",
-    "glyphs": " !\"'()*,-.0123456789:?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+    "glyphs": " !\"'()*,-./0123456789:?ABCDEFGHIJKLMNOPQRSTUVWXYZ[]abcdefghijklmnopqrstuvwxyz",
     "path": "game/sprites_src/title/spr_pp_font8.png"
   },
   "colours": {

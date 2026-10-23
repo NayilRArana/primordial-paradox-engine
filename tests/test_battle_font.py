@@ -12,6 +12,10 @@ knowledge/FONT-CONTRACT-AUDIT-2026-10-23.md uses:
   3. one ink: a refused or selected row is marked by a rule or by where it sits, never by a tint of the glyph;
   4. every character the battle screens print is a frame of the sheet, so nothing draws as a silent space.
 
+Since card SHEET-GLYPH-GAP (t_f476435e, decision D13) the sheet carries 77 frames: it grew `/`, `[` and `]`, the HP
+line joins its numbers with a slash again, and the drive caption's `[1]` draws its brackets. Two tests below read the
+two sites that compose their strings at run time, because the inventory cannot see a string that is built by +.
+
 What these tests cannot do is run GML. They read the source and the data, which is the same footing the rest of the
 suite stands on; the pixels are tools/preview_battle_font.py's job and tools/check_font_coverage.py's.
 
@@ -29,6 +33,7 @@ BATTLE_TEXT = os.path.join("game", "scripts", "pp_battle_text", "pp_battle_text.
 DODGE_ARENA = os.path.join("game", "scripts", "pp_dodge_arena", "pp_dodge_arena.gml")
 OVERWORLD = os.path.join("game", "scripts", "pp_overworld", "pp_overworld.gml")
 SAVE = os.path.join("game", "scripts", "pp_save", "pp_save.gml")
+DRIVE = os.path.join("game", "scripts", "pp_drive", "pp_drive.gml")
 FONT = os.path.join("game", "scripts", "pp_font", "pp_font.gml")
 COMMANDS = os.path.join("game", "scripts", "pp_battle_commands", "pp_battle_commands.gml")
 CONFIG = os.path.join("game", "scripts", "pp_config", "pp_config.gml")
@@ -217,14 +222,46 @@ def _macro_string(name):
     return match.group(1) if match else None
 
 
-def test_the_hp_line_never_asks_for_a_slash_the_sheet_does_not_have():
-    """The sheet's 74 frames carry no slash, so the two numbers are joined with OF; a slash is a sheet card."""
+def test_the_hp_line_joins_its_numbers_with_the_slash_the_sheet_now_carries():
+    """Card t_f476435e (D13): the sheet grew `/`, `[` and `]`, so the HP line reads `HP 12/12` again.
+
+    Card BATTLE-FONT-WIRE wrote it as `OF` because the sheet had no slash and a screen card could not grow an art
+    asset. The slash exists now, so the reason for the words is gone and keeping them would be drift.
+    """
+    glyphs = set(font_glyphs())
     field = function_body(read(DIRECTOR), "pp_battle_draw")
-    hp = [line for line in field.split("\n") if '"HP "' in line or '" OF "' in line or '"   WILL "' in line]
+    hp = [line for line in field.split("\n") if '"HP "' in line or '"/"' in line or '"   WILL "' in line]
     assert hp, "the HP and WILL line is gone"
     joined = " ".join(hp)
-    assert '"/"' not in joined, "the HP line joins its numbers with a slash the sheet cannot draw"
-    assert '" OF "' in joined
+    assert '"/"' in joined, "the HP line does not join its numbers with a slash"
+    assert " OF " not in joined, "the HP line still spells out OF between the numbers"
+    assert "/" in glyphs, "the HP line draws a slash the sheet does not have"
+
+
+def test_the_two_sites_this_card_fixed_ask_only_for_glyphs_the_sheet_carries():
+    """The HP line and the drive caption compose their strings at run time, so the inventory above cannot see them.
+
+    Both were drawing a space where a character they ask for should be: the slash in `HP 12/12` was written as OF to
+    avoid the hole, and the caption's `[1]` lost both brackets. Read here by name, from the two functions that draw
+    them; the digits come from `string()` at run time and are covered by the sheet's ten digits.
+    """
+    glyphs = set(font_glyphs())
+    sources = (
+        (DIRECTOR, "pp_battle_draw", "the HP and WILL line"),
+        (DRIVE, "pp_drive_draw_caption", "the drive caption"),
+    )
+    for relative, name, what in sources:
+        body = function_body(read(relative), name)
+        drawn = [line for line in body.split("\n") if "pp_font_draw" in line]
+        assert drawn, "%s draws nothing" % what
+        literals = [literal for line in drawn for literal in re.findall(r'"((?:[^"\\]|\\.)*)"', line)]
+        assert literals, "%s carries no string literal to check" % what
+        # string() of a number can print any digit, so the digits count as asked for by both sites.
+        missing = sorted({char for text in literals + ["0123456789"] for char in text} - glyphs)
+        assert missing == [], "%s asks for %s, which the sheet cannot draw" % (what, missing)
+    caption = " ".join(literal for line in function_body(read(DRIVE), "pp_drive_draw_caption").split("\n")
+                       if "pp_font_draw" in line for literal in re.findall(r'"((?:[^"\\]|\\.)*)"', line))
+    assert "[" in caption and "]" in caption, "the drive caption no longer brackets its page number"
 
 
 def test_the_game_over_card_holds_its_longest_row_in_eight_pixel_cells():

@@ -72,7 +72,9 @@ GREY = 0x00
 GOLD = 0x28
 BLACK = 0x0F
 
-GLYPHS = sorted(" !\"'()*,-.:?0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", key=ord)
+# The sheet's frame order, read as ASCII order. Card t_f476435e (decision D13) grew it to 77 with `/`, `[` and `]`;
+# tools/check_font_coverage.py refuses a run where this copy, the rasteriser's and pp_font_glyphs() disagree.
+GLYPHS = sorted(" !\"'()*,-./0123456789:?ABCDEFGHIJKLMNOPQRSTUVWXYZ[]abcdefghijklmnopqrstuvwxyz", key=ord)
 NEAREST = getattr(Image, "Resampling", Image).NEAREST
 
 # ---------------------------------------------------------------------------------------------------------------
