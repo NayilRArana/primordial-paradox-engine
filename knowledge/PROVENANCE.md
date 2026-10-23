@@ -986,3 +986,24 @@ talk_set, because four sources already document talk_set as a dialogue id and on
 ownership of the phase spelling and the enemy file a checked copy; and putting the cross reference in tools\check_data.py itself instead of
 waiting for the planned tools\check_talk.py, so the drift cannot land before that tool exists.
 Copied expression: none
+
+## GAME-ROADMAP-2, 2026-10-22: ruling four blockers and ordering thirty cards
+Studied: this repository's own sources, read only: specs\04, 05, 06, 07, 10, 11, 16, 19, knowledge\mechanics\PACING-AND-CUTSCENES.md
+sections 6.2, 6.3 and 9, knowledge\ARRIVAL-CONTENT.md, ROADMAP-2026-10-22.md, tools\check_data.py's SCENE_COMMANDS, dialogue
+walk and flag walk, data\schemas\dialogue.schema.json, data\flags.json, data\room_palettes.json, data\slice.json, and the
+blocked card t_c024f8bc's own report and probe scripts in its workspace. No decompiled material was read for this card and no
+expression from any game is in it.
+Mechanics learned: that a density figure without a kind attached is not a rule but a trap. One sentence said "one marker per 40
+to 60 walkable tiles" and, applied to a 1701 tile hub, asked for a fight every 8 to 12 seconds; the sentence was true only of
+random markers, and splitting the marker into story and wild is what made it checkable. The same shape recurs twice more: a
+file format that is legal but not expressive (a flat nine line dialogue list against spec 05's pages and a choice) is fixed by
+making the shorthand legal beside the real shape rather than by migrating everything, and a network feature in a demo is fixed
+by moving the call to bake time so the run is replay. The useful general form: when a worker blocks on a contradiction, the
+contradiction is usually a missing distinction, and the answer is a distinction plus a rule a test can read, never an
+exemption.
+Our implementation differs by: scoping the density pair to wild markers and adding a 45 second spacing rule rather than raising
+the count; keeping `lines` legal forever as a one page shorthand instead of rewriting fourteen committed entries; putting the
+choice in dialogue data and branching on the flag with the existing `branch` command rather than adding a `choice` scene
+command to the runner; and baking model output into data/meta_bake.json with a request hash, a model name and a fallback rather
+than letting the build hold a key.
+Copied expression: none
