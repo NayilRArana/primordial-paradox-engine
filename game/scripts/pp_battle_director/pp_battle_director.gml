@@ -48,6 +48,16 @@ function pp_battle_new(_encounter, _enemy, _party, _ledger) {
         result: PPResult.none,
         recorded: false,
         defeated: false,
+        // Card R27 (spec 07 acceptance 4, spec 11 rule 5): the game over. A defeat never becomes PPBattlePhase.ended
+        // by itself. The result phase holds the fade to black, then the game over frame, then the two ways out.
+        // gameover_choice is "" while the screen waits, "wait" while the save read is in flight, "continue" once the
+        // save has been put back, and "title" once the room move has been asked for. A choice that is already made
+        // is never taken again, which is what keeps the screen still during the app's own fade.
+        gameover_cursor: 0,
+        gameover_choice: "",
+        gameover_note: "",
+        gameover_note_steps: 0,
+        gameover_pixel_rows: 0,
         rng: pp_rng_new(_encounter.seed)
     };
 
@@ -341,19 +351,150 @@ function pp_battle_record(_battle) {
         pp_ledger_record_exit(_battle.ledger, _battle.enemy.id, _kind, _battle.result, _battle.turn);
     }
 
-    // A defeat is an explicit decision, not a side effect (knowledge\SPEC-DELTAS.md, C7). There is no title mode and
-    // no save yet, so the party wakes up at full health and the app returns to the overworld. Writing the 0 that the
-    // fight ended on would make every later fight start at 0 hp with nothing to restore it, which is the bug this
-    // replaces. When the title mode lands, this is the line that changes to the save restore.
+    // A defeat is an explicit decision, not a side effect (knowledge\SPEC-DELTAS.md, C7). Card R27 replaces the
+    // stand in that used to send the party back to the map at full health: a lost fight now hands the screen to the
+    // game over, and the only honest health a run has after a defeat is the one in the save, put back by
+    // pp_battle_continue. So the fight's own actor is still put back to full, because nothing downstream of a fight
+    // may read a 0 that no one restores, but the run's ledger is left alone on a defeat instead of being written
+    // with either the 0 the fight ended on or a full bar the player did not earn.
     if (_battle.defeated) {
         _battle.actor.hp = _battle.actor.max_hp;
     }
-    _battle.ledger.hp = _battle.actor.hp;
+    if (!_battle.defeated) {
+        _battle.ledger.hp = _battle.actor.hp;
+    }
     _battle.recorded = true;
     return _battle;
 }
 
+// ---------------------------------------------------------------------------------------------------------------
+// The game over screen (spec 07 acceptance 4, spec 11 rule 5, spec 13 look)
+//
+// A defeat runs here instead of the 30 step result beat: a 12 step fade over the last fight frame, then a static
+// frame with CONTINUE and RETURN TO TITLE. Nothing about the fight is written to the run, so the screen has one
+// source of truth for what to restore and it is the save on disk, never a copy kept in memory (spec 11 rule 5).
+
+/// How many steps the frame spends fading out before the game over screen appears. It is the app's own fade number
+/// (spec 01, PP_FADE_STEPS 12) so a player never learns two different fade speeds.
+function pp_battle_gameover_fade_steps() {
+    return PP_FADE_STEPS;
+}
+
+/// True once the fade is done and the frame, not the fight, owns the screen. Input is refused before this, so a
+/// player holding the confirm key cannot skip the fade or pick a row they never saw.
+function pp_battle_gameover_clear(_battle) {
+    return _battle.phase_steps > pp_battle_gameover_fade_steps();
+}
+
+/// The two rows, in cursor order. CONTINUE is refused, visibly and audibly, when the slot holds nothing to load
+/// (spec 07 rule 1: a disabled entry is drawn in the second ink, makes a low blip and never advances).
+function pp_battle_gameover_rows() {
+    return ["CONTINUE", "RETURN TO TITLE"];
+}
+
+/// Is CONTINUE usable right now. The slot is the only answer: a run that never wrote a save has no earlier state for
+/// the player to return to, and the row says so instead of loading something else.
+function pp_battle_gameover_can_continue() {
+    if (pp_save_ready()) return true;
+    if (pp_save_busy()) return false;
+    if (!is_struct(global.pp.save)) return false;
+    // A slot that has been read and refused, and a slot that is not there, both mean no. A slot nobody has asked
+    // about yet is asked here, once, which is the read pp_battle_continue starts on the player's own press.
+    return (global.pp.save.state != PPSaveState.absent && global.pp.save.state != PPSaveState.failed);
+}
+
+function pp_battle_step_gameover(_battle) {
+    if (_battle.gameover_note_steps > 0) _battle.gameover_note_steps -= 1;
+
+    // A read that is in flight settles here. The screen keeps drawing the frame while it lands, so the pause is a
+    // "Loading" panel over the game over screen and never a black window (spec 11 numbers).
+    if (_battle.gameover_choice == "wait") {
+        if (pp_save_busy()) return;
+        if (pp_save_ready()) {
+            pp_battle_continue(_battle);
+            return;
+        }
+        // The file was not there or did not validate. The row goes back to refused and says why, in words, instead
+        // of a screen that looks like the key did nothing.
+        _battle.gameover_choice = "";
+        if (global.pp.save.state == PPSaveState.absent) _battle.gameover_note = "there is no save to continue";
+        else _battle.gameover_note = "the save could not be read";
+        _battle.gameover_note_steps = 90;
+        pp_audio_play("menu_cancel");
+        return;
+    }
+    if (_battle.gameover_choice != "") return;
+    if (!pp_battle_gameover_clear(_battle)) return;
+
+    var _rows = pp_battle_gameover_rows();
+    var _dir = pp_menu_axis("up", "down");
+    if (_dir != 0) {
+        _battle.gameover_cursor = (_battle.gameover_cursor + _dir + array_length(_rows)) mod array_length(_rows);
+        pp_audio_play("menu_move");
+        _battle.gameover_note = "";
+        _battle.gameover_note_steps = 0;
+    }
+
+    if (!pp_pressed("confirm")) return;
+
+    if (_battle.gameover_cursor == 0) {
+        // CONTINUE: the slot is read again before it is applied, because the save this run read at the title was
+        // consumed when the run started. A save that is already in memory is applied at once.
+        if (pp_save_ready()) {
+            pp_battle_continue(_battle);
+            return;
+        }
+        if (pp_save_busy()) {
+            _battle.gameover_choice = "wait";
+            return;
+        }
+        if (!pp_battle_gameover_can_continue()) {
+            _battle.gameover_note = "there is no save to continue";
+            _battle.gameover_note_steps = 90;
+            pp_audio_play("menu_cancel");
+            return;
+        }
+        pp_audio_play("menu_select");
+        _battle.gameover_choice = "wait";
+        // The purpose is a label only: it is what the save module prints beside the read, so a run log says which
+        // screen asked for the slot.
+        pp_save_read("game over continue");
+        return;
+    }
+
+    // RETURN TO TITLE: the title owns its own room (card W1), so the move is asked for through the one room door and
+    // the room's own object enters the screen. Every pixel behind this is already black, so the change is invisible.
+    pp_audio_play("menu_select");
+    _battle.gameover_choice = "title";
+    global.pp.battle = undefined;
+    pp_app_enter_room(PPMode.title, {}, rm_pp_title);
+}
+
+/// Put the last save back and hand control to the overworld. pp_save_apply is the only door that restores a run
+/// (spec 11 rule 5), so the map, the tile, the health, the flag block, the counters, the items, the powers and the
+/// music all come back through it and this card adds no second restorer.
+function pp_battle_continue(_battle) {
+    _battle.gameover_choice = "continue";
+    if (!pp_save_apply()) {
+        _battle.gameover_choice = "";
+        _battle.gameover_note = "the save could not be put back";
+        _battle.gameover_note_steps = 90;
+        show_debug_message("PP: game over, CONTINUE failed, nothing was restored");
+        return;
+    }
+    show_debug_message("PP: game over, CONTINUE restored the last save");
+    return;
+}
+
+
 function pp_battle_step_result(_battle) {
+    // Card R27: a defeat holds the result phase for the game over screen, so it never reaches PPBattlePhase.ended on
+    // its own, and pp_battle_finished keeps the old "press Z, go back to the map" door shut for a lost fight. A win
+    // and a spare keep the 30 step beat that already returned control to the caller.
+    if (_battle.defeated) {
+        pp_battle_step_gameover(_battle);
+        return;
+    }
     if (_battle.phase_steps >= PP_RESULT_STEPS) {
         pp_battle_phase_set(_battle, PPBattlePhase.ended);
     }
@@ -361,6 +502,16 @@ function pp_battle_step_result(_battle) {
 
 function pp_battle_finished(_battle) {
     return _battle.phase == PPBattlePhase.ended;
+}
+
+/// True from the moment the player's health reaches 0, for as long as the game over screen owns the frame (card R27).
+/// It is deliberately not pp_battle_finished: a lost fight hands the screen to the game over card instead of setting
+/// the 30 step result beat to ended, because that beat is the door back to the map and a defeat has no road back to
+/// the map that is not CONTINUE or RETURN TO TITLE. Anything that needs to know a fight was lost, without taking the
+/// door, asks this one. Two callers today: the card, and the demo walk's lose edge, which still reads
+/// pp_battle_finished and so no longer sees a defeat (recorded as an ordering dependency on the R24 lane).
+function pp_battle_lost(_battle) {
+    return _battle.defeated;
 }
 
 function pp_battle_outcome(_battle) {
@@ -472,6 +623,95 @@ function pp_battle_draw(_battle) {
         draw_text(PP_FRAME_W * 0.5, 96, "here it comes");
         draw_set_halign(fa_left);
     }
+
+    // Card R27: a lost fight fades out here and the game over frame takes the screen.
+    if (_battle.defeated && _battle.phase == PPBattlePhase.result) {
+        pp_battle_draw_gameover(_battle);
+    }
+}
+
+/// The game over screen (spec 07 acceptance 4, spec 13 look). Two parts and both are whole pixels: the 12 step fade
+/// over the last fight frame, then a static card.
+///
+/// RULE 0 first (knowledge\ART-BIBLE.md line 283): the frame invents no colour and no role. It spends four roles,
+/// ink, paper, dim and text, which are the only four every palette set in data\room_palettes.json carries (the deck,
+/// the cabin, the lower deck and the ui set all name them, while hazard and warn are in some and not others), so the
+/// screen reads the same in every room and no role can fall through to PP_COLOUR_MISSING. Four of the 16 colours
+/// spec 13 allows, and none of them blended: the fade is one rectangle over the whole frame whose alpha steps in
+/// twelfths, and a blended pixel there is the app's own fade, not part of the card.
+///
+/// The card carries no asterisk, because the 8x8 sheet has no glyph for one and a missing glyph is a box on screen.
+function pp_battle_draw_gameover(_battle) {
+    var _fade = pp_battle_gameover_fade_steps();
+
+    // The fade out. Nothing else is drawn over it, so the last fight frame is what the player sees go dark.
+    if (_battle.phase_steps <= _fade) {
+        draw_set_alpha(_battle.phase_steps / _fade);
+        draw_set_colour(pp_role_colour("ink"));
+        draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
+        draw_set_alpha(1);
+        return;
+    }
+
+    if (_battle.gameover_pixel_rows == 0) {
+        _battle.gameover_pixel_rows = 1;
+        show_debug_message("PP: game over frame, " + string(_fade) + " step fade, 4 roles (ink, paper, dim, text)");
+    }
+
+    // Black card, then the 1 pixel outer line of spec 05 and the 2 pixel frame it sits inside (spec 13 font and UI).
+    draw_set_colour(pp_role_colour("ink"));
+    draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
+    draw_set_colour(pp_role_colour("dim"));
+    draw_rectangle(63, 63, 193, 177, false);
+    draw_set_colour(pp_role_colour("paper"));
+    draw_rectangle(64, 64, 192, 176, false);
+    draw_set_colour(pp_role_colour("ink"));
+    draw_rectangle(66, 66, 190, 174, false);
+
+    draw_set_halign(fa_center);
+    draw_set_colour(pp_role_colour("paper"));
+    draw_text(PP_FRAME_W * 0.5, 78, "GAME OVER");
+
+    // The rule under the title: 2 pixels, dim, no gradient and no shadow (spec 13 line and shape).
+    draw_set_colour(pp_role_colour("dim"));
+    draw_rectangle(96, 94, 160, 96, false);
+
+    // The enemy is named on the card, because this screen is the only place the run says what took the player down.
+    // No asterisk: the 8x8 sheet carries no glyph for one, and this is a card and not a dialogue line (spec 05).
+    draw_set_colour(pp_role_colour("text"));
+    draw_text_ext(PP_FRAME_W * 0.5, 102, string(_battle.enemy.name) + " stands over you.", 10, PP_FRAME_W - 146);
+
+    var _rows = pp_battle_gameover_rows();
+    var _can_continue = pp_battle_gameover_can_continue();
+    for (var i = 0; i < array_length(_rows); i++) {
+        var _label = _rows[i];
+        var _enabled = (i != 0) || _can_continue;
+        var _y = 132 + i * 16;
+        var _w = string_width(_label);
+        var _x = floor(PP_FRAME_W * 0.5 - _w * 0.5);
+
+        if (!_enabled) draw_set_colour(pp_role_colour("dim"));
+        else if (i == _battle.gameover_cursor) draw_set_colour(pp_role_colour("paper"));
+        else draw_set_colour(pp_role_colour("text"));
+        draw_text(_x, _y, _label);
+
+        // The cursor is the 6 pixel arrow of spec 13, blinking 15 steps on and 15 off, drawn only on a row that can
+        // be picked so a refused row never carries a cursor that says it can.
+        if (i == _battle.gameover_cursor && _enabled && ((_battle.phase_steps div 15) mod 2 == 0)) {
+            draw_set_colour(pp_role_colour("paper"));
+            draw_triangle(_x - 12, _y, _x - 12, _y + 8, _x - 6, _y + 4, false);
+        }
+    }
+
+    if (_battle.gameover_choice == "wait") {
+        draw_set_colour(pp_role_colour("text"));
+        draw_text_ext(PP_FRAME_W * 0.5, 168, "reading the last save", 10, PP_FRAME_W - 146);
+    } else if (_battle.gameover_note_steps > 0 && _battle.gameover_note != "") {
+        draw_set_colour(pp_role_colour("text"));
+        draw_text_ext(PP_FRAME_W * 0.5, 168, _battle.gameover_note, 10, PP_FRAME_W - 146);
+    }
+
+    draw_set_halign(fa_left);
 }
 
 function pp_battle_draw_menu(_battle) {
