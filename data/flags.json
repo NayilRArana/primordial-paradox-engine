@@ -10,6 +10,11 @@
     "percy_standing",
     "dc_gate_hacked",
     "prison_entered",
-    "kronos_spared"
+    "kronos_spared",
+    "gate_passed",
+    "gate_truth",
+    "gate_bluff",
+    "gate_authority",
+    "has_boarding_pass"
   ]
 }

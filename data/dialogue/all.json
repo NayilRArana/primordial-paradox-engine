@@ -191,6 +191,67 @@
       ]
     },
     {
+      "id": "quay_gate_checkpoint",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* Rain on the barrier arm.",
+            "* A hut. One lit window.",
+            "* The man inside stands up."
+          ]
+        },
+        {
+          "speaker": "guard",
+          "lines": [
+            "* \"That is far enough.\"",
+            "* \"Name and business.\"",
+            "* He holds a clipboard."
+          ]
+        },
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* Past him the yard is dark.",
+            "* Past that, a grey hull.",
+            "* One lamp on the water."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quay_gate_choice",
+      "speaker": "guard",
+      "pages": [
+        {
+          "speaker": "guard",
+          "lines": [
+            "* \"No pass, no gate.\"",
+            "* \"So. What is it?\"",
+            "* He waits, pen ready."
+          ]
+        }
+      ],
+      "choices": [
+        {
+          "label": "No pass.",
+          "sets": ["gate_passed", "gate_truth"],
+          "goto": "quay_gate_truth"
+        },
+        {
+          "label": "Crew list.",
+          "sets": ["gate_passed", "gate_bluff"],
+          "goto": "quay_gate_bluff"
+        },
+        {
+          "label": "Ask him.",
+          "sets": ["gate_passed", "gate_authority"],
+          "goto": "quay_gate_authority"
+        }
+      ]
+    },
+    {
       "id": "quay_gate_truth",
       "speaker": "guard",
       "pages": [
@@ -246,6 +307,67 @@
           ]
         }
       ]
+    },
+    {
+      "id": "quay_dock_office",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* A counter. A lamp. A ledger.",
+            "* Two men. One is Navy.",
+            "* The other is not."
+          ]
+        },
+        {
+          "speaker": "clerk",
+          "lines": [
+            "* \"You are the last one.\"",
+            "* \"Name, then. Slowly.\"",
+            "* The pen is already wet."
+          ]
+        },
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* One line left in the ledger.",
+            "* The ink on it is dry.",
+            "* It is not the clerk's hand."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quay_dock_office_pass",
+      "speaker": "clerk",
+      "pages": [
+        {
+          "speaker": "clerk",
+          "lines": [
+            "* \"Berth nine. Deck two.\"",
+            "* \"Do not leave the cabin.\"",
+            "* He tears a pink slip."
+          ]
+        },
+        {
+          "speaker": "sailor",
+          "lines": [
+            "* \"Sign it and come on.\"",
+            "* \"I have a ladder to hold.\"",
+            "* He does not look up."
+          ]
+        },
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* The slip changes hands.",
+            "* It is warm from a pocket.",
+            "* Behind them, the gate shut."
+          ]
+        }
+      ],
+      "sets": ["has_boarding_pass"]
     },
     {
       "id": "say_door_register",

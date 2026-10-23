@@ -11,8 +11,9 @@ What this file holds down, and why each check earns its place:
      every flag in a choice's `sets` through pp_ledger (the one writer), pp_dialogue_advance applies an entry's own
      `sets` before it sets closed, the panel draws the per page speaker and the labels, and the cursor wraps.
   4. THE DATA PROBE. For any entry that carries choices, the sets must be one shared flag plus exactly one branch flag
-     per choice, which is what makes "picking a gate choice sets gate_passed and exactly one of the three" true once
-     the entry lands. With no such entry in the file today the probe is skipped, not silently passed.
+     per choice, which is what makes "picking a gate choice sets gate_passed and exactly one of the three" true. The
+     gate entry the card asks for is in the file, so this runs instead of skipping, and section 5 pins that scene's
+     own four pages of three lines and its three labels.
 """
 
 from __future__ import annotations
@@ -40,7 +41,9 @@ SHORTHAND_IDS = (
 
 # The arrival rows this card landed, from knowledge/ARRIVAL-CONTENT.md section 5.
 ARRIVAL_IDS = (
+    "quay_gate_checkpoint", "quay_gate_choice",
     "quay_gate_truth", "quay_gate_bluff", "quay_gate_authority",
+    "quay_dock_office", "quay_dock_office_pass",
     "say_door_register", "say_door_dancing_man", "say_door_oceana", "say_door_telephone",
     "say_door_kuti", "say_door_red_funnel", "say_door_playhouse",
 )
@@ -359,3 +362,81 @@ def test_the_probe_catches_a_choice_that_sets_two_branch_flags():
     shared = set.intersection(*sets)
     assert len(shared) == 1
     assert len(sets[0] - shared) == 2, "the probe's own arithmetic must see two branch flags"
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# 5. The gate scene itself: four pages of three lines, one three item choice, and the three flags it sets.
+
+GATE_BRANCH_FLAGS = ("gate_truth", "gate_bluff", "gate_authority")
+GATE_PIVOT_FLAG = "gate_passed"
+
+
+def rows_by_id():
+    return {row["id"]: row for row in dialogue_rows()}
+
+
+def test_the_gate_scene_is_four_pages_of_three_lines_ending_in_a_three_item_choice():
+    """D2 caps one entry at 3 pages, so the beat 20 four page scene is a checkpoint entry plus the ask entry.
+
+    The pages are counted together because the screen sees them together: the scene `say`s the checkpoint and then
+    the ask, so four pages of three lines reach the box in one beat, and the choice sits on the last of them.
+    """
+    by_id = rows_by_id()
+    checkpoint = by_id["quay_gate_checkpoint"]
+    ask = by_id["quay_gate_choice"]
+
+    pages = checkpoint["pages"] + ask["pages"]
+    assert len(pages) == 4, len(pages)
+    assert len(checkpoint["pages"]) <= check_data.PAGES, "one entry can never carry the fourth page"
+    for index, page in enumerate(pages):
+        assert len(page["lines"]) == check_data.PAGE_LINES, (index, page["lines"])
+
+    # The choice is on the last page's entry, which is the only entry that carries one.
+    assert "choices" not in checkpoint
+    assert len(ask["choices"]) == 3 == check_data.CHOICES
+    for choice in ask["choices"]:
+        assert len(choice["label"]) <= check_data.CHOICE_LABEL_CHARS, choice["label"]
+
+
+def test_each_gate_choice_sets_the_pivot_flag_and_exactly_one_branch_flag():
+    """CHECK: picking each of the three choices sets gate_passed plus exactly one of the three branch flags.
+
+    Read as data, which is what the box reads: every choice names the pivot flag, names exactly one of the three
+    branch flags, and the three branches are all different, so no two picks set the same state.
+    """
+    choices = rows_by_id()["quay_gate_choice"]["choices"]
+    branches = []
+    for index, choice in enumerate(choices):
+        sets = set(choice["sets"])
+        assert GATE_PIVOT_FLAG in sets, (index, sorted(sets))
+        branch = sets - {GATE_PIVOT_FLAG}
+        assert len(branch) == 1, (index, sorted(branch))
+        branches.append(branch.pop())
+    assert sorted(branches) == sorted(GATE_BRANCH_FLAGS), branches
+    assert len(set(branches)) == len(GATE_BRANCH_FLAGS), "two choices set the same branch flag"
+
+    # The flags are real, which is what makes the checker pass and the save record them.
+    known = flags()
+    for name in (GATE_PIVOT_FLAG,) + GATE_BRANCH_FLAGS + ("has_boarding_pass",):
+        assert name in known, name
+
+
+def test_each_gate_choice_continues_into_its_own_reply():
+    """A pick loads the reply into the same box, so each choice's goto must be that reply and not another one."""
+    by_id = rows_by_id()
+    gotos = [choice["goto"] for choice in by_id["quay_gate_choice"]["choices"]]
+    assert gotos == ["quay_gate_truth", "quay_gate_bluff", "quay_gate_authority"], gotos
+    for name in gotos:
+        assert "pages" in by_id[name], name
+
+
+def test_the_dock_office_hands_over_the_pass_on_its_last_page():
+    """The office is six pages: two entries of three, and the flag is set by the entry that carries page six."""
+    by_id = rows_by_id()
+    office = by_id["quay_dock_office"]
+    handover = by_id["quay_dock_office_pass"]
+    assert len(office["pages"]) == 3 and len(handover["pages"]) == 3
+    assert len(office["pages"] + handover["pages"]) == 6, "the office beat is six pages"
+    assert handover["sets"] == ["has_boarding_pass"], handover.get("sets")
+    assert "sets" not in office, "the pass is handed over in the second entry, not the first"
+
