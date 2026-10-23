@@ -111,12 +111,41 @@ def test_dialogue_bounds_match_the_checker_constants():
     entry = schema["$defs"]["entry"]["properties"]
     assert entry["lines"]["maxItems"] == check_data.PAGES * 3
 
+    # The pages shape (decision D2): 3 pages, 3 lines a page, 30 characters a page line, 3 choices in a 12 character
+    # panel. Each of these is a number in two places, so the two descriptions of the file are compared here.
+    assert entry["pages"]["maxItems"] == check_data.PAGES
+    assert entry["pages"]["items"]["$ref"] == "#/$defs/page"
+    page = schema["$defs"]["page"]["properties"]
+    assert page["lines"]["maxItems"] == check_data.PAGE_LINES
+    assert page["lines"]["items"]["$ref"] == "#/$defs/page_line"
+    assert schema["$defs"]["page_line"]["maxLength"] == check_data.LINE_CHARS
+    assert entry["choices"]["maxItems"] == check_data.CHOICES
+    choice = schema["$defs"]["choice"]["properties"]
+    assert choice["label"]["maxLength"] == check_data.CHOICE_LABEL_CHARS
+
     # The box wraps on spaces, so the limit is on one WORD, not on a sentence: 30 characters fit, 31 do not.
     validator = jsonschema.Draft202012Validator({"$defs": schema["$defs"], "$ref": "#/$defs/entry"})
     fits = {"id": "t", "speaker": "narrator", "lines": ["* " + "a" * check_data.LINE_CHARS]}
     over = {"id": "t", "speaker": "narrator", "lines": ["* " + "a" * (check_data.LINE_CHARS + 1)]}
     assert list(validator.iter_errors(fits)) == []
     assert list(validator.iter_errors(over)) != []
+
+    # The pages shape takes the opposite rule for a page line: it is already one row, so its length is the limit.
+    page_fits = {"id": "t", "speaker": "narrator", "pages": [{"lines": ["* " + "a" * (check_data.LINE_CHARS - 2)]}]}
+    page_over = {"id": "t", "speaker": "narrator", "pages": [{"lines": ["* " + "a" * (check_data.LINE_CHARS - 1)]}]}
+    assert list(validator.iter_errors(page_fits)) == []
+    assert list(validator.iter_errors(page_over)) != []
+
+    # Exactly one shape per entry: both is refused, and neither is refused.
+    both = {"id": "t", "speaker": "narrator", "lines": ["* a"], "pages": [{"lines": ["* a"]}]}
+    neither = {"id": "t", "speaker": "narrator"}
+    assert list(validator.iter_errors(both)) != []
+    assert list(validator.iter_errors(neither)) != []
+
+    # A fourth page and a fourth choice are both outside the box.
+    four_pages = {"id": "t", "speaker": "narrator",
+                  "pages": [{"lines": ["* a"]} for _ in range(check_data.PAGES + 1)]}
+    assert list(validator.iter_errors(four_pages)) != []
 
 
 def test_enemy_bounds_match_the_checker():

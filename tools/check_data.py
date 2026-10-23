@@ -59,6 +59,12 @@ MAX_FLAGS = 200
 MAX_FLAG_LEN = 32
 LINE_CHARS = 30
 PAGES = 3
+# Dialogue v2 (decision D2, 2026-10-22). A page is one row or three of them, a page holds at most three lines, and an
+# entry holds at most three pages; a choice label is the 96 pixel panel's column. These four numbers are the ones the
+# schema repeats, and tests/test_schemas.py keeps the two descriptions equal.
+PAGE_LINES = 3
+CHOICES = 3
+CHOICE_LABEL_CHARS = 12
 
 PATTERN_FIELD_RANGES = {
     "at": (0, 899),
@@ -682,32 +688,137 @@ class Checker:
             path = "dialogue[%d]" % index
             name = self.require(row, "id", "str", filename, path)
             self.require(row, "speaker", "str", filename, path)
-            lines = self.require(row, "lines", "list", filename, path)
             if isinstance(name, str):
                 if name in ids["dialogue"] and ids["dialogue"][name] is not row:
                     self.error(filename, path + ".id", "duplicate id %r" % name)
                 ids["dialogue"][name] = row
+            has_lines = isinstance(row, dict) and "lines" in row
+            has_pages = isinstance(row, dict) and "pages" in row
+            if has_lines and has_pages:
+                self.error(filename, path, "carries both lines and pages; an entry is exactly one of the two (D2)")
+            elif not has_lines and not has_pages:
+                self.error(filename, path, "carries neither lines nor pages; an entry is exactly one of the two (D2)")
+            if has_lines:
+                self.check_dialogue_lines(row, path, filename)
+            if has_pages:
+                self.check_dialogue_pages(row, path, filename)
+            self.check_dialogue_sets(row, path, filename, ids, path + ".sets")
+            self.check_dialogue_choices(row, path, filename, ids)
+
+    def check_dialogue_lines(self, row, path, filename):
+        """The one page shorthand: 1 to 9 lines, wrapped by word at 30 characters (spec delta T6)."""
+        lines = self.require(row, "lines", "list", filename, path)
+        if lines is None:
+            return
+        if len(lines) == 0:
+            self.error(filename, path + ".lines", "must have at least one line")
+        if len(lines) > PAGES * PAGE_LINES:
+            self.error(filename, path + ".lines", "%d lines is more than %d pages of %d (spec 05)"
+                       % (len(lines), PAGES, PAGE_LINES))
+        for line_index, line in enumerate(lines):
+            line_path = "%s.lines[%d]" % (path, line_index)
+            if not isinstance(line, str):
+                self.error(filename, line_path, "must be a string")
+                continue
+            if line.strip() == "":
+                self.error(filename, line_path, "is empty")
+            # Spec delta T6: a WORD longer than a line cannot wrap, so that is the error; long sentences wrap.
+            for word in line.split(" "):
+                if len(word) > LINE_CHARS:
+                    self.error(filename, line_path,
+                               "word %r is %d characters, longer than a %d character line"
+                               % (word, len(word), LINE_CHARS))
+                    break
+
+    def check_dialogue_pages(self, row, path, filename):
+        """The spec 05 shape: 1 to 3 pages of 1 to 3 lines, each line already one row of 30 characters.
+
+        A page line is not wrapped by the checker the way a shorthand line is, because a page IS the broken text:
+        a line of 31 characters has nowhere to go in a 30 character box, so it is refused with the id and the index.
+        """
+        pages = self.require(row, "pages", "list", filename, path)
+        if pages is None:
+            return
+        if len(pages) == 0:
+            self.error(filename, path + ".pages", "must have at least one page")
+        if len(pages) > PAGES:
+            self.error(filename, path + ".pages",
+                       "%d pages is more than the %d a box entry may carry (spec 05, D2)" % (len(pages), PAGES))
+        for page_index, page in enumerate(pages):
+            page_path = "%s.pages[%d]" % (path, page_index)
+            if not isinstance(page, dict):
+                self.error(filename, page_path, "must be an object with lines")
+                continue
+            if "speaker" in page:
+                speaker = self.want(page, "speaker", "str", filename, page_path)
+                if isinstance(speaker, str) and speaker.strip() == "":
+                    self.error(filename, page_path + ".speaker", "is empty")
+            lines = self.require(page, "lines", "list", filename, page_path)
             if lines is None:
                 continue
             if len(lines) == 0:
-                self.error(filename, path + ".lines", "must have at least one line")
-            if len(lines) > PAGES * 3:
-                self.error(filename, path + ".lines", "%d lines is more than %d pages of %d (spec 05)"
-                           % (len(lines), PAGES, 3))
+                self.error(filename, page_path + ".lines", "must have at least one line")
+            if len(lines) > PAGE_LINES:
+                self.error(filename, page_path + ".lines",
+                           "%d lines is more than the %d a page holds (spec 05)" % (len(lines), PAGE_LINES))
             for line_index, line in enumerate(lines):
-                line_path = "%s.lines[%d]" % (path, line_index)
+                line_path = "%s.lines[%d]" % (page_path, line_index)
                 if not isinstance(line, str):
                     self.error(filename, line_path, "must be a string")
                     continue
                 if line.strip() == "":
                     self.error(filename, line_path, "is empty")
-                # Spec delta T6: a WORD longer than a line cannot wrap, so that is the error; long sentences wrap.
-                for word in line.split(" "):
-                    if len(word) > LINE_CHARS:
-                        self.error(filename, line_path,
-                                   "word %r is %d characters, longer than a %d character line"
-                                   % (word, len(word), LINE_CHARS))
-                        break
+                elif len(line) > LINE_CHARS:
+                    self.error(filename, line_path,
+                               "%r is %d characters, the box holds %d on a page line"
+                               % (line, len(line), LINE_CHARS))
+
+    def check_dialogue_sets(self, row, path, filename, ids, field_path):
+        """Every flag an entry or a choice sets is a name in data/flags.json, so a typo cannot be set silently."""
+        if not isinstance(row, dict) or "sets" not in row:
+            return
+        names = self.require(row, "sets", "list", filename, path)
+        if names is None:
+            return
+        if len(names) == 0:
+            self.error(filename, field_path, "must name at least one flag")
+        for flag_index, name in enumerate(names):
+            flag_path = "%s[%d]" % (field_path, flag_index)
+            if not isinstance(name, str):
+                self.error(filename, flag_path, "must be a flag name")
+                continue
+            self.ref(ids, "flag", name, filename, flag_path)
+
+    def check_dialogue_choices(self, row, path, filename, ids):
+        """The choice list lives on the entry's last page: 1 to 3 items of label, sets and optional goto (D2)."""
+        if not isinstance(row, dict) or "choices" not in row:
+            return
+        choices = self.require(row, "choices", "list", filename, path)
+        if choices is None:
+            return
+        if len(choices) == 0:
+            self.error(filename, path + ".choices", "must have at least one choice")
+        if len(choices) > CHOICES:
+            self.error(filename, path + ".choices",
+                       "%d choices is more than the %d the panel holds (spec 05)" % (len(choices), CHOICES))
+        for choice_index, choice in enumerate(choices):
+            choice_path = "%s.choices[%d]" % (path, choice_index)
+            if not isinstance(choice, dict):
+                self.error(filename, choice_path, "must be an object with label and sets")
+                continue
+            label = self.require(choice, "label", "str", filename, choice_path)
+            if isinstance(label, str):
+                if label.strip() == "":
+                    self.error(filename, choice_path + ".label", "is empty")
+                elif len(label) > CHOICE_LABEL_CHARS:
+                    self.error(filename, choice_path + ".label",
+                               "%r is %d characters, the panel holds %d"
+                               % (label, len(label), CHOICE_LABEL_CHARS))
+            self.check_dialogue_sets(choice, choice_path, filename, ids, choice_path + ".sets")
+            if "goto" in choice:
+                target = self.want(choice, "goto", "str", filename, choice_path)
+                if isinstance(target, str):
+                    self.ref(ids, "dialogue", target, filename, choice_path + ".goto")
 
     def check_characters(self, data, ids):
         filename = "data/characters/party.json"

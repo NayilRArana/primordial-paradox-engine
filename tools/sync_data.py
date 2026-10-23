@@ -45,6 +45,21 @@ NOT_RUNTIME = frozenset({
     "scene_palettes.json",
 })
 
+# Directories under data\ that are not mirrored for the same reason, matched on the relative prefix.
+#
+# schemas/ is documentation for editors and for tools/check_data.py.
+#
+# ai_cache/ is the recorded Meta Model API cache from tools/meta_client.py (META-CLIENT). It is
+# read by that client and by tests/test_meta_client.py, by path, out of data\; no GML file names it,
+# and its file names are sha256 hashes that change whenever a call is recorded, so mirroring it put
+# a new set of Included Files in the .yyp on every re-record (six of them on 2026-10-22, which
+# tools/check_project.py reported as "not listed as an Included File"). It stays tracked in data\
+# because the committed cache is what the offline demo and the replay tests read.
+NOT_RUNTIME_DIRS = (
+    "schemas/",
+    "ai_cache/",
+)
+
 
 def source_files() -> list[str]:
     found = []
@@ -53,9 +68,10 @@ def source_files() -> list[str]:
             if name.lower().endswith(".json"):
                 full = os.path.join(dirpath, name)
                 rel = os.path.relpath(full, SRC).replace("\\", "/")
-                # data/schemas is documentation for editors and for tools/check_data.py. The game never reads a schema,
-                # so it is not a runtime data file and does not belong in the build bundle.
-                if rel.startswith("schemas/"):
+                # schemas/ documents the data for editors and for tools/check_data.py, and ai_cache/ is
+                # the Meta client's recorded answers: the game never reads either, so neither belongs
+                # in the build bundle. See NOT_RUNTIME_DIRS above.
+                if rel.startswith(NOT_RUNTIME_DIRS):
                     continue
                 if rel in NOT_RUNTIME:
                     continue

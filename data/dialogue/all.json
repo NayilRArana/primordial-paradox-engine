@@ -189,6 +189,140 @@
         "* It lets you pass the rope.",
         "* Its eyes follow the water."
       ]
+    },
+    {
+      "id": "quay_gate_truth",
+      "speaker": "guard",
+      "pages": [
+        {
+          "speaker": "guard",
+          "lines": [
+            "* \"Honest. That is new.\"",
+            "* \"Office. Sign in.\""
+          ]
+        },
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* He lifts the arm himself."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quay_gate_bluff",
+      "speaker": "guard",
+      "pages": [
+        {
+          "speaker": "guard",
+          "lines": [
+            "* \"The list is full.\"",
+            "* \"Office, then. Sign.\""
+          ]
+        },
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* He does not look down."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quay_gate_authority",
+      "speaker": "guard",
+      "pages": [
+        {
+          "speaker": "guard",
+          "lines": [
+            "* \"My officer is asleep.\"",
+            "* \"Office. Now.\""
+          ]
+        },
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* He does not believe it."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "say_door_register",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "lines": [
+            "* Registry office. Shut."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "say_door_dancing_man",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "lines": [
+            "* A pub. Warm and loud."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "say_door_oceana",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "lines": [
+            "* Flats. Every bell dead."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "say_door_telephone",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "lines": [
+            "* Telephone House. No call."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "say_door_kuti",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "lines": [
+            "* A kitchen, still open."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "say_door_red_funnel",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "lines": [
+            "* Ferries. Not your ship."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "say_door_playhouse",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "lines": [
+            "* A door with no light."
+          ]
+        }
+      ]
     }
   ]
 }

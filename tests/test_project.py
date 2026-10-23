@@ -118,6 +118,46 @@ def test_build_time_data_is_kept_out_of_the_bundle():
             "so the engine ships it" % name)
 
 
+def test_the_ai_cache_is_kept_out_of_the_bundle():
+    """The Meta client's recorded answers are a build input read by tools, never by GML.
+
+    tools/meta_client.py writes data/ai_cache/<sha256>.json and reads it back by path, and no GML module names the
+    directory. Mirroring it put six hash named files into game/datafiles and the .yyp then wanted each of them as an
+    Included File: tools/check_project.py reported all six on 2026-10-22 and took the project check red (card
+    t_6f73263f). The exclusion is pinned here the same one by one way as the palette tables above, so deleting it
+    fails in this test rather than in the build. The last check is the opposite direction: the cache has to stay in
+    the commit, because replay and the offline demo read it out of data\\.
+    """
+    assert "ai_cache/" in sync_data.NOT_RUNTIME_DIRS, (
+        "ai_cache/ is no longer excluded in tools/sync_data.py, so the recorded answers are mirrored again")
+    wanted = sync_data.source_files()
+    mirrored = [rel for rel in wanted if rel.startswith("ai_cache/")]
+    assert mirrored == [], "sync_data still mirrors the Meta cache into the bundle: %r" % mirrored
+
+    with open(os.path.join(ROOT, "game", "PrimordialParadox.yyp"), "r", encoding="utf-8") as fh:
+        declared = {entry.get("name") for entry in json.load(fh)["IncludedFiles"]}
+    assert [name for name in declared if "ai_cache/" in name] == [], (
+        "the committed project declares a Meta cache entry as an Included File")
+
+    gml = []
+    for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, "game")):
+        for filename in filenames:
+            if filename.endswith(".gml"):
+                with open(os.path.join(dirpath, filename), "r", encoding="utf-8-sig") as fh:
+                    gml.append(fh.read())
+    assert "ai_cache" not in "\n".join(gml), (
+        "a GML module names ai_cache: if the engine reads it, take it out of NOT_RUNTIME_DIRS so it ships")
+
+    repo = check_build_inputs.repo_root()
+    tracked = check_build_inputs.tracked_files(repo)
+    entries = sorted(name for name in os.listdir(os.path.join(ROOT, "data", "ai_cache"))
+                     if name.endswith(".json"))
+    assert entries, "data/ai_cache holds no recorded answer, so replay has nothing to serve"
+    for name in entries:
+        rel = os.path.relpath(os.path.join(ROOT, "data", "ai_cache", name), repo).replace(os.sep, "/")
+        assert rel in tracked, "%s is not in the commit, so replay cannot answer from it" % rel
+
+
 def test_the_palette_tables_stay_committed_where_the_tests_read_them():
     """Not mirrored, still tracked.
 

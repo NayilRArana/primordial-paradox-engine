@@ -1,0 +1,192 @@
+# PP-DRIVE v2, "The Drive": the same 178 second film, with the lead rebuilt as a hook
+# and the drums varied every 4 and 8 bars. Built by tools/drive_v2.py from
+# score_pp_drive.yaml, which is v1 and stays where it is. Card AUTO-MUSIC-NEXT.
+#
+# v1's lead was arpeggios: tools/hook_score.py measured 13 percent motif coverage and 46
+# of 100. v2 states one 2 bar cell (8 notes, 3 1 1 1 | 2 1 1 2, six of seven intervals
+# steps, one leap of a fourth, arch contour) and returns it in the key of each stretch,
+# so the ear has something to hold while the wheels stay in pulse 1. The literal
+# statements of K, Z, P and H are where CHARACTER-BIBLE puts them, and the lead peak
+# sits inside an octave and a half.
+#
+# Harmony, section lengths, tempo and the shot grid are v1's, unchanged: 125 bars of 3/4
+# at 126 bpm, 178.571 s on data/title_timing.json. Dissonance is DIS-02, the chromatic
+# lower neighbour (the sharp five), one per eight bars in a marked bar, and the flat six
+# to five that the cell's last note makes on every return (knowledge/MUSIC-DISSONANCE.md).
+meta:
+  profile: waltz
+  key: A minor
+  time: 3/4
+  bpm: 126
+  loop_start_section: A
+  loop_end_section: A_return
+  form: A 25 (the city, 35.7 s) + B 34 (the M25 and the M3, 48.6 s) + A_return 66 (Winchester, the sea, the docks, 94.3 s) = 125 bars, 178.571 s at 126 bpm on the title_timing grid (bar_steps 87, steps_per_bar 85.714). Section A and section B each loop in place; A_return does not, it ends on the tonic
+  texture_family: 'road piece: pulse 1 runs the wheels (Alberti eighths, six a bar, unbroken for 125 bars), the triangle takes the road surface (root on beat 1, fifth or approach on beat 3 in A and A_return; root, third, approach in B so the eighth pulse never stops), the VRC6 saw is the bodywork (oom pah stabs in A and A_return, one held shell pad in B), the lead is the driver''s line and it is silent for the first two bars and again at the cathedral caption. Contrast is made by adding surfaces, not by raising levels: section A has no kick, B has hats on every beat, A_return gets the kick, the echo and the fill'
+motifs:
+  K: Family call, literal in A minor at bars 5 and 6 (the two allowed statements) and at bar 74 in the cathedral, inverted at bar 13, augmented at bars 70, 71 and 124, moved to C major at bar 34. All of them on the statements CHARACTER-BIBLE names.
+  Ki: K inverted at bar 13 (A4 C5 B4 A4).
+  Kc: K in C major at bar 34 (G5 E5 F5 G5), the mode swap on the motorway.
+  Z: Zeus arpeggio, literal in C at bars 26 and 28; the cell's own arch takes the rising sequence's place in bars 42 to 48 so the hook does not compete with the arpeggio.
+  P: Tide in E minor at bars 60, 61, 64, 65 and 98, then the same shape in A minor at bars 114 and 115 for the lit ship.
+  Ph: 'The P hint early: the walking triangle of section B still approaches by the tide''s third, so the sea is in the motorway''s bass line before the melody says it.'
+  H: Bident at bars 17, 18, 38, 39, 94, 95 and 123, with the rest after each prong, never filled in.
+  hook_cell: 'The lead''s own cell: C5 D5 E5 G5 then A5 G5 E5 A4, eight notes over two bars, an arch, one leap and six of seven intervals steps. It returns 37 times, which is what hook_score.py measures as 63 percent coverage.'
+
+sections:
+  A:
+    bars: 25
+    chords: [Am, Am, F, E7, Am, E7, Am, Am,
+             F, Dm, E7, Am, Am, F, G, E7,
+             Am, Am, E7, E7, Am, G, E7, E7,
+             E7]
+    melody:
+      - [[r, 6]]                                             # 1
+      - [[r, 6]]                                             # 2
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 3
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 4
+      - [[E5, 3], [C5, 1], [D5, 1], [E5, 1]]                 # 5
+      - [[B4, 3], [G#4, 1], [A4, 1], [B4, 1]]                # 6
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 7
+      - [[A4, 6]]                                            # 8
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 9
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 10
+      - [[E5, 2], [D#5, 1], [E5, 1], [D5, 1], [C5, 1]]       # 11
+      - [[A4, 6]]                                            # 12
+      - [[A4, 2], [C5, 1], [B4, 1], [A4, 1], [r, 1]]         # 13
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 14
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 15
+      - [[E4, 6]]                                            # 16
+      - [[D5, 2], [C#5, 2], [r, 2]]                          # 17
+      - [[A4, 2], [G#4, 2], [r, 2]]                          # 18
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 19
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 20
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 21
+      - [[A5, 1], [G5, 1], [E5, 1], [C5, 3]]                 # 22
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 23
+      - [[A4, 6]]                                            # 24
+      - [[G#4, 6]]                                           # 25
+    texture: "the city and the wheels. vrc6 pulse a carries the melody, duty 0.25, vibrato on notes of three eighths and longer. pulse 1 runs the Alberti arpeggio in eighths for all 25 bars: six wheels a bar, never a gap. triangle the road surface, root on beat 1 and the fifth or an approach on beat 3. vrc6 saw the bodywork, oom pah shells on beats 2 and 3. noise soft hats on beats 2 and 3 only. no kick in this section: the car has not reached the motorway. vrc6 pulse b the guide tone, pulse 2 the echo one eighth late. DRUMS v2: the four and eight bar variation is written by drive_v2.py after the arrange step, so this texture line describes the voices and not the hats."
+
+  B:
+    bars: 34
+    chords: [C, G, C, G7, F, C, Dm, E7,
+             C, G, Am, F, Dm, Am, G, E7,
+             C, Am, F, G, C, G7, Am, E7,
+             Am, G, F, E7, Am, G, F, E7,
+             E7, E7]
+    melody:
+      - [[G4, 2], [C5, 1], [E5, 1], [G5, 1], [E5, 1]]        # 26
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 27
+      - [[G4, 2], [C5, 1], [E5, 1], [G5, 1], [E5, 1]]        # 28
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 29
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 30
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 31
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 32
+      - [[E5, 6]]                                            # 33
+      - [[G5, 3], [E5, 1], [F5, 1], [G5, 1]]                 # 34
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 35
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 36
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 37
+      - [[D5, 2], [C#5, 2], [r, 2]]                          # 38
+      - [[A4, 2], [G#4, 2], [r, 2]]                          # 39
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 40
+      - [[E5, 6]]                                            # 41
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 42
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 43
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 44
+      - [[E5, 2], [D#5, 1], [E5, 1], [D5, 1], [C5, 1]]       # 45
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 46
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 47
+      - [[A5, 1], [G5, 1], [E5, 1], [C5, 3]]                 # 48
+      - [[B4, 6]]                                            # 49
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 50
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 51
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 52
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 53
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 54
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 55
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 56
+      - [[A5, 1], [G5, 1], [E5, 1], [C5, 3]]                 # 57
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 58
+      - [[G#4, 6]]                                           # 59
+    texture: "the motorway, and this is where the eighths become the point. vrc6 pulse a duty 0.5, brighter: the melody bars are eighth arpeggios, so the lead itself is a wheel. pulse 1 keeps the Alberti eighths underneath. triangle walks: root, third, then the fifth or an approach, three pairs an eighth each, so a bar is six pulses and there is no break at the bar line. vrc6 saw holds one shell pad per bar, the third and the seventh only, because a full triad on the downbeat would put nine notes on it. noise hats on every beat. vrc6 pulse b the guide tone. no kick yet: the wheels are the rhythm and a kick here would turn a drive into a march. DRUMS v2: the four and eight bar variation is written by drive_v2.py after the arrange step, so this texture line describes the voices and not the hats."
+
+  A_return:
+    bars: 66
+    chords: [Em, Em, C, B7, Em, Em, Am, B7,
+             Em, Em, Am, F, C, G, Am, F,
+             Dm, E7, Am, Am, Dm, Am, F, C,
+             Dm, Am, Bb, F, C, G, Am, E7,
+             E7, Em, Em, Em, B7, Em, Em, Am,
+             Em, C, D, Em, B7, Em, Am, Am,
+             F, F, Dm, Dm, E7, E7, Am, Am,
+             F, Dm, E7, Am, C, G, Am, E7,
+             Am, Am]
+    melody:
+      - [[E4, 2], [G4, 2], [B4, 2]]                          # 60
+      - [[E5, 2], [D5, 2], [B4, 2]]                          # 61
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 62
+      - [[E5, 2], [D#5, 1], [E5, 1], [D5, 1], [B4, 1]]       # 63
+      - [[E4, 2], [G4, 2], [B4, 2]]                          # 64
+      - [[E5, 2], [D5, 2], [B4, 2]]                          # 65
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 66
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 67
+      - [[E5, 6]]                                            # 68
+      - [[E5, 6]]                                            # 69
+      - [[A4, 4], [F4, 2]]                                   # 70
+      - [[C5, 4], [A4, 2]]                                   # 71
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 72
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 73
+      - [[E5, 3], [C5, 1], [D5, 1], [E5, 1]]                 # 74
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 75
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 76
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 77
+      - [[A4, 6]]                                            # 78
+      - [[A4, 6]]                                            # 79
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 80
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 81
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 82
+      - [[E5, 2], [D#5, 1], [E5, 1], [D5, 1], [C5, 1]]       # 83
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 84
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 85
+      - [[A5, 1], [G5, 1], [E5, 1], [C5, 3]]                 # 86
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 87
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 88
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 89
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 90
+      - [[E5, 6]]                                            # 91
+      - [[G#4, 6]]                                           # 92
+      - [[E5, 6]]                                            # 93
+      - [[D5, 2], [C#5, 2], [r, 2]]                          # 94
+      - [[A4, 2], [G#4, 2], [r, 2]]                          # 95
+      - [[B4, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 96
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 97
+      - [[E5, 2], [D5, 2], [B4, 2]]                          # 98
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 99
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 100
+      - [[E5, 2], [D#5, 1], [E5, 1], [D5, 1], [C5, 1]]       # 101
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 102
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 103
+      - [[A5, 1], [G5, 1], [E5, 1], [B4, 3]]                 # 104
+      - [[E5, 6]]                                            # 105
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 106
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 107
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 108
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 109
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 110
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 111
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 112
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 113
+      - [[A4, 2], [C5, 2], [E5, 2]]                          # 114
+      - [[A5, 2], [G5, 2], [E5, 2]]                          # 115
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 116
+      - [[E5, 2], [D5, 1], [E5, 1], [D5, 1], [C5, 1]]        # 117
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 118
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 119
+      - [[A5, 1], [G5, 1], [E5, 1], [A4, 3]]                 # 120
+      - [[C5, 2], [D5, 1], [E5, 1], [G5, 2]]                 # 121
+      - [[A5, 1], [G5, 1], [E5, 1], [C5, 3]]                 # 122
+      - [[B4, 2], [G#4, 2], [D5, 2]]                         # 123
+      - [[A4, 4], [F4, 2]]                                   # 124
+      - [[A4, 6]]                                            # 125
+    texture: "the fullest section, because the film is arriving. vrc6 pulse a duty 0.25 with vibrato. pulse 1 the Alberti eighths, unbroken to the last bar. triangle the road surface, root and fifth, as in A. vrc6 saw oom pah shells. noise hats on beats 2 and 3, and a fill on the last bar of the section, which is bar 125. dpcm kick on beat 1 of every bar: the first time in the cue the downbeat is struck, which is what makes the docks read as an arrival. pulse 2 the echo, vrc6 pulse b silent in this section (the oom pah takes that register). DRUMS v2: the four and eight bar variation is written by drive_v2.py after the arrange step, so this texture line describes the voices and not the hats."

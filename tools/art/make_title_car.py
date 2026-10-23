@@ -46,11 +46,10 @@ the tyre bottoms touch it.
 
 The 3 body frames differ only by a 1 px vertical bob of the body.
 
-The bust tiles are 12x12. Only the head and the shoulders are drawn, in the
-lower 8 rows of the tile, so that when the tile is pasted at y 4 the face sits
-inside the window band, which is rows 8 to 15. Konrad is the driver, in the front
-window on the right of the frame. Zander is the passenger, in the rear window to
-his left, one pixel column further back.
+The bust tiles are 12x12 and use all 12 rows: the head fills rows 0 to 7 (the window band, when the
+tile is pasted at y 4, is rows 4 to 11 of the frame, so the face sits in the glass) and the shoulders
+fill rows 8 to 11 below it. Konrad is the driver, in the front window on the right of the frame.
+Zander is the passenger, in the rear window to his left, one pixel column further back.
 
 PLACEMENT (the offsets the composer needs, relative to the car origin)
 
@@ -96,6 +95,7 @@ INK = 0            # #0b0b0f  the glass band, the wheel wells, the outlines
 ASPHALT = 1        # #1c1c24  the road
 DIM = 4            # #7a7a88  dim grey, the beard, the reflections
 BRIGHT = 5         # #c8c8d4  white, the chrome, the spokes
+SEA = 8            # #11485c  the dark blue of the passenger's lit side ($0C in the title scene)
 BROWN = 15         # #7d4a1a  the suitcase
 SKIN_DEEP = 16     # #a86d2a  a face in shadow
 SKIN = 17          # #d8a55c  a face
@@ -113,6 +113,12 @@ GOLD = 41          # #e8c65a  the headlight, the lightning, the watch face
 NIGHT = 42         # #0a0614  the storm cloud body, the night sky
 
 # The character legend for the pixel art below. A space and a dot are transparent.
+#
+# Two of these letters exist for the busts and are chosen the other way round: the letter names the
+# 2C02 entry the finished art will carry, not the drawing palette, because a 12x12 bust has no room
+# for a colour that enforcement will only move. "U" is $0C, the dark blue of scene_title sprite
+# palette 2; "W" is already $10 light grey. Both sit in one palette, so the right half of a bust can
+# be blue and pale without asking the scene for a colour it does not hold.
 LEGEND = {
     " ": None,
     ".": None,
@@ -134,6 +140,7 @@ LEGEND = {
     "Y": GOLD,
     "o": BROWN,
     "C": NIGHT,
+    "U": SEA,
 }
 
 
@@ -429,6 +436,8 @@ def build_exhaust(frame: int) -> Image.Image:
 # ---------------------------------------------------------------------------------------------------
 
 BUST_W, BUST_H = 12, 12
+# The bust art fills its 12 rows: the head in rows 0 to 7, the shoulders in rows 8 to 11. BUST_TOP is
+# where the tile sits inside the 16x16 shipping frame (FRAMES below), not where the drawing starts.
 BUST_TOP = 4
 
 # The frame every sprite ships in, and where its art sits inside that frame.
@@ -455,98 +464,151 @@ def fit_frame(image: Image.Image, name: str) -> Image.Image:
     out.alpha_composite(image, (x, y))
     return out
 
-# The driver. This bust was drawn for the retired Ronan Harrow design, so the costume on it (flat cap, grey
-# beard, tweed shoulders, a gloved hand on the wheel) is stale against CHARACTER-BIBLE, which has Konrad at 47
-# with long blond hair streaked white and grey, a close beard, a charcoal blazer or dark knit, a lanyard and a
-# wristwatch, and no cap. The pose, the silhouette and the watch glance are right and are kept.
+# ---------------------------------------------------------------------------------------------------
+# The cast, in the costume CHARACTER-BIBLE gives them
+#
+# A 16x16 frame costs two 8x16 OAM sprites, one per 8 px column band, and each band may use three
+# entries of one sprite palette (data/palettes/scene_title.json, rule in knowledge/ART-BIBLE.md 1).
+# The art is 12 px wide at frame column 2, so art columns 0 to 5 fall in the left band and columns 6
+# to 11 in the right one. Both busts are drawn so each band lands inside a palette with no pixel left
+# over for the enforcement pass to move:
+#
+#   left band, frame columns 2 to 7    sp1: $0F black, $00 grey, $28 gold
+#   right band, frame columns 8 to 13  sp2: $0C dark blue, $10 light grey
+#
+# Konrad is warm in both bands: grey-blond hair, a gold-lit face, a grey close beard and a charcoal
+# blazer with a grey shirt and a lanyard. Zander's LIT band is the blue one, which is how the light
+# blue bomber reaches a title scene whose four sprite palettes hold no skin tone and no second blue:
+# his jacket's lit half is $10 light grey against $0C dark blue, and the pale hair on that side is
+# the headlight. The cost of that budget is stated in SPRITE-CRITIQUE 3.8: a 12 px face in three
+# colours cannot carry a blond and a light blue in the same 8x16 band, so the blond is on the shaded
+# half and the blue on the lit half, the way a NES sprite splits a two-palette figure.
+
+# The driver, Konrad Skye, 47, AI research scientist. CHARACTER-BIBLE: long blond hair streaked
+# white and grey, a close beard, a charcoal blazer or dark knit over an open collar shirt, an ID
+# lanyard, a wristwatch, no cap. Rows 0 to 7 are the head and fill the window band; rows 8 to 11 are
+# the shoulders, which sit below the sill the way a seated driver does.
 KONRAD_ROWS = [
-    "    NNNNNN    ",   # the flat cap
-    "   NNNNNNNNN  ",   # the cap and its peak, pointing forward
-    "   SSSSSSSs   ",   # the face
-    "   SKSSKKSs   ",   # the face, with the eyes
-    "   DDDDDDDs   ",   # the grey beard
-    "    DDDDs     ",   # the beard under the chin
-    "  mnnnnnnnnn  ",   # the tweed shoulders
-    " mnnmnnnnmnn  ",   # the tweed check
+    "   DYYYYD   ",   # the crown of the hair, blond with the grey of the streaks at the temples
+    "  YYYYYYYY  ",   # the hair
+    " DYYYYYYYYD ",   # the long hair flaring out, the grey edge that reads on black glass
+    " DYKKKKKKYD ",   # the hairline across the forehead
+    "  YYYYYYYY  ",   # the face
+    "  YKKYYKKY  ",   # the eyes, 2 px each with a 2 px bridge
+    "  YYYYKYYY  ",   # the nose
+    "  DDDKKDDD  ",   # the mouth, in the close grey beard
+    " DKKDYYDKKD ",   # the neck, the shirt collar, the charcoal blazer
+    " DKDDYYDDKD ",   # the open collar V
+    " DKKDYDDYKK ",   # the lanyard strap, two strands
+    " DKKDDYYDDK ",   # the ID badge on the lanyard
 ]
 
-# The passenger. Drawn for the retired Theo Skye design: tall messy blond hair, a wired earbud and an OLIVE
-# bomber collar. The hair and the earbud are Zander's; the collar is not, because CHARACTER-BIBLE says the
-# bomber is LIGHT BLUE and says so in the negative (not green). The collar is stale and stays stale until the
-# bust is redrawn.
+# The passenger, Zander Skye, 19, first year student. CHARACTER-BIBLE: messy blond hair, an oversized
+# bomber in LIGHT BLUE (not green), earbuds. Left band warm (gold hair, gold face, black edge), right
+# band pale and blue: light grey hair and face, dark blue hairline and jacket shadow, which is the
+# lit side of the bomber. The earbud is the one light pixel at the ear; at 12 px it is a dot and
+# nothing more.
 ZANDER_ROWS = [
-    "  h hhhhhh h  ",   # the tall messy hair
-    "   hhhhhhhh   ",   # the hair
-    "   SSSSSSSs   ",   # the face
-    "   SKSSKKSs   ",   # the face, with the eyes
-    "   SSKKSSs  K ",   # the open mouth, and the headphone wire
-    "   GGGGGGGGK  ",   # the olive bomber collar, and the wire
-    "  GggggggggG  ",   # the bomber jacket
-    " GggggggggggG ",   # the shoulders
+    "   YYYWWW   ",   # the messy hair, tufts
+    "  YYYYWWWW  ",   # the hair, blond on the shaded band and pale under the headlight
+    " DYYYYWWWWD ",   # the hair falling past the ear
+    " DYKKKUUUUD ",   # the hairline, black on the shaded band and dark blue on the lit one
+    "  YYYYWWWW  ",   # the forehead
+    "  YKKSUUWW  ",   # the eyes
+    "  YYYYKWWW  ",   # the mouth, closed until the turn
+    "  DDKKUUDD  ",   # the jaw
+    " DDYYYWWWDD ",   # the neck and the bomber collar
+    " DDKKWWWWDD ",   # the shoulders
+    " DDKDDWUWWD ",   # the jacket and its zip
+    " DDDKKWUWWD ",   # the hem
 ]
+
+
+def bust_rows(rows: list[str]) -> list[str]:
+    """Assert the drawing is exactly BUST_W wide, rather than trimming it silently.
+
+    stamp_rows pads and trims a row that does not fit, which is right for the car and wrong for a
+    face: a row of 14 used to be cut from both sides and lose the eye on the edge. A bust row is
+    written to the tile width or the sheet stops.
+    """
+    for index, row in enumerate(rows):
+        if len(row) != BUST_W:
+            raise SystemExit("%d characters on bust row %d, the tile is %d wide: %r"
+                             % (len(row), index, BUST_W, row))
+    return rows
+
+
+def shifted(image: Image.Image) -> Image.Image:
+    """The same drawing one pixel down: the idle bob, and the only movement Konrad needs at rest."""
+    return shift_down(image, 1)
 
 
 def build_konrad(frame: int) -> Image.Image:
-    """Konrad Skye, the driver. The drawing is the retired Ronan Harrow bust: late fifties, grey beard, flat cap,
-    tweed, driving gloves. The costume is stale against CHARACTER-BIBLE (see KONRAD_ROWS); the pose is not.
+    """Konrad Skye, the driver, in the costume CHARACTER-BIBLE gives him (see KONRAD_ROWS).
 
-    Frames 5 to 7 are the glance at the wristwatch: the eyes move across the face, the wrist comes
-    up with the watch on it, and the gloved hand stays on the wheel. Checking the wristwatch is Konrad's
-    own tell, so this animation belongs to him whichever costume he ends up wearing.
+    Frames 0 to 4 are the drive: the head bobs one pixel on the off beat, and on frame 4 his eyes
+    come round to the road. Frames 5 to 7 are the glance at the wristwatch: the eyes move right, the
+    forearm comes up one pixel a frame and the grey watch face sits on the wrist. Checking the watch
+    is Konrad's tell in CHARACTER-BIBLE, and it is the reason the role was decidable at all.
     """
-    rows = [list(row) for row in KONRAD_ROWS]
-    wrist = None
-    if frame >= 5:
-        # The eyes move one pixel to the right, towards the watch.
-        rows[3][3] = "S"
-        rows[3][4] = "K"
-        rows[3][7] = "S"
-        rows[3][8] = "K"
-        # The wrist comes up, further with each frame of the glance.
-        wrist = {5: (10, 6), 6: (10, 5), 7: (10, 4)}[frame]
-        rows[wrist[1]][wrist[0]] = "N"
+    rows = [list(row) for row in bust_rows(KONRAD_ROWS)]
     image = new_image(BUST_W, BUST_H)
-    stamp_rows(image, BUST_TOP, ["".join(row) for row in rows])
-    if wrist is not None:
-        # The watch face, a bright pixel on the wrist.
-        image.putpixel((wrist[0], wrist[1] - 1), rgba(GOLD))
-    # The gloved hand, on the wheel, in the bottom right of the tile.
-    image.putpixel((6, 11), rgba(DIM))
-    image.putpixel((7, 11), rgba(DIM))
+    if frame in (1, 3):
+        # The bob. Drawn first, because the watch and the eyes are placed on the raised head.
+        stamp_rows(image, 0, ["".join(row) for row in rows])
+        return shifted(image)
+    if frame >= 4:
+        # The eyes come round, one pixel to the right: row 5 carries them at 3,4 and 7,8, and they
+        # move to 4,5 and 8,9.
+        rows[5][3] = "S"
+        rows[5][5] = "K"
+        rows[5][7] = "S"
+        rows[5][9] = "K"
+    if frame >= 5:
+        # The forearm comes up the right edge of the blazer, one row a frame, the watch on the wrist.
+        hand = {5: 10, 6: 9, 7: 8}[frame]
+        rows[hand][9] = "S"
+        rows[hand][10] = "W"
+        for below in range(hand + 1, 12):
+            rows[below][9] = "K"
+            if below != hand + 1:
+                rows[below][10] = "K"
+    stamp_rows(image, 0, ["".join(row) for row in rows])
     return image
 
 
 def build_zander(frame: int) -> Image.Image:
-    """Zander Skye, the passenger: nineteen, restless, messy blond hair, wired earbuds, a bomber jacket.
-    The jacket in this drawing is olive, which CHARACTER-BIBLE rejects in favour of light blue (see ZANDER_ROWS).
+    """Zander Skye, the passenger, in the costume CHARACTER-BIBLE gives him (see ZANDER_ROWS).
 
-    Frames 0 to 3 are the idle, the head bobbing to the music. Frames 4 to 7 are the turn to say
-    something: the head comes round towards the driver and the mouth opens.
+    Frames 0 to 3 are the idle, the head bobbing on the off beat. Frames 4 to 7 are the turn to
+    speak: the head comes round towards the driver, who is to his right, and the mouth opens a row
+    at a time, so the "..." bubble lands on a mouth that is already open.
     """
-    rows = [list(row) for row in ZANDER_ROWS]
+    rows = [list(row) for row in bust_rows(ZANDER_ROWS)]
+    image = new_image(BUST_W, BUST_H)
+    if frame in (1, 3):
+        stamp_rows(image, 0, ["".join(row) for row in rows])
+        return shifted(image)
     if frame >= 4:
         turn = frame - 4
         # The head comes round towards the driver, on the right of the frame.
-        for index in range(5):
+        for index in range(0, 8):
             rows[index] = ["."] + rows[index][:-1]
         if turn >= 1:
-            rows[4][4] = "K"
-            rows[4][5] = "K"
+            # The mouth opens under the nose, the left half of it in the black of the shaded band and
+            # the right half in the dark blue of the lit one.
+            rows[6][5] = "K"
+            rows[6][6] = "U"
         if turn >= 2:
-            rows[3][4] = "S"
-            rows[3][5] = "."
-            rows[3][8] = "S"
-            rows[3][9] = "."
+            # The near eye on row 5 comes round with the head: 3,4 becomes 4,5.
+            rows[5][3] = "S"
+            rows[5][5] = "K"
         if turn >= 3:
-            rows[2][4] = "h"
-            rows[2][5] = "h"
-    else:
-        # The bob: the head moves down on the off beat, the shoulders stay.
-        if (0, 1, 0, 1)[frame]:
-            for index in range(5):
-                rows[index] = rows[index][1:] + ["."]
-    image = new_image(BUST_W, BUST_H)
-    stamp_rows(image, BUST_TOP, ["".join(row) for row in rows])
+            # The far eye follows it and the mouth widens into the word.
+            rows[5][7] = "W"
+            rows[5][9] = "U"
+            rows[6][7] = "U"
+    stamp_rows(image, 0, ["".join(row) for row in rows])
     return image
 
 

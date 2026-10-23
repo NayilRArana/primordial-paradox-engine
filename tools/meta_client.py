@@ -67,6 +67,11 @@ Modes: record calls the API and writes the entry; replay never touches the netwo
 CacheMiss when the entry is missing; live calls the API and writes nothing. The default is
 record, because the demo must never depend on a live call succeeding.
 
+The directory is a build time input: the engine never opens it, so tools\\sync_data.py lists
+ai_cache/ in NOT_RUNTIME_DIRS and the game bundle does not carry it (the same reason
+data\\palette_recipes.json is not mirrored), and tests/test_project.py pins that. The entries
+stay committed anyway, because replay and the offline demo read them from data\\.
+
 The committed cache is honestly labelled: entries recorded with PP_AI_BACKEND=mock carry
 backend "mock" and network false, and they are what CI and the offline demo replay. Real
 Meta responses can only be recorded on a machine that has the key, with --live omitted and

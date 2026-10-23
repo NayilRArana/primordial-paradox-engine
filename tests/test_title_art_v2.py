@@ -180,6 +180,26 @@ def test_generators_are_deterministic(tmp_path):
         assert os.path.getsize(os.path.join(TITLE_DIR, sprite + ".png")) > 0
 
 
+def test_the_two_busts_regenerate_from_the_committed_tree(tmp_path):
+    """make_title_car.py draws the busts, the scene pass enforces them, and the committed sheets match.
+
+    This is the reproducibility half of the card: from a clean checkout, generating and then enforcing has to
+    land on the same bytes that are committed. Without it a hand repaint sits in the tree looking legitimate
+    while the generator produces something else, which is how these two sheets drifted before.
+    """
+    root = tmp_path / "busts"
+    shutil.copytree(os.path.join(ROOT, "data"), root / "data")
+    shutil.copytree(TITLE_DIR, root / "game" / "sprites_src" / "title")
+    drawn = run(os.path.join("tools", "art", "make_title_car.py"), "--root", str(root))
+    assert drawn.returncode == 0, drawn.stdout + drawn.stderr
+    enforced = run(os.path.join("tools", "art", "scene_palette.py"), "apply", "--scene", "title",
+                   "--write", "--root", str(root))
+    assert enforced.returncode == 0, enforced.stdout + enforced.stderr
+    for sprite in ("spr_title_konrad", "spr_title_zander"):
+        regenerated = os.path.join(str(root), "game", "sprites_src", "title", sprite + ".png")
+        assert sha256(regenerated) == sha256(os.path.join(TITLE_DIR, sprite + ".png")), sprite
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # The three things the card names that a colour count cannot see: the drop shadow, the crossing, the shimmer.
 

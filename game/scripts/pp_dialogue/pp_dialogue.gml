@@ -74,28 +74,69 @@ function pp_dialogue_rows(_text) {
     return _rows;
 }
 
-/// Build pages from a dialogue record. One source line is one page (a source line break waits for confirm, rule 2),
-/// and a page holds at most PP_TEXT_ROWS rows.
-function pp_dialogue_build(_row) {
+/// --- Dialogue v2 (decision D2, 2026-10-22) --------------------------------------------------------------------
+/// An entry carries id, speaker and exactly one of `lines` or `pages`. `pages` is the box's own shape: 1 to 3 pages of
+/// 1 to 3 lines, each line already 30 characters or fewer. A page may name its own speaker, which is how a scene where
+/// the narrator and a sentry trade pages keeps the right name plate without becoming two entries.
+/// A choice list is 1 to 3 items: a label (12 characters, the panel column), the flags it sets, and an optional `goto`.
+/// The flag names are data (data/flags.json) and the ledger owns them; this module only applies them, in one place.
+/// No closures: the loops are written out for the same reason the rest of this file writes them out.
+#macro PP_CHOICE_PANEL_W 96
+#macro PP_CHOICE_ARROW_W 6
+#macro PP_CHOICE_GAP 4
+
+/// Build pages from a dialogue record. In the shorthand one source line is one page (a source line break waits for
+/// confirm, rule 2) and a page holds at most PP_TEXT_ROWS rows; in the `pages` shape the data has already decided the
+/// page breaks, so each page is taken as written and only re-paged if wrapping made it taller than the box.
+function pp_dialogue_pages(_row) {
     var _pages = [];
-    var _lines = _row.lines;
+    if (variable_struct_exists(_row, "pages") && is_array(_row.pages)) {
+        var _p = 0;
+        while (_p < array_length(_row.pages)) {
+            var _page = _row.pages[_p];
+            var _speaker = _row.speaker;
+            if (variable_struct_exists(_page, "speaker")) _speaker = _page.speaker;
+            pp_dialogue_push_page(_pages, _page.lines, _speaker);
+            _p += 1;
+        }
+    } else {
+        pp_dialogue_push_page(_pages, _row.lines, _row.speaker);
+    }
+    return _pages;
+}
+
+/// Wrap one run of source lines into pages of at most PP_TEXT_ROWS rows, each page carrying the speaker it is shown
+/// under. A source line that wraps past the box becomes another page rather than a shorter box (rule 4).
+function pp_dialogue_push_page(_pages, _lines, _speaker) {
     var _i = 0;
     while (_i < array_length(_lines)) {
         var _rows = pp_dialogue_rows(_lines[_i]);
         var _start = 0;
         while (_start < array_length(_rows)) {
-            var _page_rows = [];
+            var _chunk = [];
             var _r = _start;
             while (_r < array_length(_rows) && _r < _start + PP_TEXT_ROWS) {
-                array_push(_page_rows, _rows[_r]);
+                array_push(_chunk, _rows[_r]);
                 _r += 1;
             }
-            array_push(_pages, _page_rows);
+            array_push(_pages, { speaker: _speaker, rows: _chunk });
             _start += PP_TEXT_ROWS;
         }
         _i += 1;
     }
     return _pages;
+}
+
+/// The page rows alone, for a caller that does not draw the name plate.
+function pp_dialogue_build(_row) {
+    var _pages = pp_dialogue_pages(_row);
+    var _out = [];
+    var _i = 0;
+    while (_i < array_length(_pages)) {
+        array_push(_out, _pages[_i].rows);
+        _i += 1;
+    }
+    return _out;
 }
 
 /// One page's rows as the single item list the reveal machine advances through. The rows stay separate because the box
@@ -115,21 +156,65 @@ function pp_dialogue_page_unit(_rows) {
     return _unit;
 }
 
-/// Open a dialogue by id: {id, speaker, pages, reveal, closed}. The reveal is the one in pp_text; this module holds no
-/// cursor, no hold and no step count of its own.
+/// A flag list off a data row, copied so the runtime never edits the loaded data by accident.
+function pp_dialogue_flag_list(_row, _field) {
+    var _out = [];
+    if (!variable_struct_exists(_row, _field)) return _out;
+    var _names = _row[$ _field];
+    if (!is_array(_names)) return _out;
+    var _i = 0;
+    while (_i < array_length(_names)) {
+        array_push(_out, _names[_i]);
+        _i += 1;
+    }
+    return _out;
+}
+
+/// The choice list off a data row: label, the flags it sets, and the dialogue it goes to ("" for close).
+function pp_dialogue_choice_list(_row) {
+    var _out = [];
+    if (!variable_struct_exists(_row, "choices") || !is_array(_row.choices)) return _out;
+    var _i = 0;
+    while (_i < array_length(_row.choices)) {
+        var _choice = _row.choices[_i];
+        var _goto = "";
+        if (variable_struct_exists(_choice, "goto")) _goto = _choice.goto;
+        array_push(_out, {
+            label: _choice.label,
+            sets: pp_dialogue_flag_list(_choice, "sets"),
+            goto: _goto
+        });
+        _i += 1;
+    }
+    return _out;
+}
+
+/// Apply every flag in a data list. One writer for the ledger: pp_ledger owns flags, this module owns the box.
+/// Called before the box closes (D2.6) and before a `goto` opens the next entry, so a reply scene sees the flag.
+function pp_dialogue_apply_flags(_names) {
+    if (is_undefined(_names)) return;
+    var _i = 0;
+    while (_i < array_length(_names)) {
+        pp_ledger_set_flag(global.pp_ledger, _names[_i], true);
+        _i += 1;
+    }
+}
+
+/// Open a dialogue by id: {id, speaker, pages, sets, choices, cursor, reveal, closed}. The reveal is the one in
+/// pp_text; this module holds no cursor of its own for the typing, only the choice cursor.
 function pp_dialogue_open(_dialogue_id) {
     var _row = pp_data_find(global.pp_data.dialogue.dialogue, _dialogue_id);
     if (is_undefined(_row)) {
         show_debug_message("PP: no dialogue with id " + string(_dialogue_id));
         return undefined;
     }
-    var _pages = pp_dialogue_build(_row);
+    var _pages = pp_dialogue_pages(_row);
     if (array_length(_pages) == 0) return undefined;
 
     var _units = [];
     var _p = 0;
     while (_p < array_length(_pages)) {
-        array_push(_units, pp_dialogue_page_unit(_pages[_p]));
+        array_push(_units, pp_dialogue_page_unit(_pages[_p].rows));
         _p += 1;
     }
 
@@ -138,25 +223,85 @@ function pp_dialogue_open(_dialogue_id) {
         id: _row.id,
         speaker: _row.speaker,
         pages: _pages,
+        sets: pp_dialogue_flag_list(_row, "sets"),
+        choices: pp_dialogue_choice_list(_row),
+        cursor: 0,
         reveal: pp_text_reveal_begin(_units, _row.speaker, false),
         closed: false
     };
 }
 
-/// One step of the box: the machine types, the box draws whatever it has revealed.
+/// True when the box is on its last page and that page offers a choice: the page then waits for a pick, not a turn.
+function pp_dialogue_on_choice_page(_d) {
+    if (is_undefined(_d) || _d.closed) return false;
+    if (array_length(_d.choices) == 0) return false;
+    return (_d.reveal.unit + 1 >= array_length(_d.reveal.units));
+}
+
+/// Move the choice cursor one item, wrapping, which is spec 05's rule for the panel.
+function pp_dialogue_move_cursor(_d, _delta) {
+    if (is_undefined(_d) || _d.closed) return _d;
+    var _count = array_length(_d.choices);
+    if (_count == 0) return _d;
+    _d.cursor = (_d.cursor + _delta + _count) mod _count;
+    return _d;
+}
+
+/// Pick one choice: every flag in its `sets` is applied, then the box either continues at `goto` or closes (D2.3).
+/// Returns true when the box closed. A `goto` loads into the same struct, so a caller holding the box keeps its handle.
+function pp_dialogue_pick(_d, _index) {
+    if (is_undefined(_d) || _d.closed) return false;
+    if (!pp_dialogue_on_choice_page(_d)) return false;
+    if (_index < 0 || _index >= array_length(_d.choices)) return false;
+
+    var _choice = _d.choices[_index];
+    pp_dialogue_apply_flags(_choice.sets);
+    pp_dialogue_apply_flags(_d.sets);
+
+    if (_choice.goto != "") {
+        var _next = pp_dialogue_open(_choice.goto);
+        if (!is_undefined(_next)) {
+            _d.id = _next.id;
+            _d.speaker = _next.speaker;
+            _d.pages = _next.pages;
+            _d.sets = _next.sets;
+            _d.choices = _next.choices;
+            _d.cursor = 0;
+            _d.reveal = _next.reveal;
+            _d.closed = false;
+            return false;
+        }
+        show_debug_message("PP: a choice goes to no dialogue " + string(_choice.goto));
+    }
+
+    _d.closed = true;
+    return true;
+}
+
+/// One step of the box: the machine types, the box draws whatever it has revealed. On the page that offers a choice
+/// this is also where the panel listens, because the pick is the box's business and no scene command knows about it
+/// (D2.4). A pick that loads another entry continues in the same box, so the caller's handle stays good.
 function pp_dialogue_step(_d) {
     if (is_undefined(_d) || _d.closed) return;
     pp_text_reveal_step(_d.reveal, pp_action("confirm"));
+    if (!pp_dialogue_on_choice_page(_d)) return;
+    if (_d.reveal.revealed < pp_text_unit_length(_d.reveal)) return;
+    if (pp_pressed("up")) pp_dialogue_move_cursor(_d, -1);
+    if (pp_pressed("down")) pp_dialogue_move_cursor(_d, 1);
+    if (pp_pressed("confirm")) pp_dialogue_pick(_d, _d.cursor);
 }
 
 /// Confirm: complete the page if it is still typing, otherwise turn the page or close. Returns true when it closed.
+/// A page that offers a choice does not turn on confirm: the pick decides where the box goes next.
 function pp_dialogue_advance(_d) {
     if (is_undefined(_d) || _d.closed) return true;
     if (_d.reveal.revealed < pp_text_unit_length(_d.reveal)) {
         pp_text_reveal_complete(_d.reveal);
         return false;
     }
+    if (pp_dialogue_on_choice_page(_d)) return false;
     if (pp_text_reveal_next(_d.reveal)) {
+        pp_dialogue_apply_flags(_d.sets);
         _d.closed = true;
         return true;
     }
@@ -186,15 +331,18 @@ function pp_dialogue_draw(_d) {
 
     if (is_undefined(_d) || _d.closed) return;
 
-    if (_d.speaker != "narrator" && _d.speaker != "") {
+    var _page = _d.reveal.unit;
+    var _page_data = _d.pages[_page];
+    var _rows = _page_data.rows;
+    var _plate = _page_data.speaker;
+
+    if (_plate != "narrator" && _plate != "") {
         draw_set_colour(pp_role_colour("paper"));
         draw_rectangle(PP_BOX_X + 4, PP_BOX_Y - 6, PP_BOX_X + 68, PP_BOX_Y + 6, false);
         draw_set_colour(pp_role_colour("accent"));
-        draw_text(PP_BOX_X + 8, PP_BOX_Y - 4, string_upper(_d.speaker));
+        draw_text(PP_BOX_X + 8, PP_BOX_Y - 4, string_upper(_plate));
     }
 
-    var _page = _d.reveal.unit;
-    var _rows = _d.pages[_page];
     var _budget = _d.reveal.revealed;
     var _r = 0;
     draw_set_colour(pp_role_colour("ink"));
@@ -204,6 +352,30 @@ function pp_dialogue_draw(_d) {
         _budget -= array_length(_rows[_r]);
         if (_budget < 0) _budget = 0;
         _r += 1;
+    }
+
+    // The choice panel: 96 pixels, right aligned inside the text area, one 6 pixel arrow, arrows wrap (spec 05).
+    if (pp_dialogue_on_choice_page(_d) && _budget == 0) {
+        var _panel_x = PP_TEXT_RIGHT - PP_CHOICE_PANEL_W;
+        draw_set_colour(pp_role_colour("paper"));
+        draw_rectangle(_panel_x - PP_CHOICE_GAP, PP_TEXT_Y - 2,
+            PP_TEXT_RIGHT, PP_TEXT_Y + array_length(_d.choices) * PP_TEXT_LINE_H, false);
+        draw_set_colour(pp_role_colour("ink"));
+        draw_rectangle(_panel_x - PP_CHOICE_GAP, PP_TEXT_Y - 2,
+            PP_TEXT_RIGHT, PP_TEXT_Y + array_length(_d.choices) * PP_TEXT_LINE_H, true);
+        var _c = 0;
+        while (_c < array_length(_d.choices)) {
+            var _choice_y = PP_TEXT_Y + _c * PP_TEXT_LINE_H;
+            if (_c == _d.cursor) {
+                draw_set_colour(pp_role_colour("accent"));
+                draw_rectangle(_panel_x - PP_CHOICE_GAP - PP_CHOICE_ARROW_W - 1, _choice_y,
+                    _panel_x - PP_CHOICE_GAP - 2, _choice_y + PP_CHOICE_ARROW_W - 1, false);
+            }
+            draw_set_colour(pp_role_colour("ink"));
+            draw_text(_panel_x, _choice_y, _d.choices[_c].label);
+            _c += 1;
+        }
+        return;
     }
 
     var _phase = _d.reveal.steps mod (PP_ARROW_ON + PP_ARROW_OFF);
