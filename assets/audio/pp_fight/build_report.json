@@ -1,0 +1,60 @@
+{
+  "bpm": 168,
+  "tempo_us": 357143,
+  "key": "D minor",
+  "seam": "the FIGHT's bar 16 is the CALM's bar 1, note for note",
+  "modules": [
+    {
+      "label": "FIGHT",
+      "file": "pp_fight_fight.mid",
+      "bars": 16,
+      "bar_multiple_of_4": true,
+      "seconds": 22.857,
+      "notes": 552,
+      "voices": {
+        "vrc6 pulse a": 73,
+        "vrc6 pulse b": 15,
+        "vrc6 saw": 17,
+        "pulse 1": 88,
+        "pulse 2": 65,
+        "triangle": 121,
+        "noise": 81,
+        "dpcm": 92
+      }
+    },
+    {
+      "label": "CALM",
+      "file": "pp_fight_calm.mid",
+      "bars": 16,
+      "bar_multiple_of_4": true,
+      "seconds": 22.857,
+      "notes": 148,
+      "voices": {
+        "vrc6 pulse a": 38,
+        "vrc6 saw": 16,
+        "pulse 2": 36,
+        "triangle": 16,
+        "noise": 0,
+        "dpcm": 42
+      }
+    },
+    {
+      "label": "STATES",
+      "file": "pp_fight_states.mid",
+      "bars": 32,
+      "bar_multiple_of_4": true,
+      "seconds": 45.714,
+      "notes": 700,
+      "voices": {
+        "vrc6 pulse a": 111,
+        "vrc6 pulse b": 15,
+        "vrc6 saw": 33,
+        "pulse 1": 88,
+        "pulse 2": 101,
+        "triangle": 137,
+        "noise": 81,
+        "dpcm": 134
+      }
+    }
+  ]
+}

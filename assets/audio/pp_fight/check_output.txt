@@ -1,0 +1,68 @@
+voice map, notes per module
+  dpcm             fight   92   calm   42
+  noise            fight   81   calm    0
+  pulse 1          fight   88   calm    0
+  pulse 2          fight   65   calm   36
+  triangle         fight  121   calm   16
+  vrc6 pulse a     fight   73   calm   38
+  vrc6 pulse b     fight   15   calm    0
+  vrc6 saw         fight   17   calm   16
+
+rendered files
+  pp_fight_fight   .mid 5534 bytes, .mp3 549868 bytes, .ogg 292878 bytes, .wav 2016044 bytes
+  pp_fight_calm    .mid 1601 bytes, .mp3 549868 bytes, .ogg 298485 bytes, .wav 2016044 bytes
+  pp_fight_states  .mid 6970 bytes, .mp3 1097812 bytes, .ogg 574981 bytes, .wav 4029422 bytes
+  pp_fight_fight   loop 16 bars, 1008000 samples, seam difference 0
+  pp_fight_calm    loop 16 bars, 1008000 samples, seam difference 0
+
+phrase length
+  FIGHT  16 bars = 4 whole 4 bar phrases, 22.86 s at 168 bpm, multiple of 4: True
+  CALM   16 bars = 4 whole 4 bar phrases, 22.86 s at 168 bpm, multiple of 4: True
+  STATES 32 bars = 8 whole 4 bar phrases, 45.71 s at 168 bpm, multiple of 4: True
+  the fight loop is 22.86 s, so the 20 s the card asks for lands inside the
+  varied second half, not at the seam
+
+call and response: fight bar 16 against calm bar 1
+  vrc6 pulse a     fight [(0, 480, 74), (480, 480, 74)]
+                   calm  [(0, 480, 74), (480, 480, 74)]
+  triangle         fight [(0, 1880, 50)]
+                   calm  [(0, 1880, 50)]
+
+states render, the junction at bar 17
+  vrc6 pulse a     fight bar 16 [(0, 480, 74), (480, 480, 74)] | states bar 17 [(0, 480, 74), (480, 480, 74)] | equal True
+  triangle         fight bar 16 [(0, 1880, 50)] | states bar 17 [(0, 1880, 50)] | equal True
+  vrc6 saw         fight bar 16 [(0, 1880, 50), (0, 1880, 57)] | states bar 17 [(0, 1880, 50), (0, 1880, 57)] | equal True
+  pulse 1          fight bar 16 [] | states bar 17 [] | equal True
+  pulse 2          fight bar 16 [] | states bar 17 [] | equal True
+  the kit changes at the junction by design (BAT-09 rims to CLM-02 rim ticks):
+  noise            fight bar 16 1 hits | calm bar 1 0 hits
+  dpcm             fight bar 16 3 hits | calm bar 1 3 hits
+
+hook score
+  pp_fight_fight   84 of 100 (hook_report_fight.json)
+  pp_fight_calm    67 of 100 (hook_report_calm.json)
+
+writing rules
+  long dashes found: none
+
+checks
+  [pass] junction_pulse_1
+  [pass] junction_pulse_2
+  [pass] junction_triangle
+  [pass] junction_vrc6_pulse_a
+  [pass] junction_vrc6_saw
+  [pass] kit_changes_at_junction
+  [pass] loop_samples_pp_fight_calm
+  [pass] loop_samples_pp_fight_fight
+  [pass] loop_seam_zero_pp_fight_calm
+  [pass] loop_seam_zero_pp_fight_fight
+  [pass] multiple_of_4_CALM
+  [pass] multiple_of_4_FIGHT
+  [pass] multiple_of_4_STATES
+  [pass] no_long_dashes
+  [pass] renders_pp_fight_calm
+  [pass] renders_pp_fight_fight
+  [pass] renders_pp_fight_states
+  [pass] seam_triangle
+  [pass] seam_vrc6_pulse_a
+RESULT: PASS
