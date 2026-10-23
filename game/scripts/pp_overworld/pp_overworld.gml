@@ -27,6 +27,10 @@ function pp_overworld_new(_map_id, _spawn_name) {
         camera_follow: true,
         cam_pan: undefined,
         fade: undefined,
+        // The world's own frame clock, counted by pp_overworld_step and handed to pp_map_draw, which reads it for the
+        // animated tiles. It is declared here because the first draw of any overworld reads it: a missing key ends the
+        // game on the first frame (card FIRST-FIGHT-WIRE, measured in build/first_fight_game.log at pp_overworld_draw 478).
+        steps: 0,
         shake_steps: 0,
         shake_strength: 0,
         music: "",
@@ -178,6 +182,11 @@ function pp_overworld_start_scene(_world, _scene_id) {
 function pp_overworld_start_encounter(_world, _encounter_id) {
     if (_world.battle_request != "") return false;
     _world.battle_request = _encounter_id;
+    // The proof line FIRST-FIGHT-WIRE asks for: one unconditional line naming the encounter, the map and the tile the
+    // hero stood on when the trigger fired, so a run that reached the fight and a run that never did can be told apart
+    // from the log alone. It is deliberately not behind PP_DEBUG, because the release build is where that proof is wanted.
+    show_debug_message("PP: battle start " + string(_encounter_id) + " on " + string(_world.map.id)
+        + " " + string(_world.hero.tx) + "," + string(_world.hero.ty));
     return true;
 }
 
@@ -318,7 +327,9 @@ function pp_overworld_actor_ahead(_world) {
 function pp_overworld_step(_world) {
     if (is_undefined(_world)) return;
 
-    // Clocks that run whether or not anything else does.
+    // Clocks that run whether or not anything else does. The world clock climbs every step so the animated tiles keep
+    // moving through a scene, a dialogue or a walk; pp_map_draw reads it on the same frame it is drawn.
+    _world.steps += 1;
     if (_world.shake_steps > 0) _world.shake_steps -= 1;
     if (_world.trigger_lock > 0) _world.trigger_lock -= 1;
 
@@ -401,8 +412,11 @@ function pp_overworld_step(_world) {
 
     if (_world.trigger_lock <= 0 && pp_pressed("confirm")) {
         var _talk = pp_overworld_actor_ahead(_world);
-        if (!is_undefined(_talk) && _talk.dialogue != "") {
-            _world.dialogue = pp_dialogue_open(_talk.dialogue);
+        if (!is_undefined(_talk)) {
+            // Card R30 (spec 19 section 2, Q5 and Q10): an actor whose id the bake carries a conversation for talks
+            // from data/meta_bake.json, and any other actor keeps its authored dialogue id. One door, in
+            // pp_talk_actor_open, so the map data decides who speaks and this branch decides nothing by name.
+            _world.dialogue = pp_talk_actor_open(_talk, _world);
             if (is_undefined(_world.dialogue)) _world.dialogue = undefined;
             pp_overworld_clock_step(_world);
             return;
@@ -504,7 +518,18 @@ function pp_overworld_draw(_world) {
     // walker passes behind (card R28). Drawn after him so the overlap is the layer order and not a coincidence.
     pp_map_draw_above(_world.map, floor(_world.cam_x) + _ox, floor(_world.cam_y) + _oy, _world.steps);
 
-    if (!pp_dialogue_closed(_world.dialogue)) pp_dialogue_draw(_world.dialogue);
+    if (!pp_dialogue_closed(_world.dialogue)) {
+        pp_dialogue_draw(_world.dialogue);
+        // Card R30 (spec 19 section 5, Q9): the hint is the row under the box's text, in the second ink, inside the
+        // window's own 64 pixels. A box the bake did not open carries no hints and draws nothing here.
+        var _hint = pp_talk_npc_hint(_world.dialogue);
+        if (_hint != "") {
+            draw_set_colour(pp_role_colour("text"));
+            draw_set_halign(fa_left);
+            draw_text(PP_TEXT_X, PP_BOX_Y + PP_BOX_H - 22, _hint);
+        }
+        draw_set_halign(fa_left);
+    }
 
     if (!is_undefined(_world.fade)) {
         draw_set_alpha(_world.fade.alpha);
