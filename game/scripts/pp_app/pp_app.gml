@@ -374,14 +374,19 @@ function pp_mode_battle() {
             if (is_undefined(_battle)) return;
 
             if (pp_battle_finished(_battle)) {
-                if (pp_pressed("confirm")) {
+                // Card t_905a18ce (F2): spec 18 section 4 step 4. A fight can hand its caller a scene id, and when it
+                // does the caller continues with NO press. The id is taken from the fight before anything is cleared,
+                // because the row it comes from belongs to the battle object below. A fight that hands nothing over
+                // keeps the old confirm door, so a kill and a spare still end on the player's own press.
+                var _handoff = pp_battle_handoff_scene(_battle);
+                if (pp_pressed("confirm") || _handoff != "") {
                     // The ledger was written inside the battle; the overworld only takes the result and the flags.
                     // Defeat returns to the overworld with the party restored, which is the decision recorded as C7 in
                     // knowledge\SPEC-DELTAS.md, because the title and save modes that spec 01 rule 6 names do not exist.
                     var _outcome = pp_battle_outcome(_battle);
                     var _enc_id = global.pp.battle_encounter;
                     global.pp.battle = undefined;
-                    pp_overworld_battle_finished(global.pp.world, _enc_id, _outcome);
+                    pp_overworld_battle_finished(global.pp.world, _enc_id, _outcome, _handoff);
                     pp_app_request(PPMode.overworld, { resumed: true });
                 }
                 return;
@@ -397,7 +402,10 @@ function pp_mode_battle() {
             }
             pp_battle_draw(_battle);
 
-            if (pp_battle_finished(_battle)) {
+            // Card t_905a18ce (F2): a fight that hands a scene over is never waited on, so it never shows the "press Z"
+            // panel either. The prompt and the outcome word are the old door for a kill and a spare, which still end
+            // on the player's own press.
+            if (pp_battle_finished(_battle) && pp_battle_handoff_scene(_battle) == "") {
                 draw_set_colour(pp_role_colour("paper"));
                 draw_rectangle(40, 100, PP_FRAME_W - 40, 140, false);
                 // Card BATTLE-FONT-WIRE: the outcome word and the prompt are the sheet's glyphs, centred and word

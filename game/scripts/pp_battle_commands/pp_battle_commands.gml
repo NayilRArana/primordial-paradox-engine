@@ -36,7 +36,18 @@ function pp_command_state(_battle, _cmd) {
             return { enabled: true, reason: "" };
 
         case PPCommand.spare:
-            if (!pp_battle_spare_allowed(_battle)) _reason = "not ready to end it";
+            // Card t_905a18ce (F1): a SPARE the enemy refuses inside its interrupt gate is the story exit (spec 18
+            // section 4 rule 4), so the press has to LIVE in that window. Disabling the entry on the spare gate alone
+            // made every hp from the interrupt threshold down to the spare line a press that never arrived: spare is
+            // accepted at 25 percent of 120 (30 hp) and the gate is 40 percent (48 hp), so 31 hp to 48 hp was dead.
+            if (pp_battle_interrupt_ready(_battle)) return { enabled: true, reason: "" };
+
+            // Card t_905a18ce (F4): the encounter row may refuse this entry on a route (`spare_refuses_on_route`,
+            // spec 07 line 33 and spec 10's genocide row). The field is read HERE, where every other refusal is read,
+            // so the menu draws the reason and the director never has to answer a press the data refused. The route
+            // itself is derived, never stored (spec 10 rule 7, pp_battle_route_name).
+            if (pp_battle_spare_route_refused(_battle)) _reason = "no mercy left on this route";
+            else if (!pp_battle_spare_allowed(_battle)) _reason = "not ready to end it";
             if (_reason != "") return { enabled: false, reason: _reason };
             return { enabled: true, reason: "" };
 

@@ -24,15 +24,17 @@ What this file holds down, and why each one earns its place:
      comparison, order and outcome word are also pinned text for text below.
 
 Known gaps, recorded rather than hidden:
-  - the caller is not wired in this card. `pp_battle_outcome` returns `interrupted` and `pp_battle_interrupt_scene`
-    returns the scene id, but `pp_mode_battle` still waits for one key press before it leaves the fight, where spec 18
-    section 4 step 4 says control continues with no press. pp_app.gml is not this card's file;
+  - no GML is compiled or run here. GameMaker is not installed on this host, so the driver below is a mirror of the
+    director and of the menu, and the GML's own text is pinned so the mirror cannot drift silently. Nothing in this
+    file says a scene played;
   - the scene row has no `spawn`, `shake` or 30 step crossfade yet; spec 18 section 9 C18-3 leaves those to R04
     (t_a3fa132a), and this card's goal only asks the row to run, set the flag, play PP-07, fade and end;
   - `prometheus_interrupt_blooded` does not exist yet, so the shipped `scene` is the single id form spec 18 section 4
     allows. The four key form is implemented and tested against a synthetic block;
-  - the stale `interrupt` on the percy encounter row (data/encounters/all.json, hp 60) is still there: spec 18
-    section 9 C18-7 gives its removal to R05 and R04, and nothing in the build reads an encounter level interrupt.
+  - closed by card t_905a18ce and recorded here because this file used to record them as gaps: the SPARE entry was
+    disabled across the whole interrupt window (F1), no caller played the scene the fight named (F2), and a second,
+    dead interrupt block sat on the percy encounter row that nothing read and the checker did not refuse (F3). Section
+    6 below is where those three are held down now.
 
 Run: python -m pytest tests/test_prometheus_interrupt.py -q
 Headless probe: python tests/test_prometheus_interrupt.py
@@ -278,13 +280,16 @@ def test_the_fourth_outcome_word_is_interrupted():
 
 
 def test_the_scene_is_resolved_from_the_row_and_the_route_is_derived_on_read():
-    body = function_body(director_code(), "pp_battle_interrupt_scene")
+    code = director_code()
+    body = function_body(code, "pp_battle_interrupt_scene")
     assert "is_string(_block.scene)" in body, "spec 18 section 4: one scene id is the first legal shape"
-    assert "pp_ledger_route(_battle.ledger, _stage)" in body, "spec 10: the route is derived on read, never stored"
-    assert "pp_ledger_route_name(" in body
-    assert "pp_data.project" in body and "prison_stage" in body
+    assert "pp_battle_route_name(_battle)" in body, "the route key comes from the one derivation, not a second copy"
+    route = function_body(code, "pp_battle_route_name")
+    assert "pp_ledger_route(_battle.ledger, _stage)" in route, "spec 10: the route is derived on read, never stored"
+    assert "pp_ledger_route_name(" in route
+    assert "pp_data.project" in route and "prison_stage" in route
     # Nothing stores a route on the battle, because a stored route is the second copy spec 10 refuses.
-    assert not re.search(r"_battle\.route\s*=", director_code())
+    assert not re.search(r"_battle\.route\s*=", code)
 
 
 def test_no_enemy_name_scene_id_or_route_name_is_hardcoded_in_the_director():
@@ -433,7 +438,15 @@ def interrupt_scene(enemy, flags, counters, stage, prison_stage):
 
 
 def press_spare(enemy, hp, trust, flags):
-    """One SPARE press on the menu, as pp_battle_step_menu resolves it. The turn is never spent on a refusal."""
+    """One SPARE press on the menu, as pp_battle_step_menu resolves it. The turn is never spent on a refusal.
+
+    Card t_905a18ce (F1): this used to model the press in Python and skip the menu, which is how every hp from 31 to 48
+    stayed green while the entry was disabled. It now goes through pp_command_state's mirror first, so a refused entry
+    comes back as `refused` and never as an accepted spare.
+    """
+    enabled, _reason = command_state(hp, trust, flags, enemy, encounter_row("percy"), "undecided")
+    if not enabled:
+        return ("refused", None)
     if spare_allowed(hp, trust, enemy):
         return ("spare", None)
     if interrupt_ready(hp, trust, flags, enemy):
@@ -505,7 +518,202 @@ def ledger_record(result, enemy):
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# 6. The headless probe the card asks for.
+# 6. The two wires the review of G0-4a/b/c found broken, and the route field nothing read (card t_905a18ce).
+#
+# F1: the SPARE entry was disabled whenever spare was not allowed, and pp_battle_step_menu returns on a disabled entry
+#     before pp_battle_begin_action is reached, so every hp from 31 to 48 with trust below 3 was a press that never
+#     arrived. The entry now stays pressable while the interruption is ready, and the mirrors below walk the menu and
+#     then the action instead of resolving the press in Python.
+# F2: no caller played the scene the fight named, so met_prometheus was never set. pp_app now takes the scene id from
+#     the fight before it clears the battle, and pp_overworld_battle_finished starts it with no press.
+# F4: `spare_refuses_on_route` was data no GML read. It is now read in pp_command_state, the same place every other
+#     refusal is read, and the tests drive it through that function.
+#
+# GameMaker is not installed here, so these are mirrors plus text pins, not a played scene. The pins are what makes
+# them fail: take the fix out of the GML and the pin above each mirror stops matching.
+
+APP = os.path.join(ROOT, "game", "scripts", "pp_app", "pp_app.gml")
+OVERWORLD = os.path.join(ROOT, "game", "scripts", "pp_overworld", "pp_overworld.gml")
+COMMANDS = os.path.join(ROOT, "game", "scripts", "pp_battle_commands", "pp_battle_commands.gml")
+ENCOUNTERS = os.path.join(ROOT, "data", "encounters", "all.json")
+
+_ENCOUNTER_ROWS = {}
+
+
+def encounter_row(encounter_id="percy"):
+    """The encounter row, read once: the route refusal lives here and the mirrors ask it on every hp."""
+    if "rows" not in _ENCOUNTER_ROWS:
+        _ENCOUNTER_ROWS["rows"] = {row["id"]: row for row in read_json(ENCOUNTERS)["encounters"]}
+    return _ENCOUNTER_ROWS["rows"][encounter_id]
+
+
+def source(path):
+    with open(path, "r", encoding="utf-8-sig") as handle:
+        return code_only(handle.read())
+
+
+def raw_source(path):
+    with open(path, "r", encoding="utf-8-sig") as handle:
+        return handle.read()
+
+
+def block_at(code, marker):
+    """The brace matched {...} whose header contains `marker`."""
+    start = code.index(marker)
+    open_index = code.index("{", start)
+    depth = 0
+    for index in range(open_index, len(code)):
+        if code[index] == "{":
+            depth += 1
+        elif code[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return code[open_index:index + 1]
+    raise AssertionError("unbalanced block at %r" % marker)
+
+
+def menu_spare_case():
+    """pp_command_state's SPARE case, comments stripped: the one place a refusal is drawn."""
+    state = function_body(source(COMMANDS), "pp_command_state")
+    case = state[state.index("case PPCommand.spare:"):]
+    return case[:case.index("case PPCommand.item:")]
+
+
+def action_spare_case():
+    begin = function_body(director_code(), "pp_battle_begin_action")
+    case = begin[begin.index("case PPCommand.spare:"):]
+    return case[:case.index("break;")]
+
+
+def command_state(hp, trust, flags, enemy, encounter, route):
+    """pp_command_state for SPARE, in the order the GML asks: the interruption, then the route, then the spare gate."""
+    if interrupt_ready(hp, trust, flags, enemy):
+        return (True, "")
+    if encounter.get("spare_refuses_on_route") == route:
+        return (False, "no mercy left on this route")
+    if not spare_allowed(hp, trust, enemy):
+        return (False, "not ready to end it")
+    return (True, "")
+
+
+def press_through_menu(hp, trust, flags, enemy, encounter, route):
+    """One SPARE press from the menu to the action, which is the path the engine takes.
+
+    A disabled entry never becomes a press (spec 07 rule 1), so the difference between "the row says refused" and "the
+    press arrived and the direction refused it" is visible here instead of being assumed.
+    """
+    enabled, reason = command_state(hp, trust, flags, enemy, encounter, route)
+    if not enabled:
+        return ("disabled", reason)
+    # pp_battle_begin_action's spare case: an accepted spare first, unless the route refuses it, then the interruption.
+    if spare_allowed(hp, trust, enemy) and encounter.get("spare_refuses_on_route") != route:
+        return ("spare", None)
+    if interrupt_ready(hp, trust, flags, enemy):
+        return ("interrupted", interrupt_scene(enemy, flags, {"bosses_killed": 0, "regulars_killed": 0}, 0, 3))
+    return ("nothing", None)
+
+
+def test_f1_the_spare_entry_is_pressable_across_the_whole_interrupt_window():
+    """No hp from 31 to 48 is a press that never arrives, and that is the window the story exit lives in."""
+    case = menu_spare_case()
+    assert 'if (pp_battle_interrupt_ready(_battle)) return { enabled: true, reason: "" };' in case, case
+    assert case.index("pp_battle_interrupt_ready(_battle)") < case.index("pp_battle_spare_route_refused(_battle)"), \
+        case
+    assert "!pp_battle_spare_allowed(_battle)" in case, "the spare gate is still what refuses outside the window"
+
+    action = action_spare_case()
+    assert "pp_battle_spare_allowed(_battle) && !pp_battle_spare_route_refused(_battle)" in action, action
+    assert action.index("pp_battle_spare_allowed(_battle)") < action.index("pp_battle_interrupt_ready(_battle)"), action
+    assert "pp_battle_enter_interrupt(_battle)" in action, action
+
+    enemy = percy()
+    encounter = encounter_row()
+    enabled_hp = [hp for hp in range(1, MAX_HP + 1)
+                  if command_state(hp, 0, {}, enemy, encounter, "undecided")[0]]
+    assert enabled_hp == list(range(1, 49)), \
+        "SPARE is pressable at %r; the spare line is 30 hp and the gate is 48 hp" % (enabled_hp[:3],)
+    for hp in range(31, 49):
+        assert press_through_menu(hp, 0, {}, enemy, encounter, "undecided") == ("interrupted", SCENE_ID), hp
+    assert press_through_menu(30, 0, {}, enemy, encounter, "undecided") == ("spare", None)
+    assert press_through_menu(49, 0, {}, enemy, encounter, "undecided") == ("disabled", "not ready to end it")
+    print("F1: SPARE pressable at every hp in 1..48; 31..48 all end as interrupted -> %s" % SCENE_ID)
+
+
+def test_f4_the_route_refusal_is_read_at_the_menu_and_not_only_in_python():
+    """`spare_refuses_on_route` was a field no GML read. It is read now, where the entry is drawn and refused."""
+    encounter = encounter_row()
+    assert encounter.get("spare_refuses_on_route") == "genocide", \
+        "the percy row is the route refusal this test drives: %r" % (encounter.get("spare_refuses_on_route"),)
+    read = function_body(director_code(), "pp_battle_spare_route_refused")
+    assert "spare_refuses_on_route" in read, read
+    assert "pp_battle_route_name(_battle)" in read, read
+    assert "pp_battle_spare_route_refused(_battle)" in menu_spare_case()
+
+    enemy = percy()
+    # Above the gate on the genocide route the entry is refused with the route's own reason, not the spare gate's.
+    assert command_state(60, 0, {}, enemy, encounter, "genocide") == (False, "no mercy left on this route")
+    # At the spare line too: the route refusal beats the hp gate, which is what spec 07 line 33 and spec 10 ask for.
+    assert command_state(30, 0, {}, enemy, encounter, "genocide") == (False, "no mercy left on this route")
+    # And inside the gate the press still arrives, because that is where the interruption fires on every route.
+    assert command_state(40, 0, {}, enemy, encounter, "genocide") == (True, "")
+    assert press_through_menu(40, 0, {}, enemy, encounter, "genocide") == ("interrupted", SCENE_ID)
+    # On a route the row does not refuse, the same hp values behave as they did before.
+    assert command_state(30, 0, {}, enemy, encounter, "undecided") == (True, "")
+    assert command_state(60, 0, {}, enemy, encounter, "undecided") == (False, "not ready to end it")
+    # The navy row refuses the same route and names the line its refusal plays, which is not a cursor note.
+    navy = encounter_row("tutorial_sailors")
+    assert navy.get("spare_refuses_on_route") == "genocide", navy.get("spare_refuses_on_route")
+    assert navy.get("spare_refused_dialogue") == "navy_spare_refused"
+    print("F4: genocide refuses SPARE at 60 hp and at 30 hp with the route's reason; 40 hp still interrupts")
+
+
+def caller_step(outcome, handoff, pressed):
+    """pp_mode_battle's step and pp_overworld_battle_finished, in the order the GML runs them.
+
+    Returns ("battle", "") while the fight is still on screen and ("overworld", scene) once the caller has taken the
+    fight over, where scene is "" for a kill or a spare and the row's id for an interruption.
+    """
+    scene = handoff if outcome == "interrupted" else ""
+    if scene == "" and not pressed:
+        return ("battle", "")
+    # The door sets battle_done only when it hands nothing over; a handoff starts its scene through the one scene door.
+    return ("overworld", scene)
+
+
+def test_f2_the_caller_starts_the_scene_with_no_press():
+    """Spec 18 section 4 step 4: the caller continues with no press. Before this fix nothing played the scene."""
+    handoff = function_body(director_code(), "pp_battle_handoff_scene")
+    assert "PPResult.interrupt" in handoff and "pp_battle_interrupt_scene(_battle)" in handoff, handoff
+
+    app = raw_source(APP)
+    battle_mode = code_only(app[app.index("// Mode: battle."):app.index("// Mode: overworld.")])
+    step = block_at(battle_mode, "step: function(_params)")
+    assert "pp_battle_handoff_scene(_battle)" in step, step
+    assert step.index("pp_battle_handoff_scene(_battle)") < step.index("global.pp.battle = undefined;"), \
+        "the scene id is taken from the fight before the fight is cleared"
+    assert 'if (pp_pressed("confirm") || _handoff != "")' in step, \
+        "the press is only needed when the fight hands nothing over"
+    assert "pp_overworld_battle_finished(global.pp.world, _enc_id, _outcome, _handoff);" in step, step
+    # The old door is one press inside an if, so it cannot run before the handoff is read.
+    assert step.index("pp_battle_handoff_scene(_battle)") < step.index('pp_pressed("confirm")'), step
+
+    door = function_body(source(OVERWORLD), "pp_overworld_battle_finished")
+    assert "_handoff_scene" in door.split("{")[0], "the door takes the id the caller captured"
+    assert "pp_overworld_start_scene(_world, _handoff_scene);" in door, door
+    assert 'if (!is_string(_handoff_scene) || _handoff_scene == "")' in door, \
+        "a fight that hands nothing over must still write battle_done"
+    assert door.index('_world.battle_done = _outcome;') < door.index("pp_overworld_start_scene(_world, _handoff_scene);"), \
+        "the handoff must not also write the outcome into battle_done"
+
+    # The mirror: an interrupted fight ends with nobody pressing anything, and the scene the row names takes over.
+    assert caller_step("interrupted", SCENE_ID, pressed=False) == ("overworld", SCENE_ID)
+    assert caller_step("kill", "", pressed=False) == ("battle", ""), "a kill still waits for the player's press"
+    assert caller_step("kill", "", pressed=True) == ("overworld", "")
+    assert caller_step("spare", "", pressed=True) == ("overworld", "")
+    assert SCENE_ID in {row["id"] for row in read_json(SCENES)["scenes"]}
+    print("F2: interrupted hands %s to the overworld door with no press" % SCENE_ID)
+
+
 
 
 def probe() -> int:

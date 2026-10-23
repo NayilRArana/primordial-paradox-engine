@@ -1236,6 +1236,14 @@ class Checker:
             trust = self.require(row, "trust_per_talk", "int", filename, path)
             if trust is not None:
                 self.in_range(trust, 1, 5, filename, path + ".trust_per_talk")
+            # Spec 18 section 7 refusal 10, delta C18-7: the enemy row owns the interrupt block, so a copy on the
+            # encounter row is two copies of one fact, and the copy no code reads is the one that drifts. It is
+            # refused by name rather than ignored, because a field the checker passes in silence reads like a feature
+            # to whoever finds it in the data (card t_905a18ce F3).
+            if "interrupt" in row:
+                self.error(filename, path + ".interrupt",
+                           "is refused on an encounter row: spec 18 section 7 refusal 10 puts the interrupt block on "
+                           "the enemy row, which is the row pp_battle_interrupt_block reads")
             for flag_field in ("flags_on_kill", "flags_on_spare"):
                 flags = self.want(row, flag_field, "list", filename, path)
                 if not isinstance(flags, list):

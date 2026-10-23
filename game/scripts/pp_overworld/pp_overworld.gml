@@ -190,8 +190,18 @@ function pp_overworld_start_encounter(_world, _encounter_id) {
     return true;
 }
 
-/// Called by the battle mode when it hands control back.
-function pp_overworld_battle_finished(_world, _encounter_id, _outcome) {
+/// Called by the battle mode when it hands control back. `_handoff_scene` is the scene id the fight handed over, or ""
+/// when it handed nothing over; a caller that passes three arguments passes none.
+///
+/// Card t_905a18ce (F2): an interrupted fight names a scene, and spec 18 section 4 step 4 says the caller continues
+/// with no press, so the scene is started HERE, through the one scene door, in the same call that takes the outcome.
+/// That is what makes the caller the owner of the handover instead of the fight: the battle mode clears the battle and
+/// hands two values over, and this door is the only place a world's scene is replaced. The scene launched path is the
+/// same door, so a scene that ran a fight gets the interruption scene in place of the runner that waited for it, which
+/// is what spec 18 section 4 step 6 asks for: the fight is not resumed, and control returns to the map when the
+/// interruption scene ends. Kill and spare hand nothing over, so `battle_done` still carries the word a waiting scene
+/// advances on (pp_scene's `battle` state).
+function pp_overworld_battle_finished(_world, _encounter_id, _outcome, _handoff_scene) {
     if (is_undefined(_world)) return;
     var _enc = pp_data_find(global.pp_data.encounters.encounters, _encounter_id);
     if (!is_undefined(_enc)) {
@@ -204,8 +214,20 @@ function pp_overworld_battle_finished(_world, _encounter_id, _outcome) {
             _i += 1;
         }
     }
-    _world.battle_done = _outcome;
     _world.trigger_lock = PP_TRIGGER_LOCK_STEPS;
+
+    if (!is_string(_handoff_scene) || _handoff_scene == "") {
+        _world.battle_done = _outcome;
+        return;
+    }
+
+    // battle_done stays empty: the outcome travelled as the scene id, and a scene still waiting on a fight must not
+    // read this handover as its own result and step past the story that was just started over it.
+    _world.battle_done = "";
+    pp_overworld_start_scene(_world, _handoff_scene);
+    // One unconditional line, like the battle start line: a run that played the middle act and a run that never did
+    // can be told apart from the log alone (the same reason FIRST-FIGHT-WIRE gives).
+    show_debug_message("PP: fight handed over to scene " + string(_handoff_scene) + " with no press");
 }
 
 /// A once trigger is remembered in the ledger so a door stays open across a save and load (spec 04 rule 3).

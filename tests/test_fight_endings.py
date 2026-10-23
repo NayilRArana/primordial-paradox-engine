@@ -17,21 +17,24 @@ What this file holds down, and why each one earns its place:
   3. each ending writes exactly one distinguishing flag and takes a conditional epilogue: `percy_aftermath` branches on
      `percy_killed` and falls through to the spare set, `navy_aftermath` branches on `sailor_killed` the same way. The
      kill and spare epilogue rows are different sets of lines, so the epilogue can tell the endings apart;
-  4. the spare refusal is visible on the genocide route, in the two shapes the data has: Percy's refused SPARE below his
+  4. the spare refusal is visible on the genocide route, in the two shapes the data has and the code now reads
+     (card t_905a18ce F4: `spare_refuses_on_route` was read by no GML before this card). Percy's refused SPARE below his
      40 percent gate hands the fight to `prometheus_interrupt` (the G0-4b interruption, where his own refusal line
-     plays), and the navy sailor's refused SPARE plays its own line, `navy_spare_refused`. Above Percy's gate the SPARE
-     entry is disabled with the director's own reason text, which is the third shape of visible refusal (spec 07
-     rule 1: a disabled entry draws in the second ink, makes a low blip, and never silently no-ops);
+     plays); above it, and at the spare line itself, the entry is refused with the route's own reason text, which is
+     the second shape of visible refusal (spec 07 rule 1: a disabled entry draws its reason, makes a low blip, and
+     never silently no-ops);
   5. the mutation cases at the bottom remove the refusal line, point an outcome row at a missing id and point an epilogue
      branch at the wrong flag, so the checks above are measurements and can fail.
 
 Known gaps, recorded rather than hidden:
-  - no GML is executed. GameMaker is not installed on this host, so the driver below is a mirror of the director. The
-    director's own gate, its own order (spare first, then the interruption), its own outcome words and its own result
-    dialogue branches are pinned text for text from the GML, so the mirror cannot silently drift from it;
+  - no GML is executed. GameMaker is not installed on this host, so the driver below is a mirror of the menu and of the
+    director. The menu's own spare case, the director's spare gate, its order (spare first, then the interruption), its
+    outcome words and its result dialogue branches are pinned text for text from the GML, so the mirror cannot silently
+    drift from it;
   - nothing in the build reads `epilogue_scene` or `spare_refused_dialogue` yet: pp_overworld_battle_finished writes the
-    outcome flags and returns to the map. The rows are data and their reachability is proven here; the caller wiring is
-    a named gap, the same one G0-4b recorded for the interruption scene.
+    outcome flags and returns to the map, and the route refusal is a reason drawn at the menu rather than a typed line.
+    Both rows are data and their reachability is proven here; the caller wiring for the epilogue is a named gap, and the
+    interruption scene's own handover is the one G0-4R did wire (card t_905a18ce F2).
 
 Run: python -m pytest tests/test_fight_endings.py -q
 Headless probe: python tests/test_fight_endings.py
@@ -219,8 +222,24 @@ class Fight(object):
             return scene.get(self.route()) or ""
         return ""
 
+    # pp_battle_route_name: the route, derived on read from the counters and the story stage (spec 10, never stored).
     def route(self) -> str:
         return self.data.route_of(self.counters, self.stage)
+
+    # pp_battle_spare_route_refused: the encounter row's own refusal, on the derived route (card t_905a18ce F4).
+    def route_refused(self) -> bool:
+        return self.encounter.get("spare_refuses_on_route") == self.route()
+
+    # pp_command_state's SPARE case: the interruption first, then the route, then the spare gate. Card t_905a18ce (F1)
+    # is the reason the interruption is asked first: the entry has to be pressable across the whole gate window.
+    def command_state(self):
+        if self.interrupt_ready():
+            return (True, "")
+        if self.route_refused():
+            return (False, "no mercy left on this route")
+        if not self.spare_allowed():
+            return (False, "not ready to end it")
+        return (True, "")
 
     def fight(self, power: int = 100) -> int:
         damage = self.data.fight_damage(power)
@@ -236,21 +255,25 @@ class Fight(object):
         return self.trust
 
     def press_spare(self):
-        """The director's SPARE case: an accepted spare, then the interruption, then the refusal.
+        """The menu entry and then the director's SPARE case, which is the path the engine takes.
 
-        Returns (kind, reference) where reference is the scene id, the refusal dialogue id, or the disabled entry's
-        reason when the press is refused with no line to play.
+        Card t_905a18ce (F1 and F4): the press is resolved through pp_command_state's mirror first, so a disabled entry
+        comes back as `refused` with the reason the menu would draw, and the route refusal is answered here the way the
+        menu answers it. Returns (kind, reference) where reference is the scene id, the refusal dialogue id, or the
+        disabled entry's reason.
         """
         self.events.append(("spare", self.hp))
-        if self.spare_allowed():
+        enabled, reason = self.command_state()
+        if not enabled:
+            # Spec 07 rule 1: a refused entry is visible, makes a sound and never advances the turn.
+            return ("refused", reason)
+        if self.spare_allowed() and not self.route_refused():
             self.hp = 0
             self._end("spare")
             return ("spare", self.encounter["win_dialogue_spare"])
         if self.interrupt_ready():
             self._end("interrupt")
             return ("interrupt", self.interrupt_scene())
-        if self.encounter.get("spare_refuses_on_route") == self.route():
-            return ("refused", self.encounter.get("spare_refused_dialogue") or "not ready to end it")
         return ("refused", "not ready to end it")
 
     def _end(self, outcome: str) -> None:
@@ -447,7 +470,13 @@ def test_the_epilogue_sets_are_conditional_and_differ_between_the_two_endings(da
 
 
 def test_the_refusal_is_visible_on_the_genocide_route(data):
-    """Percy below his gate hands the fight to the interruption; the navy sailor plays its own line."""
+    """Percy below his gate hands the fight to the interruption; the navy sailor's SPARE is refused at the menu.
+
+    Card t_905a18ce (F4): `spare_refuses_on_route` was data no GML read, so on the genocide route the navy sailor could
+    still be spared and Percy could be spared from 30 hp down. Both refusals are now answered where the entry is drawn,
+    and these are the two shapes spec 07 line 33 and spec 10 leave: an interruption for Percy inside the gate, and a
+    disabled entry with a reason of its own outside it.
+    """
     # A player who already killed a boss is on the genocide route (spec 10), and the route is derived, not stored.
     genocide = new_counters()
     genocide["bosses_killed"] = 1
@@ -457,6 +486,7 @@ def test_the_refusal_is_visible_on_the_genocide_route(data):
     assert data.route_of(genocide, 0) == GENOCIDE
     assert not percy.spare_allowed()
     before = sum(percy.counters.values())
+    assert percy.command_state() == (True, ""), "the entry is pressable inside the gate, or the story exit is dead (F1)"
     kind, scene = percy.press_spare()
     assert kind == "interrupt" and scene == "prometheus_interrupt", (kind, scene)
     refusal_said = [command["id"] for command in data.scenes[scene]["commands"] if command["cmd"] == "say"]
@@ -466,28 +496,35 @@ def test_the_refusal_is_visible_on_the_genocide_route(data):
     assert percy.exit == "turned", "a refused SPARE left the row as %r" % (percy.exit,)
     assert sum(percy.counters.values()) == before, "a turned enemy moved a counter: %r" % (percy.counters,)
 
-    # The navy sailor has no interruption block, so its refusal is its own line, named on its encounter row.
-    navy = Fight(data, NAVY, routed_counters=dict(genocide))
-    navy.hp = navy.enemy["max_hp"]
-    assert not navy.spare_allowed()
-    kind, refusal = navy.press_spare()
-    assert kind == "refused", kind
-    assert refusal == data.encounters[NAVY]["spare_refused_dialogue"] == "navy_spare_refused"
-    assert refusal in data.dialogues and lines_of(data.dialogues[refusal]), refusal
-    assert navy.outcome is None, "a refused SPARE ended the fight as %r" % (navy.outcome,)
+    # Percy at 30 hp on the genocide route: the spare gate would take him, and the route refuses the entry anyway.
+    percy_low = Fight(data, PERCY, routed_counters=dict(genocide))
+    percy_low.hp = 30
+    assert percy_low.spare_allowed(), "25 percent of 120 is 30 hp, where the spare gate opens"
+    assert percy_low.command_state() == (False, "no mercy left on this route"), percy_low.command_state()
+    kind, reason = percy_low.press_spare()
+    assert (kind, reason) == ("refused", "no mercy left on this route"), (kind, reason)
+    assert percy_low.outcome is None, "a refused SPARE ended the fight as %r" % (percy_low.outcome,)
 
-    # Above Percy's gate the press is refused with no line at all, so the visible refusal is the disabled entry.
+    # Above Percy's gate the press is refused too, and the reason is the route's, not the spare gate's.
     percy_high = Fight(data, PERCY, routed_counters=dict(genocide))
     kind, reason = percy_high.press_spare()
     assert kind == "refused" and percy_high.outcome is None
-    assert reason == "not ready to end it", reason
+    assert reason == "no mercy left on this route", reason
 
-    # And the same press on a route the encounter does not refuse is a plain disabled entry, with no line.
-    navy = Fight(data, NAVY)
-    assert navy.route() == "undecided"
+    # The navy sailor has no interruption block, so nothing answers its refused press but the disabled entry.
+    navy = Fight(data, NAVY, routed_counters=dict(genocide))
+    navy.hp = navy.enemy["max_hp"]
+    assert not navy.spare_allowed()
     kind, reason = navy.press_spare()
+    assert kind == "refused", kind
+    assert reason == "no mercy left on this route", reason
+    assert navy.outcome is None, "a refused SPARE ended the fight as %r" % (navy.outcome,)
+
+    # And the same press on a route the encounter does not refuse is a plain disabled entry, with no route reason.
+    navy_free = Fight(data, NAVY)
+    assert navy_free.route() == "undecided"
+    kind, reason = navy_free.press_spare()
     assert (kind, reason) == ("refused", "not ready to end it")
-    assert "navy_spare_refused" not in [reason]
 
 
 def test_the_interruption_and_the_disabled_entry_are_the_gml_this_file_mirrors(data):
@@ -515,7 +552,16 @@ def test_the_interruption_and_the_disabled_entry_are_the_gml_this_file_mirrors(d
     state = function_body(commands, "pp_command_state")
     spare_state = state[state.index("case PPCommand.spare:"):]
     spare_state = spare_state[:spare_state.index("case PPCommand.item:")]
-    assert "if (!pp_battle_spare_allowed(_battle)) _reason = \"not ready to end it\";" in spare_state, spare_state
+    # Card t_905a18ce (F1): the entry is pressable while the interruption is ready, and that read comes first.
+    assert 'if (pp_battle_interrupt_ready(_battle)) return { enabled: true, reason: "" };' in spare_state, spare_state
+    assert spare_state.index("pp_battle_interrupt_ready(_battle)") < \
+        spare_state.index("pp_battle_spare_route_refused(_battle)"), spare_state
+    # Card t_905a18ce (F4): the route refusal is read at the menu, and its reason is the menu's, not a dialogue id.
+    assert 'if (pp_battle_spare_route_refused(_battle)) _reason = "no mercy left on this route";' in spare_state, \
+        spare_state
+    assert 'else if (!pp_battle_spare_allowed(_battle)) _reason = "not ready to end it";' in spare_state, spare_state
+    route = function_body(code_only(_read(DIRECTOR_GML)), "pp_battle_spare_route_refused")
+    assert "spare_refuses_on_route" in route and "pp_battle_route_name(_battle)" in route, route
 
 
 # ------------------------------------------------------------------------------------------------- 4. they can fail
@@ -529,29 +575,39 @@ def _write_copy(tmp_path, name: str, document: dict) -> str:
     return str(path)
 
 
-def test_removing_the_refusal_line_or_the_gate_breaks_the_checks(data, tmp_path):
-    """The refusal checks are measurements: take the data away and they fail."""
+def test_removing_the_route_refusal_changes_what_the_menu_answers(data, tmp_path):
+    """The refusal checks are measurements: take the field off the row and the same press gets another answer."""
     document = _load(ENCOUNTERS)
     navy_row = find_row(document, "encounters", NAVY)
-    del navy_row["spare_refused_dialogue"]
-    path = _write_copy(tmp_path, "encounters_no_refusal.json", document)
+    assert navy_row.get("spare_refuses_on_route") == GENOCIDE, "the navy row no longer refuses the genocide route"
+    del navy_row["spare_refuses_on_route"]
+    path = _write_copy(tmp_path, "encounters_no_route_refusal.json", document)
 
-    def resolve(encounter_row: dict, allowed: bool, route: str) -> str:
-        if allowed:
-            return encounter_row["win_dialogue_spare"]
-        if encounter_row.get("spare_refuses_on_route") == route:
-            return encounter_row.get("spare_refused_dialogue") or "not ready to end it"
-        return "not ready to end it"
-
-    assert resolve(data.encounters[NAVY], False, GENOCIDE) == "navy_spare_refused"
-    mutated = find_row(_load(path), "encounters", NAVY)
-    assert resolve(mutated, False, GENOCIDE) == "not ready to end it", "the copy still names a refusal line"
+    genocide = new_counters()
+    genocide["bosses_killed"] = 1
+    fight = Fight(data, NAVY, routed_counters=dict(genocide))
+    assert fight.command_state() == (False, "no mercy left on this route"), fight.command_state()
+    # The same fight on the mutated row: no field, so the only thing that refuses the entry is the spare gate.
+    fight.encounter = find_row(_load(path), "encounters", NAVY)
+    assert fight.command_state() == (False, "not ready to end it"), "the copy still refuses the route"
 
     # A win dialogue id that names nothing is caught, which is the whole point of the first test above.
     document = _load(ENCOUNTERS)
     find_row(document, "encounters", NAVY)["win_dialogue_spare"] = "navy_win_spare_gone"
     path = _write_copy(tmp_path, "encounters_missing_id.json", document)
     assert find_row(_load(path), "encounters", NAVY)["win_dialogue_spare"] not in data.dialogues
+
+
+def test_the_two_refusal_lines_the_rows_name_still_resolve(data):
+    """`spare_refused_dialogue` is data the build does not say yet (recorded gap), so this keeps the rows readable.
+
+    Card t_905a18ce (F4) moved the refusal into the menu, where it is a reason drawn under the boxes rather than a line
+    a board types out. The navy row still names the line its refusal was written as, and a row that names a dialogue id
+    that does not exist would be a second dead fact on top of the first.
+    """
+    assert data.encounters[NAVY]["spare_refused_dialogue"] == "navy_spare_refused"
+    row = data.dialogues["navy_spare_refused"]
+    assert lines_of(row), row
 
 
 def test_a_branch_on_the_wrong_flag_breaks_the_epilogue_check(data, tmp_path):
@@ -618,14 +674,19 @@ def probe() -> int:
           % (kind, scene, percy.exit, before, sum(percy.counters.values())))
     assert (kind, scene, percy.exit) == ("interrupt", "prometheus_interrupt", "turned")
     assert sum(percy.counters.values()) == before
+    percy = Fight(data, PERCY, routed_counters=dict(genocide))
+    percy.hp = 30
+    kind, reason = percy.press_spare()
+    print("  percy at 30 hp (the spare line), SPARE -> %s, disabled entry reason %r" % (kind, reason))
+    assert (kind, reason) == ("refused", "no mercy left on this route")
     navy = Fight(data, NAVY, routed_counters=dict(genocide))
-    kind, refusal = navy.press_spare()
-    print("  navy at %d hp, SPARE -> %s, line %s" % (navy.enemy["max_hp"], kind, refusal))
-    assert (kind, refusal) == ("refused", "navy_spare_refused")
+    kind, reason = navy.press_spare()
+    print("  navy at %d hp, SPARE -> %s, disabled entry reason %r" % (navy.enemy["max_hp"], kind, reason))
+    assert (kind, reason) == ("refused", "no mercy left on this route")
     percy = Fight(data, PERCY, routed_counters=dict(genocide))
     kind, reason = percy.press_spare()
     print("  percy at 120 hp, above the gate, SPARE -> %s, disabled entry reason %r" % (kind, reason))
-    assert (kind, reason) == ("refused", "not ready to end it")
+    assert (kind, reason) == ("refused", "no mercy left on this route")
     return 0
 
 

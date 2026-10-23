@@ -468,6 +468,11 @@ function pp_scene_step(_sc, _world) {
             return;
 
         case "battle":
+            // Card t_905a18ce (F2): an INTERRUPTED fight never reaches this branch. pp_overworld_battle_finished starts
+            // the scene the fight handed over, through the one scene door, in the same call that takes the outcome, so
+            // the runner that waited here is replaced before the next step and its remaining commands never play over
+            // the story (spec 18 section 4 step 6: the fight is not resumed). A kill and a spare hand nothing over, so
+            // battle_done carries their word and this scene advances as it always has.
             if (_world.battle_done != "") {
                 _world.battle_done = "";
                 pp_scene_advance(_sc, _world);

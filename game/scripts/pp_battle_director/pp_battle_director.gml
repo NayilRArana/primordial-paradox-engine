@@ -256,7 +256,10 @@ function pp_battle_begin_action(_battle) {
             break;
 
         case PPCommand.spare:
-            if (pp_battle_spare_allowed(_battle)) {
+            // Card t_905a18ce (F4): a route may refuse this entry, and the menu refuses it before the press arrives
+            // (pp_battle_spare_route_refused). The same read guards the action, so a caller that bypasses the menu
+            // cannot turn a refusal the data wrote into a spare.
+            if (pp_battle_spare_allowed(_battle) && !pp_battle_spare_route_refused(_battle)) {
                 _battle.result = PPResult.spare;
                 _battle.enemy_hp = 0;
                 pp_battle_enter_result(_battle);
@@ -676,6 +679,37 @@ function pp_battle_interrupt_ready(_battle) {
     return (_battle.enemy_hp * 100 <= _block.hp_at_or_below * _battle.enemy.max_hp);
 }
 
+/// The route this fight is on, derived on read from the counters and the stage the way spec 10 asks (never stored).
+/// `prison_stage` is the story's own boundary and lives in data\project.json, so a route key in a data row is compared
+/// against a route nothing has written down (A18-4).
+function pp_battle_route_name(_battle) {
+    var _stage = 3;
+    if (is_struct(global.pp_data.project) && variable_struct_exists(global.pp_data.project, "prison_stage")) {
+        _stage = global.pp_data.project.prison_stage;
+    }
+    return pp_ledger_route_name(pp_ledger_route(_battle.ledger, _stage));
+}
+
+/// True when the encounter row refuses SPARE on the route this run is on. `spare_refuses_on_route` names a route key
+/// (spec 07 line 33, spec 10's genocide row: the opposite entry is refused visibly). It is read in pp_command_state,
+/// where every other refusal is read, because a field no code reads is a claim and not a rule (card t_905a18ce F4).
+/// An empty or absent field refuses nothing: the demo's default is that mercy is always available.
+function pp_battle_spare_route_refused(_battle) {
+    var _enc = _battle.encounter;
+    if (!is_struct(_enc)) return false;
+    if (!variable_struct_exists(_enc, "spare_refuses_on_route")) return false;
+    var _route = _enc.spare_refuses_on_route;
+    if (!is_string(_route) || _route == "") return false;
+    return (pp_battle_route_name(_battle) == _route);
+}
+
+/// The scene a finished fight hands its caller, or "" when it hands nothing over (spec 18 section 4 steps 4 and 6).
+/// The caller takes this id BEFORE it clears the battle, because the row it is read from belongs to the fight.
+function pp_battle_handoff_scene(_battle) {
+    if (_battle.result == PPResult.interrupt) return pp_battle_interrupt_scene(_battle);
+    return "";
+}
+
 /// The scene the interruption hands the fight to. One id, or the id under the route this run is on. The route is
 /// derived HERE, from the counters and the exit row the fight has already written, because spec 10 recomputes the
 /// route per read and never stores it: that is how a per route scene id exists without a stored route (A18-4).
@@ -686,11 +720,7 @@ function pp_battle_interrupt_scene(_battle) {
     if (is_string(_block.scene)) return _block.scene;
     if (!is_struct(_block.scene)) return "";
 
-    var _stage = 3;
-    if (is_struct(global.pp_data.project) && variable_struct_exists(global.pp_data.project, "prison_stage")) {
-        _stage = global.pp_data.project.prison_stage;
-    }
-    var _key = pp_ledger_route_name(pp_ledger_route(_battle.ledger, _stage));
+    var _key = pp_battle_route_name(_battle);
     if (variable_struct_exists(_block.scene, _key)) return _block.scene[$ _key];
     return "";
 }
