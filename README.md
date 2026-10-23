@@ -140,8 +140,8 @@ Three frames that exist today, each from a real run of this build:
 
 ## Licence
 
-No licence file is in this repository yet, so by default all rights are reserved and nothing here may be reused.
-That decision is Nayil's and it is open; a licence lands before the repository is made public.
+The licence position for this repository is stated in `LICENCE` at the root: all rights reserved today, with the
+choice of an outbound grant left to the holder and still open.
 
 What does bind today, and is recorded rather than assumed:
 
@@ -155,6 +155,10 @@ What does bind today, and is recorded rather than assumed:
 - **Geography.** Map geometry from OpenStreetMap, ODbL, attribution kept inside the build.
 - **Music and sound.** Original, rendered from our own recipes. No sample pack, no soundbank, no commercial chip
   instrument is redistributed.
+- **Credits.** `CREDITS.md` is the row per attribution obligation: engine, font, map data, our own work, and the ten
+  libraries that were read and not imported.
+- **Licence file.** `LICENCE` at the root, carrying the copyright notice, the terms that hold today, and the
+  third-party obligations a grant cannot override.
 
 ## Provenance and clean room
 
