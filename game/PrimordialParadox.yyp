@@ -249,6 +249,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "tile_classes_ship.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "tile_classes_ship.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "title.json",
       "CopyToMask": -1,
       "filePath": "datafiles",
@@ -2008,6 +2017,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "pp_05_small_ship_v2.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_05_small_ship_v3.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_05_small_ship_v3.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
