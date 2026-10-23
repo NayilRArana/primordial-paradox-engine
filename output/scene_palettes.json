@@ -300,7 +300,7 @@
   },
   "ship_frame": {
     "exit": 0,
-    "frame": "<home>\\AppData\\Local\\Temp\\pp_ship_bvpa2dle\\ship_stack.png",
+    "frame": "ship_stack.png",
     "report": [
       "ship_stack.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
       "  colours: 10 in the frame, 25 allowed; backdrop #7c7c7c (the most common colour in the frame)",
@@ -367,7 +367,7 @@
   },
   "title_frame": {
     "exit": 0,
-    "frame": "<home>\\AppData\\Local\\Temp\\pp_title_w4ipudnh\\frame.png",
+    "frame": "frame.png",
     "report": [
       "frame.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
       "  colours: 8 in the frame, 25 allowed; backdrop #000000 (the most common colour in the frame)",
