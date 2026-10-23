@@ -111,6 +111,36 @@ Any card that opens the game by itself calls it with sound muted and only after 
 and prints the `PP: muted` line its harness already supports. The negative control card is CAPTURE-QUIET (t_52166d5a)
 and a capture that cannot show that line is not evidence.
 
+## D10. The dialogue box's line is 28 characters, and its only text path is pp_font_draw
+
+Card t_1d828fcd (DIALOGUE-FONT-WIRE), ruled from the audit card t_6469ef68's two measured defects: the box drew its
+rows, name plate and choice labels with `draw_text` while the project holds no font resource at all, and `PP_TEXT_CHARS`
+30 from x 72 ends at x 312 against a box that ends at 248. Five rulings, and the numbers they were decided from.
+
+1. **Draw path: pp_font_draw, and not a font resource.** A sprite font asset would be one line, but `spr_pp_font8` is a
+   sprite the NES checker audits as a sprite (74 frames, one ink, 8x8, no descender outside its cell), and a font
+   resource is a different kind of thing that audit cannot see. One code path for text is worth more than one line.
+   So `pp_dialogue_draw` now calls `pp_font_draw` three times, once for the rows, once for the name plate and once for
+   the labels, and the module holds no `draw_text` at all.
+2. **Columns: 28.** The box is 240 wide, so the inside is 224 pixels; at 8 pixels a glyph that is 28 characters and 30
+   is arithmetically impossible from any inset (30 would end at x 256, past the frame). The text area moved from
+   x 72 to x 16 so it uses the whole inside of the box, 8 pixels in from the frame on every side: 16 + 28 * 8 = 240.
+   `PP_TEXT_CHARS`, `PP_TEXT_RIGHT` and `specs/05-dialogue.md` all state 28, `tools/check_data.py` reads the same
+   number, and `tests/test_dialogue_v2.py::test_the_box_geometry_and_the_wrap_agree` recomputes the identity so the
+   four cannot drift apart again.
+3. **The portrait gives up its column.** A 48 pixel portrait inside the box costs 7 of the 28 characters, and the
+   authored dialogue is written at 21 to 30 characters a row: measured at 21 columns, 40 of the 46 authored page lines
+   wrap to a second row and every arrival page doubles. The portrait is now a bust above the box
+   (`PP_PORTRAIT_X/Y` at 16, 120). No speaker in the slice carries a portrait, so nothing draws it, the dim placeholder
+   rectangle inside the box is gone, and the portrait itself is a card of its own.
+4. **Case: sentence case stays.** The sheet carries `a` to `z` because the data is sentence case and 62 of the 74
+   frames are what the 111 printed strings use. The name plate still goes through `string_upper`, which costs no glyph.
+5. **Four lines in `data/dialogue/all.json` were re-broken, and nothing else in the data moved.** At 28 columns only
+   four authored page lines did not fit (`quay_dock_office` three, `quay_dock_office_pass` one), so those four lose at
+   most two characters each and keep their meaning; every other entry is byte for byte what it was, and no id, scene
+   command, flag or page count changed. The alternative, lowering `LINE_CHARS` to 21, was measured and refused: it
+   would have needed every arrival entry re-paged and the 3 page cap raised.
+
 ---
 
 ## Provenance
@@ -120,6 +150,6 @@ rules. Every number here is quoted from this repository's own files: `knowledge/
 `knowledge/ARRIVAL-CONTENT.md`, `knowledge/DRIVE-SHOT-LIST.md`, `knowledge/HACKATHON-AUDIT-2026-10-22.md`,
 `specs/18-boss-phases.md`, and the blocked cards' own comments and logs.
 
-Written by gamedev, 2026-10-23. Check for this file: it exists, each of D1 to D9 states a ruling and a reason, D1 names
-the exact five flags and the one writer, D4 names the three children, and every claim of "already done" is tied to a
-capture or a log line in this repository.
+Written by gamedev, 2026-10-23. Check for this file: it exists, each of D1 to D10 states a ruling and a reason, D1 names
+the exact five flags and the one writer, D4 names the three children, D10 carries the box's three numbers and the four
+re-broken lines, and every claim of "already done" is tied to a capture or a log line in this repository.

@@ -1048,3 +1048,23 @@ choice in dialogue data and branching on the flag with the existing `branch` com
 command to the runner; and baking model output into data/meta_bake.json with a request hash, a model name and a fallback rather
 than letting the build hold a key.
 Copied expression: none
+
+## DIALOGUE-FONT-WIRE, 2026-10-23: the box draws the sheet, and its line is 28
+Studied: this repository's own files, read only: knowledge\FONT-CONTRACT-AUDIT-2026-10-23.md (the two measured defects),
+specs\05-dialogue.md, specs\13-8bit-look.md, game\scripts\pp_font\pp_font.gml, game\scripts\pp_dialogue\pp_dialogue.gml,
+game\scripts\pp_config\pp_config.gml, game\scripts\pp_art\pp_art.gml (pp_window_draw and pp_art_draw),
+game\sprites_src\title\spr_pp_font8.png and .json, spr_pp_window.png and .json, data\dialogue\all.json, data\palette.json
+(ink and paper roles), data\nes_palette.json, tools\check_data.py, tools\check_font_coverage.py, data\schemas\dialogue.schema.json,
+and the tests that pin those numbers. No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: two things. One, a text box's column count is not a taste, it is a division: box width less padding,
+divided by the glyph cell, and every other place that names a column count is a copy of that division that will drift unless
+one test recomputes it from the macros. Two, wrapping and page breaking are two different promises, and a data shape that
+promises "the author already broke these lines" is only true if the line length the checker enforces equals the length the
+box draws; when they differ, the runtime silently re-breaks the author's work and the checker keeps passing.
+Our implementation differs by: routing the box through the existing pp_font_draw instead of adding a sprite font resource,
+so the sheet stays a sprite the NES checker audits; drawing the sheet untinted (a multiply of its one ink lands on colours
+no PPU outputs, card t_a1170172); sizing the text area from the box's own padding (x 16 to 240 = 28 characters) rather than
+from a portrait column, and moving the portrait to a bust above the box because a 48 pixel column costs 7 of the 28; and
+re-breaking four authored page lines rather than lowering the column count, because at 21 columns 40 of 46 authored page
+lines double and every arrival page grows.
+Copied expression: none

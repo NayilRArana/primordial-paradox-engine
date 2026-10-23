@@ -177,19 +177,29 @@ enum PPElement {
 #macro PP_SHIP_CAPTURE "PP_" + "SHIP_CAPTURE"
 #macro PP_TITLE_CAPTURE "PP_" + "TITLE_CAPTURE"
 
-// Dialogue box (spec 05). Box 240x64 at (8,168); portrait 48x48; text area from x 72, 30 characters over 3 rows.
+// Dialogue box (spec 05). Box 240x64 at (8,168); the text area is the whole inside of the box, 8 pixels in from the
+// frame on every side, and holds 28 characters over 3 rows with the 8x8 font: 16 + 28 * 8 = 240, which is the box's
+// own right edge less its 8 pixel padding.
+// The arithmetic is the whole reason for these numbers (card t_1d828fcd). The box is 240 wide, so the inside is 224,
+// so 28 cells of 8 fit and 30 do not: 30 characters from an 8 pixel inset would end at x 256, past the frame. The
+// earlier 30 was written against a text area that started at x 72 (a 48 pixel portrait column), and 30 cells from x 72
+// end at x 312. PP_TEXT_CHARS, PP_TEXT_RIGHT and specs/05-dialogue.md all state 28, and
+// tests/test_dialogue_v2.py::test_the_box_geometry_and_the_wrap_agree recomputes the identity on every run.
+// The portrait does not take text columns any more: a 48 pixel column costs 7 of the 28, and the authored dialogue is
+// written at 21 to 30 characters a row. The portrait is a bust above the box, at PP_PORTRAIT_X and PP_PORTRAIT_Y,
+// drawn when a speaker has one; none does in this slice, so pp_dialogue_draw draws no portrait frame today.
 #macro PP_BOX_X 8
 #macro PP_BOX_Y 168
 #macro PP_BOX_W 240
 #macro PP_BOX_H 64
 #macro PP_PORTRAIT_X 16
-#macro PP_PORTRAIT_Y 176
+#macro PP_PORTRAIT_Y 120
 #macro PP_PORTRAIT_SIZE 48
-#macro PP_TEXT_X 72
+#macro PP_TEXT_X 16
 #macro PP_TEXT_Y 176
 #macro PP_TEXT_RIGHT 240
 #macro PP_TEXT_LINE_H 10
-#macro PP_TEXT_CHARS 30
+#macro PP_TEXT_CHARS 28
 #macro PP_TEXT_ROWS 3
 #macro PP_TEXT_STEPS_SLOW 2
 #macro PP_TEXT_STEPS_FAST 1

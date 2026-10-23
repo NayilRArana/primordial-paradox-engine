@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://primordial-paradox.local/schemas/dialogue.schema.json",
   "title": "Primordial Paradox dialogue file",
-  "description": "Every line the game can print, by dialogue id. A scene, a TALK command or a fight result names an id here. An entry carries its id, its speaker, and exactly one of `lines` or `pages`: `lines` is the one page shorthand that wraps by word (so only a WORD longer than 30 characters is refused), and `pages` is the pre-broken shape of spec 05 (1 to 3 pages, each 1 to 3 lines, each line at most 30 characters, because a page line is already one row of the box). A page may name its own speaker, which is how a mixed speaker scene keeps the right name plate. An entry may carry `sets` (flags applied when the box closes) and a last page `choices` (1 to 3 items of `label` at most 12 characters, `sets` of flags applied on the pick, and optional `goto` to another dialogue id). The numbers here mirror tools/check_data.py and tests/test_schemas.py compares them.",
+  "description": "Every line the game can print, by dialogue id. A scene, a TALK command or a fight result names an id here. An entry carries its id, its speaker, and exactly one of `lines` or `pages`: `lines` is the one page shorthand that wraps by word (so only a WORD longer than 28 characters is refused), and `pages` is the pre-broken shape of spec 05 (1 to 3 pages, each 1 to 3 lines, each line at most 28 characters, because a page line is already one row of the box). A page may name its own speaker, which is how a mixed speaker scene keeps the right name plate. An entry may carry `sets` (flags applied when the box closes) and a last page `choices` (1 to 3 items of `label` at most 12 characters, `sets` of flags applied on the pick, and optional `goto` to another dialogue id). The numbers here mirror tools/check_data.py and tests/test_schemas.py compares them. 28 is not a preference: the box is 240 pixels wide with 8 pixels of padding each side, and the font is 8 pixels a glyph, so 28 rows of 8 fit in the 224 the padding leaves, and 30 would end at x 256, past the frame.",
   "type": "object",
   "required": ["format", "kind", "dialogue"],
   "additionalProperties": false,
@@ -21,14 +21,14 @@
     "line": {
       "type": "string",
       "minLength": 1,
-      "pattern": "^(?!.*\\S{31,}).+$",
-      "description": "One line as typed into the box, in the shorthand shape. No run of more than 30 non space characters, because the box wraps on spaces."
+      "pattern": "^(?!.*\\S{29,}).+$",
+      "description": "One line as typed into the box, in the shorthand shape. No run of more than 28 non space characters, because the box wraps on spaces and a 28 character word is exactly one row."
     },
     "page_line": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 30,
-      "description": "One row of a page that has already been broken: 30 characters is the box's line, so 31 is refused."
+      "maxLength": 28,
+      "description": "One row of a page that has already been broken: 28 characters is the box's line, so 29 is refused."
     },
     "page": {
       "type": "object",

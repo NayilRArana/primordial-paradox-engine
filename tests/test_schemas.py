@@ -111,7 +111,7 @@ def test_dialogue_bounds_match_the_checker_constants():
     entry = schema["$defs"]["entry"]["properties"]
     assert entry["lines"]["maxItems"] == check_data.PAGES * 3
 
-    # The pages shape (decision D2): 3 pages, 3 lines a page, 30 characters a page line, 3 choices in a 12 character
+    # The pages shape (decision D2): 3 pages, 3 lines a page, 28 characters a page line, 3 choices in a 12 character
     # panel. Each of these is a number in two places, so the two descriptions of the file are compared here.
     assert entry["pages"]["maxItems"] == check_data.PAGES
     assert entry["pages"]["items"]["$ref"] == "#/$defs/page"
@@ -123,7 +123,7 @@ def test_dialogue_bounds_match_the_checker_constants():
     choice = schema["$defs"]["choice"]["properties"]
     assert choice["label"]["maxLength"] == check_data.CHOICE_LABEL_CHARS
 
-    # The box wraps on spaces, so the limit is on one WORD, not on a sentence: 30 characters fit, 31 do not.
+    # The box wraps on spaces, so the limit is on one WORD, not on a sentence: 28 characters fit, 29 do not.
     validator = jsonschema.Draft202012Validator({"$defs": schema["$defs"], "$ref": "#/$defs/entry"})
     fits = {"id": "t", "speaker": "narrator", "lines": ["* " + "a" * check_data.LINE_CHARS]}
     over = {"id": "t", "speaker": "narrator", "lines": ["* " + "a" * (check_data.LINE_CHARS + 1)]}

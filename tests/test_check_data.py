@@ -157,7 +157,7 @@ def test_word_longer_than_a_line_is_refused(data_root, read_json, write_json):
     write_json(path, data)
 
     errors = failures(data_root)
-    assert any("longer than a 30 character line" in e for e in errors), errors
+    assert any("longer than a %d character line" % check_data.LINE_CHARS in e for e in errors), errors
 
 
 def test_pattern_that_never_ends_is_refused(data_root, read_json, write_json):

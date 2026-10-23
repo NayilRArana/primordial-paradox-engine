@@ -1,7 +1,9 @@
 /// pp_dialogue: the text box layout (spec 05) over the one reveal machine in pp_text.
-/// This module owns the words' shape and place: word wrap, pages, the box, the portrait frame, the name plate and the
-/// page arrow. It owns no reveal: the character timing, the holds, the punctuation pauses, the blip and the done
-/// predicate belong to pp_text (law 8, one renderer per thing).
+/// This module owns the words' shape and place: word wrap, pages, the box, the name plate and the page arrow, and it
+/// draws every one of them through pp_font_draw, the one text path in the game. It owns no reveal: the character
+/// timing, the holds, the punctuation pauses, the blip and the done predicate belong to pp_text (law 8, one renderer
+/// per thing). The portrait no longer takes a column of the text area (card t_1d828fcd): it is a bust above the box,
+/// and no speaker in the slice carries one, so nothing draws it yet.
 /// Provenance: knowledge\PROVENANCE.md, entry "text reveal machine: one implementation, two layouts", and the older
 /// entry "battle state machine and turn loop". The page and beat model is spec 05.
 /// No closures: every loop is written out, because a closure that reassigns an outer var is the kind of thing that
@@ -313,7 +315,18 @@ function pp_dialogue_closed(_d) {
     return _d.closed;
 }
 
-/// Draw the box, the name plate, the visible rows and the arrow. Two inks only: text and highlight (rule 6).
+/// Draw the box, the name plate, the visible rows and the arrow. One ink: the font sheet's own (rule 6).
+///
+/// Every piece of text here goes through pp_font_draw, never draw_text (card t_1d828fcd). The box used to draw its
+/// rows, its name plate and its choice labels with draw_text, and the project has no font resource, so the dialogue
+/// printed in the GameMaker default font while the rest of the game printed the 8x8 sheet: the box was the one place
+/// the art lane's font never reached. pp_font_draw is the only text path in this module now.
+///
+/// There is no colour argument to give it, and that is deliberate. The sheet is one ink, #f8f8f8, and the window's
+/// fill is #000000, so the text is the sheet's white on the window's black without a tint. A tint is a multiply, and
+/// multiplying that white by a role colour produces values no PPU can output (card t_a1170172, the same reason the
+/// title marks a disabled row with a rule instead of a grey label). The set_colour calls below therefore colour the
+/// rectangles only, and pp_font_draw draws the letters exactly as the art lane authored them.
 function pp_dialogue_draw(_d) {
     // The classic NES window frame from the art lane, nine sliced on the 8x8 tile grid. Drawn rectangles
     // remain as the fallback for a build without spr_pp_window.
@@ -325,10 +338,6 @@ function pp_dialogue_draw(_d) {
         draw_rectangle(PP_BOX_X + 1, PP_BOX_Y + 1, PP_BOX_X + PP_BOX_W - 2, PP_BOX_Y + PP_BOX_H - 2, true);
     }
 
-    draw_set_colour(pp_role_colour("dim"));
-    draw_rectangle(PP_PORTRAIT_X, PP_PORTRAIT_Y, PP_PORTRAIT_X + PP_PORTRAIT_SIZE - 1,
-        PP_PORTRAIT_Y + PP_PORTRAIT_SIZE - 1, true);
-
     if (is_undefined(_d) || _d.closed) return;
 
     var _page = _d.reveal.unit;
@@ -339,16 +348,14 @@ function pp_dialogue_draw(_d) {
     if (_plate != "narrator" && _plate != "") {
         draw_set_colour(pp_role_colour("paper"));
         draw_rectangle(PP_BOX_X + 4, PP_BOX_Y - 6, PP_BOX_X + 68, PP_BOX_Y + 6, false);
-        draw_set_colour(pp_role_colour("accent"));
-        draw_text(PP_BOX_X + 8, PP_BOX_Y - 4, string_upper(_plate));
+        pp_font_draw(string_upper(_plate), PP_BOX_X + 8, PP_BOX_Y - 4, 1);
     }
 
     var _budget = _d.reveal.revealed;
     var _r = 0;
-    draw_set_colour(pp_role_colour("ink"));
     while (_r < array_length(_rows)) {
         var _text = pp_text_visible(_rows[_r], _budget);
-        draw_text(PP_TEXT_X, PP_TEXT_Y + _r * PP_TEXT_LINE_H, _text);
+        pp_font_draw(_text, PP_TEXT_X, PP_TEXT_Y + _r * PP_TEXT_LINE_H, 1);
         _budget -= array_length(_rows[_r]);
         if (_budget < 0) _budget = 0;
         _r += 1;
@@ -372,7 +379,7 @@ function pp_dialogue_draw(_d) {
                     _panel_x - PP_CHOICE_GAP - 2, _choice_y + PP_CHOICE_ARROW_W - 1, false);
             }
             draw_set_colour(pp_role_colour("ink"));
-            draw_text(_panel_x, _choice_y, _d.choices[_c].label);
+            pp_font_draw(_d.choices[_c].label, _panel_x, _choice_y, 1);
             _c += 1;
         }
         return;

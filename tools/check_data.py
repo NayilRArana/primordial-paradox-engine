@@ -57,7 +57,11 @@ PALETTE_FAMILIES = ("grey", "sea", "bronze", "wine", "moss", "stone", "gold", "v
 SEMANTIC_ROLES = ("ink", "paper", "dim", "accent", "marker", "marker_trail", "hazard", "warn")
 MAX_FLAGS = 200
 MAX_FLAG_LEN = 32
-LINE_CHARS = 30
+# The box's line in characters (spec 05, card t_1d828fcd). The dialogue window is 240 pixels wide with an 8 pixel
+# padding on each side, so the text area is 224 pixels, so 28 cells of the 8x8 font fit: 16 + 28 * 8 = 240. This is
+# the same number as PP_TEXT_CHARS in game/scripts/pp_config/pp_config.gml, and
+# tests/test_dialogue_v2.py::test_the_box_geometry_and_the_wrap_agree fails when the two drift apart.
+LINE_CHARS = 28
 # Spec 18 section 1: at most four phase rows per enemy, and a breakpoint is a percent of max_hp compared in integers
 # (section 8 P3), so 1 to 99 and never absolute hp. Spec 18 section 6 consequence 1 lets a phase row raise the attack
 # inside the enemy's own band and calls that not a rule change; spec 07 line 32 writes Percy's band, 3 to 6. A regular
@@ -717,7 +721,7 @@ class Checker:
             self.check_dialogue_choices(row, path, filename, ids)
 
     def check_dialogue_lines(self, row, path, filename):
-        """The one page shorthand: 1 to 9 lines, wrapped by word at 30 characters (spec delta T6)."""
+        """The one page shorthand: 1 to 9 lines, wrapped by word at 28 characters (spec delta T6)."""
         lines = self.require(row, "lines", "list", filename, path)
         if lines is None:
             return
@@ -742,10 +746,10 @@ class Checker:
                     break
 
     def check_dialogue_pages(self, row, path, filename):
-        """The spec 05 shape: 1 to 3 pages of 1 to 3 lines, each line already one row of 30 characters.
+        """The spec 05 shape: 1 to 3 pages of 1 to 3 lines, each line already one row of 28 characters.
 
         A page line is not wrapped by the checker the way a shorthand line is, because a page IS the broken text:
-        a line of 31 characters has nowhere to go in a 30 character box, so it is refused with the id and the index.
+        a line of 29 characters has nowhere to go in a 28 character box, so it is refused with the id and the index.
         """
         pages = self.require(row, "pages", "list", filename, path)
         if pages is None:

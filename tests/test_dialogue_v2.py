@@ -2,7 +2,7 @@
 
 What this file holds down, and why each check earns its place:
   1. SHAPE. Every entry carries an id, a speaker and exactly one of `lines` or `pages`, and every page is inside the
-     spec 05 box (1 to 3 pages of 1 to 3 lines of at most 30 characters). The 21 committed ids may keep the one page
+     spec 05 box (1 to 3 pages of 1 to 3 lines of at most 28 characters). The 21 committed ids may keep the one page
      shorthand forever, so this passes with both shapes in one file, which is what the decision asked for.
   2. CHOICES. A choice list is 1 to 3 items, its label fits the 96 pixel panel (12 characters), every flag it sets is
      a name in data/flags.json, and its `goto` is another dialogue id. The checker refuses each of those faults, and
@@ -189,14 +189,15 @@ def test_the_checker_refuses_a_four_page_entry(data_root, read_json, write_json)
     assert any("more than the 3 a box entry may carry" in error for error in errors), errors
 
 
-def test_the_checker_refuses_a_31_character_page_line(data_root, read_json, write_json):
+def test_the_checker_refuses_a_page_line_one_character_too_long(data_root, read_json, write_json):
     path = data_root / "data" / "dialogue" / "all.json"
     data = read_json(path)
     add_entry(data, one_page_entry("long_line", pages=[{"lines": ["* " + "a" * (check_data.LINE_CHARS - 1)]}]))
     write_json(path, data)
 
     errors = dialogue_failures(data_root)
-    assert any("characters, the box holds 30 on a page line" in error for error in errors), errors
+    assert any("characters, the box holds %d on a page line" % check_data.LINE_CHARS in error for error in errors), \
+        errors
     # And the same fault one character shorter is accepted, so the check is the length and not the fixture.
     data["dialogue"][-1] = one_page_entry("long_line", pages=[{"lines": ["* " + "a" * (check_data.LINE_CHARS - 2)]}])
     write_json(path, data)
@@ -439,4 +440,79 @@ def test_the_dock_office_hands_over_the_pass_on_its_last_page():
     assert len(office["pages"] + handover["pages"]) == 6, "the office beat is six pages"
     assert handover["sets"] == ["has_boarding_pass"], handover.get("sets")
     assert "sets" not in office, "the pass is handed over in the second entry, not the first"
+
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# 7. The box's geometry, and the font as its only text path (card t_1d828fcd).
+#
+# The card found two measured defects: the box drew its words with draw_text and no font asset, and the 30 character
+# wrap ran 64 pixels past the box's right edge. Both are held down here by arithmetic, because a composed picture only
+# proves today's pixels while an identity proves every run. The glyph cell is 8, the box is 240 wide with 8 pixels of
+# padding, so the text area is 224 and holds 28 characters; 30 would need 240 from an 8 pixel inset, which ends at
+# x 248 past a text area that ends at 240.
+
+PP_CONFIG_GML = os.path.join(ROOT, "game", "scripts", "pp_config", "pp_config.gml")
+SPEC_05 = os.path.join(ROOT, "specs", "05-dialogue.md")
+GLYPH_CELL = 8
+BOX_PADDING = 8
+
+
+def macro(code, name):
+    """One `#macro NAME 12` from a GML file, as an int. A macro that is missing or not a literal is a failure."""
+    match = re.search(r"^#macro\s+%s\s+(-?\d+)\s*$" % re.escape(name), code, re.MULTILINE)
+    assert match is not None, "no literal #macro %s in %s" % (name, PP_CONFIG_GML)
+    return int(match.group(1))
+
+
+def test_the_box_geometry_and_the_wrap_agree():
+    """The one number: PP_TEXT_CHARS, PP_TEXT_RIGHT and spec 05 state what the font actually fits."""
+    code = code_of(PP_CONFIG_GML)
+    box_x, box_y = macro(code, "PP_BOX_X"), macro(code, "PP_BOX_Y")
+    box_w, box_h = macro(code, "PP_BOX_W"), macro(code, "PP_BOX_H")
+    text_x, text_y = macro(code, "PP_TEXT_X"), macro(code, "PP_TEXT_Y")
+    text_right, chars = macro(code, "PP_TEXT_RIGHT"), macro(code, "PP_TEXT_CHARS")
+    line_h, rows = macro(code, "PP_TEXT_LINE_H"), macro(code, "PP_TEXT_ROWS")
+
+    # The wrap constant is exactly the room the text area gives it, at the 8 pixel glyph the sheet draws.
+    assert chars * GLYPH_CELL == text_right - text_x, \
+        "%d characters at %d pixels is %d, but the text area is %d wide" % (
+            chars, GLYPH_CELL, chars * GLYPH_CELL, text_right - text_x)
+
+    # The text sits inside the box's padding and never on the frame: the last glyph ends on the text area's edge,
+    # which is 8 pixels short of the box's own right edge.
+    assert text_x >= box_x + BOX_PADDING, (text_x, box_x)
+    assert text_right <= box_x + box_w - BOX_PADDING, (text_right, box_x + box_w)
+    assert text_right + BOX_PADDING <= macro(code, "PP_FRAME_W"), "the text area runs past the 256 pixel frame"
+    assert text_y >= box_y and text_y + rows * line_h <= box_y + box_h, (text_y, rows, line_h, box_y + box_h)
+
+    # A row of 30 characters is the fault the card measured: it cannot fit whatever the inset, so 28 is the ceiling.
+    assert chars <= 28 < 30
+
+    # The checker and the schema hold the same number, and so does the spec, so no two of them can drift apart.
+    assert chars == check_data.LINE_CHARS, (chars, check_data.LINE_CHARS)
+    with open(SPEC_05, "r", encoding="utf-8") as handle:
+        spec = handle.read()
+    stated = re.search(r"(\d+) characters per line", spec)
+    assert stated is not None, "specs/05-dialogue.md states no characters per line"
+    assert int(stated.group(1)) == chars, "spec 05 says %s, the box draws %d" % (stated.group(1), chars)
+
+
+def test_the_box_draws_with_the_font_and_never_with_draw_text():
+    """The other defect: the live box path drew with draw_text, so the font sheet never reached the screen."""
+    code = code_of(DIALOGUE_GML)
+    assert "draw_text" not in code, \
+        "pp_dialogue draws with draw_text somewhere; every word in this module goes through pp_font_draw"
+
+    draw = function_body(code, "pp_dialogue_draw")
+    # Three runs of text in the box: the rows, the name plate and the choice labels, and each is one pp_font_draw.
+    assert draw.count("pp_font_draw(") == 3, draw.count("pp_font_draw(")
+    assert "pp_font_draw(_text, PP_TEXT_X" in draw, "the rows must be drawn at the text area's own x"
+    assert "pp_font_draw(string_upper(_plate)" in draw, "the name plate is the page's speaker, in the sheet"
+    assert "pp_font_draw(_d.choices[_c].label" in draw, "the choice labels are the sheet's glyphs too"
+
+    # The sheet is one ink and a tint would be a colour no PPU outputs, so the box passes no colour of its own: the
+    # letters reach the screen exactly as the art lane authored them, and the box never draws a glyph by hand.
+    assert "draw_sprite_part" not in draw, "the box draws letters through pp_font_draw, not by hand"
+
 

@@ -1,6 +1,12 @@
 /// pp_font: the 8x8 bitmap font, drawn from the spr_pp_font8 sprite sheet.
-/// Every piece of text on the title screen goes through here, and the font is the only text in the project:
-/// no draw_text, no default font, so the letters are the same pixels everywhere (spec 13, font and UI).
+/// This is the game's only letters. Every screen that draws with it goes through pp_font_draw, so the letters are the
+/// same pixels everywhere (spec 13, font and UI): the title screen, the drive scene and, since card t_1d828fcd, the
+/// dialogue box's rows, name plate and choice labels.
+/// A screen still on the GameMaker default font is a screen the font has not reached yet, and the honest list is
+/// short: the boot and data error screen (pp_app), the battle board (pp_battle_director and pp_battle_text), the save
+/// panel (pp_save) and one overworld hint line (pp_overworld). Those draw with draw_text and are card
+/// BATTLE-FONT-WIRE's, not this module's; before that card the dialogue box was on that list, so this header used to
+/// claim a thing the tree did not do.
 /// The sheet holds one frame per glyph in ASCII order, so a glyph is found by its position in the ASCII set
 /// rather than by a table of offsets.
 /// Provenance: knowledge\PROVENANCE.md, entry "modules written from the specs alone", written from
