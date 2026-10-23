@@ -35,7 +35,8 @@
         "id": { "type": "string", "minLength": 1 },
         "once": { "type": "boolean" },
         "condition": { "type": "string", "description": "A flag name that must be set, or the empty string for no condition." },
-        "spawn": { "type": "string", "minLength": 1, "description": "Required when kind is map: the spawn point on the destination map." }
+        "spawn": { "type": "string", "minLength": 1, "description": "Required when kind is map: the spawn point on the destination map." },
+        "marker_kind": { "enum": ["story", "wild"], "description": "Only on a marker trigger. A story marker is authored in the row and its count wins; a wild marker is drawn from the random table and obeys the 40 to 60 tile density (D1 of knowledge/GAMEDEV-DECISIONS-2026-10-22.md). The trigger kind stays marker, because that word is the table selector. Read this field for the marker kind." }
       },
       "allOf": [
         {
@@ -101,6 +102,7 @@
         },
         "music": { "type": "string", "minLength": 1, "description": "A sound id of kind music in data/audio.json." },
         "story_flag": { "type": "string", "description": "The flag that clears tiles marked 2 in collision. Empty string means this map has no story gate." },
+        "encounters": { "enum": ["scripted", "random"], "description": "Which table this map's markers come from: scripted means every marker on the row is authored, random means wild markers are generated too (D1 of knowledge/GAMEDEV-DECISIONS-2026-10-22.md). Default scripted." },
         "room_palette": {
           "type": "string",
           "pattern": "^[a-z][a-z0-9_]*$",
