@@ -21,6 +21,8 @@ enum PPSliceKind {
 // same way pp_config writes the title and ship capture names. Unset in every real launch, the walk costs one
 // environment read at boot and nothing per frame.
 #macro PP_SLICE "PP_" + "SLICE"
+// The log the walk writes beside the save, so a run that opened a window can be read afterwards without a console.
+#macro PP_SLICE_LOG "pp_slice_run.log"
 // A route is nine rows long and a branch may lead back to the title, so the walk stop after this many steps keeps a
 // mistyped `to` from looping forever. It is a bound on a bad row, never on the demo.
 #macro PP_SLICE_MAX_STEPS 64
@@ -721,6 +723,28 @@ function pp_slice_walk_enabled() {
     return (environment_get_variable(PP_SLICE) != "");
 }
 
+/// Say one walk line twice: to the debug console, and to pp_slice_run.log beside the save, because a run started from
+/// the run script has no console a person can read afterwards, so the log is what the check can be read from.
+function pp_slice_note(_line) {
+    show_debug_message(_line);
+    var _f = file_text_open_append(PP_SLICE_LOG);
+    if (_f < 0) return false;
+    file_text_write_string(_f, _line);
+    file_text_writeln(_f);
+    file_text_close(_f);
+    return true;
+}
+
+/// Empty the walk's log before the first line of a walk, so a second run answers for itself and not for the first.
+function pp_slice_log_start() {
+    var _f = file_text_open_write(PP_SLICE_LOG);
+    if (_f < 0) return false;
+    file_text_write_string(_f, "PP slice walk, PP_SLICE set");
+    file_text_writeln(_f);
+    file_text_close(_f);
+    return true;
+}
+
 /// Put the walk at the route's first step. Called from pp_slice_start before the first screen is entered.
 function pp_slice_walk_start() {
     var _app = global.pp.app;
@@ -730,8 +754,9 @@ function pp_slice_walk_start() {
     _app.slice_lose = false;
     _app.slice_walked = 0;
     _app.slice_walk = (_app.slice_step != "" && pp_slice_route_count() > 0);
+    pp_slice_log_start();
     if (!_app.slice_walk) {
-        show_debug_message("PP slice: data/slice.json has no route, the walk is not started");
+        pp_slice_note("PP slice: data/slice.json has no route, the walk is not started");
     }
     return _app.slice_walk;
 }
@@ -740,9 +765,9 @@ function pp_slice_walk_start() {
 function pp_slice_walk_stop(_reason) {
     var _app = global.pp.app;
     var _row = pp_slice_route_row(_app.slice_step);
-    show_debug_message("PP slice: stopped at step " + string(pp_slice_route_index(_app.slice_step)) + " of "
-                       + string(pp_slice_route_count()) + " " + string(_app.slice_step) + " ("
-                       + pp_slice_label(_row) + "): " + string(_reason));
+    pp_slice_note("PP slice: stopped at step " + string(pp_slice_route_index(_app.slice_step)) + " of "
+                  + string(pp_slice_route_count()) + " " + string(_app.slice_step) + " ("
+                  + pp_slice_label(_row) + "): " + string(_reason));
     _app.slice_walk = false;
     return false;
 }
@@ -764,9 +789,9 @@ function pp_slice_walk_step() {
 
     // First frame on this step: say what it hands to, then take the handoff.
     if (!_app.slice_taken) {
-        show_debug_message("PP slice: step " + string(pp_slice_route_index(_app.slice_step)) + " of "
-                           + string(pp_slice_route_count()) + " " + string(_row.id) + " ("
-                           + pp_slice_label(_row) + "): " + pp_slice_handoff_text(_row));
+        pp_slice_note("PP slice: step " + string(pp_slice_route_index(_app.slice_step)) + " of "
+                      + string(pp_slice_route_count()) + " " + string(_row.id) + " ("
+                      + pp_slice_label(_row) + "): " + pp_slice_handoff_text(_row));
         var _why = pp_slice_handoff(_row);
         if (_why != "") return pp_slice_walk_stop(_why);
         _app.slice_taken = true;
@@ -791,9 +816,9 @@ function pp_slice_walk_step() {
     var _next = pp_slice_next_id(_row, _app.slice_lose);
     if (_next == "") {
         _app.slice_walk = false;
-        show_debug_message("PP slice: the route ends after step " + string(pp_slice_route_index(_app.slice_step))
-                           + " of " + string(pp_slice_route_count()) + " " + string(_row.id) + ", "
-                           + string(_app.slice_walked) + " steps walked");
+        pp_slice_note("PP slice: the route ends after step " + string(pp_slice_route_index(_app.slice_step))
+                      + " of " + string(pp_slice_route_count()) + " " + string(_row.id) + ", "
+                      + string(_app.slice_walked) + " steps walked");
         return true;
     }
     if (is_undefined(pp_slice_route_row(_next))) {
