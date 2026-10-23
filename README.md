@@ -38,17 +38,18 @@ The rule is ruling D5 of `knowledge/GAMEDEV-DECISIONS-2026-10-22.md`, and it is 
 laptop with the wifi off.
 
 **The shipped build makes no network call and holds no key.** No GML file in this project calls an HTTP, socket or URL
-function; the build compiles and runs with an empty environment.
+function (the only URLs in the game code are manual links inside comments), and the build compiles and runs with an
+empty environment.
 
-**Model output is baked, not called.** `tools/bake_meta.py` sends each request once, before a build, and writes the
-answer into `data/meta_bake.json` with the model name, the request hash, the creation time and the hand written
-fallback beside it. The game reads that file. A bake that is missing, stale or unreachable at build time stops the
-build rather than falling back silently at runtime.
+**Model output is baked, not called.** That is ruling D5. The bake runs once, before a build, and its answer lands in
+`data/meta_bake.json` with the model name, the request hash, the creation time and the hand written fallback beside
+it. The game reads that file and nothing else, and a bake that is missing or stale is meant to stop the build rather
+than fall back quietly at runtime.
 
-**Where it stands today.** No bake exists yet (`data/meta_bake.json` is the deliverable of card R29), and
-`game/datafiles/ai_cache` is empty, so no Meta call has been made from here. The client is written and exercised
-against a mock backend: `tools/meta_client.py`, with `chat`, `chat_structured`, `vision`, `generate_image`,
-`edit_image` and `segment`.
+**Where it stands today, without rounding up.** The bake tool (card R29) does not exist yet, `data/meta_bake.json` is
+absent, `game/datafiles/ai_cache` is empty, and no Meta call has been made from this repository. Every line the game
+prints today is the written fallback. What is written and exercised against a mock backend is the client,
+`tools/meta_client.py`, with `chat`, `chat_structured`, `vision`, `generate_image`, `edit_image` and `segment`.
 
 | Job | Model | Entry point | Fallback when there is no bake |
 | --- | --- | --- | --- |
@@ -122,7 +123,7 @@ repository.
 | `tools/nes_audit_all.py` | every asset, sheet and capture, with a verdict and the pixel count of each fix |
 | `tools/palette_synergy.py` | whether a sprite separates from the ground it stands on, measured, not judged |
 | `tools/scene_palette_set.py` | one palette per scene, chosen and validated before anything is drawn |
-| `tools/bake_meta.py`, `tools/meta_client.py` | the bake and the only file that knows the model HTTP shapes |
+| `tools/meta_client.py` | the only file that knows the model HTTP shapes; the bake tool lands with card R29 |
 | `tools/eye_critic.py`, `tools/ear_critic.py` | the model critics that score a frame or a spectrogram |
 | `tools/render_chip.py`, `tools/arrange.py` | the chip audio renderer and the composition engine |
 | `tools/osm_to_map.py` | map geometry from OpenStreetMap, with the ODbL attribution kept in the build |
