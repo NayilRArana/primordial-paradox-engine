@@ -1,0 +1,125 @@
+{
+  "models": {},
+  "runs": [
+    {
+      "at": "2026-10-23T09:43:18Z",
+      "cues_scored": 4,
+      "live_order": [
+        "gemini-3.5-flash-lite",
+        "gemini-3.5-flash",
+        "gemini-3.7-flash",
+        "gemini-3.8-flash"
+      ],
+      "models_used": [
+        "gemini-3.5-flash-lite"
+      ],
+      "rows": [
+        {
+          "calls": 1,
+          "cue": "drive",
+          "error": "",
+          "file": "assets/audio/pp_drive/pp_drive_v3_humanized.mp3",
+          "label": "PP-02 drive",
+          "model": "gemini-3.5-flash-lite",
+          "review": "assets/audio/ear_reviews/pp_drive_v3_humanized_20261023T094326Z.md",
+          "scores": {
+            "drums": 4,
+            "hook": 6,
+            "human": 3,
+            "structure": 5,
+            "tension": 5,
+            "variety": 6
+          },
+          "seconds": 8.1,
+          "status": "ok"
+        },
+        {
+          "calls": 1,
+          "cue": "arrival",
+          "error": "",
+          "file": "assets/audio/pp_arrival/pp_arrival.mp3",
+          "label": "PP-03 arrival, night quay",
+          "model": "gemini-3.5-flash-lite",
+          "review": "assets/audio/ear_reviews/pp_arrival_20261023T094334Z.md",
+          "scores": {
+            "drums": 4,
+            "hook": 7,
+            "human": 3,
+            "structure": 6,
+            "tension": 5,
+            "variety": 6
+          },
+          "seconds": 8.0,
+          "status": "ok"
+        },
+        {
+          "calls": 1,
+          "cue": "boarding",
+          "error": "",
+          "file": "assets/audio/pp_boarding/pp_boarding.mp3",
+          "label": "PP-06 boarding",
+          "model": "gemini-3.5-flash-lite",
+          "review": "assets/audio/ear_reviews/pp_boarding_20261023T094341Z.md",
+          "scores": {
+            "drums": 4,
+            "hook": 6,
+            "human": 3,
+            "structure": 5,
+            "tension": 5,
+            "variety": 6
+          },
+          "seconds": 6.8,
+          "status": "ok"
+        },
+        {
+          "calls": 1,
+          "cue": "fight",
+          "error": "",
+          "file": "assets/audio/pp_fight/pp_fight_states.mp3",
+          "label": "PP-04 fight",
+          "model": "gemini-3.5-flash-lite",
+          "review": "assets/audio/ear_reviews/pp_fight_states_20261023T094348Z.md",
+          "scores": {
+            "drums": 5,
+            "hook": 7,
+            "human": 3,
+            "structure": 6,
+            "tension": 4,
+            "variety": 8
+          },
+          "seconds": 6.4,
+          "status": "ok"
+        }
+      ],
+      "run": "20261023T094318Z",
+      "skipped": [],
+      "trials": [
+        {
+          "cue": "drive",
+          "detail": "",
+          "model": "gemini-3.5-flash-lite",
+          "status": "ok"
+        },
+        {
+          "cue": "arrival",
+          "detail": "",
+          "model": "gemini-3.5-flash-lite",
+          "status": "ok"
+        },
+        {
+          "cue": "boarding",
+          "detail": "",
+          "model": "gemini-3.5-flash-lite",
+          "status": "ok"
+        },
+        {
+          "cue": "fight",
+          "detail": "",
+          "model": "gemini-3.5-flash-lite",
+          "status": "ok"
+        }
+      ]
+    }
+  ],
+  "version": 1
+}

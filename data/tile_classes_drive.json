@@ -1,0 +1,211 @@
+{
+  "format": 1,
+  "kind": "tile_classes",
+  "name": "drive",
+  "card": "DRIVE-TILES (t_d0e73725)",
+  "odbl": "(c) OpenStreetMap contributors, Open Database Licence (ODbL) 1.0, https://www.openstreetmap.org/copyright",
+  "sources": {
+    "extracts": [
+      {
+        "file": "data/osm_cache/southampton_town_quay.json",
+        "fetched": "2026-10-22T04:05:03+00:00",
+        "used for": "A33 Town Quay way/8150576 lanes=3 asphalt lit=yes; way/24594762 lanes=4; lit=yes on 125 ways"
+      },
+      {
+        "file": "data/osm_cache/westminster_big_ben.json",
+        "fetched": "2026-10-21T20:24:00+00:00",
+        "used for": "A3211 Victoria Embankment way/236139546 width=7; Bridge Street way/406370787 destination:lanes:backward; shoulder=no on 9 primary ways"
+      },
+      {
+        "file": "data/osm_cache/winchester_high_street.json",
+        "fetched": "2026-10-21T20:24:00+00:00",
+        "used for": "read for lane and surface tags; nothing in this sheet depends on it alone"
+      }
+    ],
+    "tile_scale": "8 m to a 16 px tile, from tools/osm_to_map.py METRES_PER_TILE",
+    "odbl_line_written_by": "this file's own odbl key, above, verbatim"
+  },
+  "odbl_note": "the tile geometry (corridor width, lane width, line and dash lengths) is derived from those extracts at 8 m per tile, so the class file and the map built from it carry the line above verbatim; the game's own art and story do not",
+  "rule": "every tile in assets/tiles/drive/drive_tiles.png appears here once, by index and by name, with walkable true or false and the reason; a tile missing from this file cannot be placed by the map wiring",
+  "tile_size": 16,
+  "tilecount": 24,
+  "backdrop": {
+    "entry": 15,
+    "hex": "#000000"
+  },
+  "not_walkable_rule": "a tile is not walkable when it is a solid (a post, a barrier, a hedge) or when it is ground you cannot stand on because something is over it (a sign, a beam)",
+  "tiles": [
+    {
+      "index": 0,
+      "name": "road_surface",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "a road surface: the corridor is driven and walked across"
+    },
+    {
+      "index": 1,
+      "name": "road_surface_worn",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "a road surface: the corridor is driven and walked across"
+    },
+    {
+      "index": 2,
+      "name": "road_lane_dash",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "a road surface: the corridor is driven and walked across"
+    },
+    {
+      "index": 3,
+      "name": "road_edge_line",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "a road surface: the corridor is driven and walked across"
+    },
+    {
+      "index": 4,
+      "name": "road_shoulder",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "a road surface: the corridor is driven and walked across"
+    },
+    {
+      "index": 5,
+      "name": "road_wet",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "a road surface: the corridor is driven and walked across"
+    },
+    {
+      "index": 6,
+      "name": "road_stud",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "a road surface: the corridor is driven and walked across"
+    },
+    {
+      "index": 7,
+      "name": "road_single_lane",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "a road surface: the corridor is driven and walked across"
+    },
+    {
+      "index": 8,
+      "name": "verge_grass",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "open grass: low, and the drive lets you stand on it"
+    },
+    {
+      "index": 9,
+      "name": "verge_tuft",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "open grass: low, and the drive lets you stand on it"
+    },
+    {
+      "index": 10,
+      "name": "hedge_night",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "a hedge is a wall of growth: the map treats it as a solid"
+    },
+    {
+      "index": 11,
+      "name": "verge_shadow",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "open grass: low, and the drive lets you stand on it"
+    },
+    {
+      "index": 12,
+      "name": "kerb",
+      "walkable": true,
+      "class": "walkable",
+      "reason": "a kerb is a step of one pixel: crossable, so the map does not block it"
+    },
+    {
+      "index": 13,
+      "name": "marker_post",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "a fitting on the verge: a post is a solid"
+    },
+    {
+      "index": 14,
+      "name": "lamp_post",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "a fitting on the verge: a post is a solid"
+    },
+    {
+      "index": 15,
+      "name": "lamp_head",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "overhead structure: it blocks the lane it crosses when placed in the ground layer"
+    },
+    {
+      "index": 16,
+      "name": "gantry_beam",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "overhead structure: a beam is not ground"
+    },
+    {
+      "index": 17,
+      "name": "gantry_leg",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "a fitting on the verge: a post is a solid"
+    },
+    {
+      "index": 18,
+      "name": "gantry_sign_panel",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "overhead structure: it blocks the lane it crosses when placed in the ground layer"
+    },
+    {
+      "index": 19,
+      "name": "gantry_sign_edge",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "overhead structure: it blocks the lane it crosses when placed in the ground layer"
+    },
+    {
+      "index": 20,
+      "name": "gantry_sign_back",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "overhead structure: it blocks the lane it crosses when placed in the ground layer"
+    },
+    {
+      "index": 21,
+      "name": "barrier_rail",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "a fitting on the verge: a post is a solid"
+    },
+    {
+      "index": 22,
+      "name": "barrier_post",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "a fitting on the verge: a post is a solid"
+    },
+    {
+      "index": 23,
+      "name": "barrier_end",
+      "walkable": false,
+      "class": "not walkable",
+      "reason": "a fitting on the verge: a post is a solid"
+    }
+  ],
+  "counts": {
+    "walkable": 12,
+    "not_walkable": 12
+  }
+}
