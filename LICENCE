@@ -1,0 +1,98 @@
+LICENCE
+
+Primordial Paradox
+Copyright (c) 2026 Nayil Arana. All rights reserved.
+
+
+1. WHAT THIS FILE IS
+
+This file is the copyright notice and the statement of terms for this repository, and it is
+the file a reader, a judge or an employer should open first when asking what may be done with
+the work here. It is plain text so that it reads the same in an editor, in a browser and in a
+diff.
+
+It is not a grant of rights. No outbound licence has been chosen for this repository yet; that
+decision is the copyright holder's and it is still open. When it is made, section 2 below is
+replaced in full and this file becomes the chosen licence's own text. Nothing else in this
+file changes when that happens, because sections 3 and 4 are not the holder's to give away.
+
+
+2. THE TERMS TODAY
+
+The work in this repository is Copyright (c) 2026 Nayil Arana, all rights reserved.
+
+Reading this repository is not restricted by this file. The restrictions below concern copying
+and use, and they are what the default of copyright already says:
+
+  - No copy of this work, in whole or in part, may be redistributed, published, sold, rented,
+    sublicensed or included in another work.
+  - No modified version, port, translation, asset extraction or other derivative work may be
+    made or distributed.
+  - No part of this work may be used commercially, including its code, its art, its music, its
+    sound effects, its text or its data tables.
+  - The name Primordial Paradox and the names of its characters may not be used to endorse or
+    promote anything.
+
+A written licence from the copyright holder is the only thing that changes any of the above.
+Asking is welcome; assuming is not.
+
+
+3. THIRD PARTY MATERIAL THIS FILE CANNOT SPEAK FOR
+
+Nothing in section 2 narrows a third party's rights, and nothing in this file grants what a
+third party owns. Four things in this repository are not the holder's alone, and each is
+recorded with its required line in CREDITS.md:
+
+  - Engine. GameMaker LTS2026, by YoYo Games Ltd, used under YoYo Games' own licence. The
+    engine is not distributed in this repository.
+
+  - Font. Press Start 2P, Copyright 2012 The Press Start 2P Project Authors
+    (cody@zone38.net), with Reserved Font Name "Press Start 2P", under the SIL Open Font
+    License 1.1. The licence text as published upstream is kept byte for byte at
+    knowledge/licences/PressStart2P-OFL.txt, and the same text is carried inside the build in
+    data/credits.json so that the notice travels with the game rather than only with the
+    repository. The glyphs rasterised into this game's own sprite sheets are use of the font,
+    not a modified font, and the Reserved Font Name is not used for anything else.
+
+  - Map data. The street geometry was derived from OpenStreetMap data under the Open Database
+    Licence 1.0. The required line, exactly as this repository writes it everywhere else:
+
+    (c) OpenStreetMap contributors, Open Database Licence (ODbL) 1.0, https://www.openstreetmap.org/copyright
+
+  - Everything else. The GML code, the art, the music, the sound effects, the dialogue, the
+    names and the data tables in this repository were made for this project. No third party
+    library is imported: the ten libraries that were read and approved are recorded in
+    knowledge/LICENSES.md and none of their code is in this tree.
+
+
+4. WHAT AN OUTBOUND LICENCE WOULD CHANGE, AND WHAT IT WOULD NOT
+
+An outbound licence would replace section 2 with its own terms, and it could be permissive or
+narrow, MIT or Apache 2.0 or something else again. It would not touch section 3. A grant made
+here cannot grant what this project does not own: the engine, the font and the map data stay
+under their own licences, and a redistributor of this game inherits those obligations along
+with the game.
+
+The two licences this project already accepts for code it takes in (MIT and Apache 2.0, see
+knowledge/LICENSES.md) are also the two an outbound grant would most naturally use, but the
+choice is the holder's and is not made here.
+
+
+5. WHERE THE OBLIGATIONS ARE RECORDED
+
+  - CREDITS.md, at the root beside this file: one row per attribution obligation, with the
+    exact line each licence requires and the place in the build where that line travels.
+  - knowledge/LICENSES.md: every library that was read, its header verbatim, its licence, and
+    what may be reused from it. Nothing enters this project without a row there.
+  - knowledge/PROVENANCE.md: what was studied, what was never copied, and the clean room
+    checks that hold that claim on every commit.
+  - data/credits.json: the one screen the game shows, plus the full text of the notices that
+    have to travel inside the build.
+
+
+6. STATUS OF THE OPEN DECISION
+
+Recorded 2026-10-23. No outbound licence has been chosen. This file therefore states the
+default position, all rights reserved, which is what the absence of a grant means. The
+holder's decision, when it is made, is one edit to section 2 of this file plus the matching
+paragraph in README.md, and it is his to make.
