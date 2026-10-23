@@ -7,7 +7,17 @@ player or an NES sound driver puts in, without leaving the chip's own rules:
 
   articulation   every note is shortened to 85 to 100 percent of its written
                  length, per role, and its note-off snaps to the 1/60 s frame
-                 grid the NES runs on
+                 grid the NES runs on. The grid comes first, because a chip
+                 driver can only end a note on a frame: among the frames the
+                 note may end on (at least one tick in, never past its written
+                 end) the tool takes the one nearest the role's band, and never
+                 earlier than 85 percent of the written length unless the note
+                 holds no frame that late. The noise hats the arranger writes
+                 at 60 ticks are the case that decides it: at 16 ticks a frame
+                 their frames are 48 and 64, so 48 is the off and 80 percent is
+                 as close as that hat can come to the floor. A note an ornament
+                 created, split or cut short is exempt, because the ornament
+                 rewrote it and its frames are the ornament's
   velocity       plus or minus 6, clamped, from a fixed seed
   envelopes      control change 11 shapes per role: melody and counter melody
                  decay inside the note, the arpeggio is plucked, the bass and
@@ -15,7 +25,8 @@ player or an NES sound driver puts in, without leaving the chip's own rules:
   vibrato        control change 1 (depth) and 20 (delay) vary per two bar
                  phrase on the melody, instead of one fixed depth
   breaths        the melody note that runs into a phrase end is cut short, so
-                 the next phrase starts after a short rest
+                 the next phrase starts after a short rest, and it keeps the
+                 85 percent floor
   grace, mordent on the third return of the motif, the first melody note gets
                  a grace note and a mordent, the way a player ornaments a
                  repeat
@@ -79,6 +90,14 @@ ARTICULATION = {
     "drums": (0.85, 0.98),
     "kick": (0.88, 1.00),
 }
+
+# The floor the tool promises on every note, as a fraction of the length the
+# arranger wrote. The bands in ARTICULATION sit at or above it, but the bands
+# alone are not enough: the off is snapped to the 1/60 s frame grid after the
+# band is applied, and that rounding can put a short note under 85 percent on
+# its own. So the floor is applied to the rounded off, wherever a frame that
+# late exists inside the note.
+ARTICULATION_FLOOR = 0.85
 
 # Control change 11 points inside a note, as (fraction of the note, level
 # multiplier of the level in force when the note started). An empty tuple is a
@@ -185,6 +204,42 @@ def snap_to_frame(tick, unit):
     return int(round(round(tick / unit) * unit))
 
 
+def next_frame_tick(tick, unit):
+    """The first frame boundary at or after a tick, never the frame before it."""
+    if unit <= 0:
+        return int(math.ceil(tick))
+    return int(round(math.ceil(tick / unit - 1e-9) * unit))
+
+
+def frame_off(start, end, target, floor_ticks, unit):
+    """The note-off: the frame boundary inside the note nearest the target.
+
+    The NES ends a note on a 1/60 s frame, so the off is always a frame
+    boundary, never the written end when that end falls between frames. The
+    note may use any frame from one tick in to its written end; among those the
+    one nearest the role's target is the off, and when the target lands under
+    the floor the first frame at or above it is taken instead, if the note
+    holds one. A note shorter than a frame, or one whose only reachable frames
+    are all under the floor, keeps the last frame it can play.
+    """
+    if unit <= 0:
+        return max(start + 1, min(end, int(round(target))))
+    # A frame counts when its tick value (the tick the file will carry, so the
+    # rounded value, not the exact multiple) lies inside the note. An end half a
+    # tick short of a frame still makes that frame usable, and the voice needs
+    # it: a breath cut lands between frames.
+    last = int(math.floor((end + 0.5) / unit))           # latest frame in the note
+    first = int(math.ceil((start + 0.5) / unit - 1e-9))  # earliest frame in the note
+    if last < first:
+        return end                                     # shorter than one frame
+    chosen = min(max(int(round(target / unit)), first), last)
+    if floor_ticks:
+        above = int(math.ceil((start + floor_ticks) / unit - 1e-9))
+        if above <= last and chosen < above:
+            chosen = above
+    return int(round(chosen * unit))
+
+
 def _level_at(events, tick, default=15):
     """The value of a stepwise control change list at a tick."""
     value = default
@@ -265,9 +320,11 @@ def humanize_song(song, seed=DEFAULT_SEED, onset_frames=0.0):
         "notes": sum(len(t["notes"]) for t in tracks),
         "notes_by_track": {},
         "notes_changed": 0,
+        "floor_misses": 0,
         "fills": 0,
         "grace_notes": 0,
         "mordents": 0,
+        "ornament_notes": [],
         "breaths": 0,
         "vibrato_notes": 0,
         "envelope_points": 0,
@@ -310,6 +367,14 @@ def humanize_song(song, seed=DEFAULT_SEED, onset_frames=0.0):
                 continue
             last = max(candidates, key=lambda note: note[1])
             new_end = max(last[0] + 1, boundary - breath)
+            # The breath keeps the floor: the cut stops at the first frame at
+            # or above 85 percent of the written length, so the articulation
+            # pass can still find a frame inside its own window afterwards. A
+            # note too short to give a breath and keep the floor is left alone.
+            written = original_lengths.get((last[0], last[2]))
+            if written:
+                new_end = max(new_end, min(last[1], next_frame_tick(
+                    last[0] + ARTICULATION_FLOOR * written, unit)))
             if new_end >= last[1]:
                 continue
             notes[notes.index(last)] = (last[0], new_end, last[2], last[3])
@@ -329,28 +394,40 @@ def humanize_song(song, seed=DEFAULT_SEED, onset_frames=0.0):
                               bar_ticks, division)
             report["grace_notes"] += added["grace"]
             report["mordents"] += added["mordent"]
+            report["ornament_notes"] = added["keys"]
             melody_track["notes"] = sorted(melody_track["notes"])
 
     # ---- 2. articulation and velocity, per track in a fixed order
     for track in tracks:
         role = _role(track)
         low, high = ARTICULATION.get(role, (0.85, 1.0))
+        is_melody = track is melody_track
         changed = 0
+        under = 0
         new_notes = []
         for start, end, pitch, velocity in sorted(track["notes"]):
             written = max(1, end - start)
+            # The length the arranger wrote, before the breath or an ornament
+            # touched the note. None means an ornament created this note, and
+            # an ornament is allowed to rewrite what it creates.
+            source = original_lengths.get((start, pitch)) if is_melody else written
+            floor_ticks = ARTICULATION_FLOOR * source if source else 0.0
             factor = low + (high - low) * rng.random()
-            target = start + written * factor
-            off = snap_to_frame(target, unit)
-            off = max(start + 1, min(end, off))
+            off = frame_off(start, end, start + written * factor, floor_ticks, unit)
+            # A note the grid could not hold at the floor: every frame it may
+            # end on is under 85 percent of the written length.
+            if floor_ticks and off - start < floor_ticks:
+                under += 1
             velocity = max(1, min(127, velocity + rng.randint(-6, 6)))
             if off - start != written:
                 changed += 1
             new_notes.append((start, off, pitch, velocity))
         track["notes"] = new_notes
         report["notes_changed"] += changed
+        report["floor_misses"] += under
         report["notes_by_track"][track["name"]] = {
-            "role": role, "notes": len(new_notes), "changed": changed}
+            "role": role, "notes": len(new_notes), "changed": changed,
+            "floor_misses": under}
 
     # ---- 2b. onset micro-timing. The chip clock is a 1/60 s frame, so a played
     # onset moves by a fraction of a frame, never by a smooth random amount: the
@@ -480,8 +557,13 @@ def _melody_view(track, division, beats_per_bar):
 
 
 def _ornament(track, bar_index, bar_ticks, division):
-    """A grace note and a mordent on the first melody note of a bar."""
-    out = {"grace": 0, "mordent": 0}
+    """A grace note and a mordent on the first melody note of a bar.
+
+    Returns the counts and the keys the ornament rewrote, split, created or cut
+    short, so the articulation pass can leave those notes the frames the
+    ornament gave them.
+    """
+    out = {"grace": 0, "mordent": 0, "keys": []}
     notes = sorted(track["notes"])
     bar_start = bar_index * bar_ticks
     in_bar = [n for n in notes if bar_start <= n[0] < bar_start + bar_ticks]
@@ -509,8 +591,10 @@ def _ornament(track, bar_index, bar_ticks, division):
             track["notes"].remove(note)
             track["notes"].append((note[0], grace_start, note[2], note[3]))
             others[others.index(note)] = (note[0], grace_start, note[2], note[3])
+            out["keys"].append([note[0], note[2]])
     if not _busy(others, grace_start, start):
         track["notes"].append((grace_start, start, grace_pitch, max(1, velocity - 3)))
+        out["keys"].append([grace_start, grace_pitch])
         out["grace"] = 1
 
     # The mordent: the first note is played, flicked one step up, then played
@@ -523,6 +607,9 @@ def _ornament(track, bar_index, bar_ticks, division):
         track["notes"].append((start, start + step, pitch, velocity))
         track["notes"].append((start + step, rest_start, upper, max(1, velocity - 2)))
         track["notes"].append((rest_start, end, pitch, max(1, velocity - 1)))
+        out["keys"].append([start, pitch])
+        out["keys"].append([start + step, upper])
+        out["keys"].append([rest_start, pitch])
         out["mordent"] = 1
     return out
 
@@ -570,9 +657,11 @@ def format_report(report):
     lines.append("  seed %d | %d bpm | %.2f ticks per frame | %d notes in, %d out"
                  % (report["seed"], report["bpm"], report["ticks_per_frame"],
                     report["notes_in"], report["notes_out"]))
-    lines.append("  articulation: %d of %d notes changed length (%.1f%%)"
+    lines.append("  articulation: %d of %d notes changed length (%.1f%%), "
+                 "%d left under the %.0f%% floor by the frame grid"
                  % (report["notes_changed"], report["notes_in"],
-                    report["changed_fraction"] * 100))
+                    report["changed_fraction"] * 100,
+                    report.get("floor_misses", 0), ARTICULATION_FLOOR * 100))
     for name in sorted(report["notes_by_track"]):
         item = report["notes_by_track"][name]
         lines.append("    %-14s %-9s %3d notes, %3d changed"

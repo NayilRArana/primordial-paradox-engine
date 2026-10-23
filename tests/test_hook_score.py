@@ -126,6 +126,26 @@ def test_a_markdown_file_without_a_block_falls_back_to_defaults(tmp_path):
     assert source == "defaults"
 
 
+def test_the_shipped_grammar_file_is_the_source_of_the_numbers():
+    """The real file must parse, not fall back.
+
+    A typo inside the fenced block silently restores the defaults: load_grammar
+    skips a block it cannot parse and the report then just says "defaults",
+    which no scoring test would notice. So the shipped file is loaded here and
+    held to the numbers its section 9 states.
+    """
+    config, source = hook_score.load_grammar()
+    grammar = os.path.join(str(ROOT), "knowledge", "MUSIC-HOOK-GRAMMAR.md")
+    assert source == os.path.abspath(grammar), source
+    assert config["hook_cell_notes"] == [2, 6]      # section 2.1
+    assert config["leap_semitones"] == 5            # section 9 item 7, a fourth or more
+    assert config["leaps_per_motif"] == 1           # section 9 item 7
+    assert config["repeat_pitch_min"] == 1          # section 9 item 6
+    assert config["loop_bars"] == [8, 16, 32]       # section 9 item 13, 32 as two 16s
+    assert config["motif_min_returns"] == 3         # section 9 items 11 and 12
+    assert sum(config["weights"].values()) == 100
+
+
 # ------------------------------------------------------------------- scoring
 
 def test_a_melody_built_to_the_grammar_scores_high(tmp_path):

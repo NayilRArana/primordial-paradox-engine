@@ -462,3 +462,49 @@ finger song request that became Eight Melodies).
    returned no answer (status max_turns, 80 turns each); their questions are covered here from
    the sources listed above instead. earworm-science.json returned eight cited studies and is the
    backbone of sections 1 and 3.
+
+---
+
+## 12. Threshold numbers for tools/hook_score.py
+
+tools/hook_score.py scores a melody against the numbers in this file. It looks for one fenced
+block below that starts with `hook_score:` and merges those keys over its own defaults, and its
+report then names this path instead of saying "defaults". Each value either restates a measured
+number from section 9 or keeps the MEM-TOOLS card default because the research states no number
+for that key; the comment says which. Change a threshold here, never in the tool, and expect every
+score to move. No melodies appear in this block, only thresholds.
+
+```yaml
+hook_score:
+  # section 2.1: "the cell is 2 to 6 attacks long"
+  hook_cell_notes: [2, 6]
+  # section 3.2: measured phrases run 2 to 4 bars; the hook inside one is 1 to 2
+  motif_bars: [1, 2]
+  # section 9 items 11 and 12: the third statement carries an operation, at most 2 exact repeats
+  motif_min_returns: 3
+  # card default: this file measures diatonic and chord tone share, not motif coverage
+  motif_min_coverage: 0.6
+  motif_match_min: 0.6
+  # a step is a semitone or a tone
+  step_semitones: 2
+  # card default: the measured 80 to 95 percent diatonic share is not a step share
+  step_ratio_min: 0.65
+  # section 9 item 7: at most one leap larger than a fourth, so a fourth or more counts as a leap
+  leap_semitones: 5
+  leaps_per_motif: 1
+  # section 9 item 4 asks for 12 semitones inside the hook; this key measures the whole melody
+  # track, where the measured cues run 8 to 41 semitones (section 2.4), so the card's 18 applies
+  max_range_semitones: 18
+  pedal_range_semitones: 5
+  # section 9 item 6: at least one repeated note
+  repeat_pitch_min: 1
+  # section 9 item 13 asks for 8 or 16; 32 is two 16 bar sections (section 4.1), kept as the card has it
+  loop_bars: [8, 16, 32]
+  # section 9 items 11 and 12: the third return is varied, so its similarity is a band, not a target
+  third_return_similarity: [0.3, 0.85]
+  grid: sixteenth
+```
+
+The ten weights (20 for motif coverage down to 6 for loop length) stay in the tool, because they
+are the card's design choice for how the 0 to 100 total is built, not a measured property of the
+repertoire.

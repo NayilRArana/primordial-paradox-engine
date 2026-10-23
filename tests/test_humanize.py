@@ -5,8 +5,9 @@ What is proved here, rather than asserted in a comment:
   - a file that is read and written again keeps its format, division, tempo,
     time signature, track names and every note;
   - humanizing changes at least 30 percent of the notes' lengths, keeps every
-    note inside 85 to 100 percent of its written length, puts every note off
-    on the 1/60 s frame grid and moves every velocity by at most 6;
+    note off no later than the written length and no earlier than 85 percent of
+    it (or the latest frame it can end on, when no frame reaches that far), on
+    the 1/60 s frame grid, and moves every velocity by at most 6;
   - the same input and seed give byte identical output, twice;
   - the level envelope is shaped per role: the melody decays inside the note,
     the bass stays flat, the arpeggio is plucked;
@@ -23,6 +24,7 @@ The test writes only into a throwaway folder and never opens a window.
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 
@@ -100,6 +102,50 @@ def notes_by_start(track):
     return {(start, pitch): end for start, end, pitch, _velocity in track["notes"]}
 
 
+def off_contract_failures(before, after, unit, ornament_zone=None):
+    """Check every note off the humanizer writes, and return (checked, bad).
+
+    The off is the frame boundary inside the note nearest the role's band, so:
+
+      - it is never later than the written end, plus half a tick of rounding;
+      - it is always on the 1/60 s frame grid;
+      - it is never earlier than 85 percent of the written length, unless the
+        note holds no frame that late, and then it is the latest frame the note
+        can end on. A hat written at 60 ticks, at 16 ticks a frame, is that
+        case: its frames are 48 and 64, so it ends at 48, which is 80 percent.
+    """
+    checked = 0
+    bad = []
+    for name, original in before.items():
+        for (start, pitch), end in original.items():
+            new_end = after[name].get((start, pitch))
+            if new_end is None:
+                continue            # rewritten by an ornament, checked below
+            if ornament_zone and name == "vrc6 pulse a" and \
+                    ornament_zone[0] <= start < ornament_zone[1]:
+                continue
+            written = end - start
+            sounding = new_end - start
+            floor = 0.85 * written
+            latest = int(math.floor(end / unit + 1e-9) * unit) - start
+            checked += 1
+            if new_end < start + 1:
+                bad.append(("under one tick", name, start, pitch, sounding))
+            if sounding > written + 0.5:
+                bad.append(("past the written end", name, start, pitch,
+                            sounding, written))
+            if humanize.next_frame_tick(start + floor, unit) <= end:
+                if sounding < floor - 1:
+                    bad.append(("under the floor", name, start, pitch,
+                                sounding, floor))
+            elif sounding < latest:
+                bad.append(("under the last frame", name, start, pitch,
+                            sounding, latest))
+            if abs(new_end - round(new_end / unit) * unit) > 1.0:
+                bad.append(("off the frame grid", name, new_end, unit))
+    return checked, bad
+
+
 # ------------------------------------------------------------- read and write
 
 def test_read_write_round_trip_keeps_everything():
@@ -130,20 +176,8 @@ def test_articulation_velocity_and_the_frame_grid():
     # The one note the mordent rewrites is checked by the ornament test.
     ornament_bar = ((report["motif"] or {}).get("third_return_bar") or 0) - 1
     ornament_zone = (ornament_bar * BAR, ornament_bar * BAR + 240)
-    checked = 0
-    for name, original in before.items():
-        for (start, pitch), end in original.items():
-            new_end = after[name].get((start, pitch))
-            if new_end is None:
-                continue            # rewritten by an ornament, checked below
-            if name == "vrc6 pulse a" and ornament_zone[0] <= start < ornament_zone[1]:
-                continue
-            written = end - start
-            sounding = new_end - start
-            assert 0.85 * written - 1 <= sounding <= written + 0.5, (name, start, pitch)
-            assert new_end >= start + 1
-            assert abs(new_end - round(new_end / unit) * unit) <= 1.0, (name, new_end, unit)
-            checked += 1
+    checked, bad = off_contract_failures(before, after, unit, ornament_zone)
+    assert not bad, bad[:4]
     assert checked > 40
 
     # Velocity moves by at most 6 either way, per note.
@@ -157,6 +191,47 @@ def test_articulation_velocity_and_the_frame_grid():
 
     assert report["notes_changed"] / float(report["notes"]) >= 0.30
     assert report["changed_fraction"] if "changed_fraction" in report else True
+
+
+def test_the_note_off_contract_holds_at_every_seed():
+    """The floor, the grid and the written end, swept over 40 seeds.
+
+    The two notes the card measured failed on one seed each (84.75 and 80
+    percent), so the contract is swept across seeds instead of asserted once.
+    """
+    for seed in range(40):
+        song = synthetic_song()
+        out, report = humanize.humanize_song(song, seed=seed)
+        unit = humanize.ticks_per_frame(song["division"], song["tempo_us"])
+        before = {t["name"]: notes_by_start(t) for t in song["tracks"]}
+        after = {t["name"]: notes_by_start(t) for t in out["tracks"]}
+        ornament_bar = ((report["motif"] or {}).get("third_return_bar") or 0) - 1
+        ornament_zone = (ornament_bar * BAR, ornament_bar * BAR + 240)
+        checked, bad = off_contract_failures(before, after, unit, ornament_zone)
+        assert not bad, (seed, bad[:4])
+        assert checked > 40
+
+
+def test_a_note_with_no_frame_at_the_floor_ends_on_its_last_frame():
+    """A hat of 60 ticks at 16 ticks a frame has the frames 48 and 64 only.
+
+    51 ticks is 85 percent of it and no frame lands there, while 64 is past the
+    written end, so the hat ends on 48: the grid holds and the report records
+    the note as left under the floor rather than the off drifting off the grid.
+    """
+    song = synthetic_song()
+    out, report = humanize.humanize_song(song, seed=humanize.DEFAULT_SEED)
+    unit = humanize.ticks_per_frame(song["division"], song["tempo_us"])
+    before = notes_by_start(next(t for t in song["tracks"] if t["name"] == "noise"))
+    after = notes_by_start(next(t for t in out["tracks"] if t["name"] == "noise"))
+    assert before
+    for (start, _pitch), end in before.items():
+        assert end - start == 60, (start, end)      # every hat is 60 ticks long
+        new_end = after[(start, _pitch)]
+        assert new_end <= end + 0.5, (start, new_end)
+        assert abs(new_end - round(new_end / unit) * unit) <= 1.0, (start, new_end, unit)
+        assert new_end - start >= 48, (start, new_end)
+    assert report["floor_misses"] > 0
 
 
 def test_same_seed_gives_byte_identical_output_twice():

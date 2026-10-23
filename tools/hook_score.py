@@ -525,8 +525,8 @@ def score_melody(melody, config, source="defaults", extra=None):
         add("leaps_per_motif", "leaps per motif", weights["leaps_per_motif"],
             leap_fraction, "%d leaps" % leaps,
             "exactly %d" % target,
-            "the motif has %d leaps; one leap (three or more semitones) per "
-            "motif is what makes it sing" % leaps)
+            "the motif has %d leaps; one leap (%d or more semitones) per "
+            "motif is what makes it sing" % (leaps, config["leap_semitones"]))
 
         contour_hits = 0
         contour_names = []
