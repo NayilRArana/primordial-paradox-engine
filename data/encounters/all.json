@@ -13,8 +13,11 @@
       "win_dialogue_spare": "navy_win_spare",
       "lose_dialogue": "battle_lose",
       "trust_per_talk": 1,
-      "flags_on_kill": ["ship_door_open"],
-      "flags_on_spare": ["ship_door_open"],
+      "flags_on_kill": ["ship_door_open", "sailor_killed"],
+      "flags_on_spare": ["ship_door_open", "sailor_spared"],
+      "spare_refuses_on_route": "genocide",
+      "spare_refused_dialogue": "navy_spare_refused",
+      "epilogue_scene": "navy_aftermath",
       "beat": 28,
       "beat_id": "hold_encounter_talk",
       "pacing": {

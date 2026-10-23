@@ -47,6 +47,33 @@
       ]
     },
     {
+      "id": "navy_spare_refused",
+      "speaker": "narrator",
+      "lines": [
+        "* You lower your hands.",
+        "* The sailor does not.",
+        "* \"Not this time. Not for you.\""
+      ]
+    },
+    {
+      "id": "navy_epilogue_spare",
+      "speaker": "narrator",
+      "lines": [
+        "* He keeps the watch alone.",
+        "* The hatch stays open behind him.",
+        "* Nobody counts the spared."
+      ]
+    },
+    {
+      "id": "navy_epilogue_kill",
+      "speaker": "narrator",
+      "lines": [
+        "* The watch is over.",
+        "* The hatch is open to anyone.",
+        "* The sea does not turn round."
+      ]
+    },
+    {
       "id": "percy_lore_stop",
       "speaker": "narrator",
       "lines": [

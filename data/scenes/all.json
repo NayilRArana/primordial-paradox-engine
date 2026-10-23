@@ -63,6 +63,27 @@
         { "cmd": "say", "id": "percy_epilogue_kill" },
         { "cmd": "end" }
       ]
+    },
+    {
+      "id": "navy_aftermath",
+      "name": "Deck: after the watch",
+      "map": "ship_small",
+      "start": { "x": 2, "y": 7 },
+      "commands": [
+        { "cmd": "branch", "flag": "sailor_killed", "scene": "navy_aftermath_kill" },
+        { "cmd": "say", "id": "navy_epilogue_spare" },
+        { "cmd": "end" }
+      ]
+    },
+    {
+      "id": "navy_aftermath_kill",
+      "name": "Deck: the watch is over",
+      "map": "ship_small",
+      "start": { "x": 2, "y": 7 },
+      "commands": [
+        { "cmd": "say", "id": "navy_epilogue_kill" },
+        { "cmd": "end" }
+      ]
     }
   ]
 }
