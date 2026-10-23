@@ -62,6 +62,7 @@
         "id": "save",
         "kind": "save",
         "label": "the ship's log save",
+        "trigger": "deck_save",
         "next": ""
       },
       {
