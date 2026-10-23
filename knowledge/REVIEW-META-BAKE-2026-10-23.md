@@ -13,10 +13,10 @@ that the tools hold (`MODEL_API_KEY`, `META_API_KEY`) are named only where a che
 
 | Check | Method, and the probe that holds it |
 | --- | --- |
-| 1. No network, no key in the build | My own scan of every `.gml`, `.yy`, `.yyp` and `.json` under `game/` and under the shipped copy at `output/PrimordialParadox`, plus a function and key name list of my own, not the project test (`scan_network.py`, `url_in_build.py` in the card workspace) |
-| 2. Every row traceable, every fallback exists | My own recomputation of all 18 `request_hash` values from the stored request echo, and my own lookup of all 18 fallbacks into `data/talk_cards.json` and `knowledge/GATE-DIALOGUE.md`, with the hash and the card reader re implemented rather than imported from the bake tool (`verify_rows.py`) |
-| 3. Fallback with the bake renamed away | A detached sparse worktree of HEAD (`r43-head`), the file moved, the tool run there. Transcript below |
-| 4. The file cannot mislead a judge | Every one of the 18 rows read by hand, then four mutations of a COPY of the file pushed through the tool's own `check_file` (`mutate_check.py`, `probe_live_header.py`, `probe_replay_label.py`) |
+| 1. No network, no key in the build | My own scan of every `.gml`, `.yy`, `.yyp` and `.json` under `game/` and under the shipped copy at `output/PrimordialParadox`, with a function and key name list of my own, not the project test. Two throwaway scripts, run against the tree in this session |
+| 2. Every row traceable, every fallback exists | My own recomputation of all 18 `request_hash` values from the stored request echo, and my own lookup of all 18 fallbacks into `data/talk_cards.json` and `knowledge/GATE-DIALOGUE.md`, with the hash and the card reader re implemented rather than imported from the bake tool |
+| 3. Fallback with the bake renamed away | A detached sparse worktree of HEAD (`r43-head`, since removed), the file moved, the tool run there. Transcript below |
+| 4. The file cannot mislead a judge | Every one of the 18 rows read by hand, then three mutations of a COPY of the file and the replay run, each pushed through the tool's own `check_file` |
 
 Standing checks rerun this run, all from the live tree:
 
