@@ -58,8 +58,14 @@ function pp_battle_new(_encounter, _enemy, _party, _ledger) {
         gameover_note: "",
         gameover_note_steps: 0,
         gameover_pixel_rows: 0,
+        // Card R48: the strip this fight draws on, resolved once at build time by pp_battle_bg_name, and a flag so
+        // a build that is missing the art says so once instead of every step.
+        bg_name: "",
+        bg_missing_said: false,
         rng: pp_rng_new(_encounter.seed)
     };
+
+    _battle.bg_name = pp_battle_bg_name(_battle);
 
     pp_battle_phase_set(_battle, PPBattlePhase.intro);
     return _battle;
@@ -551,18 +557,163 @@ function pp_battle_dialogue_lines(_id) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
+// The battle background (card R48, spec 07's field)
+//
+// Card BG-BATTLE baked four 256x112 strips: corridor, wardroom, deck_night, quay_dusk. Each is drawn on the 16x16
+// attribute grid as 16 by 7 cells, every cell painted from one of that scene's four background palettes, which is
+// what lets it sit behind the arena without breaking the NES rules. This section puts one of them on screen.
+//
+// The origin is (0, 0) and it is not adjustable. The strip is exactly 7 cells tall and 16 cells wide, so its own
+// attribute areas only land on the screen's 16 pixel grid when its top edge and left edge are on that grid: 0 is
+// the only origin that keeps every cell boundary a multiple of 16, and the art lane's own sidecar already writes
+// "strip_y": 0 for the frame it previews. The field runs to PP_MENU_TOP (168, spec 07's lower third), so the
+// strip covers rows 0 to 112 and the ground band under it covers 112 to 168 in one palette role.
+//
+// The strip is chosen by the encounter row first and the map row second, so a fight that has been given its own
+// backdrop keeps it on any map, and a fight on a map keeps the map's room. A fight that names neither draws the
+// corridor strip and says nothing in play: R48's check 4, silent because a fallback is not something a player can
+// act on.
+
+/// The four strips, spelled the way the art lane's own files and the scene palette sets spell them.
+function pp_battle_bg_strips() {
+    return ["corridor", "wardroom", "deck_night", "quay_dusk"];
+}
+
+/// The field origin. One function so the probe and the draw cannot disagree about it.
+function pp_battle_bg_x() { return 0; }
+function pp_battle_bg_y() { return 0; }
+function pp_battle_bg_w() { return 256; }
+function pp_battle_bg_h() { return 112; }
+
+/// The message window over the field: whole 16 pixel cells from the top (0 to 48), full width, which is 48 pixels
+/// of text area for the four lines a spec 05 page holds at the 8 pixel pitch of Q2 in the 2026-10-22 decisions.
+/// It is cell aligned on purpose: a window that sits on whole attribute areas shares no 16x16 cell with the strip,
+/// so the frame stays inside the NES rule of 3 background colours plus the backdrop per area even while a message
+/// covers the top of the field. Neither "text box" is drawn over the strip's art in any other sense: the window is
+/// opaque and the strip simply stops being visible behind it.
+function pp_battle_text_box_x1() { return 0; }
+function pp_battle_text_box_y1() { return 0; }
+function pp_battle_text_box_x2() { return 256; }
+function pp_battle_text_box_y2() { return 48; }
+
+/// A strip name from data, normalised: "corridor", "bg_battle_corridor", "battle_corridor" and "BG-BATTLE corridor"
+/// all resolve to a strip that exists, and anything else resolves to "" so the caller falls back. Case and spaces
+/// are folded because the name is written by a person in a data row, and a strip id is not a place to be strict.
+function pp_battle_bg_clean(_raw) {
+    if (!is_string(_raw)) return "";
+    var _s = string_lower(string_replace_all(string_replace_all(_raw, " ", "_"), "-", "_"));
+    if (string_length(_s) >= 10 && string_copy(_s, 1, 10) == "bg_battle_") _s = string_delete(_s, 1, 10);
+    else if (string_length(_s) >= 7 && string_copy(_s, 1, 7) == "battle_") _s = string_delete(_s, 1, 7);
+    var _names = pp_battle_bg_strips();
+    for (var i = 0; i < array_length(_names); i++) {
+        if (_names[i] == _s) return _s;
+    }
+    return "";
+}
+
+/// The strip a room palette set draws on. Three of the four sets are ship rooms and each has a matching baked
+/// strip; the ui set is not a room at all, so it names none and the caller keeps its fallback. deck_day draws the
+/// deck at night because that is the only open deck strip that exists, and a day deck strip is not this card's art.
+function pp_battle_bg_for_room(_set) {
+    switch (string(_set)) {
+        case "lower_deck": return "corridor";
+        case "ship_cabin": return "wardroom";
+        case "deck_day": return "deck_night";
+    }
+    return "";
+}
+
+/// The room palette set the map the player is standing on declared, or "" when no world is loaded.
+function pp_battle_bg_room_set() {
+    if (!variable_global_exists("pp")) return "";
+    if (!is_struct(global.pp)) return "";
+    if (!variable_struct_exists(global.pp, "world")) return "";
+    var _world = global.pp.world;
+    if (!is_struct(_world)) return "";
+    if (!variable_struct_exists(_world, "map")) return "";
+    var _map = _world.map;
+    if (!is_struct(_map)) return "";
+    if (!variable_struct_exists(_map, "room_palette")) return "";
+    return string(_map.room_palette);
+}
+
+/// The strip this fight draws on. Encounter row first, map row second, corridor last, and the last one is silent.
+function pp_battle_bg_name(_battle) {
+    if (is_struct(_battle) && variable_struct_exists(_battle, "encounter") && is_struct(_battle.encounter)) {
+        var _enc = _battle.encounter;
+        if (variable_struct_exists(_enc, "bg_battle")) {
+            var _own = pp_battle_bg_clean(_enc.bg_battle);
+            if (_own != "") return _own;
+        }
+        if (variable_struct_exists(_enc, "background")) {
+            var _bg = pp_battle_bg_clean(_enc.background);
+            if (_bg != "") return _bg;
+        }
+    }
+
+    var _from_room = pp_battle_bg_for_room(pp_battle_bg_room_set());
+    if (_from_room != "") return _from_room;
+
+    return "corridor";
+}
+
+/// The art index name of a strip: the mirror writes one row per PNG, so the name is the file's stem.
+function pp_battle_bg_sprite(_name) {
+    return "bg_battle_" + string(_name);
+}
+
+/// Draw the field: the ground band, then the strip at the spec 07 origin. Returns the strip that was asked for, so
+/// the probe can prove the row really chose it.
+function pp_battle_draw_field(_battle) {
+    var _name = _battle.bg_name;
+    if (_name == "") _name = pp_battle_bg_name(_battle);
+
+    // The ground band, 112 to the menu band in one role. dim is one of the four roles every set in
+    // data\room_palettes.json carries (the same four the game over card spends), so RULE 0 holds in every room and
+    // the band can never fall through to PP_COLOUR_MISSING.
+    draw_set_colour(pp_role_colour("dim"));
+    draw_rectangle(pp_battle_bg_x(), pp_battle_bg_h(), pp_battle_bg_x() + pp_battle_bg_w() - 1, PP_MENU_TOP - 1, false);
+
+    var _sprite = pp_battle_bg_sprite(_name);
+    if (pp_art_has(_sprite)) {
+        pp_art_draw(_sprite, 0, pp_battle_bg_x(), pp_battle_bg_y(), PP_UNTINTED, 1);
+        return _name;
+    }
+
+    // The strip is baked but not in the build's art index yet: tools\sync_art.py mirrors title, env and chars and
+    // does not read game\sprites_src\bg\, and this card may not edit that tool. A missing strip is a field with no
+    // picture and never an error, and it is said once rather than every step.
+    if (!_battle.bg_missing_said) {
+        _battle.bg_missing_said = true;
+        show_debug_message("PP battle: " + _sprite + " is not in the art index, the field draws without its strip");
+    }
+    return _name;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
 // Drawing. No sprites yet, so every actor is a flat rectangle in a palette role; spec 13 owns the final art.
+//
+// RULE 0 first (card R48): the battle screen spends four roles and no others, ink, paper, dim and text, the only
+// four every set in data\room_palettes.json carries. The field used to ask for hazard, accent and warn, and a fight
+// on the small ship's deck (ship_small, room_palette deck_day) declares none of the three, so the enemy body, the
+// health bar, the cursor, the damage popup, the timing bar and the telegraph line all drew as
+// PP_COLOUR_MISSING (255, 0, 255) in the one room the demo fights in. A role a set does not carry is not a colour
+// the map's room palette holds, which is exactly what R48's check refuses.
 
 function pp_battle_draw(_battle) {
     draw_set_alpha(1);
     draw_set_colour(pp_role_colour("paper"));
     draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
 
+    // Card R48: the baked strip is the field, drawn first so every actor, the arena and every window sit on top of
+    // it (knowledge\SPEC-DELTAS.md T1's draw order: map, dimmer, battle field, GUI).
+    pp_battle_draw_field(_battle);
+
     // The field: the hero on the left, the enemy on the right, both above the menu band.
     draw_set_colour(pp_role_colour("ink"));
     draw_rectangle(40, 96, 72, 144, false);
 
-    draw_set_colour(pp_role_colour("hazard"));
+    draw_set_colour(pp_role_colour("text"));
     draw_rectangle(176, 72, 224, 136, false);
     draw_set_colour(pp_role_colour("ink"));
     draw_set_halign(fa_center);
@@ -572,7 +723,7 @@ function pp_battle_draw(_battle) {
     var _hp_frac = _battle.enemy_hp / max(1, _battle.enemy.max_hp);
     draw_set_colour(pp_role_colour("dim"));
     draw_rectangle(168, 144, 232, 148, false);
-    draw_set_colour(pp_role_colour("accent"));
+    draw_set_colour(pp_role_colour("text"));
     draw_rectangle(168, 144, 168 + floor(64 * _hp_frac), 148, false);
 
     // Player health and will.
@@ -584,10 +735,17 @@ function pp_battle_draw(_battle) {
     if (_battle.phase == PPBattlePhase.intro) {
         if (_battle.phase_steps < PP_INTRO_FLASH_STEPS && (_battle.phase_steps div 4) mod 2 == 0) {
             draw_set_alpha(0.7);
-            draw_set_colour(pp_role_colour("accent"));
+            draw_set_colour(pp_role_colour("text"));
             draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
             draw_set_alpha(1);
         }
+    }
+
+    // Card R48: the arena draws before the menu band, because spec 08 dims "the rest of the field" and spec 07's
+    // command band is not field: the box frame reaches row 170, and with the band drawn first those 2 pixels would be
+    // painted over the command window's top border. Drawing the band last keeps the overhang inside the field.
+    if (_battle.phase == PPBattlePhase.dodge && !is_undefined(_battle.arena)) {
+        pp_arena_draw(_battle.arena);
     }
 
     if (_battle.phase == PPBattlePhase.menu || _battle.phase == PPBattlePhase.resolve) {
@@ -598,27 +756,26 @@ function pp_battle_draw(_battle) {
         pp_battle_draw_bar(_battle);
     }
 
-    if (_battle.phase == PPBattlePhase.dodge && !is_undefined(_battle.arena)) {
-        pp_arena_draw(_battle.arena);
-    }
-
+    // Card R48: the message window sits on whole 16 pixel cells so it shares no attribute area with the strip.
     if (!is_undefined(_battle.messages)) {
         draw_set_colour(pp_role_colour("paper"));
-        draw_rectangle(8, 8, PP_FRAME_W - 8, 60, false);
+        draw_rectangle(pp_battle_text_box_x1(), pp_battle_text_box_y1(),
+                       pp_battle_text_box_x2() - 1, pp_battle_text_box_y2() - 1, false);
         draw_set_colour(pp_role_colour("dim"));
-        draw_rectangle(8, 8, PP_FRAME_W - 8, 60, true);
+        draw_rectangle(pp_battle_text_box_x1(), pp_battle_text_box_y1(),
+                       pp_battle_text_box_x2() - 1, pp_battle_text_box_y2() - 1, true);
         pp_text_board_draw(_battle.messages, 16, 16, pp_role_colour("ink"));
     }
 
     if (_battle.popup_steps > 0) {
-        draw_set_colour(pp_role_colour("accent"));
+        draw_set_colour(pp_role_colour("text"));
         draw_set_halign(fa_center);
         draw_text(200, 120 - (PP_DAMAGE_POPUP_STEPS - _battle.popup_steps), string(_battle.popup_value));
         draw_set_halign(fa_left);
     }
 
     if (_battle.phase == PPBattlePhase.telegraph) {
-        draw_set_colour(pp_role_colour("warn"));
+        draw_set_colour(pp_role_colour("text"));
         draw_set_halign(fa_center);
         draw_text(PP_FRAME_W * 0.5, 96, "here it comes");
         draw_set_halign(fa_left);
@@ -730,13 +887,13 @@ function pp_battle_draw_menu(_battle) {
         draw_set_colour(_state.enabled ? pp_role_colour("ink") : pp_role_colour("dim"));
         draw_text(_x, _yy, _entry.label);
         if (i == _battle.cursor) {
-            draw_set_colour(pp_role_colour("accent"));
+            draw_set_colour(pp_role_colour("text"));
             draw_triangle(_x - 10, _yy, _x - 10, _yy + 8, _x - 4, _yy + 4, false);
         }
     }
 
     if (_battle.cursor_note_steps > 0 && _battle.cursor_note != "") {
-        draw_set_colour(pp_role_colour("warn"));
+        draw_set_colour(pp_role_colour("text"));
         draw_text(16, PP_FRAME_H - 20, _battle.cursor_note);
     }
 }
@@ -747,7 +904,7 @@ function pp_battle_draw_bar(_battle) {
     draw_rectangle(48, _y, 208, _y + 6, false);
     draw_set_colour(pp_role_colour("ink"));
     draw_rectangle(126, _y - 2, 130, _y + 8, false);
-    draw_set_colour(pp_role_colour("accent"));
+    draw_set_colour(pp_role_colour("text"));
     draw_rectangle(48 + floor(1.6 * _battle.bar_pos) - 1, _y - 4, 48 + floor(1.6 * _battle.bar_pos) + 1, _y + 10, false);
     draw_set_colour(pp_role_colour("ink"));
     draw_text(48, _y + 12, "Z");
