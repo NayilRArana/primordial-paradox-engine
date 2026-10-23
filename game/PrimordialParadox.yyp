@@ -1176,6 +1176,24 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "manifest.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/demo",
+      "name": "manifest.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "run_001.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles/demo",
+      "name": "run_001.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "all.json",
       "CopyToMask": -1,
       "filePath": "datafiles/dialogue",
@@ -1887,10 +1905,37 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "pp_01_title.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_01_title.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_01_title_alt_v4_medium.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_01_title_alt_v4_medium.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_03_harbor.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "pp_03_harbor.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_03_harbor_v2.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_03_harbor_v2.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -1918,6 +1963,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "pp_drive.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_drive_v2.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_drive_v2.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
