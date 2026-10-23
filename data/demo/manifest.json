@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "written": "2026-10-22",
+  "script": "data/demo/run_001.json",
+  "video": "output/demo/run_001.mp4",
+  "beat_source": "knowledge/mechanics/PACING-AND-CUTSCENES.md section 9, the 32 beat sheet, 900 s",
+  "command": "python tools\\play_demo.py",
+  "why": "The card asks which beats the demo covers today, so nobody reads the manifest as a promise about the game. A beat is covered when the recording shows its own action; partial when the build shows part of it or a stand-in; not_reachable when the room or scene it needs does not exist in this build yet (game/rooms holds rm_pp_boot, rm_pp_title and rm_pp_ship, and PP_NEW_GAME_ROOM is rm_pp_ship, game/scripts/pp_config/pp_config.gml:170).",
+  "not_reachable_why": "The build goes title, menu, crawl, a 240 step drive and the fade, then loads rm_pp_ship in one jump. Beats 8 to 25 need the twelve drive shots and the Southampton maps, and beats 27 to 32 need the cabin, the hold, the deck and the departure; none of those rooms or scenes exist yet, so no script can reach them.",
+  "beats": [
+    {
+      "beat": 1,
+      "title": "Title attract: logo, moon, storm cloud, one lightning flash, loops until START",
+      "authored_s": 32,
+      "state": "covered",
+      "events": ["e01", "e02"],
+      "evidence": "10 s of the attract are recorded from the start of the file to the first Enter; the flash is drawn from the seeded stream PP_TITLE_FLASH_SEED = 20261021 (game/scripts/pp_title/pp_title.gml:99, :244), which data/demo/run_001.json pins"
+    },
+    {
+      "beat": 2,
+      "title": "PRESS START, menu, NEW GAME confirmed",
+      "authored_s": 10,
+      "state": "covered",
+      "events": ["e02", "e03"],
+      "evidence": "two Enters 1.5 s apart: the first opens the menu on NEW GAME, the second starts the intro; the game's own 'PP title: intro started' line is the proof the menu took it"
+    },
+    {
+      "beat": 3,
+      "title": "Fade to black, star field, sickle and bolt constellations",
+      "authored_s": 5,
+      "state": "covered",
+      "events": ["e04"],
+      "evidence": "the note at step 1140 waits on the game's own intro line, so the fade and the stars are on screen when the recording plays through them"
+    },
+    {
+      "beat": 4,
+      "title": "Crawl beats 1 to 2 (the gods forgotten)",
+      "authored_s": 8,
+      "state": "covered",
+      "events": ["e05"],
+      "evidence": "no key is pressed on the crawl on purpose: a confirm finishes it (pp_title_step_intro, game/scripts/pp_title/pp_title.gml), so the crawl plays at its own pace for the recording"
+    },
+    {
+      "beat": 5,
+      "title": "Crawl beats 3 to 4 (the four who do not know)",
+      "authored_s": 9,
+      "state": "covered",
+      "events": ["e06"],
+      "evidence": "the run holds with no key from step 1500 to step 2340, which is 14 s of crawl text at the game's own reveal speed (data/intro_text.json, 258 characters over 6 beats); e05 marks the start of the hold and e06 sits inside it"
+    },
+    {
+      "beat": 6,
+      "title": "Crawl beats 5 to 6 (entropy, Southampton, October) and hold",
+      "authored_s": 8,
+      "state": "covered",
+      "events": ["e07"],
+      "evidence": "the recording runs through the last crawl beat and the hold before the transition; the transition itself is the game's own line, caught by event e08 at the next beat"
+    },
+    {
+      "beat": 7,
+      "title": "Fade in on Big Ben at night, camera pans down to the street",
+      "authored_s": 10,
+      "state": "partial",
+      "events": ["e08"],
+      "evidence": "the title's own 240 step drive and the fade play between the crawl and the room change, which is 4 s against the beat sheet's 10 s for this beat and 178 s across beats 7 to 19 (tools/capture_title.py, the SHIP_DRIVE_WAIT_S note: 'NEW GAME's 240 step drive (4 s at 60 steps) and the fade')"
+    },
+    {
+      "beat": 8,
+      "title": "London street, the car pulls away, the Thames",
+      "authored_s": 12,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 9,
+      "title": "M3 gantry, sign reading Southampton with a distance figure",
+      "authored_s": 8,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 10,
+      "title": "Rain starts, wipers seen from outside the car",
+      "authored_s": 12,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 11,
+      "title": "Radio: four caption pages, no portrait, car in long shot",
+      "authored_s": 36,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 12,
+      "title": "Winchester services: player walks one screen, reads a sign",
+      "authored_s": 40,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 13,
+      "title": "Twyford Down cutting at night, headlight pool on chalk",
+      "authored_s": 12,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 14,
+      "title": "Winchester Cathedral silhouette far off, one caption",
+      "authored_s": 14,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 15,
+      "title": "Radio: three caption pages, the subject turns to the sea",
+      "authored_s": 24,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 16,
+      "title": "Storm cloud forms over the car, first lightning, 2 frame palette flash",
+      "authored_s": 14,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 17,
+      "title": "Chalk downland, moon, road markers, the storm keeping pace",
+      "authored_s": 10,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 18,
+      "title": "Hard cut: slip road, Southampton sign, headlights",
+      "authored_s": 8,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 19,
+      "title": "The docks: cranes, containers, the ship lit at the quay",
+      "authored_s": 18,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 20,
+      "title": "Gate checkpoint: guard, four pages, one three option choice",
+      "authored_s": 52,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 21,
+      "title": "Full control: the dock yard, 3 screens, no text",
+      "authored_s": 28,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 22,
+      "title": "Dock office: two people, six pages, the boarding pass",
+      "authored_s": 72,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 23,
+      "title": "First encounter marker: the hold hound, one command win",
+      "authored_s": 48,
+      "state": "not_reachable",
+      "evidence": "the fight rows exist and tests/test_first_fight.py proves the win from the data, but no room in this build spawns the encounter (game/rooms holds the boot, the title and rm_pp_ship)"
+    },
+    {
+      "beat": 24,
+      "title": "Quay side walk, 2 screens, one short caption about the water",
+      "authored_s": 30,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 25,
+      "title": "Gangway, deck, the ship's horn, the door",
+      "authored_s": 32,
+      "state": "not_reachable",
+      "evidence": "the build arrives in rm_pp_ship without the gangway or the deck scene that lead to it"
+    },
+    {
+      "beat": 26,
+      "title": "Ship corridor, 3 rooms, free walk",
+      "authored_s": 40,
+      "state": "partial",
+      "events": ["e09", "e10", "e11", "e12", "e13", "e14", "e15", "e16", "e17", "e18", "e19"],
+      "evidence": "one room (rm_pp_ship, game/rooms/rm_pp_ship/rm_pp_ship.yy) with eight Right presses a second apart and one confirm at the sailor, which opens the dialogue box; the same walk the ship capture uses (tools/capture_title.py, SHIP_WALK_STEPS = 8), not the three room corridor"
+    },
+    {
+      "beat": 27,
+      "title": "Cabin: the ship's log, first save, two pages and the menu",
+      "authored_s": 50,
+      "state": "not_reachable",
+      "evidence": "the save system exists (tests/test_save.py) but no log terminal is placed in rm_pp_ship"
+    },
+    {
+      "beat": 28,
+      "title": "Second encounter in the hold, teaches TALK, cannot be lost",
+      "authored_s": 90,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 29,
+      "title": "Stairwell and upper deck, free walk",
+      "authored_s": 42,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 30,
+      "title": "The ship leaves port, Quay receding, no text",
+      "authored_s": 36,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 31,
+      "title": "Kronos seen from the deck, sickle of stars, no text",
+      "authored_s": 50,
+      "state": "not_reachable"
+    },
+    {
+      "beat": 32,
+      "title": "Chapter card and fade to black",
+      "authored_s": 40,
+      "state": "not_reachable"
+    }
+  ],
+  "summary": {
+    "covered": [1, 2, 3, 4, 5, 6],
+    "partial": [7, 26],
+    "not_reachable": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32],
+    "recorded_seconds": 73.5,
+    "note": "24 of the 32 beats are unreachable in this build. The demo is honest as a 73.5 s video of the slice and must not be described as a 15 minute run until the S3 to S6 rooms land."
+  }
+}

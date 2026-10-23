@@ -22,6 +22,11 @@
 /// File layout: a 4 byte byte-count, then the JSON text as a null terminated string, then nothing. The count is what
 /// lets a truncated or foreign file be refused instead of half parsed (spec 11 numbers: a larger save is a clear
 /// error, never a silent truncation).
+///
+/// Two writers, one slot (spec 11 rule 4): the panel at a save point the player confirms, and the entry autosave,
+/// once per map entry, after the fade in, never while a scene, a dialogue or a fight owns the screen. The autosave is
+/// silent on screen and still prints one line to the log, because a save that leaves no trace cannot be told apart
+/// from a save that never happened (the lesson of the slot probe, 2026-10-22).
 
 /// The state of the slot. Every async step is a state, and pp_save_async_event is the only thing that moves it on.
 ///
@@ -44,7 +49,11 @@ function pp_save_init() {
         error: "",
         note: "",
         panel: 0,
-        ticks: 0
+        ticks: 0,
+        // The entry autosave (spec 11 rule 4). autosave_map is the map a fresh entry armed and "" when nothing is
+        // armed; silent marks a save the player did not ask for, so the panel stays off the screen.
+        autosave_map: "",
+        silent: false
     };
     return global.pp.save;
 }
@@ -90,6 +99,89 @@ function pp_save_busy() {
     return _s.state == PPSaveState.reading || _s.state == PPSaveState.retrying
         || _s.state == PPSaveState.backing || _s.state == PPSaveState.backing_write
         || _s.state == PPSaveState.writing;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// The entry autosave (spec 11 rule 4: it fires on entering a new map, after the fade in, never in battle)
+
+/// Arm one silent save for the map the player has just entered. Called by pp_overworld on a fresh map and on a map
+/// change; the write itself waits for pp_save_autosave_step, so a scene that opens on the new map is never cut into.
+function pp_save_autosave_arm(_map_id) {
+    var _s = global.pp.save;
+    if (is_undefined(_s) || !is_struct(_s)) return false;
+    _s.autosave_map = string(_map_id);
+    return true;
+}
+
+/// Drop the armed entry save. A load cancels it: a save that was just read is the state the player resumes, so
+/// writing it straight back would rotate the backup for nothing (spec 11 rule 5).
+function pp_save_autosave_cancel() {
+    var _s = global.pp.save;
+    if (is_undefined(_s) || !is_struct(_s)) return false;
+    _s.autosave_map = "";
+    return true;
+}
+
+/// The map id the armed entry save belongs to, or "" when nothing is armed.
+function pp_save_autosave_armed() {
+    var _s = global.pp.save;
+    if (is_undefined(_s) || !is_struct(_s)) return "";
+    return _s.autosave_map;
+}
+
+/// The app's fade is the one the player sees, and it is over when its direction is 0 and its alpha has reached 0.
+/// Nothing else in the module reads the app frame; this is the one fact an entry save needs from it.
+function pp_save_fade_settled() {
+    var _app = global.pp.app;
+    if (is_undefined(_app) || !is_struct(_app)) return true;
+    if (_app.fade_dir != 0) return false;
+    return _app.fade_alpha <= 0;
+}
+
+/// The screen has settled after an entry: on a map, no scene, no dialogue, no fight asked for, and the fade is done.
+/// A scene plays over the overworld, so the mode alone would let a save land inside one; this is the test that does not.
+function pp_save_entry_settled(_world) {
+    if (pp_app_mode() != PPMode.overworld) return false;
+    if (is_undefined(_world) || !is_struct(_world)) return false;
+    if (pp_scene_running(_world.scene)) return false;
+    if (!pp_dialogue_closed(_world.dialogue)) return false;
+    if (_world.battle_request != "") return false;
+    return pp_save_fade_settled();
+}
+
+/// True when no scene, dialogue or requested fight owns the screen. Used by the write as the second half of the
+/// "only from the overworld" rule: a scene runs inside the overworld mode, so the mode check cannot see it.
+function pp_save_screen_free() {
+    var _world = global.pp.world;
+    if (is_undefined(_world) || !is_struct(_world)) return true;
+    if (pp_scene_running(_world.scene)) return false;
+    if (!pp_dialogue_closed(_world.dialogue)) return false;
+    if (_world.battle_request != "") return false;
+    return true;
+}
+
+/// One step of the entry autosave. Fires once for the armed map, only after the fade and only on a settled screen,
+/// and it is silent: the panel is for a save the player asked for. A transfer already in flight keeps it armed for
+/// the next step instead of losing the save.
+function pp_save_autosave_step(_world) {
+    var _s = global.pp.save;
+    if (is_undefined(_s) || !is_struct(_s)) return false;
+    var _map = _s.autosave_map;
+    if (!is_string(_map) || _map == "") return false;
+    // The arm belongs to one world. A throwaway world built by the scene self test arms a map the player is not
+    // standing on, and that arm is dropped here rather than written over the player's slot.
+    if (!is_struct(_world) || !is_struct(_world.map) || _world.map.id != _map) {
+        _s.autosave_map = "";
+        return false;
+    }
+    if (pp_save_busy()) return false;
+    if (!pp_save_entry_settled(_world)) return false;
+    _s.autosave_map = "";
+    if (!pp_save_write("entry " + string(_map), true)) return false;
+    // Silence on screen, not in the log: a save that leaves no line cannot be told from one that never happened
+    // (the lesson of the slot probe, 2026-10-22).
+    show_debug_message("PP: autosave, " + string(_map) + " " + string(_world.hero.tx) + "," + string(_world.hero.ty));
+    return true;
 }
 
 /// A save that was read and validated, and can be applied. A save that was just written is "saved", not "ready":
@@ -160,11 +252,22 @@ function pp_save_new_game() {
 
 /// Save now, at a save point the caller has already established (spec 11 rule 4). Never from a battle: the mode check
 /// is the mechanical half of "only at a save point, never mid battle", the trigger data is the other half.
-function pp_save_write(_purpose) {
+///
+/// _purpose names the point for the player's sake (a save row's id is a label, not a row in a table), and _silent
+/// marks the entry autosave, whose panel never appears. A scene plays over the overworld, so the mode check alone
+/// does not keep a save out of one; pp_save_screen_free is the check that does, and the refusal is printed by name.
+function pp_save_write(_purpose, _silent) {
     var _s = global.pp.save;
     if (is_undefined(_s) || !is_struct(_s)) return false;
     if (pp_save_busy()) return false;
-    if (pp_app_mode() != PPMode.overworld) return false;
+    if (pp_app_mode() != PPMode.overworld) {
+        show_debug_message("PP: save refused, the game is not on a map");
+        return false;
+    }
+    if (!pp_save_screen_free()) {
+        show_debug_message("PP: save refused, a scene or a dialogue is running");
+        return false;
+    }
 
     var _snapshot = pp_save_snapshot();
     if (is_undefined(_snapshot)) return false;
@@ -193,6 +296,7 @@ function pp_save_write(_purpose) {
     _s.error = "";
     _s.note = "";
     _s.panel = 0;
+    _s.silent = (_silent == true);
 
     // Rotate the file only when this session read it as a good save. A corrupt file is never copied over the last
     // good backup, which is the one property spec 11 rule 2 exists for.
@@ -902,6 +1006,9 @@ function pp_save_apply() {
         pp_save_fail("the saved map did not load");
         return false;
     }
+    // A load lands on the map the save was taken on, at the state it recorded, so the entry is not written back
+    // (spec 11 rule 5). The arm pp_overworld_new set for this entry is dropped here.
+    pp_save_autosave_cancel();
     // The saved tile is the save point the player stood on, and the story flags are back by now, so a tile that was
     // gated when the save was written is walkable again here. Anywhere else, the named spawn is the honest fallback.
     if (pp_map_walkable(_world.map, _d.x, _d.y)) {
@@ -932,6 +1039,9 @@ function pp_save_panel_step() {
 function pp_save_panel_text() {
     var _s = global.pp.save;
     if (is_undefined(_s)) return "";
+    // A save the player did not ask for shows nothing (spec 11 rule 4, the card's "silent"). A failure is the one
+    // exception: a save that did not happen and says nothing is the silence that costs the player.
+    if (_s.silent && _s.state != PPSaveState.failed) return "";
     if (_s.state == PPSaveState.reading || _s.state == PPSaveState.retrying) return "Loading";
     if (_s.state == PPSaveState.backing || _s.state == PPSaveState.backing_write || _s.state == PPSaveState.writing) {
         return "Saving";

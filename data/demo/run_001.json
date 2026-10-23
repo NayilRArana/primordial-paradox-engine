@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "name": "run_001",
+  "written": "2026-10-22",
+  "why": "The deterministic autoplay of the slice as it exists today: title attract, PRESS START, NEW GAME, the crawl, the transition into rm_pp_ship, eight steps of free walk and one NPC dialogue. One clock in steps at 60 a second, no sleeps read from a stopwatch, no key pressed twice because the run took longer than expected.",
+  "beat_source": "knowledge/mechanics/PACING-AND-CUTSCENES.md section 9 (the 32 beat sheet) and ROADMAP-2026-10-22.md section 2 (S1, S2)",
+  "game": {
+    "exe": "PrimordialParadox.exe",
+    "window_title": "Primordial Paradox",
+    "launch_args": ["-game", "{win}"],
+    "note": "the form measured on this PC on 2026-10-21 and recorded in tools/capture_title.py: <game>.exe -game <data>.win is the only form that starts the game instead of opening a file dialog"
+  },
+  "clock": {
+    "fps": 60,
+    "settle_steps": 180,
+    "max_steps": 5400,
+    "note": "one step is one 60th of a second, which is the game's own step: the GML step event runs at room speed 60, so a step index in this file is the same unit as a step in the game log"
+  },
+  "seeds": {
+    "title_flash": 20261021,
+    "rng_mod": 2147483647,
+    "note": "title_flash is PP_TITLE_FLASH_SEED (game/scripts/pp_title/pp_title.gml:99), the only random stream this slice reaches: the attract's lightning flashes are drawn from it, so the same launch flashes at the same steps. The encounter and dodge streams (pp_rng_new, game/scripts/pp_rng/pp_rng.gml:8) are not reached by this run, so they are not listed here as if they were pinned."
+  },
+  "record": {
+    "fps": 60,
+    "scale": 3,
+    "width": 768,
+    "height": 720,
+    "min_seconds": 30.0,
+    "out": "output/demo/run_001.mp4",
+    "audio": "auto",
+    "note": "768x720 is exactly 3x the 256x240 NES screen, which is the size the game draws into its window on this PC (measured: a 768x720 viewport at [8, 31] inside a 784x759 window, tests/test_capture_title.py). audio auto means the loopback device when ffmpeg reports one, else a rendered stand-in track that the mp4 and the verify file both label as not the loopback"
+  },
+  "events": [
+    {
+      "id": "e01",
+      "step": 0,
+      "kind": "note",
+      "beat": 1,
+      "note": "title attract: logo, moon, storm cloud, the seeded lightning flash; the recording starts here and no key is pressed, so 10 s of the attract are in the file"
+    },
+    {
+      "id": "e02",
+      "step": 600,
+      "kind": "key",
+      "key": "enter",
+      "beat": 2,
+      "note": "PRESS START opens the menu on NEW GAME (the fight song of tools/capture_title.py: enter is the confirm key, game/scripts/pp_input/pp_input.gml)"
+    },
+    {
+      "id": "e03",
+      "step": 690,
+      "kind": "key",
+      "key": "enter",
+      "beat": 2,
+      "note": "NEW GAME confirmed, which starts the intro; 1.5 s after the menu press so the menu cursor animation is in the recording"
+    },
+    {
+      "id": "e04",
+      "step": 1140,
+      "marker": "PP title: intro started",
+      "marker_delay_steps": 0,
+      "kind": "note",
+      "beat": 3,
+      "note": "the game's own line that NEW GAME took (written by pp_title when the crawl starts, game/scripts/pp_title/pp_title.gml:841 area). The step is the fallback used when the log is block buffered; the marker only ever moves this note earlier, never later"
+    },
+    {
+      "id": "e05",
+      "step": 1500,
+      "kind": "note",
+      "beat": 4,
+      "note": "the crawl's first beats are running; no key is pressed on purpose, because a confirm on the intro finishes the crawl and would delete the beat this run exists to show"
+    },
+    {
+      "id": "e06",
+      "step": 1900,
+      "kind": "note",
+      "beat": 5,
+      "note": "crawl beats three and four, still with no key: the reveal machine runs at its own speed (data/intro_text.json, 258 characters over six beats)"
+    },
+    {
+      "id": "e07",
+      "step": 2340,
+      "kind": "note",
+      "beat": 6,
+      "note": "crawl beats five and six, the hold before the transition"
+    },
+    {
+      "id": "e08",
+      "step": 3300,
+      "marker": "starting the run in",
+      "marker_delay_steps": 60,
+      "kind": "note",
+      "beat": 7,
+      "note": "the game's own line when the crawl ends and the run room loads (pp_title: 'PP title: intro finished, starting the run in rm_pp_ship'). Between the two lines the title plays its 240 step night drive and the fade, which is the whole of beats 7 to 25 in this build"
+    },
+    {
+      "id": "e09",
+      "step": 3360,
+      "kind": "note",
+      "beat": 26,
+      "note": "one second into rm_pp_ship, standing still so the room is visible before the walk"
+    },
+    {
+      "id": "e10",
+      "step": 3420,
+      "kind": "key",
+      "key": "right",
+      "beat": 26,
+      "note": "step 1 of the eight step walk the ship capture uses (tools/capture_title.py, SHIP_WALK_STEPS = 8)"
+    },
+    {
+      "id": "e11",
+      "step": 3480,
+      "kind": "key",
+      "key": "right",
+      "beat": 26,
+      "note": "step 2"
+    },
+    {
+      "id": "e12",
+      "step": 3540,
+      "kind": "key",
+      "key": "right",
+      "beat": 26,
+      "note": "step 3"
+    },
+    {
+      "id": "e13",
+      "step": 3600,
+      "kind": "key",
+      "key": "right",
+      "beat": 26,
+      "note": "step 4"
+    },
+    {
+      "id": "e14",
+      "step": 3660,
+      "kind": "key",
+      "key": "right",
+      "beat": 26,
+      "note": "step 5"
+    },
+    {
+      "id": "e15",
+      "step": 3720,
+      "kind": "key",
+      "key": "right",
+      "beat": 26,
+      "note": "step 6"
+    },
+    {
+      "id": "e16",
+      "step": 3780,
+      "kind": "key",
+      "key": "right",
+      "beat": 26,
+      "note": "step 7"
+    },
+    {
+      "id": "e17",
+      "step": 3840,
+      "kind": "key",
+      "key": "right",
+      "beat": 26,
+      "note": "step 8"
+    },
+    {
+      "id": "e18",
+      "step": 3900,
+      "kind": "key",
+      "key": "confirm",
+      "beat": 26,
+      "note": "confirm at the sailor, which opens the dialogue box in spr_pp_window (the same press tools/capture_title.py --room ship makes)"
+    },
+    {
+      "id": "e19",
+      "step": 4200,
+      "kind": "note",
+      "beat": 26,
+      "note": "the dialogue box is on screen; five seconds of it are held in the recording so a viewer can read it"
+    }
+  ],
+  "checks": {
+    "end_step": 4260,
+    "min_lit_frames": 4,
+    "palette_share_min": 0.9,
+    "palette_tolerance": 12,
+    "min_on_palette_frames": 4,
+    "min_distinct_colours": 6,
+    "frame_diff_min": 0.001,
+    "note": "end_step is where the recording stops (71 s): the last note plus one second. palette_share_min and palette_tolerance are the game test on a compressed frame: at least 90 per cent of a frame's pixels must sit within 12 levels of a legal 2C02 colour. It is measured, not guessed: the title, the menu and the crawl score 0.93 to 0.99, rm_pp_ship's own art scores 0.11 because it is drawn in greys the NES cannot output (reported as a finding, not hidden), and a terminal or another window has no 2C02 structure at all. min_on_palette_frames is how many of the seven samples must be on palette for the recording to be called a recording of the game"
+  }
+}

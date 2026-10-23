@@ -1,6 +1,9 @@
 /// pp_overworld: the walker, the triggers, the markers and the scene that plays over the map (spec 04).
 /// One tile per press, always centred; rail walk at 8 steps per tile, free walk at 12; triggers inert for 20 steps after
 /// a scene or battle; story blocked tiles open with a flag. Nothing here reads a key directly, only pp_input.
+/// Saving is here in two shapes (spec 11 rule 4): every map entry arms one silent autosave, which pp_overworld_step
+/// releases once the fade is done and no scene owns the screen, and a trigger of kind `save` writes at a save point
+/// the player confirms, printing the ship's log line that names the point.
 /// Provenance: knowledge\PROVENANCE.md, entry "room and object conventions across a whole game", written before the
 /// notice of 2026-10-19 and re-confirmed by the clean-room re-review of the same date. One map state carries the
 /// walker, the scene and the fade; a battle is a mode swap asked for here and performed by pp_app (specs 01 and 04).
@@ -34,6 +37,10 @@ function pp_overworld_new(_map_id, _spawn_name) {
         map_changes: 0
     };
     pp_overworld_camera_follow(_world);
+
+    // Spec 11 rule 4: entering a map saves once, silently, after the fade in. The arm carries the map the player
+    // actually stands on; pp_save_autosave_step waits for the fade, and for any scene that opens here to finish.
+    pp_save_autosave_arm(_map.id);
 
     // Story actors placed by the map data (card ASSEMBLE). One sailor on the lower deck is the first of them.
     // They are read from the map, never hardcoded here, so a new NPC is a data edit and not a code edit.
@@ -233,10 +240,19 @@ function pp_overworld_fire(_world, _trigger) {
             pp_ledger_set_flag(global.pp_ledger, _trigger.id, true);
             break;
 
-        // A save point (spec 11 rule 4). The data says where one is; pp_save refuses everything except the overworld,
-        // so a save can never happen mid battle, mid scene or mid dialogue.
+        // A save point (spec 11 rule 4). The row's id is a label for the player's sake, not a row in any table
+        // (tools/check_data.py says so where it leaves "save" out of the id tables), so it names the point in the
+        // logged line and travels no further. pp_save refuses everything but a settled overworld, so a save can
+        // never land mid battle, mid scene or mid dialogue, and it says so in one line when it refuses.
         case "save":
-            pp_save_write("point");
+            var _label = "save";
+            if (is_string(_trigger.id) && _trigger.id != "") _label = _trigger.id;
+            if (pp_save_write(_label, false)) {
+                // The ship's log line. One line, and it names the point, the map and the tile, so a run that saved
+                // and a run that never asked can be told apart from the log alone.
+                show_debug_message("PP: ship's log, " + string(_label) + ", saved on " + string(_world.map.id)
+                    + " " + string(_world.hero.tx) + "," + string(_world.hero.ty));
+            }
             break;
 
         case "marker":
@@ -267,6 +283,9 @@ function pp_overworld_change_map(_world, _map_id, _spawn_name) {
     _world.map_changes += 1;
     pp_overworld_camera_follow(_world);
     pp_app_fade_in();
+    // The new map is an entry too (spec 11 rule 4), so it arms its own silent save. Like the first entry, the write
+    // waits for the fade this call just started.
+    pp_save_autosave_arm(_map.id);
     return true;
 }
 
@@ -302,6 +321,10 @@ function pp_overworld_step(_world) {
     // Clocks that run whether or not anything else does.
     if (_world.shake_steps > 0) _world.shake_steps -= 1;
     if (_world.trigger_lock > 0) _world.trigger_lock -= 1;
+
+    // The entry autosave (spec 11 rule 4) is asked every step and fires exactly once per entry, on a settled screen.
+    // It sits before the scene branch below, because that branch returns; the save itself refuses while a scene runs.
+    pp_save_autosave_step(_world);
 
     // A scene owns the screen while it runs.
     if (pp_scene_running(_world.scene)) {
