@@ -66,6 +66,7 @@ Every file that ships is listed here, and tools\check_provenance.py refuses a mo
 | game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | specs alone | 09 |
 | game/scripts/pp_dialogue/pp_dialogue.gml | specs alone | 05 |
 | game/scripts/pp_map/pp_map.gml | specs alone | 04 |
+| game/scripts/pp_map_tile/pp_map_tile.gml | specs alone, with card R46's tile manifest as the source of the numbers | 04, 15 |
 | game/scripts/pp_overworld/pp_overworld.gml | specs alone | 04 |
 | game/scripts/pp_scene/pp_scene.gml | specs alone | 06 |
 | game/scripts/pp_text/pp_text.gml | specs alone | 05 |

@@ -50,6 +50,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_ledger/pp_ledger.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_look/pp_look.gml | confirmed | code-review | 2026-10-22 |
 | game/scripts/pp_map/pp_map.gml | rewritten | code-review | 2026-10-19 |
+| game/scripts/pp_map_tile/pp_map_tile.gml | pending | builder | 2026-10-22 |
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_save/pp_save.gml | confirmed | gamedev review | 2026-10-22 |

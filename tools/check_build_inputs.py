@@ -41,6 +41,9 @@ ART_SOURCES = (
     os.path.join(ROOT, "game", "sprites_src", "title"),
     os.path.join(ROOT, "game", "sprites_src", "env"),
     os.path.join(ROOT, "game", "sprites_src", "chars"),
+    # Card R28: the exterior tile set (card R46) is written one folder down, in env/quay/, and tools/sync_art.py reads
+    # that folder too. A source this list does not name would read as a mirror with nothing committed behind it.
+    os.path.join(ROOT, "game", "sprites_src", "env", "quay"),
 )
 SFX_FOLDER = "sfx"
 

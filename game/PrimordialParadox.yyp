@@ -123,6 +123,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "meta_bake.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "meta_bake.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "music_recipes.json",
       "CopyToMask": -1,
       "filePath": "datafiles",
@@ -352,6 +361,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "percy_ow_v2.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "quay_tiles.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "quay_tiles.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -2209,6 +2227,12 @@
       "id": {
         "name": "pp_map",
         "path": "scripts/pp_map/pp_map.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "pp_map_tile",
+        "path": "scripts/pp_map_tile/pp_map_tile.yy"
       }
     },
     {

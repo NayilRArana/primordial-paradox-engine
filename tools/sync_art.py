@@ -33,7 +33,11 @@ ENV_SRC = os.path.join(ROOT, "game", "sprites_src", "env")
 # Card ASSEMBLE: the character lane writes the overworld and battle sheets into game\sprites_src\chars\ with the same
 # contract, so the mirror reads three folders and the walker in rm_pp_ship draws its own sheet without a second index.
 CHARS_SRC = os.path.join(ROOT, "game", "sprites_src", "chars")
-SOURCES = (SRC, ENV_SRC, CHARS_SRC)
+# Card R28: the exterior tile set (R46) is written into game\sprites_src\env\quay\ rather than beside the ship sheet,
+# because it is one set of its own and the art lane keeps its generator and its TILES.md page with it. The mirror
+# therefore reads that subfolder too, so a set written there still reaches the build with no hand copy.
+ENV_QUAY_SRC = os.path.join(ENV_SRC, "quay")
+SOURCES = (SRC, ENV_SRC, CHARS_SRC, ENV_QUAY_SRC)
 DST = os.path.join(ROOT, "game", "datafiles", "art")
 INDEX = "title_manifest.json"
 

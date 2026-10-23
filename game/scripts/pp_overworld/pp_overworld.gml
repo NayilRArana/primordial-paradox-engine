@@ -473,7 +473,9 @@ function pp_overworld_draw(_world) {
         _oy = _phase == 0 ? -_world.shake_strength : _world.shake_strength;
     }
 
-    pp_map_draw(_world.map, floor(_world.cam_x) + _ox, floor(_world.cam_y) + _oy);
+    // The tile art, in the two planes the hero stands in front of: ground first, then the props that stand on it
+    // (card R28). The above plane is drawn after him, below.
+    pp_map_draw(_world.map, floor(_world.cam_x) + _ox, floor(_world.cam_y) + _oy, _world.steps);
 
     // Story actors and the hero, each a sheet frame when the art lane has delivered one and a shaped block
     // until then (card ASSEMBLE: SPRITE-1 was not on disk, so the block fallback is the live path and the
@@ -497,6 +499,10 @@ function pp_overworld_draw(_world) {
 
     // The hero, 12x12 in a 16x16 tile, centred, with the walk cycle.
     pp_overworld_draw_hero(_world, _ox, _oy);
+
+    // The above plane of the tile art, over the hero and the actors: a lamp post, a harbour sign, the things a
+    // walker passes behind (card R28). Drawn after him so the overlap is the layer order and not a coincidence.
+    pp_map_draw_above(_world.map, floor(_world.cam_x) + _ox, floor(_world.cam_y) + _oy, _world.steps);
 
     if (!pp_dialogue_closed(_world.dialogue)) pp_dialogue_draw(_world.dialogue);
 
