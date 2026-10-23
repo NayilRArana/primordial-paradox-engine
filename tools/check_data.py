@@ -704,6 +704,7 @@ class Checker:
             path = "dialogue[%d]" % index
             name = self.require(row, "id", "str", filename, path)
             self.require(row, "speaker", "str", filename, path)
+            self.check_dialogue_portrait(row, path, filename)
             if isinstance(name, str):
                 if name in ids["dialogue"] and ids["dialogue"][name] is not row:
                     self.error(filename, path + ".id", "duplicate id %r" % name)
@@ -769,6 +770,7 @@ class Checker:
                 speaker = self.want(page, "speaker", "str", filename, page_path)
                 if isinstance(speaker, str) and speaker.strip() == "":
                     self.error(filename, page_path + ".speaker", "is empty")
+            self.check_dialogue_portrait(page, page_path, filename)
             lines = self.require(page, "lines", "list", filename, page_path)
             if lines is None:
                 continue
@@ -788,6 +790,41 @@ class Checker:
                     self.error(filename, line_path,
                                "%r is %d characters, the box holds %d on a page line"
                                % (line, len(line), LINE_CHARS))
+
+    def check_dialogue_portrait(self, row, path, filename):
+        """A bust name is a sheet that exists, or the empty string for a page that draws none (spec 05, card t_4d6b0f4b).
+
+        The name is data, and the sheet it points at is art, so the one thing this checker can prove is that the two
+        agree: `portrait: percy` is game/sprites_src/chars/spr_pp_portrait_percy.png and nothing else. That is the whole
+        reason the empty string is legal: an entry whose pages change speaker has to be able to say "nobody here"
+        rather than inherit the entry's bust, and the page that says it is the checkpoint's narrator page.
+        """
+        if not isinstance(row, dict) or "portrait" not in row:
+            return
+        name = self.require(row, "portrait", "str", filename, path)
+        if name is None:
+            return
+        field_path = path + ".portrait"
+        if name == "":
+            return
+        if row.get("speaker") == "narrator":
+            self.error(filename, field_path,
+                       "a narrator draws no bust; give the page that names the speaker its own portrait")
+        if not re.match(r"^[a-z][a-z0-9_]*$", name):
+            self.error(filename, field_path,
+                       "%r is not a bust name: lowercase letters, digits and underscores" % name)
+            return
+        chars = os.path.join(self.root, "game", "sprites_src", "chars")
+        if not os.path.isdir(chars):
+            # A root with no art lane at all, which is the data-only copy the data rules are tested against, cannot
+            # prove or disprove a sheet, so it does not guess. The repository always carries this folder, so the sheet
+            # check is enforced everywhere it can be wrong.
+            return
+        sheet = os.path.join(chars, "spr_pp_portrait_%s.png" % name)
+        if not os.path.isfile(sheet):
+            self.error(filename, field_path,
+                       "no bust sheet for %r: game/sprites_src/chars/spr_pp_portrait_%s.png is not there"
+                       % (name, name))
 
     def check_dialogue_sets(self, row, path, filename, ids, field_path):
         """Every flag an entry or a choice sets is a name in data/flags.json, so a typo cannot be set silently."""

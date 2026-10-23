@@ -270,6 +270,51 @@ the 2C02 one.
 
 ---
 
+## D14. The bust stands above the box on the box's own left margin, and the plate moves out of its way
+
+Card t_4d6b0f4b (DIALOGUE-PORTRAIT), the card D12 item 2 handed the portrait to. D12 removed a frame nothing drew and
+required that any bust stand above the box, never take a column, because 48 pixels would cost 6 of the 28 characters.
+This ruling keeps that boundary and fills the frame that D12 emptied.
+
+1. **Geometry: 48x48 at (16, 120), drawn into the sheet with its own 1 pixel frame.** 120 + 48 = 168, and 168 is
+   `PP_BOX_Y`, so the bust's last row is the pixel above the box's top edge: it stands on the box and covers none of it.
+   `PP_PORTRAIT_X` is `PP_TEXT_X`, so the bust and the words share one left margin without sharing a pixel. The three
+   macros came back to `pp_config` as literals because the preview and the tests read them out of the source text, and a
+   computed value there would be a number nothing could check.
+2. **The bust is the page's, resolved the way the speaker already is.** A dialogue entry may carry `portrait`, and a
+   page may override it, including to `""` for a page that draws none. `quay_gate_checkpoint` is the case that forced
+   this: it is a `narrator` entry whose second page is the guard speaking, so the bust belongs to the page, not to the
+   entry. A `narrator` carrying a bust is a data error, because the narrator is the case with no face.
+3. **The name plate moves right, and only when a bust is up.** The plate was 64 wide at x 12 over the box's top border,
+   and the bust occupies x 16..63 of that same border band, so the two would have shared pixels. `PP_PLATE_X` 12 stays
+   the no-bust position and `PP_PLATE_BUST_X` 68 is the bust position: 68 is one past the bust's last column, and
+   68 + 64 = 132 ends well inside the box's 240 width. The plate is still 13 rows tall and still sits over the border,
+   so nothing about it changes for a page with no bust.
+4. **What the bust costs nothing.** The text area is untouched: 28 characters from x 16 to x 240, 3 rows, 10 pixels a
+   line. The box is still 240x64 at (8, 168) and the frame is still 256x224. Nothing was reserved, shrunk or re-wrapped,
+   which is the whole reason the bust went above the box rather than beside the words.
+5. **The art is a framed panel, not a cut-out.** A transparent bust over a dark scene read as a hole in the level, so
+   each sheet is a solid panel in one entry with ink line art over it and one accent colour: four entries a sheet, three
+   in any 8x8 tile, a 1 pixel frame ring in one colour, every colour a `data/nes_palette.json` entry. Three sheets ship
+   for the three speakers who are on screen in the slice: the quay guard, Percy, and Prometheus. A speaker with no sheet
+   draws no bust, which is what every remaining entry in `dialogue/all.json` does.
+6. **The check is arithmetic and has a failing case.** `tools/preview_dialogue_box.py` composes the bust and the plate
+   from the macros and refuses (exit 1) a bust whose last row is not `PP_BOX_Y - 1`, a bust outside the frame, and a
+   bust that shares a pixel with a text row, a choice label or the plate. `tests/test_dialogue_choice_layout.py` moves
+   the composed bust into the text area and requires that check to fail, so the geometry cannot drift back quietly.
+   `tools/check_data.py` refuses a `portrait` naming a sheet that is not there, and the copy of the data rules on a root
+   with no art lane says so instead of guessing.
+7. **What this does NOT do.** No bust is drawn in battle (`pp_battle_text` owns that panel and has no portrait, by its
+   own header comment), no portrait animates, and no bust is authored for a speaker who never appears in the slice. The
+   sheets are 1 frame each on purpose: a portrait that blinks is a later card with its own timing ruling.
+
+Proof, all run on 2026-10-23: `python tools/check_data.py` exit 0, all files pass; `python tools/preview_dialogue_box.py`
+exit 0, PASS, with the guard's page measuring a bust at `x 16..63 y 120..167` whose last row is 167 against the box top
+edge 168 and a plate at `x 68..132 y 162..174`; `python tools/nes_check.py` PASS on each of the three sheets; and
+`python -m pytest tests/test_dialogue_choice_layout.py tests/test_dialogue_v2.py tests/test_schemas.py` 77 passed.
+
+---
+
 ## Provenance
 
 No external code, art, audio, dialogue or decompiled material was read, retyped or reused for this file or the cards it
@@ -277,8 +322,9 @@ rules. Every number here is quoted from this repository's own files: `knowledge/
 `knowledge/ARRIVAL-CONTENT.md`, `knowledge/DRIVE-SHOT-LIST.md`, `knowledge/HACKATHON-AUDIT-2026-10-22.md`,
 `specs/18-boss-phases.md`, and the blocked cards' own comments and logs.
 
-Written by gamedev, 2026-10-23. Check for this file: it exists, each of D1 to D13 states a ruling and a reason, D1 names
+Written by gamedev, 2026-10-23. Check for this file: it exists, each of D1 to D14 states a ruling and a reason, D1 names
 the exact five flags and the one writer, D4 names the three children, D10 carries the box's three numbers and the four
 re-broken lines, D12 names the three choice numbers and the fault the overlap check refuses, D13 names the three
-characters the sheet grew and the ASCII index each one took, and every claim of "already done" is tied to a capture or
-a log line in this repository.
+characters the sheet grew and the ASCII index each one took, D14 names the bust's three numbers, the plate's two
+positions and the one page shape that forced the bust onto the page rather than the entry, and every claim of "already
+done" is tied to a capture or a log line in this repository.

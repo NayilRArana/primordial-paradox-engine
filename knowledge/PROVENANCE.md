@@ -1172,3 +1172,29 @@ unused, so they stay out until a string asks); by taking the glyph shapes from t
 and by making the count agree in four declarations plus the sheet's sidecar, with tools\check_font_coverage.py refusing
 any run where one of them disagrees.
 Copied expression: none
+
+## DIALOGUE-PORTRAIT, 2026-10-23: the bust stands on the box because a column would cost six characters
+Studied: this repository's own files, read only: specs\05-dialogue.md, knowledge\ART-BIBLE.md (the sprite rules and the
+tile budget), data\nes_palette.json (the entries the three sheets are drawn from), game\scripts\pp_dialogue\pp_dialogue.gml
+(pp_dialogue_pages, pp_dialogue_push_page, pp_dialogue_open and pp_dialogue_draw), game\scripts\pp_config\pp_config.gml,
+game\scripts\pp_art\pp_art.gml (pp_art_info and the one sheet index), tools\preview_dialogue_box.py,
+tools\art\make_characters_v2.py (the house way a sprite sheet and its sidecar are written), tools\sync_art.py,
+tools\gen_project.py, data\dialogue\all.json, data\schemas\dialogue.schema.json and knowledge\GAMEDEV-DECISIONS-2026-10-23.md
+D12 and D14. No decompiled material was read for this card, no expression from any game is in it, and the three faces
+are invented from the characters' written descriptions rather than traced from anything.
+Mechanics learned: three things. One, a portrait in a fixed-width text box is a budget question before it is an art
+question: 48 pixels is 6 of 28 characters, and the only placements that cost no character are above the box or outside
+it, so the box's own top edge becomes the bust's floor and the arithmetic is `y + size == box top`. Two, an attached
+face wants to be the same thing as the name plate, because both answer "who is talking", and the only page shape that
+proves it is a narrator entry whose second page is another speaker, which is why the bust is resolved per page exactly
+the way the speaker already was and why the plate has to move when the bust takes its corner. Three, a framed panel
+beats a cut-out at this size: with four entries and a three-colours-a-tile budget, a solid panel in one entry plus ink
+line art plus one accent reads as a portrait, while the same face on transparency reads as a hole in the scene.
+Our implementation differs by: placing the bust above the box on the text area's own left margin (x 16, y 120, 48x48,
+last row 167 against the box top 168) rather than in a column beside the words; by carrying the bust on the page as an
+optional `portrait` name with `""` meaning none, and refusing a bust on the narrator; by moving the existing 64 wide
+plate to x 68 when a bust is up instead of growing the plate or stacking the two; by authoring the three sheets in this
+repository's generator (tools\art\make_dialogue_busts.py, role names resolved against data\nes_palette.json at render
+time) in the NES framed-panel idiom; and by extending the composed preview into a refused case for a bust that starts
+inside the text area, breaks the box's top edge, or touches the plate.
+Copied expression: none

@@ -121,6 +121,7 @@ NAMED_COLOUR_USERS = {
     "PP_UNTINTED": (
         "game/scripts/pp_art/pp_art.gml",
         "game/scripts/pp_battle_director/pp_battle_director.gml",
+        "game/scripts/pp_dialogue/pp_dialogue.gml",
         "game/scripts/pp_font/pp_font.gml",
         "game/scripts/pp_map/pp_map.gml",
         "game/scripts/pp_overworld/pp_overworld.gml",

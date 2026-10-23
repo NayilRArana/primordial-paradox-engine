@@ -185,13 +185,23 @@ enum PPElement {
 // earlier 30 was written against a text area that started at x 72 (a 48 pixel portrait column), and 30 cells from x 72
 // end at x 312. PP_TEXT_CHARS, PP_TEXT_RIGHT and specs/05-dialogue.md all state 28, and
 // tests/test_dialogue_v2.py::test_the_box_geometry_and_the_wrap_agree recomputes the identity on every run.
-// There is no portrait in this slice and no portrait geometry either (card t_01432e14): no speaker carries one, so
-// pp_dialogue_draw draws none, and a 48 pixel column would cost 6 of the 28 characters anyway. A 48x48 bust, when the
-// art lane has a four colour one, stands above the box and never takes a column of it.
+// There was no portrait in this slice until card t_4d6b0f4b: no speaker carried one, so pp_dialogue_draw drew none.
+// A bust cannot take a column of the box either way, because a 48 pixel column would cost 6 of the 28 characters, so
+// it stands ABOVE the box on the box's own top edge and the text area keeps every column it has (D10 point 3).
+// The numbers: 48x48 at (16, 120) ends at y 167, one pixel above the box's top edge at 168, so the bust touches the
+// box and covers none of it. 16 is the same inset as PP_TEXT_X, so the bust and the text area start on one line.
 #macro PP_BOX_X 8
 #macro PP_BOX_Y 168
 #macro PP_BOX_W 240
 #macro PP_BOX_H 64
+#macro PP_PORTRAIT_X 16
+#macro PP_PORTRAIT_Y 120
+#macro PP_PORTRAIT_SIZE 48
+// The name plate's own inset, and the x it takes when a bust is on the page: the bust's 48 pixels end at 63, so the
+// plate starts at 68 and the two cannot overlap. The plate is 64 wide either way, from its x to x + 64.
+#macro PP_PLATE_X 12
+#macro PP_PLATE_W 64
+#macro PP_PLATE_BUST_X 68
 #macro PP_TEXT_X 16
 #macro PP_TEXT_Y 176
 #macro PP_TEXT_RIGHT 240

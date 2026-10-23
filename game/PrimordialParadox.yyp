@@ -456,6 +456,33 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "spr_pp_portrait_guard.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_pp_portrait_guard.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_pp_portrait_percy.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_pp_portrait_percy.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "spr_pp_portrait_prometheus.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "spr_pp_portrait_prometheus.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "spr_pp_title_logo.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",

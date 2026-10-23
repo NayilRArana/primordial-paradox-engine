@@ -1,9 +1,12 @@
 /// pp_dialogue: the text box layout (spec 05) over the one reveal machine in pp_text.
-/// This module owns the words' shape and place: word wrap, pages, the box, the name plate, the page arrow and the
-/// choice rows, and it draws every one of them through pp_font_draw, the one text path in the game. It owns no reveal:
-/// the character timing, the holds, the punctuation pauses, the blip and the done predicate belong to pp_text (law 8,
-/// one renderer per thing). There is no portrait: no speaker in the slice carries one, the box draws none, and no
-/// portrait geometry is defined (cards t_1d828fcd and t_01432e14).
+/// This module owns the words' shape and place: word wrap, pages, the box, the name plate, the portrait bust, the page
+/// arrow and the choice rows, and it draws every one of them through pp_font_draw and pp_art_info, the one text path
+/// and the one sheet path in the game. It owns no reveal: the character timing, the holds, the punctuation pauses, the
+/// blip and the done predicate belong to pp_text (law 8, one renderer per thing).
+/// The portrait is a 48x48 bust above the box (spec 05 Geometry, card t_4d6b0f4b): a page carries a `portrait` name the
+/// same way it carries a `speaker`, the sheet is spr_pp_portrait_<name> on the same one-sheet index as the window and
+/// the font, and a page with no portrait draws none. Nothing is reserved for it inside the box: the text area keeps all
+/// 28 columns and the bust stands on the box's top edge.
 /// Provenance: knowledge\PROVENANCE.md, entry "text reveal machine: one implementation, two layouts", and the older
 /// entry "battle state machine and turn loop". The page and beat model is spec 05.
 /// No closures: every loop is written out, because a closure that reassigns an outer var is the kind of thing that
@@ -91,24 +94,31 @@ function pp_dialogue_rows(_text) {
 /// page breaks, so each page is taken as written and only re-paged if wrapping made it taller than the box.
 function pp_dialogue_pages(_row) {
     var _pages = [];
+    // The bust this entry carries, if any, and a page may name its own the way it names its own speaker: an entry
+    // whose pages change speaker needs its portrait to change with the plate, and the empty string is how a page says
+    // "nobody" rather than leaving the entry's bust up (card t_4d6b0f4b).
+    var _portrait = "";
+    if (variable_struct_exists(_row, "portrait")) _portrait = _row.portrait;
     if (variable_struct_exists(_row, "pages") && is_array(_row.pages)) {
         var _p = 0;
         while (_p < array_length(_row.pages)) {
             var _page = _row.pages[_p];
             var _speaker = _row.speaker;
             if (variable_struct_exists(_page, "speaker")) _speaker = _page.speaker;
-            pp_dialogue_push_page(_pages, _page.lines, _speaker);
+            var _page_portrait = _portrait;
+            if (variable_struct_exists(_page, "portrait")) _page_portrait = _page.portrait;
+            pp_dialogue_push_page(_pages, _page.lines, _speaker, _page_portrait);
             _p += 1;
         }
     } else {
-        pp_dialogue_push_page(_pages, _row.lines, _row.speaker);
+        pp_dialogue_push_page(_pages, _row.lines, _row.speaker, _portrait);
     }
     return _pages;
 }
 
-/// Wrap one run of source lines into pages of at most PP_TEXT_ROWS rows, each page carrying the speaker it is shown
-/// under. A source line that wraps past the box becomes another page rather than a shorter box (rule 4).
-function pp_dialogue_push_page(_pages, _lines, _speaker) {
+/// Wrap one run of source lines into pages of at most PP_TEXT_ROWS rows, each page carrying the speaker and the bust
+/// it is shown with. A source line that wraps past the box becomes another page rather than a shorter box (rule 4).
+function pp_dialogue_push_page(_pages, _lines, _speaker, _portrait) {
     var _i = 0;
     while (_i < array_length(_lines)) {
         var _rows = pp_dialogue_rows(_lines[_i]);
@@ -120,7 +130,7 @@ function pp_dialogue_push_page(_pages, _lines, _speaker) {
                 array_push(_chunk, _rows[_r]);
                 _r += 1;
             }
-            array_push(_pages, { speaker: _speaker, rows: _chunk });
+            array_push(_pages, { speaker: _speaker, portrait: _portrait, rows: _chunk });
             _start += PP_TEXT_ROWS;
         }
         _i += 1;
@@ -220,9 +230,12 @@ function pp_dialogue_open(_dialogue_id) {
     }
 
     // The box waits for confirm at the end of a page, so the machine advances only when this layout says so.
+    var _portrait = "";
+    if (variable_struct_exists(_row, "portrait")) _portrait = _row.portrait;
     return {
         id: _row.id,
         speaker: _row.speaker,
+        portrait: _portrait,
         pages: _pages,
         sets: pp_dialogue_flag_list(_row, "sets"),
         choices: pp_dialogue_choice_list(_row),
@@ -264,6 +277,7 @@ function pp_dialogue_pick(_d, _index) {
         if (!is_undefined(_next)) {
             _d.id = _next.id;
             _d.speaker = _next.speaker;
+            _d.portrait = _next.portrait;
             _d.pages = _next.pages;
             _d.sets = _next.sets;
             _d.choices = _next.choices;
@@ -344,11 +358,30 @@ function pp_dialogue_draw(_d) {
     var _page_data = _d.pages[_page];
     var _rows = _page_data.rows;
     var _plate = _page_data.speaker;
+    var _bust = _page_data.portrait;
+
+    // The portrait (spec 05 Geometry, card t_4d6b0f4b): a 48x48 bust standing on the box's top edge at (16, 120), so
+    // it ends one pixel above the box and covers none of it, and the text area keeps all 28 of its columns. The sheet
+    // is spr_pp_portrait_<name> on the same one-sheet index as the window and the font, so this is the same path the
+    // rest of the box draws through. A page that names no bust draws none, and a page that names one the index does
+    // not carry draws nothing and says so: a frame with nothing in it is the defect card t_01432e14 removed.
+    if (_bust != "") {
+        var _portrait = pp_art_info("spr_pp_portrait_" + _bust);
+        if (is_undefined(_portrait)) {
+            show_debug_message("PP: no portrait sheet for " + string(_bust));
+        } else {
+            draw_sprite_ext(_portrait.sprite, 0, PP_PORTRAIT_X, PP_PORTRAIT_Y, 1, 1, 0, PP_UNTINTED, 1);
+        }
+    }
 
     if (_plate != "narrator" && _plate != "") {
+        // The plate is 64 wide and sits over the left of the top border. With a bust on the page it starts where the
+        // bust ends (48 pixels from x 16 is x 63), so the two never share a pixel; without one it keeps its old inset.
+        var _plate_x = PP_PLATE_X;
+        if (_bust != "") _plate_x = PP_PLATE_BUST_X;
         draw_set_colour(pp_role_colour("paper"));
-        draw_rectangle(PP_BOX_X + 4, PP_BOX_Y - 6, PP_BOX_X + 68, PP_BOX_Y + 6, false);
-        pp_font_draw(string_upper(_plate), PP_BOX_X + 8, PP_BOX_Y - 4, 1);
+        draw_rectangle(_plate_x, PP_BOX_Y - 6, _plate_x + PP_PLATE_W, PP_BOX_Y + 6, false);
+        pp_font_draw(string_upper(_plate), _plate_x + 4, PP_BOX_Y - 4, 1);
     }
 
     // A page that offers choices does not share its three rows with the labels (spec 05, card t_01432e14): once the

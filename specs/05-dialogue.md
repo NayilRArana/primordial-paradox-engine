@@ -8,9 +8,17 @@ completes a line, then advances. Holding confirm speeds text up.
 
 Geometry
 - Box 240x64 at (8, 168): 2 pixel frame, 1 pixel dark outer line, drawn over the scene.
-- Portrait: none. No speaker in the slice carries one, so the box draws none and there is no portrait geometry in
-  `pp_config` (card t_01432e14). A bust is a separate card: 48x48, at most 4 colours, standing above the box on its
-  top edge, never a column of the text area, because a 48 pixel column would cost 6 of the 28 characters.
+- Portrait: a 48x48 bust at (16, 120), at most 4 colours from `data/nes_palette.json` and at most 3 in any 8x8 tile,
+  with its 1 pixel frame drawn into the sheet. 120 + 48 = 168, which is the box's own top edge, so the bust stands on
+  the box and covers none of it. It never takes a column of the text area: a 48 pixel column inside the box would cost
+  6 of the 28 characters, which is the reason the 28 ruling exists. 16 is the text area's own inset, so the bust and the
+  first row of text start on one line, and 48 pixels of bust is 36 sprite tiles, six to a scanline, inside the PPU's
+  eight sprites a scanline and 64 in OAM. The sheet is `spr_pp_portrait_<name>`, on the same one sheet index as the
+  window and the font (`pp_art_info`), so the bust draws through the box's own path and a page with no sheet draws
+  nothing rather than a frame with nothing in it (card t_4d6b0f4b).
+- Name plate 64x12 over the left of the top border, at x 12 without a bust and at x 68 with one, because the bust's 48
+  pixels end at 63 and the plate is the one other thing on that border: 68 keeps them from sharing a pixel, and the
+  text area is untouched either way.
 - Text area x 16 to 240, y 176 to 224: our own 8x8 font, 28 characters per line, 3 lines per page. 16 + 28 * 8 = 240,
   so a full line ends exactly on the text area's right edge and 8 pixels short of the box's 248. The box is 240 wide,
   so 30 characters cannot fit at 8 pixels a glyph from any inset: 30 characters would end at x 256.
@@ -56,6 +64,11 @@ Data: a dialogue has `id`, `speaker` and exactly one of `lines` or `pages`, plus
   is already one row of the box, so 29 characters is refused rather than wrapped. A page may name its own `speaker`,
   which is how a mixed scene keeps the right name plate; without it the entry's `speaker` is used (`narrator` is the
   no name case).
+- `portrait` names the bust, on an entry or on a page exactly the way `speaker` does, and the page's own value replaces
+  the entry's. The empty string is legal and means "nobody", which is how a page inside a bust carrying entry keeps the
+  frame clear, and `narrator` never carries one. `tools/check_data.py` proves the name matches a real sheet
+  (`game/sprites_src/chars/spr_pp_portrait_<name>.png`) and refuses a narrator with a bust, so a typo is a data error
+  and not a portrait that silently never appears.
 - `sets` on an entry names flags applied when the box closes. A `choice` names `label`, `sets` and optional `goto`.
 All ids are strings, every flag is a name in `data/flags.json`, and the checker proves each one exists.
 
@@ -72,6 +85,10 @@ Acceptance (Nayil)
    fourth page is refused the same way; a 28 character page line passes.
 6. A page that offers choices never shows a label over a line of dialogue: the rows are replaced by the labels, not
    covered by them, and a cursor cell and a label cell never share a cell with a row.
+7. A page that names a bust draws that 48x48 sheet at (16, 120), standing on the box: the last row of the sheet is
+   y 167 and the box starts at y 168, no pixel of the text area is covered, and the name plate moves to x 68 so the
+   plate and the bust never share a pixel. A page with no bust draws none, and a page whose sheet is missing draws
+   nothing at all rather than an empty frame.
 
-Out of scope: voice, per character sounds beyond blips, localisation, and character portraits (no speaker in the slice
-carries one, and a bust needs a 48x48 four colour sprite the art lane has not drawn; it is its own card).
+Out of scope: voice, per character sounds beyond blips, localisation, and animation of a bust (a bust is one frame; a
+second expression is a second sheet and a data change, not a runtime feature).

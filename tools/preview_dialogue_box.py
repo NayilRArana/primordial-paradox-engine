@@ -65,6 +65,7 @@ FONT_GML = os.path.join("game", "scripts", "pp_font", "pp_font.gml")
 SHEET_DIR = os.path.join("game", "sprites_src", "title")
 FONT_PNG = os.path.join(SHEET_DIR, "spr_pp_font8.png")
 WINDOW_PNG = os.path.join(SHEET_DIR, "spr_pp_window.png")
+CHARS_DIR = os.path.join("game", "sprites_src", "chars")
 DIALOGUE_JSON = os.path.join("data", "dialogue", "all.json")
 DEFAULT_OUT = os.path.join("output", "dialogue_box_3x.png")
 
@@ -172,7 +173,8 @@ def wrap(line, chars):
 
 
 def page_rows(entry, page_index, chars):
-    """The rows of one page, wrapped the way pp_dialogue_push_page wraps it."""
+    """The rows of one page, wrapped the way pp_dialogue_push_page wraps it, with its plate and its bust name."""
+    portrait = entry.get("portrait", "")
     pages = entry.get("pages")
     if pages:
         if page_index >= len(pages):
@@ -182,14 +184,18 @@ def page_rows(entry, page_index, chars):
         rows = []
         for line in page["lines"]:
             rows.extend(wrap(line, chars))
-        return rows[:3], page.get("speaker", entry.get("speaker", ""))
+        # pp_dialogue_pages: the page's own value replaces the entry's, the way its speaker does. The empty string is
+        # a page that draws no bust.
+        if "portrait" in page:
+            portrait = page["portrait"]
+        return rows[:3], page.get("speaker", entry.get("speaker", "")), portrait
     rows = []
     for line in entry.get("lines", []):
         rows.extend(wrap(line, chars))
     start = page_index * 3
     if start >= len(rows):
         raise SystemExit("entry %r wraps to %d row(s), page %d was asked for" % (entry["id"], len(rows), page_index))
-    return rows[start:start + 3], entry.get("speaker", "")
+    return rows[start:start + 3], entry.get("speaker", ""), portrait
 
 
 def page_count(entry, chars):
@@ -235,16 +241,37 @@ def compose(root, entry_id, page_index, config, cursor=0):
     draw_window(canvas, window_sheet, config["PP_BOX_X"], config["PP_BOX_Y"],
                 config["PP_BOX_W"] // 8, config["PP_BOX_H"] // 8)
 
-    rows, speaker = page_rows(entry, page_index, config["PP_TEXT_CHARS"])
+    rows, speaker, bust = page_rows(entry, page_index, config["PP_TEXT_CHARS"])
     missing = []
+    portrait_rect = None
 
-    # The name plate, drawn exactly where pp_dialogue_draw draws it: 64x12 over the left of the top border.
+    # The bust (spec 05 Geometry, card t_4d6b0f4b): drawn BEFORE the plate and the rows, exactly where
+    # pp_dialogue_draw draws it, from the same sheet name the engine asks pp_art_info for. A page with no bust draws
+    # none. A page whose sheet is missing is an error here rather than a silent nothing, because the preview's job is
+    # to catch the data pointing at art that does not exist.
+    if bust:
+        bust_path = os.path.join(root, CHARS_DIR, "spr_pp_portrait_%s.png" % bust)
+        if not os.path.isfile(bust_path):
+            raise SystemExit("page %d of %r names the bust %r, but %s is not there"
+                             % (page_index, entry_id, bust, bust_path))
+        bust_image = Image.open(bust_path).convert("RGBA")
+        canvas.paste(bust_image, (config["PP_PORTRAIT_X"], config["PP_PORTRAIT_Y"]), bust_image)
+        portrait_rect = {"x0": config["PP_PORTRAIT_X"], "y0": config["PP_PORTRAIT_Y"],
+                         "x1": config["PP_PORTRAIT_X"] + bust_image.width,
+                         "y1": config["PP_PORTRAIT_Y"] + bust_image.height,
+                         "w": bust_image.width, "h": bust_image.height}
+
+    # The name plate, drawn exactly where pp_dialogue_draw draws it: 64 wide over the left of the top border, moved
+    # right of the bust when there is one, so the two never share a pixel.
+    plate_rect = None
     if speaker not in ("", "narrator"):
-        plate_x = config["PP_BOX_X"] + 4
+        plate_x = config["PP_PLATE_BUST_X"] if bust else config["PP_PLATE_X"]
         plate_y = config["PP_BOX_Y"] - 6
-        plate = Image.new("RGBA", (65, 13), (0, 0, 0, 255))
+        plate = Image.new("RGBA", (config["PP_PLATE_W"] + 1, 13), (0, 0, 0, 255))
         canvas.paste(plate, (plate_x, plate_y))
-        _, gone = draw_text(canvas, font_sheet, glyphs, speaker.upper(), config["PP_BOX_X"] + 8,
+        plate_rect = {"x0": plate_x, "y0": plate_y,
+                      "x1": plate_x + config["PP_PLATE_W"] + 1, "y1": plate_y + 13}
+        _, gone = draw_text(canvas, font_sheet, glyphs, speaker.upper(), plate_x + 4,
                             config["PP_BOX_Y"] - 4)
         missing.extend(gone)
 
@@ -282,7 +309,7 @@ def compose(root, entry_id, page_index, config, cursor=0):
                           "y0": y, "y1": y + line_h})
 
     return canvas, {"entry": entry_id, "page": page_index, "speaker": speaker, "rows": drawn,
-                    "menu": menu, "missing": missing}
+                    "portrait": portrait_rect, "plate": plate_rect, "menu": menu, "missing": missing}
 
 
 def ink_bounds(image):
@@ -334,6 +361,39 @@ def check(report, config):
     if report["missing"]:
         errors.append("%s page %d prints %s, which the sheet does not carry"
                       % (report["entry"], report["page"], ", ".join(sorted(set(report["missing"])))))
+
+    # The bust, when the page carries one: 48x48 at the portrait's own x and y, its last row one pixel above the box,
+    # the whole sheet inside the 256x240 frame, and no pixel shared with a dialogue row, a choice label or the cursor.
+    bust = report["portrait"]
+    if bust is not None:
+        if (bust["w"], bust["h"]) != (config["PP_PORTRAIT_SIZE"], config["PP_PORTRAIT_SIZE"]):
+            errors.append("%s page %d draws a %dx%d bust, the geometry says %dx%d"
+                          % (report["entry"], report["page"], bust["w"], bust["h"],
+                             config["PP_PORTRAIT_SIZE"], config["PP_PORTRAIT_SIZE"]))
+        if bust["y1"] != config["PP_BOX_Y"]:
+            errors.append("%s page %d puts the bust's last row at y %d, the box's top edge is y %d"
+                          % (report["entry"], report["page"], bust["y1"] - 1, config["PP_BOX_Y"]))
+        if bust["x1"] > config["PP_FRAME_W"] or bust["y1"] > config["PP_FRAME_H"]:
+            errors.append("%s page %d draws the bust outside the %dx%d frame"
+                          % (report["entry"], report["page"], config["PP_FRAME_W"], config["PP_FRAME_H"]))
+        targets = list(report["rows"])
+        if report["menu"]:
+            targets += list(report["menu"]["labels"])
+            if report["menu"]["arrow"] is not None:
+                targets.append(report["menu"]["arrow"])
+        for cell in targets:
+            if (bust["x0"] < cell["x1"] and cell["x0"] < bust["x1"]
+                    and bust["y0"] < cell["y1"] and cell["y0"] < bust["y1"]):
+                errors.append("%s page %d draws the bust over %r at x %d..%d y %d..%d"
+                              % (report["entry"], report["page"], cell.get("text", cell.get("label", "the cursor")),
+                                 cell["x0"], cell["x1"] - 1, cell["y0"], cell["y1"] - 1))
+        if report["plate"] is not None and (bust["x0"] < report["plate"]["x1"] and report["plate"]["x0"] < bust["x1"]
+                                            and bust["y0"] < report["plate"]["y1"]
+                                            and report["plate"]["y0"] < bust["y1"]):
+            errors.append("%s page %d draws the plate at x %d..%d over the bust at x %d..%d"
+                          % (report["entry"], report["page"], report["plate"]["x0"], report["plate"]["x1"] - 1,
+                             bust["x0"], bust["x1"] - 1))
+
     for row in report["rows"]:
         if len(row["text"]) > config["PP_TEXT_CHARS"]:
             errors.append("%s page %d row %d is %d characters, the box holds %d"
@@ -385,7 +445,9 @@ def main():
         return 2
     for need in ("PP_BOX_X", "PP_BOX_Y", "PP_BOX_W", "PP_BOX_H", "PP_TEXT_X", "PP_TEXT_Y", "PP_TEXT_RIGHT",
                  "PP_TEXT_CHARS", "PP_TEXT_LINE_H", "PP_TEXT_ROWS", "PP_FRAME_W", "PP_FRAME_H",
-                 "PP_CHOICE_ARROW_X", "PP_CHOICE_ARROW_W", "PP_CHOICE_LABEL_X"):
+                 "PP_CHOICE_ARROW_X", "PP_CHOICE_ARROW_W", "PP_CHOICE_LABEL_X",
+                 "PP_PORTRAIT_X", "PP_PORTRAIT_Y", "PP_PORTRAIT_SIZE",
+                 "PP_PLATE_X", "PP_PLATE_W", "PP_PLATE_BUST_X"):
         if need not in config:
             print("preview_dialogue_box: %s has no literal #macro %s" % (CONFIG_GML, need))
             return 2
@@ -447,6 +509,16 @@ def main():
     for report in reports:
         print("")
         print("  %s page %d, speaker %r" % (report["entry"], report["page"], report["speaker"]))
+        if report["portrait"] is not None:
+            bust = report["portrait"]
+            print("    bust %dx%d at x %d..%d y %d..%d, last row %d, the box's top edge %d"
+                  % (bust["w"], bust["h"], bust["x0"], bust["x1"] - 1, bust["y0"], bust["y1"] - 1,
+                     bust["y1"] - 1, config["PP_BOX_Y"]))
+        else:
+            print("    no bust on this page")
+        if report["plate"] is not None:
+            print("    plate x %d..%d y %d..%d" % (report["plate"]["x0"], report["plate"]["x1"] - 1,
+                                                   report["plate"]["y0"], report["plate"]["y1"] - 1))
         for row in report["rows"]:
             print("    row %d (%2d chars) x %d..%d y %d  %r"
                   % (row["row"], len(row["text"]), row["x0"], row["x1"] - 1, row["y0"], row["text"]))
