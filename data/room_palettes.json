@@ -44,6 +44,44 @@
         "sea_1", "sea_3", "bronze_1", "bronze_3", "wine_2",
         "gold_4", "hazard"
       ]
+    },
+    {
+      "id": "quay_night",
+      "note": "the Town Quay at night: wet stone, black water, two gold lamps and the brick of the sheds",
+      "roles": [
+        "ink",
+        "paper",
+        "dim",
+        "text",
+        "grey_2",
+        "grey_3",
+        "sea_1",
+        "sea_3",
+        "stone_2",
+        "stone_4",
+        "bronze_2",
+        "gold_4",
+        "gold_5",
+        "warn"
+      ]
+    },
+    {
+      "id": "office_night",
+      "note": "the dock office: one lamp, a ledger, a counter and the door, warmer than the quay outside",
+      "roles": [
+        "ink",
+        "paper",
+        "dim",
+        "text",
+        "grey_1",
+        "bronze_3",
+        "bronze_4",
+        "gold_4",
+        "gold_5",
+        "wine_2",
+        "sea_1",
+        "warn"
+      ]
     }
   ]
 }
