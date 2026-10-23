@@ -18,6 +18,11 @@
       "description": "A dialogue id or a flag name: lowercase, digits and underscores."
     },
     "flag": { "$ref": "#/$defs/id" },
+    "portrait": {
+      "type": "string",
+      "pattern": "^([a-z][a-z0-9_]*)?$",
+      "description": "The 48x48 bust drawn above the box: a name whose sheet is game/sprites_src/chars/spr_pp_portrait_<name>.png, or the empty string for a page that draws none. An entry's portrait is the default and a page may override it, the way it overrides the speaker, which is how a narrator entry keeps the bust off its own pages and on the page that names the guard. Narrator itself carries no bust, and tools/check_data.py proves the sheet exists."
+    },
     "line": {
       "type": "string",
       "minLength": 1,
@@ -36,6 +41,7 @@
       "additionalProperties": false,
       "properties": {
         "speaker": { "type": "string", "minLength": 1, "description": "Optional. The name plate for this page; when absent the entry's speaker is used." },
+        "portrait": { "$ref": "#/$defs/portrait" },
         "lines": { "type": "array", "minItems": 1, "maxItems": 3, "items": { "$ref": "#/$defs/page_line" } }
       }
     },
@@ -60,6 +66,7 @@
       "properties": {
         "id": { "$ref": "#/$defs/id" },
         "speaker": { "type": "string", "minLength": 1, "description": "Who is talking, for the name plate. narrator is the no name case." },
+        "portrait": { "$ref": "#/$defs/portrait" },
         "lines": { "type": "array", "minItems": 1, "maxItems": 9, "items": { "$ref": "#/$defs/line" } },
         "pages": { "type": "array", "minItems": 1, "maxItems": 3, "items": { "$ref": "#/$defs/page" } },
         "choices": { "type": "array", "minItems": 1, "maxItems": 3, "items": { "$ref": "#/$defs/choice" } },

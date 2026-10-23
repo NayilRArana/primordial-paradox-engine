@@ -85,6 +85,7 @@
     {
       "id": "percy_entry",
       "speaker": "percy",
+      "portrait": "percy",
       "lines": [
         "* \"A stowaway with a god.\"",
         "* \"The sea does not care.\"",
@@ -94,6 +95,7 @@
     {
       "id": "talk_percy",
       "speaker": "percy",
+      "portrait": "percy",
       "lines": [
         "* \"You still talk. How dull.\"",
         "* \"Ask what the veil is.\"",
@@ -103,6 +105,7 @@
     {
       "id": "talk_percy_phase2",
       "speaker": "percy",
+      "portrait": "percy",
       "lines": [
         "* \"The tide turns anyway.\"",
         "* \"You asked about the veil.\"",
@@ -112,6 +115,7 @@
     {
       "id": "percy_phase2_line",
       "speaker": "percy",
+      "portrait": "percy",
       "lines": [
         "* Percy plants the trident.",
         "* \"So. You have hurt me.\"",
@@ -121,6 +125,7 @@
     {
       "id": "talk_percy_phase3",
       "speaker": "percy",
+      "portrait": "percy",
       "lines": [
         "* \"Rain. Wall. Now the fan.\"",
         "* \"Last of the three.\"",
@@ -130,6 +135,7 @@
     {
       "id": "percy_phase3_line",
       "speaker": "percy",
+      "portrait": "percy",
       "lines": [
         "* Percy opens the sea wide.",
         "* \"Everything at once, then.\"",
@@ -139,6 +145,7 @@
     {
       "id": "percy_interrupt_line",
       "speaker": "percy",
+      "portrait": "percy",
       "lines": [
         "* \"Wait. Who says my name?\"",
         "* The trident dips an inch."
@@ -147,6 +154,7 @@
     {
       "id": "prometheus_veil_line",
       "speaker": "prometheus",
+      "portrait": "prometheus",
       "lines": [
         "* \"Peace, tide-bitten.\"",
         "* \"I am the fire's name.\"",
@@ -187,6 +195,7 @@
     {
       "id": "percy_win_spare",
       "speaker": "percy",
+      "portrait": "percy",
       "lines": [
         "* \"Keep your fire, then.\"",
         "* \"Do not ask me for water.\""
@@ -249,6 +258,7 @@
         },
         {
           "speaker": "guard",
+          "portrait": "guard",
           "lines": [
             "* \"That is far enough.\"",
             "* \"Name and business.\"",
@@ -268,9 +278,11 @@
     {
       "id": "quay_gate_choice",
       "speaker": "guard",
+      "portrait": "guard",
       "pages": [
         {
           "speaker": "guard",
+          "portrait": "guard",
           "lines": [
             "* \"No pass, no gate.\"",
             "* \"So. What is it?\"",
@@ -299,9 +311,11 @@
     {
       "id": "quay_gate_truth",
       "speaker": "guard",
+      "portrait": "guard",
       "pages": [
         {
           "speaker": "guard",
+          "portrait": "guard",
           "lines": [
             "* \"Honest. That is new.\"",
             "* \"Office. Sign in.\""
@@ -318,9 +332,11 @@
     {
       "id": "quay_gate_bluff",
       "speaker": "guard",
+      "portrait": "guard",
       "pages": [
         {
           "speaker": "guard",
+          "portrait": "guard",
           "lines": [
             "* \"The list is full.\"",
             "* \"Office, then. Sign.\""
@@ -337,9 +353,11 @@
     {
       "id": "quay_gate_authority",
       "speaker": "guard",
+      "portrait": "guard",
       "pages": [
         {
           "speaker": "guard",
+          "portrait": "guard",
           "lines": [
             "* \"My officer is asleep.\"",
             "* \"Office. Now.\""
