@@ -54,3 +54,9 @@ exception_unhandled_handler(function(_ex) {
 window_set_size(PP_FRAME_W * 3, PP_FRAME_H * 3);
 window_set_position(max(0, (display_get_width() - PP_FRAME_W * 3) div 2), max(0, (display_get_height() - PP_FRAME_H * 3 - 90) div 2));
 pp_app_boot();
+
+// Card R21a: the drive room's door. Unset in every real launch, so the game opens where the route says it does. A
+// proof run sets PP_DRIVE_ROOM and the frame moves to rm_pp_drive through the app's own room door (pp_drive_goto_room
+// asks for PPMode.cutscene and room_goto, the drive being a cutscene and its room the screen's owner), because the
+// route is card R21b's to wire.
+if (environment_get_variable(PP_DRIVE_ROOM) != "") pp_drive_goto_room();

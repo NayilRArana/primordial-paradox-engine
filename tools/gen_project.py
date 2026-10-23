@@ -60,9 +60,20 @@ ROOMS = {
         "background": 4278190080,  # opaque black, ARGB
         "instances": [],
     },
+    # R21a: the drive to Southampton. obj_pp_drive owns the screen, the same way obj_pp_title owns rm_pp_title, so the
+    # twelve shots are drawn by one instance and the app's modes stay out of the way. The debug overlay rides along as
+    # it does in every room.
+    "rm_pp_drive": {
+        "size": (256, 240),
+        "background": 4278190080,  # opaque black, ARGB
+        "instances": [
+            ("obj_pp_drive", 0, 0),
+            ("obj_pp_debug_overlay", 0, 0),
+        ],
+    },
 }
 
-ROOM_ORDER = ["rm_pp_boot", "rm_pp_title", "rm_pp_ship"]
+ROOM_ORDER = ["rm_pp_boot", "rm_pp_title", "rm_pp_drive", "rm_pp_ship"]
 
 # Per object settings the generated .yy carries. obj_pp_game is persistent because it owns the app mode machine,
 # the input sample and the save panel, and all three must survive the move from the boot room to the title room.

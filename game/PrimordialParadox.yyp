@@ -69,6 +69,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "credits.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "credits.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "dissonance_rules.json",
       "CopyToMask": -1,
       "filePath": "datafiles",
@@ -82,6 +91,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles",
       "name": "drum_patterns.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "ear_loop_state.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "ear_loop_state.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -217,6 +235,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles",
       "name": "talk_cards.json",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "tile_classes_drive.json",
+      "CopyToMask": -1,
+      "filePath": "datafiles",
+      "name": "tile_classes_drive.json",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -1977,6 +2004,33 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "pp_05_small_ship_v2.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_05_small_ship_v2.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_arrival.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_arrival.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_boarding.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_boarding.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_drive.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
@@ -1990,6 +2044,51 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "pp_drive_v2.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_drive_v3.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_drive_v3.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_drive_v3_humanized.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_drive_v3_humanized.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_fight_calm.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_fight_calm.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_fight_fight.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_fight_fight.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_fight_states.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_fight_states.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -2201,6 +2300,12 @@
     },
     {
       "id": {
+        "name": "pp_drive",
+        "path": "scripts/pp_drive/pp_drive.yy"
+      }
+    },
+    {
+      "id": {
         "name": "pp_font",
         "path": "scripts/pp_font/pp_font.yy"
       }
@@ -2279,6 +2384,12 @@
     },
     {
       "id": {
+        "name": "obj_pp_drive",
+        "path": "objects/obj_pp_drive/obj_pp_drive.yy"
+      }
+    },
+    {
+      "id": {
         "name": "obj_pp_game",
         "path": "objects/obj_pp_game/obj_pp_game.yy"
       }
@@ -2293,6 +2404,12 @@
       "id": {
         "name": "rm_pp_boot",
         "path": "rooms/rm_pp_boot/rm_pp_boot.yy"
+      }
+    },
+    {
+      "id": {
+        "name": "rm_pp_drive",
+        "path": "rooms/rm_pp_drive/rm_pp_drive.yy"
       }
     },
     {
@@ -2321,6 +2438,12 @@
       "roomId": {
         "name": "rm_pp_title",
         "path": "rooms/rm_pp_title/rm_pp_title.yy"
+      }
+    },
+    {
+      "roomId": {
+        "name": "rm_pp_drive",
+        "path": "rooms/rm_pp_drive/rm_pp_drive.yy"
       }
     },
     {
