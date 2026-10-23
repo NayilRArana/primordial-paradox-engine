@@ -43,6 +43,11 @@ DST = os.path.join(ROOT, "game", "datafiles")
 NOT_RUNTIME = frozenset({
     "palette_recipes.json",
     "scene_palettes.json",
+    # talk_profanity.json is the profanity guard's token list (R49, spec 19 layer D). The guard runs at
+    # bake time in tools/talk_guard.py and no GML names the file (grep of game/**/*.gml on 2026-10-22:
+    # no reader; under D5 the game's only talk input is data/meta_bake.json, and spec 19 section 12.5
+    # forbids the list travelling in the bundle next to the bake it already guards).
+    "talk_profanity.json",
 })
 
 # Directories under data\ that are not mirrored for the same reason, matched on the relative prefix.
