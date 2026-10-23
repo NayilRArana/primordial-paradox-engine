@@ -185,22 +185,26 @@ enum PPElement {
 // earlier 30 was written against a text area that started at x 72 (a 48 pixel portrait column), and 30 cells from x 72
 // end at x 312. PP_TEXT_CHARS, PP_TEXT_RIGHT and specs/05-dialogue.md all state 28, and
 // tests/test_dialogue_v2.py::test_the_box_geometry_and_the_wrap_agree recomputes the identity on every run.
-// The portrait does not take text columns any more: a 48 pixel column costs 7 of the 28, and the authored dialogue is
-// written at 21 to 30 characters a row. The portrait is a bust above the box, at PP_PORTRAIT_X and PP_PORTRAIT_Y,
-// drawn when a speaker has one; none does in this slice, so pp_dialogue_draw draws no portrait frame today.
+// There is no portrait in this slice and no portrait geometry either (card t_01432e14): no speaker carries one, so
+// pp_dialogue_draw draws none, and a 48 pixel column would cost 6 of the 28 characters anyway. A 48x48 bust, when the
+// art lane has a four colour one, stands above the box and never takes a column of it.
 #macro PP_BOX_X 8
 #macro PP_BOX_Y 168
 #macro PP_BOX_W 240
 #macro PP_BOX_H 64
-#macro PP_PORTRAIT_X 16
-#macro PP_PORTRAIT_Y 120
-#macro PP_PORTRAIT_SIZE 48
 #macro PP_TEXT_X 16
 #macro PP_TEXT_Y 176
 #macro PP_TEXT_RIGHT 240
 #macro PP_TEXT_LINE_H 10
 #macro PP_TEXT_CHARS 28
 #macro PP_TEXT_ROWS 3
+// Choices (spec 05, card t_01432e14). A page that offers choices does not share its rows with the labels: once the
+// page has finished typing, its three rows are replaced by one row per choice, drawn in the same three 10 pixel rows.
+// The cursor is a 6x6 block in column 0 of the text area and the label starts in column 1, so the two cannot overlap
+// and 24 + 27 * 8 = 240 still ends on the text area's own right edge.
+#macro PP_CHOICE_ARROW_X 16
+#macro PP_CHOICE_ARROW_W 6
+#macro PP_CHOICE_LABEL_X 24
 #macro PP_TEXT_STEPS_SLOW 2
 #macro PP_TEXT_STEPS_FAST 1
 #macro PP_TEXT_PAUSE_STOP 8

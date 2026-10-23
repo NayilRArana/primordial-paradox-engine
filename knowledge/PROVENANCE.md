@@ -1129,3 +1129,46 @@ the stored copy, its sha256 and the status of each URL) rather than adding a per
 and its own file are untouched; and by leaving every licence line, count and screen row byte for byte as it was, adding 27
 lines and deleting none.
 Copied expression: none
+
+## DIALOGUE-CHOICE-PANEL, 2026-10-23: the labels take the rows' place, and the slice has no portrait
+Studied: this repository's own files, read only: specs\05-dialogue.md, game\scripts\pp_dialogue\pp_dialogue.gml,
+game\scripts\pp_config\pp_config.gml, game\scripts\pp_look\pp_look.gml (pp_role_colour), tools\preview_dialogue_box.py,
+data\dialogue\all.json (the quay_gate_choice page and its three labels), data\schemas\dialogue.schema.json, and
+knowledge\GAMEDEV-DECISIONS-2026-10-23.md D10. No decompiled material was read for this card and no expression from any
+game is in it.
+Mechanics learned: two things. One, a choice menu drawn inside a text box is a layout problem with an arithmetic answer:
+the panel's rows and the prompt's rows are the same three rows, so either the prompt narrows, or the choice becomes a
+separate surface, or the two take turns in the same space; and "take turns" is the only one of the three that costs no
+authored dialogue and keeps three options visible. Two, an unrendered feature and a rendered one are both facts that need
+the same treatment: a spec line for a frame that never draws is a claim with no evidence, so it goes with the code that
+would have drawn it, and the number that justified it (48 pixels costs 6 of 28 characters) stays written down for the
+card that adds it back.
+Our implementation differs by: replacing the 96 pixel filled panel with the choice rows themselves (cursor in column 0 at
+x 16, labels in column 1 at x 24, 27 columns to the text area's right edge), so nothing is ever painted over a glyph and
+the rows are skipped rather than covered; by deleting the three portrait macros and saying "Portrait: none." in the spec
+instead of leaving geometry for a bust no speaker carries; and by making the overlap a refused case in the composed
+preview (a row cell sharing a pixel with a label cell or the cursor is exit 1, and a test feeds it the exact old panel
+geometry and requires it to fail).
+Copied expression: none
+
+## SHEET-GLYPH-GAP, 2026-10-23: the 8x8 sheet grows a slash and the two brackets
+Studied: this repository's own files, read only: tools\art\pressstart2p_font.py (the rasteriser and its GLYPHS
+literal), tools\art\make_title_ui.py (glyph_frame, write_sprite, generate), tools\art\make_ui_nes.py (its copy of the
+order), game\scripts\pp_font\pp_font.gml (pp_font_glyphs, pp_font_glyph_index and the skip-a-missing-index rule),
+tools\check_font_coverage.py (read_gml_glyphs, read_declared_glyphs, read_sheet), tools\preview_battle_font.py,
+game\scripts\pp_drive\pp_drive.gml (pp_drive_draw_caption), game\scripts\pp_data\pp_data.gml (the error strings and
+pp_data_load's file names), and knowledge\GAMEDEV-DECISIONS-2026-10-23.md D11. No decompiled material was read for this
+card and no expression from any game is in it.
+Mechanics learned: two things. One, a bitmap font sheet is an address space, not a picture: pp_font_glyph_index finds a
+character by string_pos in one ordered string, so a glyph's position IS its identity, and growing the set is only safe
+in ASCII order, which is what keeps the 74 existing frame numbers valid when three arrive. Two, the answer to "the sheet
+cannot say this" is a ruling on the set, not a workaround at each site: the same hole had already been worked around
+once by spelling OF in the HP line, and the moment the set grew, both that site and the drive caption's bracket cells
+healed together, along with the boot error's file paths that nobody had noticed.
+Our implementation differs by: adding exactly the three characters a shipped string asks for, and refusing the ones that
+merely could be added (the probe shows `; \ | < > @ # % & + = _ { } ~ $ ^` all rasterise cleanly at 8 px and are
+unused, so they stay out until a string asks); by taking the glyph shapes from the licensed Press Start 2P rasteriser at
+8 px rather than drawing them, so the diagonal and the bracket serifs are the font's own and match the other 74 frames;
+and by making the count agree in four declarations plus the sheet's sidecar, with tools\check_font_coverage.py refusing
+any run where one of them disagrees.
+Copied expression: none

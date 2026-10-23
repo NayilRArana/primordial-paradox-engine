@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """preview_dialogue_box.py: compose the real dialogue box at 3x, and refuse a row that leaves the box.
 
-Card t_1d828fcd (DIALOGUE-FONT-WIRE). The two defects that card fixed were only provable with pixels and with
-arithmetic, and this tool is the pixels half: it draws one page of `data/dialogue/all.json` the way
-`pp_dialogue_draw` draws it, from the same assets and the same numbers, and then measures where the ink landed.
+Card t_1d828fcd (DIALOGUE-FONT-WIRE) and card t_01432e14 (DIALOGUE-CHOICE-PANEL). The defects those cards fixed were
+only provable with pixels and with arithmetic, and this tool is the pixels half: it draws one page of
+`data/dialogue/all.json` the way `pp_dialogue_draw` draws it, from the same assets and the same numbers, and then
+measures where the ink landed.
 
 What it reads, and why nothing is typed twice here:
 
-  game/scripts/pp_config/pp_config.gml   PP_BOX_X/Y/W/H, PP_TEXT_X/Y/RIGHT/CHARS/LINE_H/ROWS, the choice panel
-                                         macros. The wrap width is read from the same macro the engine wraps with, so
-                                         a preview can never disagree with the box about how many characters fit.
+  game/scripts/pp_config/pp_config.gml   PP_BOX_X/Y/W/H, PP_TEXT_X/Y/RIGHT/CHARS/LINE_H/ROWS, and the choice rows'
+                                         PP_CHOICE_ARROW_X/ARROW_W/LABEL_X. The wrap width is read from the same macro
+                                         the engine wraps with, so a preview can never disagree with the box about how
+                                         many characters fit.
   game/scripts/pp_font/pp_font.gml       pp_font_glyphs(), the sheet's frame order, exactly as pp_font_draw looks a
                                          character up.
   game/sprites_src/title/spr_pp_font8.*  the glyph sheet: one 8x8 frame per glyph, one ink.
@@ -17,20 +19,26 @@ What it reads, and why nothing is typed twice here:
   data/dialogue/all.json                 the page it draws, found by id.
 
 The draw path it mirrors, call for call: pp_window_draw for the frame, then the name plate rectangle and
-pp_font_draw(string_upper(plate)), then one pp_font_draw per row at PP_TEXT_X, PP_TEXT_Y + row * PP_TEXT_LINE_H, then
-the choice panel and its labels when the page offers a choice. The font is drawn untinted, which is what pp_font_draw
-does, so the ink is the sheet's own #f8f8f8.
+pp_font_draw(string_upper(plate)), then one pp_font_draw per row at PP_TEXT_X, PP_TEXT_Y + row * PP_TEXT_LINE_H, and
+then, on the last page of an entry that offers choices, the choice rows in the rows' place: the 6x6 cursor at
+PP_CHOICE_ARROW_X and one pp_font_draw per label at PP_CHOICE_LABEL_X, with no row drawn under them (spec 05, card
+t_01432e14). The font is drawn untinted, which is what pp_font_draw does, so the ink is the sheet's own #f8f8f8.
 
 What it refuses (exit 1):
 
   - any ink of any row, plate or label at x >= PP_BOX_X + PP_BOX_W - 8 (the box's padding) or past the frame,
   - any ink below the box's bottom edge,
-  - a row longer than PP_TEXT_CHARS, which is the wrap fault the card measured,
-  - a glyph the sheet does not carry, because pp_font_draw would draw a space there and the hole would be silent.
+  - a row longer than PP_TEXT_CHARS, which is the wrap fault the first card measured,
+  - a glyph the sheet does not carry, because pp_font_draw would draw a space there and the hole would be silent,
+  - ANY overlap between a dialogue row's cell and a choice glyph's cell, or between a choice glyph and the cursor.
+    This is the card t_01432e14 fault: the old 96 pixel panel covered 3 to 6 characters of every prompt row. The
+    engine answers it by not drawing the rows at all while the labels are up, so the rects this tool compares are the
+    rects actually drawn; a later edit that draws both fails here instead of shipping.
 
 Usage:
     python tools/preview_dialogue_box.py                       the gate checkpoint page and the gate choice page
     python tools/preview_dialogue_box.py --entry ID --page N   any entry and page
+    python tools/preview_dialogue_box.py --cursor N            which choice the cursor sits on
     python tools/preview_dialogue_box.py --out FILE            where the 3x image goes
 
 Exit codes: 0 every composed row stays inside the box, 1 a row leaves it or a glyph is missing, 2 nothing to read.
@@ -61,9 +69,6 @@ DIALOGUE_JSON = os.path.join("data", "dialogue", "all.json")
 DEFAULT_OUT = os.path.join("output", "dialogue_box_3x.png")
 
 SCALE = 3
-PANEL_W = 96
-PANEL_GAP = 4
-ARROW_W = 6
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -187,8 +192,29 @@ def page_rows(entry, page_index, chars):
     return rows[start:start + 3], entry.get("speaker", "")
 
 
-def compose(root, entry_id, page_index, config):
-    """One 256x240 frame: the window, the plate, the rows, and the panel when the page offers a choice."""
+def page_count(entry, chars):
+    """How many pages the box makes of this entry, the way pp_dialogue_push_page makes them."""
+    if entry.get("pages"):
+        return len(entry["pages"])
+    rows = []
+    for line in entry.get("lines", []):
+        rows.extend(wrap(line, chars))
+    return max(1, (len(rows) + 2) // 3)
+
+
+def ink_colour(sheet):
+    """The sheet's own ink, so the cursor block is drawn in the colour pp_font_draw would draw a glyph in."""
+    pixels = sheet.load()
+    for y in range(sheet.height):
+        for x in range(sheet.width):
+            pixel = pixels[x, y]
+            if pixel[3] > 0:
+                return pixel
+    return (255, 255, 255, 255)
+
+
+def compose(root, entry_id, page_index, config, cursor=0):
+    """One 256x240 frame: the window, the plate, the rows, or the choice rows in their place."""
     font_sheet = Image.open(os.path.join(root, FONT_PNG)).convert("RGBA")
     window_sheet = Image.open(os.path.join(root, WINDOW_PNG)).convert("RGBA")
     glyphs = read_glyphs(root)
@@ -222,32 +248,41 @@ def compose(root, entry_id, page_index, config):
                             config["PP_BOX_Y"] - 4)
         missing.extend(gone)
 
-    # One pp_font_draw per row at PP_TEXT_X, PP_TEXT_Y + row * PP_TEXT_LINE_H.
+    line_h = config["PP_TEXT_LINE_H"]
     drawn = []
-    for index, text in enumerate(rows):
-        y = config["PP_TEXT_Y"] + index * config["PP_TEXT_LINE_H"]
-        width, gone = draw_text(canvas, font_sheet, glyphs, text, config["PP_TEXT_X"], y)
-        missing.extend(gone)
-        drawn.append({"row": index, "text": text, "x0": config["PP_TEXT_X"], "x1": config["PP_TEXT_X"] + width, "y": y})
+    menu = None
 
-    # The choice panel, on the last page of an entry that offers choices, drawn after the rows as the engine does.
-    panel = None
-    if entry.get("choices") and page_index == (len(entry.get("pages") or [1]) - 1):
-        panel_x = config["PP_TEXT_RIGHT"] - PANEL_W
-        top = config["PP_TEXT_Y"] - 2
-        bottom = config["PP_TEXT_Y"] + len(entry["choices"]) * config["PP_TEXT_LINE_H"]
-        canvas.paste(Image.new("RGBA", (config["PP_TEXT_RIGHT"] - (panel_x - PANEL_GAP), bottom - top),
-                               (0, 0, 0, 255)), (panel_x - PANEL_GAP, top))
+    # The last page of an entry that offers choices replaces its rows with the labels (spec 05, card t_01432e14):
+    # the cursor in column 0 of the text area, the label in column 1, and no row drawn underneath.
+    offers = bool(entry.get("choices")) and page_index == page_count(entry, config["PP_TEXT_CHARS"]) - 1
+    if offers:
         labels = []
         for index, choice in enumerate(entry["choices"]):
-            y = config["PP_TEXT_Y"] + index * config["PP_TEXT_LINE_H"]
-            width, gone = draw_text(canvas, font_sheet, glyphs, choice["label"], panel_x, y)
+            y = config["PP_TEXT_Y"] + index * line_h
+            width, gone = draw_text(canvas, font_sheet, glyphs, choice["label"], config["PP_CHOICE_LABEL_X"], y)
             missing.extend(gone)
-            labels.append({"label": choice["label"], "x0": panel_x, "x1": panel_x + width, "y": y})
-        panel = {"x0": panel_x - PANEL_GAP, "x1": config["PP_TEXT_RIGHT"], "y0": top, "y1": bottom, "labels": labels}
+            labels.append({"label": choice["label"], "x0": config["PP_CHOICE_LABEL_X"],
+                           "x1": config["PP_CHOICE_LABEL_X"] + width, "y0": y, "y1": y + line_h})
+        arrow = None
+        if 0 <= cursor < len(labels):
+            arrow_x = config["PP_CHOICE_ARROW_X"]
+            arrow_y = config["PP_TEXT_Y"] + cursor * line_h + 1
+            arrow = {"x0": arrow_x, "y0": arrow_y,
+                     "x1": arrow_x + config["PP_CHOICE_ARROW_W"], "y1": arrow_y + config["PP_CHOICE_ARROW_W"]}
+            canvas.paste(Image.new("RGBA", (config["PP_CHOICE_ARROW_W"], config["PP_CHOICE_ARROW_W"]),
+                                   ink_colour(font_sheet)), (arrow_x, arrow_y))
+        menu = {"labels": labels, "arrow": arrow, "rows_replaced": rows}
+    else:
+        # One pp_font_draw per row at PP_TEXT_X, PP_TEXT_Y + row * PP_TEXT_LINE_H.
+        for index, text in enumerate(rows):
+            y = config["PP_TEXT_Y"] + index * line_h
+            width, gone = draw_text(canvas, font_sheet, glyphs, text, config["PP_TEXT_X"], y)
+            missing.extend(gone)
+            drawn.append({"row": index, "text": text, "x0": config["PP_TEXT_X"], "x1": config["PP_TEXT_X"] + width,
+                          "y0": y, "y1": y + line_h})
 
     return canvas, {"entry": entry_id, "page": page_index, "speaker": speaker, "rows": drawn,
-                    "panel": panel, "missing": missing}
+                    "menu": menu, "missing": missing}
 
 
 def ink_bounds(image):
@@ -272,8 +307,28 @@ def ink_bounds(image):
     return (x0, y0, x1, y1)
 
 
+def layout_conflicts(entry, page, row_rects, label_rects, arrow_rect):
+    """Any dialogue row cell that shares a pixel with a choice glyph or the cursor. This is the card t_01432e14 fault.
+
+    The rows and the labels are both drawn in the text area's three 10 pixel rows, so this only holds while a choice
+    page draws the labels INSTEAD of the rows. That is the ruling, and this is the mechanical proof of it: hand it both
+    lists and it fails, which is what the old 96 pixel panel did to 3 to 6 characters of every prompt row.
+    """
+    errors = []
+    targets = list(label_rects) + ([arrow_rect] if arrow_rect else [])
+    for row in row_rects:
+        for cell in targets:
+            if (row["x0"] < cell["x1"] and cell["x0"] < row["x1"]
+                    and row["y0"] < cell["y1"] and cell["y0"] < row["y1"]):
+                what = "the cursor" if cell is arrow_rect else "a choice label"
+                errors.append("%s page %d: %s at x %d..%d y %d..%d is drawn over the row %r at x %d..%d"
+                              % (entry, page, what, cell["x0"], cell["x1"] - 1, cell["y0"], cell["y1"] - 1,
+                                 row["text"], row["x0"], row["x1"] - 1))
+    return errors
+
+
 def check(report, config):
-    """Every row, plate and label inside the box's padding, and no glyph missing."""
+    """Every row, plate and label inside the box's padding, nothing drawn over anything, and no glyph missing."""
     errors = []
     limit = config["PP_BOX_X"] + config["PP_BOX_W"] - 8
     if report["missing"]:
@@ -287,17 +342,28 @@ def check(report, config):
         if row["x1"] > limit:
             errors.append("%s page %d row %d reaches x %d, past the box padding at %d"
                           % (report["entry"], report["page"], row["row"], row["x1"], limit))
-    if report["panel"]:
-        for label in report["panel"]["labels"]:
+
+    menu = report["menu"]
+    if menu:
+        if len(menu["labels"]) > config["PP_TEXT_ROWS"]:
+            errors.append("%s page %d offers %d choices, the text area has %d rows"
+                          % (report["entry"], report["page"], len(menu["labels"]), config["PP_TEXT_ROWS"]))
+        for label in menu["labels"]:
             if label["x1"] > limit:
                 errors.append("%s page %d label %r reaches x %d, past the box padding at %d"
                               % (report["entry"], report["page"], label["label"], label["x1"], limit))
-        # The panel is drawn after the rows and is filled, so it covers whatever the rows drew under it. That is a
-        # measured fault of the choice page layout, not of the wrap, and it is carded rather than hidden: it is
-        # reported here with the exact characters it hides so the next card starts from numbers.
-        panel_x0 = report["panel"]["x0"]
-        hidden = [(row["text"], max(0, row["x1"] - panel_x0) // 8) for row in report["rows"] if row["x1"] > panel_x0]
-        report["covered"] = hidden
+            if label["x0"] < config["PP_TEXT_X"]:
+                errors.append("%s page %d label %r starts at x %d, left of the text area at %d"
+                              % (report["entry"], report["page"], label["label"], label["x0"],
+                                 config["PP_TEXT_X"]))
+        arrow = menu["arrow"]
+        if arrow is not None:
+            if arrow["x0"] < config["PP_TEXT_X"] or arrow["x1"] > config["PP_CHOICE_LABEL_X"]:
+                errors.append("%s page %d cursor x %d..%d does not fit the first text column x %d..%d"
+                              % (report["entry"], report["page"], arrow["x0"], arrow["x1"] - 1,
+                                 config["PP_TEXT_X"], config["PP_CHOICE_LABEL_X"] - 1))
+        errors.extend(layout_conflicts(report["entry"], report["page"], report["rows"],
+                                      menu["labels"], menu["arrow"]))
     return errors
 
 
@@ -306,6 +372,7 @@ def main():
     parser.add_argument("--root", default=ROOT, help="repository root (default: this checkout)")
     parser.add_argument("--entry", default=None, help="a dialogue id; default draws the two gate pages")
     parser.add_argument("--page", type=int, default=0, help="which page of that entry")
+    parser.add_argument("--cursor", type=int, default=0, help="which choice the cursor sits on")
     parser.add_argument("--out", default=DEFAULT_OUT, help="where the 3x image goes")
     parser.add_argument("--quiet", action="store_true", help="one line of output")
     args = parser.parse_args()
@@ -317,7 +384,8 @@ def main():
         print("preview_dialogue_box: %s" % exc)
         return 2
     for need in ("PP_BOX_X", "PP_BOX_Y", "PP_BOX_W", "PP_BOX_H", "PP_TEXT_X", "PP_TEXT_Y", "PP_TEXT_RIGHT",
-                 "PP_TEXT_CHARS", "PP_TEXT_LINE_H", "PP_FRAME_W", "PP_FRAME_H"):
+                 "PP_TEXT_CHARS", "PP_TEXT_LINE_H", "PP_TEXT_ROWS", "PP_FRAME_W", "PP_FRAME_H",
+                 "PP_CHOICE_ARROW_X", "PP_CHOICE_ARROW_W", "PP_CHOICE_LABEL_X"):
         if need not in config:
             print("preview_dialogue_box: %s has no literal #macro %s" % (CONFIG_GML, need))
             return 2
@@ -327,7 +395,7 @@ def main():
     frames = []
     reports = []
     for entry_id, page_index in wanted:
-        frame, report = compose(root, entry_id, page_index, config)
+        frame, report = compose(root, entry_id, page_index, config, args.cursor)
         frames.append(frame)
         reports.append(report)
 
@@ -381,16 +449,19 @@ def main():
         print("  %s page %d, speaker %r" % (report["entry"], report["page"], report["speaker"]))
         for row in report["rows"]:
             print("    row %d (%2d chars) x %d..%d y %d  %r"
-                  % (row["row"], len(row["text"]), row["x0"], row["x1"] - 1, row["y"], row["text"]))
-        if report["panel"]:
-            print("    choice panel x %d..%d y %d..%d"
-                  % (report["panel"]["x0"], report["panel"]["x1"], report["panel"]["y0"], report["panel"]["y1"]))
-            for label in report["panel"]["labels"]:
+                  % (row["row"], len(row["text"]), row["x0"], row["x1"] - 1, row["y0"], row["text"]))
+        if report["menu"]:
+            print("    the rows are replaced by %d choice row(s), cursor in column 0"
+                  % len(report["menu"]["labels"]))
+            arrow = report["menu"]["arrow"]
+            if arrow is not None:
+                print("      cursor x %d..%d y %d..%d"
+                      % (arrow["x0"], arrow["x1"] - 1, arrow["y0"], arrow["y1"] - 1))
+            for label in report["menu"]["labels"]:
                 print("      label (%2d chars) x %d..%d  %r"
                       % (len(label["label"]), label["x0"], label["x1"] - 1, label["label"]))
-            for text, count in report.get("covered", []):
-                print("      note: the panel covers the last %d character(s) of %r (choice page layout, carded)"
-                      % (count, text))
+            for text in report["menu"]["rows_replaced"]:
+                print("      replaced row (not drawn) %r" % text)
         if report.get("ink"):
             x0, y0, x1, y1 = report["ink"]
             print("    text ink in the text area: x %d..%d y %d..%d"
@@ -403,9 +474,10 @@ def main():
         for error in errors:
             print("  FAIL %s" % error)
         print("")
-        print("preview_dialogue_box: REFUSED, %d row(s) leave the box or a glyph is missing" % len(errors))
+        print("preview_dialogue_box: REFUSED, %d row(s) leave the box, overlap a choice or a glyph is missing"
+              % len(errors))
         return 1
-    print("preview_dialogue_box: PASS, every row, plate and label is inside the box")
+    print("preview_dialogue_box: PASS, every row, plate and choice is inside the box and nothing overlaps")
     return 0
 
 

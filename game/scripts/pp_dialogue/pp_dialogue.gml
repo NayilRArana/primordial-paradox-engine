@@ -1,9 +1,9 @@
 /// pp_dialogue: the text box layout (spec 05) over the one reveal machine in pp_text.
-/// This module owns the words' shape and place: word wrap, pages, the box, the name plate and the page arrow, and it
-/// draws every one of them through pp_font_draw, the one text path in the game. It owns no reveal: the character
-/// timing, the holds, the punctuation pauses, the blip and the done predicate belong to pp_text (law 8, one renderer
-/// per thing). The portrait no longer takes a column of the text area (card t_1d828fcd): it is a bust above the box,
-/// and no speaker in the slice carries one, so nothing draws it yet.
+/// This module owns the words' shape and place: word wrap, pages, the box, the name plate, the page arrow and the
+/// choice rows, and it draws every one of them through pp_font_draw, the one text path in the game. It owns no reveal:
+/// the character timing, the holds, the punctuation pauses, the blip and the done predicate belong to pp_text (law 8,
+/// one renderer per thing). There is no portrait: no speaker in the slice carries one, the box draws none, and no
+/// portrait geometry is defined (cards t_1d828fcd and t_01432e14).
 /// Provenance: knowledge\PROVENANCE.md, entry "text reveal machine: one implementation, two layouts", and the older
 /// entry "battle state machine and turn loop". The page and beat model is spec 05.
 /// No closures: every loop is written out, because a closure that reassigns an outer var is the kind of thing that
@@ -80,12 +80,11 @@ function pp_dialogue_rows(_text) {
 /// An entry carries id, speaker and exactly one of `lines` or `pages`. `pages` is the box's own shape: 1 to 3 pages of
 /// 1 to 3 lines, each line already 30 characters or fewer. A page may name its own speaker, which is how a scene where
 /// the narrator and a sentry trade pages keeps the right name plate without becoming two entries.
-/// A choice list is 1 to 3 items: a label (12 characters, the panel column), the flags it sets, and an optional `goto`.
+/// A choice list is 1 to 3 items: a label (12 characters), the flags it sets, and an optional `goto`.
 /// The flag names are data (data/flags.json) and the ledger owns them; this module only applies them, in one place.
 /// No closures: the loops are written out for the same reason the rest of this file writes them out.
-#macro PP_CHOICE_PANEL_W 96
-#macro PP_CHOICE_ARROW_W 6
-#macro PP_CHOICE_GAP 4
+/// The choice rows' numbers are PP_CHOICE_ARROW_X, PP_CHOICE_ARROW_W and PP_CHOICE_LABEL_X, in pp_config beside the
+/// text area they share (card t_01432e14).
 
 /// Build pages from a dialogue record. In the shorthand one source line is one page (a source line break waits for
 /// confirm, rule 2) and a page holds at most PP_TEXT_ROWS rows; in the `pages` shape the data has already decided the
@@ -315,7 +314,8 @@ function pp_dialogue_closed(_d) {
     return _d.closed;
 }
 
-/// Draw the box, the name plate, the visible rows and the arrow. One ink: the font sheet's own (rule 6).
+/// Draw the box, the name plate, the visible rows, the choice rows and the arrow. One ink: the font sheet's own
+/// (rule 6).
 ///
 /// Every piece of text here goes through pp_font_draw, never draw_text (card t_1d828fcd). The box used to draw its
 /// rows, its name plate and its choice labels with draw_text, and the project has no font resource, so the dialogue
@@ -351,6 +351,26 @@ function pp_dialogue_draw(_d) {
         pp_font_draw(string_upper(_plate), PP_BOX_X + 8, PP_BOX_Y - 4, 1);
     }
 
+    // A page that offers choices does not share its three rows with the labels (spec 05, card t_01432e14): once the
+    // last page has finished typing, its rows are replaced by one row per choice. The cursor is a 6x6 block in column
+    // 0 of the text area and the label starts in column 1, so a choice glyph cannot land on a line of dialogue and the
+    // box never has to cover its own text. The rows are not drawn first and painted over: they are not drawn at all.
+    if (pp_dialogue_on_choice_page(_d) && _d.reveal.revealed >= pp_text_unit_length(_d.reveal)) {
+        var _c = 0;
+        while (_c < array_length(_d.choices)) {
+            var _choice_y = PP_TEXT_Y + _c * PP_TEXT_LINE_H;
+            if (_c == _d.cursor) {
+                draw_set_colour(pp_role_colour("accent"));
+                draw_rectangle(PP_CHOICE_ARROW_X, _choice_y + 1,
+                    PP_CHOICE_ARROW_X + PP_CHOICE_ARROW_W - 1, _choice_y + PP_CHOICE_ARROW_W, false);
+            }
+            draw_set_colour(pp_role_colour("ink"));
+            pp_font_draw(_d.choices[_c].label, PP_CHOICE_LABEL_X, _choice_y, 1);
+            _c += 1;
+        }
+        return;
+    }
+
     var _budget = _d.reveal.revealed;
     var _r = 0;
     while (_r < array_length(_rows)) {
@@ -359,30 +379,6 @@ function pp_dialogue_draw(_d) {
         _budget -= array_length(_rows[_r]);
         if (_budget < 0) _budget = 0;
         _r += 1;
-    }
-
-    // The choice panel: 96 pixels, right aligned inside the text area, one 6 pixel arrow, arrows wrap (spec 05).
-    if (pp_dialogue_on_choice_page(_d) && _budget == 0) {
-        var _panel_x = PP_TEXT_RIGHT - PP_CHOICE_PANEL_W;
-        draw_set_colour(pp_role_colour("paper"));
-        draw_rectangle(_panel_x - PP_CHOICE_GAP, PP_TEXT_Y - 2,
-            PP_TEXT_RIGHT, PP_TEXT_Y + array_length(_d.choices) * PP_TEXT_LINE_H, false);
-        draw_set_colour(pp_role_colour("ink"));
-        draw_rectangle(_panel_x - PP_CHOICE_GAP, PP_TEXT_Y - 2,
-            PP_TEXT_RIGHT, PP_TEXT_Y + array_length(_d.choices) * PP_TEXT_LINE_H, true);
-        var _c = 0;
-        while (_c < array_length(_d.choices)) {
-            var _choice_y = PP_TEXT_Y + _c * PP_TEXT_LINE_H;
-            if (_c == _d.cursor) {
-                draw_set_colour(pp_role_colour("accent"));
-                draw_rectangle(_panel_x - PP_CHOICE_GAP - PP_CHOICE_ARROW_W - 1, _choice_y,
-                    _panel_x - PP_CHOICE_GAP - 2, _choice_y + PP_CHOICE_ARROW_W - 1, false);
-            }
-            draw_set_colour(pp_role_colour("ink"));
-            pp_font_draw(_d.choices[_c].label, _panel_x, _choice_y, 1);
-            _c += 1;
-        }
-        return;
     }
 
     var _phase = _d.reveal.steps mod (PP_ARROW_ON + PP_ARROW_OFF);

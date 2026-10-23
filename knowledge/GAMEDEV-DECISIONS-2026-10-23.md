@@ -166,7 +166,8 @@ default font. Seven rulings, each with the number it came from.
    one touches the rasteriser's GLYPHS, `data/ui_layouts.json`'s copy, the generated `make_ui_nes.py` copy, the sheet
    PNG and its sidecar, and four frame-count assertions (74 frames, 592x8, "74 tiles"). That is an art card, not a
    screen card, so the battle line reads `HP 12 OF 12   WILL 5 OF 5` (25 characters, x 16 to x 216) until the sheet
-   grows the glyph. Carded.
+   grows the glyph. Carded. **Superseded by D13**: the sheet grew the slash and the two brackets, so the line reads
+   `HP 12/12   WILL 5/5` from card t_f476435e on.
 4. **One ink: a state is a mark or a place, never a tint.** The sheet is `#f8f8f8` and a tint is a multiply no PPU can
    output (font contract rule 6). So: a refused command or game over row is ruled through with
    `pp_font_draw_struck` (the same idiom `pp_title_draw_disabled` already used); the game over row the cursor is on
@@ -187,8 +188,85 @@ default font. Seven rulings, each with the number it came from.
    `tools/check_font_coverage.py` reads the data files and not the literals in GML, so
    `tests/test_battle_font.py::test_the_battle_screens_print_no_character_the_sheet_lacks` reads the command labels,
    the game over rows, the refusal reasons and the fixed strings out of the source and proves every character is in
-   the 74. Extending the checker to GML literals, and to the runtime sentences composed from a data error
-   (`Data problem: ` plus a path with slashes in it), is carded: those print a space where the sheet has no glyph.
+   the sheet's glyph set. Extending the checker to GML literals generally is still carded; the one GML site that
+   composes a path (`Data problem: ` plus `dialogue/all.json`) stopped printing a hole when the sheet grew a slash in
+   D13, and `tests/test_battle_font.py` now reads the two composed sites it can name.
+
+---
+
+## D12. The choice labels take the rows' place, and the box draws no portrait
+
+Card t_01432e14, the follow up D10 created. Two defects, one ruling each, and both were measured before they were ruled
+on.
+
+1. **The choice panel is gone; the labels take the rows' place.** Measured with `tools/preview_dialogue_box.py`: the
+   panel sat at x 140..240 over prompt rows whose ink ended at x 183, 167 and 191, so 5, 3 and 6 characters of the
+   three rows were covered and each row was cut mid phrase. It could not be moved inside the box, because there are 8
+   pixels between the third row's cell and the box's bottom edge and the panel needed 3 rows of 10. Of the three
+   options on the card, ruling: option (a). Once the last page has finished typing, its three rows are not drawn at all
+   and the labels are drawn in them: the 6x6 cursor at `PP_CHOICE_ARROW_X` 16 (column 0) and the label at
+   `PP_CHOICE_LABEL_X` 24 (column 1), so 24 + 27 * 8 = 240 and nothing shares a pixel. The cost is stated in the spec
+   rather than hidden: the question is not on screen while the three labels are, and it was the line the player had
+   just confirmed. Options (b) and (c) were refused because (b) still leaves a panel over the prompt rows and needs
+   every choice page re-authored, and (c) moves authored dialogue and caps a choice page at two rows.
+2. **The portrait is out of the slice, and its macros are gone.** Spec 05 promised a 48x48 bust at (16, 120) while no
+   speaker carried one and `pp_dialogue_draw` had no portrait branch, so spec and code disagreed about a frame that
+   never drew. `PP_PORTRAIT_X`, `PP_PORTRAIT_Y` and `PP_PORTRAIT_SIZE` are deleted from `pp_config`, the spec says
+   `Portrait: none.`, and a bust is its own card: it must stand above the box on its top edge, never a column, because
+   48 pixels would cost 6 of the 28 characters.
+3. **The check is arithmetic, not an eyeball.** `tools/preview_dialogue_box.py` now composes a choice page with the
+   rows replaced, reads the choice columns out of `pp_config`, and refuses (exit 1) any dialogue row cell that shares a
+   pixel with a label cell or the cursor (`layout_conflicts`). `tests/test_dialogue_choice_layout.py` feeds that check
+   the exact old panel geometry (a label at x 140 over a row reaching x 191) and requires it to fail, so the fault
+   cannot come back quietly.
+
+---
+
+## D13. The sheet grows `/`, `[` and `]` and nothing else, in ASCII order
+
+Card t_f476435e (SHEET-GLYPH-GAP), the card D11 item 3 opened. Ruled D13 and not D12 because card t_01432e14 took
+D12 later the same day; the numbers in this file are append only, so a ruling that arrives second takes the next
+number rather than renumbering a decision another card already quotes.
+
+1. **The sheet grows exactly three characters: 74 frames to 77.** Each one has a shipped string behind it, which is
+   the test for every future glyph too.
+   - `/` is asked for by two sites. The battle HP line had to spell `HP 12 OF 12` to avoid a hole (D11 item 3), and
+     the boot data error card prints `Data problem: ` plus `dialogue/all.json`, `maps/ship_sample.json` and the rest
+     of `pp_data_load`'s names, every one of them with `/` in it, so the loader's own failure message was printing
+     blank cells in the middle of the file name. The slash pays twice.
+   - `[` and `]` are a live defect and not a preference. `pp_drive_draw_caption` draws `"[" + string(_page) + "]"` at
+     x 16, y 196, and both brackets printed as a space, so the caption read ` 1 ` with two empty cells either side of
+     the number.
+   - **Nothing else was added.** A probe of the licensed face at 8 px (the same `bitmap()` the sheet is built from)
+     shows `; \ | < > @ # % & + = _ { } ~ $ ^` all rasterise inside the 8x8 cell and none of them is printed by any
+     file in the tree today. A glyph nothing draws is a frame the NES checker audits forever and a false claim about
+     what the game can say. The rule this sets: a character is added when a shipped string asks for it, and the string
+     is named in the ruling.
+2. **The position is ASCII order, so no existing frame moves.** `/` is 0x2F, between `.` and `0`; `[` is 0x5B and `]`
+   is 0x5D, between `Z` and `a`. All 74 old frames keep their index, so the sheet is the old 592x8 with three cells
+   spliced in, and every sprite frame number the game already stores stays valid. `order[0] == " "` and
+   `order[-1] == "z"` still hold, and `tests/test_make_title_ui.py` still asserts both.
+3. **The glyphs are the licensed rasteriser's, at 8 px, in the one ink.** `/` is a 7 px diagonal drawn one pixel a row;
+   `[` and `]` are 4 px wide and 7 rows tall: a 4 px top serif, a 2 px stem and a 4 px bottom serif. Nothing hand drawn,
+   nothing tinted, nothing widened: the cell is 8 px and spec 13 owns it.
+4. **One change, five files, and the sheet is the sixth.** `tools/art/pressstart2p_font.py`'s `GLYPHS`,
+   `tools/art/make_ui_nes.py`'s copy, `game/scripts/pp_font/pp_font.gml`'s `pp_font_glyphs()`,
+   `data/ui_layouts.json`'s `font.glyphs`, and the generated `spr_pp_font8.png` plus its sidecar (`frames` 74 to 77).
+   The frame-count assertions moved with them: `tests/test_make_title_ui.py` reads 77 frames and a 616x8 image,
+   `tests/test_nes_check.py` reads `616x8  77 tiles  1 colours`. `tools/check_font_coverage.py` refuses a run where
+   any of the four declarations disagree, so a half done addition is a red check and not a sheet at the wrong index.
+5. **What reads differently on screen.** The HP line is `HP 20/20   WILL 3/3` at x 16 to x 167, inside its region and
+   clear of the frame; the drive caption's `[1]` is three cells at x 16 to x 39; the boot data error's file name is
+   legible. Nothing else changed: the sheet's ink is still `#f8f8f8`, its colour count is still 1, and no other string
+   in the tree contains a character it did not contain before.
+
+Proof, all run on 2026-10-23: `python tools/check_font_coverage.py` exit 0 with 77 covered, 62 required, 0 missing,
+one ink `#f8f8f8`; `python tools/nes_check.py game/sprites_src/title/spr_pp_font8.png --type sprite` prints
+`616x8  77 tiles  1 colours  PASS`; `python tools/preview_battle_font.py` exit 0 with the HP line measured at
+x 16..167 y 156..163 inside its region; `python tools/nes_audit_all.py --quiet` exits 1 on 34 preview files under
+`output/` and that is not this sheet: the asset scope is 127 of 127 pass, the sheet's own row reads 616x8, 1 colour,
+0 offending pixels, and every one of the 34 failures is a preview composite drawn in the project palette rather than
+the 2C02 one.
 
 ---
 
@@ -199,6 +277,8 @@ rules. Every number here is quoted from this repository's own files: `knowledge/
 `knowledge/ARRIVAL-CONTENT.md`, `knowledge/DRIVE-SHOT-LIST.md`, `knowledge/HACKATHON-AUDIT-2026-10-22.md`,
 `specs/18-boss-phases.md`, and the blocked cards' own comments and logs.
 
-Written by gamedev, 2026-10-23. Check for this file: it exists, each of D1 to D11 states a ruling and a reason, D1 names
+Written by gamedev, 2026-10-23. Check for this file: it exists, each of D1 to D13 states a ruling and a reason, D1 names
 the exact five flags and the one writer, D4 names the three children, D10 carries the box's three numbers and the four
-re-broken lines, and every claim of "already done" is tied to a capture or a log line in this repository.
+re-broken lines, D12 names the three choice numbers and the fault the overlap check refuses, D13 names the three
+characters the sheet grew and the ASCII index each one took, and every claim of "already done" is tied to a capture or
+a log line in this repository.

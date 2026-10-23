@@ -75,8 +75,9 @@ INTERRUPT_TRIGGERS = {"spare_refused"}
 INTERRUPT_ROUTE_KEYS = ("undecided", "mercy", "blooded", "genocide")
 PAGES = 3
 # Dialogue v2 (decision D2, 2026-10-22). A page is one row or three of them, a page holds at most three lines, and an
-# entry holds at most three pages; a choice label is the 96 pixel panel's column. These four numbers are the ones the
-# schema repeats, and tests/test_schemas.py keeps the two descriptions equal.
+# entry holds at most three pages; a choice label is 12 characters of the row that draws it (spec 05, card
+# t_01432e14: the label is drawn from x 24 of the text area, which leaves 27 columns, and 12 is the authored limit).
+# These four numbers are the ones the schema repeats, and tests/test_schemas.py keeps the two descriptions equal.
 PAGE_LINES = 3
 CHOICES = 3
 CHOICE_LABEL_CHARS = 12

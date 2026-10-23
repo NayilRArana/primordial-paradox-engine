@@ -4,12 +4,13 @@ What this file holds down, and why each check earns its place:
   1. SHAPE. Every entry carries an id, a speaker and exactly one of `lines` or `pages`, and every page is inside the
      spec 05 box (1 to 3 pages of 1 to 3 lines of at most 28 characters). The 21 committed ids may keep the one page
      shorthand forever, so this passes with both shapes in one file, which is what the decision asked for.
-  2. CHOICES. A choice list is 1 to 3 items, its label fits the 96 pixel panel (12 characters), every flag it sets is
-     a name in data/flags.json, and its `goto` is another dialogue id. The checker refuses each of those faults, and
-     each refusal names the file, the entry index and the field.
+  2. CHOICES. A choice list is 1 to 3 items, its label fits the 12 character limit and the row of the box that draws
+     it (card t_01432e14), every flag it sets is a name in data/flags.json, and its `goto` is another dialogue id.
+     The checker refuses each of those faults, and each refusal names the file, the entry index and the field.
   3. THE ENGINE'S HALF. GameMaker is not callable from pytest, so the box is read as text: pp_dialogue_pick applies
      every flag in a choice's `sets` through pp_ledger (the one writer), pp_dialogue_advance applies an entry's own
-     `sets` before it sets closed, the panel draws the per page speaker and the labels, and the cursor wraps.
+     `sets` before it sets closed, the box draws the per page speaker and the labels in the rows' place, and the
+     cursor wraps.
   4. THE DATA PROBE. For any entry that carries choices, the sets must be one shared flag plus exactly one branch flag
      per choice, which is what makes "picking a gate choice sets gate_passed and exactly one of the three" true. The
      gate entry the card asks for is in the file, so this runs instead of skipping, and section 5 pins that scene's
@@ -159,7 +160,7 @@ def test_no_em_dash_or_en_dash_reaches_the_screen():
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# 2. Choices: the panel, the flags and the goto.
+# 2. Choices: the rows' place, the flags and the goto.
 
 
 def test_every_choice_fits_the_panel_and_names_real_ids():
@@ -304,12 +305,13 @@ def test_a_goto_continues_in_the_same_box():
         assert "%s =" % field in pick, pick
 
 
-def test_the_panel_draws_the_page_speaker_and_the_labels():
+def test_the_box_draws_the_page_speaker_and_the_labels():
     code = code_of(DIALOGUE_GML)
     draw = function_body(code, "pp_dialogue_draw")
     assert "string_upper(_plate)" in draw, "the name plate must come from the page's own speaker"
-    assert "_d.choices[_c].label" in draw, "the panel must draw the labels"
-    assert "PP_CHOICE_PANEL_W" in draw, "the panel width is the spec 05 96 pixels"
+    assert "_d.choices[_c].label" in draw, "the box must draw the labels"
+    assert "PP_CHOICE_LABEL_X" in draw, "the label column is the spec 05 second cell of the text area"
+    assert "PP_CHOICE_PANEL_W" not in draw, "card t_01432e14 removed the 96 pixel panel that covered the rows"
 
     pages = function_body(code, "pp_dialogue_pages")
     assert 'variable_struct_exists(_page, "speaker")' in pages, "a page may name its own speaker"
