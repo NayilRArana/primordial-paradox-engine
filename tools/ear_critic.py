@@ -565,7 +565,17 @@ def _retry_delay(detail, attempt, base_delay, cap):
 
 
 def post_generate(model, payload, timeout=None, sleep=None):
-    """One POST with 429 and 5xx backoff. Returns (decoded body, retries used)."""
+    """One POST with 429 and 5xx backoff. Returns (decoded body, retries used).
+
+    PP_AI_BACKEND=meta hands the same payload to tools\\meta_client.py, which sends it as one
+    chat completion (with its own cache, rate gate and retries) and answers in the
+    generateContent shape this module already parses. The rubric, the ledger and the score
+    parsing stay unchanged; only the transport and the model change.
+    """
+    if (os.environ.get("PP_AI_BACKEND", "").strip().lower() == "meta"):
+        import meta_client  # tools\\ is on sys.path in every documented entry point
+        return meta_client.gemini_compat_generate(model, payload, timeout=timeout,
+                                                  sleep=sleep), 0
     key = _key()
     body = json.dumps(payload).encode("utf-8")
     url = endpoint(model)

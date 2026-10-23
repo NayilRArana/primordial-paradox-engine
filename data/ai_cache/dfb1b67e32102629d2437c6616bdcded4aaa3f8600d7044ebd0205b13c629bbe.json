@@ -1,0 +1,24 @@
+{
+  "backend": "mock",
+  "key": "dfb1b67e32102629d2437c6616bdcded4aaa3f8600d7044ebd0205b13c629bbe",
+  "kind": "vision",
+  "mode": "record",
+  "model": "muse-spark-1.3",
+  "network": false,
+  "recorded_at": "2026-10-23T01:07:42Z",
+  "request": {
+    "image_bytes": 135,
+    "image_sha256": "e7bd88fe099f8006500a12de3a5b89369aabddb119fc11d2041d17df963952d9",
+    "model": "muse-spark-1.3",
+    "prompt": "Score this concept for NES palette limits."
+  },
+  "response": {
+    "mock": true,
+    "text": "mock vision ea87bec7a7ee (1 image(s)): Score this concept for NES palette limits.",
+    "usage": {
+      "completion_tokens": 0,
+      "prompt_tokens": 0,
+      "total_tokens": 0
+    }
+  }
+}

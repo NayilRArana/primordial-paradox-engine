@@ -1,0 +1,25 @@
+{
+  "backend": "mock",
+  "key": "1000ab04c3e51c4af3001ce57132eb861e4d044528342361de7e521d2dfdd83a",
+  "kind": "edit",
+  "mode": "record",
+  "model": "muse-image-1.0",
+  "network": false,
+  "recorded_at": "2026-10-23T01:07:42Z",
+  "request": {
+    "image_sha256": [
+      "e7bd88fe099f8006500a12de3a5b89369aabddb119fc11d2041d17df963952d9"
+    ],
+    "model": "muse-image-1.0",
+    "prompt": "the same knight, front view",
+    "size": "512x512"
+  },
+  "response": {
+    "format": "png",
+    "height": 64,
+    "image_b64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAATklEQVR42u3PQQkAAAgEsAt22c1mBN/CYAWWTl+LgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMBlAZUpYR5jKgSiAAAAAElFTkSuQmCC",
+    "mock": true,
+    "url": null,
+    "width": 64
+  }
+}

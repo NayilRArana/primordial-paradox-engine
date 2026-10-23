@@ -1,0 +1,24 @@
+{
+  "backend": "mock",
+  "key": "7a97d917027bae48320fa1be7ee95be82873cbbd6b4e00343103117f654423bd",
+  "kind": "image",
+  "mode": "record",
+  "model": "muse-image-1.0",
+  "network": false,
+  "recorded_at": "2026-10-23T01:07:42Z",
+  "request": {
+    "model": "muse-image-1.0",
+    "n": 1,
+    "output_format": "png",
+    "prompt": "a flat 16 colour knight in profile on a plain background",
+    "size": "512x512"
+  },
+  "response": {
+    "format": "png",
+    "height": 64,
+    "image_b64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAATklEQVR42u3PQQkAAAgEsAt2/TGWEXwLgxVY2nktAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKXBbbdAS1jh5POAAAAAElFTkSuQmCC",
+    "mock": true,
+    "url": null,
+    "width": 64
+  }
+}

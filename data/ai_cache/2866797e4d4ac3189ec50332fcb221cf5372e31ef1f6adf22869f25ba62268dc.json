@@ -1,0 +1,31 @@
+{
+  "backend": "mock",
+  "key": "2866797e4d4ac3189ec50332fcb221cf5372e31ef1f6adf22869f25ba62268dc",
+  "kind": "segment",
+  "mode": "record",
+  "model": "sam-3.1",
+  "network": false,
+  "recorded_at": "2026-10-23T01:07:42Z",
+  "request": {
+    "image_bytes": 135,
+    "image_sha256": "e7bd88fe099f8006500a12de3a5b89369aabddb119fc11d2041d17df963952d9",
+    "mask_encoding": "one_bit",
+    "model": "sam-3.1",
+    "prompt": "knight"
+  },
+  "response": {
+    "boxes": [
+      [
+        0,
+        0,
+        16,
+        16
+      ]
+    ],
+    "masks": [
+      "mock-mask-23ee75e884cf"
+    ],
+    "mock": true,
+    "text": "mock segmentation 23ee75e884cf: "
+  }
+}

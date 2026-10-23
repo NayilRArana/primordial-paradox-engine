@@ -1,0 +1,53 @@
+{
+  "backend": "mock",
+  "key": "10f8a49297ccc492ef1861f52e5853cb29181c6b713bc458602b8c7a1733c463",
+  "kind": "chat",
+  "mode": "record",
+  "model": "muse-spark-1.3",
+  "network": false,
+  "recorded_at": "2026-10-23T01:07:42Z",
+  "request": {
+    "messages": [
+      {
+        "content": "TALK verdict for Zeus: 'I did not come to fight, I came to be remembered.'",
+        "role": "user"
+      }
+    ],
+    "model": "muse-spark-1.3",
+    "response_format": {
+      "json_schema": {
+        "name": "answer",
+        "schema": {
+          "properties": {
+            "line": {
+              "type": "string"
+            },
+            "mercy_delta": {
+              "type": "integer"
+            },
+            "refusal": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "mercy_delta",
+            "refusal",
+            "line"
+          ],
+          "type": "object"
+        },
+        "strict": true
+      },
+      "type": "json_schema"
+    }
+  },
+  "response": {
+    "mock": true,
+    "text": "{\"line\": \"mock\", \"mercy_delta\": 0, \"refusal\": false}",
+    "usage": {
+      "completion_tokens": 0,
+      "prompt_tokens": 0,
+      "total_tokens": 0
+    }
+  }
+}
