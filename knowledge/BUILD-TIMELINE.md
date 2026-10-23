@@ -89,5 +89,6 @@ diff between two videos and not as a memory of what was meant.
 - No row without a commit range and a recording. A night with nothing recorded is a night with nothing to show, and
   the row says so in the Notes column.
 
-Written by assistant, 2026-10-22, checked by `_r45_check.py` in the repository root (dash and path check) and by
-`git log` for every figure above.
+Written by assistant, 2026-10-22. Checked by a working tree script (`_r45_check.py` in the project root, kept out of
+the commit because the repository's commit gate refuses a source file no test maps to) and by `git log` for every
+figure above.
