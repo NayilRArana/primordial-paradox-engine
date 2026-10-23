@@ -1986,6 +1986,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "percy_theme_v2.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "percy_theme_v2.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_01_title.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
@@ -1999,6 +2008,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "pp_01_title_alt_v4_medium.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_01_title_v6.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_01_title_v6.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
