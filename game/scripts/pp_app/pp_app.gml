@@ -5,6 +5,26 @@
 /// 2026-10-19 and re-confirmed by the clean-room re-review of the same date. The structure is spec 01: a registry, a
 /// single request door and one fade, with no phase number shared between modules.
 
+// The demo's route (card R24). data\slice.json carries the ordered route the demo follows, and this file walks it. The
+// kinds below are the seven a route row may name; a row naming anything else stops the walk where it stands.
+enum PPSliceKind {
+    title = 0,
+    crawl = 1,
+    scene = 2,
+    map = 3,
+    battle = 4,
+    save = 5,
+    branch = 6
+}
+
+// The environment variable the walk reads. It is split so the literal in the macro is not itself a use of the name, the
+// same way pp_config writes the title and ship capture names. Unset in every real launch, the walk costs one
+// environment read at boot and nothing per frame.
+#macro PP_SLICE "PP_" + "SLICE"
+// A route is nine rows long and a branch may lead back to the title, so the walk stop after this many steps keeps a
+// mistyped `to` from looping forever. It is a bound on a bad row, never on the demo.
+#macro PP_SLICE_MAX_STEPS 64
+
 /// Create the game frame, load data, register the modes that exist, and enter boot.
 /// Called once from obj_pp_game's Create event.
 function pp_app_boot() {
@@ -33,7 +53,15 @@ function pp_app_boot() {
         fade_dir: 0,
         fade_steps: 0,
         pending: undefined,
-        last_outcome: ""
+        last_outcome: "",
+        // The demo walk (card R24): which route step is current, whether its handoff has been taken, whether its target
+        // has been seen on screen, whether the fight that just ended was lost, and how many steps have been walked.
+        slice_walk: false,
+        slice_step: "",
+        slice_taken: false,
+        slice_seen: false,
+        slice_lose: false,
+        slice_walked: 0
     };
     global.pp.app = _app;
 
@@ -46,12 +74,32 @@ function pp_app_boot() {
     // moves to rm_pp_title, and the room's own object enters the screen, so the screen is entered exactly once.
     // The screen object is not in the boot room, so nothing here runs the title before the room exists.
     // A data problem still lands on the boot card, which says it in words, and that card is drawn by this object.
+    // Card R24: which screen is first is the slice route's first step now, not a room name written here.
     if (pp_data_ok()) {
-        pp_app_enter_room(PPMode.title, {}, rm_pp_title);
+        pp_slice_start();
     } else {
         pp_app_enter(PPMode.boot, {});
     }
     return _app;
+}
+
+/// Begin the run from data\slice.json (card R24). The route's first step names the screen the game opens on; when that
+/// step is missing the fallback is rm_pp_title, which is exactly what this file did before the route existed. A run
+/// whose environment names PP_SLICE walks the route from here; every other run simply opens on the first step.
+function pp_slice_start() {
+    var _row = pp_slice_route_row(pp_slice_route_first());
+    var _kind = pp_slice_kind(_row);
+    var _room = rm_pp_title;
+    if (_kind == PPSliceKind.title && variable_struct_exists(_row, "room")) {
+        var _named = asset_get_index(string(_row.room));
+        if (_named >= 0) _room = _named;
+    }
+
+    if (pp_slice_walk_enabled()) {
+        pp_slice_walk_start();
+    }
+    pp_app_enter_room(PPMode.title, {}, _room);
+    return true;
 }
 
 /// Jump with no fade into a mode that owns its own room (card W1). The mode is set and the move to the room is asked
@@ -159,6 +207,10 @@ function pp_app_step() {
     if (!is_undefined(_mode) && variable_struct_exists(_mode, "step")) {
         _mode.step(_app.mode_params);
     }
+
+    // Card R24: the demo walk, one route step at a time. Dead unless the environment names PP_SLICE, so a real launch
+    // still goes wherever the player takes it.
+    pp_slice_walk_step();
 
     // A request that arrived while a fade was running is kept in pending; once the screen is settled its own fade out
     // starts here, otherwise the newest request would be silently dropped (spec 01 rule 2).
@@ -384,4 +436,372 @@ function pp_mode_overworld() {
             pp_overworld_draw(global.pp.world);
         }
     };
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// The demo's route (card R24). data/slice.json carries one row per step: the id of the step, the kind of handoff it
+// names, the scene, map, encounter or room id that handoff goes to, and the id of the step it hands to next. The route
+// is read once, indexed by id, and walked by id, never by array position. That is what makes a row that is missing
+// from the file a stop at the step before it instead of a crash: the step before names an id nobody has.
+
+/// The slice route, read once from data/slice.json and indexed by step id. undefined when the file carries no route,
+/// which is the state a build with the old five key slice.json is in.
+function pp_slice_route() {
+    if (variable_global_exists("pp_slice_route_cache")) return global.pp_slice_route_cache;
+
+    var _route = undefined;
+    if (is_struct(global.pp_data) && is_struct(global.pp_data.slice)
+        && variable_struct_exists(global.pp_data.slice, "route")) {
+        var _raw = global.pp_data.slice.route;
+        if (is_struct(_raw) && is_array(_raw.steps)) {
+            var _by_id = {};
+            var _i = 0;
+            while (_i < array_length(_raw.steps)) {
+                var _row = _raw.steps[_i];
+                if (is_struct(_row) && variable_struct_exists(_row, "id")) _by_id[$ string(_row.id)] = _row;
+                _i += 1;
+            }
+            _route = {
+                first: (variable_struct_exists(_raw, "first") ? string(_raw.first) : ""),
+                steps: _raw.steps,
+                by_id: _by_id
+            };
+        }
+    }
+    global.pp_slice_route_cache = _route;
+    return _route;
+}
+
+/// The id of the route's first step, or "" when there is no route.
+function pp_slice_route_first() {
+    var _route = pp_slice_route();
+    if (is_undefined(_route)) return "";
+    return _route.first;
+}
+
+/// One route row by id, or undefined when the route has no such step. This is the only lookup the walk uses.
+function pp_slice_route_row(_id) {
+    var _route = pp_slice_route();
+    if (is_undefined(_route) || string(_id) == "") return undefined;
+    if (!variable_struct_exists(_route.by_id, string(_id))) return undefined;
+    return _route.by_id[$ string(_id)];
+}
+
+/// How many steps the route has, for the printed line.
+function pp_slice_route_count() {
+    var _route = pp_slice_route();
+    if (is_undefined(_route)) return 0;
+    return array_length(_route.steps);
+}
+
+/// The one based position of a step in the authored order, for the printed line. 0 when the id is not in the route.
+function pp_slice_route_index(_id) {
+    var _route = pp_slice_route();
+    if (is_undefined(_route)) return 0;
+    var _i = 0;
+    while (_i < array_length(_route.steps)) {
+        var _row = _route.steps[_i];
+        if (is_struct(_row) && variable_struct_exists(_row, "id") && string(_row.id) == string(_id)) return _i + 1;
+        _i += 1;
+    }
+    return 0;
+}
+
+/// The kind enum a row names, or undefined when the word is not one of the seven. A row with an unknown kind is a stop
+/// in the walk, and the stop line says which word it read.
+function pp_slice_kind(_row) {
+    if (!is_struct(_row) || !variable_struct_exists(_row, "kind")) return undefined;
+    switch (string(_row.kind)) {
+        case "title": return PPSliceKind.title;
+        case "crawl": return PPSliceKind.crawl;
+        case "scene": return PPSliceKind.scene;
+        case "map": return PPSliceKind.map;
+        case "battle": return PPSliceKind.battle;
+        case "save": return PPSliceKind.save;
+        case "branch": return PPSliceKind.branch;
+    }
+    return undefined;
+}
+
+/// A row's own label, or its id when the row carries no label. Labels are words for the printed line and nothing else.
+function pp_slice_label(_row) {
+    if (is_struct(_row) && variable_struct_exists(_row, "label")) return string(_row.label);
+    if (is_struct(_row) && variable_struct_exists(_row, "id")) return string(_row.id);
+    return "?";
+}
+
+/// Does one file of data make it into the build? The crawl is pp_title's own phase and reads data/intro_text.json
+/// directly, so a route step that names it is checked this way and not through a loaded bundle.
+function pp_slice_file_exists(_name) {
+    var _paths = pp_data_paths(_name);
+    var _i = 0;
+    while (_i < array_length(_paths)) {
+        if (file_exists(_paths[_i])) return true;
+        _i += 1;
+    }
+    return false;
+}
+
+/// The spawn a map or scene step hands to: the row's own spawn when the map has it, otherwise the map's "start",
+/// otherwise its first spawn alphabetically, the same order the scene self test uses. Nothing invents a spawn name.
+function pp_slice_spawn(_map_id, _row) {
+    var _named = "";
+    if (is_struct(_row) && variable_struct_exists(_row, "spawn")) _named = string(_row.spawn);
+    var _map_row = pp_data_find(global.pp_data.maps.maps, _map_id);
+    if (is_undefined(_map_row) || !variable_struct_exists(_map_row, "spawns")) {
+        return ((_named != "") ? _named : "start");
+    }
+    var _spawns = _map_row.spawns;
+    if (_named != "" && variable_struct_exists(_spawns, _named)) return _named;
+    if (variable_struct_exists(_spawns, "start")) return "start";
+    var _names = variable_struct_get_names(_spawns);
+    if (array_length(_names) == 0) return "start";
+    var _first = _names[0];
+    var _i = 1;
+    while (_i < array_length(_names)) {
+        if (_names[_i] < _first) _first = _names[_i];
+        _i += 1;
+    }
+    return _first;
+}
+
+/// The line that says what one step hands to. It is printed once per step, before the handoff is taken.
+function pp_slice_handoff_text(_row) {
+    switch (pp_slice_kind(_row)) {
+        case PPSliceKind.title: return "enter the room " + string(_row.room);
+        case PPSliceKind.crawl: return "the crawl plays inside the title screen from " + string(_row.text);
+        case PPSliceKind.scene: return "enter the scene " + string(_row.scene);
+        case PPSliceKind.map: return "enter the map " + string(_row.map);
+        case PPSliceKind.battle: return "enter the fight " + string(_row.encounter);
+        case PPSliceKind.save: return "the ship's log writes the save here";
+        case PPSliceKind.branch: return "hand back to the step " + string(_row.to);
+    }
+    return "kind " + string(_row.kind);
+}
+
+/// Take one step's handoff. Returns "" when it was taken, otherwise the reason it was not, which the walk prints
+/// before it stops. Every reason names the id it could not find and the data file it looked in.
+function pp_slice_handoff(_row) {
+    var _kind = pp_slice_kind(_row);
+    if (is_undefined(_kind)) return "the kind " + string(_row.kind) + " is not one of the seven step kinds";
+
+    switch (_kind) {
+        case PPSliceKind.title:
+            if (pp_app_mode() == PPMode.title) return "";
+            if (!variable_struct_exists(_row, "room")) return "the row names no room";
+            var _room = asset_get_index(string(_row.room));
+            if (_room < 0) return "the room " + string(_row.room) + " is not in the project";
+            if (!pp_app_enter_room(PPMode.title, {}, _room)) return "the title mode is not registered";
+            return "";
+
+        case PPSliceKind.crawl:
+            // The crawl is a phase of the title screen and not a mode of its own: pp_title plays it from
+            // data/intro_text.json before the run starts. The step exists so the route says when the crawl is.
+            var _text = (variable_struct_exists(_row, "text") ? string(_row.text) : "intro_text");
+            if (!pp_slice_file_exists(_text + ".json")) return "data/" + _text + ".json is not in the build";
+            return "";
+
+        case PPSliceKind.scene:
+            if (!variable_struct_exists(_row, "scene")) return "the row names no scene";
+            var _scene_id = string(_row.scene);
+            var _scene_row = pp_data_find(global.pp_data.scenes.scenes, _scene_id);
+            if (is_undefined(_scene_row)) return "the scene " + _scene_id + " is not in data/scenes/all.json";
+            var _scene_map = (variable_struct_exists(_scene_row, "map") ? string(_scene_row.map) : "");
+            if (is_undefined(pp_data_find(global.pp_data.maps.maps, _scene_map))) {
+                return "the scene " + _scene_id + " names the map " + _scene_map + ", which is not in data/maps/all.json";
+            }
+            // The overworld's own enter creates the world and starts the scene named in the request, which is the
+            // handoff card R23 left in place: a scene loads its own map and start tile and nothing here duplicates it.
+            pp_app_request(PPMode.overworld, { map_id: _scene_map, spawn: pp_slice_spawn(_scene_map, _row), scene: _scene_id });
+            return "";
+
+        case PPSliceKind.map:
+            if (!variable_struct_exists(_row, "map")) return "the row names no map";
+            var _map_id = string(_row.map);
+            if (is_undefined(pp_data_find(global.pp_data.maps.maps, _map_id))) {
+                return "the map " + _map_id + " is not in data/maps/all.json";
+            }
+            pp_app_request(PPMode.overworld, { map_id: _map_id, spawn: pp_slice_spawn(_map_id, _row), scene: "" });
+            return "";
+
+        case PPSliceKind.battle:
+            if (!variable_struct_exists(_row, "encounter")) return "the row names no encounter";
+            var _enc_id = string(_row.encounter);
+            if (is_undefined(pp_data_find(global.pp_data.encounters.encounters, _enc_id))) {
+                return "the encounter " + _enc_id + " is not in data/encounters/all.json";
+            }
+            pp_app_request(PPMode.battle, { encounter_id: _enc_id, from_world: true });
+            return "";
+
+        case PPSliceKind.save:
+            // The writer is card R26's (autosave on entry plus the log terminal). The route's job is to say where the
+            // save sits in the demo, so nothing is handed to a mode here and the walk reads the step as taken.
+            return "";
+
+        case PPSliceKind.branch:
+            return "";
+    }
+    return "the kind " + string(_row.kind) + " is not one of the seven step kinds";
+}
+
+/// Is the step's target up yet? The walk prints a step's line, takes its handoff, and then waits here, so a handoff
+/// that fades in over twelve steps is never mistaken for a step that has already happened.
+function pp_slice_on_screen(_row) {
+    switch (pp_slice_kind(_row)) {
+        case PPSliceKind.title:
+            return (pp_app_mode() == PPMode.title);
+
+        case PPSliceKind.crawl:
+            // The crawl lives inside the title screen, so it is on screen whenever the title screen is, and it has
+            // already happened when the title has been left. Either way this step is never a wait of its own.
+            return true;
+
+        case PPSliceKind.scene:
+            if (pp_app_mode() != PPMode.overworld) return false;
+            if (!is_struct(global.pp.world) || !is_struct(global.pp.world.scene)) return false;
+            return (string(global.pp.world.scene.id) == string(_row.scene));
+
+        case PPSliceKind.map:
+            if (pp_app_mode() != PPMode.overworld) return false;
+            if (!is_struct(global.pp.world) || !is_struct(global.pp.world.map)) return false;
+            return (string(global.pp.world.map.id) == string(_row.map));
+
+        case PPSliceKind.battle:
+            return (pp_app_mode() == PPMode.battle && is_struct(global.pp.battle));
+
+        case PPSliceKind.save:
+        case PPSliceKind.branch:
+            return true;
+    }
+    return false;
+}
+
+/// Is the step over? Called only once its target has been on screen.
+function pp_slice_done(_row) {
+    switch (pp_slice_kind(_row)) {
+        case PPSliceKind.title:
+            // The title screen is up, so the route hands straight to the crawl, which is what plays on it next.
+            return true;
+
+        case PPSliceKind.crawl:
+            // The crawl is done when the player leaves the title screen, which is the moment the run starts.
+            return (pp_app_mode() != PPMode.title);
+
+        case PPSliceKind.scene:
+            if (pp_app_mode() != PPMode.overworld) return false;
+            if (!is_struct(global.pp.world)) return false;
+            return !pp_scene_running(global.pp.world.scene);
+
+        case PPSliceKind.map:
+            // The map is up and the walker has control. What happens on it is the next step's business.
+            return true;
+
+        case PPSliceKind.battle:
+            // The fight owns the mode until its result is confirmed, and that confirm is what hands back to the map.
+            return (pp_app_mode() != PPMode.battle);
+
+        case PPSliceKind.save:
+        case PPSliceKind.branch:
+            return true;
+    }
+    return false;
+}
+
+/// The id a step hands to: a branch's `to` always, a lost fight's `lose` when the row has one, otherwise `next`.
+function pp_slice_next_id(_row, _lost) {
+    if (pp_slice_kind(_row) == PPSliceKind.branch) {
+        return (variable_struct_exists(_row, "to") ? string(_row.to) : "");
+    }
+    if (_lost && variable_struct_exists(_row, "lose")) return string(_row.lose);
+    return (variable_struct_exists(_row, "next") ? string(_row.next) : "");
+}
+
+/// Is the walk switched on? Unset in every real launch, so this is one environment read at boot and nothing per frame.
+function pp_slice_walk_enabled() {
+    return (environment_get_variable(PP_SLICE) != "");
+}
+
+/// Put the walk at the route's first step. Called from pp_slice_start before the first screen is entered.
+function pp_slice_walk_start() {
+    var _app = global.pp.app;
+    _app.slice_step = pp_slice_route_first();
+    _app.slice_taken = false;
+    _app.slice_seen = false;
+    _app.slice_lose = false;
+    _app.slice_walked = 0;
+    _app.slice_walk = (_app.slice_step != "" && pp_slice_route_count() > 0);
+    if (!_app.slice_walk) {
+        show_debug_message("PP slice: data/slice.json has no route, the walk is not started");
+    }
+    return _app.slice_walk;
+}
+
+/// Stop the walk where it stands and say why in one line. The reason always comes from the row the walk was on.
+function pp_slice_walk_stop(_reason) {
+    var _app = global.pp.app;
+    var _row = pp_slice_route_row(_app.slice_step);
+    show_debug_message("PP slice: stopped at step " + string(pp_slice_route_index(_app.slice_step)) + " of "
+                       + string(pp_slice_route_count()) + " " + string(_app.slice_step) + " ("
+                       + pp_slice_label(_row) + "): " + string(_reason));
+    _app.slice_walk = false;
+    return false;
+}
+
+/// One step of the demo walk. It prints one line per route step, takes that step's handoff, watches until the target is
+/// up, and moves to the step the row itself names. A row naming a step that is not in the file, or content that is not
+/// in data, stops the walk where it stands with the reason printed, which is card R24's check for a removed step.
+function pp_slice_walk_step() {
+    var _app = global.pp.app;
+    if (!_app.slice_walk) return false;
+
+    var _row = pp_slice_route_row(_app.slice_step);
+    if (is_undefined(_row)) {
+        return pp_slice_walk_stop("the route has no step with this id");
+    }
+    if (_app.slice_walked >= PP_SLICE_MAX_STEPS) {
+        return pp_slice_walk_stop("the walk passed its step bound, so a row leads in a circle");
+    }
+
+    // First frame on this step: say what it hands to, then take the handoff.
+    if (!_app.slice_taken) {
+        show_debug_message("PP slice: step " + string(pp_slice_route_index(_app.slice_step)) + " of "
+                           + string(pp_slice_route_count()) + " " + string(_row.id) + " ("
+                           + pp_slice_label(_row) + "): " + pp_slice_handoff_text(_row));
+        var _why = pp_slice_handoff(_row);
+        if (_why != "") return pp_slice_walk_stop(_why);
+        _app.slice_taken = true;
+        _app.slice_seen = false;
+        _app.slice_walked += 1;
+        return true;
+    }
+
+    // Then watch. A fight that ends in a defeat is noted here, because the battle mode is the only thing that knows,
+    // and the row's `lose` edge is what takes the demo to the game over screen instead of the next step.
+    if (!_app.slice_seen) {
+        if (pp_slice_on_screen(_row)) _app.slice_seen = true;
+        if (pp_slice_kind(_row) == PPSliceKind.battle && is_struct(global.pp.battle)
+            && pp_battle_finished(global.pp.battle) && pp_battle_outcome(global.pp.battle) == "defeat") {
+            _app.slice_lose = true;
+        }
+        return true;
+    }
+
+    if (!pp_slice_done(_row)) return true;
+
+    var _next = pp_slice_next_id(_row, _app.slice_lose);
+    if (_next == "") {
+        _app.slice_walk = false;
+        show_debug_message("PP slice: the route ends after step " + string(pp_slice_route_index(_app.slice_step))
+                           + " of " + string(pp_slice_route_count()) + " " + string(_row.id) + ", "
+                           + string(_app.slice_walked) + " steps walked");
+        return true;
+    }
+    if (is_undefined(pp_slice_route_row(_next))) {
+        return pp_slice_walk_stop("the step it hands to, " + string(_next) + ", is not in the route");
+    }
+    _app.slice_step = _next;
+    _app.slice_taken = false;
+    _app.slice_seen = false;
+    _app.slice_lose = false;
+    return true;
 }

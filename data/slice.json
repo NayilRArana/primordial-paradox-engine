@@ -4,5 +4,73 @@
   "map": "ship_small",
   "spawn": "start",
   "scene": "ship_boarding",
-  "encounter": "tutorial_sailors"
+  "encounter": "tutorial_sailors",
+  "route": {
+    "first": "title",
+    "steps": [
+      {
+        "id": "title",
+        "kind": "title",
+        "label": "the title screen",
+        "room": "rm_pp_title",
+        "next": "crawl"
+      },
+      {
+        "id": "crawl",
+        "kind": "crawl",
+        "label": "the intro crawl",
+        "text": "intro_text",
+        "next": "drive"
+      },
+      {
+        "id": "drive",
+        "kind": "scene",
+        "label": "the drive to Southampton",
+        "scene": "drive_to_southampton",
+        "next": "arrival"
+      },
+      {
+        "id": "arrival",
+        "kind": "map",
+        "label": "arrival at Town Quay",
+        "map": "southampton_town_quay",
+        "next": "gate"
+      },
+      {
+        "id": "gate",
+        "kind": "scene",
+        "label": "the gate checkpoint and its three replies",
+        "scene": "quay_gate_checkpoint",
+        "next": "boarding"
+      },
+      {
+        "id": "boarding",
+        "kind": "scene",
+        "label": "boarding the ship",
+        "scene": "ship_boarding",
+        "next": "fight"
+      },
+      {
+        "id": "fight",
+        "kind": "battle",
+        "label": "the first fight",
+        "encounter": "tutorial_sailors",
+        "next": "save",
+        "lose": "gameover"
+      },
+      {
+        "id": "save",
+        "kind": "save",
+        "label": "the ship's log save",
+        "next": ""
+      },
+      {
+        "id": "gameover",
+        "kind": "branch",
+        "label": "the game over screen, then the title again",
+        "to": "title",
+        "next": ""
+      }
+    ]
+  }
 }
