@@ -78,6 +78,53 @@ def test_datafiles_mirror_is_current():
         sys.argv = argv
 
 
+def test_build_time_data_is_kept_out_of_the_bundle():
+    """The mirror is a runtime question: a table no GML opens is not an Included File.
+
+    data/palette_recipes.json and data/scene_palettes.json are read by tools, by path, out of data\\: the palette
+    checker, the synergy gate, the scene palette builder and the NES audit. Mirroring them made the .yyp declare two
+    build inputs as Included Files, so every palette rebuild was a file the commit had to carry or the nightly
+    worktree reported as missing (card t_40501f46). The check that keeps this honest is the third one below: if a
+    module ever starts reading one of these tables at runtime, this fails and says to mirror it again.
+    """
+    assert sync_data.NOT_RUNTIME, "the exclusion list is empty, so this test would pass for the wrong reason"
+    wanted = set(sync_data.source_files())
+    for name in sorted(sync_data.NOT_RUNTIME):
+        assert name not in wanted, "%s is excluded from the bundle but sync_data still mirrors it" % name
+
+    with open(os.path.join(ROOT, "game", "PrimordialParadox.yyp"), "r", encoding="utf-8") as fh:
+        declared = {entry.get("name") for entry in json.load(fh)["IncludedFiles"]}
+    for name in sorted(sync_data.NOT_RUNTIME):
+        assert name not in declared, "the committed project declares %s as an Included File" % name
+
+    gml = []
+    for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, "game")):
+        for filename in filenames:
+            if filename.endswith(".gml"):
+                with open(os.path.join(dirpath, filename), "r", encoding="utf-8-sig") as fh:
+                    gml.append(fh.read())
+    blob = "\n".join(gml)
+    for name in sorted(sync_data.NOT_RUNTIME):
+        assert name not in blob, (
+            "%s is excluded from the bundle but a GML module names it: take it out of sync_data.NOT_RUNTIME "
+            "so the engine ships it" % name)
+
+
+def test_the_palette_tables_stay_committed_where_the_tests_read_them():
+    """Not mirrored, still tracked.
+
+    tests/test_scene_palette_set.py loads data\\scene_palettes.json through tools/scene_palette_set.py, which refuses a
+    missing file rather than reading an empty set, and tools/palette_synergy.py --gate reads its audit list. So the
+    file has to be in the commit even though the bundle does not carry it. Untracked was the state card t_40501f46
+    found, and a HEAD worktree failed on it.
+    """
+    repo = check_build_inputs.repo_root()
+    tracked = check_build_inputs.tracked_files(repo)
+    for name in ("data/palette_recipes.json", "data/scene_palettes.json"):
+        rel = os.path.relpath(os.path.join(ROOT, name), repo).replace(os.sep, "/")
+        assert rel in tracked, "%s is not in the commit, so a HEAD worktree cannot read it" % rel
+
+
 def test_cleanroom_passes():
     assert check_cleanroom.check(ROOT) == []
 

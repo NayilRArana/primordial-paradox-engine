@@ -4,6 +4,10 @@ GameMaker only ships files it knows about: Included Files are copied into the ga
 from the working directory at runtime. Rather than keep two copies of every table, data\\ is the source and this
 script mirrors it into game\\datafiles\\, which tools\\gen_project.py then lists in the .yyp.
 
+The mirror is a runtime question, not a "where does the data live" question. data\\ stays the single source of truth
+for every file here, and the ones the engine never opens are left out of the bundle but stay in data\\. See
+NOT_RUNTIME below for those and why.
+
 Run order for a build:  sync_data.py  ->  check_data.py  ->  gen_project.py  ->  Igor
 (`tools\\run.ps1` does exactly that).
 
@@ -24,6 +28,23 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "data")
 DST = os.path.join(ROOT, "game", "datafiles")
 
+# Files data\ holds that the engine never opens, so they are not mirrored into the bundle.
+#
+# palette_recipes.json and scene_palettes.json are build time inputs. They are read by tools, by path, out of data\:
+# tools/check_palette_recipes.py, tools/palette_synergy.py --gate (its audit list lives in scene_palettes.json's
+# "audit" key), tools/scene_palette_set.py and tools/nes_audit_all.py. No GML file names either one (grep of
+# game/**/*.gml on 2026-10-22 found no reader, and the runtime loaders in pp_data name audio, flags, items,
+# palette, powers, project, room_palettes, slice and the title tables instead). Mirroring them bought nothing and
+# cost something: two generated files the .yyp then declared as Included Files, so every rebuild of the palette set
+# was a build input the commit had to carry or the nightly worktree reported as missing. They stay tracked in data\
+# because committed tests read them there (tests/test_scene_palette_set.py loads data\scene_palettes.json).
+#
+# Add a file here only when the engine provably never reads it. A file the GML loads belongs in the bundle.
+NOT_RUNTIME = frozenset({
+    "palette_recipes.json",
+    "scene_palettes.json",
+})
+
 
 def source_files() -> list[str]:
     found = []
@@ -35,6 +56,8 @@ def source_files() -> list[str]:
                 # data/schemas is documentation for editors and for tools/check_data.py. The game never reads a schema,
                 # so it is not a runtime data file and does not belong in the build bundle.
                 if rel.startswith("schemas/"):
+                    continue
+                if rel in NOT_RUNTIME:
                     continue
                 found.append(rel)
     return sorted(found)

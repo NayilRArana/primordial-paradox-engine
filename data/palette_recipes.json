@@ -1,0 +1,3668 @@
+{
+  "format": 1,
+  "kind": "palette_recipes",
+  "name": "palette_synergy",
+  "written": "2026-10-22",
+  "card": "t_3da3f037",
+  "study": "knowledge/PALETTE-SYNERGY.md",
+  "palette_source": "data/nes_palette.json (Ricoh 2C02)",
+  "conventions": {
+    "entry": "a number 0 to 63 in data/nes_palette.json; 9 entries are not usable",
+    "row": "the luma row, index // 16: 0 dark, 1 medium, 2 light, 3 pale",
+    "hue": "index % 16: 0 grey, 1 azure, 2 blue, 3 violet, 4 magenta, 5 rose, 6 red, 7 orange, 8 yellow, 9 chartreuse, 10 green, 11 spring, 12 cyan",
+    "lum": "relative luminance of the published hex, WCAG coefficients, sRGB transfer curve",
+    "hue_distance": "shortest distance on the 13 hue positions 0 to 12",
+    "confidence": "stated (the source says it), derived (arithmetic on stated numbers), inference (our reading, not yet verified)"
+  },
+  "hero_palettes": [
+    {
+      "hero": "Percy",
+      "note": "blue and gold",
+      "entries": [
+        {
+          "index": 15,
+          "code": "$0F",
+          "hex": "#000000",
+          "row": 0,
+          "hue": "black",
+          "lum": 0.0
+        },
+        {
+          "index": 34,
+          "code": "$22",
+          "hex": "#6888fc",
+          "row": 2,
+          "hue": "blue",
+          "lum": 0.2758
+        },
+        {
+          "index": 56,
+          "code": "$38",
+          "hex": "#f8d878",
+          "row": 3,
+          "hue": "yellow",
+          "lum": 0.7042
+        }
+      ],
+      "body_row": 2
+    },
+    {
+      "hero": "Hadrian",
+      "note": "near black and purple",
+      "entries": [
+        {
+          "index": 15,
+          "code": "$0F",
+          "hex": "#000000",
+          "row": 0,
+          "hue": "black",
+          "lum": 0.0
+        },
+        {
+          "index": 3,
+          "code": "$03",
+          "hex": "#4428bc",
+          "row": 0,
+          "hue": "violet",
+          "lum": 0.0638
+        },
+        {
+          "index": 35,
+          "code": "$23",
+          "hex": "#9878f8",
+          "row": 2,
+          "hue": "violet",
+          "lum": 0.2689
+        }
+      ],
+      "body_row": 0
+    },
+    {
+      "hero": "Zander",
+      "note": "light blue",
+      "entries": [
+        {
+          "index": 15,
+          "code": "$0F",
+          "hex": "#000000",
+          "row": 0,
+          "hue": "black",
+          "lum": 0.0
+        },
+        {
+          "index": 49,
+          "code": "$31",
+          "hex": "#a4e4fc",
+          "row": 3,
+          "hue": "azure",
+          "lum": 0.7041
+        },
+        {
+          "index": 18,
+          "code": "$12",
+          "hex": "#0058f8",
+          "row": 1,
+          "hue": "blue",
+          "lum": 0.1376
+        }
+      ],
+      "body_row": 3
+    },
+    {
+      "hero": "Konrad",
+      "note": "grey and amber",
+      "entries": [
+        {
+          "index": 15,
+          "code": "$0F",
+          "hex": "#000000",
+          "row": 0,
+          "hue": "black",
+          "lum": 0.0
+        },
+        {
+          "index": 45,
+          "code": "$2D",
+          "hex": "#787878",
+          "row": 2,
+          "hue": "dark grey",
+          "lum": 0.1878
+        },
+        {
+          "index": 39,
+          "code": "$27",
+          "hex": "#fca044",
+          "row": 2,
+          "hue": "orange",
+          "lum": 0.4625
+        }
+      ],
+      "body_row": 2
+    }
+  ],
+  "recipes": [
+    {
+      "id": "A01",
+      "family": "A",
+      "name": "Sixty four outputs, four luma rows of sixteen hues",
+      "use_when": "every time a colour is picked by hand, write its entry number and its row, never its hex",
+      "confidence": "stated",
+      "source": "S1 S2 S13",
+      "numbers": {
+        "entries": 64,
+        "rows": 4,
+        "hues": 16,
+        "hues_with_a_name": 13,
+        "row_length": 16,
+        "rule": "row = index // 16; hue = index % 16",
+        "usable_entries": 55,
+        "forbidden_entries": 9,
+        "forbidden_indexes": [
+          13,
+          14,
+          29,
+          30,
+          31,
+          46,
+          47,
+          62,
+          63
+        ],
+        "canonical_black": 15,
+        "non_black_usable": 54
+      }
+    },
+    {
+      "id": "A02",
+      "family": "A",
+      "name": "The nine dead entries",
+      "use_when": "when a checker reports an off-palette colour it is usually one of these nine",
+      "confidence": "stated",
+      "source": "S1 S2",
+      "numbers": {
+        "forbidden_count": 9,
+        "invalid_signal": 13,
+        "duplicate_black": [
+          14,
+          29,
+          30,
+          31,
+          46,
+          47,
+          62,
+          63
+        ],
+        "kept_black": 15,
+        "black_duplicates": 8
+      }
+    },
+    {
+      "id": "A03",
+      "family": "A",
+      "name": "Twenty five colours is the whole frame",
+      "use_when": "budget a scene before drawing it; sum the two layers and the backdrop",
+      "confidence": "derived",
+      "source": "S1 S2 S13",
+      "numbers": {
+        "background_palettes": 4,
+        "background_colours": 12,
+        "sprite_palettes": 4,
+        "sprite_colours": 12,
+        "backdrops": 1,
+        "ceiling": 25,
+        "identical_colour_on_both_layers_costs": 2
+      }
+    },
+    {
+      "id": "A04",
+      "family": "A",
+      "name": "Sharing one colour across the two layers costs two entries",
+      "use_when": "when a hero must wear the exact wall colour, count it twice",
+      "confidence": "derived",
+      "source": "S1",
+      "numbers": {
+        "colour_shown_on_both_layers": 1,
+        "entries_spent": 2,
+        "entries_available": 24
+      }
+    },
+    {
+      "id": "A05",
+      "family": "A",
+      "name": "One backdrop, mirrored at $3F00 and $3F10",
+      "use_when": "any scene that wants two different backdrop colours needs two frames",
+      "confidence": "stated",
+      "source": "S1 S2",
+      "numbers": {
+        "backdrop_address": "0x3F00",
+        "sprite_alias": "0x3F10",
+        "backdrops_per_frame": 1,
+        "palette_ram_bytes": 32,
+        "mirror_region": "0x3F00-0x3FFF"
+      }
+    },
+    {
+      "id": "A06",
+      "family": "A",
+      "name": "The attribute grid is sixteen by sixteen",
+      "use_when": "place a colour change only on a 16 pixel boundary; a 32x32 metatile is the safe unit",
+      "confidence": "stated",
+      "source": "S2",
+      "numbers": {
+        "area_px": 16,
+        "area_tiles": 4,
+        "attribute_byte_px": 32,
+        "attribute_byte_tiles": 16,
+        "quadrants_per_byte": 4,
+        "nametable_tiles": 960,
+        "attribute_bytes": 64
+      }
+    },
+    {
+      "id": "B01",
+      "family": "B",
+      "name": "Black backdrop is the default and our twelve scene files all use it",
+      "use_when": "night, interiors, battles, and any screen whose art already has a dark own shadow",
+      "confidence": "stated",
+      "source": "S3 S13",
+      "numbers": {
+        "backdrop_entry": 15,
+        "scene_files_on_disk": 12,
+        "scene_files_with_black": 12,
+        "share_percent": 100,
+        "measured_on": "data/palettes/scene_*.json, read 2026-10-22"
+      }
+    },
+    {
+      "id": "B02",
+      "family": "B",
+      "name": "Sky colour as backdrop when the sky is flat",
+      "use_when": "day and dusk exteriors where the sky fills the top third and nothing is drawn on it",
+      "confidence": "inference",
+      "source": "S1 S4",
+      "numbers": {
+        "sky_entry": 2,
+        "background_palettes_freed": 1,
+        "entries_freed": 3,
+        "sky_cells_of_a_30_row_screen": 10,
+        "backdrop_row": 0
+      }
+    },
+    {
+      "id": "B03",
+      "family": "B",
+      "name": "Spend the backdrop on the field that covers the most 16x16 areas",
+      "use_when": "count the areas first: whichever colour owns the most cells becomes the backdrop",
+      "confidence": "inference",
+      "source": "S2 S4",
+      "numbers": {
+        "dominant_share_to_switch": 0.5,
+        "areas_per_frame": 240,
+        "attribute_cells": 480,
+        "cells_a_16x16_area_is": 1,
+        "example_areas_sky": 160,
+        "example_share": 0.67
+      }
+    },
+    {
+      "id": "B04",
+      "family": "B",
+      "name": "A backdrop the sprites also use is a hole",
+      "use_when": "when a sprite body sits on the backdrop with no outline, the silhouette disappears",
+      "confidence": "derived",
+      "source": "S3",
+      "numbers": {
+        "body_vs_backdrop_rows_needed": 2,
+        "example_body": 2,
+        "example_backdrop": 15,
+        "rows_between": 1,
+        "verdict": "refused"
+      }
+    },
+    {
+      "id": "B05",
+      "family": "B",
+      "name": "Two backdrops in one level means a transition, not a repaint",
+      "use_when": "a level that changes from night to dawn changes the backdrop at a scene cut",
+      "confidence": "stated",
+      "source": "S1 S4",
+      "numbers": {
+        "backdrops_per_frame": 1,
+        "backdrops_per_level": 2,
+        "write_budget_bytes": 32,
+        "frames_a_fade_needs": 4
+      }
+    },
+    {
+      "id": "C01",
+      "family": "C",
+      "name": "A ladder of three: dark, mid, light with one row between rungs",
+      "use_when": "the first thing to try for any new surface; a one row gap survives composite blur",
+      "confidence": "stated",
+      "source": "S1 S13",
+      "numbers": {
+        "entries": 3,
+        "rows_spanned": 3,
+        "row_gap": 1,
+        "example": "battle_corridor bg1",
+        "measured_dlum_min": 0.138,
+        "measured_dlum_median": 0.2
+      }
+    },
+    {
+      "id": "C02",
+      "family": "C",
+      "name": "The middle entry does the work",
+      "use_when": "spend the three entries as outline, body, highlight; leave the outline to the darkest",
+      "confidence": "inference",
+      "source": "S1 S3",
+      "numbers": {
+        "entries": 3,
+        "outline_row": 0,
+        "body_row": [
+          1,
+          2
+        ],
+        "highlight_row": 3,
+        "pixels_on_the_middle_entry_typical": "60 to 70 percent"
+      }
+    },
+    {
+      "id": "C03",
+      "family": "C",
+      "name": "Dither inside one palette, never across two",
+      "use_when": "a 2x2 checker between two entries of the same palette is legal; across palettes it is not",
+      "confidence": "stated",
+      "source": "S2 S13",
+      "numbers": {
+        "checker_block_px": 2,
+        "entries_spent": 2,
+        "areas_spanned": 1,
+        "purposes": "second hue, or half a row"
+      }
+    },
+    {
+      "id": "C04",
+      "family": "C",
+      "name": "One palette per sixteen by sixteen, seam on the boundary",
+      "use_when": "build metatiles 16x16 or 32x32 so a wall never mixes two palettes in one area",
+      "confidence": "stated",
+      "source": "S2",
+      "numbers": {
+        "metatile_px": [
+          16,
+          32
+        ],
+        "area_px": 16,
+        "palettes_per_area": 1,
+        "tiles_per_32_metatile": 16,
+        "attribute_bytes_per_metatile_row": 1
+      }
+    },
+    {
+      "id": "C05",
+      "family": "C",
+      "name": "Sky band: one palette for the whole top rows",
+      "use_when": "a gradient in the sky costs one palette if it is dithered, three if it is banded",
+      "confidence": "inference",
+      "source": "S2",
+      "numbers": {
+        "sky_rows_typical": [
+          0,
+          7
+        ],
+        "areas_across": 16,
+        "palettes_for_sky": 1,
+        "entries": [
+          1,
+          2,
+          12
+        ],
+        "band_step_rows": 1
+      }
+    },
+    {
+      "id": "C06",
+      "family": "C",
+      "name": "The ground plane is one palette until the material changes",
+      "use_when": "a floor that runs the width of the screen costs one palette; a step to another material costs the second",
+      "confidence": "inference",
+      "source": "S2 S3",
+      "numbers": {
+        "palettes_for_one_material": 1,
+        "palettes_for_floor_plus_wall": 2,
+        "palettes_left_for_props": 2,
+        "areas_a_floor_band_covers": 16
+      }
+    },
+    {
+      "id": "D01",
+      "family": "D",
+      "name": "Two luma rows minimum between a sprite body and the ground it stands on",
+      "use_when": "the rule Nayil set for this project; check it per walkable area, not per screen",
+      "confidence": "stated",
+      "source": "S3 S13",
+      "numbers": {
+        "min_rows": 2,
+        "rows_available": 4,
+        "rowgap3_dlum_min": 0.3016,
+        "rowgap2_dlum_p10": 0.1986,
+        "rowgap2_dlum_min": 0.0002,
+        "why_a_row_gap_alone_is_not_enough": "two entries two rows apart can still measure 0.0002 apart in relative luminance, so also check the hex"
+      }
+    },
+    {
+      "id": "D02",
+      "family": "D",
+      "name": "One row plus a hue jump of four or more, with an outline",
+      "use_when": "small props and enemies where the three entries cannot reach two rows",
+      "confidence": "inference",
+      "source": "S3",
+      "numbers": {
+        "min_row_gap": 1,
+        "min_hue_distance": 4,
+        "outline_required": true,
+        "wheel_hues": 13,
+        "half_wheel": 6,
+        "example_pair": [
+          6,
+          42
+        ],
+        "example_row_gap": 2,
+        "example_hue_distance": 4
+      }
+    },
+    {
+      "id": "D03",
+      "family": "D",
+      "name": "Put the hero body on an extreme row",
+      "use_when": "a fixed hero palette can only clear a two row gap if its body sits on row 0 or row 3",
+      "confidence": "derived",
+      "source": "S3",
+      "numbers": {
+        "body_row": [
+          0,
+          3
+        ],
+        "ground_rows_it_clears": {
+          "from_row_0": [
+            2,
+            3
+          ],
+          "from_row_3": [
+            0,
+            1
+          ]
+        },
+        "ground_rows_that_merge": {
+          "from_row_0": [
+            0,
+            1
+          ],
+          "from_row_3": [
+            2,
+            3
+          ]
+        },
+        "mid_body_row_clears": [],
+        "rows_between_mid_and_any_other": [
+          1,
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "id": "D04",
+      "family": "D",
+      "name": "Outline on row 0 guarantees one row against any pale ground",
+      "use_when": "the outline is what keeps a silhouette readable when the body has to be light",
+      "confidence": "stated",
+      "source": "S3 S6",
+      "numbers": {
+        "outline_entries": [
+          15,
+          0,
+          2,
+          3,
+          7,
+          8
+        ],
+        "row": 0,
+        "guaranteed_rows_over_row_3_ground": 3,
+        "outline_px_typical": 1,
+        "share_of_sprite_pixels": "8 to 15 percent"
+      }
+    },
+    {
+      "id": "D05",
+      "family": "D",
+      "name": "The accent may merge, the body may not",
+      "use_when": "if one entry of three has to collide with the background, make it the smallest one",
+      "confidence": "inference",
+      "source": "S3 S5",
+      "numbers": {
+        "accent_share_typical": "10 to 20 percent of sprite pixels",
+        "body_share_typical": "50 to 70 percent",
+        "collisions_allowed_on": "accent only",
+        "collisions_allowed_on_body": 0
+      }
+    },
+    {
+      "id": "D06",
+      "family": "D",
+      "name": "White clothing on a light ground is refused",
+      "use_when": "the white blob: a row 3 body over a row 2 or row 3 ground",
+      "confidence": "stated",
+      "source": "S3",
+      "numbers": {
+        "body_row": 3,
+        "ground_rows_refused": [
+          2,
+          3
+        ],
+        "rows_gap": [
+          1,
+          0
+        ],
+        "measured_dlum_row3_vs_row2_p10": 0.1986,
+        "verdict": "refused"
+      }
+    },
+    {
+      "id": "E01",
+      "family": "E",
+      "name": "Black outline, entry 15",
+      "use_when": "night, interiors, battles: anywhere the ground is not pale",
+      "confidence": "stated",
+      "source": "S3 S6",
+      "numbers": {
+        "entry": 15,
+        "row": 0,
+        "hex": "#000000",
+        "lum": 0.0
+      }
+    },
+    {
+      "id": "E02",
+      "family": "E",
+      "name": "Dark blue outline, entry 2",
+      "use_when": "daylight exteriors and sea; it reads as a shadow instead of a drawn line",
+      "confidence": "inference",
+      "source": "S3",
+      "numbers": {
+        "entry": 2,
+        "row": 0,
+        "hex": "#0000bc",
+        "hue": "blue",
+        "separation_from_sky_entry_1": {
+          "rows": 0,
+          "dlum": 0.034,
+          "hues": 1
+        }
+      }
+    },
+    {
+      "id": "E03",
+      "family": "E",
+      "name": "Dark brown outline, entry 7 or 8",
+      "use_when": "warm interiors, wood, the wardroom, lamplight",
+      "confidence": "inference",
+      "source": "S3",
+      "numbers": {
+        "entries": [
+          7,
+          8
+        ],
+        "row": 0,
+        "hexes": [
+          "#881400",
+          "#503000"
+        ],
+        "separation_from_amber_entry_39": {
+          "rows": 2,
+          "dlum": 0.4052,
+          "hues": 0
+        }
+      }
+    },
+    {
+      "id": "E04",
+      "family": "E",
+      "name": "An outline colour cannot be shared across sprite palettes",
+      "use_when": "only entry 0 is shared storage; a common outline costs one entry in every sprite palette",
+      "confidence": "stated",
+      "source": "S1 S2",
+      "numbers": {
+        "shared_entries_between_palettes": 1,
+        "shared_entry": 0,
+        "transparent": true,
+        "outline_repeated_in_palettes": 4,
+        "entries_spent": 4,
+        "entries_available": 12
+      }
+    },
+    {
+      "id": "E05",
+      "family": "E",
+      "name": "Never outline lighter than the body",
+      "use_when": "an outline brighter than the fill turns the silhouette inside out",
+      "confidence": "inference",
+      "source": "S3",
+      "numbers": {
+        "outline_row": 0,
+        "body_row_min": 1,
+        "rows_gap_min": 1,
+        "verdict": "refused otherwise"
+      }
+    },
+    {
+      "id": "F01",
+      "family": "F",
+      "name": "Hero palette: Percy (blue and gold), fixed for the whole game",
+      "use_when": "every scene draws Percy from these three entries; the scene must adapt its ground, not the hero",
+      "confidence": "inference",
+      "source": "S3 S9",
+      "numbers": {
+        "entries": [
+          15,
+          34,
+          56
+        ],
+        "outline": 15,
+        "body": 34,
+        "accent": 56,
+        "body_row": 2,
+        "accent_row": 3,
+        "body_to_ground_min_rows": 2,
+        "ground_rows_that_clear": [
+          0
+        ],
+        "ground_rows_that_merge": [
+          1,
+          2,
+          3
+        ],
+        "body_vs_black_backdrop": {
+          "rows": 2,
+          "dlum": 0.2758,
+          "hues": 0
+        },
+        "body_vs_pale_white": {
+          "rows": 1,
+          "dlum": 0.6976,
+          "hues": 2
+        }
+      }
+    },
+    {
+      "id": "F02",
+      "family": "F",
+      "name": "Hero palette: Hadrian (near black and purple), fixed for the whole game",
+      "use_when": "every scene draws Hadrian from these three entries; the scene must adapt its ground, not the hero",
+      "confidence": "inference",
+      "source": "S3 S9",
+      "numbers": {
+        "entries": [
+          15,
+          3,
+          35
+        ],
+        "outline": 15,
+        "body": 3,
+        "accent": 35,
+        "body_row": 0,
+        "accent_row": 2,
+        "body_to_ground_min_rows": 2,
+        "ground_rows_that_clear": [
+          2,
+          3
+        ],
+        "ground_rows_that_merge": [
+          0,
+          1
+        ],
+        "body_vs_black_backdrop": {
+          "rows": 0,
+          "dlum": 0.0638,
+          "hues": 1
+        },
+        "body_vs_pale_white": {
+          "rows": 3,
+          "dlum": 0.9096,
+          "hues": 3
+        }
+      }
+    },
+    {
+      "id": "F03",
+      "family": "F",
+      "name": "Hero palette: Zander (light blue), fixed for the whole game",
+      "use_when": "every scene draws Zander from these three entries; the scene must adapt its ground, not the hero",
+      "confidence": "inference",
+      "source": "S3 S9",
+      "numbers": {
+        "entries": [
+          15,
+          49,
+          18
+        ],
+        "outline": 15,
+        "body": 49,
+        "accent": 18,
+        "body_row": 3,
+        "accent_row": 1,
+        "body_to_ground_min_rows": 2,
+        "ground_rows_that_clear": [
+          0,
+          1
+        ],
+        "ground_rows_that_merge": [
+          2,
+          3
+        ],
+        "body_vs_black_backdrop": {
+          "rows": 3,
+          "dlum": 0.7041,
+          "hues": -1
+        },
+        "body_vs_pale_white": {
+          "rows": 0,
+          "dlum": 0.2693,
+          "hues": 1
+        }
+      }
+    },
+    {
+      "id": "F04",
+      "family": "F",
+      "name": "Hero palette: Konrad (grey and amber), fixed for the whole game",
+      "use_when": "every scene draws Konrad from these three entries; the scene must adapt its ground, not the hero",
+      "confidence": "inference",
+      "source": "S3 S9",
+      "numbers": {
+        "entries": [
+          15,
+          45,
+          39
+        ],
+        "outline": 15,
+        "body": 45,
+        "accent": 39,
+        "body_row": 2,
+        "accent_row": 2,
+        "body_to_ground_min_rows": 2,
+        "ground_rows_that_clear": [
+          0
+        ],
+        "ground_rows_that_merge": [
+          1,
+          2,
+          3
+        ],
+        "body_vs_black_backdrop": {
+          "rows": 2,
+          "dlum": 0.1878,
+          "hues": 2
+        },
+        "body_vs_pale_white": {
+          "rows": 1,
+          "dlum": 0.7856,
+          "hues": 0
+        }
+      }
+    },
+    {
+      "id": "F05",
+      "family": "F",
+      "name": "The hero owns sprite palette zero in every scene",
+      "use_when": "so a scene can never spend slot zero on an NPC; NPCs and enemies take slots one to three",
+      "confidence": "inference",
+      "source": "S3 S9",
+      "numbers": {
+        "hero_slot": 0,
+        "slots_for_everything_else": 3,
+        "slots_total": 4,
+        "heroes_on_screen_at_once": 1,
+        "enemy_palettes_in_a_battle": 3
+      }
+    },
+    {
+      "id": "F06",
+      "family": "F",
+      "name": "The hero keeps his three entries when the scene changes",
+      "use_when": "a palette swap per scene makes the character read as a different character",
+      "confidence": "stated",
+      "source": "S3 S9",
+      "numbers": {
+        "entries_fixed": 3,
+        "scenes_sharing_them": 8,
+        "entries_a_scene_may_change_for_the_hero": 0,
+        "allowed_substitution": "none without a new palette decision"
+      }
+    },
+    {
+      "id": "G01",
+      "family": "G",
+      "name": "Blue against orange is the cheapest contrast we own",
+      "use_when": "hero against ground, lamp against night, sea against hull",
+      "confidence": "stated",
+      "source": "S1 S7",
+      "numbers": {
+        "hue_a": 2,
+        "hue_b": 7,
+        "wheel_distance": 5,
+        "half_wheel": 6,
+        "example_entries": [
+          2,
+          7
+        ],
+        "measured_dlum": 0.021,
+        "example_light_pair": [
+          18,
+          39
+        ],
+        "example_light_dlum": 0.3249
+      }
+    },
+    {
+      "id": "G02",
+      "family": "G",
+      "name": "Green against red is the second pair",
+      "use_when": "moss on iron, copper on stone, the sea chest in the wardroom",
+      "confidence": "stated",
+      "source": "S1 S7",
+      "numbers": {
+        "hue_a": 10,
+        "hue_b": 6,
+        "wheel_distance": 4,
+        "example_entries": [
+          10,
+          6
+        ],
+        "measured_dlum": 0.012,
+        "same_row": true
+      }
+    },
+    {
+      "id": "G03",
+      "family": "G",
+      "name": "Grey and black are the third member of any palette",
+      "use_when": "when a surface needs to sit next to any hue without arguing, spend one entry on grey",
+      "confidence": "stated",
+      "source": "S1",
+      "numbers": {
+        "entries_for_grey": [
+          0,
+          16,
+          32,
+          45
+        ],
+        "rows": [
+          0,
+          1,
+          2,
+          2
+        ],
+        "hues_named_grey": [
+          0,
+          13
+        ],
+        "verdict": "hue neutral"
+      }
+    },
+    {
+      "id": "G04",
+      "family": "G",
+      "name": "Two hue families per palette, maximum",
+      "use_when": "three entries: one family for the surface, one for the accent, and the outline",
+      "confidence": "inference",
+      "source": "S3",
+      "numbers": {
+        "entries": 3,
+        "hue_families_max": 2,
+        "outline_entries": 1,
+        "surface_entries": 1,
+        "accent_entries": 1
+      }
+    },
+    {
+      "id": "G05",
+      "family": "G",
+      "name": "Do not put rose next to red",
+      "use_when": "a one or two step hue move reads as a printing error, not as a second material",
+      "confidence": "inference",
+      "source": "S1",
+      "numbers": {
+        "min_hue_distance_for_a_second_material": 4,
+        "rose_vs_red": 1,
+        "magenta_vs_rose": 1,
+        "violet_vs_magenta": 1,
+        "verdict": "refused as a pair"
+      }
+    },
+    {
+      "id": "G06",
+      "family": "G",
+      "name": "Distance is carried by rows, material by hue",
+      "use_when": "far things lose a row and keep their hue; that is aerial perspective inside four rows",
+      "confidence": "inference",
+      "source": "S4 S7",
+      "numbers": {
+        "rows_near": 0,
+        "rows_far": 2,
+        "rows_step": "1 per 8 tiles of depth",
+        "hue_changes_allowed": 0,
+        "example_near": 2,
+        "example_far": 32
+      }
+    },
+    {
+      "id": "H01",
+      "family": "H",
+      "name": "Night is one row down, not a blue wash",
+      "use_when": "take the day palette and move each entry one row darker, keeping the hue",
+      "confidence": "inference",
+      "source": "S4 S8",
+      "numbers": {
+        "day_ground": [
+          16,
+          32,
+          48
+        ],
+        "night_ground": [
+          0,
+          16,
+          32
+        ],
+        "rows_moved": 1,
+        "hues_changed": 0,
+        "backdrop_day": 15,
+        "backdrop_night": 15
+      }
+    },
+    {
+      "id": "H02",
+      "family": "H",
+      "name": "Black backdrop plus a navy sky is the Mother and FF night",
+      "use_when": "the sky is an entry, the backdrop is black; the sky never becomes the backdrop at night",
+      "confidence": "inference",
+      "source": "S7 S8 S10",
+      "numbers": {
+        "backdrop": 15,
+        "sky_entries": [
+          2,
+          1,
+          12
+        ],
+        "sky_rows": [
+          0,
+          0,
+          0
+        ],
+        "lit_window_entry": 40,
+        "moonlight_entry": 32,
+        "note": "described from published screenshots and analyses, no image stored"
+      }
+    },
+    {
+      "id": "H03",
+      "family": "H",
+      "name": "One pale entry is the whole lamp budget",
+      "use_when": "a night scene may spend exactly one entry on a light source; use it for the lamp, the window, the eye",
+      "confidence": "inference",
+      "source": "S7 S8",
+      "numbers": {
+        "pale_entries_for_light": 1,
+        "entry": 40,
+        "row": 2,
+        "share_of_screen_max": "5 percent",
+        "second_light_source": "refused, reuse the first"
+      }
+    },
+    {
+      "id": "H04",
+      "family": "H",
+      "name": "Rim light, not fill light",
+      "use_when": "a night sprite keeps its body dark and puts the pale entry on one edge only",
+      "confidence": "inference",
+      "source": "S8",
+      "numbers": {
+        "body_row": 0,
+        "rim_row": 2,
+        "rim_px": 1,
+        "rims": 1,
+        "bodies": 1,
+        "measured_dlum_rim_vs_body": 0.9024
+      }
+    },
+    {
+      "id": "I01",
+      "family": "I",
+      "name": "Fade to black is four swaps, not a dimmer",
+      "use_when": "the PPU has no brightness register a game may use freely, so a fade is a palette rewrite",
+      "confidence": "inference",
+      "source": "S1 S4",
+      "numbers": {
+        "steps": 4,
+        "frames_per_step": 8,
+        "entries_rewritten_per_step": 25,
+        "frames_total": 32,
+        "end_state": "backdrop 15 everywhere"
+      }
+    },
+    {
+      "id": "I02",
+      "family": "I",
+      "name": "Flash is three entries to white for two frames",
+      "use_when": "a hit flash or a lightning strike rewrites the background palettes, it does not add a sprite",
+      "confidence": "inference",
+      "source": "S4",
+      "numbers": {
+        "frames": 2,
+        "entries_to_48": 12,
+        "sprites_left_alone": 12,
+        "example_white": 48,
+        "measured_dlum_48_vs_15": 0.9734
+      }
+    },
+    {
+      "id": "I03",
+      "family": "I",
+      "name": "Palette cycling is one entry rotating between two neighbours",
+      "use_when": "water, lava, neon, the title flash; rotate an entry and the shape animates for free",
+      "confidence": "stated",
+      "source": "S4 S11",
+      "numbers": {
+        "entries_in_cycle": 2,
+        "cycles_per_second": 8,
+        "frames_per_state": 8,
+        "example_pair": [
+          2,
+          18
+        ],
+        "hue_distance": 0,
+        "row_distance": 1
+      }
+    },
+    {
+      "id": "I04",
+      "family": "I",
+      "name": "Swap the backdrop alone for a lightning frame",
+      "use_when": "one byte changes and the whole screen changes, which is the cheapest effect on the console",
+      "confidence": "inference",
+      "source": "S1 S4",
+      "numbers": {
+        "bytes_written": 1,
+        "address": "0x3F00",
+        "frames": 2,
+        "backdrop_before": 15,
+        "backdrop_after": 48
+      }
+    },
+    {
+      "id": "J01",
+      "family": "J",
+      "name": "Every object a palette of its own",
+      "use_when": "four background palettes is the hardware, not a preference",
+      "confidence": "stated",
+      "source": "S2",
+      "numbers": {
+        "objects_typical_in_a_room": 15,
+        "background_palettes": 4,
+        "objects_per_palette": 3.75,
+        "verdict": "group by material, not by object"
+      }
+    },
+    {
+      "id": "J02",
+      "family": "J",
+      "name": "Sprite and ground on the same row",
+      "use_when": "the failure our checker should catch first",
+      "confidence": "derived",
+      "source": "S1 S3",
+      "numbers": {
+        "row_gap": 0,
+        "measured_dlum_median_same_row": 0.0961,
+        "measured_dlum_min_same_row": 0.0002,
+        "verdict": "refused"
+      }
+    },
+    {
+      "id": "J03",
+      "family": "J",
+      "name": "Five or more colours in one sixteen by sixteen",
+      "use_when": "a checker that counts past three plus the backdrop has found a real bug",
+      "confidence": "stated",
+      "source": "S2 S13",
+      "numbers": {
+        "limit": 3,
+        "plus_backdrop": 1,
+        "measured_failure_in_our_own_previews": 9694,
+        "source": "knowledge/NES-AUDIT.md, advisory sheet failures"
+      }
+    },
+    {
+      "id": "J04",
+      "family": "J",
+      "name": "Pastel mush: three entries on row three",
+      "use_when": "three pale entries cannot make a shape; nothing is darker than anything",
+      "confidence": "derived",
+      "source": "S1",
+      "numbers": {
+        "entries_rows": [
+          3,
+          3,
+          3
+        ],
+        "rows_spanned": 1,
+        "row_gap": 0,
+        "verdict": "refused",
+        "maximum_rows_a_palette_should_span": 3
+      }
+    },
+    {
+      "id": "J05",
+      "family": "J",
+      "name": "Black as a background entry and as the backdrop",
+      "use_when": "the drawn black and the empty black become one shape, and the art loses its holes",
+      "confidence": "inference",
+      "source": "S3",
+      "numbers": {
+        "backdrop": 15,
+        "background_entry": 15,
+        "entries_wasted": 1,
+        "verdict": "allowed only for shadows"
+      }
+    },
+    {
+      "id": "J06",
+      "family": "J",
+      "name": "Three rows of one hue",
+      "use_when": "a palette that only steps in brightness reads as a flat surface with a gradient",
+      "confidence": "derived",
+      "source": "S1 S3",
+      "numbers": {
+        "entries": 3,
+        "hues": 1,
+        "rows": 3,
+        "verdict": "add one hue family",
+        "example_flat": [
+          2,
+          18,
+          33
+        ]
+      }
+    },
+    {
+      "id": "K01",
+      "family": "K",
+      "name": "Count the distinct colours in the frame",
+      "use_when": "a finished screenshot must measure 25 or fewer",
+      "confidence": "stated",
+      "source": "S2 S13",
+      "numbers": {
+        "ceiling": 25,
+        "background": 12,
+        "sprites": 12,
+        "backdrop": 1,
+        "how": "tools/nes_composite_check.py"
+      }
+    },
+    {
+      "id": "K02",
+      "family": "K",
+      "name": "Every sixteen by sixteen area carries three plus the backdrop",
+      "use_when": "run this before the palette is called final; it is the rule most amateur art breaks",
+      "confidence": "stated",
+      "source": "S2",
+      "numbers": {
+        "limit": 3,
+        "backdrop_extra": 1,
+        "areas_per_frame": 240
+      }
+    },
+    {
+      "id": "K03",
+      "family": "K",
+      "name": "Sprite body against every background it walks on",
+      "use_when": "a sprite is checked against each of the four background palettes, not against the screen average",
+      "confidence": "derived",
+      "source": "S3",
+      "numbers": {
+        "pairs_checked": 4,
+        "min_rows": 2,
+        "report_min_gap": true,
+        "fail_action": "change the ground palette, not the hero"
+      }
+    }
+  ],
+  "scene_sets": [
+    {
+      "scene": "night_m3_drive",
+      "status": "proposal",
+      "backdrop": {
+        "index": 15,
+        "code": "$0F",
+        "hex": "#000000",
+        "row": 0,
+        "hue": "black",
+        "lum": 0.0
+      },
+      "background": [
+        {
+          "name": "bg0",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 1,
+              "code": "$01",
+              "hex": "#0000fc",
+              "row": 0,
+              "hue": "azure",
+              "lum": 0.0703
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        },
+        {
+          "name": "bg1",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            }
+          ]
+        },
+        {
+          "name": "bg2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "bg3",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            }
+          ]
+        }
+      ],
+      "sprites": [
+        {
+          "name": "sp0",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 34,
+              "code": "$22",
+              "hex": "#6888fc",
+              "row": 2,
+              "hue": "blue",
+              "lum": 0.2758
+            },
+            {
+              "index": 56,
+              "code": "$38",
+              "hex": "#f8d878",
+              "row": 3,
+              "hue": "yellow",
+              "lum": 0.7042
+            }
+          ]
+        },
+        {
+          "name": "sp1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            }
+          ]
+        },
+        {
+          "name": "sp2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "sp3",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprite_notes": {
+        "sp0": "hero slot: Percy",
+        "sp1": "NPC",
+        "sp2": "enemy",
+        "sp3": "prop or vehicle"
+      },
+      "walkable_background": [
+        "bg1"
+      ],
+      "ground_plate": {
+        "index": 15,
+        "code": "$0F",
+        "hex": "#000000",
+        "row": 0,
+        "hue": "black",
+        "lum": 0.0
+      },
+      "note": "the motorway at night from the car: navy sky, black road, warm lamp glint, cold wing mirror; the plate is the black asphalt",
+      "hero_separation": {
+        "hero": "Percy",
+        "body": {
+          "index": 34,
+          "code": "$22",
+          "hex": "#6888fc",
+          "row": 2,
+          "hue": "blue",
+          "lum": 0.2758
+        },
+        "accent": {
+          "index": 56,
+          "code": "$38",
+          "hex": "#f8d878",
+          "row": 3,
+          "hue": "yellow",
+          "lum": 0.7042
+        },
+        "checked_against": "the ground plate only, entry 15",
+        "rule_min_rows": 2,
+        "min_rows": 2,
+        "min_dlum": 0.2758,
+        "passes_row_rule": true,
+        "passes_measured_0_20": true,
+        "whole_run_gap_rows": 1
+      },
+      "all_heroes_row_gap_on_plate": {
+        "Percy": 2,
+        "Hadrian": 0,
+        "Zander": 3,
+        "Konrad": 2
+      },
+      "distinct_colours": 12,
+      "ceiling": 25,
+      "within_ceiling": true
+    },
+    {
+      "scene": "london_street_night",
+      "status": "proposal",
+      "backdrop": {
+        "index": 15,
+        "code": "$0F",
+        "hex": "#000000",
+        "row": 0,
+        "hue": "black",
+        "lum": 0.0
+      },
+      "background": [
+        {
+          "name": "bg0",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 1,
+              "code": "$01",
+              "hex": "#0000fc",
+              "row": 0,
+              "hue": "azure",
+              "lum": 0.0703
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "bg1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            }
+          ]
+        },
+        {
+          "name": "bg2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "bg3",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 8,
+              "code": "$08",
+              "hex": "#503000",
+              "row": 0,
+              "hue": "yellow",
+              "lum": 0.0382
+            },
+            {
+              "index": 39,
+              "code": "$27",
+              "hex": "#fca044",
+              "row": 2,
+              "hue": "orange",
+              "lum": 0.4625
+            }
+          ]
+        }
+      ],
+      "sprites": [
+        {
+          "name": "sp0",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 34,
+              "code": "$22",
+              "hex": "#6888fc",
+              "row": 2,
+              "hue": "blue",
+              "lum": 0.2758
+            },
+            {
+              "index": 56,
+              "code": "$38",
+              "hex": "#f8d878",
+              "row": 3,
+              "hue": "yellow",
+              "lum": 0.7042
+            }
+          ]
+        },
+        {
+          "name": "sp1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            }
+          ]
+        },
+        {
+          "name": "sp2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "sp3",
+          "entries": [
+            {
+              "index": 3,
+              "code": "$03",
+              "hex": "#4428bc",
+              "row": 0,
+              "hue": "violet",
+              "lum": 0.0638
+            },
+            {
+              "index": 35,
+              "code": "$23",
+              "hex": "#9878f8",
+              "row": 2,
+              "hue": "violet",
+              "lum": 0.2689
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprite_notes": {
+        "sp0": "hero slot: Percy",
+        "sp1": "NPC",
+        "sp2": "enemy",
+        "sp3": "prop or vehicle"
+      },
+      "walkable_background": [
+        "bg1"
+      ],
+      "ground_plate": {
+        "index": 0,
+        "code": "$00",
+        "hex": "#7c7c7c",
+        "row": 0,
+        "hue": "grey",
+        "lum": 0.2016
+      },
+      "note": "a wet street at night: navy sky, dark grey pavement, warm shop light, ironwork; the plate is the dark grey paving",
+      "hero_separation": {
+        "hero": "Percy",
+        "body": {
+          "index": 34,
+          "code": "$22",
+          "hex": "#6888fc",
+          "row": 2,
+          "hue": "blue",
+          "lum": 0.2758
+        },
+        "accent": {
+          "index": 56,
+          "code": "$38",
+          "hex": "#f8d878",
+          "row": 3,
+          "hue": "yellow",
+          "lum": 0.7042
+        },
+        "checked_against": "the ground plate only, entry 0",
+        "rule_min_rows": 2,
+        "min_rows": 2,
+        "min_dlum": 0.0742,
+        "passes_row_rule": true,
+        "passes_measured_0_20": false,
+        "whole_run_gap_rows": 1
+      },
+      "all_heroes_row_gap_on_plate": {
+        "Percy": 2,
+        "Hadrian": 0,
+        "Zander": 3,
+        "Konrad": 2
+      },
+      "distinct_colours": 16,
+      "ceiling": 25,
+      "within_ceiling": true
+    },
+    {
+      "scene": "southampton_quay_morning",
+      "status": "existing data/palettes/scene_southampton.json",
+      "backdrop": {
+        "index": 15,
+        "code": "$0F",
+        "hex": "#000000",
+        "row": 0,
+        "hue": "black",
+        "lum": 0.0
+      },
+      "background": [
+        {
+          "name": "bg0",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        },
+        {
+          "name": "bg1",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "bg2",
+          "entries": [
+            {
+              "index": 9,
+              "code": "$09",
+              "hex": "#007800",
+              "row": 0,
+              "hue": "chartreuse",
+              "lum": 0.1343
+            },
+            {
+              "index": 10,
+              "code": "$0A",
+              "hex": "#006800",
+              "row": 0,
+              "hue": "green",
+              "lum": 0.099
+            },
+            {
+              "index": 42,
+              "code": "$2A",
+              "hex": "#58d854",
+              "row": 2,
+              "hue": "green",
+              "lum": 0.5183
+            }
+          ]
+        },
+        {
+          "name": "bg3",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprites": [
+        {
+          "name": "sp0",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 34,
+              "code": "$22",
+              "hex": "#6888fc",
+              "row": 2,
+              "hue": "blue",
+              "lum": 0.2758
+            },
+            {
+              "index": 56,
+              "code": "$38",
+              "hex": "#f8d878",
+              "row": 3,
+              "hue": "yellow",
+              "lum": 0.7042
+            }
+          ]
+        },
+        {
+          "name": "sp1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            }
+          ]
+        },
+        {
+          "name": "sp2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "sp3",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprite_notes": {
+        "sp0": "hero slot: Percy",
+        "sp1": "NPC",
+        "sp2": "enemy",
+        "sp3": "prop or vehicle"
+      },
+      "walkable_background": [
+        "bg0"
+      ],
+      "ground_plate": {
+        "index": 0,
+        "code": "$00",
+        "hex": "#7c7c7c",
+        "row": 0,
+        "hue": "grey",
+        "lum": 0.2016
+      },
+      "note": "the quay in the morning: pale sky, rust and rope, harbour green, cold water; the plate is the wet dark stone of the quay, which is what clears Percy's row 2 body by two rows",
+      "hero_separation": {
+        "hero": "Percy",
+        "body": {
+          "index": 34,
+          "code": "$22",
+          "hex": "#6888fc",
+          "row": 2,
+          "hue": "blue",
+          "lum": 0.2758
+        },
+        "accent": {
+          "index": 56,
+          "code": "$38",
+          "hex": "#f8d878",
+          "row": 3,
+          "hue": "yellow",
+          "lum": 0.7042
+        },
+        "checked_against": "the ground plate only, entry 0",
+        "rule_min_rows": 2,
+        "min_rows": 2,
+        "min_dlum": 0.0742,
+        "passes_row_rule": true,
+        "passes_measured_0_20": false,
+        "whole_run_gap_rows": 1
+      },
+      "all_heroes_row_gap_on_plate": {
+        "Percy": 2,
+        "Hadrian": 0,
+        "Zander": 3,
+        "Konrad": 2
+      },
+      "distinct_colours": 14,
+      "ceiling": 25,
+      "within_ceiling": true
+    },
+    {
+      "scene": "ship_corridor",
+      "status": "existing data/palettes/scene_battle_corridor.json",
+      "backdrop": {
+        "index": 15,
+        "code": "$0F",
+        "hex": "#000000",
+        "row": 0,
+        "hue": "black",
+        "lum": 0.0
+      },
+      "background": [
+        {
+          "name": "bg0",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            }
+          ]
+        },
+        {
+          "name": "bg1",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            }
+          ]
+        },
+        {
+          "name": "bg2",
+          "entries": [
+            {
+              "index": 22,
+              "code": "$16",
+              "hex": "#f83800",
+              "row": 1,
+              "hue": "red",
+              "lum": 0.2278
+            },
+            {
+              "index": 6,
+              "code": "$06",
+              "hex": "#a81000",
+              "row": 0,
+              "hue": "red",
+              "lum": 0.087
+            },
+            {
+              "index": 38,
+              "code": "$26",
+              "hex": "#f87858",
+              "row": 2,
+              "hue": "red",
+              "lum": 0.3409
+            }
+          ]
+        },
+        {
+          "name": "bg3",
+          "entries": [
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            }
+          ]
+        }
+      ],
+      "sprites": [
+        {
+          "name": "sp0",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 3,
+              "code": "$03",
+              "hex": "#4428bc",
+              "row": 0,
+              "hue": "violet",
+              "lum": 0.0638
+            },
+            {
+              "index": 35,
+              "code": "$23",
+              "hex": "#9878f8",
+              "row": 2,
+              "hue": "violet",
+              "lum": 0.2689
+            }
+          ]
+        },
+        {
+          "name": "sp1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            }
+          ]
+        },
+        {
+          "name": "sp2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "sp3",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprite_notes": {
+        "sp0": "hero slot: Hadrian",
+        "sp1": "NPC",
+        "sp2": "enemy",
+        "sp3": "prop or vehicle"
+      },
+      "walkable_background": [
+        "bg1"
+      ],
+      "ground_plate": {
+        "index": 0,
+        "code": "$00",
+        "hex": "#7c7c7c",
+        "row": 0,
+        "hue": "grey",
+        "lum": 0.2016
+      },
+      "note": "the corridor: steel plate, blue deck shadow, red hatch, pale pipe run; the deck as specced has no entry that clears Hadrian's row 0 body, so this row fails and the fix is in the card's Q: line",
+      "hero_separation": {
+        "hero": "Hadrian",
+        "body": {
+          "index": 3,
+          "code": "$03",
+          "hex": "#4428bc",
+          "row": 0,
+          "hue": "violet",
+          "lum": 0.0638
+        },
+        "accent": {
+          "index": 35,
+          "code": "$23",
+          "hex": "#9878f8",
+          "row": 2,
+          "hue": "violet",
+          "lum": 0.2689
+        },
+        "checked_against": "the ground plate only, entry 0",
+        "rule_min_rows": 2,
+        "min_rows": 0,
+        "min_dlum": 0.1378,
+        "passes_row_rule": false,
+        "passes_measured_0_20": false,
+        "whole_run_gap_rows": 0
+      },
+      "all_heroes_row_gap_on_plate": {
+        "Percy": 2,
+        "Hadrian": 0,
+        "Zander": 3,
+        "Konrad": 2
+      },
+      "distinct_colours": 14,
+      "ceiling": 25,
+      "within_ceiling": true
+    },
+    {
+      "scene": "wardroom",
+      "status": "existing data/palettes/scene_battle_wardroom.json",
+      "backdrop": {
+        "index": 15,
+        "code": "$0F",
+        "hex": "#000000",
+        "row": 0,
+        "hue": "black",
+        "lum": 0.0
+      },
+      "background": [
+        {
+          "name": "bg0",
+          "entries": [
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "bg1",
+          "entries": [
+            {
+              "index": 8,
+              "code": "$08",
+              "hex": "#503000",
+              "row": 0,
+              "hue": "yellow",
+              "lum": 0.0382
+            },
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            }
+          ]
+        },
+        {
+          "name": "bg2",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 1,
+              "code": "$01",
+              "hex": "#0000fc",
+              "row": 0,
+              "hue": "azure",
+              "lum": 0.0703
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        },
+        {
+          "name": "bg3",
+          "entries": [
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        }
+      ],
+      "sprites": [
+        {
+          "name": "sp0",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 45,
+              "code": "$2D",
+              "hex": "#787878",
+              "row": 2,
+              "hue": "dark grey",
+              "lum": 0.1878
+            },
+            {
+              "index": 39,
+              "code": "$27",
+              "hex": "#fca044",
+              "row": 2,
+              "hue": "orange",
+              "lum": 0.4625
+            }
+          ]
+        },
+        {
+          "name": "sp1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            }
+          ]
+        },
+        {
+          "name": "sp2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "sp3",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprite_notes": {
+        "sp0": "hero slot: Konrad",
+        "sp1": "NPC",
+        "sp2": "enemy",
+        "sp3": "prop or vehicle"
+      },
+      "walkable_background": [
+        "bg1"
+      ],
+      "ground_plate": {
+        "index": 8,
+        "code": "$08",
+        "hex": "#503000",
+        "row": 0,
+        "hue": "yellow",
+        "lum": 0.0382
+      },
+      "note": "the wardroom: lamp amber on wood, brown shadow under the table, cold window, white cloth; the plate is the dark brown floor shadow",
+      "hero_separation": {
+        "hero": "Konrad",
+        "body": {
+          "index": 45,
+          "code": "$2D",
+          "hex": "#787878",
+          "row": 2,
+          "hue": "dark grey",
+          "lum": 0.1878
+        },
+        "accent": {
+          "index": 39,
+          "code": "$27",
+          "hex": "#fca044",
+          "row": 2,
+          "hue": "orange",
+          "lum": 0.4625
+        },
+        "checked_against": "the ground plate only, entry 8",
+        "rule_min_rows": 2,
+        "min_rows": 2,
+        "min_dlum": 0.1496,
+        "passes_row_rule": true,
+        "passes_measured_0_20": false,
+        "whole_run_gap_rows": 1
+      },
+      "all_heroes_row_gap_on_plate": {
+        "Percy": 2,
+        "Hadrian": 0,
+        "Zander": 3,
+        "Konrad": 2
+      },
+      "distinct_colours": 13,
+      "ceiling": 25,
+      "within_ceiling": true
+    },
+    {
+      "scene": "engine_room",
+      "status": "proposal",
+      "backdrop": {
+        "index": 15,
+        "code": "$0F",
+        "hex": "#000000",
+        "row": 0,
+        "hue": "black",
+        "lum": 0.0
+      },
+      "background": [
+        {
+          "name": "bg0",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            }
+          ]
+        },
+        {
+          "name": "bg1",
+          "entries": [
+            {
+              "index": 22,
+              "code": "$16",
+              "hex": "#f83800",
+              "row": 1,
+              "hue": "red",
+              "lum": 0.2278
+            },
+            {
+              "index": 6,
+              "code": "$06",
+              "hex": "#a81000",
+              "row": 0,
+              "hue": "red",
+              "lum": 0.087
+            },
+            {
+              "index": 38,
+              "code": "$26",
+              "hex": "#f87858",
+              "row": 2,
+              "hue": "red",
+              "lum": 0.3409
+            }
+          ]
+        },
+        {
+          "name": "bg2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "bg3",
+          "entries": [
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 39,
+              "code": "$27",
+              "hex": "#fca044",
+              "row": 2,
+              "hue": "orange",
+              "lum": 0.4625
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        }
+      ],
+      "sprites": [
+        {
+          "name": "sp0",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 45,
+              "code": "$2D",
+              "hex": "#787878",
+              "row": 2,
+              "hue": "dark grey",
+              "lum": 0.1878
+            },
+            {
+              "index": 39,
+              "code": "$27",
+              "hex": "#fca044",
+              "row": 2,
+              "hue": "orange",
+              "lum": 0.4625
+            }
+          ]
+        },
+        {
+          "name": "sp1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            }
+          ]
+        },
+        {
+          "name": "sp2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "sp3",
+          "entries": [
+            {
+              "index": 22,
+              "code": "$16",
+              "hex": "#f83800",
+              "row": 1,
+              "hue": "red",
+              "lum": 0.2278
+            },
+            {
+              "index": 38,
+              "code": "$26",
+              "hex": "#f87858",
+              "row": 2,
+              "hue": "red",
+              "lum": 0.3409
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprite_notes": {
+        "sp0": "hero slot: Konrad",
+        "sp1": "NPC",
+        "sp2": "enemy",
+        "sp3": "prop or vehicle"
+      },
+      "walkable_background": [
+        "bg0"
+      ],
+      "ground_plate": {
+        "index": 0,
+        "code": "$00",
+        "hex": "#7c7c7c",
+        "row": 0,
+        "hue": "grey",
+        "lum": 0.2016
+      },
+      "note": "the engine room: grey iron, hazard red, brass pipe run, lamp amber; the hottest scene in the game, so the hero keeps his grey body and takes the amber as rim",
+      "hero_separation": {
+        "hero": "Konrad",
+        "body": {
+          "index": 45,
+          "code": "$2D",
+          "hex": "#787878",
+          "row": 2,
+          "hue": "dark grey",
+          "lum": 0.1878
+        },
+        "accent": {
+          "index": 39,
+          "code": "$27",
+          "hex": "#fca044",
+          "row": 2,
+          "hue": "orange",
+          "lum": 0.4625
+        },
+        "checked_against": "the ground plate only, entry 0",
+        "rule_min_rows": 2,
+        "min_rows": 2,
+        "min_dlum": 0.0138,
+        "passes_row_rule": true,
+        "passes_measured_0_20": false,
+        "whole_run_gap_rows": 1
+      },
+      "all_heroes_row_gap_on_plate": {
+        "Percy": 2,
+        "Hadrian": 0,
+        "Zander": 3,
+        "Konrad": 2
+      },
+      "distinct_colours": 13,
+      "ceiling": 25,
+      "within_ceiling": true
+    },
+    {
+      "scene": "bridge",
+      "status": "proposal",
+      "backdrop": {
+        "index": 15,
+        "code": "$0F",
+        "hex": "#000000",
+        "row": 0,
+        "hue": "black",
+        "lum": 0.0
+      },
+      "background": [
+        {
+          "name": "bg0",
+          "entries": [
+            {
+              "index": 1,
+              "code": "$01",
+              "hex": "#0000fc",
+              "row": 0,
+              "hue": "azure",
+              "lum": 0.0703
+            },
+            {
+              "index": 17,
+              "code": "$11",
+              "hex": "#0078f8",
+              "row": 1,
+              "hue": "azure",
+              "lum": 0.2021
+            },
+            {
+              "index": 33,
+              "code": "$21",
+              "hex": "#3cbcfc",
+              "row": 2,
+              "hue": "azure",
+              "lum": 0.4396
+            }
+          ]
+        },
+        {
+          "name": "bg1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        },
+        {
+          "name": "bg2",
+          "entries": [
+            {
+              "index": 12,
+              "code": "$0C",
+              "hex": "#004058",
+              "row": 0,
+              "hue": "cyan",
+              "lum": 0.0437
+            },
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            }
+          ]
+        },
+        {
+          "name": "bg3",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 8,
+              "code": "$08",
+              "hex": "#503000",
+              "row": 0,
+              "hue": "yellow",
+              "lum": 0.0382
+            },
+            {
+              "index": 39,
+              "code": "$27",
+              "hex": "#fca044",
+              "row": 2,
+              "hue": "orange",
+              "lum": 0.4625
+            }
+          ]
+        }
+      ],
+      "sprites": [
+        {
+          "name": "sp0",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 49,
+              "code": "$31",
+              "hex": "#a4e4fc",
+              "row": 3,
+              "hue": "azure",
+              "lum": 0.7041
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            }
+          ]
+        },
+        {
+          "name": "sp1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            }
+          ]
+        },
+        {
+          "name": "sp2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "sp3",
+          "entries": [
+            {
+              "index": 19,
+              "code": "$13",
+              "hex": "#6844fc",
+              "row": 1,
+              "hue": "violet",
+              "lum": 0.1411
+            },
+            {
+              "index": 35,
+              "code": "$23",
+              "hex": "#9878f8",
+              "row": 2,
+              "hue": "violet",
+              "lum": 0.2689
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprite_notes": {
+        "sp0": "hero slot: Zander",
+        "sp1": "NPC",
+        "sp2": "enemy",
+        "sp3": "prop or vehicle"
+      },
+      "walkable_background": [
+        "bg1"
+      ],
+      "ground_plate": {
+        "index": 0,
+        "code": "$00",
+        "hex": "#7c7c7c",
+        "row": 0,
+        "hue": "grey",
+        "lum": 0.2016
+      },
+      "note": "the bridge: night sea through the glass, pale instrument card, teal depth, brass fitting; the plate is the dark deck",
+      "hero_separation": {
+        "hero": "Zander",
+        "body": {
+          "index": 49,
+          "code": "$31",
+          "hex": "#a4e4fc",
+          "row": 3,
+          "hue": "azure",
+          "lum": 0.7041
+        },
+        "accent": {
+          "index": 18,
+          "code": "$12",
+          "hex": "#0058f8",
+          "row": 1,
+          "hue": "blue",
+          "lum": 0.1376
+        },
+        "checked_against": "the ground plate only, entry 0",
+        "rule_min_rows": 2,
+        "min_rows": 3,
+        "min_dlum": 0.5025,
+        "passes_row_rule": true,
+        "passes_measured_0_20": true,
+        "whole_run_gap_rows": 0
+      },
+      "all_heroes_row_gap_on_plate": {
+        "Percy": 2,
+        "Hadrian": 0,
+        "Zander": 3,
+        "Konrad": 2
+      },
+      "distinct_colours": 18,
+      "ceiling": 25,
+      "within_ceiling": true
+    },
+    {
+      "scene": "battle_background",
+      "status": "existing data/palettes/scene_battle_*.json, four strips",
+      "backdrop": {
+        "index": 15,
+        "code": "$0F",
+        "hex": "#000000",
+        "row": 0,
+        "hue": "black",
+        "lum": 0.0
+      },
+      "background": [
+        {
+          "name": "bg0",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        },
+        {
+          "name": "bg1",
+          "entries": [
+            {
+              "index": 2,
+              "code": "$02",
+              "hex": "#0000bc",
+              "row": 0,
+              "hue": "blue",
+              "lum": 0.0363
+            },
+            {
+              "index": 18,
+              "code": "$12",
+              "hex": "#0058f8",
+              "row": 1,
+              "hue": "blue",
+              "lum": 0.1376
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        },
+        {
+          "name": "bg2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "bg3",
+          "entries": [
+            {
+              "index": 22,
+              "code": "$16",
+              "hex": "#f83800",
+              "row": 1,
+              "hue": "red",
+              "lum": 0.2278
+            },
+            {
+              "index": 38,
+              "code": "$26",
+              "hex": "#f87858",
+              "row": 2,
+              "hue": "red",
+              "lum": 0.3409
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprites": [
+        {
+          "name": "sp0",
+          "entries": [
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            },
+            {
+              "index": 34,
+              "code": "$22",
+              "hex": "#6888fc",
+              "row": 2,
+              "hue": "blue",
+              "lum": 0.2758
+            },
+            {
+              "index": 56,
+              "code": "$38",
+              "hex": "#f8d878",
+              "row": 3,
+              "hue": "yellow",
+              "lum": 0.7042
+            }
+          ]
+        },
+        {
+          "name": "sp1",
+          "entries": [
+            {
+              "index": 0,
+              "code": "$00",
+              "hex": "#7c7c7c",
+              "row": 0,
+              "hue": "grey",
+              "lum": 0.2016
+            },
+            {
+              "index": 16,
+              "code": "$10",
+              "hex": "#bcbcbc",
+              "row": 1,
+              "hue": "grey",
+              "lum": 0.5029
+            },
+            {
+              "index": 15,
+              "code": "$0F",
+              "hex": "#000000",
+              "row": 0,
+              "hue": "black",
+              "lum": 0.0
+            }
+          ]
+        },
+        {
+          "name": "sp2",
+          "entries": [
+            {
+              "index": 7,
+              "code": "$07",
+              "hex": "#881400",
+              "row": 0,
+              "hue": "orange",
+              "lum": 0.0573
+            },
+            {
+              "index": 23,
+              "code": "$17",
+              "hex": "#e45c10",
+              "row": 1,
+              "hue": "orange",
+              "lum": 0.2419
+            },
+            {
+              "index": 40,
+              "code": "$28",
+              "hex": "#f8b800",
+              "row": 2,
+              "hue": "yellow",
+              "lum": 0.5424
+            }
+          ]
+        },
+        {
+          "name": "sp3",
+          "entries": [
+            {
+              "index": 22,
+              "code": "$16",
+              "hex": "#f83800",
+              "row": 1,
+              "hue": "red",
+              "lum": 0.2278
+            },
+            {
+              "index": 38,
+              "code": "$26",
+              "hex": "#f87858",
+              "row": 2,
+              "hue": "red",
+              "lum": 0.3409
+            },
+            {
+              "index": 48,
+              "code": "$30",
+              "hex": "#fcfcfc",
+              "row": 3,
+              "hue": "grey",
+              "lum": 0.9734
+            }
+          ]
+        }
+      ],
+      "sprite_notes": {
+        "sp0": "hero slot: Percy",
+        "sp1": "NPC",
+        "sp2": "enemy",
+        "sp3": "prop or vehicle"
+      },
+      "walkable_background": [
+        "bg1"
+      ],
+      "ground_plate": {
+        "index": 2,
+        "code": "$02",
+        "hex": "#0000bc",
+        "row": 0,
+        "hue": "blue",
+        "lum": 0.0363
+      },
+      "note": "the shared frame of the four battle strips: sea and steel, night blue, rust and rope, enemy red; the plate is the blue deck shadow",
+      "hero_separation": {
+        "hero": "Percy",
+        "body": {
+          "index": 34,
+          "code": "$22",
+          "hex": "#6888fc",
+          "row": 2,
+          "hue": "blue",
+          "lum": 0.2758
+        },
+        "accent": {
+          "index": 56,
+          "code": "$38",
+          "hex": "#f8d878",
+          "row": 3,
+          "hue": "yellow",
+          "lum": 0.7042
+        },
+        "checked_against": "the ground plate only, entry 2",
+        "rule_min_rows": 2,
+        "min_rows": 2,
+        "min_dlum": 0.2395,
+        "passes_row_rule": true,
+        "passes_measured_0_20": true,
+        "whole_run_gap_rows": 1
+      },
+      "all_heroes_row_gap_on_plate": {
+        "Percy": 2,
+        "Hadrian": 0,
+        "Zander": 3,
+        "Konrad": 2
+      },
+      "distinct_colours": 13,
+      "ceiling": 25,
+      "within_ceiling": true
+    }
+  ],
+  "counts": {
+    "recipes": 57,
+    "scene_sets": 8,
+    "families": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K"
+    ],
+    "recipes_with_numbers": 57
+  }
+}
