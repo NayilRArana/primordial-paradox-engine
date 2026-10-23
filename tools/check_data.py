@@ -58,6 +58,12 @@ SEMANTIC_ROLES = ("ink", "paper", "dim", "accent", "marker", "marker_trail", "ha
 MAX_FLAGS = 200
 MAX_FLAG_LEN = 32
 LINE_CHARS = 30
+# Spec 18 section 1: at most four phase rows per enemy, and a breakpoint is a percent of max_hp compared in integers
+# (section 8 P3), so 1 to 99 and never absolute hp. Spec 18 section 6 consequence 1 lets a phase row raise the attack
+# inside the enemy's own band and calls that not a rule change; spec 07 line 32 writes Percy's band, 3 to 6. A regular
+# enemy has no band written anywhere, so a phase row on one that carries an attack is refused instead of guessed at.
+PHASE_ROWS_MAX = 4
+PHASE_ATTACK_BAND = (3, 6)
 PAGES = 3
 # Dialogue v2 (decision D2, 2026-10-22). A page is one row or three of them, a page holds at most three lines, and an
 # entry holds at most three pages; a choice label is the 96 pixel panel's column. These four numbers are the ones the
@@ -916,10 +922,68 @@ class Checker:
                         self.in_range(count, 1, 99, filename, reward_path + ".count")
             else:
                 self.error(filename, path + ".rewards", "missing required field")
+            phases = self.want(row, "phases", "list", filename, path)
+            if phases is not None:
+                self.check_enemy_phases(phases, path, kind, patterns, ids)
             if isinstance(name, str):
                 if name in ids["enemy"] and ids["enemy"][name] is not row:
                     self.error(filename, path + ".id", "duplicate id %r" % name)
                 ids["enemy"][name] = row
+
+    def check_enemy_phases(self, phases, path, kind, pool, ids):
+        """Spec 18 section 7 refusals 1 and 2, and the attack band: the phase list is data, so every fault lives here.
+
+        A breakpoint is a percent of max_hp compared in integers (section 8 P3), which is why the range is 1 to 99 and
+        not an hp number: halving max_hp in data has to keep every band where it was. Rows are strictly descending and
+        at most PHASE_ROWS_MAX. A pattern id must exist in data/patterns/all.json and must not already be in the pool
+        above the row, because a crossing that adds a pattern the fight already has draws no change. The attack is
+        optional; when a row carries one it must stay inside PHASE_ATTACK_BAND, and the enemy must be a boss, because
+        the band spec 07 writes is Percy's.
+        """
+        filename = "data/enemies/all.json"
+        if len(phases) > PHASE_ROWS_MAX:
+            self.error(filename, path + ".phases",
+                       "%d rows, and spec 18 section 1 allows at most %d" % (len(phases), PHASE_ROWS_MAX))
+        above = [pattern_id for pattern_id in (pool or []) if isinstance(pattern_id, str)]
+        previous = None
+        for phase_index, phase in enumerate(phases):
+            where = "%s.phases[%d]" % (path, phase_index)
+            if not isinstance(phase, dict):
+                self.error(filename, where, "must be an object")
+                continue
+            threshold = self.require(phase, "hp_at_or_below", "int", filename, where)
+            if threshold is not None and self.in_range(threshold, 1, 99, filename, where + ".hp_at_or_below"):
+                if previous is not None and threshold >= previous:
+                    extra = "; a duplicate threshold" if threshold == previous else ""
+                    self.error(filename, where + ".hp_at_or_below",
+                               "%d percent is not below the row above it at %d percent, so the crossings are not "
+                               "strictly descending%s" % (threshold, previous, extra))
+                previous = threshold
+            pattern_id = self.require(phase, "pattern_id", "str", filename, where)
+            if pattern_id is not None:
+                if pattern_id in above:
+                    self.error(filename, where + ".pattern_id",
+                               "%r is already in the pool above this row, so this crossing would draw no change"
+                               % (pattern_id,))
+                else:
+                    self.ref(ids, "pattern", pattern_id, filename, where + ".pattern_id")
+                    above.append(pattern_id)
+            attack = self.want(phase, "attack", "dict", filename, where)
+            if attack is not None:
+                low = self.require(attack, "min", "int", filename, where + ".attack")
+                high = self.require(attack, "max", "int", filename, where + ".attack")
+                if low is not None and high is not None and low > high:
+                    self.error(filename, where + ".attack", "min %s is above max %s" % (low, high))
+                if kind != "boss":
+                    self.error(filename, where + ".attack",
+                               "a phase row may only raise the attack on a route_kind boss, and no spec writes a band "
+                               "for a regular enemy")
+                band_low, band_high = PHASE_ATTACK_BAND
+                for label, value in (("min", low), ("max", high)):
+                    if value is not None and (value < band_low or value > band_high):
+                        self.error(filename, where + ".attack." + label,
+                                   "%s is outside the spec 07 band %s to %s (PHASE_ATTACK_BAND)"
+                                   % (value, band_low, band_high))
 
     def check_phase_talk(self, data, ids):
         """The two talk names a phase crossing carries, one meaning each (spec 16 section 10, card t_155e22e2).

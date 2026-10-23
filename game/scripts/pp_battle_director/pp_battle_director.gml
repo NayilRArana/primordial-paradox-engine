@@ -41,6 +41,30 @@ function pp_battle_new(_encounter, _enemy, _party, _ledger) {
         after_message: "",
         trust: 0,
         enemy_hp: _enemy.max_hp,
+        // Spec 18 section 1: the enemy's phases are the fight's shape, and they are data. The pool, the attack range
+        // and the TALK set start from the enemy row and only ever change through pp_battle_enemy_phase_sync, which
+        // reads a row's fields and nothing else. No field here is chosen by the enemy's id: an enemy with no phases
+        // list keeps its own patterns, attack and talk dialogue for the whole fight, and a boss with four rows gets
+        // four crossings from the same code.
+        enemy_phase: 0,
+        pattern_pool: pp_battle_pattern_pool(_enemy),
+        attack_range: _enemy.attack,
+        talk_set: "",
+        // Card R30 (spec 19 sections 2 to 11): the baked talk of this fight. talk_mercy is the meter the effect enum
+        // moves; talk_stage is "" or "options", the panel the menu phase draws instead of the command list; talk_hint
+        // is the line under the box that Q9 puts there. trust above stays the spare gate spec 07 defines and this
+        // card does not change it: three talks still reach SPARE whether the bake answers or the card pool does.
+        talk_mercy: 0,
+        talk_stage: "",
+        talk_options: [],
+        talk_cursor: 0,
+        talk_delta: 0,
+        talk_effect: "none",
+        talk_mood: "guarded",
+        talk_hint: "",
+        talk_reply: false,
+        talk_last_effect: "none",
+        phase_line: "",
         arena: undefined,
         attack_value: 0,
         popup_value: 0,
@@ -66,8 +90,49 @@ function pp_battle_new(_encounter, _enemy, _party, _ledger) {
     };
 
     _battle.bg_name = pp_battle_bg_name(_battle);
+    if (variable_struct_exists(_enemy, "talk_dialogue")) _battle.talk_set = _enemy.talk_dialogue;
 
     pp_battle_phase_set(_battle, PPBattlePhase.intro);
+    return _battle;
+}
+
+/// The enemy's own patterns list is phase 1's pool (spec 18 section 1). A crossing appends to this copy, never to the
+/// data row, so a second fight against the same enemy starts from the same pool.
+function pp_battle_pattern_pool(_enemy) {
+    var _out = [];
+    if (!variable_struct_exists(_enemy, "patterns") || !is_array(_enemy.patterns)) return _out;
+    for (var i = 0; i < array_length(_enemy.patterns); i++) array_push(_out, _enemy.patterns[i]);
+    return _out;
+}
+
+/// The phase rows, or an empty list. At most four by the checker (PHASE_ROWS_MAX). Nothing here reads an enemy id.
+function pp_battle_enemy_phases(_enemy) {
+    if (variable_struct_exists(_enemy, "phases") && is_array(_enemy.phases)) return _enemy.phases;
+    return [];
+}
+
+/// Spec 18 section 1: a row is entered when hp * 100 <= hp_at_or_below * max_hp, in integers only, so the crossing
+/// lands on the same hp on every machine and halving max_hp in data moves every band with it. This is the only
+/// threshold comparison in the director.
+function pp_battle_enemy_phase_reached(_battle, _row) {
+    return (_battle.enemy_hp * 100 <= _row.hp_at_or_below * _battle.enemy.max_hp);
+}
+
+/// Apply every crossing the current hp has reached, in data order, once each. The pool only grows, the attack only
+/// moves to the row's own range, the TALK set only changes when the row names one, and the row's line is queued for
+/// pp_battle_after_message to play once before the enemy's turn. Called from pp_battle_hurt_enemy, which is the only
+/// place enemy hp moves.
+function pp_battle_enemy_phase_sync(_battle) {
+    var _rows = pp_battle_enemy_phases(_battle.enemy);
+    while (_battle.enemy_phase < array_length(_rows)) {
+        var _row = _rows[_battle.enemy_phase];
+        if (!pp_battle_enemy_phase_reached(_battle, _row)) break;
+        _battle.enemy_phase += 1;
+        array_push(_battle.pattern_pool, _row.pattern_id);
+        if (variable_struct_exists(_row, "attack")) _battle.attack_range = _row.attack;
+        if (variable_struct_exists(_row, "talk_set")) _battle.talk_set = _row.talk_set;
+        if (variable_struct_exists(_row, "line_id")) _battle.phase_line = _row.line_id;
+    }
     return _battle;
 }
 
@@ -133,6 +198,13 @@ function pp_battle_step_intro(_battle) {
 }
 
 function pp_battle_step_menu(_battle) {
+    // Card R30: an open talk owns the menu while it runs. The panel is the menu phase's second shape, not a new
+    // phase, so the turn loop above is untouched and the panel's pick hands its reply to the same board (pp_talk_step).
+    if (_battle.talk_stage != "") {
+        pp_talk_step(_battle);
+        return;
+    }
+
     var _dir = pp_menu_axis("up", "down");
     if (_dir != 0) pp_command_move(_battle, _dir);
 
@@ -153,6 +225,11 @@ function pp_battle_step_menu(_battle) {
 
 /// Start the chosen command. FIGHT opens the timing bar, the rest resolve at once.
 function pp_battle_begin_action(_battle) {
+    // Card R30: the hint under the box and the reply flag last only until the player's next command, which is what
+    // "cleared on the next confirm" means once the box has finished typing (spec 19 section 5, Q9).
+    _battle.talk_hint = "";
+    _battle.talk_reply = false;
+
     switch (_battle.action) {
         case PPCommand.fight:
             _battle.bar_pos = 0;
@@ -171,13 +248,11 @@ function pp_battle_begin_action(_battle) {
 
         case PPCommand.talk:
             _battle.trust += _battle.encounter.trust_per_talk;
-            var _talk = pp_battle_dialogue(_battle.enemy.talk_dialogue);
-            var _line = "* You speak. Trust " + string(_battle.trust) + " of " + string(_battle.enemy.trust_to_spare) + ".";
-            if (is_array(_talk)) {
-                var _idx = min(_battle.trust - 1, array_length(_talk) - 1);
-                if (_idx >= 0) _line = _talk[_idx];
-            }
-            pp_battle_say(_battle, [_line], "enemy_turn");
+            // Card R30 (spec 19 sections 2 to 11): TALK opens the option panel. The three options, their reply text,
+            // their hint and the mercy each one moves all come from data/meta_bake.json through pp_talk_begin, with the
+            // card's own pool as the fallback; this case keeps the trust row spec 07 defines and nothing else, so the
+            // SPARE gate still opens after three talks with no model in the build at all.
+            pp_talk_begin(_battle);
             break;
 
         case PPCommand.spare:
@@ -232,6 +307,8 @@ function pp_battle_hurt_enemy(_battle, _damage) {
     _battle.popup_value = _damage;
     _battle.popup_steps = PP_DAMAGE_POPUP_STEPS;
     if (_battle.enemy_hp <= 0 && _battle.result == PPResult.none) _battle.result = PPResult.kill;
+    // Spec 18 section 1: rule 3 (the kill) beats rule 5 (a crossing), so a blow that ends the fight crosses nothing.
+    if (_battle.enemy_hp > 0) pp_battle_enemy_phase_sync(_battle);
     return _battle.enemy_hp;
 }
 
@@ -277,6 +354,14 @@ function pp_battle_after_message(_battle) {
         return;
     }
     if (_after == "enemy_turn") {
+        // Spec 18 section 1: a crossing says its line once, before the enemy's turn. The id is taken and cleared
+        // before the board opens, so a skipped or fast read of the board cannot play it twice.
+        if (_battle.phase_line != "") {
+            var _line_id = _battle.phase_line;
+            _battle.phase_line = "";
+            pp_battle_say(_battle, pp_battle_dialogue_lines(_line_id), "enemy_turn");
+            return;
+        }
         _battle.attack_value = pp_battle_roll_attack(_battle);
         pp_battle_phase_set(_battle, PPBattlePhase.telegraph);
         return;
@@ -302,7 +387,9 @@ function pp_battle_step_telegraph(_battle) {
 }
 
 function pp_battle_pick_pattern(_battle) {
-    var _ids = _battle.enemy.patterns;
+    // Spec 18 section 1: the pool is the enemy's own patterns plus every pattern_id a crossing has added, in data
+    // order. Reading _battle.pattern_pool instead of the enemy row is what keeps a phase's pattern reachable.
+    var _ids = _battle.pattern_pool;
     if (!is_array(_ids) || array_length(_ids) == 0) return undefined;
     var _id = _ids[pp_rng_int(_battle.rng, 0, array_length(_ids) - 1)];
     var _pattern = pp_data_find(global.pp_data.patterns.patterns, _id);
@@ -312,7 +399,9 @@ function pp_battle_pick_pattern(_battle) {
 }
 
 function pp_battle_roll_attack(_battle) {
-    var _atk = _battle.enemy.attack;
+    // Spec 18 section 6 consequence 1: a phase row may raise the attack inside the enemy's own band, so the roll
+    // reads the range the current phase put in force and never the enemy row directly.
+    var _atk = _battle.attack_range;
     return pp_rng_int(_battle.rng, _atk.min, _atk.max);
 }
 
@@ -528,8 +617,8 @@ function pp_battle_outcome(_battle) {
 }
 
 function pp_battle_has_talk(_battle) {
-    return is_string(_battle.enemy.talk_dialogue) && _battle.enemy.talk_dialogue != ""
-        && !is_undefined(pp_data_find(global.pp_data.dialogue.dialogue, _battle.enemy.talk_dialogue));
+    return is_string(_battle.talk_set) && _battle.talk_set != ""
+        && !is_undefined(pp_data_find(global.pp_data.dialogue.dialogue, _battle.talk_set));
 }
 
 function pp_battle_usable_item_count(_battle) {
@@ -749,7 +838,10 @@ function pp_battle_draw(_battle) {
     }
 
     if (_battle.phase == PPBattlePhase.menu || _battle.phase == PPBattlePhase.resolve) {
-        pp_battle_draw_menu(_battle);
+        // Card R30: while a talk is open the band draws its three options instead of the command list, and the prompt
+        // takes the message window. Both shapes are spec 16 section 1: the options are the enemy's own three lines.
+        if (_battle.talk_stage != "") pp_talk_draw_options(_battle);
+        else pp_battle_draw_menu(_battle);
     }
 
     if (_battle.phase == PPBattlePhase.resolve) {
@@ -764,7 +856,14 @@ function pp_battle_draw(_battle) {
         draw_set_colour(pp_role_colour("dim"));
         draw_rectangle(pp_battle_text_box_x1(), pp_battle_text_box_y1(),
                        pp_battle_text_box_x2() - 1, pp_battle_text_box_y2() - 1, true);
-        pp_text_board_draw(_battle.messages, 16, 16, pp_role_colour("ink"));
+        // Card R30: a baked reply draws at spec 19's 8 pixel pitch with the hint on the row under it (Q2 and Q9), and
+        // every other line keeps spec 05's pitch. The window does not grow for either.
+        if (_battle.talk_reply) {
+            pp_talk_board_draw(_battle.messages, pp_talk_text_x(), pp_talk_text_y(), pp_role_colour("ink"));
+            pp_talk_hint_draw(_battle.talk_hint);
+        } else {
+            pp_text_board_draw(_battle.messages, 16, 16, pp_role_colour("ink"));
+        }
     }
 
     if (_battle.popup_steps > 0) {

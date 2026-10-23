@@ -24,11 +24,11 @@
     },
     "phase": {
       "type": "object",
-      "description": "One enemy phase, read by the battle director when current hp first falls to hp_at_or_below. The director adds pattern_id to the enemy's pattern pool, switches the TALK set to talk_set, plays line_id once at the crossing and swaps in the attack range, all from this row and never from a code branch on the enemy name. A raised attack must stay inside the spec 07 boss band, which the checker pins with PHASE_ATTACK_BAND.",
+      "description": "One enemy phase, read by the battle director when current hp first satisfies hp * 100 <= hp_at_or_below * max_hp. The director adds pattern_id to the enemy's pattern pool, switches the TALK set to talk_set, plays line_id once at the crossing and swaps in the attack range, all from this row and never from a code branch on the enemy name. A raised attack must stay inside the enemy's spec 07 band, which the checker pins with PHASE_ATTACK_BAND.",
       "required": ["hp_at_or_below", "pattern_id", "talk_set", "line_id"],
       "additionalProperties": false,
       "properties": {
-        "hp_at_or_below": { "type": "integer", "minimum": 0, "maximum": 9999 },
+        "hp_at_or_below": { "type": "integer", "minimum": 1, "maximum": 99, "description": "Percent of the enemy's max_hp, not absolute hp (spec 18 section 8 P3). Halving max_hp in data therefore keeps every band where it was. The checker refuses a row that is not strictly below the row above it in tools/check_data.py's PHASE_ROWS_MAX block." },
         "pattern_id": { "type": "string", "minLength": 1, "description": "Pattern id to add to the pool at this crossing. The enemy's own patterns list is the pool above the first threshold." },
         "talk_set": { "type": "string", "minLength": 1, "description": "Dialogue id that replaces talk_dialogue for the TALK command from this phase on, so the choice options shown in step 1 change with the phase. A dialogue id, never a talk card id." },
         "talk_phase": { "type": "string", "minLength": 1, "description": "The phase value of the talk card that applies from this crossing on, copied verbatim from a card's phase field in data/talk_cards.json (spec 16 section 10). The director matches the card on enemy id plus this string, and the cache key uses it as phase_id, so it never derives a phase name from an enemy name or from a dialogue id. Absent only while a phase has no card yet; tools/check_data.py refuses a card that no phase row names and a talk_phase that resolves to no card." },

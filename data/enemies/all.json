@@ -26,7 +26,7 @@
       "sprite": "spr_pp_percy",
       "element": "sea",
       "route_kind": "boss",
-      "patterns": ["percy_rain", "percy_wall"],
+      "patterns": ["percy_rain"],
       "talk_dialogue": "talk_percy",
       "trust_to_spare": 3,
       "spare_hp_percent": 25,
@@ -35,10 +35,17 @@
       ],
       "phases": [
         {
-          "hp_at_or_below": 60,
-          "pattern_id": "percy_fan",
+          "hp_at_or_below": 70,
+          "pattern_id": "percy_wall",
           "talk_set": "talk_percy_phase2",
           "talk_phase": "percy_phase2",
+          "line_id": "percy_phase2_line",
+          "attack": { "min": 4, "max": 5 }
+        },
+        {
+          "hp_at_or_below": 40,
+          "pattern_id": "percy_fan",
+          "talk_set": "talk_percy_phase2",
           "line_id": "percy_phase2_line",
           "attack": { "min": 4, "max": 6 }
         }
