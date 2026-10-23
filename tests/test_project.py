@@ -84,17 +84,25 @@ def test_build_time_data_is_kept_out_of_the_bundle():
     data/palette_recipes.json and data/scene_palettes.json are read by tools, by path, out of data\\: the palette
     checker, the synergy gate, the scene palette builder and the NES audit. Mirroring them made the .yyp declare two
     build inputs as Included Files, so every palette rebuild was a file the commit had to carry or the nightly
-    worktree reported as missing (card t_40501f46). The check that keeps this honest is the third one below: if a
-    module ever starts reading one of these tables at runtime, this fails and says to mirror it again.
+    worktree reported as missing (card t_40501f46).
+
+    The names are asserted one by one on purpose. Reading them out of sync_data.NOT_RUNTIME instead would make the
+    test vacuous the moment someone deletes an entry from that set, which is the exact edit it exists to catch (the
+    mutation was run: dropping scene_palettes.json from the set passed a set driven version of this test). The last
+    check is the one that says what to do when the answer changes: if a module ever reads one of these tables at
+    runtime, this fails and names the file to mirror again.
     """
-    assert sync_data.NOT_RUNTIME, "the exclusion list is empty, so this test would pass for the wrong reason"
+    table_names = ("palette_recipes.json", "scene_palettes.json")
     wanted = set(sync_data.source_files())
-    for name in sorted(sync_data.NOT_RUNTIME):
+    for name in table_names:
+        assert name in sync_data.NOT_RUNTIME, (
+            "%s is no longer excluded in tools/sync_data.py, so it is either mirrored again or silently dropped"
+            % name)
         assert name not in wanted, "%s is excluded from the bundle but sync_data still mirrors it" % name
 
     with open(os.path.join(ROOT, "game", "PrimordialParadox.yyp"), "r", encoding="utf-8") as fh:
         declared = {entry.get("name") for entry in json.load(fh)["IncludedFiles"]}
-    for name in sorted(sync_data.NOT_RUNTIME):
+    for name in table_names:
         assert name not in declared, "the committed project declares %s as an Included File" % name
 
     gml = []
@@ -104,7 +112,7 @@ def test_build_time_data_is_kept_out_of_the_bundle():
                 with open(os.path.join(dirpath, filename), "r", encoding="utf-8-sig") as fh:
                     gml.append(fh.read())
     blob = "\n".join(gml)
-    for name in sorted(sync_data.NOT_RUNTIME):
+    for name in table_names:
         assert name not in blob, (
             "%s is excluded from the bundle but a GML module names it: take it out of sync_data.NOT_RUNTIME "
             "so the engine ships it" % name)
