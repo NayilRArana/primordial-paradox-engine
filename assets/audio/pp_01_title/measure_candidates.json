@@ -1,0 +1,602 @@
+{
+  "generated_by": "assets/audio/pp_01_title/measure_candidates.py",
+  "axes": [
+    "hook",
+    "drums",
+    "tension",
+    "human"
+  ],
+  "ear_baseline": {
+    "hook": 7,
+    "drums": 5,
+    "tension": 6,
+    "human": 4
+  },
+  "ear_baseline_source": "data/ear_ledger.csv, rows 2026-10-22T14:34:29Z (v4 medium) and 2026-10-22T23:17:13Z (v5 round 1), both 7/5/6/4/7/6",
+  "ear_note": "the ear scored v4 medium 7/5/6/4/7/6 in the sweep and v5 round 1 the same, so the ear does not separate these two builds; the margin below counts axes a measurement separates, not ear points",
+  "noise_floor": {
+    "hook_points": 5,
+    "drum_blocks": 4,
+    "drum_fill_bars": 4,
+    "drum_change_rate": 0.15,
+    "device_per_eight": 0.5,
+    "verified_devices": 3,
+    "distinct_velocities": 8,
+    "vibrato_notes": 4,
+    "short_note_fraction": 0.03
+  },
+  "candidates": {
+    "v5": {
+      "name": "v5",
+      "label": "v5, fills on the 4 and 8 bar lines, section levels, hole at bar 44",
+      "source_midi": "<repo>\\assets\\audio\\title_theme_v5\\title_theme_v5.mid",
+      "ogg": "<repo>\\assets\\audio\\title_theme_v5\\title_theme_v5.ogg",
+      "bpm": 126.0,
+      "beats_per_bar": 3,
+      "bars": 52,
+      "duration_seconds": 74.266803,
+      "loop_seconds": 74.266803,
+      "peak_dbfs": -1.0,
+      "rms_dbfs": -16.97,
+      "loop_seam_sample_difference": 0,
+      "note_counts": {
+        "meta": 0,
+        "vrc6 pulse a": 137,
+        "vrc6 pulse b": 90,
+        "vrc6 saw": 160,
+        "pulse 1": 288,
+        "pulse 2": 99,
+        "triangle": 120,
+        "noise": 97,
+        "dpcm": 96
+      },
+      "melody_notes": 137,
+      "hook": {
+        "total": 73,
+        "of": 100,
+        "motif": {
+          "bars": 2,
+          "coverage": 0.219,
+          "notes": 7,
+          "occurrence_bars": [
+            2,
+            10,
+            18,
+            50
+          ],
+          "returns": 4,
+          "start_bar": 9
+        },
+        "weakest": {
+          "criterion": "motif coverage",
+          "fraction": 0.365,
+          "key": "motif_coverage",
+          "of": 20,
+          "points": 7.3
+        }
+      },
+      "drums": {
+        "first_drum_bar": 5,
+        "bars_with_drums": 48,
+        "distinct_bar_patterns": 28,
+        "distinct_aligned_four_bar_blocks": 12,
+        "bar_to_bar_change_rate": 0.915,
+        "fill_bars": 25,
+        "hits_total": 193,
+        "hits_per_bar_min": 1,
+        "hits_per_bar_max": 7,
+        "section_velocity_medians": [
+          76,
+          88,
+          72,
+          98,
+          29,
+          69
+        ],
+        "section_velocity_span": 69
+      },
+      "tension": {
+        "devices": {
+          "applied": 11,
+          "dropped": 1,
+          "per_eight_bars": 1.69,
+          "risk_3": 2,
+          "risk_3_spacing_ok": true,
+          "min_spacing_ok": true,
+          "moments": [
+            {
+              "applied": true,
+              "bar": 7,
+              "beat": 2.0,
+              "device": "DIS-02",
+              "note": "chromatic lower neighbour in the counter, over Am",
+              "pitch_after": 59,
+              "pitch_before": 60,
+              "resolution_semitones": 1,
+              "resolves_to": 60,
+              "risk": 1,
+              "section": "A",
+              "voice": "vrc6 pulse b"
+            },
+            {
+              "applied": true,
+              "bar": 11,
+              "beat": 2.0,
+              "device": "DIS-17",
+              "note": "flat six over the E7b9, falling to the fifth",
+              "pitch_after": 51,
+              "pitch_before": 50,
+              "resolution_semitones": -1,
+              "resolves_to": 50,
+              "risk": 1,
+              "section": "A",
+              "voice": "vrc6 saw"
+            },
+            {
+              "applied": true,
+              "bar": 14,
+              "beat": 2.5,
+              "device": "DIS-07",
+              "note": "accented passing tone on beat 2 over E7",
+              "pitch_after": 78,
+              "pitch_before": 77,
+              "resolution_semitones": -1,
+              "resolves_to": 77,
+              "risk": 2,
+              "section": "A_prime",
+              "voice": "vrc6 pulse b"
+            },
+            {
+              "applied": true,
+              "bar": 20,
+              "beat": 1.0,
+              "device": "DIS-03",
+              "note": "appoggiatura on the arpeggio at the cadence",
+              "pitch_after": 65,
+              "pitch_before": 57,
+              "resolution_semitones": -1,
+              "resolves_to": 64,
+              "risk": 2,
+              "section": "A_prime",
+              "voice": "pulse 1"
+            },
+            {
+              "applied": true,
+              "bar": 25,
+              "beat": 2.5,
+              "device": "DIS-02",
+              "note": "chromatic lower neighbour in the arpeggio over F",
+              "pitch_after": 64,
+              "pitch_before": 60,
+              "resolution_semitones": 1,
+              "resolves_to": 65,
+              "risk": 1,
+              "section": "B",
+              "voice": "pulse 1"
+            },
+            {
+              "applied": true,
+              "bar": 27,
+              "beat": 1.0,
+              "device": "DIS-11",
+              "note": "flat nine in the E7 pad, released on the next bar line",
+              "pitch_after": 53,
+              "pitch_before": 50,
+              "resolution_semitones": -3,
+              "resolves_to": 50,
+              "risk": 3,
+              "section": "B",
+              "voice": "vrc6 saw"
+            },
+            {
+              "applied": true,
+              "bar": 31,
+              "beat": 2.0,
+              "device": "DIS-02",
+              "note": "chromatic lower neighbour in the arpeggio over C",
+              "pitch_after": 66,
+              "pitch_before": 64,
+              "resolution_semitones": 1,
+              "resolves_to": 67,
+              "risk": 1,
+              "section": "B_prime",
+              "voice": "pulse 1"
+            },
+            {
+              "applied": true,
+              "bar": 35,
+              "beat": 1.0,
+              "device": "DIS-11",
+              "note": "flat nine again, eight bars later",
+              "pitch_after": 53,
+              "pitch_before": 50,
+              "resolution_semitones": -3,
+              "resolves_to": 50,
+              "risk": 3,
+              "section": "B_prime",
+              "voice": "vrc6 saw"
+            },
+            {
+              "applied": true,
+              "bar": 39,
+              "beat": 2.0,
+              "device": "DIS-07",
+              "note": "passing tone over B7b9, the D against D sharp",
+              "pitch_after": 49,
+              "pitch_before": 51,
+              "resolution_semitones": 2,
+              "resolves_to": 51,
+              "risk": 2,
+              "section": "C_trio",
+              "voice": "vrc6 saw"
+            },
+            {
+              "applied": true,
+              "bar": 42,
+              "beat": 1.0,
+              "device": "DIS-03",
+              "note": "appoggiatura over the D minor bar of the cold half",
+              "pitch_after": 70,
+              "pitch_before": 74,
+              "resolution_semitones": -1,
+              "resolves_to": 69,
+              "risk": 2,
+              "section": "C_trio",
+              "voice": "pulse 1"
+            },
+            {
+              "applied": false,
+              "bar": 44,
+              "beat": 1.0,
+              "device": "DIS-17",
+              "note": "flat six on the way out of the trio",
+              "reason": "the voice has no note to resolve into at this point",
+              "risk": 1,
+              "section": "C_trio",
+              "voice": "vrc6 saw"
+            },
+            {
+              "applied": true,
+              "bar": 47,
+              "beat": 2.0,
+              "device": "DIS-02",
+              "note": "lower neighbour in the return of the theme",
+              "pitch_after": 47,
+              "pitch_before": 48,
+              "resolution_semitones": 1,
+              "resolves_to": 48,
+              "risk": 1,
+              "section": "A_return",
+              "voice": "vrc6 saw"
+            }
+          ]
+        },
+        "verified": {
+          "checked": 11,
+          "found_in_midi": 10,
+          "missing": [
+            {
+              "bar": 42,
+              "voice": "pulse 1",
+              "pitch_after": 70
+            }
+          ],
+          "rate": 0.909
+        }
+      },
+      "human": {
+        "onsets": 1087,
+        "off_grid_fraction": 0.643,
+        "max_off_grid_ticks": 60.0,
+        "distinct_velocities": 102,
+        "short_note_fraction": 0.134,
+        "notes": 1087,
+        "humanizer": {
+          "notes_changed": 1056,
+          "notes_in": 1060,
+          "changed_fraction": 0.9962,
+          "onset_shifts": 648,
+          "onset_frames": 0.75,
+          "vibrato_notes": 20,
+          "fills": 24,
+          "breaths": 20,
+          "envelope_points": 1604
+        }
+      },
+      "ear_baseline": {
+        "hook": 7,
+        "drums": 5,
+        "tension": 6,
+        "human": 4
+      }
+    },
+    "v4_medium": {
+      "name": "v4_medium",
+      "label": "v4 medium, the build the ear scored 7/5/6/4/7/6",
+      "source_midi": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_medium.mid",
+      "ogg": "<repo>\\assets\\audio\\title_theme_v4\\title_theme_v4_medium.ogg",
+      "bpm": 126.0,
+      "beats_per_bar": 3,
+      "bars": 52,
+      "duration_seconds": 74.266803,
+      "loop_seconds": 74.266803,
+      "peak_dbfs": -1.0,
+      "rms_dbfs": -17.09,
+      "loop_seam_sample_difference": 0,
+      "note_counts": {
+        "meta": 0,
+        "vrc6 pulse a": 137,
+        "vrc6 pulse b": 90,
+        "vrc6 saw": 160,
+        "pulse 1": 288,
+        "pulse 2": 97,
+        "triangle": 120,
+        "noise": 88,
+        "dpcm": 89
+      },
+      "melody_notes": 137,
+      "hook": {
+        "total": 70,
+        "of": 100,
+        "motif": {
+          "bars": 2,
+          "coverage": 0.219,
+          "notes": 8,
+          "occurrence_bars": [
+            2,
+            10,
+            18,
+            50
+          ],
+          "returns": 4,
+          "start_bar": 9
+        },
+        "weakest": {
+          "criterion": "motif coverage",
+          "fraction": 0.365,
+          "key": "motif_coverage",
+          "of": 20,
+          "points": 7.3
+        }
+      },
+      "drums": {
+        "first_drum_bar": 5,
+        "bars_with_drums": 48,
+        "distinct_bar_patterns": 21,
+        "distinct_aligned_four_bar_blocks": 12,
+        "bar_to_bar_change_rate": 0.766,
+        "fill_bars": 13,
+        "hits_total": 177,
+        "hits_per_bar_min": 1,
+        "hits_per_bar_max": 8,
+        "section_velocity_medians": [
+          97,
+          54,
+          64,
+          64,
+          41,
+          97
+        ],
+        "section_velocity_span": 56
+      },
+      "tension": {
+        "devices": {
+          "applied": 10,
+          "dropped": 0,
+          "per_eight_bars": 1.54,
+          "risk_3": 2,
+          "risk_3_spacing_ok": true,
+          "min_spacing_ok": true,
+          "moments": [
+            {
+              "applied": true,
+              "bar": 7,
+              "beat": 2.0,
+              "device": "DIS-02",
+              "note": "chromatic lower neighbour in the counter, over Am",
+              "pitch_after": 59,
+              "pitch_before": 60,
+              "resolution_semitones": 1,
+              "resolves_to": 60,
+              "risk": 1,
+              "section": "A",
+              "voice": "vrc6 pulse b"
+            },
+            {
+              "applied": true,
+              "bar": 11,
+              "beat": 2.0,
+              "device": "DIS-17",
+              "note": "flat six over the E7b9, falling to the fifth",
+              "pitch_after": 51,
+              "pitch_before": 50,
+              "resolution_semitones": -1,
+              "resolves_to": 50,
+              "risk": 1,
+              "section": "A",
+              "voice": "vrc6 saw"
+            },
+            {
+              "applied": true,
+              "bar": 14,
+              "beat": 2.5,
+              "device": "DIS-07",
+              "note": "accented passing tone on beat 2 over E7",
+              "pitch_after": 78,
+              "pitch_before": 77,
+              "resolution_semitones": -1,
+              "resolves_to": 77,
+              "risk": 2,
+              "section": "A_prime",
+              "voice": "vrc6 pulse b"
+            },
+            {
+              "applied": true,
+              "bar": 20,
+              "beat": 1.0,
+              "device": "DIS-03",
+              "note": "appoggiatura on the arpeggio at the cadence",
+              "pitch_after": 65,
+              "pitch_before": 57,
+              "resolution_semitones": -1,
+              "resolves_to": 64,
+              "risk": 2,
+              "section": "A_prime",
+              "voice": "pulse 1"
+            },
+            {
+              "applied": true,
+              "bar": 25,
+              "beat": 2.5,
+              "device": "DIS-02",
+              "note": "chromatic lower neighbour in the arpeggio over F",
+              "pitch_after": 64,
+              "pitch_before": 60,
+              "resolution_semitones": 1,
+              "resolves_to": 65,
+              "risk": 1,
+              "section": "B",
+              "voice": "pulse 1"
+            },
+            {
+              "applied": true,
+              "bar": 27,
+              "beat": 1.0,
+              "device": "DIS-11",
+              "note": "flat nine in the E7 pad, released on the next bar line",
+              "pitch_after": 53,
+              "pitch_before": 50,
+              "resolution_semitones": -3,
+              "resolves_to": 50,
+              "risk": 3,
+              "section": "B",
+              "voice": "vrc6 saw"
+            },
+            {
+              "applied": true,
+              "bar": 31,
+              "beat": 2.0,
+              "device": "DIS-02",
+              "note": "chromatic lower neighbour in the arpeggio over C",
+              "pitch_after": 66,
+              "pitch_before": 64,
+              "resolution_semitones": 1,
+              "resolves_to": 67,
+              "risk": 1,
+              "section": "B_prime",
+              "voice": "pulse 1"
+            },
+            {
+              "applied": true,
+              "bar": 39,
+              "beat": 2.0,
+              "device": "DIS-07",
+              "note": "passing tone over B7b9, the D against D sharp",
+              "pitch_after": 49,
+              "pitch_before": 51,
+              "resolution_semitones": 2,
+              "resolves_to": 51,
+              "risk": 2,
+              "section": "C_trio",
+              "voice": "vrc6 saw"
+            },
+            {
+              "applied": true,
+              "bar": 42,
+              "beat": 1.0,
+              "device": "DIS-03",
+              "note": "appoggiatura over the D minor bar of the cold half",
+              "pitch_after": 70,
+              "pitch_before": 74,
+              "resolution_semitones": -1,
+              "resolves_to": 69,
+              "risk": 2,
+              "section": "C_trio",
+              "voice": "pulse 1"
+            },
+            {
+              "applied": true,
+              "bar": 51,
+              "beat": 3.0,
+              "device": "DIS-18",
+              "note": "echo clash on the way back to the loop",
+              "pitch_after": 73,
+              "pitch_before": 74,
+              "resolution_semitones": -1,
+              "resolves_to": 72,
+              "risk": 3,
+              "section": "A_return",
+              "voice": "pulse 2"
+            }
+          ]
+        },
+        "verified": {
+          "checked": 10,
+          "found_in_midi": 10,
+          "missing": [],
+          "rate": 1.0
+        }
+      },
+      "human": {
+        "onsets": 1069,
+        "off_grid_fraction": 0.666,
+        "max_off_grid_ticks": 47.0,
+        "distinct_velocities": 94,
+        "short_note_fraction": 0.152,
+        "notes": 1069,
+        "humanizer": {
+          "notes_changed": 1009,
+          "notes_in": 1044,
+          "changed_fraction": 0.9665,
+          "onset_shifts": 675,
+          "onset_frames": 0.75,
+          "vibrato_notes": 21,
+          "fills": 22,
+          "breaths": 20,
+          "envelope_points": 1605
+        }
+      },
+      "ear_baseline": {
+        "hook": 7,
+        "drums": 5,
+        "tension": 6,
+        "human": 4
+      }
+    }
+  },
+  "axes_decided": {
+    "hook": {
+      "winner": null,
+      "margin": 3,
+      "why": "hook score differs by 3 of 100, inside the 5 point noise floor"
+    },
+    "drums": {
+      "winner": "v5",
+      "margin": 1,
+      "why": "1 of 3 named drum indicators separate the two: aligned four bar blocks 12 vs 12, filled bars 25 vs 13, change rate 0.92 vs 0.77"
+    },
+    "tension": {
+      "winner": null,
+      "margin": 0,
+      "why": "both sit in the 1 to 2 devices per 8 bar band (1.69 vs 1.54) and both place their devices in the MIDI (10 vs 10 verified)"
+    },
+    "human": {
+      "winner": "v5",
+      "margin": 1,
+      "why": "1 of 3 named human indicators separate the two: distinct velocities 102 vs 94, vibrato notes 20 vs 21, short note fraction 0.13 vs 0.15"
+    }
+  },
+  "axes_won": {
+    "v5": [
+      "drums",
+      "human"
+    ],
+    "v4_medium": []
+  },
+  "axes_won_count": {
+    "v5": 2,
+    "v4_medium": 0
+  },
+  "winner": "v5",
+  "margin": 2
+}

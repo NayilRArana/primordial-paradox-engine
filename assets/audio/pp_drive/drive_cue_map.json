@@ -1,0 +1,175 @@
+{
+  "card": "MUS-CUE-DRIVE (t_0c5ef0c5)",
+  "cue": {
+    "bars": 125,
+    "seconds": 178.571,
+    "sections": [
+      {
+        "first_bar": 1,
+        "last_bar": 25,
+        "name": "A",
+        "what": "city at night, A minor, sparse: shots 1 to 3"
+      },
+      {
+        "first_bar": 26,
+        "last_bar": 59,
+        "name": "B",
+        "what": "M25 and M3, C major, motor eighths: shots 4 to 6"
+      },
+      {
+        "first_bar": 60,
+        "last_bar": 125,
+        "name": "A_return",
+        "what": "Winchester rising, the sea, the docks: shots 7 to 12"
+      }
+    ]
+  },
+  "errors": [],
+  "film": {
+    "bars": 124.6,
+    "seconds": 178.0,
+    "steps": 10680
+  },
+  "shots": [
+    {
+      "beat": "7",
+      "cue_bars": 8,
+      "cue_first_bar": 1,
+      "cue_last_bar": 8,
+      "cue_seconds": 11.429,
+      "film_seconds": 11.467,
+      "film_steps": 688,
+      "location": "city: Big Ben, the street",
+      "shot": 1
+    },
+    {
+      "beat": "8",
+      "cue_bars": 10,
+      "cue_first_bar": 9,
+      "cue_last_bar": 18,
+      "cue_seconds": 14.286,
+      "film_seconds": 25.8,
+      "film_steps": 860,
+      "location": "city: the car pulls away, the Thames",
+      "shot": 2
+    },
+    {
+      "beat": "9",
+      "cue_bars": 7,
+      "cue_first_bar": 19,
+      "cue_last_bar": 25,
+      "cue_seconds": 10.0,
+      "film_seconds": 35.833,
+      "film_steps": 602,
+      "location": "gantry: the sign SOUTHAMPTON 55",
+      "shot": 3
+    },
+    {
+      "beat": "10",
+      "cue_bars": 9,
+      "cue_first_bar": 26,
+      "cue_last_bar": 34,
+      "cue_seconds": 12.857,
+      "film_seconds": 48.733,
+      "film_steps": 774,
+      "location": "open motorway: rain, wipers",
+      "shot": 4
+    },
+    {
+      "beat": "11a",
+      "cue_bars": 12,
+      "cue_first_bar": 35,
+      "cue_last_bar": 46,
+      "cue_seconds": 17.143,
+      "film_seconds": 65.933,
+      "film_steps": 1032,
+      "location": "open motorway: radio pages 1 and 2",
+      "shot": 5
+    },
+    {
+      "beat": "11b",
+      "cue_bars": 13,
+      "cue_first_bar": 47,
+      "cue_last_bar": 59,
+      "cue_seconds": 18.571,
+      "film_seconds": 84.567,
+      "film_steps": 1118,
+      "location": "open motorway: pages 3 and 4, the sign 43",
+      "shot": 6
+    },
+    {
+      "beat": "13",
+      "cue_bars": 10,
+      "cue_first_bar": 60,
+      "cue_last_bar": 69,
+      "cue_seconds": 14.286,
+      "film_seconds": 98.9,
+      "film_steps": 860,
+      "location": "Twyford Down: the chalk cutting",
+      "shot": 7
+    },
+    {
+      "beat": "14",
+      "cue_bars": 10,
+      "cue_first_bar": 70,
+      "cue_last_bar": 79,
+      "cue_seconds": 14.286,
+      "film_seconds": 113.233,
+      "film_steps": 860,
+      "location": "cathedral: the silhouette",
+      "shot": 8
+    },
+    {
+      "beat": "15",
+      "cue_bars": 13,
+      "cue_first_bar": 80,
+      "cue_last_bar": 92,
+      "cue_seconds": 18.571,
+      "film_seconds": 131.867,
+      "film_steps": 1118,
+      "location": "open motorway: pages 5 to 7, the sign 30",
+      "shot": 9
+    },
+    {
+      "beat": "16 and 17",
+      "cue_bars": 13,
+      "cue_first_bar": 93,
+      "cue_last_bar": 105,
+      "cue_seconds": 18.571,
+      "film_seconds": 150.5,
+      "film_steps": 1118,
+      "location": "downland: the storm",
+      "shot": 10
+    },
+    {
+      "beat": "18",
+      "cue_bars": 8,
+      "cue_first_bar": 106,
+      "cue_last_bar": 113,
+      "cue_seconds": 11.429,
+      "film_seconds": 161.967,
+      "film_steps": 688,
+      "location": "slip road: the sign 20",
+      "shot": 11
+    },
+    {
+      "beat": "19",
+      "cue_bars": 12,
+      "cue_first_bar": 114,
+      "cue_last_bar": 125,
+      "cue_seconds": 17.143,
+      "film_seconds": 178.0,
+      "film_steps": 962,
+      "location": "docks: cranes, the lit ship",
+      "shot": 12
+    }
+  ],
+  "source": "knowledge/DRIVE-SHOT-LIST.md section 2, data/title_timing.json",
+  "tail_seconds": 0.571,
+  "tempo": {
+    "bar_seconds": 1.428571,
+    "bar_steps": 85.714286,
+    "beats_per_bar": 3,
+    "bpm": 126.0
+  }
+}

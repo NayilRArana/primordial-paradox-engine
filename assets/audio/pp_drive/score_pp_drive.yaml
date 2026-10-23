@@ -1,0 +1,214 @@
+# PP-DRIVE, "The Drive": London to Southampton, the 178 second film's road cue.
+# Card MUS-CUE-DRIVE (t_0c5ef0c5). Original throughout. No melody, riff or bass line of any
+# published game is quoted. Technique comes from knowledge/MUSIC-STYLE-BIBLE.md (recipes cited by
+# id), knowledge/CHARACTER-BIBLE.md (the four leitmotifs and their allowed transformations) and
+# knowledge/MUSIC-HOOK-GRAMMAR.md (HOK ids). Those are rules, not tunes.
+#
+# WHAT THIS CUE HAS TO BE: the clock for a twelve shot drive (knowledge/DRIVE-SHOT-LIST.md). The
+# film is cut on this cue's bar grid, so the cue is 3/4 at 126 bpm: one bar is 1.4286 s, 85.714
+# steps, and the shot list's hard cuts at bars 8, 18, 25, 34, 46, 59, 97, 107, 120, 133 and 141
+# are all downbeats here. 125 bars is 178.571 s; the picture's last fade lands inside bar 125 and
+# the cue ends on the tonic at 178.57 s, half a second after the film's 178.00 s, which is the
+# tail a cue is supposed to have and not a sync error.
+#
+# THREE SECTIONS, one per stretch of road, and each one loops on its own so a car scene can cut:
+#   A         bars 1 to 25    the city at night, A minor, sparse. Shots 1 to 3 (23 bars) plus two
+#                             bars of gantry build. Loop: A to A (25 bars, 35.7 s).
+#   B         bars 26 to 59   the M25 then the M3, C major, motor eighths. Shots 4 to 6 (34 bars
+#                             exactly). Loop: B to B (34 bars, 48.6 s), which is the cruising
+#                             section and the one the services interlude walks over.
+#   A_return  bars 60 to 125  Winchester rising, the sea theme, then the docks. Shots 7 to 12
+#                             (66 bars: 10 + 10 + 13 + 13 + 8 + 12). No loop: this ends the film.
+#
+# THE FOUR MOTIFS, transformed, never quoted plainly in their home key and rhythm except where
+# the score says "literal":
+#   K   the family call, E5 C5 D5 E5 in A minor. Augmented at bars 9, 70 and 124 (first note
+#       doubled), inverted at bar 13, moved to C major at bar 34 (mode swap), and at the docks it
+#       is folded into the final cadence. Stated literally only at bars 5 and 74, twice in one cue
+#       being the cap (HOK-15).
+#   Z   the Zeus arpeggio, G4 C5 E5, its home key C major. That is why section B is C major: the
+#       motorway is the one place in the film the sky is open, so it gets Z in its own key, and
+#       the rising sequence at bars 42 to 48 is Z sequenced up by step.
+#   P   the tide, E4 G4 B4 then E5 D5 B4, home E minor. Hinted first in section B's bass line
+#       (the walking third), then stated in E minor in the cutting (bars 60 to 69) and moved to
+#       A minor for the docks (bars 114 to 122): a key change, which is the allowed operation.
+#   H   the bident, D5 C#5 then A4 G#4 with silence. Four entrances: bars 17 and 18 (the cold
+#       city), bars 38 and 39 (the wipers), bars 94 and 95 (the storm), and 123 (the last turn).
+# Durations are in eighth notes; a 3/4 bar holds 6. "X|Y" in a chord slot means X on beats 1 and 2,
+# Y on beat 3. Names after notes: A4 is concert A at 440 Hz. A sharp is written A#, a flat Ab. r is
+# a rest. Every melody bar sums to 6 eighths; tools/arrange.py refuses the score if one does not.
+meta:
+  profile: waltz
+  key: A minor
+  time: 3/4
+  bpm: 126
+  loop_start_section: A
+  loop_end_section: A_return
+  form: "A 25 (the city, 35.7 s) + B 34 (the M25 and the M3, 48.6 s) + A_return 66 (Winchester, the sea, the docks, 94.3 s) = 125 bars, 178.571 s at 126 bpm on the title_timing grid (bar_steps 87, steps_per_bar 85.714). Section A and section B each loop in place; A_return does not, it ends on the tonic"
+  texture_family: "road piece: pulse 1 runs the wheels (Alberti eighths, six a bar, unbroken for 125 bars), the triangle takes the road surface (root on beat 1, fifth or approach on beat 3 in A and A_return; root, third, approach in B so the eighth pulse never stops), the VRC6 saw is the bodywork (oom pah stabs in A and A_return, one held shell pad in B), the lead is the driver's line and it is silent for the first two bars and again at the cathedral caption. Contrast is made by adding surfaces, not by raising levels: section A has no kick, B has hats on every beat, A_return gets the kick, the echo and the fill"
+
+motifs:
+  K:  "Family call. Bars 5, 6 (literal in A minor, the two allowed statements) and 74 (literal, the cathedral). Bar 9 and bar 124 augment it (4 1 1 instead of 3 1 1 1)."
+  Ki: "K inverted at bar 13 (A4 C5 B4 A4, the third up instead of down), diatonic in A minor so it stays recognisable."
+  Kc: "K in C major at bar 34 (G5 E5 F5 G5), the mode swap: same shape, the third is major now, which is the motorway's brightness."
+  Z:  "Zeus arpeggio in C, bars 26, 28, 42 and 46, and sequenced up by step in bars 42 to 48."
+  P:  "Tide, E minor, bars 60 to 69 (E4 G4 B4 then E5 D5 B4 twice), then the same shape in A minor at bars 114 to 122 for the lit ship at the quay."
+  Ph: "The P hint early: the walking bass of section B always approaches by the tide's third, so the sea is in the motorway's bass line thirty bars before the melody says it."
+  H:  "Bident, bars 17 and 18, 38 and 39, 94 and 95, 123. Always D5 C#5 then A4 G#4 with the rest after it, never filled in."
+
+sections:
+  A:
+    bars: 25
+    chords: [Am, Am, F, E7,
+             Am, E7, Am, Am,
+             F, Dm, E7, Am,
+             Am, F, G, E7,
+             Am, Am, E7, E7,
+             Am, G, E7, E7, E7]
+    melody:
+      - [[r, 6]]                                   # 1: the wheels before the words
+      - [[r, 6]]                                   # 2
+      - [[E5, 2], [C5, 1], [D5, 1], [E5, 1], [r, 1]]   # 3: K arrives in pieces, the city at night
+      - [[B4, 3], [G#4, 1], [A4, 1], [r, 1]]       # 4: the answer, half cadence
+      - [[E5, 3], [C5, 1], [D5, 1], [E5, 1]]       # 5: K, literal (statement one of two)
+      - [[B4, 3], [G#4, 1], [A4, 1], [B4, 1]]      # 6: K2, the answer down a fourth
+      - [[C5, 2], [B4, 1], [A4, 1], [G#4, 1], [r, 1]]  # 7: descent to the leading tone
+      - [[A4, 6]]                                   # 8: the cut to the street on the tonic
+      - [[E5, 4], [C5, 1], [D5, 1]]                # 9: K augmented, the car pulls away
+      - [[F5, 3], [E5, 1], [D5, 1], [C5, 1]]       # 10
+      - [[B4, 2], [A4, 2], [G#4, 2]]               # 11: the gantry lights
+      - [[A4, 6]]                                   # 12
+      - [[A4, 2], [C5, 1], [B4, 1], [A4, 1], [r, 1]]   # 13: Ki, inverted
+      - [[F4, 3], [A4, 1], [G4, 1], [F4, 1]]       # 14
+      - [[G4, 2], [F4, 2], [E4, 2]]                # 15
+      - [[E4, 6]]                                   # 16: the low register, the rain gathering
+      - [[D5, 2], [C#5, 2], [r, 2]]                # 17: H, prong one, the cold city
+      - [[A4, 2], [G#4, 2], [r, 2]]                # 18: H, prong two
+      - [[B4, 2], [D5, 2], [B4, 2]]                # 19
+      - [[E5, 4], [B4, 2]]                          # 20: the dominant, held
+      - [[A4, 2], [C5, 2], [E5, 2]]                # 21: the sign reading 55, an arpeggio up
+      - [[D5, 2], [C5, 2], [B4, 2]]                # 22
+      - [[G#4, 2], [A4, 2], [B4, 2]]               # 23
+      - [[B4, 2], [D5, 2], [B4, 2]]                # 24
+      - [[G#4, 6]]                                  # 25: the cut on the dominant, into the motorway
+    texture: "the city and the wheels. vrc6 pulse a carries the melody, duty 0.25, vibrato on notes of three eighths and longer. pulse 1 runs the Alberti arpeggio in eighths for all 25 bars: six wheels a bar, never a gap. triangle the road surface, root on beat 1 and the fifth or an approach on beat 3. vrc6 saw the bodywork, oom pah shells on beats 2 and 3. noise soft hats on beats 2 and 3 only. no kick in this section: the car has not reached the motorway. vrc6 pulse b the guide tone, pulse 2 the echo one eighth late."
+
+  B:
+    bars: 34
+    chords: [C, G, C, G7, F, C, Dm, E7,
+             C, G, Am, F, Dm, Am, G, E7,
+             C, Am, F, G, C, G7, Am, E7,
+             Am, G, F, E7, Am, G, F, E7, E7, E7]
+    melody:
+      - [[G4, 2], [C5, 1], [E5, 1], [G5, 1], [E5, 1]]  # 26: Z, literal, C major
+      - [[D5, 2], [C5, 1], [B4, 1], [C5, 1], [r, 1]]   # 27
+      - [[G4, 2], [C5, 1], [E5, 1], [G5, 1], [E5, 1]]  # 28: Z again, twice is the cap
+      - [[D5, 3], [B4, 1], [C5, 1], [D5, 1]]           # 29
+      - [[F5, 2], [E5, 1], [D5, 1], [C5, 1], [A4, 1]]  # 30: the radio pages, a long descent
+      - [[C5, 2], [E5, 2], [G5, 2]]                    # 31
+      - [[F5, 2], [D5, 2], [A4, 2]]                    # 32
+      - [[E5, 4], [B4, 2]]                              # 33: sign 43 on the dominant
+      - [[G5, 2], [E5, 1], [F5, 1], [G5, 1], [r, 1]]   # 34: K in C, the mode swap
+      - [[D5, 3], [B4, 1], [C5, 1], [D5, 1]]           # 35: K2 in C
+      - [[E5, 2], [C5, 2], [A4, 2]]                    # 36
+      - [[F5, 2], [E5, 2], [C5, 2]]                    # 37
+      - [[D5, 2], [C#5, 2], [r, 2]]                    # 38: H, the wipers, one pass
+      - [[A4, 2], [G#4, 2], [r, 2]]                    # 39: H, the return pass
+      - [[B4, 2], [C5, 2], [D5, 2]]                    # 40
+      - [[E5, 6]]                                       # 41
+      - [[G4, 2], [C5, 2], [E5, 2]]                    # 42: Z sequenced, four bars rising
+      - [[A4, 2], [C5, 2], [E5, 2]]                    # 43
+      - [[F4, 2], [A4, 2], [C5, 2]]                    # 44
+      - [[G4, 2], [B4, 2], [D5, 2]]                    # 45
+      - [[C5, 2], [E5, 2], [G5, 2]]                    # 46: the crest of the sequence
+      - [[B4, 2], [D5, 2], [F5, 2]]                    # 47
+      - [[A4, 2], [C5, 2], [E5, 2]]                    # 48
+      - [[B4, 4], [G#4, 2]]                             # 49: turning home
+      - [[E5, 2], [D5, 2], [C5, 2]]                    # 50: the run at the cutting
+      - [[D5, 2], [B4, 2], [G4, 2]]                    # 51
+      - [[C5, 2], [A4, 2], [F4, 2]]                    # 52
+      - [[B4, 2], [G#4, 2], [E4, 2]]                   # 53
+      - [[E5, 2], [D5, 2], [C5, 2]]                    # 54
+      - [[D5, 2], [B4, 2], [G4, 2]]                    # 55
+      - [[C5, 2], [A4, 2], [F4, 2]]                    # 56
+      - [[B4, 2], [G#4, 2], [B4, 2]]                   # 57
+      - [[D5, 2], [C5, 2], [B4, 2]]                    # 58
+      - [[G#4, 6]]                                      # 59: the fade into the services, dominant held
+    texture: "the motorway, and this is where the eighths become the point. vrc6 pulse a duty 0.5, brighter: the melody bars are eighth arpeggios, so the lead itself is a wheel. pulse 1 keeps the Alberti eighths underneath. triangle walks: root, third, then the fifth or an approach, three pairs an eighth each, so a bar is six pulses and there is no break at the bar line. vrc6 saw holds one shell pad per bar, the third and the seventh only, because a full triad on the downbeat would put nine notes on it. noise hats on every beat. vrc6 pulse b the guide tone. no kick yet: the wheels are the rhythm and a kick here would turn a drive into a march."
+
+  A_return:
+    bars: 66
+    chords: [Em, Em, C, B7, Em, Em, Am, B7, Em, Em,
+             Am, F, C, G, Am, F, Dm, E7, Am, Am,
+             Dm, Am, F, C, Dm, Am, Bb, F, C, G, Am, E7, E7,
+             Em, Em, Em, B7, Em, Em, Am, Em, C, D, Em, B7, Em,
+             Am, Am, F, F, Dm, Dm, E7, E7,
+             Am, Am, F, Dm, E7, Am, C, G, Am, E7, Am, Am]
+    melody:
+      - [[E4, 2], [G4, 2], [B4, 2]]                    # 60: P, the tide, at the cutting
+      - [[E5, 2], [D5, 2], [B4, 2]]                    # 61: P, crest and fall
+      - [[C5, 2], [E5, 2], [G5, 2]]                    # 62: the chalk walls open out
+      - [[F#5, 2], [E5, 2], [D5, 2]]                   # 63
+      - [[E4, 2], [G4, 2], [B4, 2]]                    # 64: P again, the headlight pool
+      - [[E5, 2], [D5, 2], [B4, 2]]                    # 65
+      - [[A4, 2], [C5, 2], [E5, 2]]                    # 66: the first hint of home
+      - [[D#5, 2], [B4, 2], [F#4, 2]]                  # 67
+      - [[E5, 4], [B4, 2]]                              # 68
+      - [[E5, 6]]                                       # 69: one long note, the cathedral appears
+      - [[A4, 4], [F4, 2]]                              # 70: K augmented, the silhouette
+      - [[C5, 4], [A4, 2]]                              # 71
+      - [[E4, 4], [G4, 2]]                              # 72
+      - [[D4, 2], [B3, 2], [G3, 2]]                     # 73: the low register, one caption
+      - [[C5, 3], [A4, 1], [B4, 1], [C5, 1]]            # 74: K, literal (statement two of two)
+      - [[F5, 3], [D5, 1], [E5, 1], [F5, 1]]            # 75
+      - [[A5, 3], [G5, 1], [F5, 1], [E5, 1]]            # 76
+      - [[D5, 2], [C5, 2], [B4, 2]]                     # 77
+      - [[A4, 6]]                                        # 78: the cathedral passes
+      - [[A4, 6]]                                        # 79: the cue holds while the caption is read
+      - [[D5, 2], [F5, 2], [A5, 2]]                     # 80: open motorway, sign 30
+      - [[C5, 2], [E5, 2], [A5, 2]]                     # 81
+      - [[A4, 2], [C5, 2], [F5, 2]]                     # 82
+      - [[G4, 2], [C5, 2], [E5, 2]]                     # 83
+      - [[D5, 2], [F5, 2], [A5, 2]]                     # 84
+      - [[C5, 2], [E5, 2], [A5, 2]]                     # 85
+      - [[D5, 2], [F5, 2], [Bb5, 2]]                    # 86: the one flat, the sky turning
+      - [[C5, 2], [F5, 2], [A5, 2]]                     # 87
+      - [[B4, 2], [E5, 2], [G5, 2]]                     # 88
+      - [[B4, 2], [D5, 2], [G5, 2]]                     # 89
+      - [[C5, 2], [E5, 2], [A5, 2]]                     # 90
+      - [[B4, 2], [D5, 2], [G#4, 2]]                    # 91
+      - [[G#4, 4], [B4, 2]]                              # 92
+      - [[E5, 1], [E5, 1], [G5, 1], [E5, 1], [B4, 1], [r, 1]]  # 93: the storm, eighth hammering
+      - [[D5, 2], [C#5, 2], [r, 2]]                     # 94: H in the lightning
+      - [[A4, 2], [G#4, 2], [r, 2]]                     # 95: H, the second prong
+      - [[B4, 2], [D#5, 2], [F#5, 2]]                   # 96
+      - [[E5, 2], [G5, 2], [B5, 2]]                     # 97: the crest of the storm
+      - [[E5, 2], [D5, 2], [B4, 2]]                     # 98: P inside the storm
+      - [[C5, 2], [B4, 2], [A4, 2]]                     # 99
+      - [[B4, 2], [E5, 2], [G5, 2]]                     # 100
+      - [[C5, 2], [E5, 2], [G5, 2]]                     # 101
+      - [[F#5, 2], [E5, 2], [D5, 2]]                    # 102
+      - [[E5, 2], [G5, 2], [B5, 2]]                     # 103
+      - [[A5, 2], [F#5, 2], [D#5, 2]]                   # 104
+      - [[E5, 4], [B4, 2]]                               # 105: the storm passes
+      - [[A4, 2], [C5, 2], [E5, 2]]                     # 106: slip road, sign 20
+      - [[E5, 2], [D5, 2], [C5, 2]]                     # 107
+      - [[F5, 2], [E5, 2], [C5, 2]]                     # 108
+      - [[A4, 2], [C5, 2], [F5, 2]]                     # 109
+      - [[D5, 2], [F5, 2], [A5, 2]]                     # 110
+      - [[F5, 2], [D5, 2], [A4, 2]]                     # 111
+      - [[B4, 2], [D5, 2], [G#4, 2]]                    # 112: the last climb
+      - [[G#4, 2], [B4, 2], [D5, 2]]                    # 113
+      - [[A4, 2], [C5, 2], [E5, 2]]                     # 114: the docks, P moved to A minor
+      - [[A5, 2], [G5, 2], [E5, 2]]                     # 115: the lit ship
+      - [[F5, 2], [A5, 2], [C6, 2]]                     # 116
+      - [[D5, 2], [F5, 2], [A5, 2]]                     # 117
+      - [[G#4, 2], [B4, 2], [E5, 2]]                    # 118
+      - [[C5, 2], [E5, 2], [A5, 2]]                     # 119
+      - [[E5, 2], [G5, 2], [C6, 2]]                     # 120
+      - [[D5, 2], [G5, 2], [B5, 2]]                     # 121
+      - [[C6, 2], [A5, 2], [E5, 2]]                     # 122
+      - [[B4, 2], [G#4, 2], [D5, 2]]                    # 123: H, the last turn
+      - [[A4, 2], [C5, 2], [E5, 2]]                     # 124: K augmented into the cadence
+      - [[A4, 6]]                                        # 125: the tonic, held through the fade
+    texture: "the fullest section, because the film is arriving. vrc6 pulse a duty 0.25 with vibrato. pulse 1 the Alberti eighths, unbroken to the last bar. triangle the road surface, root and fifth, as in A. vrc6 saw oom pah shells. noise hats on beats 2 and 3, and a fill on the last bar of the section, which is bar 125. dpcm kick on beat 1 of every bar: the first time in the cue the downbeat is struck, which is what makes the docks read as an arrival. pulse 2 the echo, vrc6 pulse b silent in this section (the oom pah takes that register)."

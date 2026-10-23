@@ -1,0 +1,776 @@
+{
+  "bar_rows": [
+    {
+      "bar": 5,
+      "bar_in_block": 1,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s",
+      "section": "A"
+    },
+    {
+      "bar": 6,
+      "bar_in_block": 2,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s",
+      "section": "A"
+    },
+    {
+      "bar": 7,
+      "bar_in_block": 3,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,3:g,4:s",
+      "section": "A"
+    },
+    {
+      "bar": 8,
+      "bar_in_block": 4,
+      "block": "block1",
+      "fill": "fill4",
+      "pattern": "0:k,2:h,4.5:r,5:r",
+      "section": "A"
+    },
+    {
+      "bar": 9,
+      "bar_in_block": 1,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,1.5:g,2:h,4:s",
+      "section": "A"
+    },
+    {
+      "bar": 10,
+      "bar_in_block": 2,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s,5:g",
+      "section": "A"
+    },
+    {
+      "bar": 11,
+      "bar_in_block": 3,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:o,4:s",
+      "section": "A"
+    },
+    {
+      "bar": 12,
+      "bar_in_block": 4,
+      "block": "block2",
+      "fill": "fill8",
+      "pattern": "0:k,3:2,3.5:2,5:r,5.5:s",
+      "section": "A"
+    },
+    {
+      "bar": 13,
+      "bar_in_block": 1,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:o,4:s",
+      "section": "A_prime"
+    },
+    {
+      "bar": 14,
+      "bar_in_block": 2,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s",
+      "section": "A_prime"
+    },
+    {
+      "bar": 15,
+      "bar_in_block": 3,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:h,5:g",
+      "section": "A_prime"
+    },
+    {
+      "bar": 16,
+      "bar_in_block": 4,
+      "block": "block1",
+      "fill": "fill4",
+      "pattern": "0:k,2:h,5:h,5.5:s",
+      "section": "A_prime"
+    },
+    {
+      "bar": 17,
+      "bar_in_block": 1,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:h,3:r,4:s",
+      "section": "A_prime"
+    },
+    {
+      "bar": 18,
+      "bar_in_block": 2,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:o,4:s",
+      "section": "A_prime"
+    },
+    {
+      "bar": 19,
+      "bar_in_block": 3,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s,5:g",
+      "section": "A_prime"
+    },
+    {
+      "bar": 20,
+      "bar_in_block": 4,
+      "block": "block2",
+      "fill": "fill8",
+      "pattern": "0:k,3.5:1,4.5:2,5:r,5.5:s",
+      "section": "A_prime"
+    },
+    {
+      "bar": 21,
+      "bar_in_block": 1,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:h,0:k,2:h,4:s",
+      "section": "B"
+    },
+    {
+      "bar": 22,
+      "bar_in_block": 2,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:h",
+      "section": "B"
+    },
+    {
+      "bar": 23,
+      "bar_in_block": 3,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s",
+      "section": "B"
+    },
+    {
+      "bar": 24,
+      "bar_in_block": 4,
+      "block": "block1",
+      "fill": "fill4",
+      "pattern": "0:k,2:h,5:s,5.5:s",
+      "section": "B"
+    },
+    {
+      "bar": 25,
+      "bar_in_block": 1,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:h,0:k,2:h,4:s",
+      "section": "B"
+    },
+    {
+      "bar": 26,
+      "bar_in_block": 2,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:h,3:r,4:s",
+      "section": "B"
+    },
+    {
+      "bar": 27,
+      "bar_in_block": 3,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:o,4:h,5:g",
+      "section": "B"
+    },
+    {
+      "bar": 28,
+      "bar_in_block": 4,
+      "block": "block2",
+      "fill": "fill8",
+      "pattern": "0:k,3:3,3.5:2,4.5:1,5:r,5.5:s",
+      "section": "B"
+    },
+    {
+      "bar": 29,
+      "bar_in_block": 1,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s",
+      "section": "B_prime"
+    },
+    {
+      "bar": 30,
+      "bar_in_block": 2,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,1.5:g,2:h,4:s",
+      "section": "B_prime"
+    },
+    {
+      "bar": 31,
+      "bar_in_block": 3,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:o,4:s",
+      "section": "B_prime"
+    },
+    {
+      "bar": 32,
+      "bar_in_block": 4,
+      "block": "block1",
+      "fill": "fill4",
+      "pattern": "0:k,2:h,5:r,5.5:s",
+      "section": "B_prime"
+    },
+    {
+      "bar": 33,
+      "bar_in_block": 1,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:h,3:r,4:s,5:r",
+      "section": "B_prime"
+    },
+    {
+      "bar": 34,
+      "bar_in_block": 2,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s,5:g",
+      "section": "B_prime"
+    },
+    {
+      "bar": 35,
+      "bar_in_block": 3,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:o,4:s,4.5:g",
+      "section": "B_prime"
+    },
+    {
+      "bar": 36,
+      "bar_in_block": 4,
+      "block": "block2",
+      "fill": "fill8",
+      "pattern": "0:k,3:3,3.5:3,4.5:1,5:s,5.5:s",
+      "section": "B_prime"
+    },
+    {
+      "bar": 37,
+      "bar_in_block": 1,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,0:w,2:w,4:w",
+      "section": "C_trio"
+    },
+    {
+      "bar": 38,
+      "bar_in_block": 2,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,0:w,2:w,4:w",
+      "section": "C_trio"
+    },
+    {
+      "bar": 39,
+      "bar_in_block": 3,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:w,4:w",
+      "section": "C_trio"
+    },
+    {
+      "bar": 40,
+      "bar_in_block": 4,
+      "block": "block1",
+      "fill": "fill4",
+      "pattern": "0:k,0:w,2:w,5:w",
+      "section": "C_trio"
+    },
+    {
+      "bar": 41,
+      "bar_in_block": 1,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k",
+      "section": "C_trio"
+    },
+    {
+      "bar": 42,
+      "bar_in_block": 2,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:t,2:t,4:t",
+      "section": "C_trio"
+    },
+    {
+      "bar": 43,
+      "bar_in_block": 3,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:t",
+      "section": "C_trio"
+    },
+    {
+      "bar": 44,
+      "bar_in_block": 4,
+      "block": "block2",
+      "fill": "fill8",
+      "pattern": "0:k",
+      "section": "C_trio"
+    },
+    {
+      "bar": 45,
+      "bar_in_block": 1,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s",
+      "section": "A_return"
+    },
+    {
+      "bar": 46,
+      "bar_in_block": 2,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s",
+      "section": "A_return"
+    },
+    {
+      "bar": 47,
+      "bar_in_block": 3,
+      "block": "block1",
+      "fill": null,
+      "pattern": "0:k,2:h,4:s",
+      "section": "A_return"
+    },
+    {
+      "bar": 48,
+      "bar_in_block": 4,
+      "block": "block1",
+      "fill": "fill4",
+      "pattern": "0:k,2:h,4.5:r,5:r",
+      "section": "A_return"
+    },
+    {
+      "bar": 49,
+      "bar_in_block": 1,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,1.5:g,2:h,4:s",
+      "section": "A_return"
+    },
+    {
+      "bar": 50,
+      "bar_in_block": 2,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:h,3:g,4:s",
+      "section": "A_return"
+    },
+    {
+      "bar": 51,
+      "bar_in_block": 3,
+      "block": "block2",
+      "fill": null,
+      "pattern": "0:k,2:o,4:s",
+      "section": "A_return"
+    },
+    {
+      "bar": 52,
+      "bar_in_block": 4,
+      "block": "block2",
+      "fill": "fill8",
+      "pattern": "0:k,3:2,3.5:1,4.5:r",
+      "section": "A_return"
+    }
+  ],
+  "dissonance": {
+    "applied_count": 11,
+    "devices_per_8_bars": 1.69,
+    "min_spacing_ok": true,
+    "moments": [
+      {
+        "applied": true,
+        "bar": 7,
+        "beat": 2.0,
+        "device": "DIS-02",
+        "note": "chromatic lower neighbour in the counter, over Am",
+        "pitch_after": 59,
+        "pitch_before": 60,
+        "resolution_semitones": 1,
+        "resolves_to": 60,
+        "risk": 1,
+        "section": "A",
+        "voice": "vrc6 pulse b"
+      },
+      {
+        "applied": true,
+        "bar": 11,
+        "beat": 2.0,
+        "device": "DIS-17",
+        "note": "flat six over the E7b9, falling to the fifth",
+        "pitch_after": 51,
+        "pitch_before": 50,
+        "resolution_semitones": -1,
+        "resolves_to": 50,
+        "risk": 1,
+        "section": "A",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 14,
+        "beat": 2.5,
+        "device": "DIS-07",
+        "note": "accented passing tone on beat 2 over E7",
+        "pitch_after": 78,
+        "pitch_before": 77,
+        "resolution_semitones": -1,
+        "resolves_to": 77,
+        "risk": 2,
+        "section": "A_prime",
+        "voice": "vrc6 pulse b"
+      },
+      {
+        "applied": true,
+        "bar": 20,
+        "beat": 1.0,
+        "device": "DIS-03",
+        "note": "appoggiatura on the arpeggio at the cadence",
+        "pitch_after": 65,
+        "pitch_before": 57,
+        "resolution_semitones": -1,
+        "resolves_to": 64,
+        "risk": 2,
+        "section": "A_prime",
+        "voice": "pulse 1"
+      },
+      {
+        "applied": true,
+        "bar": 25,
+        "beat": 2.5,
+        "device": "DIS-02",
+        "note": "chromatic lower neighbour in the arpeggio over F",
+        "pitch_after": 64,
+        "pitch_before": 60,
+        "resolution_semitones": 1,
+        "resolves_to": 65,
+        "risk": 1,
+        "section": "B",
+        "voice": "pulse 1"
+      },
+      {
+        "applied": true,
+        "bar": 27,
+        "beat": 1.0,
+        "device": "DIS-11",
+        "note": "flat nine in the E7 pad, released on the next bar line",
+        "pitch_after": 53,
+        "pitch_before": 50,
+        "resolution_semitones": -3,
+        "resolves_to": 50,
+        "risk": 3,
+        "section": "B",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 31,
+        "beat": 2.0,
+        "device": "DIS-02",
+        "note": "chromatic lower neighbour in the arpeggio over C",
+        "pitch_after": 66,
+        "pitch_before": 64,
+        "resolution_semitones": 1,
+        "resolves_to": 67,
+        "risk": 1,
+        "section": "B_prime",
+        "voice": "pulse 1"
+      },
+      {
+        "applied": true,
+        "bar": 35,
+        "beat": 1.0,
+        "device": "DIS-11",
+        "note": "flat nine again, eight bars later",
+        "pitch_after": 53,
+        "pitch_before": 50,
+        "resolution_semitones": -3,
+        "resolves_to": 50,
+        "risk": 3,
+        "section": "B_prime",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 39,
+        "beat": 2.0,
+        "device": "DIS-07",
+        "note": "passing tone over B7b9, the D against D sharp",
+        "pitch_after": 49,
+        "pitch_before": 51,
+        "resolution_semitones": 2,
+        "resolves_to": 51,
+        "risk": 2,
+        "section": "C_trio",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 42,
+        "beat": 1.0,
+        "device": "DIS-03",
+        "note": "appoggiatura over the D minor bar of the cold half",
+        "pitch_after": 70,
+        "pitch_before": 74,
+        "resolution_semitones": -1,
+        "resolves_to": 69,
+        "risk": 2,
+        "section": "C_trio",
+        "voice": "pulse 1"
+      },
+      {
+        "applied": false,
+        "bar": 44,
+        "beat": 1.0,
+        "device": "DIS-17",
+        "note": "flat six on the way out of the trio",
+        "reason": "the voice has no note to resolve into at this point",
+        "risk": 1,
+        "section": "C_trio",
+        "voice": "vrc6 saw"
+      },
+      {
+        "applied": true,
+        "bar": 47,
+        "beat": 2.0,
+        "device": "DIS-02",
+        "note": "lower neighbour in the return of the theme",
+        "pitch_after": 47,
+        "pitch_before": 48,
+        "resolution_semitones": 1,
+        "resolves_to": 48,
+        "risk": 1,
+        "section": "A_return",
+        "voice": "vrc6 saw"
+      }
+    ],
+    "policy_devices_per_8_bars": [
+      1.0,
+      2.0
+    ],
+    "risk_3_count": 2,
+    "risk_3_min_gap_bars": 8,
+    "risk_3_spacing_ok": true
+  },
+  "distinct_4_bar_blocks": 12,
+  "distinct_8_bar_spans": 6,
+  "drum_hits": {
+    "dpcm": 96,
+    "noise": 79
+  },
+  "fills": {
+    "fill4": 6,
+    "fill4b": 0,
+    "fill8": 6
+  },
+  "four_bar_blocks": {
+    "A/block1": {
+      "bars": 4,
+      "patterns": [
+        "0:k,2:h,4:s",
+        "0:k,2:h,4:s",
+        "0:k,2:h,3:g,4:s",
+        "0:k,2:h,4.5:r,5:r"
+      ]
+    },
+    "A/block2": {
+      "bars": 4,
+      "patterns": [
+        "0:k,1.5:g,2:h,4:s",
+        "0:k,2:h,4:s,5:g",
+        "0:k,2:o,4:s",
+        "0:k,3:2,3.5:2,5:r,5.5:s"
+      ]
+    },
+    "A_prime/block1": {
+      "bars": 4,
+      "patterns": [
+        "0:k,2:o,4:s",
+        "0:k,2:h,4:s",
+        "0:k,2:h,4:h,5:g",
+        "0:k,2:h,5:h,5.5:s"
+      ]
+    },
+    "A_prime/block2": {
+      "bars": 4,
+      "patterns": [
+        "0:k,2:h,3:r,4:s",
+        "0:k,2:o,4:s",
+        "0:k,2:h,4:s,5:g",
+        "0:k,3.5:1,4.5:2,5:r,5.5:s"
+      ]
+    },
+    "A_return/block1": {
+      "bars": 4,
+      "patterns": [
+        "0:k,2:h,4:s",
+        "0:k,2:h,4:s",
+        "0:k,2:h,4:s",
+        "0:k,2:h,4.5:r,5:r"
+      ]
+    },
+    "A_return/block2": {
+      "bars": 4,
+      "patterns": [
+        "0:k,1.5:g,2:h,4:s",
+        "0:k,2:h,3:g,4:s",
+        "0:k,2:o,4:s",
+        "0:k,3:2,3.5:1,4.5:r"
+      ]
+    },
+    "B/block1": {
+      "bars": 4,
+      "patterns": [
+        "0:h,0:k,2:h,4:s",
+        "0:k,2:h,4:h",
+        "0:k,2:h,4:s",
+        "0:k,2:h,5:s,5.5:s"
+      ]
+    },
+    "B/block2": {
+      "bars": 4,
+      "patterns": [
+        "0:h,0:k,2:h,4:s",
+        "0:k,2:h,3:r,4:s",
+        "0:k,2:o,4:h,5:g",
+        "0:k,3:3,3.5:2,4.5:1,5:r,5.5:s"
+      ]
+    },
+    "B_prime/block1": {
+      "bars": 4,
+      "patterns": [
+        "0:k,2:h,4:s",
+        "0:k,1.5:g,2:h,4:s",
+        "0:k,2:o,4:s",
+        "0:k,2:h,5:r,5.5:s"
+      ]
+    },
+    "B_prime/block2": {
+      "bars": 4,
+      "patterns": [
+        "0:k,2:h,3:r,4:s,5:r",
+        "0:k,2:h,4:s,5:g",
+        "0:k,2:o,4:s,4.5:g",
+        "0:k,3:3,3.5:3,4.5:1,5:s,5.5:s"
+      ]
+    },
+    "C_trio/block1": {
+      "bars": 4,
+      "patterns": [
+        "0:k,0:w,2:w,4:w",
+        "0:k,0:w,2:w,4:w",
+        "0:k,2:w,4:w",
+        "0:k,0:w,2:w,5:w"
+      ]
+    },
+    "C_trio/block2": {
+      "bars": 4,
+      "patterns": [
+        "0:k",
+        "0:t,2:t,4:t",
+        "0:k,2:t",
+        "0:k"
+      ]
+    }
+  },
+  "hole": {
+    "bars": [
+      44,
+      45
+    ],
+    "from_slot": 3.0,
+    "until_slot": 0.0
+  },
+  "out_midi": "<repo>\\assets\\audio\\title_theme_v5\\title_theme_v5_pre.mid",
+  "score": "<repo>\\assets\\audio\\title_theme_v5\\score_v5.yaml",
+  "section_level": {
+    "A": -6,
+    "A_prime": -2,
+    "A_return": 2,
+    "B": -8,
+    "B_prime": 4,
+    "C_trio": -14
+  },
+  "seed": 20261022,
+  "source_midi": "<repo>\\assets\\audio\\title_theme_v5\\title_theme_v5_base.mid",
+  "timing_feel_ticks": {
+    "1": [
+      0,
+      3
+    ],
+    "2": [
+      0,
+      3
+    ],
+    "3": [
+      0,
+      2
+    ],
+    "g": [
+      -1,
+      5
+    ],
+    "h": [
+      -2,
+      4
+    ],
+    "k": [
+      -2,
+      3
+    ],
+    "o": [
+      -1,
+      4
+    ],
+    "r": [
+      0,
+      5
+    ],
+    "s": [
+      -2,
+      4
+    ],
+    "t": [
+      0,
+      3
+    ],
+    "w": [
+      0,
+      0
+    ]
+  },
+  "velocity_jitter": {
+    "1": 3,
+    "2": 3,
+    "3": 2,
+    "g": 3,
+    "h": 4,
+    "k": 3,
+    "o": 4,
+    "r": 3,
+    "s": 3,
+    "t": 3,
+    "w": 3
+  },
+  "voice_dropout": {
+    "applied": true,
+    "bars": [
+      45,
+      48
+    ],
+    "notes_dropped": 24,
+    "section": "A_return"
+  }
+}

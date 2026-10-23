@@ -1,0 +1,162 @@
+{
+  "bars": 52,
+  "criteria": [
+    {
+      "criterion": "motif coverage",
+      "fraction": 0.365,
+      "ideal": "at least 60%",
+      "key": "motif_coverage",
+      "measured": "22% of 137 notes inside the motif",
+      "pass": false,
+      "points": 7.3,
+      "suggestion": "the motif leaves too many notes outside it; move material into the 2 bar phrase or drop the notes that do not belong",
+      "weight": 20
+    },
+    {
+      "criterion": "loop length",
+      "fraction": 0.2,
+      "ideal": "8 or 16 or 32 bars",
+      "key": "loop_length",
+      "measured": "52 bars",
+      "pass": false,
+      "points": 1.2,
+      "suggestion": "52 bars does not loop cleanly; write 8, 16 or 32 bars so the cue can repeat without a seam",
+      "weight": 6
+    },
+    {
+      "criterion": "leaps per motif",
+      "fraction": 0.5,
+      "ideal": "exactly 1",
+      "key": "leaps_per_motif",
+      "measured": "0 leaps",
+      "pass": false,
+      "points": 4.0,
+      "suggestion": "the motif has 0 leaps; one leap (5 or more semitones) per motif is what makes it sing",
+      "weight": 8
+    },
+    {
+      "criterion": "range",
+      "fraction": 0.6207,
+      "ideal": "at most 18 semitones",
+      "key": "range",
+      "measured": "29 semitones (64 to 93)",
+      "pass": false,
+      "points": 4.97,
+      "suggestion": "the melody spans 29 semitones; keep it inside an octave and a half so it stays singable",
+      "weight": 8
+    },
+    {
+      "criterion": "contour",
+      "fraction": 0.75,
+      "ideal": "every return arch or pedal",
+      "key": "contour",
+      "measured": "3 of 4 returns are arch or pedal (pedal arch - arch)",
+      "pass": false,
+      "points": 7.5,
+      "suggestion": "the phrase wanders; shape it as an arch (rise to one peak then fall) or hold a pedal pitch",
+      "weight": 10
+    },
+    {
+      "criterion": "motif returns",
+      "fraction": 1.0,
+      "ideal": "at least 3",
+      "key": "motif_returns",
+      "measured": "4 returns",
+      "pass": true,
+      "points": 12.0,
+      "suggestion": "",
+      "weight": 12
+    },
+    {
+      "criterion": "hook cell",
+      "fraction": 1.0,
+      "ideal": "2 to 6 notes with a repeated rhythm cell",
+      "key": "hook_cell",
+      "measured": "6 notes, rhythm 2/2/2/11/5/2 repeated 2 times",
+      "pass": true,
+      "points": 10.0,
+      "suggestion": "",
+      "weight": 10
+    },
+    {
+      "criterion": "steps over leaps",
+      "fraction": 1.0,
+      "ideal": "at least 65% steps",
+      "key": "step_ratio",
+      "measured": "100% steps (6 of 6 intervals), 0 leaps",
+      "pass": true,
+      "points": 12.0,
+      "suggestion": "",
+      "weight": 12
+    },
+    {
+      "criterion": "variation on the third return",
+      "fraction": 1.0,
+      "ideal": "30 to 85% the same",
+      "key": "third_return",
+      "measured": "50% the same as the first return",
+      "pass": true,
+      "points": 8.0,
+      "suggestion": "",
+      "weight": 8
+    },
+    {
+      "criterion": "repeated pitch",
+      "fraction": 1.0,
+      "ideal": "at least 1",
+      "key": "repeat_pitch",
+      "measured": "3 repeated pitches in a row",
+      "pass": true,
+      "points": 6.0,
+      "suggestion": "",
+      "weight": 6
+    }
+  ],
+  "grammar": "<repo>\\knowledge\\MUSIC-HOOK-GRAMMAR.md",
+  "grid": "sixteenth",
+  "melody_track": "vrc6 pulse a",
+  "midi_tracks": [
+    "meta",
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "motif": {
+    "bars": 2,
+    "coverage": 0.219,
+    "notes": 7,
+    "occurrence_bars": [
+      2,
+      10,
+      18,
+      50
+    ],
+    "returns": 4,
+    "start_bar": 9
+  },
+  "notes": 137,
+  "points": 72.97,
+  "score": 73,
+  "source": "<repo>\\assets\\audio\\title_theme_v5\\title_theme_v5.mid",
+  "suggestions": [
+    "the motif leaves too many notes outside it; move material into the 2 bar phrase or drop the notes that do not belong",
+    "52 bars does not loop cleanly; write 8, 16 or 32 bars so the cue can repeat without a seam",
+    "the motif has 0 leaps; one leap (5 or more semitones) per motif is what makes it sing",
+    "the melody spans 29 semitones; keep it inside an octave and a half so it stays singable",
+    "the phrase wanders; shape it as an arch (rise to one peak then fall) or hold a pedal pitch"
+  ],
+  "tempo_us": 476190,
+  "weakest": {
+    "criterion": "motif coverage",
+    "fraction": 0.365,
+    "key": "motif_coverage",
+    "of": 20,
+    "points": 7.3
+  },
+  "weights_total": 100
+}

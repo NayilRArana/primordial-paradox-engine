@@ -1,0 +1,121 @@
+{
+  "bpm": 126.0,
+  "breaths": 20,
+  "bytes_in": 13158,
+  "bytes_out": 19632,
+  "changed_fraction": 0.9962,
+  "division": 480,
+  "envelope_points": 1604,
+  "fills": 24,
+  "floor_misses": 2,
+  "grace_notes": 1,
+  "loop_period_bars": 8,
+  "midi_in": "<repo>\\assets\\audio\\title_theme_v5\\title_theme_v5_pre.mid",
+  "midi_out": "<repo>\\assets\\audio\\title_theme_v5\\title_theme_v5.mid",
+  "mordents": 1,
+  "motif": {
+    "bars": 2,
+    "returns": 4,
+    "start_bar": 2,
+    "third_return_bar": 18
+  },
+  "notes": 1060,
+  "notes_by_track": {
+    "dpcm": {
+      "changed": 94,
+      "floor_misses": 0,
+      "notes": 96,
+      "role": "kick"
+    },
+    "meta": {
+      "changed": 0,
+      "floor_misses": 0,
+      "notes": 0,
+      "role": "other"
+    },
+    "noise": {
+      "changed": 78,
+      "floor_misses": 0,
+      "notes": 79,
+      "role": "drums"
+    },
+    "pulse 1": {
+      "changed": 288,
+      "floor_misses": 0,
+      "notes": 288,
+      "role": "arpeggio"
+    },
+    "pulse 2": {
+      "changed": 93,
+      "floor_misses": 0,
+      "notes": 93,
+      "role": "echo"
+    },
+    "triangle": {
+      "changed": 120,
+      "floor_misses": 0,
+      "notes": 120,
+      "role": "bass"
+    },
+    "vrc6 pulse a": {
+      "changed": 133,
+      "floor_misses": 2,
+      "notes": 137,
+      "role": "melody"
+    },
+    "vrc6 pulse b": {
+      "changed": 90,
+      "floor_misses": 0,
+      "notes": 90,
+      "role": "counter"
+    },
+    "vrc6 saw": {
+      "changed": 160,
+      "floor_misses": 0,
+      "notes": 160,
+      "role": "pad"
+    }
+  },
+  "notes_changed": 1056,
+  "notes_in": 1060,
+  "notes_out": 1087,
+  "onset_frames": 0.75,
+  "onset_shifts": 648,
+  "ornament_notes": [
+    [
+      24240,
+      76
+    ],
+    [
+      24420,
+      75
+    ],
+    [
+      24480,
+      77
+    ],
+    [
+      24540,
+      78
+    ],
+    [
+      24600,
+      77
+    ]
+  ],
+  "section_bars": [
+    8,
+    16,
+    24,
+    32,
+    40,
+    48,
+    52
+  ],
+  "seed": 20261022,
+  "sha256_in": "55b86c3dc90a797de14fb3a6107fe24c21f4a0f30e21275d1d512034805ce54a",
+  "sha256_out": "74229a89c6bd9d32031b9ada6b8b81f1c61953f229359a4c8260ea059d5f40e3",
+  "tempo_us": 476190,
+  "ticks_per_frame": 16.8,
+  "vibrato_notes": 20
+}
