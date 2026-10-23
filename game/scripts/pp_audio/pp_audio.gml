@@ -303,6 +303,10 @@ function pp_audio_sfx(_kind, _id) {
     array_push(_a.sfx_insts, _inst);
     // The instance list is the pause rule's working set, so it is capped; a long scene cannot grow it without bound.
     while (array_length(_a.sfx_insts) > PP_AUDIO_SFX_SLOTS) array_delete(_a.sfx_insts, 0, 1);
+    // Card SFX-WIRE: this path is the text blip and the scene's own effects, so it writes the same one line per play
+    // that pp_audio_play writes. Without it a blip could be asked for and heard with nothing in the log to prove it,
+    // which is exactly what the cue check reads.
+    show_debug_message("PP audio: " + string(_id) + " played, instance " + string(_inst));
     return _inst;
 }
 

@@ -108,7 +108,7 @@
       ],
       "triggers": [
         {
-          "x": 3,
+          "x": 2,
           "y": 12,
           "kind": "save",
           "id": "lower_deck_save",
