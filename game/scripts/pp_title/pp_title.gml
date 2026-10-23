@@ -68,8 +68,12 @@
 // Where the logo, the prompt, the window and its rows sit, in frame pixels. The window is the classic NES JRPG
 // box, low and centred, sized in whole 8x8 tiles (18 by 9) because the art lane's spr_pp_window is nine tiles and
 // scaling it would tear its edges. The four rows sit inside its 8 pixel border, and the cursor is against that edge.
+// Two of these numbers are also palette boundaries (card t_a1170172): the frame is drawn in four 16 px row bands, so
+// the logo starts at row 0 and ends at row 63, inside the first band group, and the car sits from row 193 down, so
+// its 32 rows stay in the road's bands and never put a car colour in the field's. Moving either without moving the
+// band plan in data/palettes/scene_title.json takes the frame off the palette it is drawn in.
 #macro PP_TITLE_LOGO_X 16
-#macro PP_TITLE_LOGO_Y 2
+#macro PP_TITLE_LOGO_Y 0
 #macro PP_TITLE_PROMPT_Y 72
 #macro PP_TITLE_MENU_WIN_X 56
 #macro PP_TITLE_MENU_WIN_Y 148
@@ -98,7 +102,7 @@
 #macro PP_TITLE_SEEN_FILE "pp_title_seen.txt"
 // The car sits at the left of the road, and the headlight cone is on the tarmac ahead of it.
 #macro PP_TITLE_CAR_X 76
-#macro PP_TITLE_CAR_Y 186
+#macro PP_TITLE_CAR_Y 193
 #macro PP_TITLE_CONE_X 140
 #macro PP_TITLE_CONE_Y 200
 // The wheel arches and the two window openings of the car sprite, measured from its own pixels by
@@ -286,6 +290,10 @@ function pp_title_step(_params) {
     // The storm flashes on its own clock in every phase but the intro, which is a cutscene and owns its own light.
     if (_s.phase != "intro") pp_title_step_lightning(_s);
 
+    // Leaving is a real phase and not a fall through: the run has been asked for and the frame is inside the twelve
+    // step fade (spec 01 rule 2), so the title must not read a key or start a second run on the way out.
+    if (_s.phase == "leaving") return;
+
     if (_s.phase == "open") {
         _s.open += 1;
         if (pp_input_any_pressed() || _s.open >= PP_TITLE_OPEN_STEPS) {
@@ -298,9 +306,13 @@ function pp_title_step(_params) {
     }
 
     if (_s.phase == "prompt") {
-        if (pp_pressed("confirm")) {
+        // START opens the menu, and the confirm key does too: the row on screen says PRESS START, the pad's start is
+        // the menu action in spec 02's bindings, and Z or ENTER are the two keys spec 14's logo names.
+        if (pp_pressed("confirm") || pp_pressed("menu")) {
             _s.phase = "menu";
-            _s.menu_index = 0;
+            // The first row, by name and not by position: a data file that reorders the menu still lands the cursor
+            // on NEW GAME (spec 14: the menu opens on NEW GAME).
+            _s.menu_index = pp_title_menu_index(_s, "NEW GAME");
             pp_audio_play("menu_select");
         }
         return;
@@ -354,6 +366,51 @@ function pp_title_flashing(_s) {
     return is_struct(_s) && _s.flash_left > 0;
 }
 
+/// The row a name sits on in the menu table, or 0 when the table does not carry it. The cursor starts on a row by
+/// name because the table can come from data\\title.json, and a reordered file must still open on NEW GAME.
+function pp_title_menu_index(_s, _name) {
+    if (!is_struct(_s) || !is_struct(_s.data) || !is_array(_s.data.menu)) return 0;
+    for (var i = 0; i < array_length(_s.data.menu); i += 1) {
+        if (string(_s.data.menu[i]) == string(_name)) return i;
+    }
+    return 0;
+}
+
+/// Move the frame to the room a run is played in. Both title paths end in the overworld and that mode is drawn by the
+/// persistent obj_pp_game, so the room only has to be the one the run's frame lives in, which is rm_pp_ship.
+/// asset_get_index keeps a build that predates the room compiling; the app's own request has named the mode either way.
+function pp_title_goto_run_room() {
+    var _room = asset_get_index(PP_NEW_GAME_ROOM);
+    if (_room != -1 && room != _room) room_goto(_room);
+    return true;
+}
+
+/// What follows the crawl on the demo's route (data/slice.json, card R24). The crawl is the last thing this screen
+/// plays, so the step after it is where the run begins, and the route is the one place that says what that step is.
+/// A route whose next step is not in the build yet, which is the drive until card R21 writes it, leaves the new run's
+/// own map standing: that is the handoff this screen made before the route existed, and the reason is printed once.
+function pp_title_crawl_handoff() {
+    // When the demo walk is switched on, the walk takes every step's handoff (card R24), so the screen does not take
+    // this one as well: one owner per handoff keeps the drive scene from being asked for twice.
+    if (pp_slice_walk_enabled()) return false;
+    var _crawl = pp_slice_route_row("crawl");
+    if (!is_struct(_crawl) || !variable_struct_exists(_crawl, "next")) return false;
+    var _next_id = string(_crawl.next);
+    if (_next_id == "") return false;
+    var _next = pp_slice_route_row(_next_id);
+    if (!is_struct(_next)) {
+        show_debug_message("PP title: the route after the crawl names " + _next_id + ", which is not in the route");
+        return false;
+    }
+    var _why = pp_slice_handoff(_next);
+    if (_why != "") {
+        show_debug_message("PP title: the route's next step " + _next_id + " cannot be taken yet: " + _why);
+        return false;
+    }
+    show_debug_message("PP title: the crawl handed to the route's step " + _next_id);
+    return true;
+}
+
 /// What the chosen row does.
 function pp_title_select(_s) {
     var _row = _s.menu_index;
@@ -375,13 +432,20 @@ function pp_title_select(_s) {
         return;
     }
     if (_name == "CONTINUE") {
-        // The row is greyed when there is no save, so choosing it does nothing but make a noise.
+        // The row is greyed when there is no save, so choosing it does nothing but make a noise (spec 11: CONTINUE
+        // is only offered while the slot holds a run that was read and validated).
         if (!pp_save_ready()) {
             pp_audio_play("menu_move");
             return;
         }
         pp_audio_play("menu_select");
-        pp_save_apply();
+        // Applying the save puts the ledger, the map and the saved tile back and asks the app for the overworld, but
+        // it does not move the room: pp_save is card R26's file and this card may not edit it, so the one line the
+        // load needs is taken here, on the same room a new run is played in.
+        if (pp_save_apply()) {
+            _s.phase = "leaving";
+            pp_title_goto_run_room();
+        }
         return;
     }
     if (_name == "SETTINGS") {
@@ -408,7 +472,10 @@ function pp_title_draw(_params) {
     var _d = _s.data;
     var _flash = pp_title_flashing(_s);
 
-    draw_set_colour(pp_role_colour("ink"));
+    // The clear is the scene's own backdrop, $0F black, and not the design palette's ink: #0b0b0f is a bookkeeping
+    // colour, not a PPU output, and the four rows the layers leave open above the road used to show it (card
+    // t_a1170172, which measured 1314 pixels of it). A hole in the art now shows black, which the frame is allowed.
+    draw_set_colour(PP_TITLE_BACKDROP);
     draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
 
     // The intro is its own shot, drawn from the same layers but with a camera that has left the road, so it does
@@ -572,7 +639,8 @@ function pp_title_draw_words(_s, _d) {
         pp_title_draw_copy();
         return;
     }
-    // The menu, inside the window. CONTINUE is greyed when the slot holds no run.
+    // The menu, inside the window. CONTINUE is greyed when the slot holds no run: the title font has one weight, so the
+    // dim is the same dim the settings placeholder uses, and the row still answers a press with the move cue only.
     pp_title_draw_menu_window();
     var _has_save = pp_title_has_save();
     for (var i = 0; i < array_length(_d.menu); i += 1) {
@@ -601,20 +669,20 @@ function pp_title_draw_menu_window() {
 }
 
 /// The box drawn by hand, from the palette roles. This is the fallback while the window sprite is not in the
-/// build, and it is the same two pale borders over a dark field.
+/// build, and it is the same shadow line and white border over a black field the sheet carries.
 function pp_title_draw_window_plain(_x, _y, _w, _h) {
-    draw_set_colour(pp_role_colour("window"));
+    draw_set_colour(PP_TITLE_BACKDROP);
     draw_rectangle(_x + 2, _y + 2, _x + _w - 2, _y + _h - 2, false);
-    draw_set_colour(pp_role_colour("window_shadow"));
+    draw_set_colour(PP_TITLE_DIM);
     draw_rectangle(_x, _y, _x + _w - 1, _y + _h - 1, true);
-    draw_set_colour(pp_role_colour("window_edge"));
+    draw_set_colour(PP_TITLE_WHITE);
     draw_rectangle(_x + 1, _y + 1, _x + _w - 2, _y + _h - 2, true);
 }
 
-/// The copyright line: one quiet row at the bottom of the frame, on every phase but the opening. The grey is the
-/// window's own #7c7c7c, so the line sits behind the frame rather than competing with it.
+/// The copyright line: one quiet row at the bottom of the frame, on every phase but the opening. The font carries one
+/// ink, so the line is the same white as the menu and sits behind the frame rather than in it.
 function pp_title_draw_copy() {
-    pp_font_draw_centre(PP_TITLE_COPY_TEXT, PP_FRAME_W / 2, PP_TITLE_COPY_Y, PP_TITLE_GREY, 1);
+    pp_font_draw_centre(PP_TITLE_COPY_TEXT, PP_FRAME_W / 2, PP_TITLE_COPY_Y, PP_TITLE_WHITE, 1);
 }
 
 /// The settings placeholder: a title and one row, BACK, inside the same window frame as the menu (26 by 9 tiles).
@@ -833,6 +901,10 @@ function pp_title_step_intro(_s) {
             _s.phase = "leaving";
             show_debug_message("PP title: intro finished, starting the run in " + PP_NEW_GAME_ROOM);
             pp_save_new_game();
+            // The crawl's handoff to the demo's route (card R24). A newer request replaces the one just made (spec 01
+            // rule 2), so a route that knows what follows the crawl is taken here and one that does not leaves the
+            // new run's own map standing.
+            pp_title_crawl_handoff();
         }
     }
 }
