@@ -24,6 +24,9 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/objects/obj_pp_debug_overlay/Create_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_debug_overlay/Draw_64.gml | reviewed | gamedev | 2026-10-22 |
 | game/objects/obj_pp_debug_overlay/Step_0.gml | confirmed | code-review | 2026-10-19 |
+| game/objects/obj_pp_drive/Create_0.gml | reviewed | code-review | 2026-10-23 |
+| game/objects/obj_pp_drive/Draw_0.gml | reviewed | code-review | 2026-10-23 |
+| game/objects/obj_pp_drive/Step_0.gml | reviewed | code-review | 2026-10-23 |
 | game/objects/obj_pp_game/Create_0.gml | reviewed | gamedev | 2026-10-21 |
 | game/objects/obj_pp_game/Draw_0.gml | confirmed | code-review | 2026-10-19 |
 | game/objects/obj_pp_game/Other_72.gml | confirmed | code-review | 2026-10-22 |
@@ -43,6 +46,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_config/pp_config.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_data/pp_data.gml | confirmed | gamedev review | 2026-10-22 |
 | game/scripts/pp_dialogue/pp_dialogue.gml | rewritten | gamedev | 2026-10-22 |
+| game/scripts/pp_drive/pp_drive.gml | reviewed | code-review | 2026-10-23 |
 | game/scripts/pp_dodge_arena/pp_dodge_arena.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_dodge_recipe/pp_dodge_recipe.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_input/pp_input.gml | confirmed | code-review | 2026-10-19 |
@@ -50,7 +54,7 @@ review's method: the "clean-room re-review 2026-10-19" section at the end of `kn
 | game/scripts/pp_ledger/pp_ledger.gml | reviewed | gamedev | 2026-10-22 |
 | game/scripts/pp_look/pp_look.gml | confirmed | code-review | 2026-10-22 |
 | game/scripts/pp_map/pp_map.gml | rewritten | code-review | 2026-10-19 |
-| game/scripts/pp_map_tile/pp_map_tile.gml | pending | builder | 2026-10-22 |
+| game/scripts/pp_map_tile/pp_map_tile.gml | reviewed | code-review | 2026-10-23 |
 | game/scripts/pp_overworld/pp_overworld.gml | rewritten | code-review | 2026-10-19 |
 | game/scripts/pp_rng/pp_rng.gml | confirmed | code-review | 2026-10-19 |
 | game/scripts/pp_save/pp_save.gml | confirmed | gamedev review | 2026-10-22 |
