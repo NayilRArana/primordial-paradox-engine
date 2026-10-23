@@ -116,6 +116,26 @@ A_fugue, the wrap step is at most 1 percent of peak (it is 0 samples), the 1 ms 
   a commit and the shared tree has hundreds of files from other lanes waiting. Q: for gamedev to commit
   this folder with the next delivery commit; `check_data.py` passes on the same tree.
 
+## Which files here the commit carries, and why two do not
+
+Committed: `score_pp_05.yaml`, `pp_05_small_ship.ogg`, `pp_05_small_ship_loop.json`,
+`arrange_report.json`, `hook_report.json`, `measure_pp_05.json`, `melody_guard.json` and this note.
+This folder carries no arranger of its own: `score_pp_05.yaml` is built by `tools/arrange.py`, which
+is tracked and already measured by `tests/test_hook_score.py` and the arrange self tests.
+
+`check_motif.py` and `measure_pp_05.py` are WORKING TREE TOOLS, deliberately not committed.
+`check_motif.py` reads `pp_05_small_ship.mid` and `measure_pp_05.py` reads
+`pp_05_small_ship.wav` (and its own copy of the folder path is absolute), and both of those are
+masters the root `.gitignore` keeps out of the repository. A test for either could only skip when
+the master is absent, and this project ruled that out after card t_50a290de: a test that passes by
+skipping reads nothing and looks healthy at HEAD. They stay beside the master and run from the live
+tree:
+
+```
+python assets/audio/pp_05_small_ship/check_motif.py
+python assets/audio/pp_05_small_ship/measure_pp_05.py
+```
+
 ## Three questions for the ear
 
 1. The DPCM kick on beats 1 and 3 runs for all 60 s. It is what makes the loop a pulse rather than a pad,

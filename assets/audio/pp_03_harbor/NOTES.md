@@ -98,6 +98,26 @@ section sounds, the reading stretch (block 6) is the quietest, and nothing dips 
 | noise | 136 | hat, brush, snare, ghost, fill, crash |
 | dpcm | 134 | kick and snare |
 
+## Which files here the commit carries, and why two do not
+
+Committed: `score_pp03.yaml`, `build_pp03.py`, `arrange_report.json`, `pp_03_harbor.ogg`,
+`pp_03_harbor_loop.json`, `score_check.json`, `melody_guard.json` and this note. The builder is
+measured by `tests/test_build_pp03.py` (card t_6af137c1), which reads the committed score and the
+committed `data/drum_patterns.json` only: it rebuilds the arrangement, checks it against
+`arrange_report.json`, writes a MIDI into a throwaway folder and reads it back through
+`tools/render_chip.py`.
+
+`check_pp03.py` is a WORKING TREE TOOL, deliberately not committed. It re-reads `pp_03_harbor.mid`
+and then opens `pp_03_harbor.wav` and `pp_03_harbor.mp3` and measures all three renders with ffprobe,
+and the wav and mp3 are the masters the root `.gitignore` keeps out of the repository. A test for it
+could only skip when a master is absent, and this project already ruled that out after card
+t_50a290de: two tests passing by skipping looked healthy at HEAD while reading nothing. So the
+checker stays beside the master and is run from the live tree:
+
+```
+python assets/audio/pp_03_harbor/check_pp03.py --json score_check.json
+```
+
 ## What is not done here, on purpose
 
 - `data/audio.json` still carries `placeholder: true` for PP-03. The wiring card flips it to this asset.

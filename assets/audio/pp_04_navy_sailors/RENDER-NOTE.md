@@ -78,6 +78,27 @@ single arch. That read is not a card gate, and the fix would cost the turn that 
 | `melody_lead.json`, `melody_guard.json` | the lead line and the originality report |
 | `pp04_check.py`, `pp_04_check.json` | the six card checks and their numbers |
 
+## Which files here the commit carries, and why one does not
+
+Committed: `score_pp04.yaml`, `build_pp04.py`, `pp_04_navy_sailors.ogg`,
+`pp_04_navy_sailors_loop.json`, `pp_04_loop_points.json`, `pp_04_score_report.json`,
+`pp_04_hook.json`, `pp_04_check.json`, `melody_lead.json`, `melody_guard.json` and this note. The
+builder is measured by `tests/test_build_pp04.py` (card t_6af137c1), which reads the committed score
+only: it rebuilds the cue, checks it against `pp_04_score_report.json`, writes the MIDI through
+`tools/arrange.py` into a throwaway folder and reads the lead line back through
+`tools/melody_guard.py` against the committed `melody_lead.json`.
+
+`pp04_check.py` is a WORKING TREE TOOL, deliberately not committed. It reads
+`pp_04_navy_sailors.wav` and `.mp3` (ffprobe on all three codecs), takes a narrow band FFT of the
+wav, and needs numpy; the wav and mp3 are masters the root `.gitignore` keeps out of the repository.
+A test for it could only skip when the master is absent, and this project ruled that out after card
+t_50a290de: a test that passes by skipping reads nothing and looks healthy at HEAD. Run it from the
+live tree instead:
+
+```
+python assets/audio/pp_04_navy_sailors/pp04_check.py
+```
+
 ## Two decisions for Nayil's ear
 
 1. The resolve: bars 29 to 32 are a 5.5 s tail that ends on the tonic. If the fight ends on the command
