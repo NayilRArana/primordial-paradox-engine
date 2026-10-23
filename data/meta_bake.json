@@ -1,0 +1,1888 @@
+{
+  "format": 1,
+  "kind": "meta_bake",
+  "rule": "specs/19-llm-talk.md sections 2 to 11 and D5 in knowledge/GAMEDEV-DECISIONS-2026-10-22.md: written by tools/bake_meta.py only, never by hand, and the game reads this file and nothing else",
+  "effects": [
+    "none",
+    "nudge",
+    "soften",
+    "setback",
+    "end"
+  ],
+  "moods": [
+    "calm",
+    "guarded",
+    "rattled",
+    "warm",
+    "angry"
+  ],
+  "bake": {
+    "created_at": "2026-10-23T04:39:45Z",
+    "mode": "offline",
+    "offline": true,
+    "backend": "",
+    "network": false,
+    "model": "muse-spark-1.3",
+    "system_chars": 2408,
+    "calls_attempted": 0,
+    "rows": 18,
+    "live": 0,
+    "fallback": 18,
+    "fallback_reasons": {
+      "offline": 18
+    },
+    "note": "offline: --offline was asked for, so every row is the fallback"
+  },
+  "coverage": {
+    "talk_cards_in_data": 10,
+    "fight_phases": [
+      {
+        "card": "deck_hound",
+        "enemy": "deck_hound",
+        "phase": "",
+        "options_dialogue": "talk_deck_hound"
+      },
+      {
+        "card": "navy_sailor",
+        "enemy": "navy_sailor",
+        "phase": "",
+        "options_dialogue": "talk_navy_sailor"
+      },
+      {
+        "card": "percy",
+        "enemy": "percy",
+        "phase": "",
+        "options_dialogue": "talk_percy"
+      },
+      {
+        "card": "percy_phase2",
+        "enemy": "percy",
+        "phase": "percy_phase2",
+        "options_dialogue": "talk_percy_phase2"
+      }
+    ],
+    "npc": [
+      {
+        "id": "morgan",
+        "name": "Morgan",
+        "place": "southampton_dock",
+        "fallback_source": "knowledge/GATE-DIALOGUE.md"
+      },
+      {
+        "id": "nye",
+        "name": "Nye",
+        "place": "quay_dock_office",
+        "fallback_source": "knowledge/GATE-DIALOGUE.md"
+      }
+    ],
+    "skipped": [
+      {
+        "card": "bilge_slime",
+        "reason": "no row in data/enemies/all.json, so spec 19 section 3's character block would have to invent a name"
+      },
+      {
+        "card": "deck_rat",
+        "reason": "no row in data/enemies/all.json, so spec 19 section 3's character block would have to invent a name"
+      },
+      {
+        "card": "gull",
+        "reason": "no row in data/enemies/all.json, so spec 19 section 3's character block would have to invent a name"
+      },
+      {
+        "card": "petty_officer",
+        "reason": "no row in data/enemies/all.json, so spec 19 section 3's character block would have to invent a name"
+      },
+      {
+        "card": "rogue_wave",
+        "reason": "no row in data/enemies/all.json, so spec 19 section 3's character block would have to invent a name"
+      },
+      {
+        "card": "rope_knot",
+        "reason": "no row in data/enemies/all.json, so spec 19 section 3's character block would have to invent a name"
+      }
+    ],
+    "note": "data/talk_cards.json holds no morgan or nye card (R38 Q1 and Q2 are with gamedev), so the two NPC units take their hand written fallback from the R38 line bank and their character block from the R38 ready to paste block. A card added there later flips one fallback source with no other change."
+  },
+  "rows": [
+    {
+      "id": "npc/morgan/turn_1",
+      "scene": "npc",
+      "text": [
+        "NOTHING IN THE BOOK TONIGHT."
+      ],
+      "mood": "guarded",
+      "effect": "none",
+      "hint": "THE WATCH AND THE RAIN.",
+      "model": "muse-spark-1.3",
+      "request_hash": "257c54d95a763e3f64190e3c3250222824c499ef4995f6bb0a0a4cf7adc3dc2d",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "morgan",
+          "name": "Morgan",
+          "voice": "Gate sentry on a wet morning watch: a leading hand, clipped procedure, fewest words that close a sentence, dry, no warmth, never raises his voice.",
+          "wants": [
+            "a watch that ends with nothing written down",
+            "the clipboard to stay shut",
+            "the player to be somebody else's problem"
+          ],
+          "fears": [
+            "an incident book entry with his name against it",
+            "an officer who wakes up tonight",
+            "being asked what the list says"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the long watch"
+            },
+            {
+              "topic": "the rain"
+            },
+            {
+              "topic": "his own name in the book"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the clipboard"
+            },
+            {
+              "topic": "orders"
+            },
+            {
+              "topic": "threats"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "npc",
+          "npc": "morgan",
+          "place": "southampton_dock",
+          "turn": 1,
+          "mood": "guarded",
+          "last_reply": "",
+          "allowed": [
+            "none",
+            "end"
+          ]
+        },
+        "player_line": ""
+      },
+      "npc": "morgan",
+      "card": "",
+      "place": "southampton_dock",
+      "option": 1,
+      "turn": 1,
+      "fallback": {
+        "source": "gate_dialogue",
+        "id": "gate_dialogue:M10",
+        "line_id": "M10",
+        "text": [
+          "NOTHING IN THE BOOK TONIGHT."
+        ],
+        "mood": "guarded",
+        "effect": "none",
+        "hint": "THE WATCH AND THE RAIN."
+      }
+    },
+    {
+      "id": "npc/morgan/turn_2",
+      "scene": "npc",
+      "text": [
+        "DO NOT READ THE CLIPBOARD."
+      ],
+      "mood": "guarded",
+      "effect": "none",
+      "hint": "THE CLIPBOARD.",
+      "model": "muse-spark-1.3",
+      "request_hash": "f78eb416c201745978da5bb4342a24a49474f745aa8dc1a119fd429e621efe14",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "morgan",
+          "name": "Morgan",
+          "voice": "Gate sentry on a wet morning watch: a leading hand, clipped procedure, fewest words that close a sentence, dry, no warmth, never raises his voice.",
+          "wants": [
+            "a watch that ends with nothing written down",
+            "the clipboard to stay shut",
+            "the player to be somebody else's problem"
+          ],
+          "fears": [
+            "an incident book entry with his name against it",
+            "an officer who wakes up tonight",
+            "being asked what the list says"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the long watch"
+            },
+            {
+              "topic": "the rain"
+            },
+            {
+              "topic": "his own name in the book"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the clipboard"
+            },
+            {
+              "topic": "orders"
+            },
+            {
+              "topic": "threats"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "npc",
+          "npc": "morgan",
+          "place": "southampton_dock",
+          "turn": 2,
+          "mood": "guarded",
+          "last_reply": "NOTHING IN THE BOOK TONIGHT.",
+          "allowed": [
+            "none",
+            "end"
+          ]
+        },
+        "player_line": ""
+      },
+      "npc": "morgan",
+      "card": "",
+      "place": "southampton_dock",
+      "option": 2,
+      "turn": 2,
+      "fallback": {
+        "source": "gate_dialogue",
+        "id": "gate_dialogue:M11",
+        "line_id": "M11",
+        "text": [
+          "DO NOT READ THE CLIPBOARD."
+        ],
+        "mood": "guarded",
+        "effect": "none",
+        "hint": "THE CLIPBOARD."
+      }
+    },
+    {
+      "id": "npc/morgan/turn_3",
+      "scene": "npc",
+      "text": [
+        "GO ON. BEFORE I WRITE YOU."
+      ],
+      "mood": "calm",
+      "effect": "end",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "b6d189aa1adfde879aba5d42c637a3022ae1e87b6fd4349340c15c2978d5c897",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "morgan",
+          "name": "Morgan",
+          "voice": "Gate sentry on a wet morning watch: a leading hand, clipped procedure, fewest words that close a sentence, dry, no warmth, never raises his voice.",
+          "wants": [
+            "a watch that ends with nothing written down",
+            "the clipboard to stay shut",
+            "the player to be somebody else's problem"
+          ],
+          "fears": [
+            "an incident book entry with his name against it",
+            "an officer who wakes up tonight",
+            "being asked what the list says"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the long watch"
+            },
+            {
+              "topic": "the rain"
+            },
+            {
+              "topic": "his own name in the book"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the clipboard"
+            },
+            {
+              "topic": "orders"
+            },
+            {
+              "topic": "threats"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "npc",
+          "npc": "morgan",
+          "place": "southampton_dock",
+          "turn": 3,
+          "mood": "guarded",
+          "last_reply": "DO NOT READ THE CLIPBOARD.",
+          "allowed": [
+            "none",
+            "end"
+          ]
+        },
+        "player_line": ""
+      },
+      "npc": "morgan",
+      "card": "",
+      "place": "southampton_dock",
+      "option": 3,
+      "turn": 3,
+      "fallback": {
+        "source": "gate_dialogue",
+        "id": "gate_dialogue:M12",
+        "line_id": "M12",
+        "text": [
+          "GO ON. BEFORE I WRITE YOU."
+        ],
+        "mood": "calm",
+        "effect": "end",
+        "hint": ""
+      }
+    },
+    {
+      "id": "npc/nye/turn_1",
+      "scene": "npc",
+      "text": [
+        "I COUNT WHAT I AM GIVEN."
+      ],
+      "mood": "guarded",
+      "effect": "none",
+      "hint": "THE LEDGER. THE LAST LINE.",
+      "model": "muse-spark-1.3",
+      "request_hash": "968c6ca4398290e5b0795ab70f9cc58d4390674b967364dfe44d3c46a58bc5b9",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "nye",
+          "name": "Nye",
+          "voice": "Dock office clerk: exact and courteous, counts everything twice, fussy about pen and ink, short official sentences, never raises his voice and never jokes.",
+          "wants": [
+            "the ledger to balance",
+            "the last berth filled so the office can shut",
+            "to be home before the light"
+          ],
+          "fears": [
+            "a line in the book that is not in his hand",
+            "a name he cannot account for",
+            "being asked who signed it"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the ledger"
+            },
+            {
+              "topic": "the last line"
+            },
+            {
+              "topic": "going home"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the manifest"
+            },
+            {
+              "topic": "who signed"
+            },
+            {
+              "topic": "the Navy"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "npc",
+          "npc": "nye",
+          "place": "quay_dock_office",
+          "turn": 1,
+          "mood": "guarded",
+          "last_reply": "",
+          "allowed": [
+            "none",
+            "end"
+          ]
+        },
+        "player_line": ""
+      },
+      "npc": "nye",
+      "card": "",
+      "place": "quay_dock_office",
+      "option": 1,
+      "turn": 1,
+      "fallback": {
+        "source": "gate_dialogue",
+        "id": "gate_dialogue:N7",
+        "line_id": "N7",
+        "text": [
+          "I COUNT WHAT I AM GIVEN."
+        ],
+        "mood": "guarded",
+        "effect": "none",
+        "hint": "THE LEDGER. THE LAST LINE."
+      }
+    },
+    {
+      "id": "npc/nye/turn_2",
+      "scene": "npc",
+      "text": [
+        "THE LAST LINE IS NOT MINE."
+      ],
+      "mood": "guarded",
+      "effect": "none",
+      "hint": "BERTH NINE.",
+      "model": "muse-spark-1.3",
+      "request_hash": "e694472f4c4097f62e5a91b7b1628d657e8eb555992cdf4219bd7de244731e25",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "nye",
+          "name": "Nye",
+          "voice": "Dock office clerk: exact and courteous, counts everything twice, fussy about pen and ink, short official sentences, never raises his voice and never jokes.",
+          "wants": [
+            "the ledger to balance",
+            "the last berth filled so the office can shut",
+            "to be home before the light"
+          ],
+          "fears": [
+            "a line in the book that is not in his hand",
+            "a name he cannot account for",
+            "being asked who signed it"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the ledger"
+            },
+            {
+              "topic": "the last line"
+            },
+            {
+              "topic": "going home"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the manifest"
+            },
+            {
+              "topic": "who signed"
+            },
+            {
+              "topic": "the Navy"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "npc",
+          "npc": "nye",
+          "place": "quay_dock_office",
+          "turn": 2,
+          "mood": "guarded",
+          "last_reply": "I COUNT WHAT I AM GIVEN.",
+          "allowed": [
+            "none",
+            "end"
+          ]
+        },
+        "player_line": ""
+      },
+      "npc": "nye",
+      "card": "",
+      "place": "quay_dock_office",
+      "option": 2,
+      "turn": 2,
+      "fallback": {
+        "source": "gate_dialogue",
+        "id": "gate_dialogue:N8",
+        "line_id": "N8",
+        "text": [
+          "THE LAST LINE IS NOT MINE."
+        ],
+        "mood": "guarded",
+        "effect": "none",
+        "hint": "BERTH NINE."
+      }
+    },
+    {
+      "id": "npc/nye/turn_3",
+      "scene": "npc",
+      "text": [
+        "GOODNIGHT. SHUT THE DOOR."
+      ],
+      "mood": "calm",
+      "effect": "end",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "6b87e6bae0a7f426c2b915eb12f27e4110a3ec12d486f69bb232c4dbae0e2365",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "nye",
+          "name": "Nye",
+          "voice": "Dock office clerk: exact and courteous, counts everything twice, fussy about pen and ink, short official sentences, never raises his voice and never jokes.",
+          "wants": [
+            "the ledger to balance",
+            "the last berth filled so the office can shut",
+            "to be home before the light"
+          ],
+          "fears": [
+            "a line in the book that is not in his hand",
+            "a name he cannot account for",
+            "being asked who signed it"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the ledger"
+            },
+            {
+              "topic": "the last line"
+            },
+            {
+              "topic": "going home"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the manifest"
+            },
+            {
+              "topic": "who signed"
+            },
+            {
+              "topic": "the Navy"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "npc",
+          "npc": "nye",
+          "place": "quay_dock_office",
+          "turn": 3,
+          "mood": "guarded",
+          "last_reply": "THE LAST LINE IS NOT MINE.",
+          "allowed": [
+            "none",
+            "end"
+          ]
+        },
+        "player_line": ""
+      },
+      "npc": "nye",
+      "card": "",
+      "place": "quay_dock_office",
+      "option": 3,
+      "turn": 3,
+      "fallback": {
+        "source": "gate_dialogue",
+        "id": "gate_dialogue:N10",
+        "line_id": "N10",
+        "text": [
+          "GOODNIGHT. SHUT THE DOOR."
+        ],
+        "mood": "calm",
+        "effect": "end",
+        "hint": ""
+      }
+    },
+    {
+      "id": "fight/deck_hound/1",
+      "scene": "fight",
+      "text": [
+        "ITS EARS COME UP."
+      ],
+      "mood": "warm",
+      "effect": "soften",
+      "hint": "THE ROPE.",
+      "model": "muse-spark-1.3",
+      "request_hash": "d4afcf1a375c9fca2c6694676058154e1a00ad331766fe1cac57263843738be1",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "deck_hound",
+          "name": "Deck Hound",
+          "voice": "Thin rope yard dog, wary and terse: a reply is a movement, not speech, three or four flat words of narration, never warm, never a plea.",
+          "wants": [
+            "the rope end in its teeth",
+            "the salt off a hand",
+            "to be left where it lies"
+          ],
+          "fears": [
+            "the boot",
+            "being dragged off the rope"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the rope"
+            },
+            {
+              "topic": "the salt on your hands"
+            },
+            {
+              "topic": "being left alone"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the boot"
+            },
+            {
+              "topic": "being called a pet"
+            },
+            {
+              "topic": "taking the rope"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 1,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 0,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "A low growl. Then a thump."
+      },
+      "npc": "",
+      "card": "deck_hound",
+      "enemy": "deck_hound",
+      "phase": "",
+      "option": 1,
+      "turn": 1,
+      "options_dialogue": "talk_deck_hound",
+      "player_line": "A low growl. Then a thump.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "deck_hound:weak:0",
+        "card": "deck_hound",
+        "pool": "weak",
+        "index": 0,
+        "source_text": "Its ears come up.",
+        "text": [
+          "ITS EARS COME UP."
+        ],
+        "mood": "warm",
+        "effect": "soften",
+        "hint": "THE ROPE."
+      }
+    },
+    {
+      "id": "fight/deck_hound/2",
+      "scene": "fight",
+      "text": [
+        "IT SNIFFS THE SALT ON YOUR",
+        "HANDS."
+      ],
+      "mood": "calm",
+      "effect": "nudge",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "b9553cbff7b8f7f266a1effab51f700490280541bc14bb897e6ee028f5f29f46",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "deck_hound",
+          "name": "Deck Hound",
+          "voice": "Thin rope yard dog, wary and terse: a reply is a movement, not speech, three or four flat words of narration, never warm, never a plea.",
+          "wants": [
+            "the rope end in its teeth",
+            "the salt off a hand",
+            "to be left where it lies"
+          ],
+          "fears": [
+            "the boot",
+            "being dragged off the rope"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the rope"
+            },
+            {
+              "topic": "the salt on your hands"
+            },
+            {
+              "topic": "being left alone"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the boot"
+            },
+            {
+              "topic": "being called a pet"
+            },
+            {
+              "topic": "taking the rope"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 2,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 20,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "ITS EARS COME UP.",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "It sniffs the salt on your hands."
+      },
+      "npc": "",
+      "card": "deck_hound",
+      "enemy": "deck_hound",
+      "phase": "",
+      "option": 2,
+      "turn": 2,
+      "options_dialogue": "talk_deck_hound",
+      "player_line": "It sniffs the salt on your hands.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "deck_hound:neutral:1",
+        "card": "deck_hound",
+        "pool": "neutral",
+        "index": 1,
+        "source_text": "It sniffs the salt on your hands.",
+        "text": [
+          "IT SNIFFS THE SALT ON YOUR",
+          "HANDS."
+        ],
+        "mood": "calm",
+        "effect": "nudge",
+        "hint": ""
+      }
+    },
+    {
+      "id": "fight/deck_hound/3",
+      "scene": "fight",
+      "text": [
+        "THE ROPE GOES TAUT IN ITS",
+        "MOUTH."
+      ],
+      "mood": "angry",
+      "effect": "setback",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "ac5080c5316562ec81808c0b50855d45b0e4bd5ee3dd4619f85ce0bb998d2fab",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "deck_hound",
+          "name": "Deck Hound",
+          "voice": "Thin rope yard dog, wary and terse: a reply is a movement, not speech, three or four flat words of narration, never warm, never a plea.",
+          "wants": [
+            "the rope end in its teeth",
+            "the salt off a hand",
+            "to be left where it lies"
+          ],
+          "fears": [
+            "the boot",
+            "being dragged off the rope"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the rope"
+            },
+            {
+              "topic": "the salt on your hands"
+            },
+            {
+              "topic": "being left alone"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the boot"
+            },
+            {
+              "topic": "being called a pet"
+            },
+            {
+              "topic": "taking the rope"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 3,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 40,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "IT SNIFFS THE SALT ON YOUR HANDS.",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "It waits for you to move first."
+      },
+      "npc": "",
+      "card": "deck_hound",
+      "enemy": "deck_hound",
+      "phase": "",
+      "option": 3,
+      "turn": 3,
+      "options_dialogue": "talk_deck_hound",
+      "player_line": "It waits for you to move first.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "deck_hound:strong:2",
+        "card": "deck_hound",
+        "pool": "strong",
+        "index": 2,
+        "source_text": "The rope goes taut in its mouth.",
+        "text": [
+          "THE ROPE GOES TAUT IN ITS",
+          "MOUTH."
+        ],
+        "mood": "angry",
+        "effect": "setback",
+        "hint": ""
+      }
+    },
+    {
+      "id": "fight/navy_sailor/1",
+      "scene": "fight",
+      "text": [
+        "A SMOKE? AFTER THIS, MAYBE."
+      ],
+      "mood": "warm",
+      "effect": "soften",
+      "hint": "THE LONG WATCH.",
+      "model": "muse-spark-1.3",
+      "request_hash": "d11f8a247f7c6e9829fd6a9802508f16b87f46ccf04f50d121a92aef5ce73e17",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "navy_sailor",
+          "name": "Navy Sailor",
+          "voice": "Lower deck watch keeper, tired, clipped, short flat sentences, no poetry, nothing warmer than dry.",
+          "wants": [
+            "the watch to end",
+            "a smoke",
+            "not to be reported",
+            "to be asked his name"
+          ],
+          "fears": [
+            "the bridge",
+            "being the one who let a stowaway through"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the long watch"
+            },
+            {
+              "topic": "tiredness"
+            },
+            {
+              "topic": "weather and sea"
+            },
+            {
+              "topic": "home port"
+            },
+            {
+              "topic": "a smoke"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the bridge"
+            },
+            {
+              "topic": "orders and the list"
+            },
+            {
+              "topic": "threats"
+            },
+            {
+              "topic": "his watch being pointless"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 1,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 0,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "You are not on the list."
+      },
+      "npc": "",
+      "card": "navy_sailor",
+      "enemy": "navy_sailor",
+      "phase": "",
+      "option": 1,
+      "turn": 1,
+      "options_dialogue": "talk_navy_sailor",
+      "player_line": "You are not on the list.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "navy_sailor:weak:0",
+        "card": "navy_sailor",
+        "pool": "weak",
+        "index": 0,
+        "source_text": "A smoke? After this, maybe.",
+        "text": [
+          "A SMOKE? AFTER THIS, MAYBE."
+        ],
+        "mood": "warm",
+        "effect": "soften",
+        "hint": "THE LONG WATCH."
+      }
+    },
+    {
+      "id": "fight/navy_sailor/2",
+      "scene": "fight",
+      "text": [
+        "THE WATCH IS LONG. THAT IS",
+        "ALL."
+      ],
+      "mood": "calm",
+      "effect": "nudge",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "75e11e84ce8bfce2d890b754342072d5641e706accded3f5ec3ecb4877d9e508",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "navy_sailor",
+          "name": "Navy Sailor",
+          "voice": "Lower deck watch keeper, tired, clipped, short flat sentences, no poetry, nothing warmer than dry.",
+          "wants": [
+            "the watch to end",
+            "a smoke",
+            "not to be reported",
+            "to be asked his name"
+          ],
+          "fears": [
+            "the bridge",
+            "being the one who let a stowaway through"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the long watch"
+            },
+            {
+              "topic": "tiredness"
+            },
+            {
+              "topic": "weather and sea"
+            },
+            {
+              "topic": "home port"
+            },
+            {
+              "topic": "a smoke"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the bridge"
+            },
+            {
+              "topic": "orders and the list"
+            },
+            {
+              "topic": "threats"
+            },
+            {
+              "topic": "his watch being pointless"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 2,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 20,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "A SMOKE? AFTER THIS, MAYBE.",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "The bridge sees all."
+      },
+      "npc": "",
+      "card": "navy_sailor",
+      "enemy": "navy_sailor",
+      "phase": "",
+      "option": 2,
+      "turn": 2,
+      "options_dialogue": "talk_navy_sailor",
+      "player_line": "The bridge sees all.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "navy_sailor:neutral:1",
+        "card": "navy_sailor",
+        "pool": "neutral",
+        "index": 1,
+        "source_text": "The watch is long. That is all.",
+        "text": [
+          "THE WATCH IS LONG. THAT IS",
+          "ALL."
+        ],
+        "mood": "calm",
+        "effect": "nudge",
+        "hint": ""
+      }
+    },
+    {
+      "id": "fight/navy_sailor/3",
+      "scene": "fight",
+      "text": [
+        "SAY THAT AGAIN AND THIS GETS",
+        "LOUD."
+      ],
+      "mood": "angry",
+      "effect": "setback",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "a79dd3f86debc67373d2fa1ff12e0c7f0ffa7854cc1f4c9c3d8fa92d2b66496d",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "navy_sailor",
+          "name": "Navy Sailor",
+          "voice": "Lower deck watch keeper, tired, clipped, short flat sentences, no poetry, nothing warmer than dry.",
+          "wants": [
+            "the watch to end",
+            "a smoke",
+            "not to be reported",
+            "to be asked his name"
+          ],
+          "fears": [
+            "the bridge",
+            "being the one who let a stowaway through"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the long watch"
+            },
+            {
+              "topic": "tiredness"
+            },
+            {
+              "topic": "weather and sea"
+            },
+            {
+              "topic": "home port"
+            },
+            {
+              "topic": "a smoke"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "the bridge"
+            },
+            {
+              "topic": "orders and the list"
+            },
+            {
+              "topic": "threats"
+            },
+            {
+              "topic": "his watch being pointless"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 3,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 40,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "THE WATCH IS LONG. THAT IS ALL.",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "Go on. I hate the watch."
+      },
+      "npc": "",
+      "card": "navy_sailor",
+      "enemy": "navy_sailor",
+      "phase": "",
+      "option": 3,
+      "turn": 3,
+      "options_dialogue": "talk_navy_sailor",
+      "player_line": "Go on. I hate the watch.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "navy_sailor:strong:0",
+        "card": "navy_sailor",
+        "pool": "strong",
+        "index": 0,
+        "source_text": "Say that again and this gets loud.",
+        "text": [
+          "SAY THAT AGAIN AND THIS GETS",
+          "LOUD."
+        ],
+        "mood": "angry",
+        "effect": "setback",
+        "hint": ""
+      }
+    },
+    {
+      "id": "fight/percy/1",
+      "scene": "fight",
+      "text": [
+        "THE SEA HEARS YOU. SO DO I."
+      ],
+      "mood": "warm",
+      "effect": "soften",
+      "hint": "PLAIN SPEECH.",
+      "model": "muse-spark-1.3",
+      "request_hash": "3f8dd4157564192ab99739e4415390035c975730b3f773b171df39fb6a66ef56",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "percy",
+          "name": "Percy",
+          "voice": "Royal Navy lieutenant carrying a god: flat, clipped, superior, classical cadence, drops articles, two short clauses at most, never chatty.",
+          "wants": [
+            "to be answered plainly",
+            "a straight answer about the veil",
+            "to be called by his own name"
+          ],
+          "fears": [
+            "the veil question he cannot answer",
+            "being only Poseidon's puppet",
+            "dry land"
+          ],
+          "weak_topics": [
+            {
+              "topic": "plain speech"
+            },
+            {
+              "topic": "the sea"
+            },
+            {
+              "topic": "his own name"
+            },
+            {
+              "topic": "his brother"
+            },
+            {
+              "topic": "what the veil is"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "flattery and titles"
+            },
+            {
+              "topic": "threats"
+            },
+            {
+              "topic": "mockery"
+            },
+            {
+              "topic": "his father"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 1,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 0,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "You still talk. How dull."
+      },
+      "npc": "",
+      "card": "percy",
+      "enemy": "percy",
+      "phase": "",
+      "option": 1,
+      "turn": 1,
+      "options_dialogue": "talk_percy",
+      "player_line": "You still talk. How dull.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "percy:weak:0",
+        "card": "percy",
+        "pool": "weak",
+        "index": 0,
+        "source_text": "The sea hears you. So do I.",
+        "text": [
+          "THE SEA HEARS YOU. SO DO I."
+        ],
+        "mood": "warm",
+        "effect": "soften",
+        "hint": "PLAIN SPEECH."
+      }
+    },
+    {
+      "id": "fight/percy/2",
+      "scene": "fight",
+      "text": [
+        "WORDS. THE SEA HAS HEARD",
+        "WORSE."
+      ],
+      "mood": "calm",
+      "effect": "nudge",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "d9e269e01376359aeacff06fdcb1a0874a61eb5d280da25830f2ada0d799830b",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "percy",
+          "name": "Percy",
+          "voice": "Royal Navy lieutenant carrying a god: flat, clipped, superior, classical cadence, drops articles, two short clauses at most, never chatty.",
+          "wants": [
+            "to be answered plainly",
+            "a straight answer about the veil",
+            "to be called by his own name"
+          ],
+          "fears": [
+            "the veil question he cannot answer",
+            "being only Poseidon's puppet",
+            "dry land"
+          ],
+          "weak_topics": [
+            {
+              "topic": "plain speech"
+            },
+            {
+              "topic": "the sea"
+            },
+            {
+              "topic": "his own name"
+            },
+            {
+              "topic": "his brother"
+            },
+            {
+              "topic": "what the veil is"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "flattery and titles"
+            },
+            {
+              "topic": "threats"
+            },
+            {
+              "topic": "mockery"
+            },
+            {
+              "topic": "his father"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 2,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 20,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "THE SEA HEARS YOU. SO DO I.",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "Ask what the veil is."
+      },
+      "npc": "",
+      "card": "percy",
+      "enemy": "percy",
+      "phase": "",
+      "option": 2,
+      "turn": 2,
+      "options_dialogue": "talk_percy",
+      "player_line": "Ask what the veil is.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "percy:neutral:1",
+        "card": "percy",
+        "pool": "neutral",
+        "index": 1,
+        "source_text": "Words. The sea has heard worse.",
+        "text": [
+          "WORDS. THE SEA HAS HEARD",
+          "WORSE."
+        ],
+        "mood": "calm",
+        "effect": "nudge",
+        "hint": ""
+      }
+    },
+    {
+      "id": "fight/percy/3",
+      "scene": "fight",
+      "text": [
+        "DO NOT DRESS ME IN TITLES."
+      ],
+      "mood": "angry",
+      "effect": "setback",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "5fe77be57cb1a33f8d234f676fdcc7802fefd008f0f7bcc98cc937a54a0e6410",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "percy",
+          "name": "Percy",
+          "voice": "Royal Navy lieutenant carrying a god: flat, clipped, superior, classical cadence, drops articles, two short clauses at most, never chatty.",
+          "wants": [
+            "to be answered plainly",
+            "a straight answer about the veil",
+            "to be called by his own name"
+          ],
+          "fears": [
+            "the veil question he cannot answer",
+            "being only Poseidon's puppet",
+            "dry land"
+          ],
+          "weak_topics": [
+            {
+              "topic": "plain speech"
+            },
+            {
+              "topic": "the sea"
+            },
+            {
+              "topic": "his own name"
+            },
+            {
+              "topic": "his brother"
+            },
+            {
+              "topic": "what the veil is"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "flattery and titles"
+            },
+            {
+              "topic": "threats"
+            },
+            {
+              "topic": "mockery"
+            },
+            {
+              "topic": "his father"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 3,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 40,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "WORDS. THE SEA HAS HEARD WORSE.",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "Ask it plainly."
+      },
+      "npc": "",
+      "card": "percy",
+      "enemy": "percy",
+      "phase": "",
+      "option": 3,
+      "turn": 3,
+      "options_dialogue": "talk_percy",
+      "player_line": "Ask it plainly.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "percy:strong:0",
+        "card": "percy",
+        "pool": "strong",
+        "index": 0,
+        "source_text": "Do not dress me in titles.",
+        "text": [
+          "DO NOT DRESS ME IN TITLES."
+        ],
+        "mood": "angry",
+        "effect": "setback",
+        "hint": ""
+      }
+    },
+    {
+      "id": "fight/percy_phase2/1",
+      "scene": "fight",
+      "text": [
+        "WINDED. DO NOT MISTAKE IT",
+        "FOR SOFT."
+      ],
+      "mood": "warm",
+      "effect": "soften",
+      "hint": "THE VEIL ANSWERED.",
+      "model": "muse-spark-1.3",
+      "request_hash": "a2787e79432b9b29192b81fc8f3b3c0eba3f84e2872e126652f3d96b54ccfc19",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "percy_phase2",
+          "name": "Percy",
+          "voice": "Royal Navy lieutenant carrying a god: flat, clipped, superior, classical cadence, drops articles, two short clauses at most, never chatty.",
+          "wants": [
+            "to be answered plainly",
+            "a straight answer about the veil",
+            "to be called by his own name"
+          ],
+          "fears": [
+            "the veil question he cannot answer",
+            "being only Poseidon's puppet",
+            "dry land"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the veil answered"
+            },
+            {
+              "topic": "plain speech"
+            },
+            {
+              "topic": "the sea"
+            },
+            {
+              "topic": "his own name"
+            },
+            {
+              "topic": "his brother"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "flattery and titles"
+            },
+            {
+              "topic": "threats"
+            },
+            {
+              "topic": "mockery"
+            },
+            {
+              "topic": "his father"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 1,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 0,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "The tide turns anyway."
+      },
+      "npc": "",
+      "card": "percy_phase2",
+      "enemy": "percy",
+      "phase": "percy_phase2",
+      "option": 1,
+      "turn": 1,
+      "options_dialogue": "talk_percy_phase2",
+      "player_line": "The tide turns anyway.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "percy_phase2:weak:0",
+        "card": "percy_phase2",
+        "pool": "weak",
+        "index": 0,
+        "source_text": "Winded. Do not mistake it for soft.",
+        "text": [
+          "WINDED. DO NOT MISTAKE IT",
+          "FOR SOFT."
+        ],
+        "mood": "warm",
+        "effect": "soften",
+        "hint": "THE VEIL ANSWERED."
+      }
+    },
+    {
+      "id": "fight/percy_phase2/2",
+      "scene": "fight",
+      "text": [
+        "WORDS. THE SEA HAS HEARD",
+        "WORSE."
+      ],
+      "mood": "calm",
+      "effect": "nudge",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "0461a48f81bc21bb99ef3cd5398c67384dfb09d60e78082a14e794ca1c6082ee",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "percy_phase2",
+          "name": "Percy",
+          "voice": "Royal Navy lieutenant carrying a god: flat, clipped, superior, classical cadence, drops articles, two short clauses at most, never chatty.",
+          "wants": [
+            "to be answered plainly",
+            "a straight answer about the veil",
+            "to be called by his own name"
+          ],
+          "fears": [
+            "the veil question he cannot answer",
+            "being only Poseidon's puppet",
+            "dry land"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the veil answered"
+            },
+            {
+              "topic": "plain speech"
+            },
+            {
+              "topic": "the sea"
+            },
+            {
+              "topic": "his own name"
+            },
+            {
+              "topic": "his brother"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "flattery and titles"
+            },
+            {
+              "topic": "threats"
+            },
+            {
+              "topic": "mockery"
+            },
+            {
+              "topic": "his father"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 2,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 20,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "WINDED. DO NOT MISTAKE IT FOR SOFT.",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "You asked about the veil."
+      },
+      "npc": "",
+      "card": "percy_phase2",
+      "enemy": "percy",
+      "phase": "percy_phase2",
+      "option": 2,
+      "turn": 2,
+      "options_dialogue": "talk_percy_phase2",
+      "player_line": "You asked about the veil.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "percy_phase2:neutral:1",
+        "card": "percy_phase2",
+        "pool": "neutral",
+        "index": 1,
+        "source_text": "Words. The sea has heard worse.",
+        "text": [
+          "WORDS. THE SEA HAS HEARD",
+          "WORSE."
+        ],
+        "mood": "calm",
+        "effect": "nudge",
+        "hint": ""
+      }
+    },
+    {
+      "id": "fight/percy_phase2/3",
+      "scene": "fight",
+      "text": [
+        "A WOUND DOES NOT MAKE YOU",
+        "RIGHT."
+      ],
+      "mood": "angry",
+      "effect": "setback",
+      "hint": "",
+      "model": "muse-spark-1.3",
+      "request_hash": "5d634ead4ec2ddc48455ecf532c5db34db50af732b9f884958f99d698ae3253d",
+      "created_at": "2026-10-23T04:39:45Z",
+      "source": "fallback",
+      "network": false,
+      "reason": "offline: --offline was asked for, so every row is the fallback",
+      "request": {
+        "system_sha256": "7beca544a167f7f213fb0a74259f67e33722be8237cad3d5cccdfde8c323da9d",
+        "system_chars": 2408,
+        "character": {
+          "id": "percy_phase2",
+          "name": "Percy",
+          "voice": "Royal Navy lieutenant carrying a god: flat, clipped, superior, classical cadence, drops articles, two short clauses at most, never chatty.",
+          "wants": [
+            "to be answered plainly",
+            "a straight answer about the veil",
+            "to be called by his own name"
+          ],
+          "fears": [
+            "the veil question he cannot answer",
+            "being only Poseidon's puppet",
+            "dry land"
+          ],
+          "weak_topics": [
+            {
+              "topic": "the veil answered"
+            },
+            {
+              "topic": "plain speech"
+            },
+            {
+              "topic": "the sea"
+            },
+            {
+              "topic": "his own name"
+            },
+            {
+              "topic": "his brother"
+            }
+          ],
+          "strong_topics": [
+            {
+              "topic": "flattery and titles"
+            },
+            {
+              "topic": "threats"
+            },
+            {
+              "topic": "mockery"
+            },
+            {
+              "topic": "his father"
+            }
+          ],
+          "phase_note": ""
+        },
+        "scene": {
+          "scene": "fight",
+          "turn": 3,
+          "enemy_hp_band": "unhurt",
+          "player_hp_band": "steady",
+          "mercy": 40,
+          "mood": "guarded",
+          "last_effect": "none",
+          "last_reply": "WORDS. THE SEA HAS HEARD WORSE.",
+          "allowed": [
+            "none",
+            "nudge",
+            "soften",
+            "setback"
+          ]
+        },
+        "player_line": "That is the veil."
+      },
+      "npc": "",
+      "card": "percy_phase2",
+      "enemy": "percy",
+      "phase": "percy_phase2",
+      "option": 3,
+      "turn": 3,
+      "options_dialogue": "talk_percy_phase2",
+      "player_line": "That is the veil.",
+      "fallback": {
+        "source": "talk_cards",
+        "id": "percy_phase2:strong:0",
+        "card": "percy_phase2",
+        "pool": "strong",
+        "index": 0,
+        "source_text": "A wound does not make you right.",
+        "text": [
+          "A WOUND DOES NOT MAKE YOU",
+          "RIGHT."
+        ],
+        "mood": "angry",
+        "effect": "setback",
+        "hint": ""
+      }
+    }
+  ]
+}
