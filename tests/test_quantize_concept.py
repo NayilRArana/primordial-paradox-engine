@@ -145,3 +145,92 @@ def test_cli_runs_on_a_folder_and_writes_json(tmp_path, capsys):
 
 def test_selftest_passes():
     assert quantize_concept.selftest(ROOT) == 0
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# The area mapping against the gate it is supposed to satisfy (card t_4bafb4a1).
+#
+# Round R8 measured a frame that cost 7.35 mean delta E under the free mapping and still failed
+# tools/palette_synergy.py 203 times on background_area and palette_count. The claim of quantise_areas() is that
+# those two rules hold by construction, so the test is the tool that measures them, run on synthetic frames.
+
+def noisy_image(path, size=(64, 64)):
+    """A deterministic picture of ordinary colour: no NES entry is repeated on purpose, no dithering."""
+    image = Image.new("RGB", size)
+    pixels = image.load()
+    for y in range(size[1]):
+        for x in range(size[0]):
+            pixels[x, y] = ((x * 11 + y * 3) % 256, (y * 13 + x * 5) % 256, (x * y * 7) % 256)
+    image.save(path)
+    return path
+
+
+def test_the_area_mapping_satisfies_the_background_rules_and_the_free_mapping_does_not(tmp_path):
+    import palette_synergy
+
+    source = noisy_image(str(tmp_path / "frame.png"))
+    scene = scene_palette_set.scene(ROOT, "title")
+    with Image.open(source) as handle:
+        before = handle.convert("RGBA")
+    free, free_stats = quantize_concept.quantise(before, scene)
+    areas, area_stats = quantize_concept.quantise_areas(before, scene)
+    assert free_stats["mapping"] == "free"
+    assert area_stats["mapping"] == "areas"
+
+    grid = palette_synergy.Grid(ROOT)
+    free_problems = palette_synergy.background_report(grid, scene, free)
+    area_problems = palette_synergy.background_report(grid, scene, areas)
+    free_rules = {problem["rule"] for problem in free_problems}
+    assert free_problems, "the free mapping passed the area rules on this frame, so the test proves nothing"
+    assert "background_area" in free_rules or "palette_count" in free_rules, free_rules
+    assert area_problems == [], [problem["detail"] for problem in area_problems]
+
+    # And the property that makes it true: 3 colours besides the backdrop in every 16x16 area, all written.
+    rows = quantize_concept.area_palettes(scene)
+    written = {colour for row in rows for colour in row}
+    backdrop = scene.rgb(scene.backdrop)
+    for top in range(0, areas.height, 16):
+        for left in range(0, areas.width, 16):
+            seen = {areas.getpixel((x, y))[:3] for y in range(top, min(top + 16, areas.height))
+                    for x in range(left, min(left + 16, areas.width)) if areas.getpixel((x, y))[3]}
+            assert seen <= written, (left, top, seen - written)
+            assert len(seen - {backdrop}) <= 3, (left, top, seen)
+    assert area_stats["palettes_used"] <= 4, area_stats
+
+
+def test_the_area_mapping_spends_background_rows_where_the_free_mapping_can_spend_a_sprite_colour(tmp_path):
+    """The two mappings differ in vocabulary, not only in cost: a background area may not spend a sprite colour.
+
+    A frame drawn in a colour that only a sprite palette owns is a colour tools/palette_synergy.py refuses on a
+    background ("not in any of the scene's 4 background palettes"), so the area mapping has to move it and the
+    free mapping is free to keep it. That is the difference the two numbers in the report are measuring.
+    """
+    scene = scene_palette_set.scene(ROOT, "title")
+    sprite_only = sorted(scene.sprite_colours() - scene.bg_colours() - {scene.backdrop})
+    assert sprite_only, "the title set has no sprite only colour, so this frame cannot be built"
+    entry = sprite_only[0]
+    colour = scene.rgb(entry)
+    image = Image.new("RGBA", (32, 32), tuple(colour) + (255,))
+    free, free_stats = quantize_concept.quantise(image, scene)
+    areas, area_stats = quantize_concept.quantise_areas(image, scene)
+    board = scene.bg_colours() | {scene.backdrop}
+    assert scene.entry_of(free.getpixel((0, 0))[:3]) == entry, (free.getpixel((0, 0)), entry)
+    assert scene.entry_of(areas.getpixel((0, 0))[:3]) in board, areas.getpixel((0, 0))
+    assert free_stats["changed"] == 0, free_stats
+    assert area_stats["changed"] == 1024, area_stats
+
+
+def test_convert_reports_both_numbers_and_accepts_on_the_frame_that_ships(tmp_path):
+    source = noisy_image(str(tmp_path / "frame.png"), (32, 32))
+    scene = scene_palette_set.scene(ROOT, "title")
+    written = {colour for row in quantize_concept.area_palettes(scene) for colour in row}
+    stats = quantize_concept.convert(ROOT, source, "title", max_delta_e=100.0)
+    assert stats["mapping"] == "areas"
+    assert "free_mean_delta_e" in stats and "free_max_delta_e" in stats
+    assert stats["mean_delta_e"] >= 0.0 and stats["free_mean_delta_e"] >= 0.0
+    assert stats["accepted"] is True
+    with Image.open(os.path.join(ROOT, stats["out"])) as image:
+        for _, colour in image.convert("RGBA").getcolors(maxcolors=1 << 24):
+            if colour[3]:
+                assert colour[:3] in written, colour
+

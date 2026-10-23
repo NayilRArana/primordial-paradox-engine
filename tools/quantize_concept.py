@@ -7,17 +7,35 @@ ART-BIBLE.md RULE 0 point 5: concept art (Kaggle, Gemini) is only accepted after
 scene's palette set and passes tools\\palette_synergy.py. A pretty image that does not survive quantisation is
 rejected, not patched later. This tool is the quantisation step, and it is deliberately blunt:
 
-  1. Every opaque pixel is mapped to the nearest usable 2C02 entry (the master palette, 64 outputs), then, if
-     that entry is not in the scene's set, to the nearest entry that IS in the set. No ordered dither by
-     default, because the NES has none: dithering a concept image makes a picture that looks fine at 100
-     percent and turns into a checkerboard at 3x on a television. `--dither ordered` exists for a test, and
+  1. Every opaque pixel is mapped onto the scene's palette set. The NES cannot draw a background any way it
+     likes: per 16x16 attribute area it shows ONE of the 4 background palettes, each being 3 entries plus the
+     shared backdrop (RULE 0 point 4). So the mapping is per area by default (`--map areas`): each 16x16 area
+     picks the background palette that represents it best, and every pixel in that area lands on the nearest
+     entry of THAT palette. A frame mapped this way carries at most 3 colours besides the backdrop in any one
+     area and spends at most the scene's 4 written background palettes, which is what tools\\palette_synergy.py
+     asks for, by construction rather than by luck.
+     `--map free` is the older mapping: every pixel to the nearest entry in the union of the whole set, with no
+     area ownership. It is kept because it is the honest "what does flattening to this set cost" number, and
+     because a frame that maps well this way and badly the other way is a picture whose colour crosses area
+     boundaries, which is a composition problem and not a palette problem. It is NOT a frame a NES can draw,
+     and it is not the default for that reason.
+     No ordered dither by default, because the NES has none: dithering a concept image makes a picture that
+     looks fine at 100 percent and turns into a checkerboard at 3x on a television. `--dither ordered` exists
+     for a test, implies `--map free` (a dither is a per pixel nudge, so it cannot honour area ownership), and
      the report says so when it is used.
   2. The result is written next to the original with the suffix `_nes.png`, and a before and after sheet next
      to that with `_nes_sheet.png`, so a person can look at the loss instead of reading a number.
-  3. The colour loss is reported as the mean CIE76 delta E over the opaque pixels, plus the worst pixel and
-     the number of distinct colours before and after. A mean delta E above --max-delta-e (default 10, gamedev
-     may move it) exits 1: that image is not concept art for this scene, it is a different picture, and
-     repainting it into the set later costs more than asking for it again.
+  3. The colour loss is reported as the mean CIE76 delta E over the opaque pixels of the frame that ships, plus
+     the same number for the free mapping for comparison, the worst pixel, and the number of distinct colours
+     before and after. A mean delta E above --max-delta-e (default 10, gamedev may move it) exits 1: that image
+     is not concept art for this scene, it is a different picture, and repainting it into the set later costs
+     more than asking for it again.
+
+What this tool is not: tools\\nes_enforce.py turns a frame with NO written palette set (a capture, a title
+render, a Gemini image) into a legal NES frame by inventing 4 palettes with k means over 16x16 blocks. This tool
+is the other case: the set is already written down in data\\scene_palettes.json and the frame must spend that
+set, so there is nothing to invent and nothing to iterate.
+
 
 The palette arithmetic is tools\\art\\scene_palette.py (the Scene object: nearest_master, nearest_in, the usable
 entry table) and the set itself is tools\\scene_palette_set.py. Nothing about the 2C02 is restated here.
@@ -25,11 +43,19 @@ entry table) and the set itself is tools\\scene_palette_set.py. Nothing about th
 Usage:
     python tools\\quantize_concept.py output\\concept\\thames.png --scene southampton
     python tools\\quantize_concept.py output\\concept\\thames.png --scene southampton --json out.json
+    python tools\\quantize_concept.py output\\concept\\thames.png --scene southampton --map free
     python tools\\quantize_concept.py output\\concept --scene westminster        (every PNG in the folder)
     python tools\\quantize_concept.py --selftest
 
 Exit code 0 when every image is inside the threshold, 1 when any image loses too much colour, 2 on a bad
 argument. The source PNG is never modified: the output always carries a suffix.
+
+Why the default changed (card t_4bafb4a1, 2026-10-22): round R8 of the Kaggle concept art measured a frame at
+mean delta E 7.35 under the free mapping, inside the 10.0 limit, that still failed tools\\palette_synergy.py 203
+times on background_area and palette_count. That was not a colour result: the free mapping spends the whole set
+per pixel, so colours from several palettes land inside one 16x16 area and the two area rules fail whatever the
+painting is. The same frame through the per area mapping costs 7.83, still inside the limit, and fails the area
+rules 0 times. The acceptance number is now the number of the frame that can actually ship.
 """
 
 from __future__ import annotations
@@ -113,7 +139,11 @@ def colour_count(image: Image.Image) -> int:
 
 
 def quantise(image: Image.Image, scene, dither: bool = False, allowed=None) -> tuple:
-    """(quantised image, per pixel stats). Every opaque pixel lands on an entry in `allowed`."""
+    """(quantised image, per pixel stats). Every opaque pixel lands on an entry in `allowed`.
+
+    This is the FREE mapping: the union of the set, nearest entry per pixel, no area ownership. It is the number
+    for "what does flattening to this set cost", not a frame a NES can draw. quantise_areas() is that.
+    """
     allowed = sorted(scene.bg_colours() | scene.sprite_colours() | {scene.backdrop} if allowed is None else allowed)
     source = image.convert("RGBA")
     out = Image.new("RGBA", source.size, (0, 0, 0, 0))
@@ -155,6 +185,90 @@ def quantise(image: Image.Image, scene, dither: bool = False, allowed=None) -> t
         "colours_after": colour_count(out),
         "allowed_entries": len(allowed),
         "dither": bool(dither),
+        "mapping": "free",
+    }
+    return out, stats
+
+
+def area_palettes(scene) -> list:
+    """The scene's four written background palettes as RGB tuples, each with the shared backdrop.
+
+    Ordered, deduplicated inside a palette, and the backdrop is added because the PPU shows it in every area. A
+    background area may only spend one of these four rows: that is RULE 0 point 4, and it is why this list and not
+    the union of the set is the vocabulary of the per area mapping.
+    """
+    rows = []
+    for row in scene.background:
+        entries = sorted(set(row) | {scene.backdrop})
+        rows.append(tuple(scene.rgb(entry) for entry in entries))
+    return rows
+
+
+def quantise_areas(image: Image.Image, scene, area: int = 16) -> tuple:
+    """(quantised image, per pixel stats) with one background palette per 16x16 attribute area.
+
+    For each area the four written palettes are scored by the summed CIE76 delta E of that area's pixels against
+    their nearest colour inside the palette, the cheapest wins, and every pixel is painted through the winner. The
+    area rules tools\\palette_synergy.py measures (at most 3 colours besides the backdrop per area, at most 4
+    background palettes per frame) therefore hold by construction: the frame spends 4 written palettes and nothing
+    else.
+    """
+    source = image.convert("RGBA")
+    out = Image.new("RGBA", source.size, (0, 0, 0, 0))
+    src, dst = source.load(), out.load()
+    palettes = area_palettes(scene)
+    allowed = {colour for palette in palettes for colour in palette}
+    nearest_cache = {}
+    deltas = []
+    changed = 0
+    picks = [0] * len(palettes)
+    areas = 0
+
+    def mapped(colour, palette):
+        key = (colour, palette)
+        got = nearest_cache.get(key)
+        if got is None:
+            chosen = min(palette, key=lambda option: delta_e(colour, option))
+            got = (chosen, delta_e(colour, chosen))
+            nearest_cache[key] = got
+        return got
+
+    for top in range(0, source.height, area):
+        for left in range(0, source.width, area):
+            cells = [(x, y, src[x, y][:3])
+                     for y in range(top, min(top + area, source.height))
+                     for x in range(left, min(left + area, source.width))
+                     if src[x, y][3]]
+            if not cells:
+                continue
+            areas += 1
+            costs = [sum(mapped(colour, palette)[1] for _, _, colour in cells) for palette in palettes]
+            best = min(range(len(palettes)), key=lambda index: (costs[index], index))
+            picks[best] += 1
+            palette = palettes[best]
+            for x, y, colour in cells:
+                rgba = src[x, y]
+                chosen, distance = mapped(colour, palette)
+                dst[x, y] = tuple(chosen) + (rgba[3],)
+                deltas.append(distance)
+                if tuple(chosen) != colour:
+                    changed += 1
+    total = max(1, len(deltas))
+    stats = {
+        "pixels": total,
+        "changed": changed,
+        "changed_percent": round(100.0 * changed / total, 2),
+        "mean_delta_e": round(sum(deltas) / total, 2) if deltas else 0.0,
+        "max_delta_e": round(max(deltas), 2) if deltas else 0.0,
+        "colours_before": colour_count(source),
+        "colours_after": colour_count(out),
+        "allowed_entries": len(allowed),
+        "dither": False,
+        "mapping": "areas",
+        "area_pixels": area,
+        "areas": areas,
+        "palettes_used": sum(1 for count in picks if count),
+        "areas_per_palette": picks,
     }
     return out, stats
 
@@ -200,11 +314,27 @@ def output_paths(path: str) -> tuple:
 
 
 def convert(root: str, path: str, scene_id: str, dither: bool = False,
-            max_delta_e: float = DEFAULT_MAX_DELTA_E) -> dict:
+            max_delta_e: float = DEFAULT_MAX_DELTA_E, mapping: str = "areas") -> dict:
+    """Quantise one PNG. `mapping` is "areas" (a frame a NES can draw, the default) or "free".
+
+    Both numbers are always reported, so the acceptance verdict is never the only thing on the record: a frame
+    that costs 7.9 per area and 7.4 free is a colour result, and a frame that costs 20 per area and 7 free is a
+    picture whose colour crosses attribute boundaries.
+    """
     scene = scene_palette_set.scene(root, scene_id)
     with Image.open(path) as handle:
         before = handle.convert("RGBA")
-    after, stats = quantise(before, scene, dither=dither)
+    if dither:
+        # A dither is a per pixel nudge, so it cannot honour which palette owns the area. Same rule as the CLI.
+        mapping = "free"
+    if mapping == "areas":
+        after, stats = quantise_areas(before, scene)
+        _, free = quantise(before, scene)
+        stats["free_mean_delta_e"] = free["mean_delta_e"]
+        stats["free_max_delta_e"] = free["max_delta_e"]
+        stats["free_colours_after"] = free["colours_after"]
+    else:
+        after, stats = quantise(before, scene, dither=dither)
     png, sheet = output_paths(path)
     after.save(png, "PNG")
     write_sheet(before, after, sheet, os.path.basename(path))
@@ -232,11 +362,19 @@ def sprite_targets(root: str, target: str) -> list:
 def describe(stats: dict) -> list:
     lines = ["%s -> %s  scene %s: %s"
              % (stats["source"], stats["out"], stats["scene"], "ACCEPT" if stats["accepted"] else "REJECT")]
-    lines.append("  mean delta E %.2f (limit %.2f), worst %.2f, %.2f%% of pixels moved, colours %d -> %d, "
-                 "%d entries allowed%s"
-                 % (stats["mean_delta_e"], stats["max_delta_e_allowed"], stats["max_delta_e"],
-                    stats["changed_percent"], stats["colours_before"], stats["colours_after"],
-                    stats["allowed_entries"], ", ordered dither ON (not a proposed NES frame)" if stats["dither"] else ""))
+    detail = ("  mean delta E %.2f (limit %.2f), worst %.2f, %.2f%% of pixels moved, colours %d -> %d, "
+              "%d entries allowed"
+              % (stats["mean_delta_e"], stats["max_delta_e_allowed"], stats["max_delta_e"],
+                 stats["changed_percent"], stats["colours_before"], stats["colours_after"],
+                 stats["allowed_entries"]))
+    if stats.get("mapping") == "areas":
+        detail += ", per %d px area, %d of %d palettes used %s" % (
+            stats["area_pixels"], stats["palettes_used"], len(stats["areas_per_palette"]),
+            stats["areas_per_palette"])
+        detail += ", free mapping %.2f" % stats["free_mean_delta_e"]
+    elif stats["dither"]:
+        detail += ", ordered dither ON (not a proposed NES frame)"
+    lines.append(detail)
     lines.append("  sheet: %s" % stats["sheet"])
     return lines
 
@@ -257,10 +395,30 @@ def selftest(root: str = ROOT) -> int:
     after, stats = quantise(image, scene)
     assert stats["mean_delta_e"] > 0.0, stats
     assert scene.entry_of(after.getpixel((0, 0))[:3]) in allowed, after.getpixel((0, 0))
+    # The per area mapping spends one written background palette per 16x16 area and nothing else: an area may
+    # carry at most 3 colours besides the backdrop, and the frame at most the scene's 4 rows.
+    rows = area_palettes(scene)
+    assert len(rows) == 4, rows
+    palette_rgbs = {colour for row in rows for colour in row}
+    pick = sorted(palette_rgbs)[:6]
+    image = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+    for index, colour in enumerate(pick):
+        image.putpixel((index * 5, 0), tuple(colour) + (255,))
+        image.putpixel((index * 5, 20), tuple(colour) + (255,))
+    after, stats = quantise_areas(image, scene)
+    assert stats["mapping"] == "areas", stats
+    assert stats["palettes_used"] <= 4, stats
+    assert sum(stats["areas_per_palette"]) == stats["areas"] == 4, stats
+    for y in range(0, 32, 16):
+        for x in range(0, 32, 16):
+            seen = {after.getpixel((px, py))[:3] for py in range(y, y + 16)
+                    for px in range(x, x + 16) if after.getpixel((px, py))[3]}
+            assert seen <= palette_rgbs, (x, y, seen)
+            assert len(seen) <= 4, (x, y, seen)
     # delta E is zero for a colour against itself and grows with distance.
     assert delta_e((10, 10, 10), (10, 10, 10)) == 0.0
     assert delta_e((0, 0, 0), (255, 255, 255)) > delta_e((0, 0, 0), (40, 40, 40))
-    print("quantize_concept selftest: 5 check(s) PASS")
+    print("quantize_concept selftest: 8 check(s) PASS")
     return 0
 
 
@@ -271,6 +429,9 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Quantise concept art to a scene's palette set.")
     parser.add_argument("target", nargs="?", help="a concept art PNG, or a folder of them")
     parser.add_argument("--scene", default=None)
+    parser.add_argument("--map", choices=["areas", "free"], default="areas",
+                        help="areas (default): one written background palette per 16x16 area, a frame a NES "
+                             "can draw. free: nearest entry in the whole set per pixel, the colour loss number.")
     parser.add_argument("--dither", choices=["none", "ordered"], default="none")
     parser.add_argument("--max-delta-e", type=float, default=DEFAULT_MAX_DELTA_E)
     parser.add_argument("--json", default=None)
@@ -286,9 +447,14 @@ def main(argv=None) -> int:
         parser.error("give a PNG or folder and --scene, or use --selftest")
 
     results = []
+    mapping = args.map
+    if args.dither == "ordered" and mapping == "areas":
+        # A dither is a per pixel nudge, which cannot honour who owns the area. Say so, then do the free mapping.
+        print("quantize_concept: --dither ordered implies --map free (a dither cannot honour area ownership)")
+        mapping = "free"
     for path in sprite_targets(root, args.target):
         results.append(convert(root, path, args.scene, dither=args.dither == "ordered",
-                               max_delta_e=args.max_delta_e))
+                               max_delta_e=args.max_delta_e, mapping=mapping))
     if args.json:
         out = args.json if os.path.isabs(args.json) else os.path.join(root, args.json)
         os.makedirs(os.path.dirname(out), exist_ok=True)

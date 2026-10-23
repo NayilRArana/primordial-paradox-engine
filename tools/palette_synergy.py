@@ -33,6 +33,14 @@ either --at X,Y or automatic: horizontally centred, feet on the bottom band of t
 an attribute map (data\\palettes\\scene_<id>.json with an areas list) may name --at from it later; today the
 pixels under the bounding box are the ground, which is the reading the card allows.
 
+Pair a frame with a sprite from ITS OWN cast. This tool measures two things at once (does the frame spend the
+scene's set, and does this figure separate from this ground), so a sprite from another scene's palette set fails
+set_member on every frame and says nothing about the frame. That happened on 2026-10-22: the R8 concept round put
+a battle cast sprite on the title frame, got 32 fails on 8 frames, and read it as "the title frame is not palette
+correct" when the title frame passes the background rules 0 times and the pairing was wrong (card t_4bafb4a1,
+knowledge\\PALETTE-GATE-DECISIONS-2026-10-22.md). If a sprite fails set_member on every single frame, suspect the pairing
+before the art.
+
 Usage:
     python tools\\palette_synergy.py --scene title --background output\\nes_title_frame.png \\
         --sprite game\\sprites_src\\chars\\percy_ow_v2.png
