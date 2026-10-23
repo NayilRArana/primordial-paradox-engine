@@ -70,8 +70,38 @@ t_758934a8. Do not repaint the title frame for it.
 
 The durable fix is in `tools\palette_synergy.py`: its docstring now says to pair a frame with a sprite from its own
 cast, and that a sprite failing `set_member` on every frame is a pairing question before it is an art question.
-The R8 control table in `R8_SELECTS.md` section 6 should be re-run with scene matched sprites before it is quoted
-again; the corrected numbers are the two rows above.
+
+### 2b. The control table re-run with scene matched sprites
+
+Same tool, each frame against its OWN scene's cast from the audit entries in `data\scene_palettes.json`, with the
+frame's background rules counted apart from the sprite pair, because they are two different claims:
+
+| frame | scene | background fails | pair fails | pair rules |
+|---|---|---|---|---|
+| output\bg_battle_deck_night_frame.png | battle_deck_night | 0 | 32 | set_member 15, sprite_tile 8, palette_count 8, body_ground 1 |
+| output\bg_battle_quay_dusk_frame.png | battle_quay_dusk | 0 | 24 | set_member 8, sprite_tile 8, palette_count 8 |
+| output\nes_title_frame.png | title | 0 | 99 | body_ground 75, invisible 13, same_hue_row 7, set_member 2, palette_count 2 |
+| output\bg_battle_corridor_frame.png | battle_corridor | 0 | 77 | set_member 48, body_ground 13, sprite_tile 8, palette_count 8 |
+| game\sprites_src\bg\bg_battle_deck_night.png | battle_deck_night | 0 | 31 | set_member 15, sprite_tile 8, palette_count 8 |
+| R8 best quay frame, as R8 quantized it | battle_quay_dusk | 203 | 227 | background_area 91, palette_count 120, set_member 8, sprite_tile 8 |
+| R8 best quay frame, per area mapping | battle_quay_dusk | 0 | 24 | set_member 8, sprite_tile 8, palette_count 8 |
+
+Two things this settles. One: every frame of ours is background clean, and the R8 quantized frame is the only one
+that is not, which is exactly the quantizer finding. Two: the pair counts are all in the sprite layer (set_member,
+sprite_tile, palette_count) plus the title sheet's own body_ground, so no frame choice fixes them. The quay row
+uses `sailor_ow_v2.png` because battle_quay_dusk has no audit entry and no encounter authored yet, and that sprite
+is not in the quay set either: whoever writes the quay fight picks the cast, and the set decides what it can carry.
+
+The title pair moved from 57 fails (this page, section 2) to 99 during this card because
+`game\sprites_src\title\spr_pp_title_logo.png` was rewritten at 22:07 by the redraw lane, not because anything here
+changed. Numbers on a live redraw lane are a moving target; the doctrine row for it is unchanged and stays with
+TS2-ART-A t_758934a8.
+
+The R8 control table in `R8_SELECTS.md` section 6 should be replaced by the rows above before it is quoted again,
+and the R9 measure script should call `quantize_concept.quantise_areas(before, scene)` or
+`quantize_concept.convert(..., mapping="areas")`; it currently calls `quantise(...)`, which is the free mapping and
+is what produced the 203.
+
 
 ## 3. What this does not decide
 
