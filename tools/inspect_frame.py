@@ -24,6 +24,9 @@ import time
 
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pp_launch  # noqa: E402  the launch policy: PP_MUTE=1, the idle gate, and the quiet window (card CAPTURE-QUIET)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_DIR = os.path.join(ROOT, "output")
 GAME_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "PrimordialParadox")
@@ -239,6 +242,9 @@ def main():
     parser.add_argument("--out", default=os.path.join(OUTPUT_DIR, "_inspect_frame.png"))
     args = parser.parse_args()
 
+    # Card CAPTURE-QUIET: no window while the user is at the PC, and PP_MUTE=1 so nothing plays.
+    if not pp_launch.Policy().gate("inspect frame"):
+        return pp_launch.EXIT_REFUSED
     build = newest_build()
     if build is None:
         print("no built game under %s" % GAME_OUTPUT_DIR)
@@ -246,7 +252,7 @@ def main():
     exe_path, win_path = build
     print("launching %s" % exe_path)
     process = subprocess.Popen([exe_path, "-game", win_path], cwd=os.path.dirname(exe_path),
-                               stdin=subprocess.DEVNULL)
+                               stdin=subprocess.DEVNULL, env=pp_launch.game_env())
     hwnd = None
     try:
         deadline = time.time() + 20
@@ -259,6 +265,8 @@ def main():
         if hwnd is None:
             print("the game window did not appear")
             return 1
+        # Card CAPTURE-QUIET: off the primary screen, so the window is not in his face.
+        pp_launch.place_window_quietly(hwnd)
         time.sleep(args.wait)
         previous = bring_to_front(hwnd)
         try:

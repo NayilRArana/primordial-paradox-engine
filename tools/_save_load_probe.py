@@ -40,6 +40,9 @@ import subprocess
 import sys
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pp_launch  # noqa: E402  the launch policy: PP_MUTE=1, the idle gate, and the quiet window (card CAPTURE-QUIET)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "output", "PrimordialParadox")
 EXE = os.path.join(OUT, "PrimordialParadox.exe")
@@ -114,7 +117,8 @@ def run_game(tag):
     log_path = os.path.join(KEEP, "run_%s.log" % tag)
     with open(log_path, "w", encoding="utf-8", errors="replace") as log:
         process = subprocess.Popen([EXE, "-game", WIN], cwd=OUT, stdin=subprocess.DEVNULL,
-                                   stdout=log, stderr=subprocess.STDOUT)
+                                   stdout=log, stderr=subprocess.STDOUT,
+                                   env=pp_launch.game_env())
         started = time.time()
         while time.time() - started < DEADLINE_S:
             time.sleep(1.0)
@@ -146,6 +150,10 @@ def main():
     if not os.path.isfile(EXE) or not os.path.isfile(WIN):
         print("no built game at %s" % OUT)
         return 1
+    # Card CAPTURE-QUIET: this probe launches the game three times, so the gate is asked once, before the first of
+    # them, and a refusal leaves the save slot untouched.
+    if not pp_launch.Policy().gate("save slot probe"):
+        return pp_launch.EXIT_REFUSED
     os.makedirs(KEEP, exist_ok=True)
     original_digest = sha256(SAVE)
     if os.path.isfile(SAVE):

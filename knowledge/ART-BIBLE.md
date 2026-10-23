@@ -278,3 +278,45 @@ None of these blocks the title screen cards: every title screen number in sectio
 Confidence in this file as a whole: rules in section 1 are hardware documentation and are as firm as
 that wiki; conventions in section 2 are one source each, mostly secondary analyses, and should be
 re-read before they are quoted to anyone outside the project.
+
+
+## RULE 0 (Nayil, 2026-10-22): palette first, synergy between background and sprites
+
+Concept art, backgrounds and sprites are designed INSIDE the NES palette system, never converted into it afterwards.
+1. Every scene starts from a palette set: 4 background palettes (3 colours each) and 4 sprite palettes (3 colours each),
+   all sharing ONE backdrop colour, all colours picked from the 54 usable NES master colours. Write it down first
+   (data\scene_palettes.json) and put it in the prompt or the brief.
+2. A character sprite palette must separate from the background it stands on: at least 2 luminance steps (NES rows
+   0 to 3) between the sprite's body colour and the background colour behind it, and a different hue family for the
+   outline or the body. White clothing on a light background is refused (the white blob).
+3. A sprite's 3 colours: 1 dark outline, 1 mid body, 1 accent or light. The hero palettes are reserved and reused
+   (Percy blue and gold, Hadrian near black and purple, Zander light blue, Konrad grey and amber).
+4. Backgrounds spend their 4 palettes by area (attribute 16x16 rule): sky, ground, buildings, accents. No palette
+   crosses a 16x16 area boundary it does not own.
+5. Concept art (Kaggle, Gemini) is only accepted after it is quantized to the scene's palette set and passes
+   tools\palette_synergy.py. A pretty image that does not survive quantization is rejected, not patched later.
+6. Every new scene, sprite sheet and concept round names its palette set in the card and in the output manifest.
+Gamedev owns the palette decisions; others propose.
+
+
+## RULE 1 (Nayil, 2026-10-22, card CAPTURE-QUIET): a proof run is silent and out of sight, or it does not run
+
+The game window and its music kept opening by themselves while Nayil was at the PC and his partner was home. Every lane
+that launches the built game, for a capture, a probe or a demo, obeys this rule from now on. It is not about the art; it
+is here because the capture helpers are the tools that produce the art frames and the demo video, and every one of them
+follows it.
+
+1. PP_MUTE. The game reads the environment variable PP_MUTE at boot (game\scripts\pp_app\pp_app.gml,
+   pp_app_mute_from_env) and, when it is "1", calls audio_master_gain(0) before any mode is entered. Nothing plays. A
+   real player's launch leaves the variable unset and the game sounds as built.
+2. Three quiet minutes. No worker opens a window unless the user has had no keyboard or mouse input for three minutes
+   (tools\idle_check.py, the same GetLastInputInfo arithmetic the manager's guard uses). A launch that is refused says
+   so in a P: line and exits 4; it is a skip, never a failure of the work, and the next run tries again.
+3. Off the primary screen. The window is moved onto a monitor other than the primary one unless the run passes --show,
+   so the screen Nayil is working on stays his.
+4. Audio proofs are named. A card that has to prove a sound passes --sound, which clears PP_MUTE instead of setting it,
+   and says in its report that the sound was real.
+5. One implementation. tools\pp_launch.py holds the environment, the gate and the placement, and every launching tool
+   goes through it: tools\capture_title.py, tools\play_demo.py, tools\inspect_frame.py, tools\probe_states.py,
+   tools\measure_title_scroll.py and tools\_save_load_probe.py. tests\test_capture_quiet.py fails when a launch site
+   drifts, so this rule is checked and not remembered.

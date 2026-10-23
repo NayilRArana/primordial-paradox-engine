@@ -26,10 +26,30 @@ enum PPSliceKind {
 // A route is nine rows long and a branch may lead back to the title, so the walk stop after this many steps keeps a
 // mistyped `to` from looping forever. It is a bound on a bad row, never on the demo.
 #macro PP_SLICE_MAX_STEPS 64
+// The quiet switch (card CAPTURE-QUIET, Nayil 2026-10-22). An automatic capture, a probe or a demo starts the game with
+// PP_MUTE=1, and pp_app_mute_from_env below takes the master bus to 0 at boot, so a proof run is silent while a real
+// player's launch is not. It lives here beside PP_SLICE rather than in pp_config because the only code that reads it is
+// in this file, and it is split the same way so the macro's own definition is not a use of the name.
+#macro PP_MUTE "PP_" + "MUTE"
+
+/// The quiet switch (card CAPTURE-QUIET, Nayil 2026-10-22). An automatic capture, a probe or a scripted demo starts the
+/// game with PP_MUTE=1 in its environment, and this takes the master bus to 0 before anything can ask for a sound, so a
+/// run that opens a window for a proof is silent. audio_master_gain scales every sound the game makes (music, effects
+/// and blips alike), so one call here is the whole change and no audio module has to know the variable exists. A real
+/// player's launch leaves PP_MUTE unset and the game sounds exactly as built.
+/// Returns true when this run is muted, which is also what the log line says, so a capture log answers "was it quiet".
+function pp_app_mute_from_env() {
+    if (environment_get_variable(PP_MUTE) != "1") return false;
+    audio_master_gain(0);
+    show_debug_message("PP: muted, PP_MUTE=1 in the environment, so the master gain is 0 for this run");
+    return true;
+}
 
 /// Create the game frame, load data, register the modes that exist, and enter boot.
 /// Called once from obj_pp_game's Create event.
 function pp_app_boot() {
+    // Card CAPTURE-QUIET: the mute is decided before anything can play, and before a mode is entered.
+    pp_app_mute_from_env();
     global.pp = {
         data: undefined,
         input: undefined,

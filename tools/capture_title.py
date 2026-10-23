@@ -24,6 +24,14 @@ Usage:
 Exit codes:
     0  both frames were written (or the selftest frame was written, or the video passed its checks)
     1  the game window never appeared, or the capture failed, or a video check failed
+    3  the watchdog fired (the run overran)
+    4  the idle gate refused to open a window: the user had input in the last three minutes (card CAPTURE-QUIET)
+
+Quiet by default (card CAPTURE-QUIET, Nayil 2026-10-22). Every launch in this file goes through tools\pp_launch.py:
+the game is started with PP_MUTE=1 so nothing plays, the idle gate in tools\idle_check.py refuses to open a window
+unless the user has been quiet for three minutes, and the window is moved off the primary screen. --sound turns the
+mute off for an audio proof, --show leaves the window where it is, --idle-wait polls for the user to go quiet, and
+--force is the override a person at the keyboard may use on purpose.
 """
 
 import argparse
@@ -42,6 +50,9 @@ import time
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(TOOLS_DIR)
+if TOOLS_DIR not in sys.path:
+    sys.path.insert(0, TOOLS_DIR)
+import pp_launch  # noqa: E402  the launch policy every capture path below goes through (card CAPTURE-QUIET)
 OUTPUT_DIR = os.path.join(ROOT, "output")
 BUILD_DIR = os.path.join(ROOT, "build")
 GAME_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "PrimordialParadox")
@@ -187,6 +198,15 @@ HWND_NOTOPMOST = -2
 SWP_NOMOVE = 0x0002
 SWP_NOSIZE = 0x0001
 SWP_NOACTIVATE = 0x0010
+
+# What this process may do with a window and with sound (card CAPTURE-QUIET, Nayil 2026-10-22). main() replaces this
+# from the flags, so one place decides for all six capture paths below: the game starts with PP_MUTE=1 (nothing plays),
+# no window opens unless the idle gate says the user has been quiet for three minutes, and the window is moved off the
+# primary screen unless --show was given.
+LAUNCH = pp_launch.Policy()
+# The exit code a run returns when the idle gate refused to open a window. It is not a failure of the work, so it is
+# not 1: a card that is retried later reads a 1 as a bug and a 4 as "he was at the PC".
+IDLE_REFUSED = pp_launch.EXIT_REFUSED
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -1109,6 +1129,8 @@ def run_video_capture():
     The game window is brought to the front and stays there for the whole recording, because gdigrab
     grabs the screen rectangle of the desktop. Nothing else opens on this desktop while it records.
     """
+    if not LAUNCH.gate("title video capture"):
+        return IDLE_REFUSED
     build = newest_build()
     if build is None:
         print("no built game found under %s" % GAME_OUTPUT_DIR)
@@ -1142,6 +1164,8 @@ def run_video_capture():
         stdin=subprocess.DEVNULL,
         stdout=game_log,
         stderr=subprocess.STDOUT,
+        # Card CAPTURE-QUIET: PP_MUTE=1 unless this run is an audio proof (--sound).
+        env=LAUNCH.env(),
     )
     start_watchdog(process, WATCHDOG_S)
     video_ok = False
@@ -1156,6 +1180,9 @@ def run_video_capture():
             print("the game window did not appear within %.0f s" % GAME_WINDOW_TIMEOUT_S)
             return 1
         hwnd = match[0]
+        # Card CAPTURE-QUIET: the window is moved onto a monitor other than the primary one unless --show was given, so
+        # the only part of this run Nayil can see is nothing.
+        LAUNCH.place(hwnd, get_window_rect(hwnd))
         print("game window found: %s (hwnd %s)" % (match[2], hwnd))
 
         image_name = process_image_name(match[1])
@@ -1393,6 +1420,8 @@ def run_video_capture():
 
 def run_game_capture():
     """Launch the built game, capture the title screen, press one Enter, capture again, close the game."""
+    if not LAUNCH.gate("title capture"):
+        return IDLE_REFUSED
     build = newest_build()
     if build is None:
         print("no built game found under %s" % GAME_OUTPUT_DIR)
@@ -1411,6 +1440,8 @@ def run_game_capture():
         stdin=subprocess.DEVNULL,
         stdout=game_log,
         stderr=subprocess.STDOUT,
+        # Card CAPTURE-QUIET: PP_MUTE=1 unless this run is an audio proof (--sound).
+        env=LAUNCH.env(),
     )
     start_watchdog(process, WATCHDOG_S)
     try:
@@ -1424,6 +1455,9 @@ def run_game_capture():
             print("the game window did not appear within %.0f s" % GAME_WINDOW_TIMEOUT_S)
             return 1
         hwnd = match[0]
+        # Card CAPTURE-QUIET: the window is moved onto a monitor other than the primary one unless --show was given, so
+        # the only part of this run Nayil can see is nothing.
+        LAUNCH.place(hwnd, get_window_rect(hwnd))
         print("game window found: %s (hwnd %s)" % (match[2], hwnd))
 
         # The window must be the game's own window, not another app's window that happens to be on top of it.
@@ -1542,6 +1576,8 @@ def run_ship_capture():
 
     Usage: python tools\\capture_title.py --room ship
     """
+    if not LAUNCH.gate("ship room capture"):
+        return IDLE_REFUSED
     build = newest_build()
     if build is None:
         print("no built game found under %s" % GAME_OUTPUT_DIR)
@@ -1568,7 +1604,8 @@ def run_ship_capture():
         stdin=subprocess.DEVNULL,
         stdout=game_log,
         stderr=subprocess.STDOUT,
-        env=child_env,
+        # Card CAPTURE-QUIET: the run's own PP_ capture flag, plus PP_MUTE=1 unless this is an audio proof.
+        env=LAUNCH.env(base=child_env),
     )
     start_watchdog(process, WATCHDOG_S)
     try:
@@ -1582,6 +1619,9 @@ def run_ship_capture():
             print("the game window did not appear within %.0f s" % GAME_WINDOW_TIMEOUT_S)
             return 1
         hwnd = match[0]
+        # Card CAPTURE-QUIET: the window is moved onto a monitor other than the primary one unless --show was given, so
+        # the only part of this run Nayil can see is nothing.
+        LAUNCH.place(hwnd, get_window_rect(hwnd))
         image_name = process_image_name(match[1])
         if image_name.lower() != GAME_EXE_NAME.lower():
             print("the window belongs to %r, not to %s" % (image_name, GAME_EXE_NAME))
@@ -1922,6 +1962,8 @@ def run_intro_capture():
 
     Usage: python tools\\capture_title.py --intro
     """
+    if not LAUNCH.gate("intro capture"):
+        return IDLE_REFUSED
     build = newest_build()
     if build is None:
         print("no built game found under %s" % GAME_OUTPUT_DIR)
@@ -1939,6 +1981,8 @@ def run_intro_capture():
         stdin=subprocess.DEVNULL,
         stdout=game_log,
         stderr=subprocess.STDOUT,
+        # Card CAPTURE-QUIET: PP_MUTE=1 unless this run is an audio proof (--sound).
+        env=LAUNCH.env(),
     )
     start_watchdog(process, WATCHDOG_S)
     hwnd = None
@@ -1953,6 +1997,9 @@ def run_intro_capture():
             print("the game window did not appear within %.0f s" % GAME_WINDOW_TIMEOUT_S)
             return 1
         hwnd = match[0]
+        # Card CAPTURE-QUIET: the window is moved onto a monitor other than the primary one unless --show was given, so
+        # the only part of this run Nayil can see is nothing.
+        LAUNCH.place(hwnd, get_window_rect(hwnd))
         image_name = process_image_name(match[1])
         if image_name.lower() != GAME_EXE_NAME.lower():
             print("the window belongs to %r, not to %s" % (image_name, GAME_EXE_NAME))
@@ -2117,6 +2164,9 @@ def run_keys_capture(tokens, expect=None, first_boot=False):
       4. The game log is read back. Every "PP audio: <cue> played" line is printed, each cue in --expect must
          appear at least once, and a PP CRASH anywhere fails the run.
     """
+    # Card CAPTURE-QUIET: a --keys run is normally an audio proof, so --sound is what a card asking about cues passes.
+    if not LAUNCH.gate("keys capture"):
+        return IDLE_REFUSED
     build = newest_build()
     if build is None:
         print("no built game found under %s" % GAME_OUTPUT_DIR)
@@ -2142,6 +2192,8 @@ def run_keys_capture(tokens, expect=None, first_boot=False):
         stdin=subprocess.DEVNULL,
         stdout=game_log,
         stderr=subprocess.STDOUT,
+        # Card CAPTURE-QUIET: PP_MUTE=1 unless this run is an audio proof (--sound).
+        env=LAUNCH.env(),
     )
     start_watchdog(process, WATCHDOG_S)
     try:
@@ -2155,6 +2207,9 @@ def run_keys_capture(tokens, expect=None, first_boot=False):
             print("the game window did not appear within %.0f s" % GAME_WINDOW_TIMEOUT_S)
             return 1
         hwnd = match[0]
+        # Card CAPTURE-QUIET: the window is moved onto a monitor other than the primary one unless --show was given, so
+        # the only part of this run Nayil can see is nothing.
+        LAUNCH.place(hwnd, get_window_rect(hwnd))
         image_name = process_image_name(match[1])
         if image_name.lower() != GAME_EXE_NAME.lower():
             print("the window belongs to %r, not to %s, so it is not the game window"
@@ -2249,6 +2304,9 @@ def run_keys_capture(tokens, expect=None, first_boot=False):
 
 def run_selftest():
     """Prove the capture path works, using notepad, so the harness can be trusted before the room exists."""
+    # Card CAPTURE-QUIET: the selftest opens a window too, so it is gated like every other launch here.
+    if not LAUNCH.gate("capture selftest"):
+        return IDLE_REFUSED
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     out_path = os.path.join(OUTPUT_DIR, "_capture_selftest.png")
     print("launching notepad")
@@ -2265,6 +2323,9 @@ def run_selftest():
             print("the notepad window did not appear within %.0f s" % SELFTEST_WINDOW_TIMEOUT_S)
             return 1
         hwnd = match[0]
+        # Card CAPTURE-QUIET: the window is moved onto a monitor other than the primary one unless --show was given, so
+        # the only part of this run Nayil can see is nothing.
+        LAUNCH.place(hwnd, get_window_rect(hwnd))
         print("notepad window found: %s (hwnd %s)" % (match[2], hwnd))
         time.sleep(1.0)
         rect, written, note = capture_window(hwnd, out_path)
@@ -2349,6 +2410,8 @@ def run_scroll_capture():
 
     Usage: python tools\\capture_title.py --scroll
     """
+    if not LAUNCH.gate("title scroll capture"):
+        return IDLE_REFUSED
     build = newest_build()
     if build is None:
         print("no built game found under %s" % GAME_OUTPUT_DIR)
@@ -2371,7 +2434,8 @@ def run_scroll_capture():
         stdin=subprocess.DEVNULL,
         stdout=game_log,
         stderr=subprocess.STDOUT,
-        env=child_env,
+        # Card CAPTURE-QUIET: the title's own frame flag, plus PP_MUTE=1 unless this is an audio proof.
+        env=LAUNCH.env(base=child_env),
     )
     start_watchdog(process, WATCHDOG_S)
     try:
@@ -2385,6 +2449,9 @@ def run_scroll_capture():
             print("the game window did not appear within %.0f s" % GAME_WINDOW_TIMEOUT_S)
             return 1
         hwnd = match[0]
+        # Card CAPTURE-QUIET: the window is moved onto a monitor other than the primary one unless --show was given, so
+        # the only part of this run Nayil can see is nothing.
+        LAUNCH.place(hwnd, get_window_rect(hwnd))
         image_name = process_image_name(match[1])
         if image_name.lower() != GAME_EXE_NAME.lower():
             print("the window belongs to %r, not to %s, so it is not the game window" % (image_name, GAME_EXE_NAME))
@@ -2491,7 +2558,11 @@ def run_scroll_capture():
 
 
 def main():
+    global LAUNCH
     parser = argparse.ArgumentParser(description="Capture the title screen frames of the built game.")
+    # Card CAPTURE-QUIET: --sound, --show, --idle-wait and --force, spelled once in tools\pp_launch.py so every
+    # launching tool takes the same four flags.
+    pp_launch.add_launch_flags(parser)
     parser.add_argument(
         "--selftest",
         action="store_true",
@@ -2536,6 +2607,7 @@ def main():
              "key pressed, and print the elapsed time so the world's travel can be measured (card TEMPO-1)",
     )
     args = parser.parse_args()
+    LAUNCH = pp_launch.policy_from_args(args)
     if args.selftest:
         return run_selftest()
     if args.video:

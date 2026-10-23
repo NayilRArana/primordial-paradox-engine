@@ -37,6 +37,9 @@ import time
 import numpy as np
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pp_launch  # noqa: E402  the launch policy: PP_MUTE=1, the idle gate, and the quiet window (card CAPTURE-QUIET)
+
 user32 = ctypes.windll.user32
 gdi32 = ctypes.windll.gdi32
 
@@ -188,18 +191,26 @@ def main():
         print("no built game at %s" % EXE)
         return 1
 
+    # Card CAPTURE-QUIET: no window while the user is at the PC, and PP_MUTE=1 so nothing plays.
+    if not pp_launch.Policy().gate("scroll measurement"):
+        return pp_launch.EXIT_REFUSED
+
     os.makedirs(BUILD_DIR, exist_ok=True)
     log_path = os.path.join(BUILD_DIR, "measure-scroll-game.log")
     game_log = open(log_path, "wb")
     process = subprocess.Popen(
         [EXE, "-game", WIN], cwd=os.path.dirname(EXE),
         stdin=subprocess.DEVNULL, stdout=game_log, stderr=subprocess.STDOUT,
+        # Card CAPTURE-QUIET: PP_MUTE=1, this is not an audio proof.
+        env=pp_launch.game_env(),
     )
     try:
         hwnd = find_game_window(process.pid)
         if not hwnd:
             print("the game window did not appear")
             return 1
+        # Card CAPTURE-QUIET: off the primary screen, so the window is not in his face.
+        pp_launch.place_window_quietly(hwnd)
         time.sleep(3.0)
         # The game keeps its window on the desktop but stops drawing to it while it is not the active window, so
         # PrintWindow on a background window returns the last frame before the focus went away (measured: five
