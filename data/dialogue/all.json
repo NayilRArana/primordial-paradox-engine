@@ -92,6 +92,24 @@
       ]
     },
     {
+      "id": "talk_percy_phase3",
+      "speaker": "percy",
+      "lines": [
+        "* \"Rain. Wall. Now the fan.\"",
+        "* \"Last of the three.\"",
+        "* \"Name me, or drown.\""
+      ]
+    },
+    {
+      "id": "percy_phase3_line",
+      "speaker": "percy",
+      "lines": [
+        "* Percy opens the sea wide.",
+        "* \"Everything at once, then.\"",
+        "* The whole sea comes with it."
+      ]
+    },
+    {
       "id": "percy_interrupt_line",
       "speaker": "percy",
       "lines": [
@@ -315,7 +333,7 @@
         {
           "speaker": "narrator",
           "lines": [
-            "* A counter. A lamp. A ledger.",
+            "* Counter. A lamp. A ledger.",
             "* Two men. One is Navy.",
             "* The other is not."
           ]
@@ -331,9 +349,9 @@
         {
           "speaker": "narrator",
           "lines": [
-            "* One line left in the ledger.",
+            "* A line left in the ledger.",
             "* The ink on it is dry.",
-            "* It is not the clerk's hand."
+            "* Not the clerk's hand."
           ]
         }
       ]
@@ -363,7 +381,7 @@
           "lines": [
             "* The slip changes hands.",
             "* It is warm from a pocket.",
-            "* Behind them, the gate shut."
+            "* Behind them the gate shut."
           ]
         }
       ],

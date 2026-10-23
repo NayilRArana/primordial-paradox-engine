@@ -45,8 +45,8 @@
         {
           "hp_at_or_below": 40,
           "pattern_id": "percy_fan",
-          "talk_set": "talk_percy_phase2",
-          "line_id": "percy_phase2_line",
+          "talk_set": "talk_percy_phase3",
+          "line_id": "percy_phase3_line",
           "attack": { "min": 4, "max": 6 }
         }
       ],
