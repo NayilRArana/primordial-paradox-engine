@@ -969,3 +969,20 @@ own and only the names and the costumes were wrong; then carrying the rename thr
 sprite name, the .yyp Included Files, the mirror index, the redraw queue ids, the palette enforcement list and the spec, and
 writing the adopted costume into each queue entry as a design_note so the redraw cannot inherit the rejected farmer.
 Copied expression: none
+
+## TALK-PHASE-NAME, 2026-10-22: what a phase crossing names when it changes the talk card
+Studied: this repository's own sources, read only: specs\16-talk-command.md section 10 and sections 1, 3 and 8, specs\18-boss-phases.md
+sections 4 and C18-2, data\schemas\enemies.schema.json, data\schemas\talk_cards.schema.json, data\talk_cards.json, data\dialogue\all.json,
+data\enemies\all.json, tools\check_data.py's enemy walk, and tests\test_schemas.py's talk card cases. No decompiled material was read for
+this card and no expression from any game is in it.
+Mechanics learned: that a data model can disagree with itself without failing, when the same string is legal in two namespaces. "percy_phase2"
+is a talk card's phase and "talk_percy_phase2" is a dialogue row, and because both are plain strings in the same JSON, nothing rejected the
+sentence that said one was matched against the other. The useful shape: when a crossing has to swap two different runtime things (the card the
+model judges against, and the choice lines the player picks from), the row that triggers the crossing carries one field per thing, each named for
+the namespace it resolves in, and a checker proves both directions, including the reachability one (a phase card that no row names is dead data
+that every other check happily passes).
+Our implementation differs by: keeping talk_set as the dialogue id and adding a separate talk_phase for the card phase, rather than redefining
+talk_set, because four sources already document talk_set as a dialogue id and only one spec sentence claimed otherwise; giving the card file
+ownership of the phase spelling and the enemy file a checked copy; and putting the cross reference in tools\check_data.py itself instead of
+waiting for the planned tools\check_talk.py, so the drift cannot land before that tool exists.
+Copied expression: none

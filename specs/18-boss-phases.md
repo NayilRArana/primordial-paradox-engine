@@ -304,6 +304,7 @@ The data block this spec asks for. Where every key in it comes from:
 | `max_hp`, `attack`, `route_kind`, `patterns` at the enemy level | spec 07's enemy data list, already in `data/schemas/enemies.schema.json` |
 | `phases`, `interrupt` at the enemy level | sections 1 and 4 of this spec |
 | `hp_at_or_below`, `pattern_id`, `talk_set`, `line_id`, `attack` inside a phase row | the phase row the enemies schema already carries; this spec fixes `hp_at_or_below` as percent, see C18-2 |
+| `talk_phase` inside a phase row | spec 16 section 10: the talk card's phase value, copied verbatim so the crossing swaps the card, card t_155e22e2 |
 | `box_scale` inside a phase row | section 2.1 of this spec |
 | `scene` inside `interrupt`, and its four route keys | section 4 of this spec |
 
@@ -319,7 +320,7 @@ the blooded and genocide keys need (R04 owns it, delta C18-3).
   "patterns": ["percy_rain"],
   "phases": [
     { "hp_at_or_below": 70, "pattern_id": "percy_wall",
-      "talk_set": "talk_percy_phase2", "line_id": "percy_phase2_line",
+      "talk_set": "talk_percy_phase2", "talk_phase": "percy_phase2", "line_id": "percy_phase2_line",
       "attack": { "min": 4, "max": 5 },
       "box_scale": [80, 100] },
     { "hp_at_or_below": 40, "pattern_id": "percy_fan",

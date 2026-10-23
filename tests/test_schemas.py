@@ -269,3 +269,36 @@ def test_check_data_reports_a_bad_talk_card(data_root, read_json, write_json):
     messages = schema_messages(data_root, "talk_cards.json")
     assert messages, check_data.check(str(data_root))
     assert any("voice" in m for m in messages), messages
+
+
+def test_the_phase_row_and_the_phase_card_name_one_phase():
+    """Card t_155e22e2: talk_phase is the card's phase, talk_set is a dialogue id, and the two never trade places.
+
+    The decision this pins: the phase crossing's talk card is selected by a phase string the phase row carries
+    (talk_phase), copied from the card's own phase, while talk_set stays an id in data/dialogue/all.json because it
+    names the choice lines step 1 draws. Reading either name in the other namespace is the drift the card settled.
+    """
+    cards = talk_cards_document()["cards"]
+    phase_cards = {(card["enemy"], card["phase"]) for card in cards if card["phase"]}
+    assert ("percy", "percy_phase2") in phase_cards
+
+    with open(os.path.join(ROOT, "data", "enemies", "all.json"), "r", encoding="utf-8") as handle:
+        enemies = json.load(handle)["enemies"]
+    with open(os.path.join(ROOT, "data", "dialogue", "all.json"), "r", encoding="utf-8") as handle:
+        dialogue_ids = {row["id"] for row in json.load(handle)["dialogue"]}
+
+    rows = [(enemy["id"], phase) for enemy in enemies for phase in enemy.get("phases", [])]
+    assert rows, "no enemy ships a phase row, so this test would pass without checking anything"
+    for enemy_id, row in rows:
+        assert row["talk_set"] in dialogue_ids, (enemy_id, row["talk_set"])
+        if "talk_phase" in row:
+            assert (enemy_id, row["talk_phase"]) in phase_cards, (enemy_id, row["talk_phase"])
+
+    percy = [row for enemy_id, row in rows if enemy_id == "percy"][0]
+    assert percy["talk_phase"] == "percy_phase2"
+    assert percy["talk_set"] == "talk_percy_phase2"
+
+    with open(os.path.join(ROOT, "specs", "16-talk-command.md"), "r", encoding="utf-8") as handle:
+        spec = handle.read()
+    assert "talk_phase" in spec and "talk_set` stays a dialogue id" in spec, (
+        "spec 16 section 10 no longer names the field that selects the phase card")

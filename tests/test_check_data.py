@@ -391,3 +391,59 @@ def test_cue_asset_is_a_bare_name(data_root, read_json, write_json):
 
     errors = failures(data_root)
     assert any("without the .ogg" in e for e in errors), errors
+
+
+# ----------------------------------------------------------------------------------------------------------------
+# The phase crossing's talk names (spec 16 section 10, card t_155e22e2). A phase row carries a dialogue id in
+# talk_set and a talk card phase in talk_phase, and the checker refuses a name that resolves in the wrong namespace.
+
+
+def percy_phase_row(data):
+    for enemy in data["enemies"]:
+        if enemy["id"] == "percy":
+            return enemy["phases"][0]
+    raise AssertionError("data/enemies/all.json no longer has a percy phase row")
+
+
+def test_a_talk_phase_that_names_no_card_is_refused(data_root, read_json, write_json):
+    path = data_root / "data" / "enemies" / "all.json"
+    data = read_json(path)
+    percy_phase_row(data)["talk_phase"] = "percy_wounded"
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("no talk card" in e and "percy_wounded" in e for e in errors), errors
+
+
+def test_a_phase_card_no_phase_row_names_is_unreachable(data_root, read_json, write_json):
+    path = data_root / "data" / "enemies" / "all.json"
+    data = read_json(path)
+    del percy_phase_row(data)["talk_phase"]
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("unreachable" in e and "cards[" in e for e in errors), errors
+
+
+def test_the_card_phase_is_not_readable_as_a_dialogue_id(data_root, read_json, write_json):
+    """The confusion this card settled: talk_set is a dialogue id, so the card's phase there must be refused."""
+    path = data_root / "data" / "enemies" / "all.json"
+    data = read_json(path)
+    percy_phase_row(data)["talk_set"] = "percy_phase2"
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("unknown dialogue id" in e and "talk_set" in e and "percy_phase2" in e for e in errors), errors
+
+
+def test_a_renamed_phase_card_breaks_both_ends(data_root, read_json, write_json):
+    path = data_root / "data" / "talk_cards.json"
+    data = read_json(path)
+    for card in data["cards"]:
+        if card["enemy"] == "percy" and card["phase"] == "percy_phase2":
+            card["phase"] = "percy_phase3"
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert any("no talk card" in e and "talk_phase" in e for e in errors), errors
+    assert any("unreachable" in e and "percy_phase3" in e for e in errors), errors

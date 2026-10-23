@@ -292,6 +292,9 @@ class Checker:
         self.load("maps/ship_sample.json")
         scenes = self.load("scenes/all.json")
         dialogue = self.load("dialogue/all.json")
+        # The talk cards (spec 16 section 10). The schema validates the file's shape; this check reads it as well so
+        # a phase row and its phase card cannot point at different phases (card t_155e22e2).
+        self.load("talk_cards.json")
         items = self.load("items.json")
         powers = self.load("powers.json")
         flags = self.load("flags.json")
@@ -314,6 +317,7 @@ class Checker:
         self.check_dialogue(dialogue, ids)
         self.check_characters(party, ids)
         self.check_enemies(enemies, ids)
+        self.check_phase_talk(enemies, ids)
         self.check_patterns(patterns, ids)
         self.check_encounters(encounters, ids)
         self.check_maps(maps, ids)
@@ -805,6 +809,81 @@ class Checker:
                 if name in ids["enemy"] and ids["enemy"][name] is not row:
                     self.error(filename, path + ".id", "duplicate id %r" % name)
                 ids["enemy"][name] = row
+
+    def check_phase_talk(self, data, ids):
+        """The two talk names a phase crossing carries, one meaning each (spec 16 section 10, card t_155e22e2).
+
+        A phase row names the choice lines the TALK command draws from the crossing on in `talk_set`, which is a
+        dialogue id in data/dialogue/all.json, and it names the personality card the director swaps in with
+        `talk_phase`, which is a card's `phase` value in data/talk_cards.json. Two namespaces, so neither name may be
+        read as the other: `talk_set` must resolve to a dialogue row, and `talk_phase` must resolve to exactly one card
+        whose enemy is this enemy. The reverse is checked as well, because a phase card no row names is a card the
+        fight can never reach, which is the drift this card was opened to stop.
+        """
+        filename = "data/enemies/all.json"
+        cards_file = "data/talk_cards.json"
+        document = self.files.get("talk_cards.json") if isinstance(self.files, dict) else None
+        cards = document.get("cards") if isinstance(document, dict) else None
+
+        # The phase cards, by the pair the director matches on: the enemy id and the card's own phase string.
+        by_phase: dict[tuple[str, str], list[int]] = {}
+        if isinstance(cards, list):
+            for index, card in enumerate(cards):
+                if not isinstance(card, dict):
+                    continue
+                enemy = card.get("enemy")
+                phase = card.get("phase")
+                if isinstance(enemy, str) and isinstance(phase, str) and phase != "":
+                    by_phase.setdefault((enemy, phase), []).append(index)
+
+        enemies = data.get("enemies") if isinstance(data, dict) else None
+        if not isinstance(enemies, list):
+            return
+        named: set[tuple[str, str]] = set()
+        for index, row in enumerate(enemies):
+            if not isinstance(row, dict):
+                continue
+            enemy_id = row.get("id")
+            if not isinstance(enemy_id, str):
+                continue
+            phases = row.get("phases")
+            if not isinstance(phases, list):
+                continue
+            for phase_index, phase in enumerate(phases):
+                if not isinstance(phase, dict):
+                    continue
+                phase_path = "enemies[%d].phases[%d]" % (index, phase_index)
+                self.ref(ids, "dialogue", self.want(phase, "talk_set", "str", filename, phase_path),
+                         filename, phase_path + ".talk_set")
+                self.ref(ids, "dialogue", self.want(phase, "line_id", "str", filename, phase_path),
+                         filename, phase_path + ".line_id")
+                if "talk_phase" not in phase:
+                    continue
+                talk_phase = self.require(phase, "talk_phase", "str", filename, phase_path)
+                if not isinstance(talk_phase, str) or talk_phase == "":
+                    continue
+                found = by_phase.get((enemy_id, talk_phase), [])
+                if len(found) == 1:
+                    named.add((enemy_id, talk_phase))
+                elif not found:
+                    self.error(filename, phase_path + ".talk_phase",
+                               "no talk card in %s has enemy %r and phase %r, so the crossing would keep the base card"
+                               % (cards_file, enemy_id, talk_phase))
+                else:
+                    self.error(filename, phase_path + ".talk_phase",
+                               "%d talk cards in %s claim enemy %r and phase %r"
+                               % (len(found), cards_file, enemy_id, talk_phase))
+
+        # A phase card is reachable only through a phase row of its own enemy. Cards for enemies that live only in
+        # data/enemies/roster.json are exempt: those enemies have no phase rows, so they have no crossing to reach.
+        for (enemy_id, talk_phase), indexes in sorted(by_phase.items()):
+            if enemy_id not in ids.get("enemy", {}):
+                continue
+            if (enemy_id, talk_phase) in named:
+                continue
+            self.error(cards_file, "cards[%d].phase" % indexes[0],
+                       "no phase row in %s names talk_phase %r for enemy %r, so this phase card is unreachable"
+                       % (filename, talk_phase, enemy_id))
 
     def check_patterns(self, data, ids):
         filename = "data/patterns/all.json"

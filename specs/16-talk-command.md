@@ -294,7 +294,7 @@ Percy, base card:
 }
 ```
 
-Percy, phase 2 card (applies from hp_at_or_below 60, matching the phase row already in enemies/all.json): version 2, voice unchanged, weak_topics gains `the veil answered` with keywords ["veil", "what it is", "it hides", "prometheus"] at the top and loses `what the veil is` from the base list, strong_topics unchanged, and the pools' mid and high lines change to acknowledge the wound ("So. You have hurt me." is played once by the phase crossing itself, so the pools must not repeat it). The phase field is "percy_phase2" and it is matched by the phase row's talk_set, so the director never guesses.
+Percy, phase 2 card (applies from hp_at_or_below 60, matching the phase row already in enemies/all.json): version 2, voice unchanged, weak_topics gains `the veil answered` with keywords ["veil", "what it is", "it hides", "prometheus"] at the top and loses `what the veil is` from the base list, strong_topics unchanged, and the pools' mid and high lines change to acknowledge the wound ("So. You have hurt me." is played once by the phase crossing itself, so the pools must not repeat it). The phase field is "percy_phase2". Two names, two fields, decided on card t_155e22e2: the phase row's `talk_phase` carries the card's phase value ("percy_phase2") and the director matches the card on enemy id plus that string, while the row's `talk_set` stays a dialogue id ("talk_percy_phase2") because it is the set of choice lines step 1 draws from that phase on. data/talk_cards.json owns the spelling of a phase, data/enemies/all.json copies it into `talk_phase`, and tools/check_data.py refuses a phase card that no phase row names and a `talk_phase` that resolves to no card.
 
 ## 11. How SPARE unlocks
 
