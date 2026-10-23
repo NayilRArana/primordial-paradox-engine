@@ -321,10 +321,34 @@ def rgba(hex_colour):
     return (int(value[0:2], 16), int(value[2:4], 16), int(value[4:6], 16), 255)
 
 
+def prometheus_licks(g):
+    """Two tongues above the mirrored mass, off centre, so the hair reads as fire rather than as a gold crown.
+
+    Everything else on this sheet is drawn as a left half and mirrored, which is what keeps a face from going lopsided
+    by one pixel. Fire is the one thing that must NOT be symmetric: a symmetric three tip mass above a face is a crown,
+    which is what the first draft looked like at 6x. The tongues and the notches below are placed after the mirror, on
+    the right of the axis only.
+    """
+    # Tongue one, four pixels above the mass's top edge, and tongue two taller and further right. Both start clear of
+    # the frame's inner row by one panel pixel, because an ink outline that touches the frame reads as a stray line.
+    for y in range(3, 5):
+        g.set(25, y, ACCENT)
+    for y in range(2, 6):
+        g.set(28, y, ACCENT)
+    # Notches cut into the top edge, right side only: the staircase between the tongues is what makes them read as
+    # separate licks. They are cut to the panel, not to transparency, because the panel is what is behind the fire.
+    g.set(24, 4, PANEL)
+    g.set(30, 5, PANEL)
+    g.set(30, 6, PANEL)
+    outline(g, ACCENT)
+
+
 def build(name):
-    """One bust as a Grid: left half drawn, mirrored, frame last."""
+    """One bust as a Grid: left half drawn, mirrored, the one asymmetric detail, frame last."""
     grid = BUILDERS[name]()
     grid.mirror_x()
+    if name == "prometheus":
+        prometheus_licks(grid)
     draw_frame(grid)
     return grid, BUSTS[name]
 
