@@ -61,10 +61,13 @@ function pp_look_apply_window() {
     }
 
     // Viewport 0 is the frame's own port (spec 03: one viewport, 256*scale by 240*scale at the top left). The camera
-    // view stays exactly 256x240 at the room origin, and GameMaker scales a view up to its port: "if you have a larger
+    // view stays exactly 256x240 at the room origin, and GameMaker scales a view up into its port: "if you have a larger
     // or smaller viewport size than that assigned to the camera, then the camera view will be scaled down - or up - to
-    // fit". The room origin, not the camera position, is what moves: pp_camera offsets the world in room space, so a
-    // view that also moved would count the same offset twice.
+    // fit". That sentence is on the view_wport page, so it is cited here on the quote itself, not only at the calls
+    // below it.
+    // https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/Cameras_And_Display/Cameras_And_Viewports/view_wport.htm
+    // The room origin, not the camera position, is what moves: pp_camera offsets the world in room space, so a view
+    // that also moved would count the same offset twice.
     // https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/Cameras_And_Display/Cameras_And_Viewports/view_enabled.htm
     view_enabled = true;
     // https://manual.gamemaker.io/monthly/en/GameMaker_Language/GML_Reference/Cameras_And_Display/Cameras_And_Viewports/view_visible.htm
