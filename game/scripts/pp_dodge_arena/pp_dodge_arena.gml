@@ -237,14 +237,13 @@ function pp_arena_draw(_arena) {
     }
 
     if (_arena.ended && _arena.cleared) {
-        draw_set_colour(pp_role_colour("accent"));
-        draw_set_halign(fa_center);
-        draw_text(PP_ARENA_CX, _g.y2 + 12, "clear");
-        draw_set_halign(fa_left);
+        // Card BATTLE-FONT-WIRE: the sheet's glyphs on a plate of the room's ink, because this line sits over the
+        // baked field strip and the sheet has one ink that no role colour may tint.
+        pp_font_draw_plated_centre("clear", PP_ARENA_CX, _g.y2 + 12, 1);
     }
 
     if (PP_DEBUG) {
-        draw_set_colour(pp_role_colour("accent"));
-        draw_text(8, 8, _arena.pattern.id + "  step " + string(_arena.phase_steps) + "  live " + string(pp_arena_live_hazards(_arena)));
+        pp_font_draw_wrapped(_arena.pattern.id + "  step " + string(_arena.phase_steps)
+            + "  live " + string(pp_arena_live_hazards(_arena)), 8, 8, pp_font_cols(PP_FRAME_W - 16), 10, 1);
     }
 }

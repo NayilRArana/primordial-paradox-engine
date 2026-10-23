@@ -143,6 +143,55 @@ rows, name plate and choice labels with `draw_text` while the project holds no f
 
 ---
 
+## D11. BATTLE-FONT-WIRE: the sheet's one ink gets marks, and the wrap is one function
+
+Card t_7eb8835f, written after D10 moved the dialogue box onto `pp_font_draw` and left 34 sites on the GameMaker
+default font. Seven rulings, each with the number it came from.
+
+1. **Every screen prints through pp_font_draw, and the tree holds no text call outside a comment except the debug
+   overlay.** The 34 sites were pp_app (10), pp_battle_director (12), pp_battle_text (6), pp_dodge_arena (2),
+   pp_overworld (1) and pp_save (1), plus pp_font's own sanctioned call. All of them now draw the sheet.
+   `game/objects/obj_pp_debug_overlay/Draw_64.gml` keeps `draw_text` on purpose: it is a developer dump drawn in Draw
+   GUI space at the window's own scale, not a screen a player sees, and `tests/test_battle_font.py` pins it by name so
+   converting it later turns the test red on purpose rather than silently.
+2. **The wrap is a column count, in pp_font, once.** The default font wrapped at a pixel width; the sheet's cell is
+   8 px, so `pp_font_cols(pixels)`, `pp_font_wrap(text, columns)`, `pp_font_draw_wrapped` and
+   `pp_font_draw_wrapped_centre` are now the one wrap. `draw_text_ext(..., 10, PP_FRAME_W - 32)` became
+   `pp_font_cols(PP_FRAME_W - 32)`, which is 28 columns from x 16 to x 240, the same row the dialogue box uses.
+   `pp_text_board_draw` advances by the rows a line actually took, so two long lines can no longer print over each
+   other. `pp_talk_wrap` in pp_battle_text stays: it is the talk loader's own step (four rows at most, cut at the last
+   space through `pp_talk_cut`), it predates this card, and merging it into the font's wrap would change what the
+   loader accepts. That merge is a follow up.
+3. **The sheet stays 74 glyphs, so the HP line says OF rather than a slash.** `spr_pp_font8` has no `/`, and adding
+   one touches the rasteriser's GLYPHS, `data/ui_layouts.json`'s copy, the generated `make_ui_nes.py` copy, the sheet
+   PNG and its sidecar, and four frame-count assertions (74 frames, 592x8, "74 tiles"). That is an art card, not a
+   screen card, so the battle line reads `HP 12 OF 12   WILL 5 OF 5` (25 characters, x 16 to x 216) until the sheet
+   grows the glyph. Carded.
+4. **One ink: a state is a mark or a place, never a tint.** The sheet is `#f8f8f8` and a tint is a multiply no PPU can
+   output (font contract rule 6). So: a refused command or game over row is ruled through with
+   `pp_font_draw_struck` (the same idiom `pp_title_draw_disabled` already used); the game over row the cursor is on
+   carries a 2 px rule under it, because a 6 px arrow at `_x - 12` would sit outside the card for `RETURN TO TITLE`
+   (15 glyphs = 120 of the card's 124 inner pixels); the talk hint is marked by its own row under the block; and the
+   damage number and the arena's `clear` line sit on `pp_font_draw_plated_centre`'s plate of the room's ink, because
+   the enemy block is filled with the light role and white on `#c8c8d4` is unreadable.
+5. **The game over sentence moved under the card, and the card did not move.** At 8 px the card's inner rectangle
+   (x 66 to x 190) holds 15 glyphs, and the three refusal sentences are 27 to 30 characters, so two rows of them
+   cannot sit between the rows at y 148 and the card's bottom at y 174. The sentence is now one row at 30 columns on
+   the black band under the card, y 182, still inside the frame and clear of the card's edge at y 177. The card's own
+   rectangles are the numbers they were, and `tools/preview_battle_font.py` refuses if they ever disagree with
+   `pp_battle_draw_gameover`'s source.
+6. **The refusal note moved up 4 pixels.** It was drawn at `PP_FRAME_H - 20` (220), which crosses the third command
+   row at 216 once a glyph is 8 px tall; at `PP_FRAME_H - 16` (224) its cell ends on 231, under the labels and inside
+   the band's border at 232.
+7. **Every character the battle screens print is a frame of the sheet, checked by test.** The checker
+   `tools/check_font_coverage.py` reads the data files and not the literals in GML, so
+   `tests/test_battle_font.py::test_the_battle_screens_print_no_character_the_sheet_lacks` reads the command labels,
+   the game over rows, the refusal reasons and the fixed strings out of the source and proves every character is in
+   the 74. Extending the checker to GML literals, and to the runtime sentences composed from a data error
+   (`Data problem: ` plus a path with slashes in it), is carded: those print a space where the sheet has no glyph.
+
+---
+
 ## Provenance
 
 No external code, art, audio, dialogue or decompiled material was read, retyped or reused for this file or the cards it
@@ -150,6 +199,6 @@ rules. Every number here is quoted from this repository's own files: `knowledge/
 `knowledge/ARRIVAL-CONTENT.md`, `knowledge/DRIVE-SHOT-LIST.md`, `knowledge/HACKATHON-AUDIT-2026-10-22.md`,
 `specs/18-boss-phases.md`, and the blocked cards' own comments and logs.
 
-Written by gamedev, 2026-10-23. Check for this file: it exists, each of D1 to D10 states a ruling and a reason, D1 names
+Written by gamedev, 2026-10-23. Check for this file: it exists, each of D1 to D11 states a ruling and a reason, D1 names
 the exact five flags and the one writer, D4 names the three children, D10 carries the box's three numbers and the four
 re-broken lines, and every claim of "already done" is tied to a capture or a log line in this repository.

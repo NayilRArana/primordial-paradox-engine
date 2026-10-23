@@ -41,11 +41,13 @@ function pp_text_board_done(_board) {
     return pp_text_reveal_done(_board.reveal);
 }
 
-/// Draw the lines that have been revealed so far. Wrapping is left to draw_text_ext so a data line never truncates
-/// silently, and the checker is the place that refuses an over long line before it ships.
-function pp_text_board_draw(_board, _x, _y, _colour) {
-    draw_set_colour(_colour);
-    draw_set_halign(fa_left);
+/// Draw the lines that have been revealed so far.
+/// Card BATTLE-FONT-WIRE: the words are the sheet's glyphs, and the wrap is a column count rather than a pixel width,
+/// because every glyph in the sheet is 8 px wide. A line that wraps to two rows pushes the next line down by the rows
+/// it actually took, so two long lines cannot print over each other. 28 columns is the window's 224 px inside
+/// (PP_FRAME_W - 32); the checker is still the place that refuses a line the sheet cannot draw.
+function pp_text_board_draw(_board, _x, _y) {
+    var _cols = pp_font_cols(PP_FRAME_W - 32);
     var _shown = 0;
     var _units = _board.reveal.units;
     var _unit = _board.reveal.unit;
@@ -53,8 +55,7 @@ function pp_text_board_draw(_board, _x, _y, _colour) {
         var _text = pp_text_visible(_units[i], array_length(_units[i]));
         if (i == _unit) _text = pp_text_visible(_units[i], _board.reveal.revealed);
         if (_text != "") {
-            draw_text_ext(_x, _y + _shown * 10, _text, 10, PP_FRAME_W - 32);
-            _shown += 1;
+            _shown += pp_font_draw_wrapped(_text, _x, _y + _shown * 10, _cols, 10, 1);
         }
     }
 }
@@ -563,9 +564,9 @@ function pp_talk_hint_y() { return 40; }
 
 /// Draw a talk board: the model's own line breaks, one line per row at the 8 pixel pitch, all four inside the window.
 /// No wrap and no hyphenation, because a line over 28 was cut at the load and a fifth line was dropped there.
-function pp_talk_board_draw(_board, _x, _y, _colour) {
-    draw_set_colour(_colour);
-    draw_set_halign(fa_left);
+/// Card BATTLE-FONT-WIRE: the line is the sheet's glyphs at the sheet's own 8 px pitch, which is the number this
+/// function already promised; there is no colour argument because the sheet has one ink.
+function pp_talk_board_draw(_board, _x, _y) {
     if (is_undefined(_board)) return 0;
     var _shown = 0;
     var _units = _board.reveal.units;
@@ -574,19 +575,19 @@ function pp_talk_board_draw(_board, _x, _y, _colour) {
         var _text = pp_text_visible(_units[i], array_length(_units[i]));
         if (i == _unit) _text = pp_text_visible(_units[i], _board.reveal.revealed);
         if (_text != "" && _shown < pp_talk_lines_max()) {
-            draw_text(_x, _y + _shown * pp_talk_line_pitch(), _text);
+            pp_font_draw(_text, _x, _y + _shown * pp_talk_line_pitch(), 1);
             _shown += 1;
         }
     }
     return _shown;
 }
 
-/// The hint, in the second ink, on the row under the last reply line and inside the same window (Q9).
+/// The hint, on the row under the last reply line and inside the same window (Q9).
+/// Card BATTLE-FONT-WIRE: it used to be drawn in the second role colour, and the sheet cannot be tinted (rule 6), so
+/// what marks it out now is where it is: its own row under the block, at pp_talk_hint_y. The words are the sheet's.
 function pp_talk_hint_draw(_hint) {
     if (!is_string(_hint) || _hint == "") return false;
-    draw_set_colour(pp_role_colour("text"));
-    draw_set_halign(fa_left);
-    draw_text(pp_talk_text_x(), pp_talk_hint_y(), _hint);
+    pp_font_draw(_hint, pp_talk_text_x(), pp_talk_hint_y(), 1);
     return true;
 }
 
@@ -599,9 +600,9 @@ function pp_talk_draw_options(_battle) {
     draw_set_colour(pp_role_colour("dim"));
     draw_rectangle(pp_battle_text_box_x1(), pp_battle_text_box_y1(),
                    pp_battle_text_box_x2() - 1, pp_battle_text_box_y2() - 1, true);
-    draw_set_colour(pp_role_colour("ink"));
-    draw_set_halign(fa_left);
-    draw_text(pp_talk_text_x(), pp_talk_text_y() + pp_talk_line_pitch(), "* " + PP_TALK_PROMPT);
+    // Card BATTLE-FONT-WIRE: the prompt and the three labels are the sheet's glyphs. The labels are 26 characters at
+    // the longest (a dialogue line's 28 less the `* ` marker), which is x 24 to x 232 inside the band at x 248.
+    pp_font_draw("* " + PP_TALK_PROMPT, pp_talk_text_x(), pp_talk_text_y() + pp_talk_line_pitch(), 1);
 
     // The three options, in the band, at the 16 pixel pitch the command menu already uses.
     draw_set_colour(pp_role_colour("paper"));
@@ -612,14 +613,12 @@ function pp_talk_draw_options(_battle) {
     var _count = array_length(_battle.talk_options);
     for (var i = 0; i < _count; i++) {
         var _y = PP_MENU_TOP + 10 + i * 16;
-        draw_set_colour(pp_role_colour("ink"));
-        draw_text(24, _y, _battle.talk_options[i].label);
+        pp_font_draw(_battle.talk_options[i].label, 24, _y, 1);
         if (i == _battle.talk_cursor) {
             draw_set_colour(pp_role_colour("text"));
             draw_triangle(14, _y, 14, _y + 8, 20, _y + 4, false);
         }
     }
-    draw_set_halign(fa_left);
 }
 
 // ---------------------------------------------------------------------------------------------------------------

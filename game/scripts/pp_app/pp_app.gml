@@ -310,40 +310,38 @@ function pp_mode_boot() {
         draw: function(_params) {
             draw_set_colour(pp_role_colour("paper"));
             draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
-            draw_set_colour(pp_role_colour("ink"));
-            draw_set_halign(fa_center);
-            draw_text(PP_FRAME_W * 0.5, 84, "PRIMORDIAL PARADOX");
-            draw_set_halign(fa_left);
+            // Card BATTLE-FONT-WIRE: every word on this card goes through pp_font, the game's one text path. The boot
+            // card, the data error sentence and the battle outcome used the GameMaker default font because no font
+            // resource exists; they print the 8x8 sheet now. A sentence that does not fit is word wrapped at a column
+            // count, which is what the 8 pixel cell makes of the old draw_text_ext width of PP_FRAME_W - 32: the row
+            // is 28 characters, x 16 to x 240, and 10 px between rows as before.
+            var _cols = pp_font_cols(PP_FRAME_W - 32);
+            pp_font_draw_centre("PRIMORDIAL PARADOX", PP_FRAME_W * 0.5, 84, 1);
 
             if (!pp_data_ok()) {
-                draw_set_colour(pp_role_colour("hazard"));
-                draw_text_ext(16, 112, pp_data_error_text(), 10, PP_FRAME_W - 32);
+                pp_font_draw_wrapped(pp_data_error_text(), 16, 112, _cols, 10, 1);
             } else {
                 var _save_line = pp_save_status_line();
                 var _note = pp_save_title_note();
                 if (_save_line != "") {
-                    draw_set_colour(pp_role_colour("accent"));
-                    draw_text_ext(16, 116, _save_line, 10, PP_FRAME_W - 32);
+                    pp_font_draw_wrapped(_save_line, 16, 116, _cols, 10, 1);
                 }
                 if (_note != "") {
-                    draw_set_colour(pp_role_colour("hazard"));
-                    draw_text_ext(16, 134, _note, 10, PP_FRAME_W - 32);
+                    pp_font_draw_wrapped(_note, 16, 134, _cols, 10, 1);
                 }
-                draw_set_colour(pp_role_colour("ink"));
                 if (pp_save_ready()) {
-                    draw_text(16, 160, "Z continue     X new game");
+                    pp_font_draw("Z continue     X new game", 16, 160, 1);
                 } else if (!pp_save_busy()) {
-                    draw_text(16, 160, "Z start");
+                    pp_font_draw("Z start", 16, 160, 1);
                 }
                 if (global.pp.app.boot_message != "") {
-                    draw_set_colour(pp_role_colour("accent"));
-                    draw_text_ext(16, 178, global.pp.app.boot_message, 10, PP_FRAME_W - 32);
+                    pp_font_draw_wrapped(global.pp.app.boot_message, 16, 178, _cols, 10, 1);
                 }
             }
 
             if (PP_DEBUG) {
-                draw_set_colour(pp_role_colour("dim"));
-                draw_text(8, PP_FRAME_H - 16, "debug build  mode " + string(pp_app_mode()));
+                pp_font_draw_wrapped("debug build  mode " + string(pp_app_mode()), 8, PP_FRAME_H - 16,
+                    pp_font_cols(PP_FRAME_W - 16), 10, 1);
             }
         }
     };
@@ -402,11 +400,11 @@ function pp_mode_battle() {
             if (pp_battle_finished(_battle)) {
                 draw_set_colour(pp_role_colour("paper"));
                 draw_rectangle(40, 100, PP_FRAME_W - 40, 140, false);
-                draw_set_colour(pp_role_colour("ink"));
-                draw_set_halign(fa_center);
-                draw_text(PP_FRAME_W * 0.5, 112, pp_battle_outcome(_battle));
-                draw_text(PP_FRAME_W * 0.5, 126, "press Z");
-                draw_set_halign(fa_left);
+                // Card BATTLE-FONT-WIRE: the outcome word and the prompt are the sheet's glyphs, centred and word
+                // wrapped to the panel's own 176 px inside (40 to 216), which is 22 characters.
+                var _outcome_cols = pp_font_cols(PP_FRAME_W - 80);
+                pp_font_draw_wrapped_centre(pp_battle_outcome(_battle), PP_FRAME_W * 0.5, 112, _outcome_cols, 10, 1);
+                pp_font_draw_centre("press Z", PP_FRAME_W * 0.5, 126, 1);
             }
         }
     };

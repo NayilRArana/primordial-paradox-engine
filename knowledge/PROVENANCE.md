@@ -1068,3 +1068,46 @@ from a portrait column, and moving the portrait to a bust above the box because 
 re-breaking four authored page lines rather than lowering the column count, because at 21 columns 40 of 46 authored page
 lines double and every arrival page grows.
 Copied expression: none
+
+## BATTLE-FONT-WIRE, 2026-10-23: the other 34 text sites draw the sheet, in its one ink
+Studied: this repository's own files, read only: knowledge\FONT-CONTRACT-AUDIT-2026-10-23.md (rules 1 to 6 and the two
+measured defects), knowledge\GAMEDEV-DECISIONS-2026-10-23.md D10 (the box's 28 columns), specs\13-8bit-look.md,
+specs\07-battle-director.md, specs\19-llm-talk.md (the reply block and the hint row), game\scripts\pp_font\pp_font.gml,
+game\scripts\pp_config\pp_config.gml, pp_battle_director.gml, pp_battle_text.gml, pp_app.gml, pp_save.gml,
+pp_dodge_arena.gml, pp_overworld.gml, pp_title.gml (pp_title_draw_disabled, the rule-through idiom reused here),
+pp_commands and data\palette.json plus data\room_palettes.json (the roles behind the plates). No decompiled material was
+read for this card and no expression from any game is in it.
+Mechanics learned: three things. One, moving a UI onto a fixed cell font is an arithmetic exercise first and a drawing
+exercise second: every draw_text_ext pixel width is a column count (width / 8), every centred label is a width
+computation, and the two places that used the default font's own metrics (string_width, draw_set_halign) become dead
+code that has to go or it silently keeps lying about the layout. Two, a one colour bitmap font removes a whole state
+vocabulary: a disabled row, a selected row and a hint used three role colours before, and each needs a replacement that
+is a shape or a position (a rule through the row, a rule under it, its own row) rather than a tint, because tinting a
+white sheet is a multiply and the product is a colour the hardware cannot output. Three, a preview tool that mirrors the
+draw path is worth more than a screenshot for this class of change: it can refuse numbers (a row past a panel edge, a
+glyph the sheet lacks) where an image can only show them.
+Our implementation differs by: putting the wrap in pp_font once (pp_font_cols, pp_font_wrap, pp_font_draw_wrapped,
+pp_font_draw_wrapped_centre) instead of per screen; keeping the sheet at 74 glyphs and writing the HP line as OF rather
+than adding a slash to the art; using pp_title_draw_disabled's existing rule-through idiom for refused rows instead of
+inventing a second one; putting the damage number and the arena's clear line on a plate of the room's ink instead of
+tinting them; and moving the game over sentence under the card rather than shrinking the card or shortening the
+sentence, because the card's geometry is spec 13's and the sentence is what the player needs to read.
+Copied expression: none
+
+## R7-GPU-LANE, 2026-10-23: the GPU concept lane, measured against the painted baseline
+Studied: this repository's own R7 lane, read only: tools/kaggle_r7.py, tools/quantize_concept.py, tools/palette_synergy.py,
+tools/nes_check.py, tools/scene_palette_set.py, tests/test_kaggle_r7.py; plus public model cards for
+stabilityai/stable-diffusion-xl-base-1.0, nerijs/pixel-art-xl, keras/sam3 and metaresearch/segment-anything-2.1, the
+keras_hub SAM 3 preset source, and the Kaggle API client's own documentation strings. No decompiled material was read for
+this card and no expression from any game is in it.
+Mechanics learned: two. One, a generation lane and a measurement lane have to stay separate artifacts with separate
+provenance, because a tool that both paints and grades cannot tell you whose work a good score belongs to; the fix is a
+concept source field and a manifest with a sha256 per frame. Two, promptable segmentation fails on stylised low resolution
+art for a measurable reason (confidence, recorded as a distribution) rather than a mysterious one, so the right move is to
+keep the deterministic segmenter and report the scores instead of tuning thresholds until something appears.
+Our implementation differs by: mounting the segmenter as a read only Kaggle model source and loading the preset by path,
+because kagglehub refuses to attach a model from a non interactive session (measured on run 2); recording the EFFECTIVE
+LoRA after the load attempt rather than the requested one, because the Kaggle image's torchao breaks diffusers' peft bridge
+and a run that drops the LoRA must not claim it used it; reducing the frame with nearest neighbour so no colour enters the
+concept the model did not draw; and parking the painted report as a baseline file that a later model run cannot overwrite.
+Copied expression: none

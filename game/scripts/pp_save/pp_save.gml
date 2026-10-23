@@ -1062,8 +1062,9 @@ function pp_save_draw_panel() {
     draw_rectangle(48, 92, PP_FRAME_W - 49, 148, false);
     draw_set_colour(pp_role_colour("ink"));
     draw_rectangle(48, 92, PP_FRAME_W - 49, 148, true);
-    draw_set_halign(fa_center);
-    draw_text_ext(PP_FRAME_W * 0.5, 101, _text, 10, PP_FRAME_W - 112);
-    draw_set_halign(fa_left);
+    // Card BATTLE-FONT-WIRE: the panel's sentence is the sheet's glyphs, centred and wrapped to the panel's inside.
+    // x 48 to x 207 leaves 159 px, so the old draw_text_ext width of PP_FRAME_W - 112 (144 px) is 18 characters, and
+    // three rows at the 10 px pitch still end above the panel's bottom edge at y 148.
+    pp_font_draw_wrapped_centre(_text, PP_FRAME_W * 0.5, 101, pp_font_cols(PP_FRAME_W - 112), 10, 1);
     return true;
 }

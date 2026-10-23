@@ -447,11 +447,18 @@ def test_the_hint_lands_inside_the_battle_window(talk_code):
     assert hint == top + rows_max * pitch - pitch + pitch, "the hint is not on the row after the last line"
 
 
-def test_the_draw_spends_the_hint_inside_the_box_and_in_the_second_ink(talk_code, director_code):
+def test_the_draw_spends_the_hint_inside_the_box_on_its_own_row(talk_code, director_code):
+    """Card BATTLE-FONT-WIRE: the hint is the sheet's glyphs, and its own row is what marks it out.
+
+    Spec 19 Q9 says the hint is the row under the reply block. It used to be drawn in the second role colour, which
+    the 8x8 sheet cannot do: the sheet is one ink and a tint is a multiply no PPU can output (font contract rule 6),
+    so the row's own position carries the distinction and the words are pp_font_draw's.
+    """
     draw = function_body(talk_code, "pp_talk_hint_draw")
-    assert 'draw_set_colour(pp_role_colour("text"))' in draw, draw
-    assert "pp_talk_hint_y()" in draw, draw
-    assert "pp_talk_text_x()" in draw, draw
+    assert "pp_font_draw(_hint, pp_talk_text_x(), pp_talk_hint_y(), 1)" in draw, draw
+    assert "draw_text" not in draw, "the hint is not the sheet's glyphs"
+    assert "draw_set_colour(pp_role_colour" not in draw, \
+        "the hint asks for a second ink; the sheet is one ink, and its own row is the marker"
     wired = function_body(director_code, "pp_battle_draw")
     assert "pp_talk_board_draw(_battle.messages" in wired, wired
     assert "pp_talk_hint_draw(_battle.talk_hint)" in wired, wired

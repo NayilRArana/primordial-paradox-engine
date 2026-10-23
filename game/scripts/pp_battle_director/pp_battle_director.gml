@@ -880,9 +880,9 @@ function pp_battle_draw(_battle) {
 
     draw_set_colour(pp_role_colour("text"));
     draw_rectangle(176, 72, 224, 136, false);
-    draw_set_colour(pp_role_colour("ink"));
-    draw_set_halign(fa_center);
-    draw_text(200, 56, _battle.enemy.name);
+    // Card BATTLE-FONT-WIRE: the enemy's name is the sheet's glyphs, centred over its block. The names in
+    // data/enemies/all.json are 11 characters at the longest, so 88 px centred on x 200 stays inside the frame.
+    pp_font_draw_centre(_battle.enemy.name, 200, 56, 1);
 
     // Enemy health bar, 64 px wide.
     var _hp_frac = _battle.enemy_hp / max(1, _battle.enemy.max_hp);
@@ -891,11 +891,11 @@ function pp_battle_draw(_battle) {
     draw_set_colour(pp_role_colour("text"));
     draw_rectangle(168, 144, 168 + floor(64 * _hp_frac), 148, false);
 
-    // Player health and will.
-    draw_set_colour(pp_role_colour("ink"));
-    draw_set_halign(fa_left);
-    draw_text(16, 156, "HP " + string(_battle.actor.hp) + "/" + string(_battle.actor.max_hp)
-        + "   WILL " + string(_battle.actor.will) + "/" + string(_battle.actor.will_max));
+    // Player health and will. Card BATTLE-FONT-WIRE: 8 pixel cells, and the sheet carries no slash, so the two
+    // numbers are joined with OF rather than 12/12; a slash is a glyph the sheet would have to grow, which is a
+    // sheet card and not a screen. 25 characters at the slice's numbers, x 16 to x 216.
+    pp_font_draw("HP " + string(_battle.actor.hp) + " OF " + string(_battle.actor.max_hp)
+        + "   WILL " + string(_battle.actor.will) + " OF " + string(_battle.actor.will_max), 16, 156, 1);
 
     if (_battle.phase == PPBattlePhase.intro) {
         if (_battle.phase_steps < PP_INTRO_FLASH_STEPS && (_battle.phase_steps div 4) mod 2 == 0) {
@@ -935,25 +935,21 @@ function pp_battle_draw(_battle) {
         // Card R30: a baked reply draws at spec 19's 8 pixel pitch with the hint on the row under it (Q2 and Q9), and
         // every other line keeps spec 05's pitch. The window does not grow for either.
         if (_battle.talk_reply) {
-            pp_talk_board_draw(_battle.messages, pp_talk_text_x(), pp_talk_text_y(), pp_role_colour("ink"));
+            pp_talk_board_draw(_battle.messages, pp_talk_text_x(), pp_talk_text_y());
             pp_talk_hint_draw(_battle.talk_hint);
         } else {
-            pp_text_board_draw(_battle.messages, 16, 16, pp_role_colour("ink"));
+            pp_text_board_draw(_battle.messages, 16, 16);
         }
     }
 
     if (_battle.popup_steps > 0) {
-        draw_set_colour(pp_role_colour("text"));
-        draw_set_halign(fa_center);
-        draw_text(200, 120 - (PP_DAMAGE_POPUP_STEPS - _battle.popup_steps), string(_battle.popup_value));
-        draw_set_halign(fa_left);
+        // Card BATTLE-FONT-WIRE: the number is the sheet's glyphs on a plate of the room's ink, because the block it
+        // rises over is filled with the light role and white on #c8c8d4 is not a number a player can read.
+        pp_font_draw_plated_centre(string(_battle.popup_value), 200, 120 - (PP_DAMAGE_POPUP_STEPS - _battle.popup_steps), 1);
     }
 
     if (_battle.phase == PPBattlePhase.telegraph) {
-        draw_set_colour(pp_role_colour("text"));
-        draw_set_halign(fa_center);
-        draw_text(PP_FRAME_W * 0.5, 96, "here it comes");
-        draw_set_halign(fa_left);
+        pp_font_draw_centre("here it comes", PP_FRAME_W * 0.5, 96, 1);
     }
 
     // Card R27: a lost fight fades out here and the game over frame takes the screen.
@@ -1000,9 +996,11 @@ function pp_battle_draw_gameover(_battle) {
     draw_set_colour(pp_role_colour("ink"));
     draw_rectangle(66, 66, 190, 174, false);
 
-    draw_set_halign(fa_center);
-    draw_set_colour(pp_role_colour("paper"));
-    draw_text(PP_FRAME_W * 0.5, 78, "GAME OVER");
+    // Card BATTLE-FONT-WIRE: the card's title, its rule and every row are the sheet's glyphs now. The card's inner
+    // ink area is x 66 to x 190, 124 px, which is 15 glyphs a row: a sentence wraps there at the sheet's 8 px pitch
+    // and the two rows it can take land inside the card's bottom edge at y 174.
+    var _card_cols = pp_font_cols(124);
+    pp_font_draw_centre("GAME OVER", PP_FRAME_W * 0.5, 78, 1);
 
     // The rule under the title: 2 pixels, dim, no gradient and no shadow (spec 13 line and shape).
     draw_set_colour(pp_role_colour("dim"));
@@ -1010,8 +1008,8 @@ function pp_battle_draw_gameover(_battle) {
 
     // The enemy is named on the card, because this screen is the only place the run says what took the player down.
     // No asterisk: the 8x8 sheet carries no glyph for one, and this is a card and not a dialogue line (spec 05).
-    draw_set_colour(pp_role_colour("text"));
-    draw_text_ext(PP_FRAME_W * 0.5, 102, string(_battle.enemy.name) + " stands over you.", 10, PP_FRAME_W - 146);
+    pp_font_draw_wrapped_centre(string(_battle.enemy.name) + " stands over you.",
+        PP_FRAME_W * 0.5, 102, _card_cols, 8, 1);
 
     var _rows = pp_battle_gameover_rows();
     var _can_continue = pp_battle_gameover_can_continue();
@@ -1019,31 +1017,32 @@ function pp_battle_draw_gameover(_battle) {
         var _label = _rows[i];
         var _enabled = (i != 0) || _can_continue;
         var _y = 132 + i * 16;
-        var _w = string_width(_label);
+        var _w = pp_font_width(_label);
         var _x = floor(PP_FRAME_W * 0.5 - _w * 0.5);
 
-        if (!_enabled) draw_set_colour(pp_role_colour("dim"));
-        else if (i == _battle.gameover_cursor) draw_set_colour(pp_role_colour("paper"));
-        else draw_set_colour(pp_role_colour("text"));
-        draw_text(_x, _y, _label);
+        // One ink (rule 6): a row that cannot be picked is ruled through rather than greyed, and the row the cursor is
+        // on carries a 2 px rule under it rather than a lighter label. The old frame spent three roles on three states
+        // of the same nine glyphs, which the sheet cannot do without a multiply no PPU can output.
+        if (!_enabled) pp_font_draw_centre_struck(_label, PP_FRAME_W * 0.5, _y, 1);
+        else pp_font_draw_centre(_label, PP_FRAME_W * 0.5, _y, 1);
 
-        // The cursor is the 6 pixel arrow of spec 13, blinking 15 steps on and 15 off, drawn only on a row that can
-        // be picked so a refused row never carries a cursor that says it can.
         if (i == _battle.gameover_cursor && _enabled && ((_battle.phase_steps div 15) mod 2 == 0)) {
-            draw_set_colour(pp_role_colour("paper"));
-            draw_triangle(_x - 12, _y, _x - 12, _y + 8, _x - 6, _y + 4, false);
+            draw_set_colour(pp_role_colour("text"));
+            draw_rectangle(_x, _y + 9, _x + _w - 1, _y + 10, false);
         }
     }
 
+    // The card has no room left for a sentence once its rows and its cursor rule are drawn: 8 px cells are 2.6 times
+    // the width of the old default font, and the two row notes here are 27 and 30 characters. So the sentence sits
+    // on the black band under the card, one full width row at 30 columns, which is inside the frame and clear of the
+    // card's bottom edge at y 177. It is the same sentence in the same place in the flow: it appears when a row is
+    // refused and lasts 90 steps.
+    var _note_cols = pp_font_cols(PP_FRAME_W - 16);
     if (_battle.gameover_choice == "wait") {
-        draw_set_colour(pp_role_colour("text"));
-        draw_text_ext(PP_FRAME_W * 0.5, 168, "reading the last save", 10, PP_FRAME_W - 146);
+        pp_font_draw_wrapped_centre("reading the last save", PP_FRAME_W * 0.5, 182, _note_cols, 8, 1);
     } else if (_battle.gameover_note_steps > 0 && _battle.gameover_note != "") {
-        draw_set_colour(pp_role_colour("text"));
-        draw_text_ext(PP_FRAME_W * 0.5, 168, _battle.gameover_note, 10, PP_FRAME_W - 146);
+        pp_font_draw_wrapped_centre(_battle.gameover_note, PP_FRAME_W * 0.5, 182, _note_cols, 8, 1);
     }
-
-    draw_set_halign(fa_left);
 }
 
 function pp_battle_draw_menu(_battle) {
@@ -1059,8 +1058,11 @@ function pp_battle_draw_menu(_battle) {
         var _state = pp_command_state(_battle, _entry.id);
         var _x = 24 + (i mod 2) * 104;
         var _yy = _y + (i div 2) * 20;
-        draw_set_colour(_state.enabled ? pp_role_colour("ink") : pp_role_colour("dim"));
-        draw_text(_x, _yy, _entry.label);
+        // Card BATTLE-FONT-WIRE: the label is the sheet's glyphs in the sheet's one ink. A refused entry used to be
+        // drawn in the dim role, which the sheet cannot do without a multiply no PPU can output, so it is ruled
+        // through instead (rule 6); the cursor arrow still marks the row the player is on.
+        if (_state.enabled) pp_font_draw(_entry.label, _x, _yy, 1);
+        else pp_font_draw_struck(_entry.label, _x, _yy, 1);
         if (i == _battle.cursor) {
             draw_set_colour(pp_role_colour("text"));
             draw_triangle(_x - 10, _yy, _x - 10, _yy + 8, _x - 4, _yy + 4, false);
@@ -1068,8 +1070,10 @@ function pp_battle_draw_menu(_battle) {
     }
 
     if (_battle.cursor_note_steps > 0 && _battle.cursor_note != "") {
-        draw_set_colour(pp_role_colour("text"));
-        draw_text(16, PP_FRAME_H - 20, _battle.cursor_note);
+        // The reason a row is refused, one row on the band's bottom line at 28 columns. It sat at PP_FRAME_H - 20
+        // before, which crosses the third label row at 216 once a glyph is 8 px tall; at PP_FRAME_H - 16 its 8 px
+        // clear the labels' bottom edge at 224 and the band's own border at 232.
+        pp_font_draw_wrapped(_battle.cursor_note, 16, PP_FRAME_H - 16, pp_font_cols(PP_FRAME_W - 32), 8, 1);
     }
 }
 
@@ -1081,6 +1085,5 @@ function pp_battle_draw_bar(_battle) {
     draw_rectangle(126, _y - 2, 130, _y + 8, false);
     draw_set_colour(pp_role_colour("text"));
     draw_rectangle(48 + floor(1.6 * _battle.bar_pos) - 1, _y - 4, 48 + floor(1.6 * _battle.bar_pos) + 1, _y + 10, false);
-    draw_set_colour(pp_role_colour("ink"));
-    draw_text(48, _y + 12, "Z");
+    pp_font_draw("Z", 48, _y + 12, 1);
 }

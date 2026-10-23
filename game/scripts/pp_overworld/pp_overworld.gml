@@ -524,9 +524,10 @@ function pp_overworld_draw(_world) {
         // window's own 64 pixels. A box the bake did not open carries no hints and draws nothing here.
         var _hint = pp_talk_npc_hint(_world.dialogue);
         if (_hint != "") {
-            draw_set_colour(pp_role_colour("text"));
-            draw_set_halign(fa_left);
-            draw_text(PP_TEXT_X, PP_BOX_Y + PP_BOX_H - 22, _hint);
+            // Card BATTLE-FONT-WIRE: the sheet's glyphs, wrapped to the box's 224 px inside, on the row under the
+            // dialogue rows. Where it sits is what marks it out, not a second ink the sheet does not have (rule 6).
+            pp_font_draw_wrapped(_hint, PP_TEXT_X, PP_BOX_Y + PP_BOX_H - 22,
+                pp_font_cols(PP_TEXT_RIGHT - PP_TEXT_X), 8, 1);
         }
         draw_set_halign(fa_left);
     }
