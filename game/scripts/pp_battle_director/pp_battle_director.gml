@@ -260,6 +260,12 @@ function pp_battle_begin_action(_battle) {
                 _battle.result = PPResult.spare;
                 _battle.enemy_hp = 0;
                 pp_battle_enter_result(_battle);
+            } else if (pp_battle_interrupt_ready(_battle)) {
+                // Spec 18 section 4 rule 4: a refused SPARE at or below the enemy's interrupt threshold is the story
+                // exit. The enemy is not killed and the party is not beaten, no counters move, and the turn is not
+                // spent (spec 07 acceptance 3), so the player who asks for mercy pays nothing for asking.
+                _battle.result = PPResult.interrupt;
+                pp_battle_enter_interrupt(_battle);
             }
             break;
 
@@ -611,6 +617,9 @@ function pp_battle_lost(_battle) {
 
 function pp_battle_outcome(_battle) {
     if (_battle.defeated) return "defeat";
+    // Spec 18 section 4: the fourth ending a fight can have, no victory and no defeat. The card and the overworld
+    // read this word, and the scene the fight hands over to comes from pp_battle_interrupt_scene.
+    if (_battle.result == PPResult.interrupt) return "interrupted";
     if (_battle.result == PPResult.spare) return "spare";
     if (_battle.result == PPResult.kill) return "kill";
     return "unresolved";
@@ -630,6 +639,73 @@ function pp_battle_spare_allowed(_battle) {
     if (_battle.enemy_hp <= 0) return false;
     if (_battle.trust >= _battle.enemy.trust_to_spare) return true;
     return (_battle.enemy_hp <= (_battle.enemy.max_hp * _battle.enemy.spare_hp_percent / 100));
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// The interruption (spec 18 section 4, card t_e5fa86d3)
+//
+// A fight can stop without a victory and without a defeat, and a scene does the story work. The enemy row's
+// `interrupt` block says so, and the trigger is a SPARE press the enemy refuses at or below the block's threshold:
+// NOT an hp crossing. Spec 18 section 8 A18-1 is the reason and it is arithmetic, not taste: rule 3 (a killing blow)
+// only wins when one blow takes the bar from above the threshold all the way to 0, and the biggest legal blow is 12
+// (18 with tide_step), so a crossing trigger above 11 hp of 120 (17 with the power) makes the boss unkillable on every
+// route. Nothing in this section names an enemy, a scene or a route: the block comes off the row the way the phases do.
+
+/// The enemy's interrupt block, or undefined. At most one per enemy, and the checker refuses the second (spec 18
+/// section 7 refusal 7).
+function pp_battle_interrupt_block(_enemy) {
+    if (variable_struct_exists(_enemy, "interrupt") && is_struct(_enemy.interrupt)) return _enemy.interrupt;
+    return undefined;
+}
+
+/// Does this SPARE press stop the fight instead of being refused? The order the spec writes is the order here: a dead
+/// enemy is a kill, an accepted spare is a spare, and only then may the interrupt fire. The threshold is the gate on
+/// the REQUEST, compared in integers exactly like a phase crossing, so no float and no rounding can move it.
+function pp_battle_interrupt_ready(_battle) {
+    if (_battle.enemy_hp <= 0) return false;
+    if (pp_battle_spare_allowed(_battle)) return false;
+    var _block = pp_battle_interrupt_block(_battle.enemy);
+    if (is_undefined(_block)) return false;
+    if (!variable_struct_exists(_block, "on") || _block.on != "spare_refused") return false;
+    // A story beat that already happened does not happen twice. The flag is optional, and the checker proves it names
+    // a real flag in data\flags.json.
+    if (variable_struct_exists(_block, "unless_flag")) {
+        if (pp_ledger_flag(_battle.ledger, _block.unless_flag)) return false;
+    }
+    if (!variable_struct_exists(_block, "hp_at_or_below")) return false;
+    return (_battle.enemy_hp * 100 <= _block.hp_at_or_below * _battle.enemy.max_hp);
+}
+
+/// The scene the interruption hands the fight to. One id, or the id under the route this run is on. The route is
+/// derived HERE, from the counters and the exit row the fight has already written, because spec 10 recomputes the
+/// route per read and never stores it: that is how a per route scene id exists without a stored route (A18-4).
+/// Returns "" when the block names no scene, and the checker refuses that before the build can.
+function pp_battle_interrupt_scene(_battle) {
+    var _block = pp_battle_interrupt_block(_battle.enemy);
+    if (is_undefined(_block) || !variable_struct_exists(_block, "scene")) return "";
+    if (is_string(_block.scene)) return _block.scene;
+    if (!is_struct(_block.scene)) return "";
+
+    var _stage = 3;
+    if (is_struct(global.pp_data.project) && variable_struct_exists(global.pp_data.project, "prison_stage")) {
+        _stage = global.pp_data.project.prison_stage;
+    }
+    var _key = pp_ledger_route_name(pp_ledger_route(_battle.ledger, _stage));
+    if (variable_struct_exists(_block.scene, _key)) return _block.scene[$ _key];
+    return "";
+}
+
+/// Record the exit row and go straight to the result beat. An interruption opens no closing board: the scene that
+/// takes over is where the story text lives, and spec 18 section 4 step 4 says the caller continues with no press.
+/// The exit row is `turned` (PPResult.interrupt through pp_ledger_exit_of_result), which counts nothing and keeps the
+/// row, so F3 shows the fight stopped rather than won or lost.
+function pp_battle_enter_interrupt(_battle) {
+    if (!_battle.recorded) pp_battle_record(_battle);
+    _battle.messages = undefined;
+    _battle.after_message = "";
+    pp_battle_phase_set(_battle, PPBattlePhase.result);
+    show_debug_message("PP: fight interrupted, scene " + pp_battle_interrupt_scene(_battle));
+    return _battle;
 }
 
 /// Dialogue lines by id, or undefined. The checker proves every id exists before this can miss.

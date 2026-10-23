@@ -36,6 +36,34 @@
         "attack": { "$ref": "#/$defs/attack" }
       }
     },
+    "interrupt": {
+      "type": "object",
+      "description": "The fight stops with no victory and no defeat and a scene takes over (spec 18 section 4). It fires on a REFUSED SPARE press, not on an hp crossing (spec 18 section 8 A18-1): an hp trigger above 9 percent of a 120 hp bar makes the boss unkillable with the biggest legal blow. Do not copy this block onto an encounter row; the enemy row owns it (refusal 10).",
+      "required": ["on", "hp_at_or_below", "scene"],
+      "additionalProperties": false,
+      "properties": {
+        "on": { "enum": ["spare_refused"], "description": "The only trigger in the demo, and the set is closed." },
+        "hp_at_or_below": { "type": "integer", "minimum": 1, "maximum": 99, "description": "Percent of max_hp, the gate on the SPARE request rather than a crossing. The checker refuses a threshold at or below the enemy's spare_hp_percent, because there SPARE is accepted and the story exit can never fire (spec 18 section 7 refusal 8)." },
+        "unless_flag": { "type": "string", "minLength": 1, "description": "Optional flag name from data/flags.json. The trigger is disabled while this flag is true, so a story beat that has already happened does not repeat." },
+        "scene": {
+          "description": "The scene the fight hands over to. Either one scene id, or an object with all four route keys so the scene may differ per route (spec 18 section 8 A18-4). A partial object is an error, never a default.",
+          "oneOf": [
+            { "type": "string", "minLength": 1 },
+            {
+              "type": "object",
+              "required": ["undecided", "mercy", "blooded", "genocide"],
+              "additionalProperties": false,
+              "properties": {
+                "undecided": { "type": "string", "minLength": 1 },
+                "mercy": { "type": "string", "minLength": 1 },
+                "blooded": { "type": "string", "minLength": 1 },
+                "genocide": { "type": "string", "minLength": 1 }
+              }
+            }
+          ]
+        }
+      }
+    },
     "reward": {
       "type": "object",
       "description": "What the fight gives. kind item and power name an id in those tables; health gives a flat amount and names nothing.",
@@ -84,6 +112,7 @@
           "minItems": 1,
           "items": { "$ref": "#/$defs/phase" }
         },
+        "interrupt": { "$ref": "#/$defs/interrupt" },
         "rewards": { "type": "array", "minItems": 0, "items": { "$ref": "#/$defs/reward" } }
       }
     }

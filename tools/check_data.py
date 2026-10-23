@@ -64,6 +64,11 @@ LINE_CHARS = 30
 # enemy has no band written anywhere, so a phase row on one that carries an attack is refused instead of guessed at.
 PHASE_ROWS_MAX = 4
 PHASE_ATTACK_BAND = (3, 6)
+# Spec 18 section 4: the interruption fires on a refused SPARE press, and `on` is a closed set with one member in the
+# demo. The four route keys are all required when `scene` is an object, because a partial object would be a route
+# table smuggled into the schema (section 8 A18-4).
+INTERRUPT_TRIGGERS = {"spare_refused"}
+INTERRUPT_ROUTE_KEYS = ("undecided", "mercy", "blooded", "genocide")
 PAGES = 3
 # Dialogue v2 (decision D2, 2026-10-22). A page is one row or three of them, a page holds at most three lines, and an
 # entry holds at most three pages; a choice label is the 96 pixel panel's column. These four numbers are the ones the
@@ -925,6 +930,9 @@ class Checker:
             phases = self.want(row, "phases", "list", filename, path)
             if phases is not None:
                 self.check_enemy_phases(phases, path, kind, patterns, ids)
+            interrupt = self.want(row, "interrupt", "dict", filename, path)
+            if interrupt is not None:
+                self.check_enemy_interrupts(interrupt, path, kind, percent, ids)
             if isinstance(name, str):
                 if name in ids["enemy"] and ids["enemy"][name] is not row:
                     self.error(filename, path + ".id", "duplicate id %r" % name)
@@ -984,6 +992,57 @@ class Checker:
                         self.error(filename, where + ".attack." + label,
                                    "%s is outside the spec 07 band %s to %s (PHASE_ATTACK_BAND)"
                                    % (value, band_low, band_high))
+
+    def check_enemy_interrupts(self, block, path, kind, spare_percent, ids):
+        """Spec 18 section 7 refusals 7 and 8: the interruption is data, so every fault in it lives here.
+
+        A fight may stop with no victory and no defeat and hand a scene the story work (section 4). The trigger is a
+        REFUSED SPARE press, not an hp crossing (section 8 A18-1), which is why this block has no breakpoint semantics
+        and why refusal 8 matters: a threshold at or below the enemy's spare_hp_percent is dead data, because there
+        SPARE is accepted and the interruption can never fire. `scene` is one id or all four route keys, and a partial
+        object is refused rather than defaulted, because a default would be a route table hidden in the schema.
+        """
+        filename = "data/enemies/all.json"
+        where = path + ".interrupt"
+        if kind != "boss":
+            self.error(filename, where,
+                       "a fight may only be interrupted on a route_kind boss, and spec 18 section 4 puts the block on "
+                       "the enemy row; this enemy is %r" % (kind,))
+        trigger = self.require(block, "on", "str", filename, where)
+        if trigger is not None and trigger not in INTERRUPT_TRIGGERS:
+            self.error(filename, where + ".on",
+                       "%r is not in the closed set %s (spec 18 section 4)"
+                       % (trigger, sorted(INTERRUPT_TRIGGERS)))
+        threshold = self.require(block, "hp_at_or_below", "int", filename, where)
+        if threshold is not None and self.in_range(threshold, 1, 99, filename, where + ".hp_at_or_below"):
+            if spare_percent is not None and threshold <= spare_percent:
+                self.error(filename, where + ".hp_at_or_below",
+                           "%d percent is at or below spare_hp_percent %d, where SPARE is accepted, so the story "
+                           "exit could never fire (spec 18 section 7 refusal 8)" % (threshold, spare_percent))
+        flag_name = self.want(block, "unless_flag", "str", filename, where)
+        if flag_name is not None:
+            self.ref(ids, "flag", flag_name, filename, where + ".unless_flag")
+
+        scene = block.get("scene") if isinstance(block, dict) else None
+        if scene is None:
+            self.error(filename, where + ".scene", "missing required field")
+        elif isinstance(scene, str):
+            self.ref(ids, "scene", scene, filename, where + ".scene")
+        elif isinstance(scene, dict):
+            missing = [key for key in INTERRUPT_ROUTE_KEYS if key not in scene]
+            if missing:
+                self.error(filename, where + ".scene",
+                           "a per route scene needs all four keys %s and is missing %s; a partial object is an "
+                           "error, never a default (spec 18 section 8 A18-4)"
+                           % (list(INTERRUPT_ROUTE_KEYS), missing))
+            for key in INTERRUPT_ROUTE_KEYS:
+                if key in scene:
+                    self.ref(ids, "scene", self.want(scene, key, "str", filename, where + ".scene"),
+                             filename, where + ".scene." + key)
+        else:
+            self.error(filename, where + ".scene",
+                       "must be a scene id or an object with the four route keys %s"
+                       % (list(INTERRUPT_ROUTE_KEYS),))
 
     def check_phase_talk(self, data, ids):
         """The two talk names a phase crossing carries, one meaning each (spec 16 section 10, card t_155e22e2).
