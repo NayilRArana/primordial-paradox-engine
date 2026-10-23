@@ -600,9 +600,10 @@ def build_zander(frame: int) -> Image.Image:
             rows[6][5] = "K"
             rows[6][6] = "U"
         if turn >= 2:
-            # The near eye on row 5 comes round with the head: 3,4 becomes 4,5.
-            rows[5][3] = "S"
-            rows[5][5] = "K"
+            # The near eye comes round with the head. The head has already slid one column right, so the
+            # pair sits at 4,5 and moves to 5,6.
+            rows[5][4] = "S"
+            rows[5][6] = "K"
         if turn >= 3:
             # The far eye follows it and the mouth widens into the word.
             rows[5][7] = "W"
