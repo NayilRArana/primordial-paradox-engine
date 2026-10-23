@@ -34,7 +34,7 @@ GOLD = (179, 143, 40, 255)
 DIM = (46, 46, 58, 255)
 PAPER = (200, 200, 212, 255)
 
-CONTRACT_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,!?() :'- "
+CONTRACT_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,!?()*\" :'- "
 
 
 def sha256(path: str) -> str:
@@ -132,10 +132,12 @@ def test_two_runs_produce_identical_bytes(generated):
 def test_every_pixel_is_a_master_palette_colour(generated, name):
     root = generated[0]
     png_path, _ = sprite_paths(root)[name]
-    # The font strip is the text the title screen draws, so its pixels must be 2C02 outputs (tools/nes_check.py
-    # enforces that too). The cursor still comes from the project palette.
-    allowed = nes_palette_hexes() if name == "spr_pp_font8" else palette_hexes()
-    source = "data/nes_palette.json" if name == "spr_pp_font8" else "data/palette.json"
+    # The font strip is the text the title screen draws and the cursor is drawn on the same frame, so both must be
+    # 2C02 outputs (tools/nes_check.py enforces that too). The project palette holds no 2C02 entry at all, so a
+    # cursor painted from it could never appear on a legal frame: card t_a1170172 moved it to the two entries the
+    # title's ground bands declare.
+    allowed = nes_palette_hexes()
+    source = "data/nes_palette.json"
     with Image.open(png_path) as img:
         sheet = img.convert("RGBA")
         seen = set()
@@ -175,9 +177,9 @@ def test_font_matches_the_contract(generated):
         meta = json.load(handle)
     assert meta["name"] == "spr_pp_font8"
     assert (meta["frame_w"], meta["frame_h"]) == (8, 8)
-    assert meta["frames"] == 46, "26 letters, 10 digits, 9 marks and the space"
+    assert meta["frames"] == 74, "26 capitals, 26 lowercase, 10 digits, 11 marks and the space"
     with Image.open(png_path) as img:
-        assert img.size == (8 * 46, 8)
+        assert img.size == (8 * 74, 8)
 
 
 def test_cursor_matches_the_contract(generated):
@@ -208,14 +210,14 @@ def test_font_strip_carries_every_contract_glyph_in_ascii_order(generated):
     import make_title_ui as gen
     import pressstart2p_font
 
-    order = sorted(gen.FONT.keys(), key=ord)
-    assert len(order) == 46
+    order = list(gen.GLYPH_ORDER)
+    assert len(order) == 74
     assert order == pressstart2p_font.GLYPHS, "the frame order must be ASCII order over the contract glyphs"
     for glyph in CONTRACT_GLYPHS:
-        assert glyph in gen.FONT, "the font is missing the contract glyph %r" % glyph
-    # ASCII order means the space comes first and the letters last.
+        assert glyph in gen.FONT, "the logo grid is missing the contract glyph %r" % glyph
+    # ASCII order means the space comes first and the lowercase letters last.
     assert order[0] == " "
-    assert order[-1] == "Z"
+    assert order[-1] == "z"
     with Image.open(png_path) as img:
         sheet = img.convert("RGBA")
         for index, glyph in enumerate(order):
@@ -353,14 +355,21 @@ def test_cursor_is_an_outlined_arrow_that_changes_state(generated):
             for dy in (-1, 0, 1):
                 if (x + dx, y + dy) not in body and 0 <= x + dx < 8 and 0 <= y + dy < 8:
                     outline.add((x + dx, y + dy))
-    for name, cell, fill in (("frame 0", frame0, GOLD), ("frame 1", frame1, DIM)):
+    # Card t_a1170172: the outline and the unlit body used to be the project palette's ink and the body gold. Neither
+    # is a 2C02 output, so the cursor is drawn from the same two entries the font is: $20 white for the lit body and
+    # $0B dark green for the outline and the unlit body, which are the two colours every ground band declares.
+    sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
+    import make_title_ui as gen
+    lit_ink = tuple(int(gen.FONT_INK[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
+    dim_ink = tuple(int(gen.FONT_DIM[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
+    for name, cell, fill in (("frame 0", frame0, lit_ink), ("frame 1", frame1, dim_ink)):
         for x in range(8):
             for y in range(8):
                 pixel = cell[x, y]
                 if (x, y) in body:
                     assert pixel == fill, "cursor %s body pixel %d,%d is %r" % (name, x, y, pixel)
                 elif (x, y) in outline:
-                    assert pixel == INK, "cursor %s outline pixel %d,%d is %r" % (name, x, y, pixel)
+                    assert pixel == dim_ink, "cursor %s outline pixel %d,%d is %r" % (name, x, y, pixel)
                 else:
                     assert pixel[3] == 0, "cursor %s has ink outside the arrow at %d,%d" % (name, x, y)
 

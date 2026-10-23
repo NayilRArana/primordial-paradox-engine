@@ -724,18 +724,23 @@ def build_verge():
     for x in range(0, W, 12):
         tile.put(x, 64 + (x % 3), DIM)
 
-    # Telegraph poles, two per tile, in front of the hedge.
+    # Telegraph poles, two per tile, in front of the hedge. They are the ground band's dark green, not the backdrop:
+    # a black pole was the one thing in the fields' rows that did not travel with the fields, and the scroll
+    # measurement followed it at the verge's speed instead of reading the fields (card t_a1170172).
     for pole_x in (60, 236):
-        tile.rect(pole_x, 0, pole_x + 2, 59, STONE_DEEP)
-        tile.rect(pole_x - 5, 2, pole_x + 7, 3, STONE_DEEP)
-        tile.rect(pole_x - 5, 6, pole_x + 7, 7, STONE_DEEP)
+        tile.rect(pole_x, 0, pole_x + 2, 59, GREEN_MID)
+        tile.rect(pole_x - 5, 2, pole_x + 7, 3, GREEN_MID)
+        tile.rect(pole_x - 5, 6, pole_x + 7, 7, GREEN_MID)
         for x in range(pole_x - 5, pole_x + 8):
             tile.put(x, 1, DIM)
             tile.put(x, 5, DIM)
 
-    # The sign posts. The plate itself is a sprite, because the miles count down on it.
+    # The sign posts. The plate itself is a sprite, because the miles count down on it. The posts are the ground
+    # band's dark green rather than the backdrop black: nothing in the title's ground half is drawn in the backdrop,
+    # which is the clear, and a black post here was 126 pixels the scroll measurement followed at the verge's speed
+    # instead of the fields' (card t_a1170172).
     for post_x in SIGN_POSTS:
-        tile.rect(post_x, SIGN_Y + SIGN_H, post_x + 3, 63, STONE_DEEP)
+        tile.rect(post_x, SIGN_Y + SIGN_H, post_x + 3, 63, GREEN_MID)
     return [tile]
 
 
@@ -789,8 +794,10 @@ def build_fg():
                     tile.put(bx + dy // 4, 43 - dy, INK)
             tile.put(x, 40, GREEN_DEEP)
 
+    # The fence posts that pass in front of the car, in the ground band's dark green for the same reason the sign
+    # posts are: the backdrop is the clear, not a paint.
     for post_x in (36, 164, 292, 420):
-        tile.rect(post_x, 8, post_x + 3, 43, STONE_DEEP)
+        tile.rect(post_x, 8, post_x + 3, 43, GREEN_MID)
         tile.put(post_x + 3, 8, DIM)
         tile.put(post_x + 3, 20, DIM)
         tile.put(post_x + 3, 34, DIM)
@@ -1508,6 +1515,16 @@ def main() -> int:
     report = scene_palette.apply_title(args.root)
     print("scene palettes: %d pixels rewritten into the four background palettes (pass 1), %d (pass 2)"
           % (report["passes"][0]["pixels_moved"], report["passes"][1]["pixels_moved"]))
+    # Card t_a1170172: the flash twin is now the same picture lifted inside the band palette, so the flash table has
+    # to be read back off the strips that shipped rather than off the 2C02 ladder it was written from. Anything else
+    # is a table that describes a swap the game does not make.
+    import title_bands
+    flash_data["palette"] = {str(source): target for source, target
+                             in title_bands.flash_pairs(args.root).items()}
+    flash_data["note"] = ("one rung up the band palette each strip is drawn in, or the same entry where the palette "
+                          "has no higher rung; the game swaps the whole scene to these entries for two frames")
+    save_json(os.path.join(DATA_DIR, "title_flash.json"), flash_data)
+    print("flash table: %d entries read back off the strips" % len(flash_data["palette"]))
     return 0
 
 

@@ -360,6 +360,11 @@ def main() -> int:
         for index, frame in enumerate(frames):
             print("--- frame %d" % index)
             dump(frame, index_of)
+    # Card t_a1170172: the band plan owns the title's colours, and this generator used to run after it and leave the
+    # logo in colours no band could spend. The sheet is repainted here, so a rerun cannot undo it.
+    import title_bands
+    print("  band pass            %d pixels into the logo's band palette"
+          % title_bands.paint_sheet(root, LOGO_NAME))
     return 0
 
 

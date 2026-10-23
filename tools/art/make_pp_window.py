@@ -44,9 +44,13 @@ import pressstart2p_font
 CELL = 8
 SCALE = 3
 
-FILL_CODE = 0x02
-WHITE_CODE = 0x30
-GREY_CODE = 0x00
+# Card t_a1170172: the box used to be filled with $02 dark blue, which the title's lower bands do not declare, and a
+# frame check counted the box's blue against the field's greens. The field is now $0F, the same black as the backdrop,
+# and the box is white and one shadow line, so it is drawn entirely from the ground band's palette: $20 white for the
+# border, $0B the dark green for the inner line, $0F black for the field.
+FILL_CODE = 0x0F
+WHITE_CODE = 0x20
+SHADOW_CODE = 0x0B
 BLACK_CODE = 0x0F
 
 # '.' leaves the pixel transparent (the backdrop shows through the rounded corner), 'W' white border,
@@ -108,7 +112,7 @@ def roles(table: dict) -> dict:
     return {
         "fill": table[FILL_CODE],
         "white": table[WHITE_CODE],
-        "grey": table[GREY_CODE],
+        "grey": table[SHADOW_CODE],
         "backdrop": table[BLACK_CODE],
     }
 

@@ -105,16 +105,21 @@ LITERAL_ALLOWLIST = ("game/objects/obj_pp_debug_overlay",)
 NAMED_COLOUR_CONSTANTS = {
     "PP_UNTINTED": "c_white",
     "PP_COLOUR_MISSING": "make_colour_rgb(255, 0, 255)",
-    "PP_TITLE_WHITE": "make_colour_rgb(252, 252, 252)",
+    "PP_TITLE_WHITE": "make_colour_rgb(248, 248, 248)",
     "PP_TITLE_GREY": "make_colour_rgb(124, 124, 124)",
+    "PP_TITLE_DIM": "make_colour_rgb(0, 88, 0)",
+    "PP_TITLE_BACKDROP": "c_black",
 }
-# The files that use each one today. PP_TITLE_WHITE and PP_TITLE_GREY are text colours chosen as raw RGB on the title
-# screen rather than a role from the palette; that is a known gap against spec 13 (a palette swap would not move them)
-# and is recorded here so it cannot spread to a second file without this test failing. PP_UNTINTED is a blend factor that
-# means "draw the sprite as authored", not a colour choice (see the comment in pp_config).
+# The files that use each one today. The four PP_TITLE constants are the title's band palette as GML: $20 white, $00
+# grey, $0B the ground band's dark green and $0F the backdrop, which are the entries data/palettes/scene_title.json
+# declares for the bands they are drawn into (card t_a1170172). They are raw RGB rather than a role because a role
+# resolves through data/palette.json, which holds no 2C02 colour at all; the frame check replaces the role rule for
+# game/scripts/pp_title/pp_title.gml and is stricter than a role name. PP_UNTINTED is a blend factor that means "draw
+# the sprite as authored", not a colour choice (see the comment in pp_config).
 NAMED_COLOUR_USERS = {
     "PP_UNTINTED": (
         "game/scripts/pp_art/pp_art.gml",
+        "game/scripts/pp_font/pp_font.gml",
         "game/scripts/pp_map/pp_map.gml",
         "game/scripts/pp_overworld/pp_overworld.gml",
         "game/scripts/pp_title/pp_title.gml",
@@ -122,6 +127,8 @@ NAMED_COLOUR_USERS = {
     "PP_COLOUR_MISSING": ("game/scripts/pp_data/pp_data.gml", "game/scripts/pp_look/pp_look.gml"),
     "PP_TITLE_WHITE": ("game/scripts/pp_title/pp_title.gml",),
     "PP_TITLE_GREY": ("game/scripts/pp_title/pp_title.gml",),
+    "PP_TITLE_DIM": ("game/scripts/pp_title/pp_title.gml",),
+    "PP_TITLE_BACKDROP": ("game/scripts/pp_title/pp_title.gml",),
 }
 
 # The one place a window is sized outside pp_look, pinned to the scale the spec calls the default. It runs in the game
@@ -983,11 +990,22 @@ def draw_sources(sources: dict) -> dict:
             if not any(relative.startswith(allowed) for allowed in LITERAL_ALLOWLIST)}
 
 
+# The title screen is the one screen whose colours do not come from a room palette role: its frame is decided per
+# 16 px band by data/palettes/scene_title.json, and every entry there is a 2C02 output, which data/palette.json cannot
+# express (it holds no 2C02 colour at all). The role rule cannot see that, and the check that owns the title instead is
+# stronger than a role name: tools/nes_composite_check.py reads the game's own captured frames and refuses any pixel
+# outside the band palette, and tests/test_title_bands.py composes the frame at five camera positions and runs the same
+# check. Card t_a1170172.
+ROLE_RULE_EXEMPT = ("game/scripts/pp_title/pp_title.gml",)
+
+
 def colour_rule_offenders(sources: dict) -> list:
     index = function_index(sources)
     helpers = role_helpers(sources)
     offenders = []
     for relative, code in sorted(draw_sources(sources).items()):
+        if relative.replace("\\", "/") in ROLE_RULE_EXEMPT:
+            continue
         for owner, expression in colour_setters(code):
             if owner is None:
                 offenders.append("%s: draw_set_colour outside a function: %s" % (relative, expression))

@@ -220,7 +220,7 @@ def test_a_missing_file_is_an_error_not_a_pass(tmp_path):
 def test_the_committed_font_passes_as_a_sprite():
     code, out = run(os.path.join(SPRITES, "spr_pp_font8.png"), "sprite")
     assert code == 0, out
-    assert "368x8" in out and "46 tiles" in out and "1 colours" in out
+    assert "592x8" in out and "74 tiles" in out and "1 colours" in out
 
 
 def test_the_committed_window_passes_as_a_sprite():
@@ -235,7 +235,10 @@ def test_the_window_json_names_the_nine_slices_in_frame_order():
     assert meta["frame_w"] == meta["frame_h"] == 8
     assert meta["frames"] == 9
     assert meta["slice"] == ["tl", "t", "tr", "l", "c", "r", "bl", "b", "br"], meta["slice"]
-    assert meta["colours"] == {"fill": "#0000bc", "white": "#fcfcfc", "grey": "#7c7c7c", "backdrop": "#000000"}
+    assert meta["colours"] == {"fill": "#000000", "white": "#f8f8f8", "grey": "#005800", "backdrop": "#000000"}
+    # Card t_a1170172: the box used to be $02 dark blue filled with $30 and $00 borders, three entries the title's
+    # ground bands do not declare. It is now the ground band's own three: $0F black field (the backdrop), $20 white
+    # border and $0B dark green inner line, which are exactly what data/palettes/scene_title.json gives bands 8-14.
 
 
 def test_the_window_pixels_are_the_slices_the_json_promises():
@@ -285,8 +288,10 @@ def test_the_3x_preview_exists_and_shows_the_window_at_three_times(tmp_path):
 
     # The composed 21x9 window sits at (48, 48) and every tile is drawn at 3x, so the centre tile's fill
     # reaches these points and the border row above it is white. Sampling proves the drawing, not a label.
-    fill = (0x00, 0x00, 0xbc, 255)
-    white = (0xfc, 0xfc, 0xfc, 255)
+    # Card t_a1170172 moved the field from $02 dark blue (#0000bc) to $0F black and the border from $30 to $20:
+    # those are the entries the title's ground bands declare, and the preview shows the box the game draws.
+    fill = (0x00, 0x00, 0x00, 255)
+    white = (0xf8, 0xf8, 0xf8, 255)
     assert preview.getpixel((48 + 10 * 24 + 3, 48 + 4 * 24 + 3)) == fill
     assert preview.getpixel((48 + 10 * 24, 48)) == white, "the top edge at 3x is not the white border"
     # The menu text is drawn in the font, so the preview must carry white text pixels inside the box.

@@ -12,22 +12,17 @@
     "title_L7_fg_flash",
     "title_BG_bigben_flash"
   ],
-  "note": "one rung up the 2C02 ladder per entry ($0C to $1C, $02 to $12, black $0F to grey $00); the game swaps the whole scene to these entries for two frames",
+  "note": "one rung up the band palette each strip is drawn in, or the same entry where the palette has no higher rung; the game swaps the whole scene to these entries for two frames",
   "palette": {
-    "0": 16,
-    "10": 26,
-    "11": 27,
-    "12": 28,
-    "15": 0,
-    "16": 32,
-    "17": 33,
-    "18": 34,
-    "2": 18,
-    "32": 48,
-    "45": 61,
-    "56": 56,
-    "8": 24,
-    "9": 25
+    "0": 32,
+    "11": 32,
+    "12": 11,
+    "13": 13,
+    "17": 0,
+    "18": 0,
+    "32": 32,
+    "40": 40,
+    "9": 32
   },
   "palette_space": "2C02 entry numbers (data/nes_palette.json)"
 }

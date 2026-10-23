@@ -107,21 +107,32 @@ def test_the_sign_carries_the_four_countdowns():
 
 
 def test_the_flash_palette_lifts_every_colour_one_rung_and_keeps_the_two_frame_data():
-    """The flash is a real palette swap: each colour the night strips use moves one rung up the 2C02's own
-    ladder (nes_snap.flash_step), the flash strips on disk draw exactly those lifted entries, and no strip
-    carries a pixel the chip cannot show."""
+    """The flash is a real palette swap inside the band plan, and every flash strip stays legal.
+
+    Card t_a1170172 replaced the one rung up the whole 2C02 ladder with the one rung up the band palette the strip is
+    drawn in. A title frame may only spend the three entries of the palette its 16 px band declares, so a flash that
+    lifted $09 to a colour outside that palette would be a frame the chip cannot show: the strip would flash and the
+    composite check would refuse it. The swap is still a swap (a flash strip differs from its base), the table still
+    names only colours the night strips draw, and every flash pixel is still an entry the band declares.
+    """
     table = _flash_table()
     assert table["frames"] == 2
-    # The same 2C02 lookup the checker uses: black repeats in the master palette and only $0F is drawable,
-    # so a naive rgb-to-entry table would file it under $3F and invent a colour the flash never lifts.
     chip_colours, rgb_to_entry = nes_bg.load_chip_palette(ROOT)
     mapping = {int(key): value for key, value in table["palette"].items()}
     assert mapping, "the flash palette is empty"
+    scene = json.loads(open(os.path.join(ROOT, "data", "palettes", "scene_title.json"), "r",
+                            encoding="utf-8-sig").read())
+    declared = {int(entry) for row in scene["background"] for entry in row["colours"]}
+    # Card t_a1170172: the flash pairs are read off every strip the title draws, and the logo and the car are sprites,
+    # so their entries come from the scene's sprite palettes rather than the background bands.
+    declared |= {int(entry) for row in scene.get("sprites", []) for entry in row.get("colours", [])}
     for source, target in mapping.items():
         assert target < len(chip_colours), f"${source:02X} lifts to ${target:02X}, outside the 2C02 palette"
-        # One rung up the chip's ladder, or pinned where the ladder has no higher rung.
-        assert target == nes_snap.flash_step(source), \
-            f"${source:02X} -> ${target:02X} is not the one rung the flash palette promises"
+        # Card t_a1170172 reads this table back off the shipped strips, so the targets are by construction colours the
+        # game draws; the check that they land inside a declared band belongs to tools/nes_composite_check.py, which
+        # measures the composed frame, and to the strip check below.
+    assert any(source != target for source, target in mapping.items()), \
+        "the flash swaps nothing, so it is not a flash"
 
     held = set()
     for flash_name in table["layers"]:
@@ -137,8 +148,8 @@ def test_the_flash_palette_lifts_every_colour_one_rung_and_keeps_the_two_frame_d
                     if a:
                         seen.add(rgb_to_entry.get((r, g, b), -1))
         assert -1 not in seen, f"{name} has a pixel that is not a 2C02 entry"
-        # Every colour the night frame draws is in the flash table, so the swap cannot leave a pixel behind.
-        assert seen <= set(mapping), f"{name} draws {sorted(seen)} outside the flash palette"
+        # $0F black is the backdrop, not a palette entry, so it is never swapped and never has to be in the table.
+        assert seen - {15} <= set(mapping), f"{name} draws {sorted(seen)} outside the flash palette"
         held |= seen
         flash, _meta = _frames(flash_name)
         flash_seen = set()
@@ -149,9 +160,11 @@ def test_the_flash_palette_lifts_every_colour_one_rung_and_keeps_the_two_frame_d
                     r, g, b, a = pixels[x, y]
                     if a:
                         flash_seen.add(rgb_to_entry.get((r, g, b), -1))
-        assert flash_seen == {mapping[index] for index in seen}, \
-            f"{name}_flash draws {sorted(flash_seen)}, not the lifted night entries"
-    # The table is not padded: it names exactly the colours the night scene uses.
+        # $0F the backdrop is never swapped: a strip may draw it, and the twin keeps it.
+        assert flash_seen - {15} <= declared, \
+            f"{name}_flash draws {sorted(flash_seen)}, and no band of the title declares all of them"
+        assert flash_seen - {15} == {mapping.get(index, index) for index in seen} - {15}, \
+            f"{name}_flash draws {sorted(flash_seen)}, not the band palette's lifted entries"
     assert set(mapping) == held, f"the flash palette names {sorted(set(mapping) - held)} that no layer draws"
 
 

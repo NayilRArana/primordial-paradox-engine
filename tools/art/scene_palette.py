@@ -748,6 +748,12 @@ def apply_title(root: str) -> dict:
     # ones the generator drew: see make_title_world.rebuild_flash() for the measurement that made this necessary.
     import make_title_world as world
     report["flash"] = {"strips": world.rebuild_flash(root)}
+    # The last pass is the band plan (card t_a1170172). An area-by-area choice made at one camera position does
+    # not survive a scroll: the road moves by a number of pixels that is not a multiple of 16, so a 16x16 area of
+    # the next frame mixes two of the areas this pass just decided. Bands do not move, so tools/art/title_bands.py
+    # is what the art on disk is finally expressed in, and data/palettes/scene_title.json "bands" is the decision.
+    import title_bands
+    report["bands"] = title_bands.apply(root)
     return report
 
 

@@ -72,7 +72,7 @@ GREY = 0x00
 GOLD = 0x28
 BLACK = 0x0F
 
-GLYPHS = sorted(" !'(),-.:?0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", key=ord)
+GLYPHS = sorted(" !\"'()*,-.:?0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", key=ord)
 NEAREST = getattr(Image, "Resampling", Image).NEAREST
 
 # ---------------------------------------------------------------------------------------------------------------

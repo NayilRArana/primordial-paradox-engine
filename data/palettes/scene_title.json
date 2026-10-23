@@ -3,26 +3,26 @@
   "background": [
     {
       "colours": [
+        18,
         0,
-        17,
-        32
+        40
       ],
       "hex": [
+        "#0058f8",
         "#7c7c7c",
-        "#0078f8",
-        "#f8f8f8"
+        "#f8b800"
       ],
       "name": "bg0"
     },
     {
       "colours": [
-        12,
-        18,
+        17,
+        0,
         32
       ],
       "hex": [
-        "#004058",
-        "#0058f8",
+        "#0078f8",
+        "#7c7c7c",
         "#f8f8f8"
       ],
       "name": "bg1"
@@ -30,90 +30,135 @@
     {
       "colours": [
         9,
-        10,
-        11
+        11,
+        32
       ],
       "hex": [
         "#007800",
-        "#006800",
-        "#005800"
+        "#005800",
+        "#f8f8f8"
       ],
       "name": "bg2"
     },
     {
       "colours": [
-        0,
-        2,
-        8
+        12,
+        11,
+        32
       ],
       "hex": [
-        "#7c7c7c",
-        "#0000bc",
-        "#503000"
+        "#004058",
+        "#005800",
+        "#f8f8f8"
       ],
       "name": "bg3"
     }
   ],
-  "format": 1,
+  "bands": {
+    "note": "One background palette per 16 px row band, top to bottom (tools/art/title_bands.py). The title only scrolls along x, so a screen band always takes its pixels from the same band of a strip, and this plan holds at every camera position, not just at the one a capture happens to catch. The sky is two palettes because the gold of the logo and the white of the clouds cannot share three entries. The ground is two palettes that differ only in their accent: bands 8-11 spend the lit green of the fields, bands 12-14 the teal of the road. Both ground palettes carry $0B the dark green and $20 the white, which is why the window, the font, the cursor and the copyright line cross the boundary between them without changing a pixel.",
+    "palette": [
+      "bg0",
+      "bg0",
+      "bg0",
+      "bg0",
+      "bg1",
+      "bg1",
+      "bg1",
+      "bg1",
+      "bg2",
+      "bg2",
+      "bg2",
+      "bg2",
+      "bg3",
+      "bg3",
+      "bg3"
+    ]
+  },
+  "band_sprites": {
+    "_note": "Which palette each sprite sheet is drawn inside. A sheet that can touch two bands takes the colours those bands share, which is why the menu box, the font and the cursor name both ground palettes: the two of them share exactly the dark green and the white, which is all those three sheets spend. The fade twins, the intro's star sheet, the Big Ben opening frame and the retired cast are not here: the intro is a different shot with its own fade art, and giving it a band plan of its own is a separate card.",
+    "spr_pp_font8": [
+      "bg2",
+      "bg3"
+    ],
+    "spr_pp_menu_cursor": [
+      "bg2",
+      "bg3"
+    ],
+    "spr_pp_title_logo": "bg0",
+    "spr_pp_window": [
+      "bg2",
+      "bg3"
+    ],
+    "spr_title_car": "bg3",
+    "spr_title_cloud": "bg1",
+    "spr_title_cone": "bg3",
+    "spr_title_exhaust": "bg3",
+    "spr_title_sign": "bg2",
+    "spr_title_wheel": "bg3"
+  },
+  "format": 2,
   "kind": "scene_palette",
   "notes": [
     "backdrop $0F black is background palette 0 entry 0 and is shared with every sprite palette",
-    "background palettes cover the composite of the seven scrolling layers in data/title.json, 16x16 screen areas",
-    "sprite palettes cover every 8x8 tile of the car, the logo, the sign, the cone, the window, the font and the cursor, 3 colours plus transparency",
-    "solved by tools/art/scene_palette.py from the art on disk, then checked again by tools/nes_composite_check.py"
+    "background palettes are assigned per 16 px row band: bands 0-3 bg0, 4-7 bg1, 8-11 bg2, 12-14 bg3",
+    "the scene spends four palettes of three entries and eight colours on screen, against the PPU's twelve background entries and twenty five colours",
+    "the ground band keeps two greens on purpose: a plan that spent one green flattened the fields, and the scroll measurement then followed the verge's telegraph poles at the verge's speed instead of reading the fields (card t_a1170172)",
+    "the poles and posts of the verge and the foreground are the ground band's dark green, not the backdrop: nothing in the title's ground half is painted in the clear",
+    "sprite palettes repeat the background palettes: on this screen a sprite is drawn inside the band palette under it, so a photograph of the frame charges its pixels to the same three colours the PPU would",
+    "enforced by tools/art/title_bands.py, checked again from the pixels by tools/nes_composite_check.py and tools/check_scene_palettes.py"
   ],
   "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
   "scene": "title",
   "sprites": [
     {
       "colours": [
-        9,
-        32,
-        48
+        18,
+        0,
+        40
       ],
       "hex": [
-        "#007800",
-        "#f8f8f8",
-        "#fcfcfc"
+        "#0058f8",
+        "#7c7c7c",
+        "#f8b800"
       ],
       "name": "sp0"
     },
     {
       "colours": [
+        17,
         0,
-        15,
-        40
+        32
       ],
       "hex": [
+        "#0078f8",
         "#7c7c7c",
-        "#000000",
-        "#f8b800"
+        "#f8f8f8"
       ],
       "name": "sp1"
     },
     {
       "colours": [
-        10,
-        12,
-        16
+        9,
+        11,
+        32
       ],
       "hex": [
-        "#006800",
-        "#004058",
-        "#bcbcbc"
+        "#007800",
+        "#005800",
+        "#f8f8f8"
       ],
       "name": "sp2"
     },
     {
       "colours": [
-        2,
-        7,
-        22
+        12,
+        11,
+        32
       ],
       "hex": [
-        "#0000bc",
-        "#881400",
-        "#f83800"
+        "#004058",
+        "#005800",
+        "#f8f8f8"
       ],
       "name": "sp3"
     }

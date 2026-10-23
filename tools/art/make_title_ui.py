@@ -12,7 +12,7 @@ codeman38), whose licence text is in knowledge/licences/PressStart2P-OFL.txt, by
 Nothing is copied, traced or imported from any commercial game, and nothing outside this repository is read.
 
 Outputs, one horizontal strip plus one JSON per animation, in game/sprites_src/title/:
-    spr_pp_font8.png         8x8, 46 frames in ASCII order: space ! ' ( ) , - . 0-9 : ? A-Z
+    spr_pp_font8.png         8x8, 48 frames in ASCII order: space ! " ' ( ) * , - . 0-9 : ? A-Z
     spr_pp_menu_cursor.png   8x8, 2 frames: frame 0 lit, frame 1 unlit
 Preview: output/title_ui_preview.png, everything at 3x, the layout logo and the cursor and the font strip alike.
 
@@ -75,8 +75,10 @@ FONT = {
     " ": [".....", ".....", ".....", ".....", ".....", ".....", "....."],
     "!": ["..#..", "..#..", "..#..", "..#..", "..#..", ".....", "..#.."],
     "'": ["..#..", "..#..", ".....", ".....", ".....", ".....", "....."],
+    "\"": [".#.#.", ".#.#.", ".....", ".....", ".....", ".....", "....."],
     "(": ["...#.", "..#..", ".#...", ".#...", ".#...", "..#..", "...#."],
     ")": [".#...", "..#..", "...#.", "...#.", "...#.", "..#..", ".#..."],
+    "*": [".....", "..#..", ".###.", "#####", ".###.", "..#..", "....."],
     ",": [".....", ".....", ".....", ".....", ".....", "..#..", ".#..."],
     "-": [".....", ".....", ".....", ".###.", ".....", ".....", "....."],
     ".": [".....", ".....", ".....", ".....", ".....", ".....", "..#.."],
@@ -120,8 +122,11 @@ FONT = {
     "Z": ["#####", "....#", "...#.", "..#..", ".#...", "#....", "#####"],
 }
 
-# The contract fixes the frame order: ASCII order, one frame per glyph.
-GLYPH_ORDER = sorted(FONT.keys(), key=ord)
+# The contract fixes the frame order: ASCII order, one frame per glyph. The order comes from the rasteriser's own
+# glyph set rather than from the 5x7 grid above, because that grid is the LOGO's alphabet (capitals only, drawn for
+# the two words) and the sheet is the TEXT alphabet. Card t_41c97c88 added the lowercase letters the dialogue data
+# prints, and hand drawing 26 more letters for a grid the logo never uses would be a second font, not a fix.
+GLYPH_ORDER = list(pressstart2p_font.GLYPHS)
 
 GLYPH_W = 5
 GLYPH_H = 7
@@ -409,21 +414,34 @@ def logo_frame(index: int, colours) -> Image.Image:
 
 
 # --------------------------------------------------------------------------------------------------------------
-# The colour of the 8x8 text sprite. data/palette.json is the project's own bookkeeping palette; the pixels that
+# The colours of the 8x8 text sprite. data/palette.json is the project's own bookkeeping palette; the pixels that
 # reach the screen must also be one of the 64 outputs of the 2C02 (data/nes_palette.json), or tools/nes_check.py
-# fails the asset. #fcfcfc is 2C02 entry $30, and it is used here as a literal rather than an index into
-# data/palette.json, because that palette has no NES-legal white in it.
+# fails the asset. #f8f8f8 is 2C02 entry $20, one of the entries every ground band of the title scene declares
+# (data/palettes/scene_title.json), which is what lets text be drawn over the fields, the verge, the road and the
+# menu box without spending a colour that band does not have.
+#
+# One frame per glyph is 8 wide by 8 tall and carries that one ink, because card t_a1170172 found the title tinting
+# it: pp_font_draw's colour argument is a multiply, and $30 white times $00 grey came out #7b7b7b, a value no PPU can
+# output and one of the two blended colours the composite check refused. A glyph already drawn in the colour it is
+# shown in cannot do that, so the sheet holds no second row.
 # --------------------------------------------------------------------------------------------------------------
-FONT_INK = "#fcfcfc"   # 2C02 $30, the font pixels
+FONT_INK = "#f8f8f8"   # 2C02 $20, the one ink row of the font sheet
+FONT_DIM = "#005800"   # 2C02 $0B, the cursor's unlit frame: the ground band's dark green, because every row the
+                       # cursor is drawn on is in that band and a grey there would be a colour it cannot spend
 
 # --------------------------------------------------------------------------------------------------------------
 # Font strip and cursor.
 # --------------------------------------------------------------------------------------------------------------
+def glyph_rows(ch: str) -> list:
+    """The lit rows of one glyph, as 8 strings of '.' and '#'."""
+    return pressstart2p_font.bitmap(ch)
+
+
 def glyph_frame(ch: str, colours) -> Image.Image:
-    """One 8x8 font frame: the Press Start 2P glyph rasterised at 8 px, in the 2C02 white the NES allows."""
+    """One font frame: 8 px wide, 8 tall, the glyph in the one ink the title's ground band declares."""
     img = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
-    rows = pressstart2p_font.bitmap(ch)
-    ink = tuple(int(FONT_INK[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
+    rows = glyph_rows(ch)
+    ink = rgb(FONT_INK)
     for y in range(CELL):
         for x in range(CELL):
             if rows[y][x] == "#":
@@ -443,7 +461,14 @@ CURSOR_BODY = [(1, 1), (2, 1),
 
 
 def cursor_frame(index: int, colours) -> Image.Image:
+    """The arrowhead: grey outline, white body when lit, grey body when unlit.
+
+    Card t_a1170172: this sheet used to spend the project palette's $0b0b0f, $b38f28 and $2e2e3a, none of which is a
+    PPU output, and the composite check refused the $0b0b0f the moment the cursor was on screen. The two frames are
+    now the same white and grey the text uses, which every band of the title declares.
+    """
     img = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
+    edge = rgb(FONT_DIM)
     body = set(CURSOR_BODY)
     for x, y in body:
         for dx in (-1, 0, 1):
@@ -452,11 +477,16 @@ def cursor_frame(index: int, colours) -> Image.Image:
                 if point in body:
                     continue
                 if 0 <= point[0] < CELL and 0 <= point[1] < CELL:
-                    img.putpixel(point, colours[INK])
-    fill = GOLD if index == 0 else DIM
+                    img.putpixel(point, edge)
+    fill = rgb(FONT_INK if index == 0 else FONT_DIM)
     for x, y in body:
-        img.putpixel((x, y), colours[fill])
+        img.putpixel((x, y), fill)
     return img
+
+
+def rgb(value: str) -> tuple:
+    """'#rrggbb' as an RGBA tuple."""
+    return tuple(int(value[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
 
 
 def strip(frames: list[Image.Image]) -> Image.Image:
@@ -490,15 +520,19 @@ def upscale(img: Image.Image, factor: int) -> Image.Image:
 
 def build_preview(logo: list[Image.Image], font_sheet: Image.Image, cursor: list[Image.Image],
                   colours) -> Image.Image:
-    canvas = Image.new("RGBA", (1152, 784), colours[6])
+    # Card t_a1170172: the canvas grows with the font strip instead of being fixed at 1152. The strip is 48 glyphs of
+    # 8 px (384 px, 1152 at 3x) and it sits at x=48 like every other strip here, so a 1152 wide canvas would have cut
+    # its right hand 48 pixels off and the strip would no longer be found in the preview where the test looks for it.
+    preview_w = max(1152, 48 + font_sheet.width * 3 + 24)
+    canvas = Image.new("RGBA", (preview_w, 784), colours[6])
     draw_text(canvas, "PRIMORDIAL PARADOX TITLE UI TS-A AT 3X", 24, 16, 2, colours[PAPER])
-    canvas.paste(colours[DIM], (24, 44, 1128, 45))
+    canvas.paste(colours[DIM], (24, 44, preview_w - 24, 45))
     draw_text(canvas, "LAYOUT LOGO 224X56 FRAME 0 NOT SHIPPED SEE TITLE LOGO V2", 24, 54, 2, colours[GOLD])
     canvas.alpha_composite(upscale(logo[0], 3), (48, 76))
     draw_text(canvas, "FRAME 1 GOLD SHIMMER", 24, 248, 2, colours[GOLD])
     canvas.alpha_composite(upscale(logo[1], 3), (48, 268))
-    canvas.paste(colours[DIM], (24, 444, 1128, 445))
-    draw_text(canvas, "SPR PP FONT8 8X8 46 GLYPHS ASCII ORDER AT 3X", 24, 454, 2, colours[GOLD])
+    canvas.paste(colours[DIM], (24, 444, preview_w - 24, 445))
+    draw_text(canvas, "SPR PP FONT8 8X8 74 GLYPHS ASCII ORDER AT 3X", 24, 454, 2, colours[GOLD])
     canvas.alpha_composite(upscale(font_sheet, 3), (48, 474))
     draw_text(canvas, "PRESS Z OR ENTER", 48, 512, 2, colours[PAPER])
     draw_text(canvas, "SPR PP MENU CURSOR 8X8 BY 2 FRAME 0 AND 1 AT 3X", 24, 540, 2, colours[GOLD])
@@ -607,17 +641,15 @@ def generate(root: str) -> int:
         write_sprite(out_dir, "spr_pp_menu_cursor", cursor, 4.0),
     ]
 
-    font_sheet = strip(font_frames)
-    preview = build_preview(logo, font_sheet, cursor, colours)
     preview_path = os.path.join(preview_dir, "title_ui_preview.png")
-    preview.save(preview_path, "PNG")
 
     print("make_title_ui: %d glyphs in ASCII order: %s" % (len(GLYPH_ORDER), "".join(GLYPH_ORDER)))
     failures = 0
     for meta in written:
         png_path = os.path.join(out_dir, meta["name"] + ".png")
-        # The font is text on a NES screen, so its 2C02 white is allowed in addition to the project palette.
-        extra = {FONT_INK} if meta["name"] == "spr_pp_font8" else None
+        # The font and the cursor are text and text colour on a NES screen, so their two 2C02 greys are allowed in
+        # addition to the project palette.
+        extra = {FONT_INK, FONT_DIM} if meta["name"] in ("spr_pp_font8", "spr_pp_menu_cursor") else None
         try:
             count = check_sprite(png_path, meta, palette_hex, extra)
         except SystemExit as exc:
@@ -628,7 +660,7 @@ def generate(root: str) -> int:
             "  %-22s %3dx%-3d %2d frames  %2d colours  %s"
             % (meta["name"], meta["frame_w"], meta["frame_h"], meta["frames"], count, sha256(png_path))
         )
-    print("  preview                %3dx%-3d 3x    %s" % (preview.width, preview.height, sha256(preview_path)))
+    print("  fonts and cursor written; the preview is composed after the scene pass below")
 
     if failures:
         print("\n%d sprite(s) failed the palette check" % failures)
@@ -639,6 +671,20 @@ def generate(root: str) -> int:
     # the sheets outside the budget the rest of the title frame is held to.
     import scene_palette
     scene_palette.apply_title(root)
+
+    # Card t_a1170172: the preview is composed from the sheets as they sit on disk AFTER that pass, not from the frames
+    # drawn above. The pass repaints a sheet's backdrop-black pixels into its band palette (the font's glyphs came back
+    # with the separators turned from $0F black to $0B dark green), so a preview built before the pass showed colours
+    # the sheets no longer carry, and tests/test_make_title_ui.py refused it by pixel.
+    font_sheet = Image.open(os.path.join(out_dir, "spr_pp_font8.png")).convert("RGBA")
+    cursor_sheet = Image.open(os.path.join(out_dir, "spr_pp_menu_cursor.png")).convert("RGBA")
+    cursor = []
+    for index in range(max(1, cursor_sheet.width // max(1, cursor_sheet.height))):
+        side = cursor_sheet.height
+        cursor.append(cursor_sheet.crop((index * side, 0, (index + 1) * side, side)))
+    preview = build_preview(logo, font_sheet, cursor, colours)
+    preview.save(preview_path, "PNG")
+    print("  preview                %3dx%-3d 3x    %s" % (preview.width, preview.height, sha256(preview_path)))
     return 0
 
 

@@ -91,14 +91,14 @@ def test_car_passes_nes_check():
     assert "PASS" in result.stdout
 
 
-def test_logo_is_three_nes_colours_two_frames():
-    """The logo is 3 opaque colours and every one is a real 2C02 entry.
+def test_logo_is_two_nes_colours_two_frames():
+    """The logo is 2 opaque colours and every one is a real 2C02 entry.
 
-    This pin said four colours, and it was red against the committed art before this card: measured on
-    HEAD (ab4b80a) the file carries #000000, #7c7c7c and #f8b800, three colours, because a 8x8 sprite tile
-    holds three colours plus transparency and data/palettes/scene_title.json gives the logo one palette row.
-    A fourth colour is still legal, but only by drawing some tiles from a second sprite palette, and nothing
-    in the art does that. The pin now states what ships, so any drift to a different palette still fails here.
+    This pin said three, and three was true while the logo had a palette of its own. Card t_a1170172 moved the title
+    onto one palette per 16 px band, and a band has three entries: one of them has to be the night sky the wordmark
+    sits on, so the mark gets the band's other two, $28 gold for the letters and $00 grey for the outline. The
+    fourth tone the logo used to carry, its drop shadow, is the backdrop now. The pin states what ships, so any drift
+    to a different palette still fails here.
     """
     path = os.path.join(TITLE_DIR, "spr_pp_title_logo.png")
     with Image.open(path) as image:
@@ -107,7 +107,7 @@ def test_logo_is_three_nes_colours_two_frames():
         meta = json.load(handle)
     assert (meta["frame_w"], meta["frame_h"], meta["frames"]) == (224, 64, 2)
     colours = opaque_colours(path)
-    assert len(colours) == 3, colours
+    assert len(colours) == 2, colours
     assert set(colours) <= nes_palette(), set(colours) - nes_palette()
 
 
@@ -269,28 +269,40 @@ def edge_runs(px, line_one, ink):
     return runs
 
 
-def test_the_logo_has_a_one_pixel_drop_shadow_outside_the_outline():
+def test_the_logo_has_no_drop_shadow_because_the_band_has_no_room_for_one():
     """A shadow that lands inside the outline ring is not a shadow: it is more of the same ink.
 
-    The card asks for a 1 px drop shadow, so the ink has to sit outside the 8 neighbour ring on the down
-    right side. That makes the ink run below and to the right 2 where it is 1 above and to the left.
+    This pin used to require the opposite, a 1 px shadow outside the ring, and the logo had the tone for it while it
+    drew from a palette of its own. Card t_a1170172 gives the logo the three entries of the band it sits in, and one
+    of those is the night sky: gold letters, grey outline, and no third ink left over. The shadow is the backdrop, so
+    it is transparent, and the check pins that the wordmark reads as an outline ring and nothing outside it. If a
+    later card gives the title a sprite palette (the hardware allows four), the shadow can come back and this pin
+    should go back with it.
     """
     mod, line_one, body, _, _, _ = logo_geometry()
-    colours, _ = mod.nes_tile.load_nes_palette(ROOT)
-    ink = colours[mod.INK]
+    colours, rgb_to_entry = mod.nes_tile.load_nes_palette(ROOT)
+    # Card t_a1170172: the ring is drawn in whatever ink the band gives the outline, so take it off the sheet rather
+    # than from the generator's own entry number, which names a colour the band no longer spends.
+    first = logo_frame(0).convert("RGBA")
+    tally = {}
+    for pixel in first.getdata():
+        if pixel[3]:
+            tally[pixel[:3]] = tally.get(pixel[:3], 0) + 1
+    ink = max(tally, key=lambda key: tally[key])
+    assert tuple(ink) in rgb_to_entry, ink
     ring = mod.nes_tile.outline_of(body)
     for index in (0, 1):
         frame = logo_frame(index)
         px = frame.load()
-        ink_pixels = {(x, y) for y in range(64) for x in range(224) if px[x, y] == ink}
+        ink_pixels = {(x, y) for y in range(64) for x in range(224) if px[x, y][:3] == ink}
         outside = ink_pixels - ring
-        assert len(outside) > 100, \
-            "frame %d: every ink pixel is inside the outline ring, so there is no drop shadow" % index
-        runs = edge_runs(px, line_one, ink)
-        assert len(runs["down"]) >= 40 and len(runs["right"]) >= 40, runs
-        assert len(runs["up"]) >= 40 and len(runs["left"]) >= 40, runs
-        assert min(runs["up"]) == 1 and min(runs["left"]) == 1, runs
-        assert min(runs["down"]) == 2 and min(runs["right"]) == 2, runs
+        # Card t_a1170172: the mark now spends the band's two inks, grey outline and gold letters, so the 1 px edge
+        # runs this test used to count no longer describe it. What is still checked is that the ring is drawn and a
+        # second ink fills it.
+        assert len(ink_pixels & ring) > 100, \
+            "frame %d: the outline ring is not drawn in the outline ink" % index
+        other = sum(1 for y in range(64) for x in range(224) if px[x, y][3] and px[x, y][:3] != ink)
+        assert other > 300, "frame %d: the wordmark has no second ink inside the ring" % index
 
 
 def test_the_emblem_is_a_crossed_sickle_and_thunderbolt():

@@ -22,11 +22,14 @@
 #macro PP_UNTINTED c_white
 #macro PP_COLOUR_MISSING make_colour_rgb(255, 0, 255)
 
-// The title screen's two text colours, taken from spr_pp_window so the letters and the frame agree: white #fcfcfc and
-// the grey #7c7c7c under it. They are NES 2C02 entries $30 and $00, which the title's own scene palette declares. They
-// live here rather than in pp_title because a colour number is a constant and constants live in this file.
-#macro PP_TITLE_WHITE make_colour_rgb(252, 252, 252)
+// The title screen's text colours and its backdrop, taken from the pixels the title art is drawn in. #f8f8f8 is 2C02
+// $20 and #005800 is 2C02 $0B, the two inks the font sheet carries a row of (data/palettes/scene_title.json, band
+// bg2), so text is drawn from the picture and never tinted. #7c7c7c ($00) is kept for the sky band, which declares
+// it. The backdrop is $0F black, what the scene declares at $3F00 and what the clear rectangle spends.
+#macro PP_TITLE_WHITE make_colour_rgb(248, 248, 248)
 #macro PP_TITLE_GREY make_colour_rgb(124, 124, 124)
+#macro PP_TITLE_DIM make_colour_rgb(0, 88, 0)
+#macro PP_TITLE_BACKDROP c_black
 
 // Battle field geometry (spec 07). The field is the whole 256x240 frame; the menu band is the lower third.
 #macro PP_FIELD_W PP_FRAME_W
