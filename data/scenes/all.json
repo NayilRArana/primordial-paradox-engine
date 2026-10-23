@@ -65,6 +65,157 @@
       ]
     },
     {
+      "id": "quay_gate_checkpoint",
+      "name": "The gate checkpoint",
+      "map": "southampton_town_quay",
+      "start": {
+        "x": 8,
+        "y": 10
+      },
+      "commands": [
+        {
+          "cmd": "music",
+          "id": "PP-03"
+        },
+        {
+          "cmd": "say",
+          "id": "quay_gate_checkpoint"
+        },
+        {
+          "cmd": "say",
+          "id": "quay_gate_choice"
+        },
+        {
+          "cmd": "branch",
+          "flag": "gate_truth",
+          "scene": "quay_gate_truth"
+        },
+        {
+          "cmd": "branch",
+          "flag": "gate_bluff",
+          "scene": "quay_gate_bluff"
+        },
+        {
+          "cmd": "branch",
+          "flag": "gate_authority",
+          "scene": "quay_gate_authority"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "id": "quay_gate_truth",
+      "name": "The gate checkpoint: truth",
+      "map": "southampton_town_quay",
+      "start": {
+        "x": 8,
+        "y": 10
+      },
+      "commands": [
+        {
+          "cmd": "wait",
+          "steps": 20
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "id": "quay_gate_bluff",
+      "name": "The gate checkpoint: bluff",
+      "map": "southampton_town_quay",
+      "start": {
+        "x": 8,
+        "y": 10
+      },
+      "commands": [
+        {
+          "cmd": "wait",
+          "steps": 20
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "id": "quay_gate_authority",
+      "name": "The gate checkpoint: authority",
+      "map": "southampton_town_quay",
+      "start": {
+        "x": 8,
+        "y": 10
+      },
+      "commands": [
+        {
+          "cmd": "wait",
+          "steps": 20
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "id": "quay_yard_walk",
+      "name": "The yard walk",
+      "map": "southampton_town_quay",
+      "start": {
+        "x": 8,
+        "y": 10
+      },
+      "commands": [
+        {
+          "cmd": "move",
+          "actor": "hero",
+          "dir": "down",
+          "tiles": 2
+        },
+        {
+          "cmd": "wait",
+          "steps": 20
+        },
+        {
+          "cmd": "move",
+          "actor": "hero",
+          "dir": "right",
+          "tiles": 3
+        },
+        {
+          "cmd": "wait",
+          "steps": 20
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
+      "id": "quay_dock_office_play",
+      "name": "The dock office",
+      "map": "quay_dock_office",
+      "start": {
+        "x": 6,
+        "y": 12
+      },
+      "commands": [
+        {
+          "cmd": "say",
+          "id": "quay_dock_office"
+        },
+        {
+          "cmd": "say",
+          "id": "quay_dock_office_pass"
+        },
+        {
+          "cmd": "end"
+        }
+      ]
+    },
+    {
       "id": "navy_aftermath",
       "name": "Deck: after the watch",
       "map": "ship_small",

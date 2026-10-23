@@ -55,8 +55,33 @@ CUE_IDS = [
 # The rows no map, scene or encounter asks for today. Pinned exactly so a row added to or dropped
 # from the table cannot slip into or out of this list unnoticed. This is a recorded gap, not an
 # approval: data\\audio.json has no field that marks a cue unused on purpose.
+#
+# PP-03 (Harbor) left this list on 2026-10-23, card t_6b4724a9. Three references appeared for it:
+# data\\maps\\all.json gives "music": "PP-03" to southampton_town_quay and to quay_dock_office, and
+# data\\scenes\\all.json opens quay_gate_checkpoint with {"cmd": "music", "id": "PP-03"}. The row's own
+# note in data\\audio.json calls it "the arrival and gate cue", which is exactly those three places,
+# and assets\\audio\\pp_03_harbor\\pp_03_harbor.ogg is on disk, so the references are intended and the
+# pin moves, not the data. Those three references are working tree changes, not committed ones: this
+# pin only holds at HEAD once they are committed, and it must ride in the same commit as them.
+# The twelve that remain, and why each is still unreferenced:
+#   PP-01  delivered and scored, but the title path streams it by file name through
+#          pp_audio_play_theme, so no map, scene or encounter asks for the id. It needs a title
+#          scene command, which is a data change this pin cannot make for it.
+#   PP-02  delivered as pp_drive_v2. The drive runs from the title path too; no scene in the slice
+#          carries a music command for it yet.
+#   PP-08  not composed. No assets\\audio\\pp_08_dead_rising folder; the row falls back to PP-03.
+#   PP-09  not composed. No assets\\audio\\pp_09_data_center folder; falls back to PP-03.
+#   PP-10  not composed. Boss row with no folder; falls back to PP-06 so the fight keeps priority 12.
+#   PP-11  not composed. No folder; falls back to PP-02.
+#   PP-12  not composed. No folder; falls back to PP-03.
+#   PP-13  not composed. No folder; falls back to PP-03. The row exists so the musician's own id in
+#          notes\\notebook-2026-10-19\\round1\\musician.md has a home in the table.
+#   PP-14  not composed. Boss row with no folder; falls back to PP-06.
+#   PP-15a not composed. The genocide ending; falls back to PP-01.
+#   PP-15b not composed. The mercy ending; falls back to PP-01.
+#   PP-16  not composed. No folder; falls back to PP-01.
 RECORDED_UNREFERENCED = [
-    "PP-01", "PP-02", "PP-03", "PP-08", "PP-09", "PP-10", "PP-11", "PP-12",
+    "PP-01", "PP-02", "PP-08", "PP-09", "PP-10", "PP-11", "PP-12",
     "PP-13", "PP-14", "PP-15a", "PP-15b", "PP-16",
 ]
 
@@ -259,15 +284,21 @@ def test_every_music_reference_in_the_data_resolves_to_a_cue_row():
 
 def test_unreferenced_cue_rows_are_the_recorded_debt_list():
     """DEFECT, reported on card t_0c5dc024. Card item 2 wants every row reachable from a reference
-    or marked unused on purpose, and data\\audio.json has no such marker, so eleven rows are simply
+    or marked unused on purpose, and data\\audio.json has no such marker, so twelve rows are simply
     unreferenced: the boss themes, the endings and the opening cues are not asked for by any map,
     scene or encounter yet. The exact set is pinned so the state is visible and cannot drift
-    silently; the fix is a reference or an unused flag in the data, which this card may not add."""
+    silently; the fix is a reference or an unused flag in the data, which this card may not add.
+    The pin moved once, on 2026-10-23 (card t_6b4724a9): PP-03 left it when the quay maps and the
+    gate checkpoint scene gained their PP-03 music reference, and the list explains each row that
+    is still on it."""
     referenced = {ref for _name, _path, ref in _music_references()
                   if isinstance(ref, str) and ref.startswith("PP-")}
     assert referenced, "no cue is referenced at all, so this test proves nothing"
     unreferenced = sorted(set(_cue_ids()) - referenced)
-    assert unreferenced == RECORDED_UNREFERENCED
+    assert unreferenced == RECORDED_UNREFERENCED, (
+        "the unreferenced set moved: newly unreferenced %s, newly referenced %s"
+        % (sorted(set(unreferenced) - set(RECORDED_UNREFERENCED)),
+           sorted(set(RECORDED_UNREFERENCED) - set(unreferenced))))
 
 
 # --- item 3: the crossfade is one macro of 30 steps -------------------------------------------------------------
