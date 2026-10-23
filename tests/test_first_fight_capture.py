@@ -14,7 +14,6 @@ run that proves it is the muted capture itself.
 
 from __future__ import annotations
 
-import importlib.util
 import os
 
 import pytest
@@ -26,11 +25,17 @@ TOOL = os.path.join(ROOT, "tools", "capture_first_fight.py")
 
 
 def load_tool():
-    spec = importlib.util.spec_from_file_location("capture_first_fight_under_test", TOOL)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    """The tool, imported by name from tools/ (tests/conftest.py puts that directory on sys.path).
+
+    Card t_87ee4228: this used to load the file through importlib by path, and the commit gate maps a tool to
+    the tests that import it BY NAME, so the gate refused the tool as "UNMAPPED, no test maps to" while these
+    five tests were exercising it. Importing the module is also what tests/conftest.py documents: a worktree run
+    imports the worktree's tools, never the live tree's.
+    """
+    import capture_first_fight
+
+    assert os.path.isfile(TOOL), "tools/capture_first_fight.py is missing"
+    return capture_first_fight
 
 
 def test_a_battle_frame_colour_snaps_onto_the_game_palette():
@@ -90,3 +95,25 @@ def test_the_label_cell_geometry_still_matches_the_director():
     assert geom["box"] == (8, 168, 248, 232)
     assert geom["label_x"] == (24, 128)
     assert geom["glyph"] == 8
+
+
+def test_the_picture_gate_uses_the_same_number_as_the_frame_reader():
+    """Card t_87ee4228: one question ("is this the game's picture"), one number.
+
+    The recording gate is taken over the union of data/palette.json and data/nes_palette.json, because the game's
+    screens do not all draw from one set; if the two numbers drift apart, a frame the reader accepts could still
+    fail the recording gate on the same picture.
+    """
+    tool = load_tool()
+    assert tool.VIDEO_PICTURE_MIN == tool.PALETTE_SNAP_MIN
+
+
+def test_the_other_lanes_measures_never_gate_this_capture():
+    """The NES colour rule and the TALK leg are reported, not folded into `ok` (card t_87ee4228)."""
+    tool = load_tool()
+    video = {"nes_palette_ok": False, "samples": []}
+    assert tool.look_rule(video)["gates_this_card"] is False
+    talk = tool.talk_leg()
+    assert talk["gates_this_card"] is False
+    # A three TALK spare needs an encounter with talks_to_spare 3 on a battle trigger, and the deck has one.
+    assert any(f["encounter"] == "tutorial_sailors" for f in talk["reachable_talk_fights"])
