@@ -92,9 +92,13 @@ def continue_is_inert(branch):
 
 
 def continue_is_dim(code):
-    """True when the CONTINUE row is drawn in the grey when the slot holds no run."""
+    """True when the CONTINUE row is drawn as the disabled row when the slot holds no run.
+
+    Card t_a1170172 replaced the grey text tag with a rule through the row in PP_TITLE_DIM, drawn by
+    pp_title_draw_disabled, so this pin follows the call and not the removed PP_TITLE_GREY macro.
+    """
     words = body_of(code, "pp_title_draw_words")
-    return bool(re.search(r'_label\s*==\s*"CONTINUE"\s*&&\s*!_has_save\s*\)\s*_colour\s*=\s*PP_TITLE_GREY', words))
+    return bool(re.search(r'_label\s*==\s*"CONTINUE"\s*&&\s*!_has_save\s*\)\s*\{\s*pp_title_draw_disabled\(\s*_label', words))
 
 
 def test_start_opens_the_menu_and_the_cursor_starts_on_new_game():
@@ -164,12 +168,12 @@ def test_the_inert_check_bites():
 
 
 def test_continue_without_a_save_is_dim():
-    """The row is drawn in the grey when the slot is empty, and that same row used to be assigned the white."""
+    """The row is drawn as the disabled row when the slot is empty, and the same row used to get the white."""
     code = code_of(TITLE)
     assert continue_is_dim(code), "the CONTINUE row must be drawn dim when there is no save"
     white_again = code.replace(
-        'if (_label == "CONTINUE" && !_has_save) _colour = PP_TITLE_GREY;',
-        'if (_label == "CONTINUE" && !_has_save) _colour = PP_TITLE_WHITE;')
+        'pp_title_draw_disabled(_label, _cx, _cy);',
+        'pp_font_draw_centre(_label, _cx, _cy, 1);')
     assert not continue_is_dim(white_again), "the check must fail on the defect it was written for"
 
 
