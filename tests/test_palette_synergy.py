@@ -1,9 +1,10 @@
 """Tests for tools/palette_synergy.py (card PAL-SYSTEM, 2026-10-22).
 
 The rules in ART-BIBLE RULE 0 point 2 are arithmetic on the 2C02 grid, so every case here is a picture whose
-verdict is decided before the tool runs: a body two rows from the ground passes and one row fails, white on
-white fails, a colour outside the scene's set fails, a four colour tile fails. The last test runs the tool on
-the frames that ship today, which is the answer the card actually asked for.
+verdict is decided before the tool runs: a body two rows from the ground passes, a body one row away passes only
+when it clears 3:1 contrast as well, white on white fails, a colour outside the scene's set fails, a four colour
+tile fails. The last test runs the tool on the frames that ship today, which is the answer the card actually
+asked for.
 """
 
 from __future__ import annotations
@@ -41,10 +42,12 @@ def rules_of(result):
 BASE = {"scene": "title"}
 
 
-def analyse(tmp_path, background_pixels, sprite_pixels, size=(16, 16), background=None):
+def analyse(tmp_path, background_pixels, sprite_pixels, size=(16, 16), background=None, sidecar=None):
     background = write_png(tmp_path / "bg.png", background_pixels, size=(256, 240),
                            background=background or BLACK)
     sprite = write_png(tmp_path / "spr.png", sprite_pixels, size=size)
+    if sidecar is not None:
+        (tmp_path / "spr.json").write_text(json.dumps(sidecar), encoding="utf-8")
     return palette_synergy.analyse(ROOT, BASE["scene"], background, [sprite])
 
 
@@ -60,10 +63,22 @@ def test_a_body_two_rows_off_the_ground_passes_body_ground(tmp_path):
     assert "white_blob" not in rules_of(result), result["problems"]
 
 
-def test_a_body_one_row_off_the_ground_fails_body_ground(tmp_path):
-    # $10 is row 1 (#bcbcbc) on the row 0 backdrop: one row apart, and the rule asks for two.
+def test_a_body_one_row_off_a_black_ground_passes_on_contrast(tmp_path):
+    # $10 is row 1 (#bcbcbc, luminance 0.503) on the row 0 backdrop $0F (0.000): one row apart, 11.06:1.
+    # The row is a coarse band, not a luminance, so R1 asks separation two ways and either clears it
+    # (gamedev ruling, card t_50193088: this is sailor_battle.png frame 2 on battle_deck_night).
     body = COLOURS[0x10]
     result = analyse(tmp_path, {}, {(x, y): body for x in range(16) for y in range(16)})
+    assert "body_ground" not in rules_of(result), result["problems"]
+    assert result["exit_code"] == 0
+
+
+def test_a_body_one_row_off_a_same_luminance_ground_fails_body_ground(tmp_path):
+    # $00 is row 0 (#7c7c7c, 0.202) on $11 row 1 (#4478bc, 0.202): one row apart at 1.00:1, so BOTH
+    # instruments are short and the pair is refused. This is the check that keeps the second instrument
+    # from becoming a rubber stamp.
+    result = analyse(tmp_path, {}, {(x, y): COLOURS[0x00] for x in range(16) for y in range(16)},
+                     background=COLOURS[0x11])
     body_ground = [problem for problem in result["problems"] if problem["rule"] == "body_ground"]
     assert body_ground, result["problems"]
     assert body_ground[0]["rows"] == 1
@@ -102,9 +117,78 @@ def test_the_pair_table_covers_every_sprite_palette(tmp_path):
         assert set(pair) >= {"sprite_palette", "body", "ground", "rows_apart", "contrast", "ok", "fails"}
 
 
+def test_a_24x32_battle_figure_is_judged_as_a_figure(tmp_path):
+    """Card t_c498add9: a 24x32 or 32x32 battle figure is a FIGURE, not a tiled layer.
+
+    The same pixels are judged twice below, once undeclared and once declared a layer. Stone $00 on the $02 night
+    is row 0 on row 0 at 2.91:1, so both of R1's instruments are short and it refuses; as a layer it would be
+    refused by R1b instead (body 2.91:1, ink 1.73:1 against the same ground). So the rule NAME the tool reports is
+    the whole proof of which branch it took.
+    """
+    pixels = {}
+    for y in range(32):
+        for x in range(24):
+            pixels[(x, y)] = COLOURS[0x00] if (x + y) % 3 else COLOURS[0x0F]
+    result = analyse(tmp_path, {}, pixels, size=(24, 32), background=COLOURS[0x02])
+    sprite = result["sprites"][0]
+    assert sprite["frame"] == [24, 32], sprite["frame"]
+    assert sprite["figure"] is True and sprite["declared_layer"] is False, sprite
+    assert sprite["frames"][0]["layer"] is False
+    assert "body_ground" in rules_of(result), result["problems"]
+    assert "overlay_contrast" not in rules_of(result), result["problems"]
+
+
+def test_a_sheet_that_declares_itself_a_layer_is_judged_as_a_layer(tmp_path):
+    """The declaration outranks the size: the same 24x32 pixels with "layer": true get R1b, not R1."""
+    pixels = {}
+    for y in range(32):
+        for x in range(24):
+            pixels[(x, y)] = COLOURS[0x00] if (x + y) % 3 else COLOURS[0x0F]
+    result = analyse(tmp_path, {}, pixels, size=(24, 32), background=COLOURS[0x02],
+                     sidecar={"frame_w": 24, "frame_h": 32, "frames": 1, "layer": True})
+    sprite = result["sprites"][0]
+    assert sprite["declared_layer"] is True and sprite["figure"] is False, sprite
+    assert sprite["frames"][0]["layer"] is True
+    assert "body_ground" not in rules_of(result), result["problems"]
+    assert "overlay_contrast" in rules_of(result), result["problems"]
+
+
+def test_r6_for_a_multi_tile_figure_is_asked_per_8x8_tile(tmp_path):
+    """Every 8x8 tile of a figure must fit one sprite palette of the scene, and an uncovered tile is named."""
+    pixels = {}
+    for top in range(0, 32, 8):
+        for left in range(0, 24, 8):
+            pair = (0x0F, 0x0C) if (left, top) == (16, 8) else (0x0F, 0x00)
+            for y in range(top, top + 8):
+                for x in range(left, left + 8):
+                    pixels[(x, y)] = COLOURS[pair[(x + y) % 2]]
+    result = analyse(tmp_path, {}, pixels, size=(24, 32),
+                     sidecar={"frame_w": 24, "frame_h": 32, "frames": 1})
+    sprite = result["sprites"][0]
+    assert sprite["tiles"] == {"inked": 12, "uncovered": 1}, sprite["tiles"]
+    palette_count = [problem for problem in result["problems"] if problem["rule"] == "palette_count"]
+    assert len(palette_count) == 1, palette_count
+    assert palette_count[0]["tile"] == [16, 8], palette_count[0]
+    assert palette_count[0]["colours"] == "$0C $0F", palette_count[0]
+    assert "set_member" not in rules_of(result), result["problems"]
+
+
+def test_the_shipped_battle_sheet_is_seven_declared_24x32_frames():
+    """The real sheet: 168x32 is seven frames of 24x32 as its own sidecar declares, and the ship set carries it."""
+    background = os.path.join(ROOT, "output", "ship_dialogue.png")
+    assert os.path.isfile(background), "%s is committed" % background
+    result = palette_synergy.analyse(ROOT, "ship", background, ["game/sprites_src/chars/sailor_battle.png"])
+    sprite = result["sprites"][0]
+    assert sprite["frame"] == [24, 32], sprite["frame"]
+    assert len(sprite["frames"]) == 7, len(sprite["frames"])
+    assert sprite["figure"] is True, sprite
+    assert sprite["tiles"] == {"inked": 72, "uncovered": 0}, sprite["tiles"]
+
+
 def test_cli_writes_a_json_report_and_sets_the_exit_code(tmp_path):
-    sprite = write_png(tmp_path / "spr.png", {(x, y): COLOURS[0x10] for x in range(16) for y in range(16)})
-    background = write_png(tmp_path / "bg.png", {}, size=(256, 240), background=BLACK)
+    # $00 grey on the $11 ground at the same luminance: one row apart at 1.00:1, refused by both instruments.
+    sprite = write_png(tmp_path / "spr.png", {(x, y): COLOURS[0x00] for x in range(16) for y in range(16)})
+    background = write_png(tmp_path / "bg.png", {}, size=(256, 240), background=COLOURS[0x11])
     out = tmp_path / "report.json"
     code = palette_synergy.main(["--scene", "title", "--background", str(background),
                                  "--sprite", str(sprite), "--json", str(out), "--quiet"])

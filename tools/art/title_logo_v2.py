@@ -16,6 +16,12 @@ The four colours, and only these four:
 The bevel: the top row of a capital is lit (HIGHLIGHT) and the bottom row is the gold inlay (GOLD), so
 the wordmark reads as a carved stone lit from above with gold running along its foot.
 
+SPEC 14'S CRACK. One thin gold zigzag runs through the second O of PARADOX, from the top stroke through
+the counter to the bottom stroke, drawn inside that letter's own box. This card (t_e5338932) moved the
+crack here from tools/art/make_title_rows_v2.py, which drew its own copy of the wordmark: one generator
+owns one asset name, and this file owns spr_pp_title_logo (ruling 2 of
+knowledge/PALETTE-RULINGS-2026-10-23.md). The gold foot inlay the redraw also carried was already here.
+
 THE LAYOUT IS THE TILE RULE. A sprite tile is 8x8 and may carry 3 colours plus transparency, and the
 logo needs four colours, so the four can never meet in the same tile. The outline (INK) is in every tile
 that holds a letter, which leaves room for only two of the other three. The rules that follow:
@@ -167,6 +173,77 @@ def emblem_shapes():
 
 
 # -----------------------------------------------------------------------------------------------------------------
+# The crack through the second O (spec 14, the lightning crack).
+#
+# Ported from tools/art/make_title_rows_v2.py unchanged (card t_e5338932): the path is fractions of the
+# letter's own bounding box, so the zigzag follows the O wherever the letterforms move.
+
+LOGO_LINE_INDEX = {"PARADOX": 5}   # the second O of the wordmark is index 5 of PARADOX, the O the crack runs through
+CRACK_PATH = [(0.62, 0.00), (0.45, 0.28), (0.62, 0.45), (0.38, 0.62), (0.55, 1.00)]
+
+
+def letter_box(text: str, index: int, top: int):
+    """One capital's placed pixels and its bounding box, the way line_pixels places a whole line."""
+    mask, width = scaled_mask(text)
+    x_offset = (LOGO_W - width) // 2
+    pen = 0
+    for i, ch in enumerate(text):
+        if i == index:
+            glyph = serif_caps.mask(ch)
+            pixels = {(x_offset + pen + x * SCALE_X + dx, top + y * SCALE_Y + dy)
+                      for x, y in glyph
+                      for dx in range(SCALE_X) for dy in range(SCALE_Y)}
+            xs = [p[0] for p in pixels]
+            ys = [p[1] for p in pixels]
+            return pixels, (min(xs), min(ys), max(xs), max(ys))
+        pen += serif_caps.SERIF_W * SCALE_X + GAP
+    raise SystemExit("the wordmark has no letter %d in %r" % (index, text))
+
+
+def crack_pixels():
+    """The lightning crack through the O of PARADOX, 1 px wide, drawn inside that letter's box only."""
+    for text, top in LOGO_LINES:
+        if text in LOGO_LINE_INDEX:
+            break
+    else:
+        raise SystemExit("no line of the wordmark carries the O the crack splits")
+    _glyph, (x0, y0, x1, y1) = letter_box(text, LOGO_LINE_INDEX[text], top)
+    width, height = x1 - x0, y1 - y0
+    points = [(x0 + int(round(fx * width)), y0 + int(round(fy * height))) for fx, fy in CRACK_PATH]
+    out = set()
+    for (ax, ay), (bx, by) in zip(points, points[1:]):
+        steps = max(abs(bx - ax), abs(by - ay)) or 1
+        for step in range(steps + 1):
+            x = ax + int(round((bx - ax) * step / steps))
+            y = ay + int(round((by - ay) * step / steps))
+            if x0 <= x <= x1 and y0 <= y <= y1:
+                out.add((x, y))
+    if not out:
+        raise SystemExit("the crack landed outside the O it is meant to split")
+    return out, (x0, y0, x1, y1)
+
+
+def the_cap_gives_way(image: Image.Image, crack, colours):
+    """Keep every tile the crack touches at three colours.
+
+    The crack starts on the lit cap row of line 2, so the tile it starts in would carry four colours at
+    once: ink, stone, the lit cap and the crack's gold. The cap there gives way to the stone body, which
+    is the colour the title scene gives the wordmark anyway (data/palettes/scene_title.json: ink $0F,
+    stone $00 and gold $28, with no $10 light grey anywhere on the sheet). The trade is deliberate: the
+    crack's 17 new gold pixels cost five lit caps inside one 8x8 tile, and the shipped sheet shows the
+    crack and nothing else.
+    """
+    for tx, ty in {(x // 8, y // 8) for x, y in crack}:
+        box = [(x, y) for y in range(ty * 8, min(ty * 8 + 8, LOGO_H))
+               for x in range(tx * 8, min(tx * 8 + 8, LOGO_W))]
+        seen = {image.getpixel(point) for point in box if image.getpixel(point)[3]}
+        if len(seen) > 3:
+            for point in box:
+                if image.getpixel(point) == colours[HIGHLIGHT]:
+                    image.putpixel(point, colours[BASE])
+
+
+# -----------------------------------------------------------------------------------------------------------------
 # The logo frame.
 
 def logo_frame(index: int, colours) -> Image.Image:
@@ -212,6 +289,14 @@ def logo_frame(index: int, colours) -> Image.Image:
         for x, y in placed:
             if y == lowest:
                 image.putpixel((x, y), colours[GOLD])
+
+    # Spec 14's lightning crack: one thin gold zigzag through the second O of PARADOX, inside that
+    # letter's own box. Drawn after the inlay so the crack is never painted over, and before the
+    # shimmer so the band pass sees it as part of the art.
+    crack, _box = crack_pixels()
+    for x, y in crack:
+        image.putpixel((x, y), colours[GOLD])
+    the_cap_gives_way(image, crack, colours)
 
     # The thunderbolt is gold over the sickle.
     for x, y in bolt:
@@ -328,7 +413,8 @@ def main() -> int:
 
     png_path = os.path.join(sprite_dir, LOGO_NAME + ".png")
     sheet.save(png_path, "PNG")
-    meta = {"name": LOGO_NAME, "frame_w": LOGO_W, "frame_h": LOGO_H, "frames": len(frames), "fps": 0.25}
+    meta = {"name": LOGO_NAME, "frame_w": LOGO_W, "frame_h": LOGO_H, "frames": len(frames), "fps": 0.25,
+            "layer": True}
     with open(os.path.join(sprite_dir, LOGO_NAME + ".json"), "w", encoding="utf-8", newline="\n") as handle:
         json.dump(meta, handle, indent=2, sort_keys=True)
         handle.write("\n")

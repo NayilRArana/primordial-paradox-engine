@@ -156,6 +156,7 @@ def write_sprite(sheet: Image.Image, out_dir: str, colour_of: dict) -> dict:
             "backdrop": "#%02x%02x%02x" % colour_of["backdrop"][:3],
         },
         "rule": "9 slice: 0 tl, 1 t, 2 tr, 3 l, 4 c, 5 r, 6 bl, 7 b, 8 br; each frame is one 8x8 tile",
+        "layer": True,
     }
     png_path = os.path.join(out_dir, "spr_pp_window.png")
     json_path = os.path.join(out_dir, "spr_pp_window.json")

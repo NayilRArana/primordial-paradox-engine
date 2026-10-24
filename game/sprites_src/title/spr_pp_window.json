@@ -1,5 +1,6 @@
 {
   "name": "spr_pp_window",
+  "layer": true,
   "frame_w": 8,
   "frame_h": 8,
   "frames": 9,

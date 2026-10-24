@@ -291,24 +291,38 @@ Concept art, backgrounds and sprites are designed INSIDE the NES palette system,
    outline or the body. White clothing on a light background is refused (the white blob).
    Scope, gamedev ruling on card t_1c04d011 (2026-10-23), and it is the same intent, measured the only way it can be
    measured: the row gap and the white blob test are asked of a character or a prop, the object that stands on
-   something. They are NOT asked of a tiled layer, a sheet whose frame is wider than 16 px or taller than 32 px (the
-   title wordmark, the car, a window strip), because a layer has no feet and the row arithmetic cannot see what makes
-   it read: the wordmark's ink $0F and its stone body $00 are both row 0 while their luminances are 0.000 and 0.202.
+   something. They are NOT asked of a tiled layer, a sheet that declares itself one in its sidecar or whose frame is
+   bigger than a 32x32 battle figure (the title wordmark, the car, a window strip), because a layer has no feet and
+   the row arithmetic cannot see what makes it read: the wordmark's ink $0F and its stone body $00 are both row 0
+   while their luminances are 0.000 and 0.202.
    A tiled layer is held to the other half of the same intent: it must be tellable from the pixels it is drawn over,
    so its ink or its body has to clear 3:1 contrast (the WCAG large text floor already in tools\art\contrast_check.py)
    on every ground colour under it. tools\palette_synergy.py implements that as R1b overlay_contrast on exactly that
    size test, and prints "tiled layer so R1b" on the frame so nobody reads the pairing as skipped. Measured that day:
    the title wordmark passes on its own ground, ink $0F on the $12 sky 3.75:1 and stone $00 on the $0F backdrop
    5.03:1, with gold $28 at 3.16:1 on the sky. A character sprite's verdict is unchanged by this clause: every frame
-   up to 16 by 32 px is still judged by the row gap and the white blob exactly as written above.
+   up to 32x32 that does not declare itself a layer is still judged by the row gap and the white blob exactly as
+   written above.
    Amendment, gamedev ruling on card t_af6fd431 (2026-10-24): the size test is a proxy, and on battle figures it was
    reading the wrong object. A sheet is a tiled layer when the sheet declares itself one, not when it is 17 px wide.
    Every battle figure in this project is 24x32 or 32x32, so the text above classified all of them as layers and
    skipped the one rule that decides whether a figure can be drawn at all. A battle figure up to 32x32 is a figure:
-   one sprite palette must carry it (R6), and every 8x8 tile of it must fit some palette of the scene. Measured while
+   R6 is asked of it, and because twelve to sixteen 8x8 tiles cannot live under one three-entry palette, R6 is asked
+   the way the hardware asks it, per 8x8 tile: every tile's opaque colour set has to be a subset of some sprite
+   palette of the scene, one FAIL per uncovered tile with the tile's position and its colour set. A frame 16x16 and
+   under keeps the whole-frame reading, so nothing already measured moves. Measured while
    the proxy stood: `navy_sailor.png`, the tutorial fight's enemy, reported PASS on `battle_deck_night` with
    "palettes that fit []" printed beside it, while no palette of that scene carried its declared triple $02 $0F $30.
    The ruling, the four deck triples it lands and the numbers are in `knowledge\PALETTE-RULINGS-2026-10-24.md`.
+   Amendment, gamedev ruling on card t_50193088 (2026-10-24): the two-row gap is a READING of luminance, not a
+   substitute for it, and measured on the 2C02 table it ranks some pairs backwards. Body $10 is one row from the
+   backdrop $0F at 11.06:1 (the most readable thing a NES draws) and two rows from $30 at 1.85:1 (nearly one tone).
+   So point 2 now has two instruments and EITHER one clears it: at least 2 rows apart, OR at least 3:1 contrast
+   between the body's luminance and the ground's (the same WCAG large text floor the layer clause above already
+   uses, so the file holds one number for "these can be told apart"). A pair is refused only when both are short,
+   which keeps a mid body on a mid ground refused: $00 on $11 is one row apart at 1.00:1 and still FAILS. Measured
+   on the four battle strips, this removes exactly one pair, `sailor_battle.png` frame 2's $10 on the deck's $0F
+   backdrop, and changes nothing else on corridor, quay dusk, wardroom or deck.
 3. A sprite's 3 colours: 1 dark outline, 1 mid body, 1 accent or light. The hero palettes are reserved and reused
    (Percy blue and gold, Hadrian near black and purple, Zander light blue, Konrad grey and amber).
 4. Backgrounds spend their 4 palettes by area (attribute 16x16 rule): sky, ground, buildings, accents. No palette

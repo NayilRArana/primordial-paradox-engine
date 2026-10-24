@@ -41,10 +41,14 @@ The rules, and where each one comes from:
      because one bad frame is on screen for as long as the good ones. The queue's own snapshot used
      frame 0, so the two agree on frame 0 and this tool reports a later frame when it is worse; the
      line names the frame, which is the reconciliation.
-5. Frame geometry. The queue already states frame_w, frame_h and frames for every sheet it lists, so
-   the tool reads them from there and says so; --frame-w and --frame-h override it, and a sheet the
-   queue does not list falls back to one frame the size of the image, or to square frames when the
-   width divides evenly by the height.
+5. Frame geometry. --frame-w and --frame-h override everything. Then the queue
+   (data\\sprite_redraw_queue.json) states frame_w, frame_h and frames for the sheets it lists. Then the
+   sheet's OWN sidecar beside the PNG (spr_foo.png -> spr_foo.json) states frame_w and frame_h, which is
+   how every sheet the art lane wrote in v2 is defined: a 168x32 battle sheet is seven frames of 24x32,
+   not one 168x32 frame. A sheet with neither falls back to one frame the size of the image, or to square
+   frames when the width divides evenly by the height. The sidecar may also carry "layer": true, which
+   declares the sheet a tiled layer rather than a figure; palette_synergy.py reads that through here and
+   does not infer it from the width (gamedev ruling, PALETTE-RULINGS-2026-10-24.md section 7).
 
 The grounds are the two the queue declares, deck ($00, luminance 0.202) and night_road ($02, 0.036),
 and any other colour may be passed as $0F or #rrggbb. The luminances are computed from
@@ -232,24 +236,51 @@ def queue_entry(root: str, png_path: str):
     return None
 
 
+def sidecar_entry(png_path: str):
+    """The sheet's own sidecar beside the PNG (spr_foo.png -> spr_foo.json), or None.
+
+    This is the declaration the art lane writes for every sheet: frame_w, frame_h, frames, and optionally
+    "layer": true for a tiled layer. It is read before any size is guessed from the image, because guessing
+    turned every 168x32 battle sheet into one 168x32 frame (PALETTE-RULINGS-2026-10-24.md section 7).
+    """
+    path = os.path.splitext(png_path)[0] + ".json"
+    if not os.path.isfile(path):
+        return None
+    try:
+        with open(path, "r", encoding="utf-8-sig") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
 def geometry(root: str, png_path: str, image: Image.Image, frame_w, frame_h) -> dict:
-    """(frame width, frame height, how it was decided)."""
+    """(frame width, frame height, how it was decided) plus the sheet's layer declaration."""
+    declared = sidecar_entry(png_path)
+    declared_layer = bool(declared.get("layer")) if declared else False
     if frame_w and frame_h:
         return {"frame_w": frame_w, "frame_h": frame_h,
-                "how": "the size given with --frame-w and --frame-h", "queue_id": None, "queue_frames": None}
+                "how": "the size given with --frame-w and --frame-h", "queue_id": None, "queue_frames": None,
+                "declared_layer": declared_layer}
     entry = queue_entry(root, png_path)
     if entry and entry.get("frame_w") and entry.get("frame_h"):
         return {"frame_w": int(entry["frame_w"]), "frame_h": int(entry["frame_h"]),
                 "how": "data\\sprite_redraw_queue.json (%s)" % entry.get("id", "no id"),
-                "queue_id": entry.get("id"), "queue_frames": entry.get("frames")}
+                "queue_id": entry.get("id"), "queue_frames": entry.get("frames"),
+                "declared_layer": bool(entry.get("layer", declared_layer))}
+    if declared and declared.get("frame_w") and declared.get("frame_h"):
+        return {"frame_w": int(declared["frame_w"]), "frame_h": int(declared["frame_h"]),
+                "how": "the sheet's own sidecar (%s.json)" % os.path.basename(os.path.splitext(png_path)[0]),
+                "queue_id": None, "queue_frames": declared.get("frames"),
+                "declared_layer": declared_layer}
     height = image.height
     if height and image.width % height == 0:
         return {"frame_w": height, "frame_h": height,
                 "how": "square frames, because the width divides evenly by the height",
-                "queue_id": None, "queue_frames": None}
+                "queue_id": None, "queue_frames": None, "declared_layer": declared_layer}
     return {"frame_w": image.width, "frame_h": image.height,
             "how": "one frame the size of the image; pass --frame-w and --frame-h for a sheet the queue does not list",
-            "queue_id": None, "queue_frames": None}
+            "queue_id": None, "queue_frames": None, "declared_layer": declared_layer}
 
 
 def frames_of(image: Image.Image, frame_w: int, frame_h: int) -> list:

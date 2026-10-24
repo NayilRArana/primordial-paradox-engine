@@ -1198,3 +1198,25 @@ repository's generator (tools\art\make_dialogue_busts.py, role names resolved ag
 time) in the NES framed-panel idiom; and by extending the composed preview into a refused case for a bust that starts
 inside the text area, breaks the box's top edge, or touches the plate.
 Copied expression: none
+
+## BATTLE-FIGURE-RULER, 2026-10-24: a sheet says whether it is a figure or a layer (card t_c498add9)
+Studied: this repository's own files, read only: knowledge/PALETTE-RULINGS-2026-10-24.md sections 7 and 8 (the
+ruling this card implements), knowledge/ART-BIBLE.md RULE 0 point 2 (the amendment it carries), tools/palette_synergy.py
+(the layer branch and the 16 px size test), tools/art/contrast_check.py (geometry(), the one frame-split reader),
+tools/nes_check.py (the 3 colours per 8x8 tile rule, reused not rewritten), data/sprite_redraw_queue.json and the
+sprite sidecars beside the PNGs in game/sprites_src/, and the two NES sprite-budget facts already written down in
+ART-BIBLE section 1 (a sprite palette is 3 entries plus transparency, and one scanline spends one palette per 8x8
+tile). No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: two. One, a size proxy is a rule with a hole in it: the 16 px line was standing in for "one
+object", and every 24x32 and 32x32 battle figure in the project fell on the wrong side of it, so the strongest rule
+(palette-count) never ran on the only sheets it was written for, and a PASS on a scene that could not draw the enemy
+looked like health. Two, a multi-tile figure is judged the way the hardware is built: a 3-entry palette is a budget
+per 8x8 tile, not per figure, so "does one palette carry this figure" has to become "does every tile have a palette",
+with the per-frame reading kept for a frame small enough to be one object.
+Our implementation differs by: making the declaration the rule rather than widening the proxy, with `"layer": true`
+in the sheet's own sidecar and a 32x32 fallback for a sheet that declares nothing; by reading the declared frame size
+through contrast_check.geometry() so a 168x32 sheet is seven 24x32 frames instead of one guess; by reporting one
+palette_count FAIL per uncovered 8x8 tile with the tile's position and its colour set; and by keeping the whole-frame
+reading, and the frame-level 3 colour restatement, for frames of 16x16 and under only, so no measurement already on
+record moves.
+Copied expression: none

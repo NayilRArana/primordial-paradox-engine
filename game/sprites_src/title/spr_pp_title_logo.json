@@ -3,5 +3,6 @@
   "frame_h": 64,
   "frame_w": 224,
   "frames": 2,
+  "layer": true,
   "name": "spr_pp_title_logo"
 }

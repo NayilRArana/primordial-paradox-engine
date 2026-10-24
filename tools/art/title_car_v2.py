@@ -350,7 +350,8 @@ def main() -> int:
 
     png_path = os.path.join(sprite_dir, CAR_NAME + ".png")
     sheet.save(png_path, "PNG")
-    meta = {"name": CAR_NAME, "frame_w": CAR_W, "frame_h": CAR_H, "frames": len(frames), "fps": 15.0}
+    meta = {"name": CAR_NAME, "frame_w": CAR_W, "frame_h": CAR_H, "frames": len(frames), "fps": 15.0,
+            "layer": True}
     with open(os.path.join(sprite_dir, CAR_NAME + ".json"), "w", encoding="utf-8", newline="\n") as handle:
         json.dump(meta, handle, indent=2, sort_keys=True)
         handle.write("\n")
