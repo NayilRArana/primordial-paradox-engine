@@ -1,0 +1,92 @@
+{
+  "bar_seconds": 3.5294117647058822,
+  "bars": 32,
+  "bpm": 68.0,
+  "drum_source": "<repo>\\data\\drum_patterns.json",
+  "drums": [
+    {
+      "home": "CLM-01",
+      "rungs": [
+        5,
+        1,
+        0,
+        2,
+        3,
+        1,
+        6,
+        3
+      ],
+      "section": "arrival"
+    },
+    {
+      "home": "CLM-01",
+      "rungs": [
+        0,
+        1,
+        0,
+        2,
+        3,
+        1,
+        6,
+        3
+      ],
+      "section": "settle"
+    },
+    {
+      "home": "CLM-03",
+      "rungs": [
+        5,
+        1,
+        0,
+        2,
+        3,
+        1,
+        6,
+        3
+      ],
+      "section": "light"
+    },
+    {
+      "home": "CLM-08",
+      "rungs": [
+        5,
+        1,
+        0,
+        2,
+        3,
+        6,
+        4,
+        7
+      ],
+      "section": "close"
+    }
+  ],
+  "first_bar_chord": "C",
+  "last_bar_chord": "E7",
+  "loop_seconds": 112.941176,
+  "midi": "<repo>\\assets\\audio\\pp_03_harbor_v3\\pp_03_harbor_v3.mid",
+  "note_counts": {
+    "dpcm": 81,
+    "noise": 97,
+    "pulse 1": 224,
+    "pulse 2": 50,
+    "triangle": 72,
+    "vrc6 pulse a": 107,
+    "vrc6 pulse b": 68,
+    "vrc6 saw": 64
+  },
+  "ppq": 480,
+  "score": "<repo>\\assets\\audio\\pp_03_harbor_v3\\score_pp03_v3.yaml",
+  "time_signature": "4/4",
+  "total_notes": 763,
+  "tracks": [
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ]
+}

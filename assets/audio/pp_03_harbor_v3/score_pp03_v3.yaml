@@ -1,0 +1,140 @@
+# PP-03 "Harbor" v3: the arrival cue, third pass. Card AUTO-MUSIC-NEXT (t_fd8198d5), musician lane,
+# 2026-10-24. Everything here is original.
+#
+# v2 scored 80 of 100 on tools/hook_score.py and was the lowest registry cue left after PP-04 went
+# to 100. Its three failing criteria were motif coverage 31 percent, the third return a 100 percent
+# copy, and a 64 bar loop. v3 fixes exactly those three and nothing else:
+#   - the cue is 32 bars (113 s at 68 bpm) instead of 64, so the loop length is one the hook grammar
+#     accepts (8, 16 or 32), and the cue is built from two bar statements of one cell;
+#   - the cell is the harbor tide of v2's motif H (the rise A4 C5 D5 E5, then the fall onto the
+#     tonic), stated eleven times, so the hook meter can measure returns and coverage;
+#   - the third statement carries a variation (its rhythm, and a fall by step instead of the leap),
+#     and the eleventh carries a second one (a fourth up to G5 as the peak), so the third return is
+#     heard with an operation on it rather than as a copy.
+#
+# Leitmotif H stays recognisable, which is what FOX-01 asks of a reprise: the rise A4 C5 D5 E5 in
+# bar one of every statement is unchanged, and the fall still lands on the tonic A.
+#
+# Dissonance is spent at one device per 8 bar section (knowledge/MUSIC-DISSONANCE.md section 4: one
+# or two per 8 bars), always prepared and resolved, never on the first or last note of a statement:
+#   - section bar 5 of every section: the inner voice takes the ninth of the chord on the downbeat
+#     and resolves by step onto the third inside the same half bar (DIS-03 form, risk 2);
+#   - the light section bar 22: the lead takes D#5 as a chromatic lower neighbour of E5 for one
+#     eighth on a weak beat and returns to E5 (DIS-02, risk 1).
+#
+# A minor, 4/4, 68 bpm, 32 bars = 112.941 s. Durations are eighth notes; a 4/4 bar holds 8.
+# Note names are concert pitch (A4 = 440 Hz).
+
+meta:
+  profile: harbor
+  version: v3
+  key: A minor
+  time: 4/4
+  bpm: 68
+  bars: 32
+  loop_start_bar: 1
+  loop_end_bar: 32
+  cue_id: PP-03
+  asset: pp_03_harbor
+  duration_seconds: 112.941
+  form: "four sections of 8 bars: arrival (the cell four times, the third varied), settle (the cell again over the subdominant and the minor iv), light (the contrast in C major, augmented), close (the cell, the lift to G5, the dominant and the tonic held into the loop point)"
+  brief: "low intensity under text; loop without a seam; v2 was 80 on the hook meter, 31 percent motif coverage, third return a copy, 64 bar loop; v3 is 32 bars of two bar statements"
+
+motifs:
+  H:  "Harbor tide, two bars, one arch. Bar one: A4 C5 D5 E5 rising, and a rest. Bar two: E5 once more, then the leap down a fourth to B4, and the tonic A4. One leap per statement, the rest steps."
+  H2: "The answer, the flat sixth: A4 C5 F5 rising, then F5 E5 C5 falling. Used only in the light section, so it stays a contrast and never competes with H."
+
+sections:
+  arrival:
+    bars: 8
+    chords: [C, Am, C, Am, C, Am, F, Am]
+    melody:
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # H, statement 1, over the C
+      - [[E5, 1], [B4, 2], [A4, 2], [r, 3]]            # the leap and the tonic, over Am
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # statement 2
+      - [[E5, 1], [B4, 2], [A4, 2], [r, 3]]
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # statement 3, the tide as it stands
+      - [[E5, 1], [B4, 2], [A4, 1], [G#4, 3], [r, 1]]  # and the fall now lands on the leading tone, which bar 7 resolves
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # statement 4 over F, the subdominant colour
+      - [[E5, 1], [B4, 2], [A4, 2], [r, 3]]            # the arrival, the tonic held
+    texture: "the arrival, thin. Lead on vrc6 pulse a at duty 0.25 with vibrato one eighth after each held note; the broken chord on pulse 1 in eighths; the guide tone on vrc6 pulse b in half notes, third then fifth; the pad on the saw, root then fifth; the bass on the triangle; the echo silent here"
+    arp: eighths
+    echo: 0
+    level_scale: 1.0
+    tension_bars: [5]
+    drums: {home: CLM-01, rungs: [5, 1, 0, 2, 3, 1, 6, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  settle:
+    bars: 8
+    chords: [C, Am, F, Am, C, Am, Dm, Am]
+    melody:
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # statement 5, the listener has it now
+      - [[E5, 1], [B4, 2], [A4, 2], [r, 3]]
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # statement 6, over F
+      - [[E5, 1], [B4, 2], [A4, 2], [r, 3]]
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # statement 7, over the C
+      - [[E5, 1], [B4, 2], [A4, 2], [r, 3]]
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # statement 8 opens over the minor iv
+      - [[E5, 1], [B4, 2], [A4, 2], [r, 3]]            # and answers over the tonic
+    texture: "as the arrival, and the pad holds one note longer; the lead takes vibrato on the long notes; the inner voice carries the prepared ninth into the C of bar 5"
+    arp: eighths
+    echo: 0
+    level_scale: 0.9
+    tension_bars: [5]
+    drums: {home: CLM-01, rungs: [0, 1, 0, 2, 3, 1, 6, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  light:
+    bars: 8
+    chords: [C, G/B, Am, Em, F, C, F, G]
+    melody:
+      - [[E4, 4], [C5, 4]]                             # the same shape in C major: the water at dawn
+      - [[C5, 4], [G4, 4]]
+      - [[A4, 4], [E5, 4]]                             # the tide again, in augmentation
+      - [[E5, 4], [B4, 4]]                             # the leap, and then air
+      - [[A4, 4], [F5, 4]]                             # H2, the flat sixth
+      - [[F5, 2], [E5, 1], [D#5, 1], [E5, 4]]          # one chromatic lower neighbour, on a weak beat
+      - [[A4, 4], [C5, 4]]
+      - [[D5, 4], [B4, 4]]                             # stepwise hands back to the C, then the G
+    texture: "the bright section: the echo arrives on pulse 2, one eighth late at 40 percent; the broken chord drops to quarters, which is contrast by density rather than by notes; the guide tone moves to the sixth where the chord has one; the bass walks in the last two bars"
+    arp: quarters
+    echo: 1
+    level_scale: 0.85
+    walk_bars: [7, 8]
+    tension_bars: [5]
+    drums: {home: CLM-03, rungs: [5, 1, 0, 2, 3, 1, 6, 3], fill_beat: FLF-01, fill_end: FLR-01}
+
+  close:
+    bars: 8
+    chords: [C, Am, F, Am, C, Am, Dm, E7]
+    melody:
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # statement 9, the return
+      - [[E5, 1], [B4, 2], [A4, 2], [r, 3]]
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # statement 10, over F
+      - [[E5, 1], [B4, 2], [A4, 2], [r, 3]]
+      - [[A4, 1], [C5, 1], [D5, 1], [G5, 2], [r, 3]]   # statement 11, the lift: the fourth up to G5
+      - [[G5, 1], [F5, 1], [E5, 1], [D5, 1], [C5, 2], [r, 2]]   # and the stepwise fall from the peak
+      - [[A4, 2], [C5, 1], [D5, 1], [E5, 2], [r, 2]]   # the cadence opens over the minor iv
+      - [[E5, 2], [D5, 1], [B4, 1], [G#4, 2], [B4, 2]] # the leading tone, then the fifth of V, into the seam
+    texture: "the close: the kick drops out in bar 7, the drums take a two beat turnaround in bar 8 so the loop reads as a return rather than a cut; the pad holds Am across the seam and nothing is sounding when the file ends"
+    arp: eighths
+    echo: 1
+    level_scale: 0.85
+    walk_bars: [7, 8]
+    tension_bars: [5]
+    drums: {home: CLM-08, rungs: [5, 1, 0, 2, 3, 6, 4, 7], fill_beat: FLF-01, fill_end: FLX-10}
+
+voices:
+  vrc6_pulse_a: {role: "the lead, the harbor tide. duty 0.25, stepped to 0.125 on the second four bar block of each section (humanize, not a new line); vibrato on every note of three eighths or longer, starting one eighth after the attack; the cell carries its own written rest, so the phrase breathes without a cut", duty: 3, level: 11, phrase_end_rest_eighths: 0, vibrato: {after_eighths: 1, min_note_eighths: 3, depth: 44}, humanize: {velocity: [0, 5, -4, 7, -3, 3, -6, 4], micro_ticks: 2, gate_ticks: 3, duties: [3, 2, 3, 4]}}
+  vrc6_pulse_b: {role: "the guide tone, the third then the fifth of the chord in half notes, and the inner voice that carries the prepared ninth on the tension bar of every section", duty: 3, level: 3}
+  vrc6_saw:     {role: "the pad: root then fifth, half notes, one voice breathing", level: 6}
+  pulse_1:      {role: "the broken chord, root fifth third fifth, in eighths or quarters depending on the section", duty: 0, level: 5}
+  pulse_2:      {role: "the echo of the lead, one eighth late at 40 percent; silent in the arrival and the settle", duty: 0, level: 4, echo_delay_eighths: 1, echo_level_pct: 40}
+  triangle:     {role: "the bass: root and fifth in half notes, walking in the section's last bars", level: 8}
+  noise:        {role: "the kit: home patterns CLM-01, CLM-03, CLM-08, a fill on every fourth bar and a longer fill on every eighth, ghost notes on the offbeats between", level: 6}
+  dpcm:         {role: "kick and snare, the calm rates, with the kick dropping out for one bar in every section (rung 4)", level: 7}
+
+drums_contract:
+  source: "data/drum_patterns.json, read at build time by id; nothing here is invented"
+  ladder: "bar by bar rungs from knowledge/MUSIC-DRUMS.md section 4, eight bar cycle, plus the 4 and 8 bar phrase plan the builder adds"
+  phrase_plan: "bar 4 of every 8 gets the one beat fill, bar 8 gets the two beat fill, odd bars between get a ghost note on the and of 4, and the rung list itself changes the home pattern bar by bar so no two bars are identical"
+  level_note: "a calm cue is the same rhythm with every level at 2 or 3 (MUSIC-DRUMS 2.4), so every hit is scaled by the section's level_scale and capped at velocity 60"
