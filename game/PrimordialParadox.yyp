@@ -2049,6 +2049,24 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "pp_04_navy_sailors_v2.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_04_navy_sailors_v2.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_04_navy_sailors_v3.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_04_navy_sailors_v3.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_05_small_ship.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
