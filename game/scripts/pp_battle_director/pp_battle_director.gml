@@ -198,6 +198,15 @@ function pp_battle_step_intro(_battle) {
 }
 
 function pp_battle_step_menu(_battle) {
+    // Card t_27aa179e: the command list says once per entry that it is live, with the cursor it opened on. A driver
+    // outside the game (tools\capture_talk_fight.py) needs to know when a press will land on the list and not on a
+    // board, a telegraph or a dodge, and a log after the run needs to say which cursor a key was read against. Once
+    // per phase entry, so a fight writes one line per turn and not one per step.
+    if (_battle.phase_steps == 1) {
+        show_debug_message("PP: battle menu, turn " + string(_battle.turn) + ", cursor " + string(_battle.cursor)
+            + ", enemy hp " + string(_battle.enemy_hp) + "/" + string(_battle.enemy.max_hp));
+    }
+
     // Card R30: an open talk owns the menu while it runs. The panel is the menu phase's second shape, not a new
     // phase, so the turn loop above is untouched and the panel's pick hands its reply to the same board (pp_talk_step).
     if (_battle.talk_stage != "") {
@@ -229,6 +238,20 @@ function pp_battle_begin_action(_battle) {
     // "cleared on the next confirm" means once the box has finished typing (spec 19 section 5, Q9).
     _battle.talk_hint = "";
     _battle.talk_reply = false;
+
+    // Card t_27aa179e: one line per command, naming the command the player actually chose. `PP: battle start` says a
+    // fight began and cannot say whether it was fought or talked through, which is the claim the hackathon evidence
+    // has to support; this line is the one that can. The key comes off the same table the menu draws. It is written
+    // before the command's own body, so a spare's line carries the enemy's bar as the press found it, full or not,
+    // which is what separates a spare earned by trust from one earned by health.
+    var _key = "unknown";
+    var _table = pp_command_table();
+    for (var i = 0; i < array_length(_table); i++) {
+        if (_table[i].id == _battle.action) _key = _table[i].key;
+    }
+    show_debug_message("PP: command " + _key + ", turn " + string(_battle.turn) + ", enemy "
+        + string(_battle.enemy.id) + ", enemy hp " + string(_battle.enemy_hp)
+        + ", party hp " + string(_battle.actor.hp));
 
     switch (_battle.action) {
         case PPCommand.fight:
@@ -436,6 +459,15 @@ function pp_battle_step_dodge(_battle) {
 /// Build the closing board (spec delta M5) and record the outcome exactly once through the ledger's single door.
 function pp_battle_enter_result(_battle) {
     if (!_battle.recorded) pp_battle_record(_battle);
+
+    // Card t_27aa179e: the result names the outcome word the panel prints, so a capture can tie the picture on the
+    // panel to a line the game wrote. The word and the enemy are the two facts a reader cannot get from the frames:
+    // `spare` and `kill` are both a result panel, and only this line says which one the game chose. The hp here is
+    // the bar the word left behind (a spare sets it to 0 through the same door), so the line a full health spare is
+    // proved on is the command line, which the director writes before the spare's own body runs.
+    show_debug_message("PP: fight result " + pp_battle_outcome(_battle) + ", turn " + string(_battle.turn)
+        + ", enemy " + string(_battle.enemy.id) + ", enemy hp " + string(_battle.enemy_hp)
+        + "/" + string(_battle.enemy.max_hp));
 
     var _lines;
     if (_battle.defeated) _lines = pp_battle_dialogue_lines(_battle.encounter.lose_dialogue);

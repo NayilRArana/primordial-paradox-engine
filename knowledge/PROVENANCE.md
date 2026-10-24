@@ -1241,3 +1241,27 @@ per 8x8 tile turns 1 fail into 43; repainting the grey to white uncovers a tile 
 keeping the ink-against-ground merge and the enemy's $02 on $0F at 1.73:1 out of scope and named rather than fixed
 by widening a palette.
 Copied expression: none
+
+## TALK-CAPTURE, 2026-10-24: the talk path is proved by the game's own lines, not by a picture of a menu (card t_27aa179e)
+Studied: this repository's own files, read only: `game/scripts/pp_battle_director/pp_battle_director.gml` (the command
+list, `pp_battle_begin_action`, `pp_battle_enter_result`), `game/scripts/pp_battle_text/pp_battle_text.gml` (the bake,
+the panel, the reply board, the option labels), `game/scripts/pp_font/pp_font.gml` with
+`game/datafiles/art/spr_pp_font8.png`, `game/scripts/pp_overworld/pp_overworld.gml` (the trigger, the confirm target,
+the entry autosave), `tools/capture_first_fight.py` (the palette reader, the ink measures, the victory panel),
+`data/encounters/all.json`, `data/enemies/all.json`, `data/dialogue/all.json`, and the frames the run itself wrote.
+No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: three. One, a GMS2.3+ script function is itself a global variable, so a cache guarded by
+`variable_global_exists("<the function's own name>")` is true before its first call and returns the function instead
+of what it was supposed to build: reading a member off that value ends the game. Two, `pp_font_draw` paints the 8x8
+sheet with `PP_UNTINTED`, so a glyph is the sheet's colour (248,248,248 in the PNG, 232,231,236 after the capture's
+compression) and NOT any palette role, which is why every ink-role reading of the command list measured zero pixels
+on every frame of this run. Three, the deck's battle trigger is a confirm trigger and not a walk-on one, so a driver
+that only walks presses past the first fight.
+Our implementation differs by: putting the six provable facts in the six functions that own them instead of in the
+driver; driving the whole run off the log the game writes (deck autosave, list line, panel line, pick line, result
+line) with holds long enough for a one-second frame sample to land on the list and the panel; reading the glyph colour
+and the text row bands off the shipped sheet and the frames rather than placing them from a draw call's pitch, after
+one draw call's pitch and another's frames disagreed by four pixels; and by naming the two engine bugs the run found
+(the bake cache answering with its own function, and two unguarded member reads that could end a fight) rather than
+working around them in the tool.
+Copied expression: none

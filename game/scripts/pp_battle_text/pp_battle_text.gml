@@ -206,7 +206,13 @@ function pp_talk_reply_clean(_row, _scene) {
 /// address is not a thing this game holds (knowledge/REVIEW-META-BAKE-2026-10-23.md Q1 and Q2).
 /// A missing file, an unreadable one, or a row off contract leaves an empty map and the ladder falls to the pools.
 function pp_talk_bake() {
-    if (variable_global_exists("pp_talk_bake") && is_struct(global.pp_talk_bake)) return global.pp_talk_bake;
+    // Card t_27aa179e: the table lives under global.pp_talk_bake_table and NOT under the function's own name. A
+    // script function is itself a global variable in GMS2.3+, so the old guard `variable_global_exists("pp_talk_bake")
+    // && is_struct(global.pp_talk_bake)` was true before the first call ever ran: the function answered with itself,
+    // the table was never built, and reading `.fight` off a function killed the game the first time anyone pressed
+    // TALK in a release build (`Variable <unknown_object>.fight not set before reading it`). The name is now distinct
+    // from every function in the project, which is the only thing that makes this cache a cache.
+    if (variable_global_exists("pp_talk_bake_table") && is_struct(global.pp_talk_bake_table)) return global.pp_talk_bake_table;
 
     var _bake = { loaded: false, rows: 0, refused: 0, fight: {}, npc: {} };
     var _doc = pp_data_json("meta_bake.json");
@@ -256,13 +262,43 @@ function pp_talk_bake() {
             _bake.rows += 1;
         }
     }
-    global.pp_talk_bake = _bake;
+    global.pp_talk_bake_table = _bake;
+    show_debug_message("PP: talk bake, " + string(_bake.rows) + " rows kept of "
+        + string(_bake.rows + _bake.refused) + " read, " + string(array_length(variable_struct_get_names(_bake.fight)))
+        + " fight keys, " + string(array_length(variable_struct_get_names(_bake.npc))) + " npc keys");
     return _bake;
+}
+
+/// The bake's fight table, or an empty one. ONE guarded read, because a fight must not die on a member lookup.
+///
+/// Card t_27aa179e. Reading `_bake.fight` straight off the return of pp_talk_bake killed the game on the first TALK
+/// ever pressed in a release build: `PP CRASH: Variable <unknown_object>.fight not set before reading it` at
+/// pp_talk_options. Whatever the bake turns out to be (an older shape, a refused load, or a value that is not the
+/// struct this file builds), a data read that can end the fight is a bug on its own, so every caller asks here and a
+/// table that is not there is an empty table. The ladder then falls to the card pools, which is the behaviour the
+/// file's own header already promises for a missing file.
+function pp_talk_bake_fight() {
+    var _bake = pp_talk_bake();
+    if (!is_struct(_bake) || !variable_struct_exists(_bake, "fight") || !is_struct(_bake.fight)) {
+        show_debug_message("PP: talk bake has no fight table, the card pools answer this fight");
+        return {};
+    }
+    return _bake.fight;
+}
+
+/// The bake's npc table, or an empty one, through the same guarded read.
+function pp_talk_bake_npc() {
+    var _bake = pp_talk_bake();
+    if (!is_struct(_bake) || !variable_struct_exists(_bake, "npc") || !is_struct(_bake.npc)) {
+        show_debug_message("PP: talk bake has no npc table, the card pools answer these voices");
+        return {};
+    }
+    return _bake.npc;
 }
 
 /// Drop the loaded table, so a scene reload or a test reads the file again.
 function pp_talk_bake_forget() {
-    global.pp_talk_bake = undefined;
+    global.pp_talk_bake_table = undefined;
 }
 
 /// The card and phase of the talk card this fight is using, spelled the way the bake keys its rows.
@@ -451,10 +487,10 @@ function pp_talk_options(_battle) {
         _count = min(_count, _battle.encounter.talk.option_count);
     }
 
-    var _bake = pp_talk_bake();
+    var _bake_fight = pp_talk_bake_fight();
     var _key = pp_talk_bake_key(_battle);
     var _baked = [];
-    if (_key != "" && variable_struct_exists(_bake.fight, _key)) _baked = _bake.fight[$ _key];
+    if (_key != "" && variable_struct_exists(_bake_fight, _key)) _baked = _bake_fight[$ _key];
     if (is_undefined(_baked)) _baked = [];
 
     for (var i = 0; i < _count; i++) {
@@ -517,6 +553,11 @@ function pp_talk_begin(_battle) {
     _battle.talk_stage = (array_length(_battle.talk_options) > 0) ? "options" : "";
     _battle.talk_hint = "";
     _battle.talk_reply = false;
+    // Card t_27aa179e: the panel says it is open, with how many options it drew and the meter it opened on. A press
+    // sent at the option list is a press the game can be held to, and a run that never opened the list cannot show
+    // this line at all.
+    show_debug_message("PP: talk open, " + string(array_length(_battle.talk_options)) + " options, mercy "
+        + string(_battle.talk_mercy) + ", trust " + string(_battle.trust));
     return _battle;
 }
 
@@ -540,6 +581,10 @@ function pp_talk_step(_battle) {
 
     var _record = _battle.talk_options[_battle.talk_cursor];
     pp_talk_apply(_battle, _record);
+    // Card t_27aa179e: the pick names the option, the effect and the meter it moved to. This is the line a capture
+    // reads to prove the mercy the three talks earned, instead of inferring it from the spare happening at all.
+    show_debug_message("PP: talk pick, option " + string(_battle.talk_cursor) + ", effect " + string(_record.effect)
+        + ", mercy " + string(_battle.talk_mercy) + ", trust " + string(_battle.trust));
     _battle.talk_stage = "";
     _battle.talk_hint = _record.hint;
     _battle.talk_reply = true;
@@ -627,18 +672,18 @@ function pp_talk_draw_options(_battle) {
 
 /// True when the bake carries any turn for this npc id.
 function pp_talk_npc_baked(_npc_id) {
-    var _bake = pp_talk_bake();
-    return variable_struct_exists(_bake.npc, string(_npc_id));
+    var _bake_npc = pp_talk_bake_npc();
+    return variable_struct_exists(_bake_npc, string(_npc_id));
 }
 
 /// The baked turns of one npc, in order, with no gaps. Undefined entries are dropped so a missing turn 2 does not
 /// shift turn 3 into its place.
 function pp_talk_npc_rows(_npc_id) {
     var _out = [];
-    var _bake = pp_talk_bake();
+    var _bake_npc = pp_talk_bake_npc();
     var _id = string(_npc_id);
-    if (!variable_struct_exists(_bake.npc, _id)) return _out;
-    var _turns = _bake.npc[$ _id];
+    if (!variable_struct_exists(_bake_npc, _id)) return _out;
+    var _turns = _bake_npc[$ _id];
     for (var i = 0; i < array_length(_turns); i++) {
         if (is_undefined(_turns[i])) continue;
         array_push(_out, _turns[i]);
