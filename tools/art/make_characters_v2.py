@@ -185,6 +185,13 @@ def cast():
             # deck's $0F backdrop by three rows; $02 navy is the outline, the square collar, the cuffs and
             # the belt; $12 blue is the trousers and the shade plane. Skin is the entry this costs, the
             # way Konrad's grey and Zander's blond were, and it is posted as Q5 on the queue row.
+            # 2026-10-24 (card t_cc0c5bd5, ruling knowledge/PALETTE-RULINGS-2026-10-24.md): the sentence above
+            # is the record of the state it was written in and is not overwritten. Re-measured after the deck's
+            # four sprite palettes were re-solved for the fight cast: deck sp2 is now {7, 23, 54} = $07 $17 $36,
+            # so these three entries are NOT carried by battle_deck_night any more. In the twelve sets
+            # {$02,$12,$30} now sits at ship sp1 and at sp3 of southampton, westminster and winchester (the same
+            # three entries, a different slot), and in no battle strip. The sailor walks the ship, so the sheet
+            # stays legal on the ground it is drawn on and this comment changes no pixel of it.
             "palette": {"k": NAVY, "s": WHITE, "h": NAVY, "a": WHITE, "b": BLUE},
             "decor": ["cap", "collar_flap", "cuffs", "belt", "trousers"],
         },
@@ -197,6 +204,11 @@ def cast():
             # ship sp1, so the same sheet is legal on both grounds the overworld cast stands on. Navy is ink,
             # hair and the trident socket; white is face and shirt (the largest fill, which clears the deck by
             # three luminance rows); blue is the rank slide and the shade plane. Gold is not in either palette.
+            # 2026-10-24 (card t_cc0c5bd5): the sentence above is kept as written. Re-measured after the deck's
+            # four sprite palettes were re-solved for the fight cast, deck sp2 is {7, 23, 54} = $07 $17 $36, so
+            # {$02,$12,$30} is no longer a deck palette: it is ship sp1 and sp3 of the three towns. Percy stands
+            # on the ship, which is the ground this sheet is built to, so he is legal where he is drawn and stays
+            # off the deck strip. No pixel of the sheet changes.
             "palette": {"k": NAVY, "s": WHITE, "h": NAVY, "a": WHITE, "b": BLUE},
             "decor": ["beard", "stocky", "rank_stripes", "trident"],
         },
@@ -215,6 +227,12 @@ def cast():
             # amber in RULE 0 point 3 and no grey sprite palette in the project has a body above row 1
             # (deck sp0's lightest, $10, is row 1), so the amber half carries the figure and the grey is
             # posted to gamedev as Q2 on the row.
+            # 2026-10-24 (card t_cc0c5bd5): the record above is kept. Re-measured after the deck's four sprite
+            # palettes were re-solved for the fight cast, deck sp1 is now {2, 15, 48} = $02 $0F $30, so
+            # {7, 23, 40} is no longer on the deck. It is still sp1 of the other three battle strips
+            # (battle_corridor, battle_quay_dusk, battle_wardroom) and of the three towns (southampton,
+            # westminster, winchester), which is where Konrad walks, so the sheet is legal on every ground he is
+            # drawn on. No pixel of the sheet changes.
             "palette": {"k": BROWN_D, "s": GOLD, "h": BROWN_D, "a": GOLD, "b": ORANGE},
             "decor": ["long_hair", "beard", "lapels"],
         },
@@ -229,6 +247,12 @@ def cast():
             # the body and the face, the same trick Percy's white plays; $01 is the outline and the messy
             # hair; $11 is the bomber's zip and collar. His blond is one of the two entries this costs,
             # posted with Konrad's as Q2 on the row.
+            # 2026-10-24 (card t_cc0c5bd5): the record above is kept, and this is the sharp end of the ruling.
+            # The deck's sp3 was re-solved to {8, 39, 40} = $08 $27 $28, so {1, 17, 49} is carried by NO ground
+            # in the twelve sets any more: measured over data/palettes/scene_*.json on 2026-10-24, no sprite
+            # palette holds all three of $01 $11 $31. The deck is the battle strip and draws its fight cast
+            # (zander_battle.png), so Zander's walking triple is bought back on a ground he walks on, not here.
+            # Written down rather than dropped: the sheet keeps its three entries and no pixel changes.
             "palette": {"k": BLUE_D, "s": SKY_L, "h": BLUE_D, "a": SKY_L, "b": BLUE_M},
             "decor": ["spiky_hair", "bomber"],
         },

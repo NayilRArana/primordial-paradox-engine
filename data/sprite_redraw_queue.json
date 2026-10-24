@@ -2882,6 +2882,16 @@
     },
     {
       "id": "konrad_ow_v2",
+      "deck_palette_remeasure": {
+        "date": "2026-10-24",
+        "card": "t_cc0c5bd5",
+        "ruling": "knowledge/PALETTE-RULINGS-2026-10-24.md",
+        "why": "battle_deck_night's four sprite palettes were re-solved for the cast the strip draws (sailor_battle.png, navy_sailor.png). The measurement this row already carries is left in place; this field is the re-measure recorded beside it.",
+        "old_slot": "battle_deck_night sp1 {7, 23, 40} = $07 $17 $28, cited above as the slot that carries this sheet",
+        "new_fact": "battle_deck_night sp1 is now {2, 15, 48} = $02 $0F $30. Measured over data/palettes/scene_*.json on 2026-10-24: {07,17,28} is still sp1 of battle_corridor, battle_quay_dusk and battle_wardroom and of southampton, westminster and winchester, and it is no longer on the deck.",
+        "still_legal": "yes, on every ground Konrad walks (the other three battle strips and the three towns). No pixel of this sheet changed.",
+        "measured_by": "python tools/palette_synergy.py --scene battle_deck_night --background output/bg_battle_deck_night_frame.png --sprite game/sprites_src/chars/konrad_ow_v2.png, and tools/scene_palette_set.py show --scene <id> for the twelve sets"
+      },
       "name": "Konrad, over world walk v2, 16 x 16 cells",
       "path": "game/sprites_src/chars/konrad_ow_v2.png",
       "frames": 8,
@@ -3038,6 +3048,16 @@
     },
     {
       "id": "zander_ow_v2",
+      "deck_palette_remeasure": {
+        "date": "2026-10-24",
+        "card": "t_cc0c5bd5",
+        "ruling": "knowledge/PALETTE-RULINGS-2026-10-24.md",
+        "why": "battle_deck_night's four sprite palettes were re-solved for the cast the strip draws (sailor_battle.png, navy_sailor.png). The measurement this row already carries is left in place; this field is the re-measure recorded beside it, and this is the row the change costs most.",
+        "old_slot": "battle_deck_night sp3 {1, 17, 49} = $01 $11 $31, cited above as the only sprite palette in the project that carried Zander's light blue",
+        "new_fact": "battle_deck_night sp3 is now {8, 39, 40} = $08 $27 $28. Measured over data/palettes/scene_*.json on 2026-10-24: NO sprite palette in the twelve sets holds $01 $11 $31 together any more, so this sheet's triple is carried by no ground in the twelve.",
+        "still_legal": "no ground in the twelve as of 2026-10-24, written down rather than dropped. RULE 0 point 3 still reserves Zander light blue, so the slot has to be bought on a ground he is drawn on; the deck's answer for Zander is zander_battle.png, which ruling section 8 puts on its own card. No pixel of this sheet changed.",
+        "measured_by": "tools/scene_palette_set.py show --scene <id> for all twelve sets, 2026-10-24"
+      },
       "name": "Zander, over world walk v2, 16 x 16 cells",
       "path": "game/sprites_src/chars/zander_ow_v2.png",
       "frames": 8,
@@ -3195,6 +3215,16 @@
     },
     {
       "id": "sailor_ow_v2",
+      "deck_palette_remeasure": {
+        "date": "2026-10-24",
+        "card": "t_cc0c5bd5",
+        "ruling": "knowledge/PALETTE-RULINGS-2026-10-24.md",
+        "why": "battle_deck_night's four sprite palettes were re-solved for the cast the strip draws (sailor_battle.png, navy_sailor.png). The measurement this row already carries (PASS, palettes that fit [2]) is left in place; this field is the re-measure recorded beside it.",
+        "old_slot": "battle_deck_night sp2 {2, 18, 48} = $02 $12 $30, cited above as the sheet's fit, and also ship sp1",
+        "new_fact": "battle_deck_night sp2 is now {7, 23, 54} = $07 $17 $36. Measured over data/palettes/scene_*.json on 2026-10-24: {02,12,30} sits at ship sp1 and at sp3 of southampton, westminster and winchester (the same three entries, a different slot), and in none of the four battle strips.",
+        "still_legal": "yes on ship sp1, the ground the sailor walks; not carried on the battle strip any more. No pixel of this sheet changed. The card that made this change names the price: the five party walking sheets on the deck frame go from 12 to 84 failing pairs, and that is the ruling's accepted cost, not damage to them.",
+        "measured_by": "python tools/palette_synergy.py --scene battle_deck_night --background output/bg_battle_deck_night_frame.png --sprite game/sprites_src/chars/sailor_ow_v2.png, and tools/scene_palette_set.py show --scene <id> for the twelve sets"
+      },
       "name": "the sailor, over world walk v2, 16 x 16 cells",
       "path": "game/sprites_src/chars/sailor_ow_v2.png",
       "frames": 8,
