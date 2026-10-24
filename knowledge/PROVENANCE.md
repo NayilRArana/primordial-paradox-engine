@@ -1220,3 +1220,24 @@ palette_count FAIL per uncovered 8x8 tile with the tile's position and its colou
 reading, and the frame-level 3 colour restatement, for frames of 16x16 and under only, so no measurement already on
 record moves.
 Copied expression: none
+
+## DECK-FIGURE-BODY, 2026-10-24: the row gap and the contrast floor are two instruments for R1 (card t_50193088)
+Studied: this repository's own files, read only: the four battle frames in output/ (bg_battle_deck_night,
+bg_battle_corridor, bg_battle_quay_dusk, bg_battle_wardroom), tools/palette_synergy.py (R1 body_ground, R1b
+overlay_contrast, tile_fails), tools/art/contrast_check.py (the WCAG ratio and the 2C02 luminance table),
+knowledge/ART-BIBLE.md RULE 0 point 2 with both amendments it carries, and knowledge/PALETTE-RULINGS-2026-10-24.md
+(the deck ruling this card follows). No decompiled material was read for this card and no expression from any game is
+in it.
+Mechanics learned: two. One, the four NES luminance rows are a coarse quantisation of brightness rather than a
+brightness itself: $10 sits one row from $0F at 11.06:1 and two rows from $30 at 1.85:1, so a rule written on rows
+alone can refuse the most readable pair the console draws and accept a pair that is nearly one tone. Two, on all four
+battle strips every pixel a 24x32 figure stands on is the backdrop ($0F, 768 of 768 in the placement box), so a
+frame-level body-versus-ground test on a battle figure silently becomes "is the main colour white".
+Our implementation differs by: keeping the row gap as one instrument and adding the WCAG 3:1 large-text floor the
+project already uses for R1b as the other, refusing a pair only when both are short, so 17 of the gate's 19
+body_ground fails stay refused and only 2 clear; by refusing the three alternatives the card offered with
+measurements instead (only the 16 palest entries clear the old rule, so a night deck would go pale; asking the rule
+per 8x8 tile turns 1 fail into 43; repainting the grey to white uncovers a tile needing $00 $0F $30 together); and by
+keeping the ink-against-ground merge and the enemy's $02 on $0F at 1.73:1 out of scope and named rather than fixed
+by widening a palette.
+Copied expression: none

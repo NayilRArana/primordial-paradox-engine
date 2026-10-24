@@ -175,8 +175,122 @@ multi-tile NES figure spends one palette per 8x8 tile, so a scene set is judged 
 by a single-palette union. Ours differs: the check is written as an exact set cover over tile colour groups, and the
 layer exemption is decided by what a sheet declares, not by its width.
 
+## 10. Card `t_50193088`: the deck's last pair, and the row as an instrument
+
+One pair survived card `t_cc0c5bd5` on the deck: `body_ground` on `sailor_battle.png` frame 2, body `$10` row 1
+against ground `$0F` row 0, one row short of point 2's two. The same pair fires on `battle_corridor`, a set that
+card never touched, so it is neither the deck's palette nor the sheet's three colours.
+
+Two measured facts decide it.
+
+**The ground under every battle figure is the backdrop.** On all four strips (`bg_battle_deck_night`,
+`bg_battle_corridor`, `bg_battle_quay_dusk`, `bg_battle_wardroom`) rows 112 to 239 are one colour, `$0F`, and the
+tool's automatic placement for a 24x32 figure is 116,192: all 768 pixels of the ground box are `$0F`. Each strip
+is art in the top half and a black field where the figures stand. So `body_ground` on a battle figure reads: is
+the frame's largest fill row 2 or row 3. Six of the seven sailor frames answer `$30` and pass; frame 2 answers
+`$10`.
+
+**The row is a coarse band, not a luminance.** On the 2C02 table `$10` (`#bcbcbc`, 0.503) against `$0F` (0.000)
+is one row apart at **11.06:1**, and `$10` against `$30` (0.973) is two rows apart at **1.85:1**. The instrument
+refuses the most readable pair a NES can draw and accepts a pair that is nearly one tone. Point 2 asks for
+separation from the ground; the row is a proxy for separation, and on the low rows the proxy ranks pairs
+backwards.
+
+### The three moves the card named, each refused by measurement
+
+(a) **Move the backdrop.** Of the 64 entries, exactly the 16 row 3 entries clear body `$10` under the two-row
+rule, so a night deck would have to stand on a pale field; and because the lower half of all four strips has
+`$0F` baked into the PNG, the move is four backgrounds repainted plus a scene-set entry all four strips share.
+It also does not answer the card: a row 0 or row 1 backdrop, the only kind a night deck can have, leaves the
+pair failing.
+
+(b) **Ask `body_ground` per 8x8 tile**, as R6 already is. Measured on this sheet over this ground: **43 failing
+tiles** (7, 9, 6, 7, 5, 7, 2 across the seven frames) against 1 whole-frame pair today, and frame 2 alone goes
+from 1 to 9 of its 11 inked tiles. The per-tile reading is right for R6, because a palette is spent per 8x8 tile,
+and wrong for R1: a fill that reads at 11:1 does not stop reading because it shares a tile with the outline.
+
+(c) **Repaint frame 2's `$10` to `$30`.** It clears the pair, the frame's body becoming row 3, and immediately
+uncovers the tile at sheet 40,8, which then needs `$00 $0F $30`: no deck palette carries all three, and the
+sheet's uncovered tiles go 0 to 1. That is a fifth-palette fail bought to satisfy an instrument that is refusing
+a pair reading at 11:1. Section 2's refusal of a repaint stands, with this measurement on top of it.
+
+### The ruling: two instruments for one question, either one clears it
+
+R1 `body_ground` passes a pair when EITHER of these holds, and refuses it only when both are short:
+
+- at least 2 brightness rows apart on the 2C02 grid, which is what point 2 already said; or
+- at least 3:1 WCAG contrast between the two luminances, which is the floor R1b already uses for a tiled layer.
+
+The 3:1 floor is not new and not tuned to this card: it is the WCAG large text floor already implemented in
+`tools/art/contrast_check.py`, and it arrives here the same way it arrived in R1b, from a measured case where the
+row arithmetic cannot see the difference that decides whether a thing reads.
+
+The pairs the two instruments still refuse, measured, so the amendment is not a rubber stamp: `$02` on `$0F`
+1.73:1, `$08` on `$0F` 1.76:1, `$07` on `$0F` 2.15:1, `$00` on `$02` 2.91:1, and `$00` on `$11` one row apart at
+1.00:1. The deck's enemy triple `$02 $0F $30` still cannot be read on a black field, which is the real defect the
+row arithmetic could never name.
+
+### Measured before and after, on every battle strip
+
+| command | before | after |
+| --- | --- | --- |
+| `--scene battle_deck_night` with `sailor_battle` and `navy_sailor` | FAIL, 1 failing pair (`body_ground` @24,0) | **PASS, 0 failing pairs** |
+| `--scene battle_corridor`, same two sheets | FAIL, 46 | FAIL, 45 |
+| `--scene battle_quay_dusk`, same two sheets | FAIL, 46 | FAIL, 45 |
+| `--scene battle_wardroom`, same two sheets | FAIL, 45 | FAIL, 44 |
+| `--gate` | 6 entries, 0 gated, 6 advisory, 792 fails, `body_ground` 19 | 6 entries, 0 gated, 6 advisory, 790 fails, `body_ground` 17 |
+| `--selftest` | 12 checks PASS | 13 checks PASS |
+| `pytest` on `test_palette_synergy`, `test_scene_palette_set`, `test_make_characters_v2`, `test_kaggle_r7` | 48 passed | 49 passed |
+
+Each of the four strips loses exactly one `body_ground` pair and nothing else moves. Across the gate's six
+entries the amendment clears exactly 2 of the 19 `body_ground` fails (the deck's frame 2 and one pair on
+`ship_dialogue`) and leaves 17 refused, so it is not a rubber stamp: the title frame keeps its 2, the ship title
+pairing keeps its 8, and `battle_corridor` keeps its 7. The 45, 45 and 44 left on the other three strips are
+`set_member` and `palette_count` on the same sheet: those sets do not carry its colour groups, which is the
+backlog section 8 names, not this card.
+
+### Where it landed, and why that is written down
+
+The rule change (the constant, `pair_rules`, the selftest cases, the module docstring, the two test cases and the
+ART-BIBLE sentence) is in commit `cf3d43a`, which is card `t_c498add9`'s commit. That card staged
+`tools/palette_synergy.py`, `tests/test_palette_synergy.py` and `knowledge/ART-BIBLE.md` by explicit path while
+this card's hunks were unstaged in those same three files, and explicit-path staging takes the whole file, so the
+hunks went with it. Its message therefore says R1 is unchanged and quotes the pre-hunk counts (selftest 12, that
+test file 14 passed, the deck gate entry 17 with `body_ground` 1), which the committed content contradicts: on
+`cf3d43a` the selftest reports 13 checks, that test file passes 15, and the deck gate entry reads 16 with
+`body_ground` 0. Nothing is rewritten here. This section, the DEVLOG entry and the `knowledge/PROVENANCE.md` line
+are the record that names the change, the card it belongs to and the numbers measured after it.
+
+### What this does not decide
+
+- **The ink merge.** Frame 2's outline is `$0F` and the ground is `$0F`, so its silhouette edge is the backdrop.
+  Section 8 named this from the other side and it is still true and still unmeasured by any rule. It is not this
+  card: no rule asks ink against ground, and one that did would refuse six of the seven frames on every strip.
+- `navy_sailor`'s `$02` on `$0F` (1.73:1) stays refused in the pair table and is not caught by the frame's body,
+  because its largest fill is `$30`. The enemy's dark blue is still unreadable on the strips' black field.
+- The deck's `"gate": false`. Untouched by this card.
+- Two historical tables carry `body_ground` counts taken under the one-instrument rule,
+  `knowledge/NES-AUDIT.md` and `knowledge/PALETTE-GATE-DECISIONS-2026-10-22.md`. They are dated measurements and
+  are not rewritten; this section is the re-measure.
+
+### Evidence
+
+Every number above was produced in this repository on 2026-10-24: the four strips' row bands and the 768 pixel
+ground box from the PNGs in `output/`, the contrasts and rows from `tools/art/contrast_check.py` through
+`tools/palette_synergy.py`'s own `Grid`, the 43 per-tile fails and the 0 to 1 uncovered tiles from
+`tools/palette_synergy.py`'s `tile_fails()` on an in-memory copy of the sheet, and the before/after columns from
+that tool itself.
+
+No external code, art, audio, dialogue or decompiled material was read, retyped or reused. Sources studied: the
+repository's own battle frames, `tools/palette_synergy.py`, `tools/art/contrast_check.py`, and `knowledge/ART-BIBLE.md`
+point 2. Mechanism learned: on the NES the four luminance rows are a coarse quantisation of brightness, so two
+colours one row apart can differ by more light than two colours two rows apart. Ours differs: the check keeps the
+rows as one instrument and adds the contrast floor it already uses elsewhere as the other, refusing only when
+both are short.
+
 Written by gamedev, 2026-10-24.
 
 Check for this file: section 1 names the four triples as both entries and hex; section 4 carries the six minimum
 palette numbers; section 6 answers Q2, Q4 and Q5; section 7 names the two line numbers in the tool that cause the
-misread; section 8 names the four battle sheets with their uncovered tile counts.
+misread; section 8 names the four battle sheets with their uncovered tile counts; section 10 carries the measured
+refusals of all three options and the five-strip before/after table.
