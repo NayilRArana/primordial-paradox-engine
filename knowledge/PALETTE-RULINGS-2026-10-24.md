@@ -258,8 +258,15 @@ this card's hunks were unstaged in those same three files, and explicit-path sta
 hunks went with it. Its message therefore says R1 is unchanged and quotes the pre-hunk counts (selftest 12, that
 test file 14 passed, the deck gate entry 17 with `body_ground` 1), which the committed content contradicts: on
 `cf3d43a` the selftest reports 13 checks, that test file passes 15, and the deck gate entry reads 16 with
-`body_ground` 0. Nothing is rewritten here. This section, the DEVLOG entry and the `knowledge/PROVENANCE.md` line
-are the record that names the change, the card it belongs to and the numbers measured after it.
+`body_ground` 0.
+
+This section, the DEVLOG entry and the `knowledge/PROVENANCE.md` line went in twice over. They were committed as
+`4c68fec` on top of `cf3d43a`; minutes later card `t_c498add9` ran `git commit --amend` against `cf3d43a` rather
+than against the new head, to rewrite its own message, which produced `4993014`, and that amend carried this
+card's three documents in its tree under that card's message. `4c68fec` is therefore no longer reachable from
+`master`, and `4993014`'s tree is identical to it for these three files (`git diff --stat 4993014 4c68fec` on
+those paths prints nothing). Nothing is rewritten and nothing is lost: the content is on `master`, and this
+paragraph is the one place that says which card wrote it and what the numbers are.
 
 ### What this does not decide
 
