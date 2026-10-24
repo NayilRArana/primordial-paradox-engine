@@ -88,6 +88,16 @@ The gates on their own, in the order the roadmap runs them:
     python -m pytest tests -q           the suite
     python tools/nes_audit_all.py       every art file against the picture chip rules
 
+**Landing a cue.** A cue is landed only when its source `.ogg` under `assets/audio/<asset>/` and the regenerated
+`game/PrimordialParadox.yyp` that names it are in ONE commit. Stage both, or stage neither. A commit that carries the
+source without the entry names no stream that a fresh checkout can build, and a commit that carries the entry without
+the source declares a stream it does not carry; six commits in the week of 2026-10-19 were one of those two shapes.
+The commit gate enforces this on every primordial-paradox commit, asset-only commits included, by running
+`python tools/check_build_inputs.py --staged`, which reads the INDEX rather than the working tree because a commit
+is the index. It refuses with one `UNPAIRED IN COMMIT` line per unpaired file. The same command run by hand prints
+the same thing, so there is no separate ritual to remember: `python tools/check_build_inputs.py` covers what is
+committed, `--staged` covers what this commit is about to carry.
+
 Run on this machine on 2026-10-22, pasted as they printed:
 
     sync_data.py        exit 0  copied 0, removed 0, 65 unchanged

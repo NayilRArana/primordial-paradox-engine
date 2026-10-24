@@ -9,9 +9,33 @@ than the positive one here.
 
 import importlib.util
 import os
+import subprocess
+
+import pytest
+
+# Card TEST-CLASSIFY-33: every test here drives tools/check_build_inputs.py, which asks git what the
+# commit carries. tools/pine_offload.py already refuses to offload this file for that reason; the
+# marker covers the runs that pass `tests/` wholesale to pytest instead of the shard list.
+pytestmark = pytest.mark.needs_git_checkout
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
+
+
+@pytest.fixture(autouse=True)
+def clean_git_environment(monkeypatch):
+    """A pre-commit hook hands its children an index, a work tree and a git dir. Drop them here.
+
+    Measured 2026-10-24 (card t_668201ec) on the first gate run of this file: the hook sets
+    GIT_INDEX_FILE to the temporary index it is building, so `git -C <scratch repo> add` in the rows
+    below wrote into the SHARED repository's index and the scratch rows read the shared index back.
+    The reverse row then reported the wrong tree and failed. A scratch repository's git must be
+    asked in a clean environment, and a test may never stage anything in the one index every lane on
+    this tree shares.
+    """
+    for name in ("GIT_INDEX_FILE", "GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR",
+                 "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES"):
+        monkeypatch.delenv(name, raising=False)
 
 
 def load(name):
@@ -86,3 +110,109 @@ def test_an_uncommitted_mirror_source_is_named():
     unc = module.uncommitted_sources(sync, set(), repo)
     assert unc, "with an empty tracked set every mirrored source must be reported"
     assert all(not os.path.isabs(name) for name in unc), "paths must be repo relative"
+
+
+# ---- Direction C: the staged pairing, judged against the index (card t_668201ec) -----------------
+# Every row below builds its OWN throwaway repository under tmp_path and stages files only there. No
+# row may `git add` in the shared repository: it carries one index for every lane on this tree, and a
+# test that stages anything in it would either commit another lane's work or lose it.
+YPP_REL = "game/PrimordialParadox.yyp"
+
+
+def scratch_repo(tmp_path):
+    """A git repository with an index and NO commit, which is the shape a pre-commit hook sees."""
+    repo = tmp_path / "repo"
+    (repo / "game").mkdir(parents=True)
+    (repo / "assets" / "audio" / "cue_probe").mkdir(parents=True)
+    result = subprocess.run(["git", "init", "-q"], cwd=str(repo),
+                            capture_output=True, stdin=subprocess.DEVNULL)
+    assert result.returncode == 0, result.stderr
+    return repo
+
+
+def write_yyp(repo, names):
+    items = ", ".join('{"filePath": "datafiles/streams/", "name": "%s"}' % n for n in names)
+    (repo / "game" / "PrimordialParadox.yyp").write_text(
+        '{"IncludedFiles": [%s]}' % items, encoding="utf-8")
+
+
+def write_cue(repo, name):
+    path = repo / "assets" / "audio" / "cue_probe" / name
+    path.write_bytes(b"OggS a probe, not a real stream")
+    return path
+
+
+def git_add(repo, *paths):
+    result = subprocess.run(["git", "add", *paths], cwd=str(repo),
+                            capture_output=True, stdin=subprocess.DEVNULL)
+    assert result.returncode == 0, result.stderr
+
+
+def staged_problems(repo, yyp_rel=YPP_REL):
+    return check().staged_problems(repo=str(repo), yyp_rel=yyp_rel)
+
+
+def test_a_staged_cue_with_no_staged_project_file_is_named(tmp_path):
+    """The hole: an ogg in the INDEX whose stream the index project does not name.
+
+    Measured against the live tree on 2026-10-24: this shape exits 0 today, because git ls-files
+    counts a staged file as carried while the worktree .yyp is already regenerated.
+    """
+    repo = scratch_repo(tmp_path)
+    write_cue(repo, "cue_a.ogg")
+    git_add(repo, "assets/audio/cue_probe/cue_a.ogg")
+    problems = staged_problems(repo)
+    assert problems, "a staged cue with no staged project file must be refused"
+    assert all(problem.startswith(check().UNPAIRED) for problem in problems), problems
+    assert "assets/audio/cue_probe/cue_a.ogg" in problems[0], problems
+
+
+def test_a_staged_project_file_that_omits_a_staged_cue_is_named(tmp_path):
+    """The same hole with the .yyp staged: it is in the commit, and it does not name the cue."""
+    repo = scratch_repo(tmp_path)
+    write_cue(repo, "cue_a.ogg")
+    write_yyp(repo, [])
+    git_add(repo, "assets/audio/cue_probe/cue_a.ogg", YPP_REL)
+    problems = staged_problems(repo)
+    assert problems, "a staged project file that omits a staged cue must be refused"
+    assert "datafiles/streams/cue_a.ogg" in problems[0], problems
+
+
+def test_a_staged_cue_and_the_staged_project_file_that_names_it_pass(tmp_path):
+    """The paired shape, which is the only shape a cue may land in."""
+    repo = scratch_repo(tmp_path)
+    write_cue(repo, "cue_a.ogg")
+    write_yyp(repo, ["cue_a.ogg"])
+    git_add(repo, "assets/audio/cue_probe/cue_a.ogg", YPP_REL)
+    assert staged_problems(repo) == []
+
+
+def test_a_staged_project_file_naming_an_unstaged_stream_is_named(tmp_path):
+    """The reverse direction: the commit would declare a stream it does not carry."""
+    repo = scratch_repo(tmp_path)
+    write_yyp(repo, ["cue_gone.ogg"])
+    git_add(repo, YPP_REL)
+    problems = staged_problems(repo)
+    assert problems, "a staged project file naming an absent stream must be refused"
+    assert "datafiles/streams/cue_gone.ogg" in problems[0], problems
+
+
+def test_the_flag_absent_leaves_the_worktree_directions_alone(tmp_path):
+    """Without --staged the checker is unchanged: it does not read another repository's index.
+
+    The scratch repo below is red under the flag, and the flagless run still reports the real tree
+    as healthy. That is what keeps the nightly and the rows above this section meaning what they
+    said before the flag existed.
+    """
+    module = check()
+    repo = scratch_repo(tmp_path)
+    write_cue(repo, "cue_a.ogg")
+    git_add(repo, "assets/audio/cue_probe/cue_a.ogg")
+    assert staged_problems(repo), "the scratch index must be red for this row to mean anything"
+    assert module.main() == 0, "the flagless check still measures the real tree"
+    assert module.main(staged=False) == 0
+
+
+def test_the_staged_direction_passes_on_this_repositorys_index():
+    """`python tools/check_build_inputs.py --staged` exits 0 on the clean index (its own measure)."""
+    assert check().main(staged=True) == 0

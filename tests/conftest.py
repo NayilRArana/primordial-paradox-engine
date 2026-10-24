@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import subprocess
 import sys
 
 import pytest
@@ -54,6 +55,67 @@ def generated_mirror():
         finally:
             sys.argv = argv
     return True
+
+
+def _is_git_checkout() -> bool:
+    """True when git itself says this tree is inside a work tree.
+
+    The checks that shell out to git (check_build_inputs, the palette table pin) need this one: off the
+    box the tree arrives as a zip, and `git` there answers "not a git repository", which is a skip and
+    not a verdict on the code. Asking git is the only answer that also covers a worktree, where .git is
+    a file, and this repository, whose root is three levels above this module.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", ROOT, "rev-parse", "--is-inside-work-tree"],
+            capture_output=True, text=True, timeout=20,
+            # A DEFINED stdin, never inherited (card t_668201ec, measured 2026-10-24). Without this,
+            # a parent with no valid standard input handle makes the spawn itself raise
+            # OSError [WinError 6], this probe answers "not a checkout", and every
+            # needs_git_checkout row SKIPS with a reason that sounds like the tree's fault. Measured
+            # on this host with capture on: 2 of 5 identical runs of tests/test_build_inputs.py
+            # reported 13 skipped and 3 reported 13 passed, same tree, same command. It is the same
+            # defect commit_gate.run() already answers with stdin=subprocess.DEVNULL.
+            stdin=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return result.returncode == 0 and result.stdout.strip() == "true"
+
+
+def pytest_collection_modifyitems(config, items):
+    """Card TEST-CLASSIFY-33: the two host-only kinds of test are skipped, with the reason, off the host.
+
+    The suite runs on two hosts: this Windows PC and the Pine Linux computers through
+    tools/pine_offload.py. Three things cannot cross the boundary, and each one has a marker in
+    pytest.ini so the reason travels with the test instead of living in this file:
+
+      windows_only     the test, or a tool it loads, binds a Win32 API through ctypes.windll at
+                       import, so on Linux the import raises AttributeError before a line of the test
+                       runs (tools/capture_title.py binds user32 at module level, and play_demo
+                       imports it);
+      host_png_bytes   the test compares a PNG this host just wrote with the committed copy byte for
+                       byte, so only the Pillow and zlib builds that wrote the committed files pass.
+                       The pixels agree; the encoder does not;
+      needs_git_checkout  the check shells out to git, and the offloaded tree is a zip.
+    """
+    if sys.platform != "win32":
+        reason = "Windows host only: the tool this test loads binds ctypes.windll (card TEST-CLASSIFY-33)"
+        for item in items:
+            if item.get_closest_marker("windows_only"):
+                item.add_marker(pytest.mark.skip(reason=reason))
+        reason = (
+            "compares a PNG this host wrote byte for byte with the committed one, and the committed "
+            "files were written on Windows (card TEST-CLASSIFY-33)"
+        )
+        for item in items:
+            if item.get_closest_marker("host_png_bytes"):
+                item.add_marker(pytest.mark.skip(reason=reason))
+    if not _is_git_checkout():
+        reason = "needs a git checkout, and this tree is a copy (card TEST-CLASSIFY-33)"
+        for item in items:
+            if item.get_closest_marker("needs_git_checkout"):
+                item.add_marker(pytest.mark.skip(reason=reason))
 
 
 @pytest.fixture()
