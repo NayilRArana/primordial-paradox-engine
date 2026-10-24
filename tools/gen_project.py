@@ -109,11 +109,6 @@ def folder_ref(folder: str) -> dict:
     return ref(folder, "folders/%s/%s.yy" % (FOLDER_ROOT, folder))
 
 
-def write_json(path: str, data: dict, check: bool) -> bool:
-    text = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
-    return write_text(path, text, check)
-
-
 def write_text(path: str, text: str, check: bool) -> bool:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     if os.path.exists(path):
@@ -480,23 +475,54 @@ def collect() -> dict:
     return paths
 
 
+def regenerate(check: bool = False) -> tuple[bool, list[str]]:
+    """Write the project files the folders on disk imply. Idempotent: a second run writes nothing.
+
+    This loop used to live inside main(), so a caller that changed the resource graph had no way to
+    bring the .yyp back in line. tools/sync_art.py does change it: mirror_streams() copies a
+    rendered cue into game/datafiles/streams, every file under game/datafiles is an Included File,
+    and nothing ran the generator when a cue landed. The .yyp then disagreed with disk until a
+    person noticed and an FIX-YYP card was raised: five cards, five commits of the same two
+    entries (card t_e40f9705). The landing path now calls this in the same run.
+
+    Returns (ok, written) where ok is True when disk matches the folders and written names the
+    files this call rewrote, relative to the repository root. With check=True nothing is written
+    and each stale file still prints its own STALE line through write_text().
+    """
+    paths = collect()
+    files = []
+    for name, path in paths["scripts"].items():
+        files.append((os.path.join(GAME, path), script_yy(name)))
+    for name, path in paths["objects"].items():
+        files.append((os.path.join(GAME, path), object_yy(name)))
+    for name, path in paths["rooms"].items():
+        files.append((os.path.join(GAME, path), room_yy(name, ROOMS[name])))
+    files.append((os.path.join(GAME, PROJECT_NAME + ".yyp"), project_yy(paths)))
+
+    ok = True
+    written = []
+    for full, data in files:
+        # write_text() answers True both when it wrote and when the bytes already matched, so
+        # whether a file was stale has to be read before the write, not from the return value.
+        text = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+        matched = False
+        if os.path.exists(full):
+            with open(full, "r", encoding="utf-8-sig") as fh:
+                matched = fh.read() == text
+        ok &= write_text(full, text, check)
+        if not matched:
+            written.append(rel(full))
+    return ok, written
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="write nothing, report stale files")
     args = parser.parse_args()
 
+    ok, _written = regenerate(args.check)
+
     paths = collect()
-    ok = True
-
-    for name, path in paths["scripts"].items():
-        ok &= write_json(os.path.join(GAME, path), script_yy(name), args.check)
-    for name, path in paths["objects"].items():
-        ok &= write_json(os.path.join(GAME, path), object_yy(name), args.check)
-    for name, path in paths["rooms"].items():
-        ok &= write_json(os.path.join(GAME, path), room_yy(name, ROOMS[name]), args.check)
-
-    ok &= write_json(os.path.join(GAME, PROJECT_NAME + ".yyp"), project_yy(paths), args.check)
-
     total = len(paths["scripts"]) + len(paths["objects"]) + len(paths["rooms"])
     print("%d resources: %d scripts, %d objects, %d rooms, %d included files"
           % (total, len(paths["scripts"]), len(paths["objects"]), len(paths["rooms"]),

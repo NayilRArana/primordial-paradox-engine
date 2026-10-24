@@ -41,9 +41,14 @@ def generated_mirror():
     import sync_art
     import sync_data
 
-    for module, name in ((sync_data, "sync_data.py"), (sync_art, "sync_art.py")):
+    for module, name, extra in ((sync_data, "sync_data.py", []),
+                                (sync_art, "sync_art.py", ["--no-project"])):
+        # --no-project is what keeps two rows honest (card t_e40f9705): a write run of sync_art now
+        # regenerates game/PrimordialParadox.yyp from the mirror, so letting the fixture do that
+        # would repair a stale committed .yyp before test_project.py could measure it. The fixture
+        # builds the mirror only; the landing path is the thing that regenerates.
         argv = sys.argv
-        sys.argv = [name]
+        sys.argv = [name] + extra
         try:
             assert module.main() == 0, "%s could not build its mirror" % name
         finally:

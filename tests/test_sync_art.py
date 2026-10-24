@@ -87,3 +87,63 @@ def test_the_project_lists_the_title_theme_stream():
     assert "datafiles/streams/title_theme.ogg" in listed, f"unexpected stream entries: {listed}"
     for file_path in listed:
         assert os.path.isfile(os.path.join(ROOT, "game", file_path)), f"{file_path} is not in the mirror"
+
+
+def test_a_landed_cue_regenerates_the_project_without_a_second_command():
+    """Landing a cue through this script brings the .yyp back in line in the same run.
+
+    This is the whole point of card t_e40f9705. A cue landed five times and each time the two
+    GMIncludedFile entries were added by hand in a follow-up commit, because mirror_streams() wrote
+    into game/datafiles/streams and nothing ran the generator. The cue here is a stand-in: the
+    mirror copies any .ogg and does not read it, so two bytes named .ogg are a real landing as far
+    as this path is concerned. The yyp is restored byte for byte afterwards, and the test fails
+    loudly if the restore does not match, so it cannot leave the tree dirty.
+    """
+    import hashlib
+
+    import gen_project
+
+    project_path = os.path.join(ROOT, "game", "PrimordialParadox.yyp")
+    before = hashlib.sha256(open(project_path, "rb").read()).hexdigest()
+
+    cue = "t_e40f9705_landed_probe"
+    source_dir = os.path.join(ROOT, "assets", "audio", cue)
+    source = os.path.join(source_dir, cue + ".ogg")
+    mirrored = os.path.join(MIRROR, "streams", cue + ".ogg")
+    os.makedirs(source_dir, exist_ok=True)
+    with open(source, "wb") as handle:
+        handle.write(b"OggS")
+
+    try:
+        assert _run_main(["sync_art.py"]) == 0
+        assert os.path.isfile(mirrored), "sync_art did not mirror the landed cue"
+        assert "datafiles/streams/%s.ogg" % cue in _listed_included_files("datafiles/streams"), (
+            "the .yyp still does not list the cue that just landed, so the landing path did not "
+            "run the generator"
+        )
+        assert gen_project.regenerate(check=True)[0], "the project is still stale after the landing"
+    finally:
+        os.remove(source)
+        os.rmdir(source_dir)
+        if os.path.isfile(mirrored):
+            os.remove(mirrored)
+        assert _run_main(["sync_art.py"]) == 0
+
+    after = hashlib.sha256(open(project_path, "rb").read()).hexdigest()
+    assert after == before, "the probe left game/PrimordialParadox.yyp changed"
+    assert "datafiles/streams/%s.ogg" % cue not in _listed_included_files("datafiles/streams")
+
+
+def test_the_no_project_flag_leaves_the_yyp_alone():
+    """--no-project is what the suite fixture uses, so it must not touch the project file.
+
+    Without it the fixture would repair a stale committed .yyp before test_project.py could
+    measure it, and the two rows that catch this class of staleness would stop meaning anything.
+    """
+    import hashlib
+
+    project_path = os.path.join(ROOT, "game", "PrimordialParadox.yyp")
+    before = hashlib.sha256(open(project_path, "rb").read()).hexdigest()
+    assert _run_main(["sync_art.py", "--no-project"]) == 0
+    after = hashlib.sha256(open(project_path, "rb").read()).hexdigest()
+    assert after == before, "--no-project rewrote the project file"

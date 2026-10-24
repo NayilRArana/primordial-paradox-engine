@@ -3,8 +3,13 @@
 
 The art lane (TS-A, TS-B, TS-C) writes one PNG plus one JSON per animation into
 game\\sprites_src\\title\\. The engine cannot read that folder at runtime, so this script copies the PNGs into
-game\\art\\ and writes one index, art\\title_manifest.json, that the runtime reads to know every animation's
-frame size and frame count.
+game\\datafiles\\art\\ and writes one index, game\\datafiles\\art\\title_manifest.json, that the runtime reads to know
+every animation's frame size and frame count.
+
+game\\datafiles\\art\\ is build output: it is gitignored, and this script is the only thing that writes it. The
+authored tree is game\\sprites_src\\, and since card t_4e54cc9e the sprite queue in data\\sprite_redraw_queue.json
+measures there too. The older folder game\\art\\ is retired and deleted: this script never wrote it, the game never
+read it, and a redraw left in it reached nothing that ships.
 
 The index is the contract between the art lane and the game: the game asks for a name and gets a frame count,
 so a sprite that has not landed yet simply is not in the index and the game draws a rectangle in its place.
@@ -14,6 +19,11 @@ Deterministic: the index is written with sorted keys and LF endings, so the same
 Usage:
     python tools/sync_art.py
     python tools/sync_art.py --check      # exit 1 if the mirror is stale
+    python tools/sync_art.py --no-project # mirror only, leave the .yyp alone
+
+A write run ends by regenerating game\\PrimordialParadox.yyp from the mirror it just wrote, because
+every file under game\\datafiles is an Included File in that project. That is what stops a landed cue
+from leaving the .yyp stale (card t_e40f9705).
 """
 
 from __future__ import annotations
@@ -109,6 +119,33 @@ def index_text(entries: list[dict]) -> str:
     return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
 
+def regenerate_project() -> bool:
+    """Rewrite the project files after this run has written into game/datafiles.
+
+    game/datafiles is what the .yyp lists as Included Files, and mirror_streams() writes into it, so
+    a landed cue makes the committed .yyp stale the moment it is copied. Nothing ran the generator
+    at that point, so the yyp disagreed with disk until a person noticed and an FIX-YYP card was
+    raised: five cards, five commits of the same two entries (card t_e40f9705). The landing path
+    closes its own loop now, so a cue cannot land through this script and leave the project stale.
+
+    Imported inside the function, not at module scope, because tools/check_build_inputs.py loads
+    this module by file path to read its folder constants and has no reason to load the generator.
+
+    Returns True when the project files on disk match the mirror after the call.
+    """
+    tools_dir = os.path.dirname(os.path.abspath(__file__))
+    if tools_dir not in sys.path:
+        sys.path.insert(0, tools_dir)
+    import gen_project
+
+    ok, written = gen_project.regenerate(check=False)
+    if written:
+        print("project: %d file(s) rewritten after the mirror: %s" % (len(written), ", ".join(written)))
+    else:
+        print("project: current after the mirror")
+    return ok
+
+
 def main() -> int:
     """Mirror the title art into game/datafiles/art and return 0.
 
@@ -117,11 +154,18 @@ def main() -> int:
     regenerate the committed .yyp when both mirrors exist. Measured 2026-10-21: with the
     stream mirrored only from the __main__ block, the PP suite failed with "lists Included
     File streams/title_theme.ogg which is not in game/datafiles".
+
+    A write run ends by regenerating the project files from the mirror it just wrote, because
+    the mirror is what the .yyp lists (card t_e40f9705). --no-project turns that off for the
+    callers that must measure the committed .yyp rather than repair it, which is the suite
+    fixture in tests/conftest.py.
     """
     mirror_streams()
     mirror_sfx()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--no-project", action="store_true",
+                        help="mirror only: do not rewrite game/PrimordialParadox.yyp")
     args = parser.parse_args()
 
     entries = source_entries()
@@ -156,15 +200,21 @@ def main() -> int:
 
     if args.check:
         for name in stale:
-            print("STALE: game/art/%s" % name)
+            print("STALE: game/datafiles/art/%s" % name)
         if index_stale:
-            print("STALE: game/art/%s" % INDEX)
+            print("STALE: game/datafiles/art/%s" % INDEX)
         if stale or index_stale:
             return 1
         print("art mirror is current: %d animations" % len(entries))
         return 0
 
     print("copied %d png, index %s, %d animations" % (len(stale), "written" if index_stale else "current", len(entries)))
+    # --check above answers only for the mirror: it writes nothing, and reporting the project
+    # graph there would turn this script's exit code into a second, quieter gen_project --check.
+    if not args.no_project:
+        if not regenerate_project():
+            print("project files still disagree with the mirror after regeneration")
+            return 1
     return 0
 
 
@@ -289,5 +339,6 @@ def mirror_streams() -> None:
 
 
 if __name__ == "__main__":
-    mirror_streams()
+    # main() mirrors the streams and the effects itself, so the duplicate mirror_streams() call that
+    # used to sit here is gone: it copied every cue twice for nothing.
     sys.exit(main())
