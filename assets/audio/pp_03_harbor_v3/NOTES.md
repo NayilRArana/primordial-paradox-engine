@@ -117,10 +117,13 @@ here rather than silently overridden.
 `pp_03_harbor_v3.wav`, `pp_03_harbor_v3.mp3`, `pp_03_harbor_v3.ogg`,
 `pp_03_harbor_v3_loop.json`, `arrange_report_v3.json`, `hook_report_v3.json`.
 
-Committed: this note, the score, the OGG, the loop JSON and the two reports. The two python files and
-the MIDI, WAV and MP3 renders stay in the folder untracked, which is how v2 and v3 of the other cues
-are kept: the suite gate refuses a python change under `assets/audio` with no test mapped to it, and
-the renders are rebuilt from the score by one command.
+Committed: this note, the score, the OGG, the loop JSON, the two reports and the three ear reviews,
+in three commits through the lane wrapper. The two python files and the MIDI, WAV and MP3 renders stay
+in the folder untracked, which is how v2 and v3 of the other cues are kept: the suite gate refuses a
+python change under `assets/audio` with no test mapped to it, and the renders are rebuilt from the
+score by one command. `data/ear_ledger.csv` is appended by `tools/ear_critic.py` and was deliberately
+not committed: the working copy of that file carries 76 uncommitted rows written by earlier lanes,
+and a commit of it would carry their work with mine.
 
 ## 8. Q: for gamedev
 
