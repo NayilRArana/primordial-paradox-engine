@@ -1,0 +1,114 @@
+{
+  "cue": "PP-04 Navy Sailors",
+  "score": "score_pp04_v2.yaml",
+  "midi": "pp_04_navy_sailors_v2.mid",
+  "bpm": 176.0,
+  "beats_per_bar": 4,
+  "bars": 32,
+  "sections": {
+    "A": 8,
+    "B": 8,
+    "A2": 8,
+    "A3": 8
+  },
+  "chords": [
+    "Dm",
+    "C",
+    "Bb",
+    "A7",
+    "Dm",
+    "C",
+    "Bb",
+    "A7",
+    "Gm",
+    "Bb",
+    "C",
+    "Dm",
+    "Gm",
+    "Bb",
+    "C",
+    "A7",
+    "Dm",
+    "C",
+    "Bb",
+    "A7",
+    "Dm",
+    "C",
+    "Bb",
+    "A7",
+    "Dm",
+    "C",
+    "Bb",
+    "A7",
+    "Dm",
+    "Bb",
+    "C",
+    "Dm"
+  ],
+  "duration_seconds": 43.636,
+  "bar_seconds": 1.3636,
+  "loop_start_bar": 1,
+  "loop_end_bar": 28,
+  "loop_bars": 28,
+  "loop_seconds": 38.182,
+  "tail_bars": 4,
+  "first_lead_note_seconds": 0.0,
+  "hook_cell_end_seconds": 2.727,
+  "four_bar_phrase_end_seconds": 5.455,
+  "lead_notes_in_first_4s": 18,
+  "notes": {
+    "vrc6 pulse a": 162,
+    "vrc6 pulse b": 32,
+    "vrc6 saw": 32,
+    "pulse 1": 224,
+    "pulse 2": 224,
+    "triangle": 256,
+    "noise": 288,
+    "dpcm": 80
+  },
+  "voice_ranges": {
+    "vrc6 pulse a": [
+      69,
+      81
+    ],
+    "vrc6 pulse b": [
+      62,
+      69
+    ],
+    "vrc6 saw": [
+      43,
+      50
+    ],
+    "pulse 1": [
+      43,
+      50
+    ],
+    "pulse 2": [
+      50,
+      57
+    ],
+    "triangle": [
+      36,
+      46
+    ],
+    "noise": [
+      4,
+      12
+    ],
+    "dpcm": [
+      36,
+      38
+    ]
+  },
+  "voices": [
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "warning_blip": "alarm: MIDI 84 and 88 (C6 1046.5 Hz, E6 1318.5 Hz)"
+}

@@ -1,0 +1,162 @@
+{
+  "bars": 32,
+  "criteria": [
+    {
+      "criterion": "motif coverage",
+      "fraction": 1.0,
+      "ideal": "at least 60%",
+      "key": "motif_coverage",
+      "measured": "72% of 166 notes inside the motif",
+      "pass": true,
+      "points": 20.0,
+      "suggestion": "",
+      "weight": 20
+    },
+    {
+      "criterion": "motif returns",
+      "fraction": 1.0,
+      "ideal": "at least 3",
+      "key": "motif_returns",
+      "measured": "10 returns",
+      "pass": true,
+      "points": 12.0,
+      "suggestion": "",
+      "weight": 12
+    },
+    {
+      "criterion": "hook cell",
+      "fraction": 1.0,
+      "ideal": "2 to 6 notes with a repeated rhythm cell",
+      "key": "hook_cell",
+      "measured": "6 notes, rhythm 2/2/2/2/4/4 repeated 20 times",
+      "pass": true,
+      "points": 10.0,
+      "suggestion": "",
+      "weight": 10
+    },
+    {
+      "criterion": "steps over leaps",
+      "fraction": 1.0,
+      "ideal": "at least 65% steps",
+      "key": "step_ratio",
+      "measured": "91% steps (10 of 11 intervals), 1 leaps",
+      "pass": true,
+      "points": 12.0,
+      "suggestion": "",
+      "weight": 12
+    },
+    {
+      "criterion": "leaps per motif",
+      "fraction": 1.0,
+      "ideal": "exactly 1",
+      "key": "leaps_per_motif",
+      "measured": "1 leaps",
+      "pass": true,
+      "points": 8.0,
+      "suggestion": "",
+      "weight": 8
+    },
+    {
+      "criterion": "contour",
+      "fraction": 1.0,
+      "ideal": "every return arch or pedal",
+      "key": "contour",
+      "measured": "10 of 10 returns are arch or pedal (arch arch arch arch arch arch arch arch arch arch)",
+      "pass": true,
+      "points": 10.0,
+      "suggestion": "",
+      "weight": 10
+    },
+    {
+      "criterion": "variation on the third return",
+      "fraction": 1.0,
+      "ideal": "30 to 85% the same",
+      "key": "third_return",
+      "measured": "75% the same as the first return",
+      "pass": true,
+      "points": 8.0,
+      "suggestion": "",
+      "weight": 8
+    },
+    {
+      "criterion": "range",
+      "fraction": 1.0,
+      "ideal": "at most 18 semitones",
+      "key": "range",
+      "measured": "12 semitones (69 to 81)",
+      "pass": true,
+      "points": 8.0,
+      "suggestion": "",
+      "weight": 8
+    },
+    {
+      "criterion": "repeated pitch",
+      "fraction": 1.0,
+      "ideal": "at least 1",
+      "key": "repeat_pitch",
+      "measured": "6 repeated pitches in a row",
+      "pass": true,
+      "points": 6.0,
+      "suggestion": "",
+      "weight": 6
+    },
+    {
+      "criterion": "loop length",
+      "fraction": 1.0,
+      "ideal": "8 or 16 or 32 bars",
+      "key": "loop_length",
+      "measured": "32 bars",
+      "pass": true,
+      "points": 6.0,
+      "suggestion": "",
+      "weight": 6
+    }
+  ],
+  "grammar": "<repo>\\knowledge\\MUSIC-HOOK-GRAMMAR.md",
+  "grid": "sixteenth",
+  "melody_track": "vrc6 pulse a",
+  "midi_tracks": [
+    "meta",
+    "vrc6 pulse a",
+    "vrc6 pulse b",
+    "vrc6 saw",
+    "pulse 1",
+    "pulse 2",
+    "triangle",
+    "noise",
+    "dpcm"
+  ],
+  "motif": {
+    "bars": 2,
+    "coverage": 0.7229,
+    "notes": 12,
+    "occurrence_bars": [
+      1,
+      3,
+      5,
+      7,
+      17,
+      19,
+      21,
+      23,
+      25,
+      27
+    ],
+    "returns": 10,
+    "start_bar": 0
+  },
+  "notes": 166,
+  "points": 100.0,
+  "score": 100,
+  "source": "<repo>\\assets\\audio\\pp_04_navy_sailors_v3\\pp_04_navy_sailors_v3.mid",
+  "suggestions": [],
+  "tempo_us": 340909,
+  "weakest": {
+    "criterion": "motif coverage",
+    "fraction": 1.0,
+    "key": "motif_coverage",
+    "of": 20,
+    "points": 20.0
+  },
+  "weights_total": 100
+}
