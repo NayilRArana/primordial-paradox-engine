@@ -36,7 +36,6 @@ mute off for an audio proof, --show leaves the window where it is, --idle-wait p
 
 import argparse
 import ctypes
-import ctypes.wintypes as wt
 import glob
 import json
 import os
@@ -47,6 +46,17 @@ import sys
 import tempfile
 import threading
 import time
+
+# The window primitives are Windows only. This module still has to IMPORT on a machine that has no window at all,
+# because the Pine suite imports the demo tools in order to run them (card PINE-HONEST, t_84fe63ff). When the
+# primitives are absent, WINDOW_PRIMITIVES is False and the callers refuse with the harness's not-measured code
+# instead of reporting a capture they never made. That distinction is the whole point: a silent skip would tell the
+# same lie as the original traceback, only quieter.
+WINDOW_PRIMITIVES = sys.platform == "win32"
+if WINDOW_PRIMITIVES:
+    import ctypes.wintypes as wt
+else:  # the branch exists so an import cannot fail, not so the window code can run
+    wt = None
 
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(TOOLS_DIR)
@@ -124,17 +134,23 @@ VIDEO_GAME_ANCHOR_SPREAD = 24
 # clear of both.
 VIDEO_GAME_ANCHOR_SHARE = 0.05
 
-# user32 and kernel32 through ctypes: no extra packages needed for the window side.
-user32 = ctypes.windll.user32
-try:
-    ctypes.windll.shcore.SetProcessDpiAwareness(2)
-except Exception:
+# user32 and kernel32 through ctypes: no extra packages needed for the window side. Guarded with the import above,
+# because ctypes.windll and ctypes.WINFUNCTYPE do not exist off Windows and touching them at module level is what
+# made every Pine run abort on import rather than report anything.
+if WINDOW_PRIMITIVES:
+    user32 = ctypes.windll.user32
     try:
-        user32.SetProcessDPIAware()
-    except Exception:  # gate: ok DPI awareness is best effort: it may fail on a headless session and the capture still works.
-        pass
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    except Exception:
+        try:
+            user32.SetProcessDPIAware()
+        except Exception:  # gate: ok DPI awareness is best effort: it may fail on a headless session and the capture still works.
+            pass
 
-EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, wt.HWND, wt.LPARAM)
+    EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, wt.HWND, wt.LPARAM)
+else:
+    user32 = None
+    EnumWindowsProc = None
 
 WM_CLOSE = 0x0010
 WM_KEYDOWN = 0x0100
@@ -1158,15 +1174,10 @@ def run_video_capture():
     os.makedirs(BUILD_DIR, exist_ok=True)
     game_log_path = os.path.join(BUILD_DIR, "capture-video-game.log")
     game_log = open(game_log_path, "wb")
-    process = subprocess.Popen(
-        [exe_path, "-game", win_path],
-        cwd=os.path.dirname(exe_path),
-        stdin=subprocess.DEVNULL,
-        stdout=game_log,
-        stderr=subprocess.STDOUT,
-        # Card CAPTURE-QUIET: PP_MUTE=1 unless this run is an audio proof (--sound).
-        env=LAUNCH.env(),
-    )
+    # Card CAPTURE-QUIET-IMPL: one call starts the game muted, without a console window, and prints the one
+    # PP: muted line from this run's own log. The exit line comes from run.finish() in this function's finally.
+    run = pp_launch.start_game(exe_path, win_path, log=game_log, policy=LAUNCH, label="title video capture")
+    process = run.process
     start_watchdog(process, WATCHDOG_S)
     video_ok = False
     try:
@@ -1408,7 +1419,8 @@ def run_video_capture():
         print("closed: %s" % closed)
         return 0
     finally:
-        kill_tree(process)
+        # The one exit line, and the game closed with nothing left running (card CAPTURE-QUIET-IMPL).
+        run.finish()
         try:
             game_log.close()
         except Exception:  # gate: ok Best-effort cleanup of a temp artifact: the capture result does not depend on it.
@@ -1434,15 +1446,10 @@ def run_game_capture():
     # The game's own stdout goes to a file, never to this process's pipe. A game that writes to an
     # unread pipe blocks on the write, which is how the first attempt of this harness hung for 45 minutes.
     game_log = open(game_log_path, "wb")
-    process = subprocess.Popen(
-        [exe_path, "-game", win_path],
-        cwd=os.path.dirname(exe_path),
-        stdin=subprocess.DEVNULL,
-        stdout=game_log,
-        stderr=subprocess.STDOUT,
-        # Card CAPTURE-QUIET: PP_MUTE=1 unless this run is an audio proof (--sound).
-        env=LAUNCH.env(),
-    )
+    # Card CAPTURE-QUIET-IMPL: one call starts the game muted, without a console window, and prints the one
+    # PP: muted line from this run's own log. The exit line comes from run.finish() in this function's finally.
+    run = pp_launch.start_game(exe_path, win_path, log=game_log, policy=LAUNCH, label="title capture")
+    process = run.process
     start_watchdog(process, WATCHDOG_S)
     try:
         match = find_window(
@@ -1514,7 +1521,8 @@ def run_game_capture():
         print(second_path)
         return 0
     finally:
-        kill_tree(process)
+        # The one exit line, and the game closed with nothing left running (card CAPTURE-QUIET-IMPL).
+        run.finish()
         try:
             game_log.close()
         except Exception:  # gate: ok Best-effort cleanup of a temp artifact: the capture result does not depend on it.
@@ -1598,15 +1606,10 @@ def run_ship_capture():
             os.remove(old)
     child_env = dict(os.environ)
     child_env["PP_SHIP_CAPTURE"] = "1"
-    process = subprocess.Popen(
-        [exe_path, "-game", win_path],
-        cwd=os.path.dirname(exe_path),
-        stdin=subprocess.DEVNULL,
-        stdout=game_log,
-        stderr=subprocess.STDOUT,
-        # Card CAPTURE-QUIET: the run's own PP_ capture flag, plus PP_MUTE=1 unless this is an audio proof.
-        env=LAUNCH.env(base=child_env),
-    )
+    # Card CAPTURE-QUIET-IMPL: one call starts the game muted, without a console window, and prints the one
+    # PP: muted line from this run's own log. The exit line comes from run.finish() in this function's finally.
+    run = pp_launch.start_game(exe_path, win_path, log=game_log, policy=LAUNCH, label="ship room capture", base=child_env)
+    process = run.process
     start_watchdog(process, WATCHDOG_S)
     try:
         match = find_window(
@@ -1752,7 +1755,8 @@ def run_ship_capture():
         print(second_path)
         return 0
     finally:
-        kill_tree(process)
+        # The one exit line, and the game closed with nothing left running (card CAPTURE-QUIET-IMPL).
+        run.finish()
         try:
             game_log.close()
         except Exception:  # gate: ok Best-effort cleanup of a temp artifact.
@@ -1975,15 +1979,10 @@ def run_intro_capture():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     game_log_path = os.path.join(BUILD_DIR, "capture-intro-game.log")
     game_log = open(game_log_path, "wb")
-    process = subprocess.Popen(
-        [exe_path, "-game", win_path],
-        cwd=os.path.dirname(exe_path),
-        stdin=subprocess.DEVNULL,
-        stdout=game_log,
-        stderr=subprocess.STDOUT,
-        # Card CAPTURE-QUIET: PP_MUTE=1 unless this run is an audio proof (--sound).
-        env=LAUNCH.env(),
-    )
+    # Card CAPTURE-QUIET-IMPL: one call starts the game muted, without a console window, and prints the one
+    # PP: muted line from this run's own log. The exit line comes from run.finish() in this function's finally.
+    run = pp_launch.start_game(exe_path, win_path, log=game_log, policy=LAUNCH, label="intro capture")
+    process = run.process
     start_watchdog(process, WATCHDOG_S)
     hwnd = None
     try:
@@ -2101,7 +2100,8 @@ def run_intro_capture():
         # the desktop after the harness ends.
         if hwnd is not None:
             release_on_top(hwnd)
-        kill_tree(process)
+        # The one exit line, and the game closed with nothing left running (card CAPTURE-QUIET-IMPL).
+        run.finish()
         try:
             game_log.close()
         except Exception:  # gate: ok Best-effort cleanup of a temp artifact.
@@ -2186,15 +2186,10 @@ def run_keys_capture(tokens, expect=None, first_boot=False):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     game_log_path = os.path.join(BUILD_DIR, "capture-keys-game.log")
     game_log = open(game_log_path, "wb")
-    process = subprocess.Popen(
-        [exe_path, "-game", win_path],
-        cwd=os.path.dirname(exe_path),
-        stdin=subprocess.DEVNULL,
-        stdout=game_log,
-        stderr=subprocess.STDOUT,
-        # Card CAPTURE-QUIET: PP_MUTE=1 unless this run is an audio proof (--sound).
-        env=LAUNCH.env(),
-    )
+    # Card CAPTURE-QUIET-IMPL: one call starts the game muted, without a console window, and prints the one
+    # PP: muted line from this run's own log. The exit line comes from run.finish() in this function's finally.
+    run = pp_launch.start_game(exe_path, win_path, log=game_log, policy=LAUNCH, label="keys capture")
+    process = run.process
     start_watchdog(process, WATCHDOG_S)
     try:
         match = find_window(
@@ -2266,7 +2261,8 @@ def run_keys_capture(tokens, expect=None, first_boot=False):
         if process.poll() is None:
             kill_tree(process)
     finally:
-        kill_tree(process)
+        # The one exit line, and the game closed with nothing left running (card CAPTURE-QUIET-IMPL).
+        run.finish()
         try:
             game_log.close()
         except Exception:  # gate: ok Best-effort: the checks below read the file from disk.
@@ -2428,15 +2424,10 @@ def run_scroll_capture():
     game_log = open(game_log_path, "wb")
     child_env = dict(os.environ)
     child_env["PP_TITLE_CAPTURE"] = "1"
-    process = subprocess.Popen(
-        [exe_path, "-game", win_path],
-        cwd=os.path.dirname(exe_path),
-        stdin=subprocess.DEVNULL,
-        stdout=game_log,
-        stderr=subprocess.STDOUT,
-        # Card CAPTURE-QUIET: the title's own frame flag, plus PP_MUTE=1 unless this is an audio proof.
-        env=LAUNCH.env(base=child_env),
-    )
+    # Card CAPTURE-QUIET-IMPL: one call starts the game muted, without a console window, and prints the one
+    # PP: muted line from this run's own log. The exit line comes from run.finish() in this function's finally.
+    run = pp_launch.start_game(exe_path, win_path, log=game_log, policy=LAUNCH, label="title scroll capture", base=child_env)
+    process = run.process
     start_watchdog(process, WATCHDOG_S)
     try:
         match = find_window(
@@ -2550,7 +2541,8 @@ def run_scroll_capture():
         print("frames: %s" % ", ".join(os.path.basename(path) for path in natives))
         return 0
     finally:
-        kill_tree(process)
+        # The one exit line, and the game closed with nothing left running (card CAPTURE-QUIET-IMPL).
+        run.finish()
         try:
             game_log.close()
         except Exception:  # gate: ok Best-effort cleanup of a temp artifact: the capture result does not depend on it.
@@ -2559,6 +2551,11 @@ def run_scroll_capture():
 
 def main():
     global LAUNCH
+    # Card PINE-HONEST (t_84fe63ff): a capture tool on a machine with no window cannot capture, and saying so is the
+    # only honest answer. Same not-measured code as tools\play_demo.py, so a reader never mistakes it for a pass.
+    if not WINDOW_PRIMITIVES:
+        print("capture_title: unavailable on this platform")
+        return pp_launch.EXIT_REFUSED
     parser = argparse.ArgumentParser(description="Capture the title screen frames of the built game.")
     # Card CAPTURE-QUIET: --sound, --show, --idle-wait and --force, spelled once in tools\pp_launch.py so every
     # launching tool takes the same four flags.

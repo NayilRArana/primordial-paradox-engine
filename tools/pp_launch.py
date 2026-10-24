@@ -9,11 +9,17 @@ remember them:
      to prove a sound passes sound=True (the harness's --sound flag) and PP_MUTE is then removed, not set to 0, so an
      inherited mute in the parent environment cannot leak into an audio proof and silence it.
   2. NO WINDOW WHILE HE IS AT THE PC. game_env() and Policy.gate() run the idle gate in tools\\idle_check.py first:
-     nothing opens unless there has been no keyboard or mouse input for three minutes, and a refused launch returns
-     idle_check.EXIT_REFUSED with a P: line saying so, so the next run tries again.
+     nothing opens unless the machine has been quiet for two minutes (D9_IDLE_S, ruling D9 of
+     knowledge\\GAMEDEV-DECISIONS-2026-10-23.md), and a refused launch returns idle_check.EXIT_REFUSED with a P: line
+     saying so, so the next run tries again.
   3. OFF THE PRIMARY SCREEN. Policy.place() moves the window onto a monitor other than the primary one when the run is
      not --show, so the window is not in his face on the screen he is working on. A single monitor host gets the
      honest answer instead of a pretend move.
+  4. ONE START, ONE PP: muted LINE, ONE EXIT LINE. start_game() is the only place a launcher starts the built runner:
+     it sets PP_MUTE in the child environment, starts it with CREATE_NO_WINDOW so no console appears, refuses to touch
+     the GameMaker IDE or Igor, and prints exactly one `PP: muted` line, and only after the game's own log carries it.
+     Run.finish() closes the process and prints exactly one exit line. A capture that cannot show the muted line is not
+     evidence (D9).
 
 Why this is a module and not a paragraph in each tool: six launch sites in tools\\capture_title.py, one in
 play_demo.py and one in each of the probe tools all start the same executable, and the rule only holds if every one of
@@ -32,9 +38,19 @@ Usage inside a tool:
 from __future__ import annotations
 
 import ctypes
-import ctypes.wintypes as wt
 import os
+import subprocess
 import sys
+import time
+
+# Same guard as tools\capture_title.py, for the same reason (card PINE-HONEST, t_84fe63ff): this module must import
+# on a machine with no window so the Pine suite can run the demo tools at all. Off Windows the primitives are absent
+# and WINDOW_PRIMITIVES is False, which the callers read to refuse with the not-measured code.
+WINDOW_PRIMITIVES = sys.platform == "win32"
+if WINDOW_PRIMITIVES:
+    import ctypes.wintypes as wt
+else:  # the branch exists so an import cannot fail, not so the window code can run
+    wt = None
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import idle_check  # noqa: E402  the gate itself, one implementation for every lane
@@ -44,6 +60,18 @@ import idle_check  # noqa: E402  the gate itself, one implementation for every l
 MUTE_VAR = "PP_MUTE"
 EXIT_REFUSED = idle_check.EXIT_REFUSED
 MIN_IDLE_S = idle_check.MIN_IDLE_S
+# Ruling D9 of knowledge\GAMEDEV-DECISIONS-2026-10-23.md is two idle minutes for an automatic launch, where the gate
+# module's own default is three. Two numbers, each pinned: idle_check.MIN_IDLE_S is what a direct caller of the gate
+# gets and what knowledge\ART-BIBLE.md states, and D9_IDLE_S is what a launcher gets through Policy. The card that owns
+# this file (CAPTURE-QUIET-IMPL) has the two minute number in its body and cites D9, so the launchers follow D9.
+D9_IDLE_S = 120.0
+# The window creation flag that keeps a console from appearing for the child. The built runner is a GUI exe, but it is
+# started from a Python console here and a run that pops a black window on his desktop is exactly what D9 forbids.
+NO_WINDOW = 0x08000000
+# The GameMaker IDE and its build tool. A launcher must never start one of these: the IDE opens a window, asks for a
+# login, and a capture that runs through it is not reproducible. The guard refuses them by name.
+IDE_IMAGES = ("gamemaker.exe", "gamemakerstudio.exe", "igor.exe")
+DEFAULT_MUTE_NEEDLE = "PP: muted"
 
 SWP_NOSIZE = 0x0001
 SWP_NOZORDER = 0x0004
@@ -75,6 +103,162 @@ def check_idle(label: str = "launch", wait_s: float = 0.0, min_idle: float = MIN
     allowed, idle = idle_check.verdict(min_idle=min_idle, wait_s=wait_s, force=force, say=say)
     idle_check.log("%s: %s" % (label, "allowed" if allowed else "refused"))
     return allowed, idle
+
+
+def wait_for_log_line(path, needle: str, timeout_s: float, poll_s: float = 0.25) -> bool:
+    """True when the file at path carries a line with needle within timeout_s.
+
+    The game writes its own lines to the file this run opened, so a line in it is the game's account of itself and not
+    this process's claim about it. A missing file is not an error: the game may still be creating it.
+    """
+    deadline = time.time() + float(timeout_s)
+    while True:
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as handle:
+                for line in handle:
+                    if needle in line:
+                        return True
+        except OSError:  # gate: ok the file is being written or not there yet; the loop retries until it times out
+            pass
+        if time.time() >= deadline:
+            return False
+        time.sleep(poll_s)
+
+
+def kill_tree(process, grace_s: float = 5.0) -> bool:
+    """Close the process and everything it started. True when nothing of it is left running.
+
+    GameMaker's runner loads its data in the same process, but a capture also starts a window thread and the runner can
+    answer a close message slowly, so the graceful close is given grace_s and the tree is then forced.
+    """
+    if process is None:
+        return True
+    if process.poll() is not None:
+        return True
+    try:
+        if sys.platform == "win32":
+            subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"], capture_output=True,
+                           stdin=subprocess.DEVNULL, timeout=30)
+        else:
+            process.terminate()
+    except Exception:  # gate: ok the forced close is best effort and the poll below is the answer that counts
+        pass
+    deadline = time.time() + grace_s
+    while time.time() < deadline:
+        if process.poll() is not None:
+            return True
+        time.sleep(0.2)
+    try:
+        process.kill()
+    except Exception:  # gate: ok already gone, which is what this function is asking for
+        pass
+    deadline = time.time() + grace_s
+    while time.time() < deadline:
+        if process.poll() is not None:
+            return True
+        time.sleep(0.2)
+    return process.poll() is not None
+
+
+class LaunchRefused(RuntimeError):
+    """A launch the helper will not make: an IDE image, or no log to prove the mute in."""
+
+
+class Run(object):
+    """One launched game: the process, its own log, the PP: muted line and the one exit line.
+
+    Every launcher gets its evidence from here, so a capture tool cannot print the muted line without the game having
+    written it into the log this run opened (ruling D9: a capture that cannot show that line is not evidence).
+    """
+
+    def __init__(self, process, log_path=None, label="game", say=print):
+        self.process = process
+        self.log_path = log_path
+        self.label = label
+        self.say = say
+        self.muted_said = False
+        self.exit_said = False
+
+    def pid(self):
+        return getattr(self.process, "pid", None)
+
+    def mute_evidence(self, timeout_s: float = 20.0) -> bool:
+        """Print the one PP: muted line, but only when the game's own log carries it. True once it has been printed."""
+        if self.muted_said:
+            return True
+        if not self.log_path:
+            self.say("FAIL: %s: no log was named, so the mute cannot be shown and this run is not evidence"
+                     % self.label)
+            return False
+        if not wait_for_log_line(self.log_path, DEFAULT_MUTE_NEEDLE, timeout_s):
+            self.say("FAIL: %s: the game's log never carried the PP: muted line within %.0f s (%s), so this run is "
+                     "not evidence" % (self.label, timeout_s, self.log_path))
+            return False
+        self.muted_said = True
+        self.say("PP: muted, PP_MUTE=1 in the child environment and the game's own log says so (%s)" % self.log_path)
+        return True
+
+    def finish(self, note: str = "") -> int:
+        """Close the game and print the one exit line. Returns 0 when nothing of the process is left running."""
+        closed = kill_tree(self.process)
+        code = self.process.poll() if self.process is not None else None
+        if not self.exit_said:
+            self.exit_said = True
+            self.say("P: exit: %s%s, the game process is %s (pid %s, code %s)"
+                     % (self.label, (", " + note) if note else "",
+                        "closed" if closed else "STILL RUNNING", self.pid(), "none" if code is None else code))
+        return 0 if closed else 1
+
+    def alive(self) -> bool:
+        return self.process is not None and self.process.poll() is None
+
+
+def start_game(exe, win, log=None, log_path=None, policy=None, extra=None, base=None, label="game",
+               wait_mute=True, mute_timeout_s=20.0, say=print):
+    """Start the built game once: muted, without a console window, and with the PP: muted line.
+
+    exe and win are the two arguments the runner was measured to take (`<game>.exe -game <data>.win`); every argument
+    after that is a policy decision this module owns, not a launcher's. Raises LaunchRefused for an IDE image, because
+    a launch through the IDE is not the thing any of these tools capture.
+    """
+    name = os.path.basename(str(exe)).lower()
+    if name in IDE_IMAGES:
+        say("FAIL: %s is the GameMaker IDE or its build tool, not the game; no window was opened" % name)
+        raise LaunchRefused(name)
+    if log is None and log_path:
+        os.makedirs(os.path.dirname(os.path.abspath(log_path)), exist_ok=True)
+        log = open(log_path, "wb")
+    if log is not None and not log_path:
+        # A launcher that already opened its own log handle gets the muted line too: the handle knows the path it writes
+        # to, and reading the game's line back out of it is the whole point (card CAPTURE-QUIET-IMPL).
+        opened = getattr(log, "name", None)
+        log_path = opened if isinstance(opened, str) else None
+    if log is None:
+        raise LaunchRefused("no log named for %s, so the mute could not be shown" % label)
+    environment = policy.env(base=base, extra=extra) if policy is not None else game_env(base=base, extra=extra)
+    flags = NO_WINDOW if sys.platform == "win32" else 0
+    process = subprocess.Popen([exe, "-game", win], cwd=os.path.dirname(os.path.abspath(exe)),
+                               stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT,
+                               env=environment, creationflags=flags)
+    run = Run(process, log_path=log_path, label=label, say=say)
+    if wait_mute:
+        run.mute_evidence(mute_timeout_s)
+    return run
+
+
+def launch(exe, win, label="game", policy=None, log_path=None, extra=None, base=None, say=print,
+           mute_timeout_s=20.0):
+    """The whole rule in one call: gate, start, PP: muted line. Returns (run, exit_code); run is None when refused.
+
+    This is the shape a one shot launcher uses. A capture that has to open a window and then drive it keeps the Run and
+    calls run.finish() when it is done, so the exit line is still printed exactly once.
+    """
+    policy = policy if policy is not None else Policy(say=say)
+    if not policy.gate(label):
+        return None, EXIT_REFUSED
+    run = start_game(exe, win, log_path=log_path, policy=policy, extra=extra, base=base, label=label,
+                     mute_timeout_s=mute_timeout_s, say=say)
+    return run, 0
 
 
 def primary_rect():
@@ -162,7 +346,7 @@ def place_window_quietly(hwnd, rect=None):
 class Policy(object):
     """What one run is allowed to do: muted or sound, gated or waiting, shown or off the primary screen."""
 
-    def __init__(self, show=False, sound=False, wait_s=0.0, min_idle=MIN_IDLE_S, force=False,
+    def __init__(self, show=False, sound=False, wait_s=0.0, min_idle=D9_IDLE_S, force=False,
                  idle_read=None, say=print):
         self.show = bool(show)
         self.sound = bool(sound)

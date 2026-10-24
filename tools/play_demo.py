@@ -36,11 +36,20 @@ Exit codes:
     0  the recording passed every check, or --check passed, or --dry-run validated the script
     1  a check failed, or the script is malformed, or the game window never appeared
     3  the watchdog fired (the run overran)
-    4  the idle gate refused to open a window: the user had input in the last three minutes (card CAPTURE-QUIET)
+    4  the idle gate refused to open a window: the user had input in the last three minutes (card CAPTURE-QUIET),
+       or this host cannot draw at all, in which case the run is not measured and nothing is claimed about it
 
 Quiet by default (card CAPTURE-QUIET, Nayil 2026-10-22): the game is started with PP_MUTE=1 so nothing plays, no
 window opens unless the idle gate in tools\idle_check.py sees three quiet minutes, and the window is moved off the
 primary screen. --sound is for an audio proof, --show leaves the window where it is, --force is a human override.
+
+Portable import (card PINE-HONEST, 2026-10-24): the two modules this tool draws and launches with,
+tools\capture_title.py and tools\pp_launch.py, import ctypes.wintypes at their own line 39 and line 41, which raises
+on a host without the Windows path. Imported at the top of this file they killed it before it could say anything, and
+that traceback, not a test result, is what 19 of the 21 Pine reds measured on 2026-10-24 were. Both are now imported
+inside the function that uses them, and a host that cannot import them prints one line, "play_demo: unavailable on
+this platform", and exits 4 (the harness's not-measured lane, tools\idle_check.py EXIT_REFUSED) instead of passing
+silently or going red.
 """
 
 import argparse
@@ -55,11 +64,73 @@ ROOT = os.path.dirname(TOOLS_DIR)
 if TOOLS_DIR not in sys.path:
     sys.path.insert(0, TOOLS_DIR)
 
-import capture_title as cap  # noqa: E402  the proved window and key primitives, imported rather than copied
-import pp_launch  # noqa: E402  the launch policy: PP_MUTE=1, the idle gate, and the quiet window (card CAPTURE-QUIET)
+import idle_check  # noqa: E402  EXIT_REFUSED = 4, the harness's not-measured lane, imported instead of restated
+
+# Card PINE-HONEST: the two modules this tool draws and launches with are imported inside the functions that use
+# them, never here. tools/capture_title.py:39 and tools/pp_launch.py:41 each import ctypes.wintypes, which raises on a
+# host without the Windows path (Pine is Linux), so a module level import turns "this host cannot draw" into a
+# traceback with no exit code and no line for a reader. See capture_module(), launch_module() and unavailable().
+EXIT_UNAVAILABLE = idle_check.EXIT_REFUSED
+UNAVAILABLE_LINE = "play_demo: unavailable on this platform"
+
+_capture_title = None
+_pp_launch = None
+
+
+class PlatformUnavailable(Exception):
+    """This host cannot draw or focus a window, so nothing this tool measures exists here."""
+
+
+def unavailable(error):
+    """The one line a host without the drawing path prints, and the not-measured code that goes with it.
+
+    4 is not a pass and not a red (tools/idle_check.py:48; capture_first_fight.py, capture_drive.py, capture_save.py
+    and _save_load_probe.py already return it), so a runner reading it records "not measured" instead of scoring it.
+    """
+    print(UNAVAILABLE_LINE)
+    print("  %s, so this run is not measured" % error)
+    return EXIT_UNAVAILABLE
+
+
+def can_draw():
+    """True when this host can import the drawing path and has window primitives to draw with.
+
+    The import is asked for first, so a host that cannot even import it raises PlatformUnavailable out to the caller
+    and gets the same one line. Off Windows the module imports but there is no window to copy, which is what
+    capture_title's own WINDOW_PRIMITIVES flag says; a version of capture_title without that flag is asked the
+    platform question directly.
+    """
+    capture = capture_module()
+    return bool(getattr(capture, "WINDOW_PRIMITIVES", sys.platform == "win32"))
+
+
+def capture_module():
+    """tools/capture_title.py, imported on first use. The proved window and key primitives, shared, never copied."""
+    global _capture_title
+    if _capture_title is None:
+        try:
+            import capture_title
+        except Exception as error:  # the drawing path is all or nothing here, so every failure is the same answer
+            raise PlatformUnavailable("capture_title could not be imported: %s" % error)
+        _capture_title = capture_title
+    return _capture_title
+
+
+def launch_module():
+    """tools/pp_launch.py, imported on first use: the launch policy, the idle gate, and the quiet window."""
+    global _pp_launch
+    if _pp_launch is None:
+        try:
+            import pp_launch
+        except Exception as error:  # same answer as above: a launcher that cannot launch is not a launcher
+            raise PlatformUnavailable("pp_launch could not be imported: %s" % error)
+        _pp_launch = pp_launch
+    return _pp_launch
+
 
 # What this process may do with a window and with sound. main() replaces it from the flags; run_demo reads it.
-LAUNCH = pp_launch.Policy()
+LAUNCH = None
+
 
 DEMO_DIR = os.path.join(ROOT, "data", "demo")
 OUTPUT_DIR = os.path.join(ROOT, "output", "demo")
@@ -79,7 +150,17 @@ MIN_KEY_GAP_STEPS = 6
 # The audio stand-in is the title theme, which is what plays over the attract and the crawl.
 THEME_GLOBS = ("title_theme_v5", "title_theme_v4", "title_theme_v3", "title_theme_v2", "title_theme")
 
-FFMPEG = cap.find_ffmpeg()
+# The binary is found once, on first use, because finding it goes through capture_title (card PINE-HONEST). A host
+# that reaches this line without the Windows path gets PlatformUnavailable from capture_module, not a traceback here.
+FFMPEG = None
+
+
+def ffmpeg_path():
+    """The ffmpeg binary, found once. Empty string means it was looked for and is not there, which is a finding."""
+    global FFMPEG
+    if FFMPEG is None:
+        FFMPEG = capture_module().find_ffmpeg()
+    return FFMPEG
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -100,9 +181,10 @@ def validate_script(script):
 
     The rules exist because each one is a way a recording has silently been wrong before: a key that is not
     a key the game reads, a step that goes backwards so the clock cannot be followed, a marker with no
-    fallback so a block buffered log hangs the run, a key gap the game cannot see, or a recording shorter
+    a fallback so a block buffered log hangs the run, a key gap the game cannot see, or a recording shorter
     than the submission needs.
     """
+    cap = capture_module()  # the key table lives in capture_title, so the import is here and not at the top
     problems = []
     if not isinstance(script, dict):
         return ["the script is not a JSON object"]
@@ -299,6 +381,7 @@ class Replay(object):
         return fallback_step, seen
 
     def run(self, end_step):
+        cap = capture_module()  # the key codes, imported here so this class can exist on any host
         self.started = time.monotonic()
         failures = []
         for event in self.script["events"]:
@@ -342,6 +425,7 @@ def pre_roll_viewport(hwnd, path):
     tools/nes_composite_check.py --crop auto runs, so a window that is covered, a desktop, or a terminal has
     no such box and the recording is refused instead of writing a file that looks like a video.
     """
+    cap = capture_module()
     rect = cap.get_window_rect(hwnd)
     if rect is None:
         return None, None, 0.0, "the window has no rectangle"
@@ -361,6 +445,7 @@ def start_recorder(rect, out_path, duration_s, fps, loopback):
     output goes to a file and never to a pipe: a pipe nobody reads fills after about 64 KB and ffmpeg then
     blocks, which is how an earlier run of this harness stopped recording at 9 s of a 13 s file.
     """
+    FFMPEG = ffmpeg_path()
     left, top, width, height = rect
     os.makedirs(BUILD_DIR, exist_ok=True)
     log_path = os.path.join(BUILD_DIR, "demo-ffmpeg.log")
@@ -412,6 +497,8 @@ def render_stand_in_audio(theme, seconds, out_path):
     the theme the game itself plays over the attract, rendered separately and labelled as a stand-in
     everywhere it appears, so a viewer hears the right music and nobody mistakes it for a direct capture.
     """
+    cap = capture_module()
+    FFMPEG = ffmpeg_path()
     ok, note = cap.run_ffmpeg(FFMPEG, ["-stream_loop", "-1", "-i", theme, "-t", "%.3f" % seconds,
                                       "-c:a", "aac", "-b:a", "160k", out_path], timeout=180)
     return ok, note
@@ -419,6 +506,8 @@ def render_stand_in_audio(theme, seconds, out_path):
 
 def cut_and_scale(raw_path, viewport, script, out_path, audio_path):
     """Crop the raw window recording to the viewport and scale it to a true 3x of the 256x240 screen."""
+    cap = capture_module()
+    FFMPEG = ffmpeg_path()
     record = script["record"]
     x, y, w, h = viewport
     width, height = int(record.get("width", 768)), int(record.get("height", 720))
@@ -541,9 +630,17 @@ def verify_video(path, script, report_path=None):
       1. the duration is at least record.min_seconds of real gameplay;
       2. the frame is the script's 3x of the 256x240 screen, at the script's fps;
       3. sampled frames are not black;
-      4. sampled frames are the game and not a terminal: every sample must pass the same legal 2C799 palette
-         viewport test the capture harness uses, and two samples must differ, so the scene moves.
+      4. sampled frames are the game and not a terminal: enough of them must sit on the legal 2C02 palette
+         within the tolerance a compressed frame needs, and two samples must differ, so the scene moves.
+
+    The exact 3x viewport search (capture_title.viewport_box_and_score) is deliberately not run on these
+    frames: it asks for exact palette colours, which is the right question on a PNG taken straight off the
+    game's screen, and it is the pre-roll frame's job before the recording starts. On an h264 frame it
+    returns 0.0 for a real frame of the game (measured on the 2026-10-22 run_001: the title frame scored 0.0
+    with a palette share of 0.93), so using it here would only manufacture a contradiction.
     """
+    cap = capture_module()
+    FFMPEG = ffmpeg_path()
     report = {"video": path, "checked_at": time.strftime("%Y-%m-%dT%H:%M:%S"), "checks": {}, "samples": []}
     record = script["record"]
     min_seconds = float(record["min_seconds"])
@@ -623,18 +720,20 @@ def verify_video(path, script, report_path=None):
             continue
         luma = frame_luma(frame_path)
         colours = cap.distinct_colours(frame_path)
-        _box, score, why = cap.viewport_box_and_score(frame_path)
         share = palette_share(frame_path, allowed, palette_tolerance) if allowed else None
         row.update({"luma": None if luma is None else round(luma, 2),
                     "colours": colours,
-                    "palette_share": None if share is None else round(share, 4),
-                    "exact_viewport_score": round(score, 3)})
+                    "palette_share": None if share is None else round(share, 4)})
         if luma is not None and luma >= luma_min:
             lit += 1
         if share is not None and share >= palette_min and (colours or 0) >= min_colours:
             on_palette += 1
         else:
-            row["why"] = why
+            # Why this frame is not counted as the game's picture, written into the row itself.
+            row["why"] = ("%s colours, under the %d a picture with content has"
+                          % (colours, min_colours)) if (colours or 0) < min_colours else (
+                "palette share %s, under the %.2f a frame of the game needs"
+                % ("unmeasured" if share is None else "%.3f" % share, palette_min))
             if colours and colours >= min_colours:
                 # Not a blank frame and not a foreign window: a scene of the game drawn with colours the
                 # 2C02 cannot output. That is a finding for the art lane, and it is named, never hidden.
@@ -704,9 +803,9 @@ def print_report(report):
         if line:
             print("  %s" % line)
     for row in report.get("samples", []):
-        print("  sample t=%.2f s: luma %s, %s colours, palette share %s (exact viewport score %s)"
+        print("  sample t=%.2f s: luma %s, %s colours, palette share %s%s"
               % (row["t"], row.get("luma"), row.get("colours"), row.get("palette_share"),
-                 row.get("exact_viewport_score")))
+                 "" if "why" not in row else " (%s)" % row["why"]))
     for finding in report.get("findings", []):
         print("  %s" % finding)
 
@@ -719,12 +818,35 @@ def out_path_for(script):
     return os.path.join(ROOT, script["record"]["out"])
 
 
+def out_stem(path):
+    """The stem of the recording's own file name: run_002 for output/demo/run_002.mp4.
+
+    The verify file and the stand-in track are named after the mp4, not after the script, so a re-recording
+    written with --out cannot overwrite the verdict that belongs to the take already on disk.
+    """
+    return os.path.splitext(os.path.basename(path))[0]
+
+
 def run_demo(script, keep_raw=False):
     """Launch the built game, play the script, record it, cut it to 3x, then check the file."""
+    # Card PINE-HONEST (t_84fe63ff): both modules come in on first use, and a host with no window primitives
+    # refuses here, where a window would actually be opened, so --check and --dry-run still work where nothing can
+    # be shown. 4 is the harness's not-measured code, so a reader sees "not measured" and never "passed".
+    try:
+        cap = capture_module()
+        launch = launch_module()
+    except PlatformUnavailable as error:
+        print(UNAVAILABLE_LINE)
+        print("  %s" % error)
+        return EXIT_UNAVAILABLE
+    if not getattr(cap, "WINDOW_PRIMITIVES", False):
+        print(UNAVAILABLE_LINE)
+        print("  this host has no window primitives")
+        return EXIT_UNAVAILABLE
     # Card CAPTURE-QUIET: the gate is asked before anything is opened or deleted, so a refused run leaves the last
     # good recording on disk and costs one log line.
     if not LAUNCH.gate("demo recording"):
-        return pp_launch.EXIT_REFUSED
+        return EXIT_UNAVAILABLE
     if not FFMPEG:
         print("ffmpeg was not found in the winget package folder and is not on PATH")
         return 1
@@ -745,6 +867,8 @@ def run_demo(script, keep_raw=False):
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     out_path = out_path_for(script)
+    stem = out_stem(out_path)
+    verify_path = os.path.join(OUTPUT_DIR, "%s_verify.json" % stem)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     raw_path = os.path.join(OUTPUT_DIR, "_%s_raw.mp4" % script["name"])
     for stale in (out_path, raw_path):
@@ -758,13 +882,16 @@ def run_demo(script, keep_raw=False):
 
     os.makedirs(BUILD_DIR, exist_ok=True)
     log_path = os.path.join(BUILD_DIR, "demo-game.log")
-    log_handle = open(log_path, "wb")
-    launch = [exe_path] + [part.replace("{win}", win_path) for part in script["game"]["launch_args"]]
-    print("launching %s" % " ".join(launch))
-    process = subprocess.Popen(launch, cwd=os.path.dirname(exe_path), stdin=subprocess.DEVNULL,
-                               stdout=log_handle, stderr=subprocess.STDOUT,
-                               # Card CAPTURE-QUIET: PP_MUTE=1 unless this run is an audio proof (--sound).
-                               env=LAUNCH.env())
+    launch_args = [part.replace("{win}", win_path) for part in script["game"]["launch_args"]]
+    print("launching %s" % " ".join([exe_path] + launch_args))
+    # Card CAPTURE-QUIET-IMPL: one call starts the game muted, without a console window, and prints the one PP: muted
+    # line from this run's own log. The exit line comes from run.finish() in the finally below.
+    extra = {}
+    for part in script["game"].get("env", {}) or {}:
+        extra[part] = script["game"]["env"][part]
+    run = launch.start_game(exe_path, win_path, log_path=log_path, policy=LAUNCH, label="demo recording",
+                               extra=extra or None)
+    process = run.process
     cap.start_watchdog(process, int(seconds) + 240)
     failures = []
     recorder = None
@@ -883,7 +1010,7 @@ def run_demo(script, keep_raw=False):
         else:
             theme = newest_theme()
             if theme:
-                audio_path = os.path.join(OUTPUT_DIR, "%s_audio.m4a" % script["name"])
+                audio_path = os.path.join(OUTPUT_DIR, "%s_audio.m4a" % stem)
                 made, note = render_stand_in_audio(theme, record_seconds, audio_path)
                 print("audio: no loopback, so a stand-in track was rendered from %s (%s): %s"
                       % (os.path.relpath(theme, ROOT), note, audio_path))
@@ -896,7 +1023,7 @@ def run_demo(script, keep_raw=False):
             return 1
         print("wrote %s" % out_path)
 
-        ok, report = verify_video(out_path, script, os.path.join(OUTPUT_DIR, "%s_verify.json" % script["name"]))
+        ok, report = verify_video(out_path, script, verify_path)
         report["script"] = os.path.relpath(script_path_used, ROOT) if script_path_used else None
         report["audio"] = ("loopback %s" % loopback) if loopback else (
             "rendered stand-in from %s, not the game's live output" % os.path.basename(audio_path)
@@ -904,8 +1031,7 @@ def run_demo(script, keep_raw=False):
         report["run"] = {"trace": replay.trace, "failures": failures, "game_log": os.path.relpath(log_path, ROOT),
                          "footsteps": footsteps, "planned_seconds": round(seconds, 3),
                          "recorded_seconds": round(record_seconds, 3)}
-        with open(os.path.join(OUTPUT_DIR, "%s_verify.json" % script["name"]), "w",
-                  encoding="utf-8", newline="\n") as handle:
+        with open(verify_path, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(json.dumps(report, indent=2, sort_keys=True) + "\n")
         print_report(report)
         for failure in failures:
@@ -916,11 +1042,8 @@ def run_demo(script, keep_raw=False):
         print("PASS %s" % out_path)
         return 0
     finally:
-        cap.kill_tree(process)
-        try:
-            log_handle.close()
-        except Exception:  # gate: ok best effort cleanup; the log is read from disk above.
-            pass
+        # The one exit line, and the game closed before the raw file is cleaned up (card CAPTURE-QUIET-IMPL).
+        run.finish()
         if recorder is not None and recorder.poll() is None:
             recorder.kill()
         if recorder_log is not None:
@@ -942,6 +1065,12 @@ def main():
     global script_path_used
     global LAUNCH
     parser = argparse.ArgumentParser(description="Play a scripted run of the built game and record it.")
+    # Card PINE-HONEST (t_84fe63ff): the launcher module is imported by launch_module(), so a host without the
+    # Windows path answers with one line and the not-measured code instead of a traceback from the argument parser.
+    try:
+        pp_launch = launch_module()
+    except PlatformUnavailable as error:
+        return unavailable(error)
     # Card CAPTURE-QUIET: the same four launch flags every launching tool takes (tools\pp_launch.py).
     pp_launch.add_launch_flags(parser)
     parser.add_argument("--script", default=DEFAULT_SCRIPT,
@@ -956,32 +1085,37 @@ def main():
     args = parser.parse_args()
     LAUNCH = pp_launch.policy_from_args(args)
 
-    script_path_used = os.path.abspath(args.script)
-    script = load_script(script_path_used)
-    if args.out:
-        script = json.loads(json.dumps(script))
-        script["record"]["out"] = args.out
+    try:
+        script_path_used = os.path.abspath(args.script)
+        script = load_script(script_path_used)
+        if args.out:
+            script = json.loads(json.dumps(script))
+            script["record"]["out"] = args.out
 
-    if args.dry_run:
-        print("%s: %d events, %.1f s, %d fps, seeds %s"
-              % (script["name"], len(script["events"]), planned_seconds(script), script["clock"]["fps"],
-                 json.dumps({key: value for key, value in script["seeds"].items() if key != "note"},
-                            sort_keys=True)))
-        for row in timeline(script):
-            print("  %6.2f s  beat %2d  %-4s %-8s %s" % (row["second"], row["beat"], row["kind"],
-                                                        row["key"] or "", row["id"]))
-        beats = sorted({row["beat"] for row in timeline(script)})
-        print("beats covered by the script: %s" % ", ".join(str(beat) for beat in beats))
-        return 0
+        if args.dry_run:
+            print("%s: %d events, %.1f s, %d fps, seeds %s"
+                  % (script["name"], len(script["events"]), planned_seconds(script), script["clock"]["fps"],
+                     json.dumps({key: value for key, value in script["seeds"].items() if key != "note"},
+                                sort_keys=True)))
+            for row in timeline(script):
+                print("  %6.2f s  beat %2d  %-4s %-8s %s" % (row["second"], row["beat"], row["kind"],
+                                                            row["key"] or "", row["id"]))
+            beats = sorted({row["beat"] for row in timeline(script)})
+            print("beats covered by the script: %s" % ", ".join(str(beat) for beat in beats))
+            return 0
 
-    if args.check:
-        path = os.path.abspath(args.video) if args.video else out_path_for(script)
-        print("checking %s against %s" % (path, os.path.basename(script_path_used)))
-        ok, report = verify_video(path, script)
-        print_report(report)
-        return 0 if ok else 1
+        if args.check:
+            path = os.path.abspath(args.video) if args.video else out_path_for(script)
+            print("checking %s against %s" % (path, os.path.basename(script_path_used)))
+            ok, report = verify_video(path, script)
+            print_report(report)
+            return 0 if ok else 1
 
-    return run_demo(script, keep_raw=args.keep_raw)
+        return run_demo(script, keep_raw=args.keep_raw)
+    except PlatformUnavailable as error:
+        # Anything that needed the drawing path and could not have it: --check on a host with no ffprobe path, a
+        # dry run whose key table cannot be read. One line and 4, never a green and never a silent zero.
+        return unavailable(error)
 
 
 if __name__ == "__main__":

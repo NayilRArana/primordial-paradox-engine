@@ -235,8 +235,18 @@ def test_each_capture_path_starts_the_game_muted(name, _marker):
         # The selftest opens notepad, not the game, so there is no environment to set: it is gated, not muted.
         assert "notepad.exe" in body
         return
-    assert "subprocess.Popen(" in body
-    assert "env=LAUNCH.env(" in body, "%s launches the game without the muted environment" % name
+    # Card CAPTURE-QUIET-IMPL: the launch itself moved into pp_launch.start_game, which owns the mute, the missing
+    # console window and the PP: muted line, so a site is proved by calling it and by not starting the game itself.
+    # Card PINE-HONEST (t_84fe63ff): play_demo now imports pp_launch on first use, so the call reads
+    # launch.start_game( instead of pp_launch.start_game(. The property is the same one: the launch goes through
+    # the helper rather than being built here, so the pin is on the call and not on the module prefix.
+    assert ("pp_launch.start_game(" in body) or ("launch.start_game(" in body), \
+        "%s does not start the game through the helper" % name
+    assert 'label="' in body, "%s gives the helper no label for its lines" % name
+    # ffmpeg is started here on purpose (the recorder), so the pin is on the game: no Popen of exe_path in the body.
+    for match in re.finditer(r"subprocess\.Popen\(", body):
+        assert "exe_path" not in body[match.start():match.start() + 300], \
+            "%s still starts the game without the helper" % name
 
 
 def test_the_window_goes_off_the_primary_screen_on_every_launch():
@@ -251,15 +261,21 @@ def test_the_window_goes_off_the_primary_screen_on_every_launch():
 def test_every_launching_tool_uses_the_policy(name):
     text = source(name)
     assert "import pp_launch" in text
-    # The gate and the environment, one or the other spelling, in every tool.
+    # The gate and the environment, one or the other spelling, in every tool. Card CAPTURE-QUIET-IMPL added the third
+    # spelling: start_game, which sets the environment and prints the muted line for the tool.
     assert ("pp_launch.Policy().gate(" in text) or ("LAUNCH.gate(" in text), "%s never asks the gate" % name
-    assert ("pp_launch.game_env(" in text) or ("LAUNCH.env(" in text), "%s never sets PP_MUTE" % name
+    assert ("pp_launch.game_env(" in text) or ("LAUNCH.env(" in text) or ("pp_launch.start_game(" in text) \
+        or ("launch.start_game(" in text), \
+        "%s never sets PP_MUTE" % name
 
 
 def test_play_demo_records_what_it_was_told():
     text = source("play_demo")
-    assert "pp_launch.add_launch_flags(parser)" in text
-    assert "LAUNCH = pp_launch.policy_from_args(args)" in text
+    # Card PINE-HONEST (t_84fe63ff): both calls now go through the lazily imported launcher, so they read
+    # launch.add_launch_flags( and launch.policy_from_args(. Same two properties, accessor instead of prefix.
+    assert ("pp_launch.add_launch_flags(parser)" in text) or ("launch.add_launch_flags(parser)" in text)
+    assert ("LAUNCH = pp_launch.policy_from_args(args)" in text) \
+        or ("LAUNCH = launch.policy_from_args(args)" in text)
 
 
 def test_capture_title_exposes_the_four_flags():
