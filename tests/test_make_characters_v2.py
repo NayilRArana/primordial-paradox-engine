@@ -7,6 +7,14 @@ The card's check has two halves and both are measured here rather than described
 2. The blob test (SPRITE-CRAFT section 8.5), four numbers on the sailor, the sheet Nayil called a white
    blob. On disk the v1 sheet carried 2 colours (white and navy, no ink, no skin), so the regression this
    test locks down is real and was measured before the redraw.
+3. The blob floor is read on a THREE entry sheet, by gamedev ruling on card t_a44ae3db (2026-10-24). A 16x16
+   cell spends one sprite palette of three (ART-BIBLE RULE 0 point 3, hardware rule 16), so the entry count
+   is exact at 3 and never a floor of four: the sheet had four entries and needed two sprite palettes before
+   card t_bd5cfad5, and that is the palette first defect, not a blob. The lightest share ceiling moves with
+   it, from the four entry margin of 30 percent to 8.5's own blob line of 45 percent, and the dark share
+   floor of 30 percent takes over the job the ceiling was doing. Measured on the down idle frame: 3 entries,
+   white 57 of 152 drawn (37.5 percent), navy 62 (40.8 percent). The v1 blob was 75.7 percent white and
+   24.3 percent navy, so both numbers still refuse it.
 
 The committed PNGs are also checked against the generator's own output, so a hand edited PNG fails.
 """
@@ -51,11 +59,19 @@ def test_sailor_is_not_a_white_blob():
                 pixels.setdefault(spec["palette"][code].lower(), 0)
                 pixels[spec["palette"][code].lower()] += 1
     drawn = sum(pixels.values())
-    assert len(pixels) >= 4, pixels
+    # Exact, not a floor: one sprite palette carries three opaque entries (hardware rule 16) and a legal cell
+    # spends all three. Two entries is the v1 white blob (white and navy only); four is a sheet that needs a
+    # second sprite palette, which is the defect card t_bd5cfad5 removed.
+    assert len(pixels) == 3, pixels
     lightest = "#fcfcfc"
     share = 100.0 * pixels[lightest] / drawn
-    assert share < 30.0, "lightest tone is %.1f percent of %d drawn pixels, the blob ceiling is 30" % (
+    assert share < 45.0, "lightest tone is %.1f percent of %d drawn pixels, the blob line is 45" % (
         share, drawn)
+    # The counterweight, and the number the v1 blob actually failed: the dark entry has to own at least a
+    # third of the figure, because on a three entry sheet the outline, collar and belt carry the silhouette.
+    dark_share = 100.0 * pixels[spec["palette"]["k"].lower()] / drawn
+    assert dark_share >= 30.0, "the dark entry is %.1f percent of %d drawn pixels, the floor is 30" % (
+        dark_share, drawn)
     # The body band must carry ink plus at least two palette steps, or the uniform is a single fill.
     body = v2.band_colours(grid, 8, 16)
     assert "k" in body and len([c for c in body if c != "k"]) >= 2, body
@@ -76,6 +92,18 @@ def test_sailor_is_not_a_white_blob():
             if not edge:
                 interior += 1
     assert interior >= 8, "only %d interior dark pixels in the body block" % interior
+    # 8.5 point 3, which this test skipped until the ruling on card t_a44ae3db: distinct vertical runs of
+    # dark read down the midline of the body block (collar, belt, trouser break). The doc asks for at least
+    # 3 and this sheet measures exactly 3 on all six frames; the per column spread on the down idle frame is
+    # [1, 3, 1, 1, 2, 3, 3, 2, 1, 1, 3, 1] over the twelve body columns.
+    runs = []
+    inside = False
+    for y in range(8, 16):
+        dark = grid.get(8, y) == "k"
+        if dark and not inside:
+            runs.append(y)
+        inside = dark
+    assert len(runs) >= 3, "the body midline crosses only %d dark bands at rows %s" % (len(runs), runs)
 
 
 @pytest.mark.parametrize("name", NAMES)

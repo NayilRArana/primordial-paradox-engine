@@ -80,6 +80,12 @@ GREY = "#7c7c7c"
 GREY_L = "#bcbcbc"
 GOLD = "#f8b800"
 PALE = "#fcfcfc"
+# Card t_980388cf: the light blue of deck_night sp3, so Zander's sheet can be one sprite palette.
+SKY_L = "#a4e4fc"
+BROWN_D = "#881400"
+ORANGE = "#e45c10"
+BLUE_D = "#0000fc"
+BLUE_M = "#0078f8"
 
 # ----------------------------------------------------------------------------------------------------------------
 # The grids. Codes: k ink, s skin, h hair, a cloth tone A, b cloth tone B, . transparent.
@@ -169,32 +175,74 @@ def cast():
         {
             "name": "sailor",
             "label": "SAILOR",
-            "palette": {"k": INK, "s": SKIN, "h": GINGER, "a": WHITE, "b": NAVY},
+            # Card t_bd5cfad5 (sailor_ow_v2, eye round 8): the sheet spent four entries in every cell
+            # (ink, white, navy, skin) and the four 8x8 tiles of one 16x16 cell share ONE sprite palette
+            # of three, so the sailor claimed two of the four palettes on a scanline. Fixed palette
+            # first, the way Percy's, Konrad's and Zander's were: the three entries are
+            # data/palettes/scene_battle_deck_night.json sp2 {2, 18, 48} = $02 #0000bc, $12 #0058f8,
+            # $30 #fcfcfc, which is also ship sp1, so the sheet is legal on both grounds the crew stands
+            # on. $30 white is row 3 and carries the jumper, the cap crown and the face, which clears the
+            # deck's $0F backdrop by three rows; $02 navy is the outline, the square collar, the cuffs and
+            # the belt; $12 blue is the trousers and the shade plane. Skin is the entry this costs, the
+            # way Konrad's grey and Zander's blond were, and it is posted as Q5 on the queue row.
+            "palette": {"k": NAVY, "s": WHITE, "h": NAVY, "a": WHITE, "b": BLUE},
             "decor": ["cap", "collar_flap", "cuffs", "belt", "trousers"],
         },
         {
             "name": "percy",
             "label": "PERCY",
-            "palette": {"k": INK, "s": SKIN, "h": GINGER, "a": BLUE, "b": GOLD},
+            # RULE 0, palette first (sprite_percy_ow_v2): the finished frame has to fit ONE of the deck's four
+            # sprite palettes, not five loose colours (palette_synergy R6/R7 failed 4 of 4 pairs at 08:36).
+            # $02 navy, $12 blue, $30 white is data/scene_palettes.json battle_deck_night sp2, and it is also
+            # ship sp1, so the same sheet is legal on both grounds the overworld cast stands on. Navy is ink,
+            # hair and the trident socket; white is face and shirt (the largest fill, which clears the deck by
+            # three luminance rows); blue is the rank slide and the shade plane. Gold is not in either palette.
+            "palette": {"k": NAVY, "s": WHITE, "h": NAVY, "a": WHITE, "b": BLUE},
             "decor": ["beard", "stocky", "rank_stripes", "trident"],
         },
         {
             "name": "konrad",
             "label": "KONRAD",
-            "palette": {"k": INK, "s": SKIN, "h": BLOND, "a": GREY, "b": GREY_L},
+            # Card t_980388cf (konrad_ow_v2, eye round 8): the sheet spent five entries (ink, skin, blond,
+            # grey, light grey), and on hardware the four 8x8 tiles of one 16x16 cell share ONE sprite
+            # palette of three, so Konrad claimed two of the four palettes on a scanline. Fixed palette
+            # first, the way Percy's was: the three entries are data/palettes/scene_battle_deck_night.json
+            # sp1 {7, 23, 40} = $07 #881400, $17 #e45c10, $28 #f8b800, which is the same sp1 in all four
+            # battle strips and in the three towns, so the same sheet is legal on both kinds of ground.
+            # $28 gold is row 2 and is the body, which is what clears the deck's $0F backdrop by two rows
+            # (palette_synergy body_ground needs the body two luminance rows above the ground); $07 is the
+            # outline, the hair and the seams; $17 is the lapel and collar accent. Konrad is grey and
+            # amber in RULE 0 point 3 and no grey sprite palette in the project has a body above row 1
+            # (deck sp0's lightest, $10, is row 1), so the amber half carries the figure and the grey is
+            # posted to gamedev as Q2 on the row.
+            "palette": {"k": BROWN_D, "s": GOLD, "h": BROWN_D, "a": GOLD, "b": ORANGE},
             "decor": ["long_hair", "beard", "lapels"],
         },
         {
             "name": "zander",
             "label": "ZANDER",
-            "palette": {"k": INK, "s": SKIN, "h": BLOND, "a": BLUE, "b": SKY},
+            # Card t_980388cf (zander_ow_v2): same defect and same fix. The sheet spent ink, skin, blond,
+            # blue and sky, five entries in every cell, so the player cost two sprite palettes to draw.
+            # The three entries are scene_battle_deck_night.json sp3 {1, 17, 49} = $01 #0000fc,
+            # $11 #0078f8, $31 #a4e4fc, which is the deck's light blue palette and the only one in the
+            # project that carries Zander's light blue (RULE 0 point 3). $31 pale blue is row 3 and is
+            # the body and the face, the same trick Percy's white plays; $01 is the outline and the messy
+            # hair; $11 is the bomber's zip and collar. His blond is one of the two entries this costs,
+            # posted with Konrad's as Q2 on the row.
+            "palette": {"k": BLUE_D, "s": SKY_L, "h": BLUE_D, "a": SKY_L, "b": BLUE_M},
             "decor": ["spiky_hair", "bomber"],
         },
         {
             "name": "hadrian",
             "label": "HADRIAN",
-            "palette": {"k": INK, "s": PALE, "h": INK, "a": INK, "b": GREY},
-            "decor": ["sleek_hair", "rim"],
+            # Card t_bd32a72e (hadrian_ow_v2): the shipped sheet spent ink as the suit AND as the outline,
+            # so 1010 of its 1186 opaque pixels were one entry (#000000, 85.2 percent) and the walk read as a
+            # black mass. ART-BIBLE RULE 0 point 3 asks a sprite for 1 dark outline, 1 mid body and 1 accent,
+            # so grey moves from the accent to the mid body: ink is the outline, the seams and the sleek hair;
+            # grey $00 is the suit; pale $30 is the face and the lit rim. The three entries are the ones the
+            # shipped sheet already spent, so this redraw adds no colour and takes no palette decision.
+            "palette": {"k": INK, "s": PALE, "h": INK, "a": GREY, "b": PALE},
+            "decor": ["sleek_hair", "rim", "bident"],
         },
     ]
 
@@ -299,12 +347,50 @@ def decorate(spec, grid, view, walk):
             grid.put(2, y, "b")
             grid.put(13, y, "b")
     if "trident" in parts:
-        # Held in the near hand, entirely inside the body band so the head band keeps its three colours.
+        # Three prongs on top of the shaft, the eye's rank 2 fix on the 2026-10-22 sheet ("Percy holds a
+        # featureless yellow cane instead of a trident"). Everything is inside the two right hand tiles: the
+        # head band tile (cols 8 to 15, rows 0 to 7) spends navy and white only, the body band tile spends
+        # navy, white and blue, so the trident costs no fourth colour. The prongs are white because white is
+        # the one colour in the frame that clears the deck (3.00 : 1) and the night road (8.74 : 1); the
+        # socket and the grip are navy so the weapon separates from the white sleeve it passes.
+        # The head of the trident stands above the right shoulder, in the three columns and three rows that
+        # are empty there, and the shaft runs down col 14 from row 6 to row 14. Two attempts before this one
+        # failed for a measured reason: a 1 px head inside the shoulder line, and a navy shaft on the body's
+        # own ink edge, both read as "no weapon" at 12x. The prongs are the skin code and the socket the ink
+        # code because those two tiles have already spent their three codes.
+        grid.put(13, 3, "s")
+        grid.put(15, 3, "s")
+        grid.put(13, 4, "s")
+        grid.put(14, 4, "s")
+        grid.put(15, 4, "s")
+        grid.put(13, 5, "k")
+        grid.put(14, 5, "k")
+        grid.put(15, 5, "k")
+        for y in range(6, 8):
+            grid.put(14, y, "s")
+        for y in range(8, 15):
+            grid.put(14, y, "a")
+        grid.put(13, 13, "k")
+    if "bident" in parts:
+        # Hadrian's weapon is the two pronged bident (CHARACTER-BIBLE: "Hadrian the BIDENT (two pronged)"),
+        # drawn with Percy's trident construction so it costs no fourth colour: the prongs are the accent
+        # code inside the head band tile, which has already spent ink and skin, and the shaft runs down col
+        # 14 in the same accent over the grey suit. The prongs are pale because a pale prong clears the night
+        # deck (3.00 : 1) and an ink one would land on the ink outline and read as no weapon at all, which
+        # is the failure Percy's trident notes record. Two prongs, not three: this is the bident.
+        # Two prongs, not three: this is the bident. The prongs take the skin code and the socket the ink
+        # code for the same reason Percy's do: the head band tile has already spent exactly those three
+        # codes, and make_characters_v2 refuses an overflow rather than recolouring one.
+        grid.put(13, 3, "s")
+        grid.put(15, 3, "s")
+        grid.put(13, 4, "s")
+        grid.put(15, 4, "s")
+        grid.put(14, 4, "k")
+        for y in range(5, 8):
+            grid.put(14, y, "s")
         for y in range(8, 15):
             grid.put(14, y, "b")
-        grid.put(13, 9, "b")
-        grid.put(15, 9, "b")
-        grid.put(14, 8, "k")
+        grid.put(13, 13, "k")
     if "lapels" in parts:
         # Open blazer: two lit lapel columns, the dark shirt between them.
         for y in (8, 9, 10):
@@ -455,10 +541,16 @@ def make_frame_with_background(sprite_sheet, backdrop_path, out_dir, name):
 
 
 def contact_sheet(entries, scale, path):
-    """Every frame at 4x, one row per character, on the black backdrop the game uses."""
+    """Every frame at 4x, one row per character, on the black backdrop the game uses.
+
+    The canvas is sized from the drawing pitch, not guessed: each row spends a 10 px label line, the 16 px
+    sprite and a 14 px gap, so five rows need 8 + 5 * (10 + 16 + 14) = 208 units. The old formula left out
+    the label line and cut the sheet at 162 units, which is why the eye's round 2 found HADRIAN missing
+    (measured: canvas 648 px tall, about 784 needed).
+    """
     rows = len(entries)
     width = 16 * scale + OW_W * 8 * scale + 16 * scale
-    height = 12 * scale + rows * (OW_H * scale + 14 * scale)
+    height = 8 * scale + rows * (10 * scale + OW_H * scale + 14 * scale)
     canvas = Image.new("RGBA", (width, height), (0, 0, 0, 255))
     draw = ImageDraw.Draw(canvas)
     y = 8 * scale

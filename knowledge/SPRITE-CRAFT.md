@@ -394,12 +394,25 @@ Each of these is 1 to 3 px and each one converts "white shape" into "naval unifo
 
 A pass or fail check that needs no vision model:
 
-1. Count the pixels in the lightest tone of the sprite. **Must be under 30 percent of the drawn pixels.** A blob is over 45 percent.
+1. Count the pixels in the lightest tone of the sprite. **Must be under 30 percent of the drawn pixels** on a sheet that carries four entries. **On a three entry sheet, which is the only legal case below, it must be under 45 percent**, which is the blob line stated in this same sentence, and the dark entry must own at least 30 percent instead. A blob is over 45 percent whatever else the sheet carries.
 2. Count the number of horizontal rows that contain **no** dark pixel. **Must be 0.** A row with no dark pixel is a row where the figure has no structure at all.
-3. Count the number of **distinct vertical runs of dark** in the body block. **Must be at least 3** (for example: collar, belt, trouser break). A blob has 1 or 2.
+3. Count the number of **distinct vertical runs of dark** in the body block, read as a column scan down the body's midline, from row 8 to row 15. **Must be at least 3** (for example: collar, belt, trouser break). A blob has 1 or 2.
 4. Count the dark pixels inside the body block that are **not** on the outer edge. **Must be at least 8.** Those are the interior lines, and interior lines are what stop a silhouette reading as a blob.
 
 `inference`, all four measurable on our own PNG output by `tools\inspect_frame.py` or a 20 line script.
+
+**Amendment, gamedev ruling on card t_a44ae3db (2026-10-24).** A 16 x 16 cell spends one sprite palette of three (ART-BIBLE RULE 0 point 3, hardware rule 16 in section 1), so a sheet cannot carry four entries without claiming a second sprite palette, and palette first refuses that. The four numbers above are therefore read like this, and they are what `tests/test_make_characters_v2.py` asserts on the down idle frame:
+
+| What is counted | Gate | Sailor, 3 entries (shipped 2026-10-24) | The v1 white blob, `sailor_ow.png` |
+| --- | --- | --- | --- |
+| entries in the 16 x 16 cell | exactly 3, all three spent | 3 | 2, FAIL |
+| check 1, lightest share of drawn pixels | under 45 percent (30 is the four entry margin) | 37.5 percent | 83.3 percent, FAIL |
+| dark share of drawn pixels, the counterweight | at least 30 percent | 40.8 percent | 16.7 percent, FAIL |
+| check 2, rows with no dark pixel | 0 | 0 | 9, FAIL |
+| check 3, midline dark runs, rows 8 to 15 | at least 3 | 3 | 0, FAIL |
+| check 4, interior dark pixels | at least 8 | 10 | 0, FAIL |
+
+Why the ceiling moved rather than the drawing: on a three entry sheet the light tone carries the jumper and the face, because skin is the entry a white uniform costs at this palette size, so the light tone is a fill by design and the 30 percent margin (written for a sheet where a mid grey shaded the cloth) cannot be met by a white uniform at all. The dark share floor and check 3 take over the job the ceiling was doing, and the v1 blob fails five of the six numbers, so nothing was made cheap. The ten percent of colours the four entry sheet had (ink, white, navy, skin) bought it a second sprite palette on every scanline, which is the palette first defect card t_bd5cfad5 removed. A future crew that wants flesh tones gets them from a scene palette with a skin entry, budgeted at scene level, not from this sheet.
 
 ## 9. Faces at 16 px
 
