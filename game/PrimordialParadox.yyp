@@ -2040,6 +2040,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "pp_03_harbor_v3.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_03_harbor_v3.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_04_navy_sailors.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
@@ -2107,6 +2116,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "pp_arrival.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_arrival_v2.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_arrival_v2.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
