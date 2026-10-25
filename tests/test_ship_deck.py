@@ -728,7 +728,9 @@ def test_both_ship_scenes_use_only_commands_the_runner_implements(scenes):
     assert problems == [], problems
     assert len(scenes[BOARDING_SCENE]["commands"]) == 11, (
         "the boarding scene authors %d commands" % len(scenes[BOARDING_SCENE]["commands"]))
-    assert len(scenes[LOG_SCENE]["commands"]) == 8, (
+    # The log scene gained the one `say ship_log_open` that reads the ship's log before the jingle (card t_4c7368fb),
+    # so the S5 measurement of 8 is 9 now: the two pages of words are the beat's, and the move commands are unchanged.
+    assert len(scenes[LOG_SCENE]["commands"]) == 9, (
         "the log scene authors %d commands" % len(scenes[LOG_SCENE]["commands"]))
 
 

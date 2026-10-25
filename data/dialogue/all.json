@@ -12,6 +12,56 @@
       ]
     },
     {
+      "id": "ship_gangway",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* The horn shakes the deck.",
+            "* Salt, rope and wet paint.",
+            "* A wardroom hatch, shut."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship_log_open",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* A log book, chained down.",
+            "* The last hand is tight.",
+            "* Rain all night, no cargo."
+          ]
+        },
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* You add a line and a date.",
+            "* The page takes the ink.",
+            "* Then the book is shut."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ship_aboard",
+      "speaker": "narrator",
+      "pages": [
+        {
+          "speaker": "narrator",
+          "lines": [
+            "* A plank, then a rail.",
+            "* The pier is behind you.",
+            "* Nobody asks your name."
+          ]
+        }
+      ]
+    },
+    {
       "id": "battle_intro_sailors",
       "speaker": "narrator",
       "lines": [
