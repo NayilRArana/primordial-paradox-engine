@@ -209,3 +209,37 @@ def test_cli_show_names_the_palettes(capsys):
     assert scene_palette_set.main(["show", "--scene", "title"]) == 0
     out = capsys.readouterr().out
     assert "$0F" in out and "percy" in out
+
+
+def test_the_ship_judged_row_names_the_tileset_and_not_the_capture():
+    """Card t_1dc346b9 ruling 2026-10-25: a ground has to be something a tool can measure.
+
+    output/ship_dialogue.png is a composed capture carrying colours off the 2C02 palette, and
+    palette_synergy charges the capture's own background_area and set_member failures to whatever
+    sprite stands on it, so it cannot be evidence about the ship cast. The ship tileset is authored
+    inside the scene's own background palettes, so the pair column measures only the sprite.
+    """
+    ship = [row for row in judged_rows() if row["scene"] == "ship"
+            and "ts_ship.png" in row["background"]]
+    assert len(ship) == 1, ship
+    row = ship[0]
+    sprites = [os.path.basename(path) for path in row["sprites"]]
+    assert "sailor_ow_v2.png" in sprites and "sailor_battle.png" in sprites, sprites
+    assert row["at"] == [64, 64], row
+    assert not [r for r in judged_rows()
+                if r["scene"] == "ship" and "ship_dialogue" in r["background"]], (
+        "no ship judged row may name the capture as its ground (t_1dc346b9)")
+
+
+def test_the_cloud_declares_itself_a_layer_in_its_sidecar_and_in_its_generator():
+    """Card t_1dc346b9 ruling: the cloud hangs in the sky band over the strip's own cloud tops, so it is
+    judged by R1b overlay_contrast, not by the figure tests. cf3d43a made a 24x16 frame a figure, and the
+    white crown then read white_blob on the 5 white pixels of its own sky crop: scenery meeting scenery.
+    The declaration lives in the sidecar AND in save_strip, so a regeneration cannot lose it.
+    """
+    sidecar = json.load(open(os.path.join(ROOT, "game", "sprites_src", "title",
+                                          "spr_title_cloud.json"), encoding="utf-8"))
+    assert sidecar.get("layer") is True, sidecar
+    gen = open(os.path.join(ROOT, "tools", "art", "make_title_car.py"),
+               encoding="utf-8").read()
+    assert 'meta["layer"] = True' in gen, "the generator stopped owning the declaration"

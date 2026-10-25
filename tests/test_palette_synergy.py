@@ -232,3 +232,32 @@ def test_the_shipped_title_frame_reports_its_pairs(frame):
     assert result["sprites"][0]["frames"], "no frame was measured"
     assert result["fail_count"] == len(result["problems"])
     assert result["exit_code"] == (0 if result["ok"] else 1)
+
+
+
+def test_the_two_ruled_grounds_measure_clean_today():
+    """Card t_1dc346b9, 2026-10-25, the pair column of the two rulings, pinned.
+
+    The cloud is judged as a sky-band layer (sidecar declares "layer": true) on
+    output/cloud_sky_ground.png: R1b, 0 failing pairs, 0 uncovered tiles. The walking sailor and his
+    battle twin are judged as ship cast on the ship tileset: figures, 0 failing pairs, 0 uncovered.
+    Both were FAIL on the stale readings the queue rows carried (6 pairs for the cloud under cf3d43a's
+    figure reading; 16 pairs on the sailor once the deck's palettes were re-solved for the fight cast),
+    and both were the reason this card exists: the rows may not claim a ground a tool cannot measure.
+    """
+    cloud = palette_synergy.analyse(ROOT, "title", "output/cloud_sky_ground.png",
+                                    ["game/sprites_src/title/spr_title_cloud.png"],
+                                    frame_w=24, frame_h=16, at=(0, 0))
+    assert cloud["ok"], cloud["problems"]
+    csheet = cloud["sprites"][0]
+    assert len(csheet["frames"]) == 3
+    for frame in csheet["frames"]:
+        assert frame["layer"] is True, frame
+    assert csheet["tiles"]["uncovered"] == 0, csheet["tiles"]
+
+    for sheet in ["game/sprites_src/chars/sailor_ow_v2.png",
+                  "game/sprites_src/chars/sailor_battle.png"]:
+        result = palette_synergy.analyse(ROOT, "ship", "game/sprites_src/env/ts_ship.png",
+                                         [sheet], at=(64, 64))
+        assert result["ok"], (sheet, result["problems"])
+        assert result["sprites"][0]["tiles"]["uncovered"] == 0, sheet

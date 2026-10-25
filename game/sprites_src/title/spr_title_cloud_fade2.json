@@ -3,6 +3,7 @@
   "frame_h": 16,
   "frame_w": 24,
   "frames": 3,
+  "layer": true,
   "name": "spr_title_cloud_fade2",
   "note": "one NES brightness row darker per step, written by tools/pp_intro_art.py"
 }

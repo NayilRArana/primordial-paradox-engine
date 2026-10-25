@@ -64,12 +64,13 @@
   ],
   "judged": [
     {
-      "background": "output/ship_dialogue.png",
+      "background": "game/sprites_src/env/ts_ship.png",
+      "at": [64, 64],
       "sprites": [
         "game/sprites_src/chars/sailor_battle.png",
         "game/sprites_src/chars/sailor_ow_v2.png"
       ],
-      "note": "the ship screen with dialogue, the other frame that ships today; this is the ground the walking sailor is judged on, because ship sp1 $02 $12 $30 is the palette that carries his $12"
+      "note": "card t_1dc346b9 ruling 2026-10-25: the ship tileset the room is built from is the authoritative ground for the ship cast. A ground has to be something a tool can measure, and a composed capture is not: output/ship_dialogue.png, the row before this card, carries colours off the 2C02 palette (measured $21, $31, $36 and $10 under the frame at --at 120,120) and the tool charges those background_area and set_member failures to the sprite standing on it, so the capture fails its own cast. ts_ship.png is authored inside the ship's four background palettes, so it measures clean and only the sprite's own pair rules can fail. Measured 2026-10-25 at --at 64,64: sailor_ow_v2 PASS, 0 failing pairs, 32 inked 8x8 tiles, 0 uncovered; sailor_battle PASS, 0 failing pairs, 72 inked tiles, 0 uncovered. The capture stays what it is, the dialogue screen that ships; it is no longer named as a ground. ship sp1 {2, 18, 48} = $02 $12 $30 still carries the walking sailor's sheet exactly, and battle_deck_night does not carry it, which its own row has said since 2026-10-24 (card t_cc0c5bd5)."
     },
     {
       "background": "output/nes_title_frame.png",

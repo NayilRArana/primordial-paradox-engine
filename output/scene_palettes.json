@@ -357,7 +357,7 @@
     "report": [
       "car.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
       "  colours: 4 in the frame, 25 allowed; backdrop #000000 (declared)",
-      "  background: 240 blocks, 4 distinct colour sets, 1 palette(s) cover them, 4 allowed",
+      "  background: 240 blocks, 2 distinct colour sets, 1 palette(s) cover them, 4 allowed",
       "    palette #004058 #005800 #f8f8f8",
       "  sprites: 16, 1 palette(s), busiest scanline 31 carries 8, 8 per line and 64 total allowed",
       "    sprite palette #004058 #005800 #f8f8f8",
@@ -458,7 +458,7 @@
       "groups_outside_a_palette": 0,
       "groups_over_three": 0,
       "oam_sprites_per_frame": 3,
-      "worst_colours": 1
+      "worst_colours": 2
     },
     "spr_title_cloud_fade3": {
       "busiest_scanline": 3,
@@ -523,7 +523,7 @@
       "groups_outside_a_palette": 0,
       "groups_over_three": 0,
       "oam_sprites_per_frame": 2,
-      "worst_colours": 1
+      "worst_colours": 2
     },
     "spr_title_exhaust_fade2": {
       "busiest_scanline": 2,
@@ -536,7 +536,7 @@
       "groups_outside_a_palette": 0,
       "groups_over_three": 0,
       "oam_sprites_per_frame": 2,
-      "worst_colours": 1
+      "worst_colours": 2
     },
     "spr_title_exhaust_fade3": {
       "busiest_scanline": 2,

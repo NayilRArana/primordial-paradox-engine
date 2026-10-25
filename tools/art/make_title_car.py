@@ -634,23 +634,74 @@ def build_bubble(frame: int) -> Image.Image:
 
 CLOUD_W, CLOUD_H = 24, 12
 
+# Zander's storm cloud, hand authored on a grid of legend characters (card t_b08c01d5 AUTO-SPRITE-NEXT).
+#
+# Why only two entries are drawn here, measured and not chosen: the cloud is one of the sheets
+# data/palettes/scene_title.json band-paints ("spr_title_cloud": "bg1"), so tools/art/title_bands.py
+# rewrites every pixel it draws into the nearest colour of that band's background palette, which is
+# $11 sky, $00 grey and $20 white. Any third entry is destroyed by that pass, not by this drawing: a
+# lit cap drawn in $10 lands on $20 only because it is pale enough, and every dark under it (the $0F
+# ink or the $28 gold the queue's palette_roles list) lands on $00 grey. The row's answer to the
+# EYE's "cannot carry the outline RULE 0 asks for" is therefore a question for gamedev, posted in the
+# queue row, and the drawing here is the strongest cloud two entries can carry: a white lit mass over
+# a grey storm underside, the boundary dithered rather than a flat edge, and the flash frame inverting
+# the mass so the bolt reads white against it instead of white on white.
+#
+# W is BRIGHT (#c8c8d4), which the band pass resolves to $20 white; G is DIM (#7a7a88), which it
+# resolves to $00 grey. The frames differ slightly (a lump grows, the base puffs shift) so the two
+# normal frames churn instead of repeating, and the third frame is the flash.
+CLOUD_ROWS = [
+    [
+        "........WWWWW...........",   # the crown, centred over the mass
+        ".....WWWWWWWWWW.........",   # the crown widens
+        "...WWWWWWWWWWWWW........",   # the shoulders
+        "..WWWWWWWWWWWWWWWWW.....",
+        "WWWWWWWWWWWWWWWWWWWW....",   # the full width, lit on top
+        "WWWWWWWWWWWWWWWWWWWWWW..",
+        "WWWWWWWWWWWWWWWWWWWWWW..",
+        "WWWWWWWWWWWWWWWWWWWGGG..",   # the right shoulder falls into shade
+        "WWWGWWWGWWWGWWWGWWGGGG..",   # the dithered underside boundary
+        "GGGGGGGGGGGGGGGGGGGGGG..",   # the storm base
+        ".GGGGGGGGGGGGGGGGGGGG...",
+        "..GGGGG....GGGGGGGGG....",   # the base puffs, ragged at the bottom
+    ],
+    [
+        "........WWWWWW..........",   # the crown leans right as the cloud churns
+        ".....WWWWWWWWWWW........",
+        "...WWWWWWWWWWWWWW.......",
+        "..WWWWWWWWWWWWWWWWW.....",
+        "WWWWWWWWWWWWWWWWWWWW....",
+        "WWWWWWWWWWWWWWWWWWWWWW..",
+        "WWWWWWWWWWWWWWWWWWWWWW..",
+        "WWWWWWWWWWWWWWWWWWWGGG..",
+        "WWWGWWWGWWWGWWWGWWGGGG..",
+        "GGGGGGGGGGGGGGGGGGGGGG..",
+        ".GGGGGGGGGGGGGGGGGGGG...",
+        "...GGGGGG....GGGGGGGG...",   # the puffs have shifted
+    ],
+    [
+        "........WWWWW...........",   # the flash: the crown stays lit
+        ".....WWWWWWWWWW.........",
+        "...WGGGGGGGGGGGW........",   # the mass turns over, so the bolt can read
+        "..WGGGGGGGGGGGGGGW......",
+        "WWGGGGGGGGGGGGGGGGWW....",
+        "WGGGGGGGWGGGGGGGGGGWW...",   # the bolt starts at the crown of the mass
+        "WGGGGGGWGGGGGGGGGGGGW...",
+        "WGGGGGWGGGGGGGGGGGGWW...",
+        "GGGGGWGGGGGGGGGGGGGWG...",
+        "GGGGWGGGGGGGGGGGGGGGG...",
+        ".GGGWGGGGGGGGGGGGGGG....",
+        "..GGWGG....GGGGGGGGG....",
+        "...W....................",   # the bolt runs out of the cloud
+        "..W.....................",
+    ],
+]
+
 
 def build_cloud(frame: int) -> Image.Image:
-    """Zander's storm cloud. The third frame is the soft distant flash."""
-    image = new_image(CLOUD_W, CLOUD_H)
-    draw = ImageDraw.Draw(image)
-    lumps = [(1, 5, 7, 7), (6, 2, 8, 8), (13, 4, 8, 7), (17, 6, 7, 6)]
-    for cx, cy, rx, ry in lumps:
-        draw.ellipse((cx, cy, cx + rx, cy + ry), fill=rgba(STONE_DEEP))
-    for cx, cy, rx, ry in lumps:
-        draw.ellipse((cx, cy, cx + rx - 2, cy + ry - 2), fill=rgba(NIGHT))
-    if frame == 2:
-        draw.ellipse((1, 4, 9, 11), fill=rgba(GOLD, 150))
-        draw.ellipse((6, 1, 15, 9), fill=rgba(GOLD, 110))
-        draw.polygon([(12, 2), (9, 7), (11, 7), (10, 11), (14, 5), (12, 5)], fill=rgba(BRIGHT))
-    else:
-        for x, y in [(6, 4), (10, 3), (15, 5), (19, 6)]:
-            image.putpixel((x, y), rgba(DIM))
+    """Zander's storm cloud. The third frame is the flash, with the mass turned over and a bolt through it."""
+    image = new_image(CLOUD_W, CLOUD_H + 2)
+    stamp_rows(image, 0, CLOUD_ROWS[frame])
     return image
 
 
@@ -667,6 +718,12 @@ def save_strip(name: str, frames: list[Image.Image], fps: float, sprite_dir: str
     png_path = os.path.join(sprite_dir, name + ".png")
     strip.save(png_path, "PNG")
     meta = {"name": name, "frame_w": width, "frame_h": height, "frames": len(frames), "fps": fps}
+    # Card t_1dc346b9 ruling: the cloud is a sky-band backdrop element, not a figure with feet, so it declares
+    # itself a tiled layer and palette_synergy judges it by R1b overlay_contrast on its own ground crop.
+    # save_strip must carry that declaration or a regeneration silently drops it (cf3d43a made a 24x16 frame
+    # a figure, and the white crown then reads white_blob against the 5 white px in the sky crop).
+    if name == "spr_title_cloud":
+        meta["layer"] = True
     with open(os.path.join(sprite_dir, name + ".json"), "w", encoding="utf-8") as handle:
         json.dump(meta, handle, indent=2, sort_keys=True)
         handle.write("\n")

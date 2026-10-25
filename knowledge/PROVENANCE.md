@@ -1346,3 +1346,21 @@ tells a lane whether the base moved or the rule moved; and judging the new pin f
 uncommitted repaint can never make another lane's suite red, while the working copy is still judged by the command a
 lane actually runs.
 Copied expression: none
+
+## SPRITE-GROUND-TRUTH, 2026-10-25: a sky element is judged as a layer, and a ground must be measurable (card t_1dc346b9)
+Studied: this repository's own files, read only: `tools/palette_synergy.py` (R1b `layer_rules`, the figure/layer declaration
+path cf3d43a introduced, and the audit `at` field the gate reads), `knowledge/PALETTE-RULINGS-2026-10-24.md` sections 7 and
+11, `data/palettes/scene_title.json` and `scene_ship.json` (the band plan, the sprite palettes, the judged rows),
+`data/sprite_redraw_queue.json` (the two rows' own remeasured blocks), `output/cloud_sky_ground.png` and the title strips it
+is cropped from, `game/sprites_src/env/ts_ship.png`, and `tools/pp_intro_art.py` (the fade sidecar chain that copies the base
+declaration). No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: two. One, a palette rule with an OR in it (R1b: ink OR body clears the floor on every ground colour)
+exists precisely so a bright element can share material with the scenery behind it; reading such an element as a figure,
+where the same-hue and white-blob tests have no OR, turns scenery-on-scenery into a failure the drawing cannot answer. Two,
+a ground for a cast must be an artefact authored inside the scene's own palettes; a composed capture carries colours off the
+console palette and the checker charges them to the sprite standing on it, so a capture cannot be evidence about a sprite.
+Our implementation differs by: the cloud's layer declaration lives in its sidecar and is re-written by the generator that
+owns the sheet, not hand-edited once; the sailor's judged row in `scene_ship.json` names the tileset with a fixed `at` the
+gate can run, not a capture; and both rulings are recorded inside the queue rows beside the old measurements rather than
+overwriting them, so the history of what each PASS meant on its day survives the ruling.
+Copied expression: none
