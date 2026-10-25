@@ -4,15 +4,36 @@
   "scenes": [
     {
       "id": "ship_boarding",
-      "name": "Ship boarding",
+      "name": "Ship boarding: the gangway, the horn, the deck, the door",
       "map": "ship_small",
       "start": { "x": 2, "y": 7 },
       "commands": [
         { "cmd": "music", "id": "PP-05" },
+        { "cmd": "shake", "steps": 40, "strength": 1 },
+        { "cmd": "wait", "steps": 120 },
+        { "cmd": "camera", "x": 18, "y": 7 },
+        { "cmd": "wait", "steps": 90 },
         { "cmd": "say", "id": "ship_rail_note" },
-        { "cmd": "move", "actor": "hero", "dir": "up", "tiles": 3 },
-        { "cmd": "wait", "steps": 20 },
+        { "cmd": "camera", "actor": "hero" },
+        { "cmd": "move", "actor": "hero", "dir": "right", "tiles": 1 },
+        { "cmd": "wait", "steps": 60 },
         { "cmd": "setflag", "name": "ship_deck_seen", "value": true },
+        { "cmd": "end" }
+      ]
+    },
+    {
+      "id": "ship_log",
+      "name": "Cabin: the ship's log and the first save",
+      "map": "ship_small",
+      "start": { "x": 3, "y": 7 },
+      "commands": [
+        { "cmd": "face", "actor": "hero", "dir": "up" },
+        { "cmd": "move", "actor": "hero", "dir": "up", "tiles": 5 },
+        { "cmd": "face", "actor": "hero", "dir": "right" },
+        { "cmd": "camera", "x": 4, "y": 2 },
+        { "cmd": "sfx", "id": "save_jingle" },
+        { "cmd": "wait", "steps": 60 },
+        { "cmd": "camera", "actor": "hero" },
         { "cmd": "end" }
       ]
     },
