@@ -114,6 +114,86 @@ def test_build_reproduces_the_file_on_disk():
     assert rebuilt["scenes"] == shipped["scenes"]
     assert rebuilt["hero_palettes"] == shipped["hero_palettes"]
     assert rebuilt["rule"] == shipped["rule"]
+    # The audit rows are derived too. They were a constant in tools/scene_palette_set.py until card t_4f18c0ac,
+    # and that is how the deck's row kept naming the walking sailor after the deck's palettes were re-solved for
+    # the fight cast: two files, no comparison. Now the rows live in data/palettes/scene_*.json, so a hand edit to
+    # data/scene_palettes.json is a drift the rebuild test catches.
+    assert rebuilt["audit"] == shipped["audit"]
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# The cast check (card t_4f18c0ac). An audit row may only name sheets the scene's four sprite palettes can carry.
+
+def judged_rows():
+    return scene_palette_set.judged_rows(ROOT)
+
+
+def test_every_judged_row_lives_in_a_scene_file_and_names_a_frame_and_a_cast():
+    rows = judged_rows()
+    assert rows, "no scene file carries a judged row"
+    scene_ids = set(scene_palette_set.scene_ids(data()))
+    for row in rows:
+        assert row["scene"] in scene_ids, row["scene"]
+        assert row["background"], row
+        assert row["sprites"], row
+
+
+def test_the_deck_audit_row_names_the_fight_cast_and_not_the_walking_sailor():
+    """The row corrected on 2026-10-24: the deck's four palettes were solved for sailor_battle + navy_sailor."""
+    deck = [row for row in judged_rows() if row["scene"] == "battle_deck_night"]
+    assert len(deck) == 1, deck
+    sprites = [os.path.basename(path) for path in deck[0]["sprites"]]
+    assert "sailor_battle.png" in sprites
+    assert "navy_sailor.png" in sprites
+    assert "sailor_ow_v2.png" not in sprites, "the walking sailor has no deck palette and is judged on the ship"
+
+
+def test_the_cast_check_catches_the_row_that_was_stale():
+    """The mutation this check exists for: the old row, put back, is refused with the $12 the draw lane measured."""
+    broken = json.loads(json.dumps(data()))
+    for row in broken["audit"]:
+        if row["scene"] == "battle_deck_night":
+            row["sprites"] = ["game/sprites_src/chars/sailor_battle.png",
+                              "game/sprites_src/chars/sailor_ow_v2.png"]
+    problems = scene_palette_set.cast_problems(ROOT, broken)
+    assert len(problems) == 1, problems
+    assert "battle_deck_night" in problems[0]
+    assert "sailor_ow_v2.png" in problems[0]
+    assert "$12" in problems[0]
+    # And it is part of validate, so the suite fails on it rather than only this function.
+    assert any("sailor_ow_v2.png" in problem for problem in scene_palette_set.validate(ROOT, broken))
+
+
+def test_every_judged_row_of_the_shipped_file_has_a_cast_its_scene_can_carry():
+    """No exemptions here: the shipped rows that are enforced measure clean, through the tool's own cast reading."""
+    assert scene_palette_set.cast_problems(ROOT, data()) == []
+
+
+def test_the_exempt_rows_are_the_known_two_and_say_why():
+    """An exemption is a ruling, not a way to quiet the check, so the exact list is held here."""
+    exempt = [row for row in judged_rows() if row.get("exempt")]
+    assert [(row["scene"], os.path.basename(row["sprites"][0])) for row in exempt] == [
+        ("battle_corridor", "percy_battle.png"),
+        ("battle_corridor", "sprites_v2_sheet.png"),
+    ], exempt
+    for row in exempt:
+        assert len(row["exempt"]) > 80, "an exemption has to say why, in words: %s" % row["exempt"]
+
+
+def test_a_judged_row_may_not_be_exempt_without_a_reason():
+    broken = json.loads(json.dumps(data()))
+    for row in broken["audit"]:
+        if row.get("exempt"):
+            row["exempt"] = " "
+            break
+    problems = scene_palette_set.validate(ROOT, broken)
+    assert any("exempt with no reason" in problem for problem in problems), problems
+
+
+def test_the_quay_strip_has_no_judged_row_because_nothing_in_play_draws_it():
+    """Ruling on card t_4f18c0ac: no encounter names battle_quay_dusk and no room set maps to it."""
+    assert not [row for row in judged_rows() if row["scene"] == "battle_quay_dusk"]
+    assert "battle_quay_dusk" in scene_palette_set.scene_ids(data()), "the set still exists; only its row is absent"
 
 
 def test_cli_validate_and_list(capsys):

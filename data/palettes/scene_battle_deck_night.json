@@ -13,6 +13,16 @@
     "the sea horizon is one flat row of tiles so the far water stays a straight band, as it must at 256 px",
     "sprite palettes are declared for the battle cast the scene draws: solved 2026-10-24 (card t_cc0c5bd5, ruling knowledge/PALETTE-RULINGS-2026-10-24.md) against sailor_battle.png (168x32, seven 24x32 frames) and navy_sailor.png (96x32, three 32x32 frames), the strip's fight cast; the walking cast keeps its own grounds (ship sp1 for sailor and percy, sp1 of the other three battle strips and the three towns for konrad), so those 16x16 sheets are not carried here and are not judged here"
   ],
+  "judged": [
+    {
+      "background": "output/bg_battle_deck_night_frame.png",
+      "sprites": [
+        "game/sprites_src/chars/sailor_battle.png",
+        "game/sprites_src/enemies/navy_sailor.png"
+      ],
+      "note": "the deck strip's fight cast, which is exactly what the four sprite palettes were re-solved for on 2026-10-24 (card t_cc0c5bd5): measured 0 failing pairs and 0 uncovered tiles. The walking sailor is NOT on this row: he is the map's cast, ship sp1 carries him, and the deck has no palette for him (a fifth would be needed). Card t_4f18c0ac corrected this row, which named the walking sheet and omitted the enemy, and added the check that fails when a row names a sheet its set cannot carry"
+    }
+  ],
   "background": [
     {
       "name": "bg0",

@@ -348,7 +348,7 @@ def tile_fails(grid: Grid, scene, image: Image.Image, box, where: str) -> tuple:
                                  "%s: 8x8 tile at %d,%d needs %s, which no single sprite palette of the scene "
                                  "carries, so the frame needs a fifth sprite palette"
                                  % (where, left, top, named),
-                                 tile=[left, top], colours=named))
+                                 tile=[left, top], colours=named, subject="cast"))
     return problems, inked, uncovered
 
 
@@ -418,7 +418,7 @@ def frame_report(grid: Grid, scene, image: Image.Image, box, background: Image.I
         problems.append(fail("set_member",
                              "sprite colour %s (%s) is not in any of the scene's 4 sprite palettes"
                              % (item["hex"], item["entry"] or "off the 2C02 palette"),
-                             colour=item["hex"]))
+                             colour=item["hex"], subject="cast"))
     if len(entries) > MAX_SPRITE_COLOURS and whole:
         # The 3 colour limit is a sprite limit: a tile drawn for one object. A strip that is really a tiled
         # background layer (the title car, the logo) is judged per 8x8 tile by nes_check below instead, because
@@ -438,7 +438,7 @@ def frame_report(grid: Grid, scene, image: Image.Image, box, background: Image.I
     if whole and not fits:
         problems.append(fail("palette_count",
                              "no single sprite palette of the scene carries this frame's colours, so it needs a "
-                             "fifth sprite palette"))
+                             "fifth sprite palette", subject="cast"))
     elif figure:
         # A multi-tile figure: R6 per 8x8 tile, one fail per uncovered tile.
         found, tiles_inked, tiles_uncovered = tile_fails(
@@ -461,7 +461,7 @@ def frame_report(grid: Grid, scene, image: Image.Image, box, background: Image.I
         if entry not in scene.bg_colours() and entry != scene.backdrop:
             problems.append(fail("set_member",
                                  "background colour %s under the sprite is not in any of the scene's 4 background "
-                                 "palettes" % grid.code(entry), colour=grid.code(entry)))
+                                 "palettes" % grid.code(entry), colour=grid.code(entry), subject="ground"))
         for index, palette in enumerate(scene.sprites):
             candidate = int(palette[1])
             where = "sprite palette %d body vs ground at %d,%d" % (index, left, top)
@@ -632,6 +632,26 @@ def describe(result: dict) -> list:
 
 # -----------------------------------------------------------------------------------------------------------------
 # Gate mode: every audit entry written down in data\\scene_palettes.json.
+
+# -----------------------------------------------------------------------------------------------------------------
+# The cast half, on its own.
+
+def cast_problems(result: dict) -> list:
+    """The problems that say the scene's SPRITE palettes cannot carry a named sheet, and nothing else.
+
+    R7 on the sheet's own colours and R6 in both readings (one palette for a whole 16x16 frame, one palette per
+    8x8 tile for a multi-tile figure). Everything else a run reports is about the frame the sheet is drawn over:
+    the pair rules (R1, R1b, R2, R3), the background's own R5 and R6, and the ground colour under the sprite. A
+    cast can be legal on a scene whose frame still fails the pair column, and that is the normal state of this
+    project, so a caller asking "does this scene carry this cast" must not read those as a cast failure.
+
+    Why this exists: an audit row can name a sheet its scene cannot carry and nothing said so. The deck's row
+    named the walking sailor for a day after the four deck palettes were re-solved for the fight cast, and every
+    draw round then measured 16 failures on the difference (card t_4f18c0ac, knowledge/PALETTE-RULINGS-2026-10-24.md).
+    A mark on the problem itself beats matching on the wording of a message.
+    """
+    return [problem for problem in result["problems"] if problem.get("subject") == "cast"]
+
 
 def audit_entries(root: str, data: dict) -> list:
     out = []

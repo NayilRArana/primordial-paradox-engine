@@ -79,32 +79,15 @@ HERO_PALETTES = {
 
 HERO_ROLES = ("outline", "body", "accent")
 
-# The pairs tools/palette_synergy.py checks on every gate run (--gate). Kept here rather than written by hand
-# into the JSON so a rebuild cannot lose them. gate is read from the scene's own "gate" flag.
-AUDIT = (
-    {"scene": "title", "background": "output/nes_title_frame.png",
-     "sprites": ["game/sprites_src/title/spr_title_car.png",
-                 "game/sprites_src/title/spr_pp_title_logo.png",
-                 "game/sprites_src/title/spr_pp_menu_cursor.png"],
-     "note": "the finished title frame against the sprites that stand on it"},
-    {"scene": "battle_deck_night", "background": "output/bg_battle_deck_night_frame.png",
-     "sprites": ["game/sprites_src/chars/sailor_battle.png", "game/sprites_src/chars/sailor_ow_v2.png"],
-     "note": "the ship deck at night, the ground the sailor sprites stand on"},
-    {"scene": "ship", "background": "output/ship_dialogue.png",
-     "sprites": ["game/sprites_src/chars/sailor_battle.png", "game/sprites_src/chars/sailor_ow_v2.png"],
-     "note": "the ship screen with dialogue, the other frame that ships today"},
-    {"scene": "ship", "background": "output/nes_title_frame.png",
-     "sprites": ["game/sprites_src/chars/sailor_ow_v2.png"],
-     "note": "the ship scene's set against the title ground: what a shared ground costs a scene that did not "
-             "design for it"},
-    {"scene": "battle_corridor", "background": "output/bg_battle_corridor_frame.png",
-     "sprites": ["game/sprites_src/chars/percy_battle.png", "game/sprites_src/chars/hadrian_battle.png",
-                 "game/sprites_src/chars/zander_ow_v2.png"],
-     "note": "the corridor battle ground against the three hero battle sheets"},
-    {"scene": "battle_corridor", "background": "output/bg_battle_corridor_frame.png",
-     "sprites": ["output/sprites_v2_sheet.png"],
-     "note": "the sprites_v2 contact sheet, the whole v2 cast read against one ground at a time"},
-)
+# The rows tools/palette_synergy.py checks on every gate run (--gate) are NOT written here any more.
+#
+# They lived in this module as a hand constant until card t_4f18c0ac, and that is where the deck's row went stale:
+# a card re-solved the deck's four sprite palettes for the fight cast, the row still named the walking sailor, and
+# because the row and the scene file are two different files nothing failed. Every draw round then measured the
+# same 16 failures on the difference. A cast now lives in the scene file that solved it, as a "judged" list, and
+# validate() measures it against the set in the same file: see JUDGED_KEY below.
+JUDGED_KEY = "judged"
+JUDGED_FIELDS = ("background", "sprites")
 
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -225,6 +208,41 @@ def source_files(root: str) -> list:
     return sorted(glob.glob(pattern))
 
 
+def judged_rows(root: str) -> list:
+    """The audit rows, read from the scene files that solved the palettes the rows judge.
+
+    A row says: this is the baked frame, these are the sheets that stand on it. A file can carry more than one (the
+    ship's own screen and the ship's set read against the title ground are two different readings), so "judged" is
+    a list. It lives beside the palettes because the cast decision and the row that measures it are one decision:
+    a card that re-solves a scene's sprite half edits this list in the same file.
+
+    "exempt" is an optional string on a row the cast check does not enforce, and it has to say why. The tests hold
+    the list of exempt rows, so an exemption is a decision that shows up in a diff, not a way to quiet the check.
+    """
+    rows = []
+    for path in source_files(root):
+        with open(path, "r", encoding="utf-8-sig") as handle:
+            payload = json.load(handle)
+        scene_id = os.path.basename(path)[len("scene_"):-len(".json")]
+        for index, row in enumerate(payload.get(JUDGED_KEY, [])):
+            if not isinstance(row, dict):
+                raise SystemExit("scene_palette_set: %s judged row %d is not an object"
+                                 % (os.path.basename(path), index))
+            missing = [key for key in JUDGED_FIELDS if not row.get(key)]
+            if missing:
+                raise SystemExit("scene_palette_set: %s judged row %d is missing %s"
+                                 % (os.path.basename(path), index, ", ".join(missing)))
+            entry = {"scene": scene_id,
+                     "background": row["background"],
+                     "sprites": list(row["sprites"]),
+                     "note": row.get("note", "")}
+            for key in ("at", "frame", "exempt"):
+                if key in row:
+                    entry[key] = row[key]
+            rows.append(entry)
+    return rows
+
+
 def scene_from_source(root: str, path: str, colours) -> dict:
     with open(path, "r", encoding="utf-8-sig") as handle:
         payload = json.load(handle)
@@ -309,8 +327,11 @@ def build(root: str = ROOT) -> dict:
         ],
         "hero_palettes": hero_block(colours),
         "scenes": scenes,
-        "audit": [dict(item) for item in AUDIT
-                  if os.path.isfile(os.path.join(root, item["background"]))],
+        # The audit rows come from the scene files (JUDGED_KEY), not from a constant here: see the note beside
+        # JUDGED_KEY. A row whose baked frame is not on disk is dropped, because output/ is not in git and a fresh
+        # worktree has none of these PNGs; validate() only measures rows that are in the file.
+        "audit": [row for row in judged_rows(root)
+                  if os.path.isfile(os.path.join(root, row["background"]))],
     }
 
 
@@ -404,6 +425,50 @@ def validate(root: str = ROOT, data: dict | None = None) -> list:
                 problems.append("audit entry missing %r: %s" % (key, json.dumps(item, sort_keys=True)[:120]))
         if item.get("scene") and item["scene"] not in seen_ids:
             problems.append("audit names unknown scene %r" % item["scene"])
+        if item.get("exempt") is not None and not str(item.get("exempt")).strip():
+            problems.append("audit entry on %r is exempt with no reason given" % item.get("scene"))
+
+    problems.extend(cast_problems(root, data))
+    return problems
+
+
+def cast_problems(root: str, data: dict) -> list:
+    """Every audit row whose cast the scene's four sprite palettes cannot carry.
+
+    This is the check that was missing when the deck's row named the walking sailor for a day after the deck's four
+    palettes were re-solved for the fight cast: the row was a constant in another file, so nothing compared it with
+    the set it judged (card t_4f18c0ac, knowledge/PALETTE-RULINGS-2026-10-24.md section 9).
+
+    The measurement is tools/palette_synergy.py's own, through cast_problems() there: R7 on the sheet's own colours
+    and R6 in both readings. Nothing is restated here, and a pair failure (body against ground) is NOT a cast
+    failure, because a scene whose frame still fails its pair column can carry its cast perfectly well.
+
+    A row marked "exempt" is skipped: the tests hold the exact list of exempt rows, so an exemption is a ruling
+    with a reason in the scene file, not a quiet escape. A row whose frame or sheets are not on disk is skipped
+    too, because output/ is not in git and a fresh worktree has none of it.
+    """
+    import palette_synergy  # local: palette_synergy imports this module, so this cannot be a top level import
+
+    problems = []
+    for item in data.get("audit", []):
+        if item.get("exempt"):
+            continue
+        background = item.get("background")
+        if not background or not os.path.isfile(os.path.join(root, background)):
+            continue
+        sprites = [path for path in item.get("sprites", []) if os.path.isfile(os.path.join(root, path))]
+        if not sprites:
+            continue
+        frame = item.get("frame") or [None, None]
+        result = palette_synergy.analyse(root, item["scene"], background, sprites, item.get("at"),
+                                         frame[0], frame[1])
+        by_sheet = {}
+        for problem in palette_synergy.cast_problems(result):
+            by_sheet.setdefault(problem.get("sprite", "?"), []).append(problem["detail"])
+        for sheet, details in sorted(by_sheet.items()):
+            problems.append("%s: the audit row on %s names %s, and the scene's 4 sprite palettes cannot carry it "
+                            "(%d problem(s); first: %s)"
+                            % (item["scene"], background, sheet, len(details), details[0]))
     return problems
 
 

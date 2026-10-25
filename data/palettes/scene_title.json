@@ -109,6 +109,17 @@
     "tools/art/title_bands.py still paints every sheet the title draws into the band palette under it, so the composite frame passes nes_composite_check.py, which charges a sprite's pixels to the background block they sit in; the busts are not drawn on the title screen and so are not band painted, they are held to their own sprite palette",
     "enforced by tools/art/title_bands.py and tools/art/scene_palette.py, checked again from the pixels by tools/nes_composite_check.py and tools/check_scene_palettes.py"
   ],
+  "judged": [
+    {
+      "background": "output/nes_title_frame.png",
+      "sprites": [
+        "game/sprites_src/title/spr_title_car.png",
+        "game/sprites_src/title/spr_pp_title_logo.png",
+        "game/sprites_src/title/spr_pp_menu_cursor.png"
+      ],
+      "note": "the finished title frame against the sprites that stand on it. The cast is legal here: all three sheets are carried by the four sprite palettes. The car's PAIR column is still red, because both its colours are dark (body $0B reads 1.00 to 2.68:1 on the grounds under it) and a layer has to clear 3.0:1 with its body or its ink. Card t_4f18c0ac ruled the repaint: the largest fill moves to the $20 the car's own sp3 already carries, the $0C outline stays, and measured that reads 0 overlay_contrast failures"
+    }
+  ],
   "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
   "scene": "title",
   "sprites": [

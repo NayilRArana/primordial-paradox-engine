@@ -62,6 +62,23 @@
     "sprite palettes cover the ship's cast (sailor_ow, sailor_battle) and the sheet cut to 8x8, three colours plus transparency per 8x16 sprite; solved with the cast in the pool so navy, trim and skin have a palette instead of being mapped into rust",
     "solved by tools/art/scene_palette.py and checked by tools/check_scene_palettes.py"
   ],
+  "judged": [
+    {
+      "background": "output/ship_dialogue.png",
+      "sprites": [
+        "game/sprites_src/chars/sailor_battle.png",
+        "game/sprites_src/chars/sailor_ow_v2.png"
+      ],
+      "note": "the ship screen with dialogue, the other frame that ships today; this is the ground the walking sailor is judged on, because ship sp1 $02 $12 $30 is the palette that carries his $12"
+    },
+    {
+      "background": "output/nes_title_frame.png",
+      "sprites": [
+        "game/sprites_src/chars/sailor_ow_v2.png"
+      ],
+      "note": "the ship scene's set against the title ground: what a shared ground costs a scene that did not design for it"
+    }
+  ],
   "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
   "scene": "ship",
   "sprites": [
