@@ -1,0 +1,56 @@
+{
+ "card": "t_b84a9264",
+ "cue": {
+  "file": "assets/audio/pp_drive/pp_drive_v3_humanized.wav",
+  "duration_s": 178.55,
+  "sample_rate": 44100,
+  "frames": 961,
+  "peak_dbfs": -1.0,
+  "rms_dbfs": -16.29,
+  "crest_db": 15.29,
+  "band_share_percent_a_weighted": {
+   "sub": 0.32,
+   "engine": 13.19,
+   "hook": 68.59,
+   "air": 17.51
+  },
+  "low_duty_percent": 85.38,
+  "engine_band_median_db": {
+   "at_rest_bars_1_2": 52.35,
+   "rolling_bars_3_25": 50.84,
+   "drum_hole_bars_24_26": 52.21
+  }
+ },
+ "reference": {
+  "file": "assets/audio/pp_01_title/pp_01_title.wav",
+  "duration_s": 74.267,
+  "sample_rate": 44100,
+  "frames": 399,
+  "peak_dbfs": -1.0,
+  "rms_dbfs": -16.97,
+  "crest_db": 15.97,
+  "band_share_percent_a_weighted": {
+   "sub": 0.24,
+   "engine": 15.1,
+   "hook": 71.84,
+   "air": 12.47
+  },
+  "low_duty_percent": 83.83
+ },
+ "thresholds": {
+  "min_crest_db": 8.0,
+  "hook_share_floor_percent": 64.66,
+  "engine_share_ceiling_percent": 17.36,
+  "max_low_duty": 0.92,
+  "hook_tolerance": 0.1,
+  "engine_tolerance": 1.15
+ },
+ "checks": {
+  "crest_at_least_8.0_db": true,
+  "hook_share_at_least_64.7_percent": true,
+  "engine_share_at_most_17.4_percent": true,
+  "low_duty_at_most_0.92": true
+ },
+ "engine_band_breathes": false,
+ "passed": true
+}

@@ -94,7 +94,7 @@ def name_of(pitch):
 # the contour is an arch, the range is twelve semitones, and the durations repeat a two note
 # cell twice. That is what the grammar in knowledge/MUSIC-HOOK-GRAMMAR.md asks a hook to be.
 CELL_A = (("C5", 2), ("D5", 1), ("E5", 1), ("G5", 2))
-CELL_B = (("A5", 1), ("G5", 1), ("E5", 1), ("A4", 3))
+CELL_B = (("A5", 1), ("G5", 1), ("F5", 1), ("A4", 3))
 # The third return: the fall lands on the third instead of the tonic, so the return is a
 # variation and not a copy.
 CELL_VAR_B = (("A5", 1), ("G5", 1), ("E5", 1), ("C5", 3))
@@ -379,10 +379,43 @@ def arrange(score_path, midi_path):
         raise SystemExit(result.returncode)
 
 
+def seam_check(wav, bars=(("A to A", 1, 25), ("B to B", 26, 59))):
+    """Is the loop join clean? Compare the step across the seam with the steps inside it."""
+    import struct
+    import wave
+
+    with wave.open(wav, "rb") as handle:
+        params = handle.getparams()
+        frames = handle.readframes(handle.getnframes())
+    if params.sampwidth != 2:
+        raise SystemExit("expected 16 bit PCM")
+    samples = struct.unpack("<%dh" % (len(frames) // 2), frames)
+    mono = samples[0::params.nchannels] if params.nchannels > 1 else samples
+    second = 178.571428 / 125.0
+    clean = True
+    print("seam check: %s, %d Hz, %.3f s" % (os.path.basename(wav), params.framerate,
+                                             len(mono) / float(params.framerate)))
+    for name, first, last in bars:
+        start = int(round((first - 1) * second * params.framerate))
+        end = int(round(last * second * params.framerate))
+        section = mono[start:end]
+        inside = max((abs(b - a) for a, b in zip(section, section[1:])), default=0)
+        join = abs(section[0] - section[-1])
+        ok = join <= inside
+        clean = clean and ok
+        print("  %s: max step inside %d, step across the join %d (%.2f of inside) -> %s"
+              % (name, inside, join, join / float(inside) if inside else 0.0,
+                 "clean" if ok else "CLICK"))
+    return clean
+
+
 def main(argv=None):
     argv = argv if argv is not None else sys.argv[1:]
     what = argv[0] if argv else "score"
     os.makedirs(OUT, exist_ok=True)
+    if what == "seam":
+        wav = argv[1] if len(argv) > 1 else os.path.join(OUT, "pp_drive_v2.wav")
+        return 0 if seam_check(wav) else 1
     if what in ("score", "all"):
         with open(os.path.join(SRC, "score_pp_drive.yaml"), encoding="utf-8") as handle:
             score = yaml.safe_load(handle)

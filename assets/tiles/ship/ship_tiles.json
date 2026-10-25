@@ -1,0 +1,1009 @@
+{
+  "format": 1,
+  "kind": "tileset",
+  "name": "ship_tiles",
+  "image": "ship_tiles.png",
+  "card": "SHIP-TILES (t_a0c1bccf)",
+  "licence": "the project's own generated geometry: no extract, no sample, no trace, no ODbL",
+  "columns": 8,
+  "rows": 3,
+  "frames": 24,
+  "frame_w": 16,
+  "frame_h": 16,
+  "imagewidth": 128,
+  "imageheight": 48,
+  "tilecount": 24,
+  "tile_size": 16,
+  "margin": 0,
+  "spacing": 0,
+  "backdrop": {
+    "entry": 15,
+    "hex": "#000000"
+  },
+  "rule": "NES: 1 shared backdrop $0F, 4 background palettes of 3 entries, a 16x16 area carries at most 3 colours besides the backdrop, ten colours in the set; every pixel is a 2C02 output",
+  "geometry": {
+    "tile": "16 x 16 px, the NES attribute area exactly, so one tile is one palette choice and the art cuts into four 8 x 8 pattern tiles without a repaint",
+    "plate_pitch": "one plate per tile: a 1 px seam on the top and left edge means the seams line up across a run and the deck reads as plates rather than as a flat grey field",
+    "rivet_pitch": "4 px between rivets, so a plate shows four rivets a side at this size and no more; a real rivet pitch of 75 mm would be a third of a pixel",
+    "grating_pitch": "5 px: a 2 px bar and a 3 px hole, which is the smallest mesh that still reads as a hole at 16 px and keeps the holes square",
+    "bar_width": "2 px: one pixel of bar is a hairline at 3x and closes up on a TV; three pixels turns the grating into a solid plate",
+    "step": "3 px a step, four steps a tile: an adult's step is about 180 mm, so a 16 px tile is a little over two and a half metres of stair, and the tile is one storey-to-half-storey flight",
+    "ladder": "rungs every 3 px, rails 2 px, which is the same rung pitch the stairs use so a climb looks like one piece of geometry seen two ways",
+    "hatch": "a 14 px frame and a 10 px face: 2 px of frame is the only width at which a recess reads as a recess at this size, and the wheel is a 6 px cross so it is not mistaken for a bolt",
+    "rail": "a 2 px bar and a 4 px post, both standing on the deck plate they guard: the rail is the edge of the ship, so the row below it is water and the class file says you cannot walk past it",
+    "water": "a swell every 5 px and a glint every 6 px, offset 2 px between the two frames, so the sea moves without the pattern visibly scrolling",
+    "terminal": "a 12 by 8 px screen with five text rows at 2 px pitch, and a 3 by 3 keypad: the row pitch is the smallest that draws a line of text as a line rather than as a smear"
+  },
+  "sources": {
+    "card": "the card's six families: plate steel, grating, hatch, bulkhead, the log terminal face, the water under the rail",
+    "ship_row": "data/maps/all.json, the ship_small row: 20 by 15 cells, tile_legend # wall, . floor, D door, H hatch, room_palette deck_day, story_flag ship_door_open (read only for this card)",
+    "cabin_row": "data/maps/all.json, the ship_cabin row: the wardroom door and the Percy battle, which is why the log terminal and the porthole have a face of their own",
+    "spec": "specs/15-env-tiles-ship.md: ten colours, three non backdrop colours per 16x16 area, water and porthole animated, the hatch open and closed told apart at a glance, solids on the tile",
+    "palette": "tools/art/make_env_ship.py PALETTE, lines 61 to 72: the ship strip's own ten 2C02 entries",
+    "quay": "game/sprites_src/env/quay/TILES.md: the exterior set the player walks in from, so the sea and the stone are the ones this deck is moored beside",
+    "geometry": "generated: no extract, no sample, no trace; every number is in GEOMETRY above"
+  },
+  "roles": {
+    "k": {
+      "role": "k",
+      "palette_json_index": null,
+      "entry": 15,
+      "hex": "#000000",
+      "why": "backdrop: the hatch void, seams, the drop beyond the rail"
+    },
+    "m": {
+      "role": "m",
+      "palette_json_index": null,
+      "entry": 0,
+      "hex": "#7c7c7c",
+      "why": "steel mid: deck plates, the bulkhead face, the opening in a plate"
+    },
+    "l": {
+      "role": "l",
+      "palette_json_index": null,
+      "entry": 16,
+      "hex": "#bcbcbc",
+      "why": "steel light: lit plate edges, rails, rivets, ladder stringers"
+    },
+    "w": {
+      "role": "w",
+      "palette_json_index": null,
+      "entry": 48,
+      "hex": "#fcfcfc",
+      "why": "white paint: the walkway line, lamp glass, foam on a crest"
+    },
+    "a": {
+      "role": "a",
+      "palette_json_index": null,
+      "entry": 2,
+      "hex": "#0000bc",
+      "why": "sea deep: the water under the rail"
+    },
+    "b": {
+      "role": "b",
+      "palette_json_index": null,
+      "entry": 18,
+      "hex": "#0058f8",
+      "why": "sea mid: one step of swell above the deep"
+    },
+    "c": {
+      "role": "c",
+      "palette_json_index": null,
+      "entry": 33,
+      "hex": "#3cbcfc",
+      "why": "sea crest and the terminal's screen"
+    },
+    "r": {
+      "role": "r",
+      "palette_json_index": null,
+      "entry": 7,
+      "hex": "#881400",
+      "why": "rust dark: the shadow under a bar, risers, the warm dark in a joint"
+    },
+    "o": {
+      "role": "o",
+      "palette_json_index": null,
+      "entry": 23,
+      "hex": "#e45c10",
+      "why": "rust: pipe bodies, the terminal bezel, the dark side of the brass"
+    },
+    "y": {
+      "role": "y",
+      "palette_json_index": null,
+      "entry": 40,
+      "hex": "#f8b800",
+      "why": "brass and hazard yellow: the porthole ring, the keypad, the stripes"
+    }
+  },
+  "palettes": [
+    {
+      "name": "bg0_deck",
+      "roles": [
+        "m",
+        "l",
+        "w"
+      ],
+      "entries": [
+        0,
+        16,
+        48
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#bcbcbc",
+        "#fcfcfc"
+      ],
+      "note": "the deck itself and everything painted on it: plate, line, hatch, sill, lamp"
+    },
+    {
+      "name": "bg1_hold",
+      "roles": [
+        "m",
+        "r",
+        "l"
+      ],
+      "entries": [
+        0,
+        7,
+        16
+      ],
+      "hex": [
+        "#7c7c7c",
+        "#881400",
+        "#bcbcbc"
+      ],
+      "note": "the hold's ironwork: grating, bulkhead, ladder, stairs, pipes, locker, crate, the rail"
+    },
+    {
+      "name": "bg2_sea",
+      "roles": [
+        "a",
+        "b",
+        "c"
+      ],
+      "entries": [
+        2,
+        18,
+        33
+      ],
+      "hex": [
+        "#0000bc",
+        "#0058f8",
+        "#3cbcfc"
+      ],
+      "note": "the water under the rail: deep, swell, the crest and the foam at the hull"
+    },
+    {
+      "name": "bg3_fixture",
+      "roles": [
+        "y",
+        "o",
+        "c"
+      ],
+      "entries": [
+        40,
+        23,
+        33
+      ],
+      "hex": [
+        "#f8b800",
+        "#e45c10",
+        "#3cbcfc"
+      ],
+      "note": "the things that are read rather than walked on: hazard paint, the porthole, the log terminal"
+    }
+  ],
+  "tiles": [
+    {
+      "index": 0,
+      "name": "deck_plate",
+      "character": ".",
+      "palette": "bg0_deck",
+      "roles": [
+        "k",
+        "l",
+        "m"
+      ],
+      "note": "a plate of the deck: one plate a tile, seam on two edges, four rivets",
+      "source": "geometry",
+      "walkable": true,
+      "climbable": false,
+      "walk_reason": "a deck plate is the floor the fight happens on",
+      "marked": {},
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "k",
+          "l",
+          "m"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 8.6,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 16,
+        "interior_dark_pixels": 0
+      }
+    },
+    {
+      "index": 1,
+      "name": "deck_plate_worn",
+      "character": ",",
+      "palette": "bg0_deck",
+      "roles": [
+        "k",
+        "l",
+        "m"
+      ],
+      "note": "the same plate with tread scuffs, so a long deck is not one tile repeated",
+      "source": "geometry",
+      "walkable": true,
+      "climbable": false,
+      "walk_reason": "a deck plate is the floor the fight happens on",
+      "marked": {},
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "k",
+          "l",
+          "m"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 15.6,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 18,
+        "interior_dark_pixels": 6
+      }
+    },
+    {
+      "index": 2,
+      "name": "deck_line",
+      "character": "=",
+      "palette": "bg0_deck",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "w"
+      ],
+      "note": "the painted walkway line, two pixels wide, along the plate",
+      "source": "spec",
+      "walkable": true,
+      "climbable": false,
+      "walk_reason": "paint on a deck plate: it does not stop a step",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "w"
+        ],
+        "lightest_role": "w",
+        "lightest_share_percent": 11.7,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 16,
+        "interior_dark_pixels": 0
+      }
+    },
+    {
+      "index": 3,
+      "name": "deck_grating",
+      "character": "g",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "open steel grating: a two pixel bar and a three pixel hole",
+      "source": "geometry",
+      "walkable": true,
+      "climbable": false,
+      "walk_reason": "grating is walked on; the engine space and the catwalk are laid in it",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 30.5,
+        "rows_without_dark": 9,
+        "horizontal_dark_runs": 21,
+        "interior_dark_pixels": 54
+      }
+    },
+    {
+      "index": 4,
+      "name": "deck_grating_cross",
+      "character": "G",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "the grating with a raised centre member over it",
+      "source": "geometry",
+      "walkable": true,
+      "climbable": false,
+      "walk_reason": "grating is walked on, and the member is flush enough to step over",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 33.2,
+        "rows_without_dark": 9,
+        "horizontal_dark_runs": 14,
+        "interior_dark_pixels": 36
+      }
+    },
+    {
+      "index": 5,
+      "name": "hatch_closed",
+      "character": "H",
+      "palette": "bg0_deck",
+      "roles": [
+        "k",
+        "l",
+        "m"
+      ],
+      "note": "a closed deck hatch: frame, recessed face, the wheel",
+      "source": "ship_row",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "a shut hatch is a solid: the map blocks it, and it is the blocked until story flag cell",
+      "marked": {
+        "hatch": "closed",
+        "flag": "ship_door_open"
+      },
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "k",
+          "l",
+          "m"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 49.2,
+        "rows_without_dark": 4,
+        "horizontal_dark_runs": 23,
+        "interior_dark_pixels": 45
+      }
+    },
+    {
+      "index": 6,
+      "name": "hatch_open",
+      "character": "h",
+      "palette": "bg0_deck",
+      "roles": [
+        "k",
+        "l",
+        "m"
+      ],
+      "note": "the same hatch swung open: the void below and the tops of its ladder",
+      "source": "ship_row",
+      "walkable": true,
+      "climbable": true,
+      "walk_reason": "an open hatch is the way down: walkable, and it is the cell the ladder_down trigger sits on",
+      "marked": {
+        "hatch": "open",
+        "flag": ""
+      },
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "k",
+          "l",
+          "m"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 54.7,
+        "rows_without_dark": 5,
+        "horizontal_dark_runs": 28,
+        "interior_dark_pixels": 79
+      }
+    },
+    {
+      "index": 7,
+      "name": "door_sill",
+      "character": "s",
+      "palette": "bg0_deck",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "w"
+      ],
+      "note": "the sill across a watertight doorway, worn to the steel",
+      "source": "spec",
+      "walkable": true,
+      "climbable": false,
+      "walk_reason": "a sill is a step of two pixels: crossable, so the map does not block it",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "w"
+        ],
+        "lightest_role": "w",
+        "lightest_share_percent": 5.5,
+        "rows_without_dark": 3,
+        "horizontal_dark_runs": 13,
+        "interior_dark_pixels": 14
+      }
+    },
+    {
+      "index": 8,
+      "name": "bulkhead_rivet",
+      "character": "#",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "a riveted bulkhead: plate seam, a four by four rivet grid, dark base course",
+      "source": "spec",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "a bulkhead is a wall",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 6.2,
+        "rows_without_dark": 1,
+        "horizontal_dark_runs": 15,
+        "interior_dark_pixels": 0
+      }
+    },
+    {
+      "index": 9,
+      "name": "bulkhead_plain",
+      "character": "B",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "the same bulkhead with no rivets, lit along its top edge",
+      "source": "spec",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "a bulkhead is a wall",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 5.9,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 16,
+        "interior_dark_pixels": 0
+      }
+    },
+    {
+      "index": 10,
+      "name": "bulkhead_light",
+      "character": "i",
+      "palette": "bg0_deck",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "w"
+      ],
+      "note": "a bulkhead lamp and the first row of its spill",
+      "source": "spec",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "a fitting on a wall: it is not ground",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "w"
+        ],
+        "lightest_role": "w",
+        "lightest_share_percent": 7.0,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 16,
+        "interior_dark_pixels": 0
+      }
+    },
+    {
+      "index": 11,
+      "name": "ladder",
+      "character": "L",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "a vertical ladder: two stringers, rungs every three pixels",
+      "source": "spec",
+      "walkable": true,
+      "climbable": true,
+      "walk_reason": "a ladder is climbed, not walked around; the map lets a step onto it",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 6.6,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 38,
+        "interior_dark_pixels": 86
+      }
+    },
+    {
+      "index": 12,
+      "name": "stairs_up",
+      "character": "U",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "a short stair up to the weather deck, four treads",
+      "source": "spec",
+      "walkable": true,
+      "climbable": true,
+      "walk_reason": "a stair is climbed, so it is not a solid",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 6.2,
+        "rows_without_dark": 3,
+        "horizontal_dark_runs": 13,
+        "interior_dark_pixels": 105
+      }
+    },
+    {
+      "index": 13,
+      "name": "pipe_run",
+      "character": "p",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "a pipe run along a bulkhead, with two flanges and a lagging line",
+      "source": "spec",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "a pipe run stands proud of the wall: a solid",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 23.4,
+        "rows_without_dark": 8,
+        "horizontal_dark_runs": 8,
+        "interior_dark_pixels": 0
+      }
+    },
+    {
+      "index": 14,
+      "name": "locker",
+      "character": "K",
+      "palette": "bg1_hold",
+      "roles": [
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "a steel locker: louvred door, handle, dark base",
+      "source": "spec",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "a locker is furniture: a solid",
+      "marked": {},
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 17.2,
+        "rows_without_dark": 12,
+        "horizontal_dark_runs": 4,
+        "interior_dark_pixels": 36
+      }
+    },
+    {
+      "index": 15,
+      "name": "crate",
+      "character": "C",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "a crate in the hold, banded with a diagonal brace",
+      "source": "spec",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "a crate is a solid the hold is furnished with",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 29.3,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 30,
+        "interior_dark_pixels": 0
+      }
+    },
+    {
+      "index": 16,
+      "name": "hazard_stripes",
+      "character": "!",
+      "palette": "bg3_fixture",
+      "roles": [
+        "k",
+        "o",
+        "y"
+      ],
+      "note": "hazard paint: a yellow field, black diagonal stripes, rust at its edge",
+      "source": "spec",
+      "walkable": true,
+      "climbable": false,
+      "walk_reason": "paint on a deck: it marks a hazard, it is not one",
+      "marked": {},
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "k",
+          "o",
+          "y"
+        ],
+        "lightest_role": "y",
+        "lightest_share_percent": 44.5,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 50,
+        "interior_dark_pixels": 97
+      }
+    },
+    {
+      "index": 17,
+      "name": "rail_post",
+      "character": "|",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "a rail stanchion standing on the deck plate it guards",
+      "source": "card",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "the rail is the edge of the ship: a solid, and the deck ends at it",
+      "marked": {
+        "rail": true
+      },
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 20.7,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 17,
+        "interior_dark_pixels": 0
+      }
+    },
+    {
+      "index": 18,
+      "name": "rail_bar",
+      "character": "-",
+      "palette": "bg1_hold",
+      "roles": [
+        "k",
+        "l",
+        "m",
+        "r"
+      ],
+      "note": "the rail bar and its shadow, on the deck plate at the ship's edge, with the water beyond",
+      "source": "card",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "the rail is the edge of the ship: a solid, and the water is under it",
+      "marked": {
+        "rail": true
+      },
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "k",
+          "l",
+          "m",
+          "r"
+        ],
+        "lightest_role": "l",
+        "lightest_share_percent": 18.4,
+        "rows_without_dark": 4,
+        "horizontal_dark_runs": 12,
+        "interior_dark_pixels": 0
+      }
+    },
+    {
+      "index": 19,
+      "name": "porthole",
+      "character": "O",
+      "palette": "bg3_fixture",
+      "roles": [
+        "c",
+        "k",
+        "o",
+        "y"
+      ],
+      "note": "a brass porthole: ring, glass, the harbour showing through it",
+      "source": "spec",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "a porthole is set in a bulkhead: a solid",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "c",
+          "k",
+          "o",
+          "y"
+        ],
+        "lightest_role": "y",
+        "lightest_share_percent": 29.3,
+        "rows_without_dark": 4,
+        "horizontal_dark_runs": 22,
+        "interior_dark_pixels": 44
+      }
+    },
+    {
+      "index": 20,
+      "name": "log_terminal",
+      "character": "T",
+      "palette": "bg3_fixture",
+      "roles": [
+        "c",
+        "k",
+        "o",
+        "y"
+      ],
+      "note": "the log terminal face: screen with five text rows, keypad, one live indicator",
+      "source": "card",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "a terminal is mounted on a wall: it is the save point, not ground",
+      "marked": {},
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "c",
+          "k",
+          "o",
+          "y"
+        ],
+        "lightest_role": "y",
+        "lightest_share_percent": 12.5,
+        "rows_without_dark": 2,
+        "horizontal_dark_runs": 35,
+        "interior_dark_pixels": 82
+      }
+    },
+    {
+      "index": 21,
+      "name": "water_deep",
+      "character": "~",
+      "palette": "bg2_sea",
+      "roles": [
+        "a",
+        "b",
+        "c"
+      ],
+      "note": "the water under the rail, frame 1 of 2: deep blue, two swells, three glints",
+      "source": "card",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "you cannot walk on the sea",
+      "marked": {},
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "a",
+          "b",
+          "c"
+        ],
+        "lightest_role": "c",
+        "lightest_share_percent": 1.2,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 25,
+        "interior_dark_pixels": 163
+      }
+    },
+    {
+      "index": 22,
+      "name": "water_swell",
+      "character": "w",
+      "palette": "bg2_sea",
+      "roles": [
+        "a",
+        "b",
+        "c"
+      ],
+      "note": "the water under the rail, frame 2 of 2: the swell moves two pixels and the glints swap",
+      "source": "card",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "you cannot walk on the sea",
+      "marked": {},
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "a",
+          "b",
+          "c"
+        ],
+        "lightest_role": "c",
+        "lightest_share_percent": 1.2,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 22,
+        "interior_dark_pixels": 169
+      }
+    },
+    {
+      "index": 23,
+      "name": "water_edge",
+      "character": "W",
+      "palette": "bg2_sea",
+      "roles": [
+        "a",
+        "b",
+        "c"
+      ],
+      "note": "the waterline at the hull: crest against the steel, foam breaking",
+      "source": "card",
+      "walkable": false,
+      "climbable": false,
+      "walk_reason": "the waterline is water: the hull beside it is a solid too",
+      "marked": {},
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "a",
+          "b",
+          "c"
+        ],
+        "lightest_role": "c",
+        "lightest_share_percent": 12.5,
+        "rows_without_dark": 4,
+        "horizontal_dark_runs": 16,
+        "interior_dark_pixels": 138
+      }
+    }
+  ],
+  "animation": [
+    {
+      "a": "water_deep",
+      "b": "water_swell",
+      "fps": 2,
+      "note": "the sea under the rail: two frames, the swell moves two pixels"
+    }
+  ],
+  "marks": {
+    "hatch": {
+      "closed": 5,
+      "open": 6,
+      "flag": "ship_door_open",
+      "rule": "the closed hatch is not walkable and is the flag gated cell (collision 2 in the data/maps/all.json convention); the open hatch is walkable and carries the ladder_down trigger"
+    },
+    "rail": {
+      "bar": 18,
+      "post": 17,
+      "water_below": [
+        21,
+        22,
+        23
+      ],
+      "rule": "the rail is the edge of the ship: not walkable, stood on the deck plate it guards, with the water in the next row below it"
+    }
+  },
+  "nes_check": {
+    "tool": "tools/nes_check.py",
+    "args": "--type background --backdrop #000000",
+    "exit": 0,
+    "pass": true,
+    "output": "<repo>\\assets\\tiles\\ship\\ship_tiles.png  128x48  96 tiles  10 colours  PASS\n  backdrop #000000 (declared)\n  palette: data\\nes_palette.json, the 2C02 palette (64 colours)"
+  },
+  "mocks": [
+    "output/ship_tiles_3x.png",
+    "output/ship_deck_preview.png"
+  ],
+  "measured": {
+    "sheet": [
+      128,
+      48
+    ],
+    "colours": 10,
+    "worst_area_colours": 3,
+    "worst_area_tile": "deck_line",
+    "tiles": 24,
+    "walkable": 10,
+    "not_walkable": 14,
+    "climbable": 3,
+    "size_sixteen": true
+  }
+}

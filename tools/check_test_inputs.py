@@ -48,6 +48,32 @@ FIXTURES = (
     # It was the last capture a test read by path that no commit carried, so a HEAD worktree reported the
     # absent file as an art failure.
     "output/ship_dialogue.png",
+    # Card t_d2c52f15: the drive cue's measurement pair and the two WAVs behind it. tests/test_mix_check_v3.py
+    # reads the report by path and runs the script on a 30 s slice; the script reads both WAVs. A commit that
+    # carried the test and the report but not the script left five rows red in a clean checkout, all of them
+    # "FileNotFoundError: .../mix_check_v3.py" or the missing report behind it.
+    "assets/audio/pp_drive/mix_check_v3.py",
+    "assets/audio/pp_drive/mix_check_v3.json",
+    "assets/audio/pp_drive/pp_drive_v3_humanized.wav",
+    "assets/audio/pp_01_title/pp_01_title.wav",
+    # The twelve drive captures tests/test_eye_drive.py samples. tools/eye_drive.py reads them by name from
+    # output/drive and measures each frame's own pixels, so they are that test's input, not a preview: with
+    # them absent a clean checkout reported twelve failed shots and three reds (card t_d2c52f15). They are
+    # un-ignored one by one in .gitignore after output/ and output/drive/ are re-excluded, and they are named
+    # here one by one because this list is read rather than discovered: a missing fixture has to be visible
+    # in the source, not inferred at run time.
+    "output/drive/pp_drive_shot_01.png",
+    "output/drive/pp_drive_shot_02.png",
+    "output/drive/pp_drive_shot_03.png",
+    "output/drive/pp_drive_shot_04.png",
+    "output/drive/pp_drive_shot_05.png",
+    "output/drive/pp_drive_shot_06.png",
+    "output/drive/pp_drive_shot_07.png",
+    "output/drive/pp_drive_shot_08.png",
+    "output/drive/pp_drive_shot_09.png",
+    "output/drive/pp_drive_shot_10.png",
+    "output/drive/pp_drive_shot_11.png",
+    "output/drive/pp_drive_shot_12.png",
 )
 
 # The calls that answer "is this input here". A skip guarded by one of these is the defect.

@@ -9,6 +9,16 @@ report could quietly become fiction:
      be reported as legal because a model liked it;
   3. the model chain moves to the next model on a per-day quota refusal instead of failing the run,
      proved against a fake transport that answers the real 429 body.
+
+WHERE THE TWELVE FRAMES COME FROM, and why they are committed (decision taken 2026-10-24, card
+t_d2c52f15). The input is output/drive/pp_drive_shot_01.png to _12.png, 768x720 captures that the
+game writes from inside its own draw; only a GameMaker run produces them, so this test cannot make
+them and must not pretend to. They are therefore committed, un-ignored by name in .gitignore and
+listed one by one in tools/check_test_inputs.py FIXTURES, which is what makes a clean checkout
+measure twelve real frames instead of reporting twelve failed shots. The alternative, a skip or a
+note saying the row only runs on a capture machine, was refused: a row that cannot run where the
+suite runs is the same silent pass this project already forbids in check_test_inputs.py. Nothing
+in the assertions below was relaxed to allow this; the frames are the test's input, not a preview.
 """
 
 from __future__ import annotations

@@ -3,13 +3,11 @@ knowledge/study/
 
 # Generated from data\ by tools\sync_data.py. The source of truth is data\, not this mirror.
 game/datafiles/
-# The title art mirror, before it moved under game\datafiles\art\ (tools\sync_art.py now
-# writes there). These files are the old location's copies of the same tracked sprites in
-# game\sprites_src\title\, and the committed .yyp does not reference them: it lists the
-# 20 sprites as datafiles/art. Measured 2026-10-21: the live tree still held all 20 copies
-# at the old path, and committing them a second time under the old name is what put a
-# tracked file in the tree that nothing reads.
-game/art/
+
+# game\art retired on 2026-10-23 (card t_4e54cc9e). The sprite queue measures game\sprites_src, which
+# is the authored tree, and tools\sync_art.py rebuilds game\datafiles\art from it, which is what the
+# game reads. This line and the comment block above it are kept in git history, not here, because an
+# ignore rule for a folder that no longer exists is how a retired path keeps coming back.
 
 # Build output and per user IDE state.
 build/
@@ -40,4 +38,21 @@ output/*
 !output/sfx_preview_3x.png
 !output/render2_demo_preview.png
 !output/scene_palettes.json
+
+# The twelve drive captures tests/test_eye_drive.py samples. tools/eye_drive.py reads
+# output\drive\pp_drive_shot_01.png to _12.png, which the game writes from inside its own draw
+# (pp_drive.gml, PP_DRIVE_CAPTURE), and sample_frames() turns each into the native 256x240 copy
+# it measures. Nothing but a GameMaker run produces them, so a clean checkout that lacks them
+# reports twelve failed shots. Measured 2026-10-24, card t_d2c52f15: in a detached worktree at
+# 75161aa, tests/test_eye_drive.py reported "shots without a captured frame: [1, 2, ... 12]" and
+# three reds. These are the files the test measures, not decoration: eye_drive.measure() reads
+# each one's own pixels. The pattern is ?? so the derived _1x and _1x_crop files beside them stay
+# out, and output/drive/* keeps every other file in that folder out too.
+#
+# Order and shape matter here. output/* excludes output/drive ITSELF, and git never descends into
+# an excluded directory, so a negation for a file inside it would be a dead line. The directory is
+# re-included first, then re-excluded wholesale, then the twelve are named.
+!output/drive/
+output/drive/*
+!output/drive/pp_drive_shot_??.png
 cache/
