@@ -1,0 +1,1017 @@
+{
+  "format": 1,
+  "kind": "tileset",
+  "name": "drive_tiles",
+  "image": "drive_tiles.png",
+  "card": "DRIVE-TILES (t_d0e73725)",
+  "odbl": "(c) OpenStreetMap contributors, Open Database Licence (ODbL) 1.0, https://www.openstreetmap.org/copyright",
+  "odbl_note": "the corridor's proportions are derived from the OSM extracts in data/osm_cache/, so the derived map data this set belongs to carries the ODbL line verbatim; the game's own art and story do not",
+  "columns": 8,
+  "rows": 3,
+  "frames": 24,
+  "frame_w": 16,
+  "frame_h": 16,
+  "imagewidth": 128,
+  "imageheight": 48,
+  "tilecount": 24,
+  "tile_size": 16,
+  "margin": 0,
+  "spacing": 0,
+  "backdrop": {
+    "entry": 15,
+    "hex": "#000000"
+  },
+  "rule": "NES: 1 shared backdrop $0F, 4 background palettes of 3 entries, a 16x16 area carries at most 3 colours besides the backdrop, at most 25 colours on screen; every pixel is a 2C02 output",
+  "scale": {
+    "metres_per_tile": 8.0,
+    "metres_per_pixel": 0.5,
+    "source": "tools/osm_to_map.py METRES_PER_TILE = 8.0 at TILE_PX = 16",
+    "corridor_tiles": 2,
+    "lane_pixels": 7,
+    "lane_metres": 3.65,
+    "shoulder_metres": 3.3,
+    "dash_pixels": 4,
+    "gap_pixels": 12,
+    "dash_note": "2 m mark and 6 m gap is one 8 m tile exactly; the motorway's own 2 m mark and 7 m gap is a 9 m cycle and would need a 3 tile repeat, which this sheet does not guarantee"
+  },
+  "sources": {
+    "a33_lanes": "A33 Town Quay way/8150576, highway=primary, lanes=3, surface=asphalt, lit=yes, oneway=yes, 30 mph (data/osm_cache/southampton_town_quay.json)",
+    "a33_lanes4": "A33 way/24594762, highway=primary, lanes=4, surface=asphalt, lit=yes (data/osm_cache/southampton_town_quay.json)",
+    "width7": "A3211 Victoria Embankment way/236139546, width=7, lane_markings=no, oneway=yes, lit=yes (data/osm_cache/westminster_big_ben.json)",
+    "lit": "lit=yes is tagged on 125 of the 237 highway ways in data/osm_cache/southampton_town_quay.json",
+    "dest": "Bridge Street way/406370787, destination:lanes:backward=A3211|A23: a sign that names the destination of the lanes under it (data/osm_cache/westminster_big_ben.json)",
+    "shoulder_no": "shoulder=no is tagged on 9 primary ways in data/osm_cache/westminster_big_ben.json (Parliament Square, Westminster Bridge, Broad Sanctuary), so a hard shoulder is not in the extract",
+    "barrier_none": "the extracts carry barrier= only 4 times (city_wall twice, wall twice) and no safety barrier, so the motorway barrier is not in the extract",
+    "motorway_spec": "SPEC: the M3 is a motorway, so the corridor has a hard shoulder and a safety barrier; the drive shot list puts a gantry over it (knowledge/DRIVE-SHOT-LIST.md sections 3 and 5)"
+  },
+  "roles": {
+    "asphalt": {
+      "role": "grey_1",
+      "palette_json_index": 1,
+      "entry": 15,
+      "hex": "#000000",
+      "why": "the tarmac, and the steel of the gantry in the dark"
+    },
+    "bright": {
+      "role": "grey_5",
+      "palette_json_index": 5,
+      "entry": 32,
+      "hex": "#f8f8f8",
+      "why": "lane paint, the sign border, the lit rail edge"
+    },
+    "dim": {
+      "role": "grey_3",
+      "palette_json_index": 3,
+      "entry": 0,
+      "hex": "#7c7c7c",
+      "why": "road grain, the shade under a line, the barrier face"
+    },
+    "gold": {
+      "role": "gold_5",
+      "palette_json_index": 41,
+      "entry": 56,
+      "hex": "#f8d878",
+      "why": "the sodium lamp head and the marker's reflector"
+    },
+    "green_deep": {
+      "role": "moss_1",
+      "palette_json_index": 25,
+      "entry": 11,
+      "hex": "#005800",
+      "why": "the verge floor and the mass of the hedge"
+    },
+    "green_lit": {
+      "role": "moss_3",
+      "palette_json_index": 27,
+      "entry": 9,
+      "hex": "#007800",
+      "why": "the gantry sign's face, as the drive's own sign uses it"
+    },
+    "green_mid": {
+      "role": "moss_2",
+      "palette_json_index": 26,
+      "entry": 10,
+      "hex": "#006800",
+      "why": "the grass blades and the kerb's grass above it"
+    },
+    "green_pale": {
+      "role": "moss_5",
+      "palette_json_index": 29,
+      "entry": 26,
+      "hex": "#00a800",
+      "why": "the moonlit tips of the grass and the hedge's top edge"
+    },
+    "stone_mid": {
+      "role": "stone_2",
+      "palette_json_index": 32,
+      "entry": 8,
+      "hex": "#503000",
+      "why": "the kerb face, the marker post, the lamp column"
+    }
+  },
+  "palettes": [
+    {
+      "name": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "dim",
+        "bright"
+      ],
+      "entries": [
+        15,
+        0,
+        32
+      ],
+      "hex": [
+        "#000000",
+        "#7c7c7c",
+        "#f8f8f8"
+      ],
+      "note": "the corridor: tarmac, the shade under a line, the paint"
+    },
+    {
+      "name": "bg1_verge",
+      "roles": [
+        "green_deep",
+        "green_mid",
+        "green_pale"
+      ],
+      "entries": [
+        11,
+        10,
+        26
+      ],
+      "hex": [
+        "#005800",
+        "#006800",
+        "#00a800"
+      ],
+      "note": "the night verge: the floor, the blades, the moonlit tips"
+    },
+    {
+      "name": "bg2_sign",
+      "roles": [
+        "green_lit",
+        "green_mid",
+        "bright"
+      ],
+      "entries": [
+        9,
+        10,
+        32
+      ],
+      "hex": [
+        "#007800",
+        "#006800",
+        "#f8f8f8"
+      ],
+      "note": "the gantry's sign face, its dark rear, and the lit border"
+    },
+    {
+      "name": "bg3_lamp",
+      "roles": [
+        "gold",
+        "stone_mid",
+        "green_mid"
+      ],
+      "entries": [
+        56,
+        8,
+        10
+      ],
+      "hex": [
+        "#f8d878",
+        "#503000",
+        "#006800"
+      ],
+      "note": "the roadside fittings: the sodium head, the stone, the grass at their feet"
+    }
+  ],
+  "tiles": [
+    {
+      "index": 0,
+      "name": "road_surface",
+      "character": "a",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "dim"
+      ],
+      "note": "the carriageway between the lines",
+      "source": "a33_lanes",
+      "walkable": true,
+      "walk_reason": "a road surface: the corridor is driven and walked across",
+      "blob": {
+        "colours": 2,
+        "roles": [
+          "asphalt",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "dim",
+        "lightest_share_percent": 9.4,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 35,
+        "interior_dark_pixels": 177
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 1,
+      "name": "road_surface_worn",
+      "character": "b",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "dim"
+      ],
+      "note": "the same tarmac with a reinstatement seam across it",
+      "source": "a33_lanes",
+      "walkable": true,
+      "walk_reason": "a road surface: the corridor is driven and walked across",
+      "blob": {
+        "colours": 2,
+        "roles": [
+          "asphalt",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "dim",
+        "lightest_share_percent": 16.0,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 31,
+        "interior_dark_pixels": 167
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 2,
+      "name": "road_lane_dash",
+      "character": "c",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the lane line: 2 m of paint in a 6 m gap, one 8 m tile",
+      "source": "a33_lanes4",
+      "walkable": true,
+      "walk_reason": "a road surface: the corridor is driven and walked across",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 1.6,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 36,
+        "interior_dark_pixels": 173
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 3,
+      "name": "road_edge_line",
+      "character": "d",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the continuous edge line at the outside of the corridor",
+      "source": "a33_lanes",
+      "walkable": true,
+      "walk_reason": "a road surface: the corridor is driven and walked across",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 6.2,
+        "rows_without_dark": 2,
+        "horizontal_dark_runs": 30,
+        "interior_dark_pixels": 157
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 4,
+      "name": "road_shoulder",
+      "character": "e",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the hard shoulder, 3.3 m, inside its own white line",
+      "source": "motorway_spec",
+      "walkable": true,
+      "walk_reason": "a road surface: the corridor is driven and walked across",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 6.2,
+        "rows_without_dark": 1,
+        "horizontal_dark_runs": 33,
+        "interior_dark_pixels": 112
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 5,
+      "name": "road_wet",
+      "character": "f",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the surface in rain: the sheen and the glints of shot 4",
+      "source": "a33_lanes",
+      "walkable": true,
+      "walk_reason": "a road surface: the corridor is driven and walked across",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 2.3,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 33,
+        "interior_dark_pixels": 146
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 6,
+      "name": "road_stud",
+      "character": "g",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "a cat's eye in the lane line, the one thing on the road that reflects",
+      "source": "lit",
+      "walkable": true,
+      "walk_reason": "a road surface: the corridor is driven and walked across",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 1.6,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 38,
+        "interior_dark_pixels": 171
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 7,
+      "name": "road_single_lane",
+      "character": "h",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the slip road narrowing to one lane, both edges painted",
+      "source": "width7",
+      "walkable": true,
+      "walk_reason": "a road surface: the corridor is driven and walked across",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 12.5,
+        "rows_without_dark": 4,
+        "horizontal_dark_runs": 25,
+        "interior_dark_pixels": 127
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 8,
+      "name": "verge_grass",
+      "character": "i",
+      "palette": "bg1_verge",
+      "roles": [
+        "green_deep",
+        "green_mid",
+        "green_pale"
+      ],
+      "note": "the night verge: blades on a dark floor, tips catching the moon",
+      "source": "lit",
+      "walkable": true,
+      "walk_reason": "open grass: low, and the drive lets you stand on it",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "green_deep",
+          "green_mid",
+          "green_pale"
+        ],
+        "dark_roles": [
+          "green_deep",
+          "grey_0"
+        ],
+        "lightest_role": "green_pale",
+        "lightest_share_percent": 1.6,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 63,
+        "interior_dark_pixels": 156
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 9,
+      "name": "verge_tuft",
+      "character": "j",
+      "palette": "bg1_verge",
+      "roles": [
+        "green_deep",
+        "green_mid",
+        "green_pale"
+      ],
+      "note": "a denser clump for the verges between the posts",
+      "source": "lit",
+      "walkable": true,
+      "walk_reason": "open grass: low, and the drive lets you stand on it",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "green_deep",
+          "green_mid",
+          "green_pale"
+        ],
+        "dark_roles": [
+          "green_deep",
+          "grey_0"
+        ],
+        "lightest_role": "green_pale",
+        "lightest_share_percent": 2.7,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 41,
+        "interior_dark_pixels": 145
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 10,
+      "name": "hedge_night",
+      "character": "k",
+      "palette": "bg1_verge",
+      "roles": [
+        "green_deep",
+        "green_mid",
+        "green_pale"
+      ],
+      "note": "the hedge mass that closes the far side of the roadside",
+      "source": "lit",
+      "walkable": false,
+      "walk_reason": "a hedge is a wall of growth: the map treats it as a solid",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "green_deep",
+          "green_mid",
+          "green_pale"
+        ],
+        "dark_roles": [
+          "green_deep",
+          "grey_0"
+        ],
+        "lightest_role": "green_pale",
+        "lightest_share_percent": 3.9,
+        "rows_without_dark": 4,
+        "horizontal_dark_runs": 17,
+        "interior_dark_pixels": 52
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 11,
+      "name": "verge_shadow",
+      "character": "l",
+      "palette": "bg1_verge",
+      "roles": [
+        "green_deep",
+        "green_mid"
+      ],
+      "note": "the dark band under the hedge, so its foot does not float",
+      "source": "lit",
+      "walkable": true,
+      "walk_reason": "open grass: low, and the drive lets you stand on it",
+      "blob": {
+        "colours": 2,
+        "roles": [
+          "green_deep",
+          "green_mid"
+        ],
+        "dark_roles": [
+          "green_deep",
+          "grey_0"
+        ],
+        "lightest_role": "green_mid",
+        "lightest_share_percent": 32.8,
+        "rows_without_dark": 5,
+        "horizontal_dark_runs": 15,
+        "interior_dark_pixels": 136
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 12,
+      "name": "kerb",
+      "character": "m",
+      "palette": "bg3_lamp",
+      "roles": [
+        "green_mid",
+        "stone_mid"
+      ],
+      "note": "the kerb between verge and tarmac, 3 m of stone across the tile",
+      "source": "width7",
+      "walkable": true,
+      "walk_reason": "a kerb is a step of one pixel: crossable, so the map does not block it",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "green_mid",
+          "grey_0",
+          "stone_mid"
+        ],
+        "dark_roles": [
+          "grey_0"
+        ],
+        "lightest_role": "green_mid",
+        "lightest_share_percent": 37.5,
+        "rows_without_dark": 6,
+        "horizontal_dark_runs": 20,
+        "interior_dark_pixels": 9
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 13,
+      "name": "marker_post",
+      "character": "n",
+      "palette": "bg3_lamp",
+      "roles": [
+        "gold",
+        "green_mid",
+        "stone_mid"
+      ],
+      "note": "the roadside marker post with its amber reflector",
+      "source": "lit",
+      "walkable": false,
+      "walk_reason": "a fitting on the verge: a post is a solid",
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "gold",
+          "green_mid",
+          "grey_0",
+          "stone_mid"
+        ],
+        "dark_roles": [
+          "grey_0",
+          "stone_mid"
+        ],
+        "lightest_role": "gold",
+        "lightest_share_percent": 1.6,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 18,
+        "interior_dark_pixels": 174
+      },
+      "blob_gated": true,
+      "blob_verdict": "pass"
+    },
+    {
+      "index": 14,
+      "name": "lamp_post",
+      "character": "o",
+      "palette": "bg3_lamp",
+      "roles": [
+        "green_mid",
+        "stone_mid"
+      ],
+      "note": "the lamp column: sodium lighting is why the extract is tagged lit=yes",
+      "source": "lit",
+      "walkable": false,
+      "walk_reason": "a fitting on the verge: a post is a solid",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "green_mid",
+          "grey_0",
+          "stone_mid"
+        ],
+        "dark_roles": [
+          "grey_0",
+          "stone_mid"
+        ],
+        "lightest_role": "green_mid",
+        "lightest_share_percent": 6.6,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 16,
+        "interior_dark_pixels": 188
+      },
+      "blob_gated": true,
+      "blob_verdict": "pass"
+    },
+    {
+      "index": 15,
+      "name": "lamp_head",
+      "character": "p",
+      "palette": "bg3_lamp",
+      "roles": [
+        "gold",
+        "stone_mid"
+      ],
+      "note": "the sodium head and the first rows of its cone",
+      "source": "lit",
+      "walkable": false,
+      "walk_reason": "overhead structure: it blocks the lane it crosses when placed in the ground layer",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "gold",
+          "grey_0",
+          "stone_mid"
+        ],
+        "dark_roles": [
+          "grey_0",
+          "stone_mid"
+        ],
+        "lightest_role": "gold",
+        "lightest_share_percent": 19.9,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 35,
+        "interior_dark_pixels": 145
+      },
+      "blob_gated": true,
+      "blob_verdict": "pass"
+    },
+    {
+      "index": 16,
+      "name": "gantry_beam",
+      "character": "q",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the gantry's horizontal lattice member",
+      "source": "dest",
+      "walkable": false,
+      "walk_reason": "overhead structure: a beam is not ground",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 3.1,
+        "rows_without_dark": 2,
+        "horizontal_dark_runs": 27,
+        "interior_dark_pixels": 154
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 17,
+      "name": "gantry_leg",
+      "character": "r",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the gantry's upright lattice leg, standing on the verge",
+      "source": "dest",
+      "walkable": false,
+      "walk_reason": "a fitting on the verge: a post is a solid",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 2.7,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 61,
+        "interior_dark_pixels": 154
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 18,
+      "name": "gantry_sign_panel",
+      "character": "s",
+      "palette": "bg2_sign",
+      "roles": [
+        "bright",
+        "green_lit",
+        "green_mid"
+      ],
+      "note": "the green sign face; the miles come from spr_title_sign, not from this tile",
+      "source": "dest",
+      "walkable": false,
+      "walk_reason": "overhead structure: it blocks the lane it crosses when placed in the ground layer",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "bright",
+          "green_lit",
+          "green_mid"
+        ],
+        "dark_roles": [
+          "green_mid",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 21.9,
+        "rows_without_dark": 15,
+        "horizontal_dark_runs": 1,
+        "interior_dark_pixels": 0
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 19,
+      "name": "gantry_sign_edge",
+      "character": "t",
+      "palette": "bg2_sign",
+      "roles": [
+        "bright",
+        "green_lit",
+        "green_mid"
+      ],
+      "note": "the panel's lit top rim, for the top row of a two tile sign",
+      "source": "dest",
+      "walkable": false,
+      "walk_reason": "overhead structure: it blocks the lane it crosses when placed in the ground layer",
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "bright",
+          "green_lit",
+          "green_mid",
+          "grey_0"
+        ],
+        "dark_roles": [
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 9.4,
+        "rows_without_dark": 15,
+        "horizontal_dark_runs": 1,
+        "interior_dark_pixels": 0
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 20,
+      "name": "gantry_sign_back",
+      "character": "u",
+      "palette": "bg2_sign",
+      "roles": [
+        "bright",
+        "green_lit",
+        "green_mid"
+      ],
+      "note": "the rear of the sign, which is what the car sees after it has passed",
+      "source": "dest",
+      "walkable": false,
+      "walk_reason": "overhead structure: it blocks the lane it crosses when placed in the ground layer",
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "bright",
+          "green_lit",
+          "green_mid",
+          "grey_0"
+        ],
+        "dark_roles": [
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 6.2,
+        "rows_without_dark": 15,
+        "horizontal_dark_runs": 1,
+        "interior_dark_pixels": 0
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 21,
+      "name": "barrier_rail",
+      "character": "v",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the steel safety barrier in its two bands",
+      "source": "motorway_spec",
+      "walkable": false,
+      "walk_reason": "a fitting on the verge: a post is a solid",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 12.5,
+        "rows_without_dark": 4,
+        "horizontal_dark_runs": 21,
+        "interior_dark_pixels": 131
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 22,
+      "name": "barrier_post",
+      "character": "w",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the post the barrier rail hangs on",
+      "source": "motorway_spec",
+      "walkable": false,
+      "walk_reason": "a fitting on the verge: a post is a solid",
+      "blob": {
+        "colours": 4,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim",
+          "grey_0"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 0.8,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 32,
+        "interior_dark_pixels": 154
+      },
+      "blob_gated": false,
+      "blob_verdict": "reported only: a pattern, a structure or a light source, not a character silhouette"
+    },
+    {
+      "index": 23,
+      "name": "barrier_end",
+      "character": "x",
+      "palette": "bg0_asphalt",
+      "roles": [
+        "asphalt",
+        "bright",
+        "dim"
+      ],
+      "note": "the terminal where a barrier run ramps down into the ground",
+      "source": "motorway_spec",
+      "walkable": false,
+      "walk_reason": "a fitting on the verge: a post is a solid",
+      "blob": {
+        "colours": 3,
+        "roles": [
+          "asphalt",
+          "bright",
+          "dim"
+        ],
+        "dark_roles": [
+          "asphalt",
+          "dim",
+          "grey_0"
+        ],
+        "lightest_role": "bright",
+        "lightest_share_percent": 0.8,
+        "rows_without_dark": 0,
+        "horizontal_dark_runs": 18,
+        "interior_dark_pixels": 194
+      },
+      "blob_gated": true,
+      "blob_verdict": "pass"
+    }
+  ],
+  "animation": [],
+  "mocks": [
+    "output/drive_corridor_preview.png",
+    "output/drive_gantry_preview.png"
+  ],
+  "measured": {
+    "sheet": [
+      128,
+      48
+    ],
+    "colours": 9,
+    "worst_area_colours": 3,
+    "tiles": 24,
+    "walkable": 12,
+    "not_walkable": 12
+  }
+}
