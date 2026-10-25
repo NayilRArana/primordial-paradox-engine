@@ -5,8 +5,12 @@ What is proved here, rather than asserted in a comment:
     manifest on disk agrees with the table the generator uses;
   - every file is mono, 44100 Hz, 16 bit, between 0.05 and 1.5 seconds;
   - every file peaks at -3 dBFS within 0.05 dB, measured from the samples;
-  - no file starts or ends on a step: the first and last samples are zero and
-    the first and last millisecond stay inside the 5 ms raised cosine fade;
+  - no one shot starts or ends on a step: the first and last samples are zero
+    and the first and last millisecond stay inside the 5 ms raised cosine fade;
+  - the one loop (car_engine_loop) is instead proved periodic: the file is one
+    measured pattern repeated, so the seam is not a fade, it is the same step as
+    any other inside the file, and its ogg carries LOOPSTART and LOOPLENGTH
+    (spec 12 rule 3);
   - the output is deterministic: two runs give byte identical wavs;
   - the preview sheet is the 3x contact sheet the card asks for.
 
@@ -74,7 +78,9 @@ def test_every_effect_is_written(fresh_build):
     out_dir, manifest = fresh_build
     names = [entry["name"] for entry in manifest["effects"]]
     assert names == [name for name, _builder, _groups in sfx.EFFECTS]
-    assert len(names) == 21
+    # The 21 of card SFX-1 plus car_engine_loop, which the drive shot list adds and which is
+    # the one loop; the count is pinned so a dropped effect cannot leave a silent command.
+    assert len(names) == 22
     for name in names:
         wav_path = os.path.join(out_dir, name + ".wav")
         assert os.path.exists(wav_path), "missing %s" % wav_path
@@ -125,6 +131,11 @@ def test_every_file_peaks_at_minus_3_dbfs(manifest_on_disk):
 def test_no_click_at_either_end(manifest_on_disk):
     one_ms = int(round(0.001 * 44100))
     for entry in manifest_on_disk["effects"]:
+        if entry.get("loop"):
+            # A loop is not faded: the fade sits at both ends of a file that is played round
+            # and round, so the seam would duck once a lap. The loop's own test below proves
+            # the seam instead.
+            continue
         _info, samples = _read_wav(os.path.join(SFX_DIR, entry["files"]["wav"]))
         assert samples[0] == 0.0, "%s starts on %r" % (entry["name"], samples[0])
         assert samples[-1] == 0.0, "%s ends on %r" % (entry["name"], samples[-1])
@@ -135,6 +146,66 @@ def test_no_click_at_either_end(manifest_on_disk):
         assert head <= 0.08, "%s jumps to %.3f in its first millisecond" % (entry["name"], head)
         assert tail <= 0.08, "%s jumps to %.3f in its last millisecond" % (entry["name"], tail)
         assert entry["first_sample"] == 0.0 and entry["last_sample"] == 0.0
+
+
+def test_the_engine_loop_is_one_pattern_repeated(manifest_on_disk):
+    """The loop is proved periodic rather than faded, which is the only honest loop.
+
+    The engine file is one 4410 sample pattern (three 0.1 s load wobbles, six firings at
+    60 Hz) repeated eight times, so playing the file round and round is playing it straight:
+    shifting it by its own period reproduces it. In float that is 1.4e-07, -137 dBFS, which is
+    the 20 Hz high pass not being fully settled after the tail warm up, not a seam. On the
+    16 bit file it is at most one step of the sample grid, which is rounding, so the threshold
+    here is two steps and the measurement below the claim is one.
+    """
+    one_step = 1.0 / 32768.0
+    looping = [e for e in manifest_on_disk["effects"] if e.get("loop")]
+    assert [e["name"] for e in looping] == sorted(sfx.LOOPING), \
+        "the manifest's loops are %s, the generator's are %s" % (
+            [e["name"] for e in looping], sorted(sfx.LOOPING))
+    for entry in looping:
+        _info, samples = _read_wav(os.path.join(SFX_DIR, entry["files"]["wav"]))
+        period = entry["loop_length"] // 8
+        assert entry["loop_start"] == 0 and entry["loop_length"] == samples.size
+        assert samples.size % period == 0
+        residue = float(np.abs(samples[period:] - samples[:-period]).max())
+        assert residue <= 2.0 * one_step, "%s does not repeat: residue %.3e" % (entry["name"], residue)
+        step = abs(float(samples[0]) - float(samples[-1]))
+        internal = float(np.abs(np.diff(samples)).max())
+        assert step < internal, \
+            "%s jumps %.5f at the seam, its largest internal step is %.5f" % (entry["name"], step, internal)
+
+
+def test_the_loop_ogg_carries_its_loop_points(manifest_on_disk):
+    """Spec 12 rule 3: loop points come from the OGG's own metadata, never a code guess.
+
+    Vorbis comments belong to the Vorbis stream, not to the container, so they are read from
+    the stream tags; ffprobe reports them there and the format level is empty.
+    """
+    ffprobe = shutil.which("ffprobe")
+    if ffprobe is None:
+        pytest.skip("ffprobe not on PATH")
+
+    def stream_tags(path):
+        done = subprocess.run(
+            [ffprobe, "-v", "error", "-select_streams", "a:0", "-show_entries", "stream_tags",
+             "-of", "json", path],
+            stdin=subprocess.DEVNULL, capture_output=True, text=True,
+        )
+        assert done.returncode == 0, done.stderr
+        streams = json.loads(done.stdout).get("streams", [])
+        tags = streams[0].get("tags", {}) if streams else {}
+        return {key.upper(): value for key, value in tags.items()}, done.stdout
+
+    entries = {entry["name"]: entry for entry in manifest_on_disk["effects"]}
+    for name in sorted(sfx.LOOPING):
+        path = os.path.join(SFX_DIR, entries[name]["files"]["ogg"])
+        tags, raw = stream_tags(path)
+        assert tags.get("LOOPSTART") == "0", raw
+        assert tags.get("LOOPLENGTH") == str(entries[name]["loop_length"]), raw
+    tags, raw = stream_tags(os.path.join(SFX_DIR, entries["menu_move"]["files"]["ogg"]))
+    assert "LOOPLENGTH" not in tags and "LOOPSTART" not in tags, \
+        "a one shot claims a loop: %s" % raw
 
 
 def test_no_constant_offset(manifest_on_disk):
@@ -182,8 +253,10 @@ def test_manifest_matches_the_generator(manifest_on_disk):
     assert manifest_on_disk["peak_target_dbfs"] == sfx.PEAK_DBFS
     assert manifest_on_disk["fade_ms"] == sfx.FADE_MS
     assert manifest_on_disk["dc_block_hz"] == sfx.DC_BLOCK_HZ
+    assert manifest_on_disk["looping_names"] == sorted(sfx.LOOPING)
     allowed = set(manifest_on_disk["voice_set"])
     for entry in manifest_on_disk["effects"]:
+        assert entry["loop"] is (entry["name"] in sfx.LOOPING), entry["name"]
         assert entry["voices"], entry["name"]
         assert set(entry["voices"]) <= allowed, "%s lists unknown voices" % entry["name"]
         assert entry["purpose"].strip(), entry["name"]

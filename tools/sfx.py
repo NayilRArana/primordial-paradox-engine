@@ -27,10 +27,18 @@ Outputs, all deterministic (same bytes on every run)
   assets\\audio\\sfx\\manifest.json  name, length, peak, voices, purpose
   output\\sfx_preview_3x.png       contact sheet of every waveform at 3x
 
-Every effect is normalised to a peak of -3 dBFS and gets a 5 ms raised cosine
-fade at each end, so no file starts or ends on a step. A 20 Hz one pole high
-pass (the APU's output capacitor, in effect) removes the DC bias that a short
-burst of low noise otherwise carries.
+Every one shot effect is normalised to a peak of -3 dBFS and gets a 5 ms raised
+cosine fade at each end, so no file starts or ends on a step. A 20 Hz one pole
+high pass (the APU's output capacitor, in effect) removes the DC bias that a
+short burst of low noise otherwise carries.
+
+`car_engine_loop` is the one file that loops (the drive holds it from shot 2 to
+shot 12 of knowledge/DRIVE-SHOT-LIST.md), so it is built as a genuine loop
+instead: every voice in it is periodic in the file length, it carries no fade,
+and the high pass is primed with the file's own tail so the filter is already in
+steady state at sample 0. A fade at the seam would duck the loop once per lap,
+which is the click spec 12 rule 3 exists to avoid. Its OGG also carries
+LOOPSTART and LOOPLENGTH, because rule 3 says loop points come from the file.
 
 Usage:
     python tools\\sfx.py               build everything under the project root
@@ -73,6 +81,13 @@ LIMITER_KNEE = 0.95
 # The one pole DC blocker corner, in Hz. Below the lowest thing the chip can play
 # (the triangle bottoms out around 27 Hz) so it removes bias, not notes.
 DC_BLOCK_HZ = 20.0
+
+# The effects that loop instead of firing once. A loop must not be faded, because the
+# fade is at both ends of the file and the file is played round and round: the seam
+# would duck every lap. So the high pass is primed with the loop's own tail instead,
+# which leaves the filter in the steady state a repeat would have given it.
+LOOPING = {"car_engine_loop"}
+LOOP_WARMUP_S = 0.10
 
 # APU noise periods, in CPU cycles, from the hardware table.
 NOISE_PERIODS = render_chip.NOISE_PERIODS
@@ -412,9 +427,59 @@ def build_game_over() -> tuple[np.ndarray, list[str], str]:
         "Death or a lost run: four notes down the minor scale, slow, with a held low root."
 
 
+# The drive's bed, shot 2 to shot 12 of knowledge/DRIVE-SHOT-LIST.md: "engine from here to
+# the end". It is the one effect that is a loop, so it is built as one.
+#
+# The film's engine is a four cylinder at idle: a firing at 60 Hz (900 rpm times four
+# cylinders over two crank turns, near enough for a sound effect), a 30 Hz crank half order
+# under it for the body, a 120 Hz second order for the block, and a short noise tick on each
+# firing for the combustion. Everything is periodic in the buffer, so the loop has no seam to
+# hide: the file is one 4410 sample pattern (three 0.1 s wobbles, six firings) repeated eight
+# times, which is why tools/sfx.py can prove the repeat instead of fading it.
+ENGINE_FIRING_HZ = 60.0
+ENGINE_SUB_HZ = 30.0
+ENGINE_SECOND_HZ = 120.0
+ENGINE_WOBBLE_HZ = 10.0
+
+
+def build_car_engine_loop() -> tuple[np.ndarray, list[str], str]:
+    dur = 0.80
+    n = _count(dur)
+    firing = int(round(SR / ENGINE_FIRING_HZ))          # 735 samples, one firing
+    block = firing * 2                                   # 1470: one whole 30 Hz cycle
+    wobble_samples = int(round(SR / ENGINE_WOBBLE_HZ))   # 4410: three blocks, 8 in the file
+    if n % block or n % wobble_samples:
+        raise AssertionError("the engine loop length must divide into whole blocks")
+
+    local = (np.arange(block) % firing) / float(SR)
+    # Each firing opens with a 2.5 ms attack and is nearly gone 16.7 ms later, so the tick
+    # lands on the next firing instead of smearing across it.
+    chug = np.clip(local / 0.0025, 0.0, 1.0) * np.exp(-local / 0.0045)
+
+    body = pulse(_freqs(block / float(SR), ENGINE_FIRING_HZ, ENGINE_FIRING_HZ), DUTY_25)
+    second = pulse(_freqs(block / float(SR), ENGINE_SECOND_HZ, ENGINE_SECOND_HZ), DUTY_12)
+    sub = triangle(_freqs(block / float(SR), ENGINE_SUB_HZ, ENGINE_SUB_HZ))
+    grit = noise(block / float(SR), 2000.0, 1200.0, short=False) * chug
+
+    # Measured share of the finished file's magnitude: 40 percent under 80 Hz, 13 percent
+    # 80 to 200, 17 percent 200 Hz to 1 kHz, 19 percent 1 to 8 kHz. The triangle carries the
+    # body because a 25 percent pulse at 60 Hz is mostly harmonics; the pulse is kept quiet
+    # under it for the firing fundamental, and the noise is a slow LFSR clock so it reads as
+    # combustion rather than hiss.
+    one_block = (0.30 * body * (0.55 + 0.45 * chug)
+                 + 0.20 * second * (0.35 + 0.65 * chug)
+                 + 0.85 * sub
+                 + 0.28 * grit)
+    # A 10 Hz load wobble gives the idle some hunt without leaving the loop's period.
+    wobble_one = 1.0 + 0.10 * np.sin(2.0 * np.pi * np.arange(wobble_samples) / float(wobble_samples))
+    audio = np.tile(one_block, n // block) * np.tile(wobble_one, n // wobble_samples)
+    return audio, ["pulse_25", "pulse_12.5", "triangle", "noise_long"], \
+        "The drive's engine: a four cylinder at idle, 60 Hz firing, held under the whole film as a loop."
+
+
 # The order is the order in the manifest and on the preview sheet. It follows
 # the game: menus, then text, then the world, then battle, then magic, then
-# jingles, then death.
+# jingles, then death. car_engine_loop is the last entry and the only loop.
 EFFECTS: list[tuple[str, "Callable[[], tuple[np.ndarray, list[str], str]]", list[str]]] = [
     ("menu_move", build_menu_move, []),
     ("menu_select", build_menu_select, []),
@@ -437,6 +502,7 @@ EFFECTS: list[tuple[str, "Callable[[], tuple[np.ndarray, list[str], str]]", list
     ("alarm", build_alarm, []),
     ("save_jingle", build_save_jingle, []),
     ("game_over", build_game_over, []),
+    ("car_engine_loop", build_car_engine_loop, []),
 ]
 
 # The names a caller may ask for, including the grouped text_blip.
@@ -473,24 +539,35 @@ def dc_block(signal: np.ndarray, cutoff_hz: float = DC_BLOCK_HZ) -> np.ndarray:
     return out
 
 
-def finish(audio: np.ndarray) -> np.ndarray:
+def finish(audio: np.ndarray, loop: bool = False) -> np.ndarray:
     """Remove DC, soft limit, fade both ends with a raised cosine, then set the peak.
 
     The order is deliberate. A linear fade would still sit at half level a
     couple of milliseconds from the seam, so a square wave would arrive at the
     file's end with a step; the raised cosine reaches near zero much sooner.
+
+    A looping file takes no fade (see LOOPING): its high pass is run over the
+    file's own tail first and that warm up is dropped, so sample 0 starts from
+    the state a repeat would have left behind and the seam is the same step as
+    any other inside the file.
     """
-    mix = dc_block(np.asarray(audio, dtype=np.float64))
+    mix = np.asarray(audio, dtype=np.float64)
     if mix.size == 0:
         return mix
+    if loop:
+        warm = min(mix.size, max(1, int(round(LOOP_WARMUP_S * SR))))
+        mix = dc_block(np.concatenate((mix[-warm:], mix)))[warm:]
+    else:
+        mix = dc_block(mix)
     peak = float(np.abs(mix).max())
     if peak > LIMITER_KNEE:
         mix = render_chip.soft_limit(mix, LIMITER_KNEE)
-    fade = min(int(round(FADE_MS * SR / 1000.0)), mix.size // 2)
-    if fade > 0:
-        ramp = 0.5 * (1.0 - np.cos(np.pi * np.arange(fade) / float(fade)))
-        mix[:fade] *= ramp
-        mix[-fade:] *= ramp[::-1]
+    if not loop:
+        fade = min(int(round(FADE_MS * SR / 1000.0)), mix.size // 2)
+        if fade > 0:
+            ramp = 0.5 * (1.0 - np.cos(np.pi * np.arange(fade) / float(fade)))
+            mix[:fade] *= ramp
+            mix[-fade:] *= ramp[::-1]
     peak = float(np.abs(mix).max())
     if peak > 0:
         mix = mix / peak * PEAK
@@ -525,14 +602,23 @@ def write_wav(path: str, audio: np.ndarray) -> None:
         handle.writeframes(ints.tobytes())
 
 
-def write_ogg(wav_path: str, ogg_path: str) -> str | None:
+def write_ogg(wav_path: str, ogg_path: str, loop_samples: int | None = None) -> str | None:
+    """Encode one wav to Vorbis. A loop also carries its loop points in the OGG itself.
+
+    Spec 12 rule 3 says loop points come from the OGG's own loop metadata and never from a
+    code side guess, so a looping effect writes LOOPSTART and LOOPLENGTH as Vorbis comments
+    over the whole file. A one shot effect gets no tags, because a tag on it would claim a
+    loop the sound does not have.
+    """
     ffmpeg = shutil.which("ffmpeg")
     if ffmpeg is None:
         return "ffmpeg not found on PATH"
+    command = [ffmpeg, "-y", "-loglevel", "error", "-i", wav_path]
+    if loop_samples is not None:
+        command += ["-metadata", "LOOPSTART=0", "-metadata", "LOOPLENGTH=%d" % int(loop_samples)]
+    command += ["-ac", "1", "-ar", str(SR), "-c:a", "libvorbis", "-q:a", "5", ogg_path]
     done = subprocess.run(
-        [ffmpeg, "-y", "-loglevel", "error", "-i", wav_path,
-         "-ac", "1", "-ar", str(SR), "-c:a", "libvorbis", "-q:a", "5", ogg_path],
-        stdin=subprocess.DEVNULL, capture_output=True, text=True,
+        command, stdin=subprocess.DEVNULL, capture_output=True, text=True,
     )
     if done.returncode != 0:
         return (done.stderr or "").strip()[:300] or "ffmpeg failed"
@@ -550,15 +636,20 @@ def build(out_dir: str, make_ogg: bool = True, fade_ms: float | None = None) -> 
     effects = []
     for name, builder, groups in EFFECTS:
         audio, voices, purpose = builder()
-        audio = finish(audio)
+        looping = name in LOOPING
+        audio = finish(audio, loop=looping)
         wav_path = os.path.join(out_dir, "%s.wav" % name)
         write_wav(wav_path, audio)
         entry = {"name": name, "voices": voices, "purpose": purpose,
-                 "groups": groups, "files": {"wav": "%s.wav" % name}}
+                 "groups": groups, "loop": looping, "files": {"wav": "%s.wav" % name}}
         entry.update(measure(audio))
+        if looping:
+            entry["loop_start"] = 0
+            entry["loop_length"] = int(audio.size)
         if make_ogg:
             ogg_path = os.path.join(out_dir, "%s.ogg" % name)
-            error = write_ogg(wav_path, ogg_path)
+            error = write_ogg(wav_path, ogg_path,
+                              loop_samples=int(audio.size) if looping else None)
             if error is None:
                 entry["files"]["ogg"] = "%s.ogg" % name
             else:
@@ -578,6 +669,7 @@ def build(out_dir: str, make_ogg: bool = True, fade_ms: float | None = None) -> 
         "dc_block_hz": DC_BLOCK_HZ,
         "voice_set": ["pulse_12.5", "pulse_25", "pulse_50", "triangle",
                       "noise_short", "noise_long"],
+        "looping_names": sorted(LOOPING),
         "required_names": REQUIRED_NAMES,
         "name_groups": NAME_GROUPS,
         "effects": effects,

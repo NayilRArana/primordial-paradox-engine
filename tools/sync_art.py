@@ -232,6 +232,7 @@ SFX_CUES = (
     "menu_move", "menu_select", "menu_cancel",
     "text_blip_a", "text_blip_b", "text_blip_c",
     "footstep", "door_hatch", "encounter_swoosh", "thunder_soft",
+    "car_engine_loop",
     "item_get", "heal", "hit_light", "hit_heavy", "miss", "crit",
     "level_up", "alarm", "wave_wash", "save_jingle", "game_over",
 )

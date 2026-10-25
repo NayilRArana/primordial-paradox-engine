@@ -16,6 +16,9 @@
     "noise_short",
     "noise_long"
   ],
+  "looping_names": [
+    "car_engine_loop"
+  ],
   "required_names": [
     "menu_move",
     "menu_select",
@@ -52,6 +55,7 @@
       ],
       "purpose": "Cursor moves one row in a menu. A tick, not a tune.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "menu_move.wav",
         "ogg": "menu_move.ogg"
@@ -72,6 +76,7 @@
       ],
       "purpose": "Confirm in a menu: two steps up, second one longer.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "menu_select.wav",
         "ogg": "menu_select.ogg"
@@ -92,6 +97,7 @@
       ],
       "purpose": "Cancel or back out of a menu: a falling square blip.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "menu_cancel.wav",
         "ogg": "menu_cancel.ogg"
@@ -114,6 +120,7 @@
       "groups": [
         "text_blip"
       ],
+      "loop": false,
       "files": {
         "wav": "text_blip_a.wav",
         "ogg": "text_blip_a.ogg"
@@ -136,6 +143,7 @@
       "groups": [
         "text_blip"
       ],
+      "loop": false,
       "files": {
         "wav": "text_blip_b.wav",
         "ogg": "text_blip_b.ogg"
@@ -158,6 +166,7 @@
       "groups": [
         "text_blip"
       ],
+      "loop": false,
       "files": {
         "wav": "text_blip_c.wav",
         "ogg": "text_blip_c.ogg"
@@ -179,6 +188,7 @@
       ],
       "purpose": "One step on stone decking; alternates with the other foot.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "footstep.wav",
         "ogg": "footstep.ogg"
@@ -200,6 +210,7 @@
       ],
       "purpose": "A bulkhead hatch swings open and clunks.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "door_hatch.wav",
         "ogg": "door_hatch.ogg"
@@ -221,6 +232,7 @@
       ],
       "purpose": "Pickup collected: a four note rising arpeggio.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "item_get.wav",
         "ogg": "item_get.ogg"
@@ -243,6 +255,7 @@
       ],
       "purpose": "Restorative magic: a rising shimmer with a held root.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "heal.wav",
         "ogg": "heal.ogg"
@@ -264,6 +277,7 @@
       ],
       "purpose": "A light physical hit that does not kill.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "hit_light.wav",
         "ogg": "hit_light.ogg"
@@ -286,6 +300,7 @@
       ],
       "purpose": "A heavy blow: long noise body, sub thump, short snap on top.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "hit_heavy.wav",
         "ogg": "hit_heavy.ogg"
@@ -306,6 +321,7 @@
       ],
       "purpose": "An attack that misses: air only, no impact, quieter than a hit.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "miss.wav",
         "ogg": "miss.ogg"
@@ -328,6 +344,7 @@
       ],
       "purpose": "A critical hit: the heavy hit plus a two stage falling ring.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "crit.wav",
         "ogg": "crit.ogg"
@@ -350,6 +367,7 @@
       ],
       "purpose": "Level up: a short fanfare, five notes, third above and a bass root.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "level_up.wav",
         "ogg": "level_up.ogg"
@@ -371,6 +389,7 @@
       ],
       "purpose": "Encounter transition: a noise sweep down with a rising pulse under it.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "encounter_swoosh.wav",
         "ogg": "encounter_swoosh.ogg"
@@ -392,6 +411,7 @@
       ],
       "purpose": "Distant thunder for a scene or the storm cloud: long decay, low rumble under it.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "thunder_soft.wav",
         "ogg": "thunder_soft.ogg"
@@ -413,6 +433,7 @@
       ],
       "purpose": "A wave breaking and draining: noise only, a swell then a fall.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "wave_wash.wav",
         "ogg": "wave_wash.ogg"
@@ -433,6 +454,7 @@
       ],
       "purpose": "Ship alarm or a timed hazard: two tones alternating, square and hard.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "alarm.wav",
         "ogg": "alarm.ogg"
@@ -455,6 +477,7 @@
       ],
       "purpose": "Save confirmed: the level up fanfare's cousin, a third above instead of a fourth.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "save_jingle.wav",
         "ogg": "save_jingle.ogg"
@@ -477,6 +500,7 @@
       ],
       "purpose": "Death or a lost run: four notes down the minor scale, slow, with a held low root.",
       "groups": [],
+      "loop": false,
       "files": {
         "wav": "game_over.wav",
         "ogg": "game_over.ogg"
@@ -489,6 +513,32 @@
       "first_sample": 0.0,
       "last_sample": 0.0,
       "edge_max_step": 0.681442
+    },
+    {
+      "name": "car_engine_loop",
+      "voices": [
+        "pulse_25",
+        "pulse_12.5",
+        "triangle",
+        "noise_long"
+      ],
+      "purpose": "The drive's engine: a four cylinder at idle, 60 Hz firing, held under the whole film as a loop.",
+      "groups": [],
+      "loop": true,
+      "files": {
+        "wav": "car_engine_loop.wav",
+        "ogg": "car_engine_loop.ogg"
+      },
+      "length_seconds": 0.8,
+      "length_samples": 35280,
+      "peak_dbfs": -3.0,
+      "rms_dbfs": -9.998,
+      "dc_offset": 0.0,
+      "first_sample": 0.645155,
+      "last_sample": 0.647411,
+      "edge_max_step": 0.168475,
+      "loop_start": 0,
+      "loop_length": 35280
     }
   ]
 }

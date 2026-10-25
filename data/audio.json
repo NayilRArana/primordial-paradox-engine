@@ -1,24 +1,37 @@
 {
   "format": 1,
   "kind": "audio",
+  "spec": "specs/12-audio.md",
+  "crossfade_steps": 30,
+  "notes": [
+    "R36 CUE-WIRING, 2026-10-22. Every row now says where its music is: delivered_file names the rendered OGG on disk, pending says there is none yet, and fallback names the landed cue the bus should play instead. A cue is landed when assets/audio/<asset>/<asset>.ogg exists, which is the path game/scripts/pp_audio/pp_audio.gml builds from asset.",
+    "Six of the seventeen cues are landed: PP-01 title, PP-02 drive, PP-03 harbor, PP-04 navy sailors, PP-05 small ship, PP-06 Percy. Eleven are pending with a fallback that itself resolves to a landed cue, so the chain always terminates at a file.",
+    "Volume 0.7 and loop true on every cue are spec 12: rule 1 plays music with loop on, and the volume table sets music at 0.7 (the module macro PP_AUDIO_GAIN_MUSIC is the same number). crossfade_steps 30 mirrors the module macro PP_AUDIO_FADE_STEPS, which stays the authority.",
+    "placeholder is the pre-delivery flag and is now stale for the six landed rows: it still reads true because tests/test_audio.py and tests/test_check_data.py pin it true for every row and this card owns data/audio.json only. Read pending and delivered_file, not placeholder. Q: for gamedev, whether those two tests should follow delivery.",
+    "The music entries left in sounds (ship_ambient, battle_tutorial, battle_percy, pp_07_prometheus) name OGG files that are not in assets/audio, so the placeholder_sound path is silent; that dead path is pinned by tests/test_audio.py. The cue fallback field is its replacement, but pp_audio_music does not read fallback yet. Q: for gamedev, the bus code.",
+    "PP-03 points at pp_03_harbor, the master the R35 ear gate scored. assets/audio/pp_03_harbor_v2/pp_03_harbor_v2.ogg was rendered at 19:42 by another card after that gate and is not adopted here.",
+    "PP-02 points at pp_drive_v2.ogg. The ear gate scored pp_drive_v2_humanized.mp3, and no OGG of the humanized master exists, so the shipped stream is the pre-humanized render; rendering the humanized master to OGG is still open.",
+    "The two stingers the slice plays are now in sounds with loop false: game_over (the death sting) and save_jingle. pp_audio_sfx already plays every effect with loop off, so this records the decision in data rather than changing it.",
+    "DRIVE-SFX, 2026-10-24 (card t_c365ff5d). The drive's two effects are rows now: car_engine_loop, composed for the film by tools/sfx.py and the set's only loop, and thunder_soft, which had been on disk since SFX-1 and needed only the row. Both are kind sfx and both name a delivered_file under assets/audio/sfx, so a scene command sfx <id> resolves. Neither is a cue: effects are not music and must not be picked up by the cue table."
+  ],
   "cues": [
-    { "id": "PP-01", "title": "Wessex Lane, Move-In Day", "asset": "pp_01_wessex_lane", "loop": true, "placeholder": true, "placeholder_sound": null },
-    { "id": "PP-02", "title": "High Street", "asset": "pp_02_high_street", "loop": true, "placeholder": true, "placeholder_sound": null },
-    { "id": "PP-03", "title": "Harbor", "asset": "pp_03_harbor", "loop": true, "placeholder": true, "placeholder_sound": null },
-    { "id": "PP-04", "title": "Navy Sailors", "asset": "pp_04_navy_sailors", "loop": true, "placeholder": true, "placeholder_sound": null },
-    { "id": "PP-05", "title": "Small Ship", "asset": "pp_05_small_ship", "loop": true, "placeholder": true, "placeholder_sound": "ship_ambient" },
-    { "id": "PP-06", "title": "Percy, Tyrant of the Harbor", "asset": "pp_06_percy_tyrant", "loop": true, "placeholder": true, "placeholder_sound": "battle_percy", "boss": true },
-    { "id": "PP-07", "title": "Prometheus Explains", "asset": "pp_07_prometheus_explains", "loop": true, "placeholder": true, "placeholder_sound": "pp_07_prometheus" },
-    { "id": "PP-08", "title": "Dead Rising", "asset": "pp_08_dead_rising", "loop": true, "placeholder": true, "placeholder_sound": null },
-    { "id": "PP-09", "title": "The Data Center", "asset": "pp_09_data_center", "loop": true, "placeholder": true, "placeholder_sound": null },
-    { "id": "PP-10", "title": "Hector, Warden of the Dead", "asset": "pp_10_hector", "loop": true, "placeholder": true, "placeholder_sound": null, "boss": true },
-    { "id": "PP-11", "title": "Rush to Prison", "asset": "pp_11_rush_to_prison", "loop": true, "placeholder": true, "placeholder_sound": null },
-    { "id": "PP-12", "title": "One North Quay", "asset": "pp_12_one_north_quay", "loop": true, "placeholder": true, "placeholder_sound": null },
-    { "id": "PP-13", "title": "Titan Employees", "asset": "pp_13_titan_employees", "loop": true, "placeholder": true, "placeholder_sound": null },
-    { "id": "PP-14", "title": "Kronos", "asset": "pp_14_kronos", "loop": true, "placeholder": true, "placeholder_sound": null, "boss": true },
-    { "id": "PP-15a", "title": "Entropy", "asset": "pp_15a_entropy", "loop": true, "placeholder": true, "placeholder_sound": null, "route": "genocide" },
-    { "id": "PP-15b", "title": "Mercy", "asset": "pp_15b_mercy", "loop": true, "placeholder": true, "placeholder_sound": null, "route": "mercy" },
-    { "id": "PP-16", "title": "Ouranos", "asset": "pp_16_ouranos", "loop": true, "placeholder": true, "placeholder_sound": null }
+    { "id": "PP-01", "title": "Title Theme", "asset": "pp_01_title", "delivered_file": "assets/audio/pp_01_title/pp_01_title.ogg", "loop": true, "volume": 0.7, "pending": false, "fallback": null, "placeholder": true, "placeholder_sound": null, "note": "The A minor waltz of specs/14 (card R37 landed it 2026-10-22 19:10). Was 'Wessex Lane, Move-In Day' before R36." },
+    { "id": "PP-02", "title": "The Drive", "asset": "pp_drive_v2", "delivered_file": "assets/audio/pp_drive_v2/pp_drive_v2.ogg", "loop": true, "volume": 0.7, "pending": false, "fallback": null, "placeholder": true, "placeholder_sound": null, "note": "The London to Southampton cue, 178 s. Was 'High Street' before R36; the ear gate calls it drive PP-02." },
+    { "id": "PP-03", "title": "Harbor", "asset": "pp_03_harbor", "delivered_file": "assets/audio/pp_03_harbor/pp_03_harbor.ogg", "loop": true, "volume": 0.7, "pending": false, "fallback": null, "placeholder": true, "placeholder_sound": null, "note": "The arrival and gate cue the ear gate scored." },
+    { "id": "PP-04", "title": "Navy Sailors", "asset": "pp_04_navy_sailors", "delivered_file": "assets/audio/pp_04_navy_sailors/pp_04_navy_sailors.ogg", "loop": true, "volume": 0.7, "pending": false, "fallback": null, "placeholder": true, "placeholder_sound": null, "note": "The first fight; encounters tutorial_sailors and deck_hound both ask for it." },
+    { "id": "PP-05", "title": "Small Ship", "asset": "pp_05_small_ship", "delivered_file": "assets/audio/pp_05_small_ship/pp_05_small_ship.ogg", "loop": true, "volume": 0.7, "pending": false, "fallback": null, "placeholder": true, "placeholder_sound": "ship_ambient", "note": "The ship rooms; the stand-in is only reached if the OGG goes missing." },
+    { "id": "PP-06", "title": "Percy, Tyrant of the Harbor", "asset": "percy_theme", "delivered_file": "assets/audio/percy_theme/percy_theme.ogg", "loop": true, "volume": 0.7, "pending": false, "fallback": null, "placeholder": true, "placeholder_sound": "battle_percy", "boss": true, "note": "G minor tyrant waltz, 32 bars; the boss priority 12 row." },
+    { "id": "PP-07", "title": "Prometheus Explains", "asset": "pp_07_prometheus_explains", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-05", "pending_reason": "no rendered OGG and no assets/audio/pp_07_prometheus_explains folder; the cabin scene falls back to the ship cue", "placeholder": true, "placeholder_sound": "pp_07_prometheus" },
+    { "id": "PP-08", "title": "Dead Rising", "asset": "pp_08_dead_rising", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-03", "pending_reason": "not composed; no assets/audio/pp_08_dead_rising folder", "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-09", "title": "The Data Center", "asset": "pp_09_data_center", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-03", "pending_reason": "not composed; no assets/audio/pp_09_data_center folder", "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-10", "title": "Hector, Warden of the Dead", "asset": "pp_10_hector", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-06", "pending_reason": "not composed; no assets/audio/pp_10_hector folder; falls back to the boss cue so the fight keeps priority 12", "placeholder": true, "placeholder_sound": null, "boss": true },
+    { "id": "PP-11", "title": "Rush to Prison", "asset": "pp_11_rush_to_prison", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-02", "pending_reason": "not composed; no assets/audio/pp_11_rush_to_prison folder; falls back to the drive cue", "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-12", "title": "One North Quay", "asset": "pp_12_one_north_quay", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-03", "pending_reason": "not composed; no assets/audio/pp_12_one_north_quay folder", "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-13", "title": "Titan Employees", "asset": "pp_13_titan_employees", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-03", "pending_reason": "not composed; no assets/audio/pp_13_titan_employees folder", "placeholder": true, "placeholder_sound": null },
+    { "id": "PP-14", "title": "Kronos", "asset": "pp_14_kronos", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-06", "pending_reason": "not composed; no assets/audio/pp_14_kronos folder; falls back to the boss cue so the fight keeps priority 12", "placeholder": true, "placeholder_sound": null, "boss": true },
+    { "id": "PP-15a", "title": "Entropy", "asset": "pp_15a_entropy", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-01", "pending_reason": "not composed; no assets/audio/pp_15a_entropy folder; the ending bookends the title waltz", "placeholder": true, "placeholder_sound": null, "route": "genocide" },
+    { "id": "PP-15b", "title": "Mercy", "asset": "pp_15b_mercy", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-01", "pending_reason": "not composed; no assets/audio/pp_15b_mercy folder; the ending bookends the title waltz", "placeholder": true, "placeholder_sound": null, "route": "mercy" },
+    { "id": "PP-16", "title": "Ouranos", "asset": "pp_16_ouranos", "delivered_file": null, "loop": true, "volume": 0.7, "pending": true, "fallback": "PP-01", "pending_reason": "not composed; no assets/audio/pp_16_ouranos folder", "placeholder": true, "placeholder_sound": null }
   ],
   "sounds": [
     { "id": "ship_ambient", "kind": "music", "file": "ship_ambient.ogg" },
@@ -27,6 +40,10 @@
     { "id": "pp_07_prometheus", "kind": "music", "file": "pp_07_prometheus_explains.ogg" },
     { "id": "ui_blip", "kind": "ui", "file": "ui_blip.ogg" },
     { "id": "hit", "kind": "sfx", "file": "hit.ogg" },
-    { "id": "chime", "kind": "sfx", "file": "chime.ogg" }
+    { "id": "chime", "kind": "sfx", "file": "chime.ogg" },
+    { "id": "game_over", "kind": "sfx", "file": "game_over.ogg", "loop": false, "volume": 0.9, "delivered_file": "assets/audio/sfx/game_over.ogg", "note": "The death sting the ear gate scored. Loop false on purpose: a lost run must not have a jingle under it." },
+    { "id": "save_jingle", "kind": "sfx", "file": "save_jingle.ogg", "loop": false, "volume": 0.9, "delivered_file": "assets/audio/sfx/save_jingle.ogg", "note": "The save point cue, 1.4 s, played once." },
+    { "id": "car_engine_loop", "kind": "sfx", "file": "car_engine_loop.ogg", "loop": true, "volume": 0.35, "delivered_file": "assets/audio/sfx/car_engine_loop.ogg", "note": "The car engine under shots 2 to 12 of knowledge/DRIVE-SHOT-LIST.md, the one effect that loops. Composed for this id by tools/sfx.py: 0.800 s, a four cylinder idle at 60 Hz firing with a 30 Hz crank order and a 120 Hz second order, built from three periodic voices and an LFSR tick so the file is one 4410 sample pattern repeated eight times. Its loop points (0 and 35280 samples) are Vorbis comments in the OGG itself, per spec 12 rule 3. Volume 0.35 because it is a bed under the whole film, not an event. Q: for gamedev, pp_audio_sfx plays every effect with loop off, so the drive needs a looping play call (or a music-slot ambience) before this file can actually loop in the runner." },
+    { "id": "thunder_soft", "kind": "sfx", "file": "thunder_soft.ogg", "loop": false, "volume": 0.9, "delivered_file": "assets/audio/sfx/thunder_soft.ogg", "note": "The first lightning in shot 10 of the drive. The asset has been on disk since card SFX-1 (assets/audio/sfx/thunder_soft.ogg and .wav, 1.450 s) and had no row here, so a scene command sfx thunder_soft failed the reference check; this row is the wiring, not a new sound." }
   ]
 }

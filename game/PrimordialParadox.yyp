@@ -1653,6 +1653,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "car_engine_loop.wav",
+      "CopyToMask": -1,
+      "filePath": "datafiles/sfx",
+      "name": "car_engine_loop.wav",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "crit.wav",
       "CopyToMask": -1,
       "filePath": "datafiles/sfx",
@@ -1846,6 +1855,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "alarm.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "car_engine_loop.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "car_engine_loop.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
