@@ -60,7 +60,8 @@
         { "x": 14, "y": 8, "kind": "flag", "id": "ship_deck_seen", "once": true, "condition": "" },
         { "x": 3, "y": 6, "kind": "scene", "id": "ship_log", "once": true, "condition": "" },
         { "x": 18, "y": 7, "kind": "map", "id": "ship_cabin", "spawn": "from_deck", "once": false, "condition": "ship_door_open" },
-        { "x": 2, "y": 13, "kind": "map", "id": "ship_sample", "spawn": "start", "once": false, "condition": "" }
+        { "x": 2, "y": 13, "kind": "map", "id": "ship_sample", "spawn": "start", "once": false, "condition": "" },
+        { "x": 1, "y": 7, "kind": "map", "id": "southampton_town_quay", "spawn": "from_pier", "once": false, "condition": "" }
       ],
       "rails": []
     },
