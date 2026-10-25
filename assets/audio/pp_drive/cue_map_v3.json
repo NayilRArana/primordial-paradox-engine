@@ -1,0 +1,271 @@
+{
+ "card": "t_b84a9264",
+ "cue": "pp_drive_v3",
+ "grid": {
+  "bpm": 126,
+  "beats_per_bar": 3,
+  "steps_per_bar": 85.714,
+  "bar_steps": 87,
+  "seconds_per_bar": 1.4285714285714284
+ },
+ "film_steps": 10680,
+ "film_seconds": 178.0,
+ "cuts": [
+  {
+   "index": 1,
+   "shot_opens": 2,
+   "step": 686,
+   "bar": 8,
+   "step_in_seconds": 11.433,
+   "exact_bars_elapsed": 8.0034,
+   "downbeat_step_exact": 685.712,
+   "downbeat_seconds": 11.429,
+   "drift_steps": 0.29,
+   "drift_seconds": 0.005,
+   "attacked": true
+  },
+  {
+   "index": 2,
+   "shot_opens": 3,
+   "step": 1543,
+   "bar": 18,
+   "step_in_seconds": 25.717,
+   "exact_bars_elapsed": 18.0017,
+   "downbeat_step_exact": 1542.852,
+   "downbeat_seconds": 25.714,
+   "drift_steps": 0.15,
+   "drift_seconds": 0.002,
+   "attacked": true
+  },
+  {
+   "index": 3,
+   "shot_opens": 4,
+   "step": 2143,
+   "bar": 25,
+   "step_in_seconds": 35.717,
+   "exact_bars_elapsed": 25.0018,
+   "downbeat_step_exact": 2142.85,
+   "downbeat_seconds": 35.714,
+   "drift_steps": 0.15,
+   "drift_seconds": 0.003,
+   "attacked": true
+  },
+  {
+   "index": 4,
+   "shot_opens": 5,
+   "step": 2914,
+   "bar": 34,
+   "step_in_seconds": 48.567,
+   "exact_bars_elapsed": 33.9968,
+   "downbeat_step_exact": 2914.276,
+   "downbeat_seconds": 48.571,
+   "drift_steps": -0.28,
+   "drift_seconds": -0.005,
+   "attacked": true
+  },
+  {
+   "index": 5,
+   "shot_opens": 6,
+   "step": 3943,
+   "bar": 46,
+   "step_in_seconds": 65.717,
+   "exact_bars_elapsed": 46.0018,
+   "downbeat_step_exact": 3942.844,
+   "downbeat_seconds": 65.714,
+   "drift_steps": 0.16,
+   "drift_seconds": 0.003,
+   "attacked": true
+  },
+  {
+   "index": 6,
+   "shot_opens": 7,
+   "step": 5057,
+   "bar": 59,
+   "step_in_seconds": 84.283,
+   "exact_bars_elapsed": 58.9985,
+   "downbeat_step_exact": 5057.126,
+   "downbeat_seconds": 84.285,
+   "drift_steps": -0.13,
+   "drift_seconds": -0.002,
+   "attacked": true
+  },
+  {
+   "index": 7,
+   "shot_opens": 8,
+   "step": 5914,
+   "bar": 69,
+   "step_in_seconds": 98.567,
+   "exact_bars_elapsed": 68.9969,
+   "downbeat_step_exact": 5914.266,
+   "downbeat_seconds": 98.571,
+   "drift_steps": -0.27,
+   "drift_seconds": -0.004,
+   "attacked": true
+  },
+  {
+   "index": 8,
+   "shot_opens": 9,
+   "step": 6771,
+   "bar": 79,
+   "step_in_seconds": 112.85,
+   "exact_bars_elapsed": 78.9953,
+   "downbeat_step_exact": 6771.406,
+   "downbeat_seconds": 112.857,
+   "drift_steps": -0.41,
+   "drift_seconds": -0.007,
+   "attacked": true
+  },
+  {
+   "index": 9,
+   "shot_opens": 10,
+   "step": 7886,
+   "bar": 92,
+   "step_in_seconds": 131.433,
+   "exact_bars_elapsed": 92.0036,
+   "downbeat_step_exact": 7885.688,
+   "downbeat_seconds": 131.428,
+   "drift_steps": 0.31,
+   "drift_seconds": 0.005,
+   "attacked": true
+  },
+  {
+   "index": 10,
+   "shot_opens": 11,
+   "step": 9000,
+   "bar": 105,
+   "step_in_seconds": 150.0,
+   "exact_bars_elapsed": 105.0004,
+   "downbeat_step_exact": 8999.97,
+   "downbeat_seconds": 149.999,
+   "drift_steps": 0.03,
+   "drift_seconds": 0.001,
+   "attacked": true
+  },
+  {
+   "index": 11,
+   "shot_opens": 12,
+   "step": 9686,
+   "bar": 113,
+   "step_in_seconds": 161.433,
+   "exact_bars_elapsed": 113.0037,
+   "downbeat_step_exact": 9685.682,
+   "downbeat_seconds": 161.428,
+   "drift_steps": 0.32,
+   "drift_seconds": 0.005,
+   "attacked": true
+  }
+ ],
+ "cuts_on_the_exact_downbeat": 11,
+ "worst_drift": {
+  "cut": 8,
+  "steps": -0.41,
+  "seconds": -0.007
+ },
+ "shots": [
+  {
+   "shot": 1,
+   "beat": "7",
+   "location": "city: Big Ben, pan down to the street",
+   "bars": "8",
+   "steps": 686,
+   "length_s": 11.43
+  },
+  {
+   "shot": 2,
+   "beat": "8",
+   "location": "city: the London street, the car pulls away, the Thames",
+   "bars": "10",
+   "steps": 857,
+   "length_s": 14.28
+  },
+  {
+   "shot": 3,
+   "beat": "9",
+   "location": "gantry: the first sign, SOUTHAMPTON 55",
+   "bars": "7",
+   "steps": 600,
+   "length_s": 10.0
+  },
+  {
+   "shot": 4,
+   "beat": "10",
+   "location": "open motorway: rain starts, the wipers seen from outside",
+   "bars": "9",
+   "steps": 771,
+   "length_s": 12.85
+  },
+  {
+   "shot": 5,
+   "beat": "11 (first half)",
+   "location": "open motorway: radio pages 1 and 2, car in long shot",
+   "bars": "12",
+   "steps": 1029,
+   "length_s": 17.15
+  },
+  {
+   "shot": 6,
+   "beat": "11 (second half)",
+   "location": "open motorway: radio pages 3 and 4, the sign 43",
+   "bars": "13",
+   "steps": 1114,
+   "length_s": 18.57
+  },
+  {
+   "shot": 7,
+   "beat": "13",
+   "location": "Twyford Down: the chalk cutting, the headlight pool",
+   "bars": "10",
+   "steps": 857,
+   "length_s": 14.28
+  },
+  {
+   "shot": 8,
+   "beat": "14",
+   "location": "cathedral: the silhouette far off, one caption",
+   "bars": "10",
+   "steps": 857,
+   "length_s": 14.28
+  },
+  {
+   "shot": 9,
+   "beat": "15",
+   "location": "open motorway: radio pages 5, 6 and 7, the sign 30",
+   "bars": "13",
+   "steps": 1115,
+   "length_s": 18.58
+  },
+  {
+   "shot": 10,
+   "beat": "16 and 17",
+   "location": "downland: the storm forms over the car, first lightning, moon",
+   "bars": "13",
+   "steps": 1114,
+   "length_s": 18.57
+  },
+  {
+   "shot": 11,
+   "beat": "18",
+   "location": "slip road: the Southampton sign 20, headlights",
+   "bars": "8",
+   "steps": 686,
+   "length_s": 11.43
+  },
+  {
+   "shot": 12,
+   "beat": "19",
+   "location": "docks: cranes, containers, the ship lit at the quay",
+   "bars": "not aligned",
+   "steps": 994,
+   "length_s": 16.57
+  }
+ ],
+ "checks": {
+  "shot_sum_matches_cuts": true,
+  "every_cut_rounds_to_the_stated_bar": true,
+  "every_cut_within_one_step_of_the_downbeat": true,
+  "every_cut_bar_attacked": true
+ },
+ "cue_bars": 125,
+ "cue_seconds": 178.57142857142858,
+ "cue_tail_seconds": 0.571
+}
