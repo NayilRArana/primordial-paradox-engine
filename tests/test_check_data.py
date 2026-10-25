@@ -209,6 +209,36 @@ def test_map_trigger_spawn_must_exist_on_the_target_map(data_root, read_json, wr
     assert any("is not a spawn point of map" in e for e in errors), errors
 
 
+def test_two_triggers_on_one_tile_are_refused(data_root, read_json, write_json):
+    """Card TRIGGER-TILE-RULE: pp_map_trigger_at returns the first row, so a second row on that tile is dead data."""
+    path = data_root / "data" / "maps" / "all.json"
+    data = read_json(path)
+    triggers = data["maps"][0]["triggers"]
+    first, second = triggers[0], triggers[1]
+    second["x"], second["y"] = first["x"], first["y"]
+    write_json(path, data)
+
+    errors = failures(data_root)
+    tile = "(%d,%d)" % (first["x"], first["y"])
+    assert any(
+        "triggers[1].x/y" in e and tile in e and first["kind"] in e and first["id"] in e and "(triggers[0])" in e
+        for e in errors
+    ), errors
+
+
+def test_the_same_tile_on_a_second_map_is_not_a_clash(data_root, read_json, write_json):
+    """The set is per map row: two maps may each carry a trigger on the same tile without either being refused."""
+    path = data_root / "data" / "maps" / "all.json"
+    data = read_json(path)
+    donor = data["maps"][0]["triggers"][0]
+    host = data["maps"][1]["triggers"][0]
+    host["x"], host["y"] = donor["x"], donor["y"]
+    write_json(path, data)
+
+    errors = failures(data_root)
+    assert not any("already carries" in e for e in errors), errors
+
+
 def test_encounter_must_declare_its_result_flags(data_root, read_json, write_json):
     path = data_root / "data" / "encounters" / "all.json"
     data = read_json(path)

@@ -1384,9 +1384,26 @@ class Checker:
             if triggers is None:
                 self.error(filename, path + ".triggers", "missing required field")
             else:
+                # Card TRIGGER-TILE-RULE: one trigger per tile, per map. pp_map_trigger_at returns the FIRST row
+                # with that tile, so a second row there is data no walker can ever reach: a dead trigger rather
+                # than a second effect. The tile is compared per map row, because a trigger only exists inside
+                # the map it is written on. The style is the same object-with-x-and-y every other trigger check
+                # uses; the path names both x and y so the report points at the pair and not at one coordinate.
+                seen_trigger_tiles = {}
                 for trigger_index, trigger in enumerate(triggers):
                     trigger_path = "%s.triggers[%d]" % (path, trigger_index)
                     self.check_tile_point(trigger, width, height, filename, trigger_path)
+                    if isinstance(trigger, dict):
+                        tile_x, tile_y = trigger.get("x"), trigger.get("y")
+                        if isinstance(tile_x, int) and isinstance(tile_y, int):
+                            first_row = seen_trigger_tiles.get((tile_x, tile_y))
+                            if first_row is None:
+                                seen_trigger_tiles[(tile_x, tile_y)] = (
+                                    trigger_index, trigger.get("kind"), trigger.get("id"))
+                            else:
+                                self.error(filename, trigger_path + ".x/y",
+                                           "tile (%d,%d) already carries %s trigger %r (triggers[%d])"
+                                           % (tile_x, tile_y, first_row[1], first_row[2], first_row[0]))
                     kind = self.want(trigger, "kind", "str", filename, trigger_path)
                     target = self.want(trigger, "id", "str", filename, trigger_path)
                     if kind not in TRIGGER_KINDS:
