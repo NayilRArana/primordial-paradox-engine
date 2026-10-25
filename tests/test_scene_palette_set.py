@@ -253,13 +253,22 @@ def test_the_cloud_declares_itself_a_layer_in_its_sidecar_and_in_its_generator()
 # commit carried, so a clean checkout of 5f290c5 was red on this file while this machine was green.
 
 def tracked_paths():
-    """Every path git tracks under the project, relative to the project root, or None when git cannot answer."""
+    """Every path git tracks under the project, relative to the project root, or None when git cannot answer.
+
+    None when there is no git at all and when the tree is not inside a repository: a bare `git archive`
+    extraction has no .git, so asking it what is committed is unanswerable rather than a failure, and this row
+    must not turn that into a red. Where a repository exists (the live tree, a detached worktree) it answers,
+    and a broken git is an error, not a skip.
+    """
     try:
         out = subprocess.run(["git", "ls-files", "--", "."], cwd=ROOT, capture_output=True, text=True,
                              timeout=120)
     except (OSError, subprocess.SubprocessError):
         return None
     if out.returncode != 0:
+        message = (out.stderr or "").lower()
+        if "not a git repository" in message or "not a git repo" in message:
+            return None
         raise AssertionError("git ls-files failed in %s: %s" % (ROOT, out.stderr.strip()[:400]))
     return set(out.stdout.splitlines())
 
@@ -272,7 +281,7 @@ def test_every_judged_rows_ground_is_a_file_a_clean_checkout_carries():
     """
     tracked = tracked_paths()
     if tracked is None:
-        pytest.skip("git is not available on this machine, so the tracked set cannot be read")
+        pytest.skip("no git here (a bare archive, or git is not installed), so the tracked set cannot be read")
     missing = sorted({row["background"] for row in judged_rows() if row["background"] not in tracked})
     assert missing == [], ("a judged row measures a frame no commit carries, so a clean checkout fails on it: %s"
                            % missing)
