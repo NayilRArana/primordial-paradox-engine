@@ -3,7 +3,7 @@
   "kind": "sprite_redraw_queue",
   "card": "t_ac9768da AUTO-SPRITE-NEXT",
   "written_by": "assistant",
-  "written_on": "2026-10-23",
+  "written_on": "2026-10-24",
   "supersedes": {
     "path": "data/sprite_redraw_queue.json format 1, 28 entries",
     "what_it_covered": "game/sprites_src/chars, enemies and title, one row per source sheet, written by research-assistant for card t_039ec0db on 2026-10-22",
@@ -260,22 +260,28 @@
             "largest_entry_px": 56
           }
         },
-        "why": "The retired copy was three entries, all 100 pixels off the 2C02 palette, 56 of them one near-black, so at 8x8 it read as a dark square. The shipped sheet is 16x8, 2 frames of 8x8, two entries, $0B #005800 and $20 #f8f8f8, 0 off palette, PASS. The palette defect is gone. Whether a green pointer is the right cursor, where the row's reading asked for a gold one, is an art call that nes_check cannot make."
+        "why": "The retired copy was three entries, all 100 pixels off the 2C02 palette, 56 of them one near-black, so at 8x8 it read as a dark square. The shipped sheet is 16x8, 2 frames of 8x8, two entries, $0B #005800 and $20 #f8f8f8, 0 off palette, PASS. The palette defect is gone. Whether a green pointer is the right cursor, where the row's reading asked for a gold one, is an art call that nes_check cannot make.",
+        "measured_2026_10_24": {
+          "card": "t_ae4bbd15",
+          "why": "the row's own check had never been run on the ground the cursor is drawn on. It was run this card, and the unlit frame failed it",
+          "command": "python tools/palette_synergy.py --scene title --background output/cursor_menu_ground.png --sprite game/sprites_src/title/spr_pp_menu_cursor.png --frame-w 8 --frame-h 8 --at 0,0",
+          "result": "FAIL, 1 sprite file, 1 failing pair",
+          "measured_pair": "body_ground @8,0: body $0B (row 0) and ground $11 (row 1) are 1 luminance row apart at 2.10:1, and RULE 0 point 2 wants 2 rows or 3.0:1"
+        }
       },
       "check": {
         "command": "python tools/nes_check.py game/sprites_src/title/spr_pp_menu_cursor.png --type sprite",
         "means": "must print PASS: every pixel a data/nes_palette.json entry, width and height multiples of 8, at most 3 opaque colours per 8x8 tile, at most 25 colours per sheet",
-        "result": "PASS on 2026-10-23 by card t_4e54cc9e, re-measured from this path"
+        "result": "PASS on 2026-10-24 by card t_ae4bbd15: 16x8, 2 tiles, 2 colours, 0 off palette pixels; palette_synergy PASS with 0 failing pairs on output/cursor_menu_ground.png"
       },
-      "status": "queued",
+      "status": "done",
       "measured_source": {
         "path": "game/sprites_src/title/spr_pp_menu_cursor.png",
-        "card": "t_4e54cc9e",
-        "date": "2026-10-23",
-        "ruling": "knowledge/PALETTE-RULINGS-2026-10-23.md ruling 3",
-        "why": "the queue measures the authored tree game/sprites_src. game/art was untracked, gitignored and deleted by this card, and the runtime reads game/datafiles/art, which tools/sync_art.py rebuilds from game/sprites_src. Every number in this row was measured from this path on 2026-10-23.",
-        "sidecar": "game/sprites_src/title/spr_pp_menu_cursor.png.json",
-        "sha256": "1991d59cbc13c9e79a3efb151f4bbfbbdb6b1b5a835b1c553ce9e40780493319"
+        "card": "t_ae4bbd15",
+        "date": "2026-10-24",
+        "sidecar": "game/sprites_src/title/spr_pp_menu_cursor.json",
+        "sha256": "3492c437c709a3e34b7d9c1abac1978ff2bbc4e9cba892354f05aa760ef154c6",
+        "why": "the row measures the authored tree game/sprites_src, which tools/sync_art.py mirrors into game/datafiles/art. Every after number in this row was measured from this path on 2026-10-24"
       },
       "palette_roles_check": {
         "shipped_entries": [
@@ -287,9 +293,51 @@
           "$10",
           "$28"
         ],
-        "note": "measured from the shipped sheet on 2026-10-23; a listed entry the sheet does not spend is a palette_roles question for gamedev, not a defect this card decides"
+        "note": "re-measured from the shipped sheet on 2026-10-24 by card t_ae4bbd15. The three unspent entries are not an omission by the drawing: the scene file gives this sheet sp3, which carries neither $0F nor $28, and that is posted as Q2"
       },
-      "status_note": "Status left at queued on purpose: the check passes on the shipped sheet, so what remains is the colour reading (green pointer against the row's gold), which is gamedev's."
+      "status_note": "Status left at queued on purpose: the check passes on the shipped sheet, so what remains is the colour reading (green pointer against the row's gold), which is gamedev's.",
+      "after": {
+        "drawn_by": "tools/art/make_title_ui.py, the generator that owns this name: cursor_frame(index) now draws the unlit frame as the same 6 x 6 arrowhead in a 50 percent dither of $20 with a $20 rim, instead of the whole silhouette in $0B",
+        "card": "t_ae4bbd15",
+        "date": "2026-10-24",
+        "file": "game/sprites_src/title/spr_pp_menu_cursor.png",
+        "sha256": "3492c437c709a3e34b7d9c1abac1978ff2bbc4e9cba892354f05aa760ef154c6",
+        "sidecar": "game/sprites_src/title/spr_pp_menu_cursor.json (fps 4.0, 2 frames of 8 x 8)",
+        "sheet_px": [
+          16,
+          8
+        ],
+        "frames": 2,
+        "frame_px": [
+          8,
+          8
+        ],
+        "colours": 2,
+        "per_frame": [
+          "frame 0 (lit): 2 colours, drawn 50, $0B #005800 rim 28 px, $20 #f8f8f8 body 22 px (unchanged: it already passed)",
+          "frame 1 (unlit): 1 colour, drawn 38, $20 #f8f8f8 38 px: the same arrowhead as a 50 percent dither with a $20 rim"
+        ],
+        "nes_check": "PASS: 16x8, 2 tiles of 8x8, 2 colours, 0 off palette pixels",
+        "palette_synergy": "PASS, 1 sprite file, 0 failing pairs: python tools/palette_synergy.py --scene title --background output/cursor_menu_ground.png --sprite game/sprites_src/title/spr_pp_menu_cursor.png --frame-w 8 --frame-h 8 --at 0,0. Frame 0 reads body $20 row 2 hue grey, palettes that fit [3]; frame 1 reads body $20 row 2 hue grey, palettes that fit [1, 2, 3]",
+        "ground": "output/cursor_menu_ground.png, 8x8, 64 pixels of $11 #0078f8: the cell the composer draws the cursor in (CURSOR_X, CURSOR_Y = 6, 66) taken from the composed title with this sprite removed, identical at t 6.0, 6.5, 7.0 and 7.5. It is band 4 of the title, which data/palettes/scene_title.json paints with bg1, the sky",
+        "before_vs_after": {
+          "palette_synergy_failing_pairs": "1 before (frame 1, body_ground: body $0B row 0 against ground $11 row 1, 1 luminance row apart at 2.10:1), 0 after",
+          "frame_1_colours": "1 before ($0B #005800, 50 drawn px, a solid dark green silhouette), 1 after ($20 #f8f8f8, 38 drawn px, a dithered arrowhead with a white rim)",
+          "frame_1_body": "$0B dark green before, $20 white after",
+          "frame_1_drawn_px": "50 before, 38 after",
+          "frame_0": "unchanged, 2 colours, 50 drawn px, rim $0B 28 and body $20 22",
+          "colours_on_the_sheet": "2 before, 2 after: no entry was added, both frames still fit title sp3",
+          "before_sha256": "1991d59cbc13c9e79a3efb151f4bbfbbdb6b1b5a835b1c553ce9e40780493319, the git HEAD blob this before column was measured on"
+        },
+        "what_changed_in_the_drawing": "Only the unlit frame. It used to be the whole arrowhead recoloured to $0B dark green, which was invisible where the cursor is actually drawn: measured on the composed title with this sprite removed, the 8 x 8 cell under it is 64 pixels of $11 #0078f8 sky, and $0B on that sky is 2.10:1, one luminance row apart, so the rule refused the frame. The unlit state is now the same arrowhead drawn as a 50 percent dither of $20 with a $20 rim, so the shape never leaves the screen, the blink still reads (solid white arrow to a pale dithered arrow), and the body the ground rule measures is $20 in both frames. The lit frame is byte for byte what it was.",
+        "contact_sheet": "output/sprites_v2_sheet.png rebuilt by tools/art/make_title_rows_v2.py at 1024x2816, 15 colours. The cursor got two bands this card, both read from the SHIPPED sheet: the strip at 4x, found at (32, 1992) by an exact pixel search, and the same strip drawn on its own sky band at 4x, found at (32, 2120)",
+        "tests": "tests/test_make_title_ui.py: the cursor pin now names the dither construction, and it still pins the arrow silhouette, the 1 px rim, transparency outside it, and the largest entry of each frame being $20",
+        "q_for_gamedev": [
+          "Q1 which band the cursor is actually read on. data/palettes/scene_title.json's band_sprites gives spr_pp_menu_cursor bg2 and bg3, the two ground palettes, and says the menu box, the font and the cursor cross the boundary between them without changing a pixel. The composer does not put the cursor there: it draws the menu at CURSOR_X, CURSOR_Y = 6, 66, which is band 4, and band 4 is bg1, the sky. The two entries the cursor spends ($0B and $20) are shared by bg2 and bg3 but $0B is not in bg1 at all, which is why the old unlit frame could not be seen. May the cursor stay on the sky (then band_sprites is wrong for it and the shared-entry argument in that note does not hold), or does the menu move down into the ground bands?",
+          "Q2 the gold the row asks for. This row's palette_roles list $28 gold as the accent and $0F ink for the outline, and the shipped cursor can spend neither: scene_title.json gives the cursor sp3 ($0C, $0B, $20), the same triple the road band is painted in. Gold $28 is carried by sp0, which is the wordmark's and the two car busts' palette. May the menu cursor move to sp0 so it can be gold on ink, which is the colour the row's reading asks for, or does it stay white and dark green in sp3?"
+        ],
+        "status_note": "Done by this card: the row's own check now passes on the ground the cursor is drawn on. The unlit frame no longer disappears into the sky, the sheet carries both bands, and what is left is gamedev's: Q1 (the band the cursor is read on) and Q2 (the gold the row's palette_roles ask for)."
+      }
     },
     {
       "id": "spr_pp_title_logo",
@@ -496,6 +544,25 @@
           "lettering is crisp and fully legible at 5x in tile 2, one consistent hand",
           "the gold R and A appear to swell past the cap height in the second frame, which the gold row measurement supports and Q1 asks gamedev about",
           "the crack inside the O reads as an orphan 1 px zigzag; spec 14 owns it"
+        ]
+      },
+      "eye_round_10": {
+        "round": 10,
+        "sheet": "output/_eye_r10_sheet_d.png",
+        "review_file": "output/eye_reviews/_eye_r10_sheet_d_20261024T192304Z.md",
+        "model": "gemini-3.5-flash-lite",
+        "scores": {
+          "nes_authenticity": 7,
+          "readability": 6,
+          "charm": 6,
+          "handmade": 6
+        },
+        "measured": "448 x 64, 3 colours #000000 4842 px, #7C7C7C 4509 px and #F8B800 959 px, 0 pixels outside data/nes_palette.json, gold body spanning x 33 to 414 and y 1 to 61, and exactly 2 isolated opaque pixels, both gold, at 144,53 and 368,53",
+        "new_finding": "the two isolated gold pixels are a redraw defect the eye can measure and a lane can fix; no other defect was measured on this sheet this round",
+        "model_calls": [
+          "the wordmark reads as PRIMORDIAL PARADOX at 2x and in both halves at 5x, one consistent hand",
+          "the gold crack through the O reads as a lightning bolt, which is spec 14's shape",
+          "it asked for the open outline on the R to be closed and for an orphan corner pixel to be removed; the orphan specks are real but not where the model said"
         ]
       }
     },
@@ -1027,6 +1094,17 @@
         "means": "must print PASS: every pixel a data/nes_palette.json entry, width and height multiples of 8, at most 3 opaque colours per 8x8 tile, at most 25 colours per sheet",
         "result": "PASS on Pine, 2026-10-23 by card t_b08c01d5: 72x16, 18 tiles, 2 colours, 0 off palette pixels"
       },
+      "remeasured_2026_10_25": {
+        "card": "t_6ee155ef",
+        "date": "2026-10-25",
+        "why": "re-measured before this row landed, because the tool that judged it changed after the 2026-10-23 measurement. The drawing is untouched: this row's decision stands and its PASS text above is left as the history of 2026-10-23.",
+        "sheet_unchanged": "game/sprites_src/title/spr_title_cloud.png is sha256 dc316714f3e9d11372c2e4cb7fb699b30a3c9070631789f285a19068644c063b, byte identical to the sheet the 2026-10-23 PASS was measured on",
+        "nes_check": "PASS, re-run 2026-10-25: python tools/nes_check.py game/sprites_src/title/spr_title_cloud.png --type sprite -> 72x16, 18 tiles, 2 colours, same numbers as the row",
+        "palette_synergy_today": "FAIL, 1 sprite file, 6 failing pairs: python tools/palette_synergy.py --scene title --background output/cloud_sky_ground.png --sprite game/sprites_src/title/spr_title_cloud.png --frame-w 24 --frame-h 16 --at 0,0. white_blob and invisible on every one of the 3 frames: body $20 at luminance 0.94 on ground $20 at 0.94, because 5 of the ground crop's 768 pixels are white and the tool pairs the frame body against the ground pixel at 0,0",
+        "why_the_verdict_moved": "not the art and not the ground image, which is unchanged since 2026-10-23 20:16: the rule moved. Commit cf3d43a (2026-10-24 13:53, card t_c498add9) made R6 ask per 8x8 tile, so a 24 px wide frame is no longer read as a tiled layer under the R1b separation test that the 2026-10-23 PASS relied on",
+        "gate": "python tools/palette_synergy.py --gate -> 6 entry(ies), 0 gated failure(s), 5 advisory failure(s); the cloud is not one of the gated entries, so the build is not red on its account",
+        "status_note": "status left at done and the drawing untouched. This is a ground-and-rule question for gamedev, and the row's own Q1 already asks which palette the cloud is painted in, so it is raised on its own card rather than decided here"
+      },
       "status": "done",
       "measured_source": {
         "path": "game/sprites_src/title/spr_title_cloud.png",
@@ -1098,6 +1176,26 @@
           "Q2 the row's palette_roles. They list $0F, $10, $20 and $28, and the only entries the shipped sheet can spend are $00 and $20, so three of the four are unreachable. May the row's palette_roles be rewritten to the two entries bg1 actually gives it, the way the logo row's were rewritten to sp0's three on 2026-10-23, or does the cloud's palette get fixed instead (Q1)?"
         ],
         "status_note": "Done on 2026-10-23 by card t_b08c01d5: the shipped sheet now separates from its own ground by measurement, not by hue, and the row's check passes. What is left is gamedev's, and it is Q1: the band palette the cloud is painted in carries no dark, so a third entry (and the outline RULE 0 asks of a prop) needs a scene change."
+      },
+      "eye_round_11": {
+        "round": 11,
+        "sheet": "output/_eye_r11_sheet_b.png",
+        "review_file": "output/eye_reviews/_eye_r11_sheet_b_20261025T032348Z.md",
+        "model": "gemini-3.5-flash-lite",
+        "scores": {
+          "nes_authenticity": 7,
+          "readability": 8,
+          "charm": 7,
+          "silhouette": 7,
+          "palette_separation": 7,
+          "outline_coverage": 6,
+          "proportions": 7,
+          "handmade": 6
+        },
+        "verdict": "passed: read as a cloud at 7x, 2 colours, no change asked for",
+        "model_calls": [
+          "'nice fluffy cloud sprites'"
+        ]
       }
     },
     {
@@ -2560,14 +2658,75 @@
         "means": "palette and grid only; it cannot see which colour each frame spends",
         "result": "not run by this card"
       },
-      "status": "queued_by_eye",
-      "after": null,
+      "status": "done",
+      "after": {
+        "drawn_by": "tools/art/make_enemies.py, the generator that owns this name: draw_rat takes a hit flag, the fur is now the palette's light tone $28 with the brown $07 as trim (tail, feet, inner ear) and as a shade plane under the body, and the spec names hit_draw so the flash frame is drawn rather than recoloured",
+        "card": "t_f24ada8a",
+        "date": "2026-10-24",
+        "file": "game/sprites_src/enemies/deck_rat.png",
+        "sha256": "a9a55e0621095a70d25c78374a7042b916f901122a88ada1ac8961acd1fbab0e",
+        "sheet_px": [
+          96,
+          32
+        ],
+        "frames": 3,
+        "frame_px": [
+          32,
+          32
+        ],
+        "per_frame": [
+          "frame 0 (idle): 3 colours, drawn 474, $28 224, $0F 158, $07 92",
+          "frame 1 (idle): 3 colours, drawn 478, $28 216, $0F 168, $07 94",
+          "frame 2 (hit): 3 colours, drawn 474, $28 264, $0F 158, $07 52"
+        ],
+        "nes_check": "PASS: 96x32, 48 tiles, 3 colours, 0 off palette pixels, so no 8x8 tile holds more than 3 opaque colours",
+        "palette_synergy": "PASS, 1 sprite file, 0 failing pairs: python tools/palette_synergy.py --scene sea --background output/enemies_sea_ground.png --sprite game/sprites_src/enemies/deck_rat.png --frame-w 32 --frame-h 32 --at 0,0. Every frame reads body $28 row 2, palette that fits [1], which is scene_sea sp1_brown_gold {15, 7, 40} = $0F #000000, $07 #881400, $28 #f8b800",
+        "ground": "output/enemies_sea_ground.png, 32x32, one colour, $02 #0000bc, the battle background at the enemy placement with nothing drawn on it",
+        "before_vs_after": {
+          "colours_per_frame": "[3, 3, 2] before, [3, 3, 3] after: the hit frame no longer drops $07",
+          "frame_2_entries": "$28 310 and $0F 159 before (2 colours, 469 drawn), $28 264, $0F 158 and $07 52 after",
+          "body_colour": "$07 brown before, 248 of 469 drawn px, on a flat $02 navy sea, reading 1.24:1; $28 gold after, 224 px",
+          "palette_synergy_failing_pairs": "2 before (body_ground on both idle frames, body $07 at 1.24:1 on ground $02), 0 after",
+          "drawn_px": "469, 473, 469 before; 474, 478, 474 after",
+          "before_sha256": "f0b63b5b9661b143cf1e22cda0fe38708fa4d70c30a719198ec4a6dc120f9fa1, the git HEAD blob this before column was measured on"
+        },
+        "what_changed_in_the_drawing": "the fur. The rat was a brown mass on a brown-reading night sea, so its largest colour was the entry the ground could not separate from. The lit fur is now the amber $28, the brown $07 stays as the trim (tail, feet, inner ear) and as a one row shade plane under the body and the haunch, and the ink outline is unchanged. The hit frame is now drawn by draw_rat(0, hit=True), which lights the shade plane and keeps the trim, so all three frames spend $0F, $07 and $28.",
+        "contact_sheet": "output/enemies_preview_3x.png (464x772) and output/enemies_preview.png (560x996) were rewritten by the same make_enemies.py run that wrote this sheet; the cast contact sheet output/sprites_v2_sheet.png (640x832, five character rows, its owner make_characters_v2.py) carries no enemy row, so it cannot show this sheet"
+      },
       "source": {
         "sheet": "K",
         "tile": 2,
         "model": "gemini-3.5-flash-lite",
         "review": "output/eye_reviews/_eye_r8_sheet_k_20261024T031625Z.md",
         "report": "output/EYE_AUTO_2026-10-23_R8.md"
+      },
+      "status_note": "Done by this card: the sheet reads on its own ground and all three frames spend the same three entries. Numbers in after are measured on the file at path, before numbers on the git HEAD blob named in after.before_vs_after.before_sha256.",
+      "measured_source": {
+        "card": "t_f24ada8a",
+        "date": "2026-10-24",
+        "sha256": "a9a55e0621095a70d25c78374a7042b916f901122a88ada1ac8961acd1fbab0e",
+        "sidecar": "game/sprites_src/enemies/deck_rat.json"
+      },
+      "eye_round_11": {
+        "round": 11,
+        "sheet": "output/_eye_r11_sheet_c.png",
+        "review_file": "output/eye_reviews/_eye_r11_sheet_c_20261025T032354Z.md",
+        "model": "gemini-3.1-flash-lite",
+        "scores": {
+          "nes_authenticity": 6,
+          "readability": 5,
+          "charm": 5,
+          "silhouette": 5,
+          "palette_separation": 4,
+          "outline_coverage": 6,
+          "proportions": 6,
+          "handmade": 7
+        },
+        "verdict": "the redraw is better: it reads as a rat with contrast instead of a brown smudge, and the remaining defect is the flat gold body mass",
+        "model_calls": [
+          "'better, but still looks like a golden nugget'",
+          "wants the body fill lightened by one step to break the mass"
+        ]
       }
     },
     {
@@ -2625,16 +2784,79 @@
       "check": {
         "command": "python tools/nes_check.py game/sprites_src/enemies/gull.png --type sprite",
         "means": "palette and grid only; it cannot see which colour each frame spends",
-        "result": "not run by this card"
+        "result": "PASS on 2026-10-24 by card t_ae4bbd15: 96x32, 48 tiles, 3 colours, 0 off palette pixels; palette_synergy PASS with 0 failing pairs on output/enemies_sea_ground.png"
       },
-      "status": "queued_by_eye",
-      "after": null,
+      "status": "done",
+      "after": {
+        "drawn_by": "tools/art/make_enemies.py draw_gull, the generator that owns this name: the rim and the beak moved from \"k\" (which is $02 #0000bc in sp3_sea, the sea ground to the pixel) to \"m\" cyan, \"k\" is spent only as the 2 x 2 pupil, and the spec now names hit_draw so the flash frame is drawn rather than recoloured",
+        "card": "t_ae4bbd15",
+        "date": "2026-10-24",
+        "file": "game/sprites_src/enemies/gull.png",
+        "sha256": "7f21b0129a024facf2bab7aef70eebd2089c9419bd8e0b747818bd129662ad8d",
+        "sheet_px": [
+          96,
+          32
+        ],
+        "frames": 3,
+        "frame_px": [
+          32,
+          32
+        ],
+        "colours": 3,
+        "per_frame": [
+          "frame 0 (idle): 3 colours, drawn 376, $21 #3cbcfc 209 px rim and beak, $30 #fcfcfc 163 body, $02 #0000bc 4 pupil",
+          "frame 1 (idle, folded): 3 colours, drawn 358, $21 195, $30 159, $02 4",
+          "frame 2 (hit, beak open, one row lifted): 3 colours, drawn 387, $21 220, $30 158, $02 9"
+        ],
+        "nes_check": "PASS: 96x32, 48 tiles, 3 colours, 0 off palette pixels",
+        "palette_synergy": "PASS, 1 sprite file, 0 failing pairs: python tools/palette_synergy.py --scene sea --background output/enemies_sea_ground.png --sprite game/sprites_src/enemies/gull.png --frame-w 32 --frame-h 32 --at 0,0. Frames 0 and 1 read body $21 row 2 hue hue_1, palette that fits [3]; frame 2 reads body $30 row 3 hue grey, palettes that fit [0, 3]",
+        "ground": "output/enemies_sea_ground.png, 32x32, one colour, $02 #0000bc: the battle background at the enemy placement with nothing drawn on it",
+        "before_vs_after": {
+          "colours_per_frame": "[3, 3, 2] before, [3, 3, 3] after: the hit frame no longer drops the cyan",
+          "ground_colour_pixels": "159, 161, 159 before (42.2 percent of the figure in frame 0), 4, 4, 9 after (1.1 percent): the navy is now the pupil and nothing else",
+          "ground_colour_pct_frame_0": "42.2 before, 1.1 after",
+          "rim_and_beak_entry": "$02 #0000bc before, $21 #3cbcfc after",
+          "body_entry": "$30 #fcfcfc before and after",
+          "drawn_px": "377, 359, 377 before; 376, 358, 387 after",
+          "palette_synergy_failing_pairs": "0 before and 0 after: the tool reads the body, and the body was already white. The clash the eye measured was in the rim, which this row's own check does not read, which is why it survived to the eye's round 10",
+          "before_sha256": "no blob hash exists: the enemy sheets are not in git HEAD (git show HEAD for this path returns nothing), so the before column was measured on the file on disk as this card started, before make_enemies.py ran"
+        },
+        "what_changed_in_the_drawing": "1) The rim and the beak were drawn in \"k\", which in sp3_sea is $02 #0000bc, the exact colour of the sea the gull is fought over, so 42.2 percent of the figure was the background: the eye called it \"a white blob with no outline\" and it was right about the symptom and wrong about the cause. Both are now \"m\" cyan, which reads against both the white body and the navy sea. 2) The pupil stays $02 because a dark eye is what an eye is, and at 4 to 9 pixels it is no longer the figure's edge. 3) The hit frame is drawn by draw_gull(0, hit=True) instead of being frame 0 with the mid tone recoloured to light: it lifts the whole bird one row, opens the beak into a second cyan bar and widens the pupil, so all three frames spend the same three entries and the flash reads by shape.",
+        "contact_sheet": "output/sprites_v2_sheet.png rebuilt by tools/art/make_title_rows_v2.py at 1024x3008, with a GULL band at 3x read from the SHIPPED sheet; output/enemies_preview.png and output/enemies_preview_3x.png were rewritten by the same make_enemies.py run that wrote this sheet",
+        "eye_round_10_link": "this is fix 2 of output/EYE_AUTO_2026-10-24_R10.md (measured, P1: four of the seven enemies are partly painted in the exact colour of the ground and sky they fight on). The other three named there are spr_pp_rogue_wave (30.1 percent, still queued_by_eye), spr_pp_petty_officer (20.6, status done) and spr_pp_navy_sailor (20.1, status done); their rows still carry their own numbers and this card did not change them",
+        "status_note": "Done by this card: all three frames spend the same three entries and the ground colour is down to the pupil. What the row's own check cannot see is the rim, so the before and after columns carry the pixel counts that show it."
+      },
       "source": {
         "sheet": "K",
         "tile": 3,
         "model": "gemini-3.5-flash-lite",
         "review": "output/eye_reviews/_eye_r8_sheet_k_20261024T031625Z.md",
         "report": "output/EYE_AUTO_2026-10-23_R8.md"
+      },
+      "eye_round_10": {
+        "round": 10,
+        "sheet": "output/_eye_r10_sheet_e.png",
+        "review_file": "output/eye_reviews/_eye_r10_sheet_e_20261024T192751Z.md",
+        "model": "gemini-3.1-flash-lite",
+        "scores": {
+          "nes_authenticity": 5,
+          "readability": 5,
+          "charm": 4,
+          "outline_coverage": 4
+        },
+        "measured": "gull sprite sheet, 96 x 32 with twelve 16 x 16 frames, 3 colours, 0 pixels outside data/nes_palette.json, 1113 drawn pixels, of which 479 (43.0 percent) are #0000BC, the exact colour of output/enemies_sea_ground.png",
+        "new_finding": "the outline and the uniform of this enemy are the ground colour, so that part of the sprite is invisible on the battle ground it was drawn for",
+        "model_calls": [
+          "this is a white blob with blue wings, it lacks an outline (measured: it has 479 px of a dark blue outline, and that blue is the ground colour)"
+        ]
+      },
+      "measured_source": {
+        "path": "game/sprites_src/enemies/gull.png",
+        "card": "t_ae4bbd15",
+        "date": "2026-10-24",
+        "sha256": "7f21b0129a024facf2bab7aef70eebd2089c9419bd8e0b747818bd129662ad8d",
+        "sidecar": "game/sprites_src/enemies/gull.json",
+        "why": "the row measures the authored tree game/sprites_src, which tools/sync_art.py mirrors into game/datafiles/art. Every after number in this row was measured from this path on 2026-10-24"
       }
     },
     {
@@ -2694,14 +2916,72 @@
         "means": "palette and grid only; it cannot see which colour each frame spends",
         "result": "not run by this card"
       },
-      "status": "queued_by_eye",
-      "after": null,
+      "status": "done",
+      "after": {
+        "drawn_by": "tools/art/make_enemies.py, the generator that owns this name: the sailor's own parts (TORSO_JACKET, ARM, LEG) now carry a white uniform with the navy as trim in \"m\" and a shade plane in \"s\", and the spec names hit_draw",
+        "card": "t_c3ad486b",
+        "date": "2026-10-24",
+        "file": "game/sprites_src/enemies/navy_sailor.png",
+        "sha256": "a47a8f16d22342c45391708aed63f501cdbd9ae284ebec7c423297d3d11d1fa3",
+        "sheet_px": [
+          96,
+          32
+        ],
+        "frames": 3,
+        "frame_px": [
+          32,
+          32
+        ],
+        "per_frame": [
+          "frame 0 (idle): 3 colours, drawn 336, $30 136, $02 67, $0F 133",
+          "frame 1 (idle): 3 colours, drawn 329, $30 136, $02 67, $0F 126",
+          "frame 2 (hit): 3 colours, drawn 337, $30 136, $02 67, $0F 134"
+        ],
+        "worst_tile_opaque": 3,
+        "nes_check": "PASS: 96x32, 48 tiles, 3 colours, 0 off palette pixels",
+        "palette_synergy": "PASS, 2 sprite files, 0 failing pairs (2026-10-24): python tools/palette_synergy.py --scene sea --background output/enemies_sea_ground.png --sprite game/sprites_src/enemies/navy_sailor.png --sprite game/sprites_src/enemies/petty_officer.png --frame-w 32 --frame-h 32 --at 0,0. Every frame reads body $30 row 3, palettes that fit [0], which is scene_sea sp0_navy_white {15, 2, 48} = $0F #000000, $02 #0000bc, $30 #fcfcfc",
+        "ground": "output/enemies_sea_ground.png, 32x32: the battle frame at the enemy's own placement (make_enemies.py ENEMY_X 112, ENEMY_Y 96) built with nothing drawn on it, and it measures one colour, $02 #0000bc, 1024 of 1024 pixels, because the flat middle sea band is a single entry",
+        "before_vs_after": {
+          "colours_per_frame": "[3, 3, 2] before, [3, 3, 3] after: the hit frame no longer drops $02",
+          "frame_2_entries": "$30 201 and $0F 135 before (2 colours, 336 drawn), $30 136, $02 67 and $0F 134 after (3 colours, 337 drawn)",
+          "body_colour": "$02 navy before, 114 of 336 drawn px, which is the sea's own colour, so the figure read 1.00:1 against its ground; $30 white after, 136 px",
+          "palette_synergy_failing_pairs": "2 before (overlay_contrast on the two idle frames: body $02 reads 1.00:1 and ink $0F reads 1.73:1 on ground $02), 0 after",
+          "drawn_px": "336, 329, 336 before; 336, 329, 337 after",
+          "worst_tile_opaque": "3 before, 3 after, against a ceiling of 3",
+          "before_sha256": "the git HEAD blob of game/sprites_src/enemies/navy_sailor.png, 547 bytes, which is what the before numbers above were measured on"
+        },
+        "what_changed_in_the_drawing": "the uniform. The sailor was a navy jacket with a white placket on a navy sea, so the largest mass was the ground's own entry. He is now a white uniform with the Royal Navy blue as trim (cap band, jacket placket, belt, cuffs, boots) and as a shade plane on the right of each mass, ink outline throughout, so the white is the body and the figure separates from the sea it stands on. The hit frame is no longer frame 0 with every mid tone repainted light: it is drawn, knocked back one pixel, with the shade plane lit and the navy trim kept, so all three frames spend the same three entries and one sprite palette places the whole cycle.",
+        "contact_sheet": "output/sprites_v2_sheet.png rebuilt by tools/art/make_title_rows_v2.py at 1024x2560, 15 colours, nes_check PASS (40960 tiles). The sheet reads this PNG rather than drawing a second copy: an exact pixel search finds the 3x nearest upscale of this sheet, composited on the sheet's own black backdrop, at (32, 1416), 0 of 27648 pixels different. The band under it puts the same three frames on output/enemies_sea_ground.png at 3x, so the sheet shows the reading as well as the strip.",
+        "tests": "no test file covers make_enemies.py; the tool's own gates were run and every one of the seven sheets prints nes_check ok, and git shows exactly the two redrawn PNGs changed under game/sprites_src/enemies",
+        "q_for_gamedev": [
+          "Q1 the other five enemies. The blanket rule in enemy_frames (frame 0 with every mid tone repainted light) is what made frame 3 drop the mid entry, and it is still what the deck rat, the gull, the rogue wave, the rope knot and the bilge slime use, because their drawings put the same code on trim and shading. Their rows stay queued_by_eye. May this lane give each of the five an armoured flash of its own (the same treatment, a hit_map per drawing), or does gamedev want the hit frame to stay a full palette drop for props and animals?",
+          "Q2 the body the tool reads. A 32x32 frame is wider than 16 px, so palette_synergy judges it as a tiled layer (R1b, 3:1 contrast) rather than as a sprite with a ground (R1 body_ground). The enemy is four 8x16 hardware objects, not a background layer. Which reading should the queue use for a 32x32 enemy?"
+        ],
+        "status_note": "Done on 2026-10-24 by card t_c3ad486b: the measured defect (frame 3 spending two entries instead of three) is gone on every frame, and the second one this card found is gone with it (the navy body sat on a navy sea at 1.00:1). What is left is gamedev's, and it is Q1: the same armoured flash for the other five enemies."
+      },
       "source": {
         "sheet": "K",
         "tile": 4,
         "model": "gemini-3.5-flash-lite",
         "review": "output/eye_reviews/_eye_r8_sheet_k_20261024T031625Z.md",
         "report": "output/EYE_AUTO_2026-10-23_R8.md"
+      },
+      "eye_round_10": {
+        "round": 10,
+        "sheet": "output/_eye_r10_sheet_e.png",
+        "review_file": "output/eye_reviews/_eye_r10_sheet_e_20261024T192751Z.md",
+        "model": "gemini-3.1-flash-lite",
+        "scores": {
+          "nes_authenticity": 5,
+          "readability": 5,
+          "charm": 4,
+          "outline_coverage": 4
+        },
+        "measured": "navy_sailor sprite sheet, 96 x 32 with twelve 16 x 16 frames, 3 colours, 0 pixels outside data/nes_palette.json, 1002 drawn pixels, of which 201 (20.1 percent) are #0000BC, the exact colour of output/enemies_sea_ground.png",
+        "new_finding": "the outline and the uniform of this enemy are the ground colour, so that part of the sprite is invisible on the battle ground it was drawn for",
+        "model_calls": [
+          "basic, readable, standard NES sprite work (measured: the only defect found is the ground colour clash, 201 px)"
+        ]
       }
     },
     {
@@ -2761,14 +3041,71 @@
         "means": "palette and grid only; it cannot see which colour each frame spends",
         "result": "not run by this card"
       },
-      "status": "queued_by_eye",
-      "after": null,
+      "status": "done",
+      "after": {
+        "drawn_by": "tools/art/make_enemies.py, the generator that owns this name: the officer draws from the same parts the sailor does (TORSO_JACKET, ARM, LEG), so he takes the white uniform, the navy trim and the shade plane, and his spec names hit_draw as well",
+        "card": "t_c3ad486b",
+        "date": "2026-10-24",
+        "file": "game/sprites_src/enemies/petty_officer.png",
+        "sha256": "abd456ac8292c36a1e55b40d844dbba30f2bb849b164fa7cae3c3c356f0dca8f",
+        "sheet_px": [
+          96,
+          32
+        ],
+        "frames": 3,
+        "frame_px": [
+          32,
+          32
+        ],
+        "per_frame": [
+          "frame 0 (idle): 3 colours, drawn 340, $30 136, $02 69, $0F 135",
+          "frame 1 (idle): 3 colours, drawn 334, $30 136, $02 69, $0F 129",
+          "frame 2 (hit): 3 colours, drawn 332, $30 128, $02 69, $0F 135"
+        ],
+        "worst_tile_opaque": 3,
+        "nes_check": "PASS: 96x32, 48 tiles, 3 colours, 0 off palette pixels",
+        "palette_synergy": "PASS, 0 failing pairs, measured in the same run as the sailor on output/enemies_sea_ground.png with --scene sea --frame-w 32 --frame-h 32 --at 0,0; every frame reads body $30 row 3 and fits scene_sea sp0_navy_white",
+        "ground": "output/enemies_sea_ground.png, 32x32 of flat $02 #0000bc, the battle background at the enemy placement with nothing drawn on it",
+        "before_vs_after": {
+          "colours_per_frame": "[3, 3, 2] before, [3, 3, 3] after",
+          "frame_2_entries": "$30 203 and $0F 137 before (2 colours, 340 drawn), $30 128, $02 69 and $0F 135 after (3 colours, 332 drawn)",
+          "body_colour": "$02 navy before, 110 of 340 drawn px, on a $02 navy sea; $30 white after, 136 px",
+          "palette_synergy_failing_pairs": "2 before (the two idle frames, body $02 at 1.00:1 on ground $02), 0 after",
+          "drawn_px": "340, 334, 340 before; 340, 334, 332 after",
+          "worst_tile_opaque": "3 before, 3 after, against a ceiling of 3",
+          "before_sha256": "the git HEAD blob of game/sprites_src/enemies/petty_officer.png, 563 bytes"
+        },
+        "what_changed_in_the_drawing": "the same white uniform treatment as the sailor, because the officer is stamped from the same torso, arm and leg parts: white cloth, ink outline, navy kept for the cap band, the peaked cap's own band, the placket, the belt, the cuffs and the boots, and a navy shade plane on the right of each mass. His beard, peaked cap, rank stripes and clipboard are unchanged. The hit frame is drawn rather than recoloured, knocked back one pixel, so all three frames spend $0F, $02 and $30 exactly as the sailor's do.",
+        "contact_sheet": "output/sprites_v2_sheet.png at 1024x2560: an exact pixel search finds the 3x nearest upscale of this sheet on the black backdrop at (32, 1608), 0 of 27648 pixels different",
+        "tests": "no test file covers make_enemies.py; the tool's own gates ran and all seven sheets print nes_check ok, and git shows exactly the two redrawn PNGs changed under game/sprites_src/enemies",
+        "q_for_gamedev": [
+          "Q1 is shared with the sailor row: the other five enemies still use the blanket recolour that drops a colour in frame 3. May this lane give each of them an armoured flash of its own, or does gamedev want a full palette drop for props and animals?"
+        ],
+        "status_note": "Done on 2026-10-24 by card t_c3ad486b: all three frames now spend the same three entries and the officer's body is the white, so he reads on the sea instead of as a navy figure on a navy ground."
+      },
       "source": {
         "sheet": "K",
         "tile": 5,
         "model": "gemini-3.5-flash-lite",
         "review": "output/eye_reviews/_eye_r8_sheet_k_20261024T031625Z.md",
         "report": "output/EYE_AUTO_2026-10-23_R8.md"
+      },
+      "eye_round_10": {
+        "round": 10,
+        "sheet": "output/_eye_r10_sheet_e.png",
+        "review_file": "output/eye_reviews/_eye_r10_sheet_e_20261024T192751Z.md",
+        "model": "gemini-3.1-flash-lite",
+        "scores": {
+          "nes_authenticity": 5,
+          "readability": 5,
+          "charm": 4,
+          "outline_coverage": 4
+        },
+        "measured": "petty_officer sprite sheet, 96 x 32 with twelve 16 x 16 frames, 3 colours, 0 pixels outside data/nes_palette.json, 1006 drawn pixels, of which 207 (20.6 percent) are #0000BC, the exact colour of output/enemies_sea_ground.png",
+        "new_finding": "the outline and the uniform of this enemy are the ground colour, so that part of the sprite is invisible on the battle ground it was drawn for",
+        "model_calls": [
+          "cluttered hands, hard to read at 16 px (measured: 207 px are the ground colour; the hands claim is not verified)"
+        ]
       }
     },
     {
@@ -2836,6 +3173,23 @@
         "model": "gemini-3.5-flash-lite",
         "review": "output/eye_reviews/_eye_r8_sheet_k_20261024T031625Z.md",
         "report": "output/EYE_AUTO_2026-10-23_R8.md"
+      },
+      "eye_round_10": {
+        "round": 10,
+        "sheet": "output/_eye_r10_sheet_e.png",
+        "review_file": "output/eye_reviews/_eye_r10_sheet_e_20261024T192751Z.md",
+        "model": "gemini-3.1-flash-lite",
+        "scores": {
+          "nes_authenticity": 5,
+          "readability": 5,
+          "charm": 4,
+          "outline_coverage": 4
+        },
+        "measured": "rogue_wave sprite sheet, 96 x 32 with twelve 16 x 16 frames, 3 colours, 0 pixels outside data/nes_palette.json, 2084 drawn pixels, of which 627 (30.1 percent) are #0000BC, the exact colour of output/enemies_sea_ground.png",
+        "new_finding": "the outline and the uniform of this enemy are the ground colour, so that part of the sprite is invisible on the battle ground it was drawn for",
+        "model_calls": [
+          "the eye in the wave makes it look like a monster, not water (a design question for gamedev, not a defect), and it separates from the ground barely (measured: 627 px of the wave ARE the ground colour)"
+        ]
       }
     },
     {
@@ -2895,14 +3249,74 @@
         "means": "palette and grid only; it cannot see which colour each frame spends",
         "result": "not run by this card"
       },
-      "status": "queued_by_eye",
-      "after": null,
+      "status": "done",
+      "after": {
+        "drawn_by": "tools/art/make_enemies.py, the generator that owns this name: draw_rope takes a hit flag, the two lower loops and the top loop are drawn in the light tone $28, the brown $07 is a shade row under each loop, on the twist dashes, on the loose end and in the knot core, and the spec names hit_draw",
+        "card": "t_f24ada8a",
+        "date": "2026-10-24",
+        "file": "game/sprites_src/enemies/rope_knot.png",
+        "sha256": "cf4741b3bc6b27d68da90382a8b72bebd8452e9c6cb01ab1fd7b0d8113ab002f",
+        "sheet_px": [
+          96,
+          32
+        ],
+        "frames": 3,
+        "frame_px": [
+          32,
+          32
+        ],
+        "per_frame": [
+          "frame 0 (idle): 3 colours, drawn 495, $0F 299, $28 113, $07 83",
+          "frame 1 (idle): 3 colours, drawn 495, $0F 297, $28 113, $07 85",
+          "frame 2 (hit): 3 colours, drawn 495, $0F 299, $28 179, $07 17"
+        ],
+        "nes_check": "PASS: 96x32, 48 tiles, 3 colours, 0 off palette pixels, so no 8x8 tile holds more than 3 opaque colours",
+        "palette_synergy": "PASS, 1 sprite file, 0 failing pairs, same command as the rat: --scene sea --background output/enemies_sea_ground.png --frame-w 32 --frame-h 32 --at 0,0. Every frame reads body $28 row 2, palette that fits [1], scene_sea sp1_brown_gold",
+        "ground": "output/enemies_sea_ground.png, 32x32 of flat $02 #0000bc",
+        "before_vs_after": {
+          "colours_per_frame": "[3, 3, 2] before, [3, 3, 3] after",
+          "frame_2_entries": "$0F 301 and $28 191 before (2 colours, 492 drawn), $0F 299, $28 179 and $07 17 after",
+          "body_colour": "$07 brown before, 176 of 492 drawn px, reading 1.24:1 on the $02 sea; $28 gold after, 113 px of the coil, with $0F ink 299 px as the outline",
+          "palette_synergy_failing_pairs": "2 before (body_ground on both idle frames, body $07 at 1.24:1 on ground $02), 0 after",
+          "drawn_px": "492, 492, 492 before; 495, 495, 495 after",
+          "before_sha256": "c55e4d90ce2d848a8ab748a097682dbab7ced0e1b6d5e6e2d4078a51ef4952f8, the git HEAD blob"
+        },
+        "what_changed_in_the_drawing": "the rope. The three loops were brown $07 and the coil read as the ground's own tone; the lit face of each loop is now the amber $28, with one row of brown $07 under each loop, the twist dashes in brown, the knot core in brown and the two eyes in ink. The hit frame is drawn by draw_rope(0, hit=True), which lights the brown planes and keeps the ink, so all three frames spend $0F, $07 and $28.",
+        "contact_sheet": "same run and same files as the rat: output/enemies_preview_3x.png and output/enemies_preview.png were rewritten with these pixels; the cast contact sheet does not carry enemy rows"
+      },
       "source": {
         "sheet": "K",
         "tile": 7,
         "model": "gemini-3.5-flash-lite",
         "review": "output/eye_reviews/_eye_r8_sheet_k_20261024T031625Z.md",
         "report": "output/EYE_AUTO_2026-10-23_R8.md"
+      },
+      "status_note": "Done by this card: the sheet reads on its own ground and all three frames spend the same three entries. Numbers in after are measured on the file at path, before numbers on the git HEAD blob named in after.before_vs_after.before_sha256.",
+      "measured_source": {
+        "card": "t_f24ada8a",
+        "date": "2026-10-24",
+        "sha256": "cf4741b3bc6b27d68da90382a8b72bebd8452e9c6cb01ab1fd7b0d8113ab002f",
+        "sidecar": "game/sprites_src/enemies/rope_knot.json"
+      },
+      "eye_round_11": {
+        "round": 11,
+        "sheet": "output/_eye_r11_sheet_c.png",
+        "review_file": "output/eye_reviews/_eye_r11_sheet_c_20261025T032354Z.md",
+        "model": "gemini-3.1-flash-lite",
+        "scores": {
+          "nes_authenticity": 6,
+          "readability": 5,
+          "charm": 5,
+          "silhouette": 5,
+          "palette_separation": 4,
+          "outline_coverage": 6,
+          "proportions": 6,
+          "handmade": 7
+        },
+        "verdict": "the redraw is better: it reads as rope instead of a pile of burnt orange spaghetti, and the remaining defect is that the coil overlaps carry no light step",
+        "model_calls": [
+          "'finally looks like rope, not a fire hazard'"
+        ]
       }
     },
     {
@@ -3305,6 +3719,16 @@
         "means": "nes_check must print PASS (on palette, whole 8x8 tiles, 3 opaque colours per tile) and palette_synergy must print PASS with 0 failing pairs on the ground the crew stands on, the same deck frame and placement the three cast rows before this one are judged on",
         "result": "both PASS on 2026-10-24 by card t_bd5cfad5: nes_check 128x16 32 tiles 3 colours, palette_synergy PASS 1 sprite file 0 failing pairs, palettes that fit [2] (battle_deck_night sp2 {2, 18, 48})"
       },
+      "remeasured_2026_10_25": {
+        "card": "t_6ee155ef",
+        "date": "2026-10-25",
+        "why": "re-measured before this row landed: the deck's four sprite palettes were re-solved on 2026-10-24, after this row's PASS was measured. The drawing is untouched and this row's decision stands.",
+        "sheet_unchanged": "game/sprites_src/chars/sailor_ow_v2.png is sha256 036b962f8093dc9751d0aa5456c195be8097cb49d15609b00c198f981ef77ad3, byte identical to the sheet the 2026-10-24 PASS was measured on",
+        "nes_check": "PASS, re-run 2026-10-25: python tools/nes_check.py game/sprites_src/chars/sailor_ow_v2.png --type sprite -> 128x16, 32 tiles, 3 colours, same numbers as the row",
+        "battle_deck_night_today": "FAIL, 1 sprite file, 16 failing pairs: python tools/palette_synergy.py --scene battle_deck_night --background output/bg_battle_deck_night_frame.png --sprite game/sprites_src/chars/sailor_ow_v2.png --frame-w 16 --frame-h 16 --at 120,120 -> set_member $12 #0058f8 is in none of the four battle_deck_night sprite palettes, palette_count no single sprite palette of the scene carries the frame, on all 8 frames. This is exactly what deck_palette_remeasure above records, and data/palettes/scene_battle_deck_night.json now states that the walking sailor is not judged on that strip",
+        "legal_ground_today": "the sheet's three entries $02 $12 $30 are still exactly ship sp1 {2, 18, 48} of data/palettes/scene_ship.json, which is the ground scene_ship.json's judged list names for this sheet, so set membership is unchanged by the deck re-solve. The ship ground image output/ship_dialogue.png is not usable as evidence: it is a composed capture carrying colours off the 2C02 palette, and the tool charges its own background_area and set_member failures to the sprite placed on it ($21, $31, $36 and $10 under the frame), which is the same trap output/nes_title_frame.png sets for other rows",
+        "status_note": "status left at done: no pixel changed and ship sp1 still carries the sheet exactly. What is now stale is check.command above, which names battle_deck_night, and that is raised on its own card rather than rewritten here"
+      },
       "status": "done",
       "after": {
         "drawn_by": "tools/art/make_characters_v2.py, the generator that owns this name: the sailor spec's palette dict in cast() was repointed to one scene sprite palette, and no grid, decor or frame changed",
@@ -3420,6 +3844,26 @@
         ],
         "listed_entries_not_spent": [],
         "note": "the row shipped no palette_roles list when the eye opened it ('not known to the eye'), so the three entries the redraw spends ARE the row's palette set now, and they are exactly one sprite palette of battle_deck_night (sp2) and of ship (sp1). Skin $36 is the entry the one palette rule costs; Q5 asks gamedev about it."
+      },
+      "eye_round_10": {
+        "round": 10,
+        "sheet": "output/_eye_r10_sheet_c.png",
+        "review_file": "output/eye_reviews/_eye_r10_sheet_c_20261024T192256Z.md",
+        "model": "gemini-3.8-flash",
+        "scores": {
+          "nes_authenticity": 8,
+          "readability": 7,
+          "charm": 6,
+          "silhouette": 7,
+          "handmade": 8
+        },
+        "measured": "128 x 16, eight 16 x 16 frames, 3 colours #0000BC, #0058F8 and #FCFCFC, 0 pixels outside data/nes_palette.json, 146 to 154 drawn pixels per frame",
+        "new_finding": "the highest scoring sprite art in the round: the critic called him the most anatomically readable human on the sheet, and asked for the side facing frames 7 and 8 to be reworked",
+        "model_calls": [
+          "reads as a ferry deckhand in dress whites, clear flat shading, three tones, no banding",
+          "frames 7 and 8 collapse the face plane when he faces sideways; not verified here",
+          "the scene size crop sent beside him contained no sailor at all, so that part of the review is about the eye's sheet, not about this row"
+        ]
       }
     },
     {
@@ -4354,10 +4798,580 @@
           "evidence": "output/SPRITE-NEXT-2026-10-24-CAR.md, 9 failing overlay_contrast pairs on each ground"
         }
       ]
+    },
+    {
+      "round": 10,
+      "kind": "auto",
+      "card": "t_b322eb68 AUTO-GEMINI-EYE",
+      "written_by": "assistant",
+      "written_on": "2026-10-24",
+      "written_at_utc": "2026-10-24T19:30Z",
+      "source_report": "output/EYE_AUTO_2026-10-24_R10.md",
+      "rule": "a round 10 entry is one contact sheet of the art that landed after the round 9 report (output/EYE_AUTO_2026-10-24.md); scope was every PNG newer than that report, 43 files, with the output/PrimordialParadox build copy excluded because tools/sync_art.py touches it without changing a byte, and with no pixel duplicates among the survivors (output/_eye_r10_scope.py); four sheets, one request each, 26 tiles; every fix carries source=measured or source=model, a measured fix is arithmetic on the source file and outranks the critic, and a model fix is an opinion that needs gamedev before it is coded",
+      "ownership": "gamedev and Nayil own the spec, the palette sets and the priority order; these are the eye's ranked suggestions, and any conflict with a sprite brief, a scene palette or this queue's own rows is resolved in gamedev's favour",
+      "model_warning": "the critic is rough and this round it showed four times: it read the game's own dialogue box, which the runner draws only on the six shots that run a say command, as developer debug placeholder text and asked for it to be removed; it named places the shot list does not contain, a coastal road with a white vessel for the downland shot and a tower with a glowing cross for Big Ben; it called two pairs of character sheets recolours of each other when the five rows carry five distinct three entry palettes; and it wrote fix coordinates outside the tile each note describes",
+      "cost": {
+        "requests": 5,
+        "ok": 5,
+        "refusals": 0,
+        "models": {
+          "gemini-3.5-flash": [
+            "A"
+          ],
+          "gemini-3.6-flash": [
+            "B"
+          ],
+          "gemini-3.8-flash": [
+            "C"
+          ],
+          "gemini-3.5-flash-lite": [
+            "D"
+          ],
+          "gemini-3.1-flash-lite": [
+            "E"
+          ]
+        },
+        "pacific_day": "2026-10-24",
+        "pacific_day_calls_before_this_round": 2,
+        "pacific_day_calls_after_this_round": 7,
+        "wall_clock_seconds": 296
+      },
+      "sheets": [
+        {
+          "sheet": "A",
+          "file": "output/_eye_r10_sheet_a.png",
+          "tiles": 6,
+          "about": "drive film shots 1 to 6, each native 256 x 240 at 2x, with the location each shot is meant to show",
+          "review_file": "output/eye_reviews/_eye_r10_sheet_a_20261024T191808Z.md",
+          "model": "gemini-3.5-flash",
+          "seconds": 36.06,
+          "scores": {
+            "nes_authenticity": 3,
+            "readability": 5,
+            "charm": 4,
+            "silhouette": 4,
+            "palette_separation": 3,
+            "outline_coverage": 3,
+            "proportions": 5,
+            "handmade": 4
+          }
+        },
+        {
+          "sheet": "B",
+          "file": "output/_eye_r10_sheet_b.png",
+          "tiles": 6,
+          "about": "drive film shots 7 to 12, each native 256 x 240 at 2x, with the location each shot is meant to show",
+          "review_file": "output/eye_reviews/_eye_r10_sheet_b_20261024T192006Z.md",
+          "model": "gemini-3.6-flash",
+          "seconds": 117.79,
+          "scores": {
+            "nes_authenticity": 5,
+            "readability": 5,
+            "charm": 4,
+            "silhouette": 4,
+            "palette_separation": 4,
+            "outline_coverage": 4,
+            "proportions": 4,
+            "handmade": 7
+          }
+        },
+        {
+          "sheet": "C",
+          "file": "output/_eye_r10_sheet_c.png",
+          "tiles": 6,
+          "about": "the five character walking sheets at 8x, plus one crop of a 3x scene frame that turned out to contain no character",
+          "review_file": "output/eye_reviews/_eye_r10_sheet_c_20261024T192256Z.md",
+          "model": "gemini-3.8-flash",
+          "seconds": 169.69,
+          "scores": {
+            "nes_authenticity": 8,
+            "readability": 7,
+            "charm": 6,
+            "silhouette": 7,
+            "palette_separation": 5,
+            "outline_coverage": 7,
+            "proportions": 7,
+            "handmade": 8
+          }
+        },
+        {
+          "sheet": "D",
+          "file": "output/_eye_r10_sheet_d.png",
+          "tiles": 7,
+          "about": "the wordmark whole at 2x and in halves at 5x, the car sheet at 4x, the star at 16x, the window strip and the speech bubble at 8x",
+          "review_file": "output/eye_reviews/_eye_r10_sheet_d_20261024T192304Z.md",
+          "model": "gemini-3.5-flash-lite",
+          "seconds": 7.84,
+          "scores": {
+            "nes_authenticity": 7,
+            "readability": 6,
+            "charm": 6,
+            "silhouette": 6,
+            "palette_separation": 5,
+            "outline_coverage": 6,
+            "proportions": 6,
+            "handmade": 6
+          }
+        },
+        {
+          "sheet": "E",
+          "file": "output/_eye_r10_sheet_e.png",
+          "tiles": 9,
+          "about": "the seven enemy sprite sheets at 8x (96 x 32, twelve 16 x 16 frames in a 6 by 2 grid), the whole enemy battle frame at 2x, and the 32 x 32 sea ground at 8x as the contrast test",
+          "review_file": "output/eye_reviews/_eye_r10_sheet_e_20261024T192751Z.md",
+          "model": "gemini-3.1-flash-lite",
+          "seconds": 7.71,
+          "scores": {
+            "nes_authenticity": 5,
+            "readability": 5,
+            "charm": 4,
+            "silhouette": 5,
+            "palette_separation": 4,
+            "outline_coverage": 4,
+            "proportions": 5,
+            "handmade": 6
+          }
+        }
+      ],
+      "measured_summary": {
+        "files_newer_than_round_9_report": 43,
+        "pixel_duplicates_among_them": 0,
+        "tiles_sent": 34,
+        "requests": 5,
+        "drive_frames_measured": 12,
+        "drive_frames_off_palette_pixel_share": 1.0,
+        "drive_frame_colours_per_frame": [
+          8,
+          10,
+          10,
+          10,
+          10,
+          10,
+          10,
+          9,
+          10,
+          10,
+          8,
+          9
+        ],
+        "drive_frame_nearest_palette_distance": {
+          "#08131F": "#000000 at squared distance 1386",
+          "#1B1B22": "#000000 at squared distance 2614",
+          "#2B2B36": "#004058 at squared distance 3446"
+        },
+        "dialogue_box_present_shots": [
+          3,
+          5,
+          6,
+          8,
+          9,
+          11
+        ],
+        "dialogue_box_absent_shots": [
+          1,
+          2,
+          4,
+          7,
+          10,
+          12
+        ],
+        "dialogue_box_near_white_pixels_per_shot": [
+          0,
+          0,
+          782,
+          0,
+          788,
+          795,
+          0,
+          812,
+          798,
+          0,
+          784,
+          0
+        ],
+        "say_command_shots_per_shot_list": [
+          3,
+          5,
+          6,
+          8,
+          9,
+          11
+        ],
+        "light_square_px": 493,
+        "light_square_bbox_px": [
+          23,
+          23
+        ],
+        "light_square_rows": [
+          20,
+          42
+        ],
+        "light_square_centroid_x_by_shot": {
+          "1": 207,
+          "2": 207,
+          "3": 221,
+          "8": 225,
+          "5": 35,
+          "6": 35,
+          "9": 35,
+          "10": 51,
+          "11": 43
+        },
+        "light_square_absent_shots": [
+          4,
+          12
+        ],
+        "wordmark_colours": {
+          "#000000": 4842,
+          "#7C7C7C": 4509,
+          "#F8B800": 959
+        },
+        "wordmark_off_palette": 0,
+        "wordmark_isolated_pixels": 2,
+        "wordmark_isolated_pixel_positions": [
+          [
+            144,
+            53
+          ],
+          [
+            368,
+            53
+          ]
+        ],
+        "wordmark_gold_bbox": [
+          33,
+          1,
+          414,
+          61
+        ],
+        "character_sheets": 5,
+        "character_sheet_colour_count": 3,
+        "character_sheet_off_palette": 0,
+        "character_drawn_px_range": [
+          133,
+          198
+        ],
+        "sailor_scene_frame_exact_frame_matches": 0,
+        "title_car_frames": 3,
+        "title_car_colours": 3,
+        "title_star_drawn_px_by_frame": [
+          1,
+          5,
+          9
+        ],
+        "window_strip_cells": 9,
+        "bubble_cells": 6,
+        "enemy_sheets": 7,
+        "enemy_sheet_frames": 12,
+        "enemy_sheet_colours": 3,
+        "enemy_sheet_off_palette": 0,
+        "enemy_drawn_px": {
+          "bilge_slime": 1536,
+          "deck_rat": 1411,
+          "gull": 1113,
+          "navy_sailor": 1002,
+          "petty_officer": 1006,
+          "rogue_wave": 2084,
+          "rope_knot": 1476
+        },
+        "sea_ground_colour": "#0000BC",
+        "ground_colour_pixels_per_enemy": {
+          "bilge_slime": 0,
+          "deck_rat": 0,
+          "gull": 479,
+          "navy_sailor": 201,
+          "petty_officer": 207,
+          "rogue_wave": 627,
+          "rope_knot": 0
+        },
+        "battle_frame_colours": 8,
+        "battle_frame_off_palette": 0,
+        "battle_frame_largest_colour": "#7C7C7C at 42.8 percent",
+        "battle_frame_ground_colour_share": 0.358,
+        "files_newer_than_round_9_report_at_final_check": 55,
+        "images_drawn_into_tiles": 32
+      },
+      "fixes": [
+        {
+          "rank": 1,
+          "source": "measured",
+          "priority": "P0",
+          "target": "the drive scene art (output/drive_frames/drive_shot_01.png to _12.png, from pp_drive.gml)",
+          "fixed": false,
+          "what": "every distinct colour in all twelve drive frames is absent from data/nes_palette.json and covers 100 percent of the pixels, with the nearest entry thousands of squared units away (#08131F against #000000 is 1386, #2B2B36 against #004058 is 3446). tools/eye_drive.py --measure-only returns 12 FAIL for the same reason, so the drive film cannot pass any legality gate until gamedev says whether the scene is converted or deliberately wider"
+        },
+        {
+          "rank": 2,
+          "source": "measured",
+          "priority": "P1",
+          "target": "the 23 x 23 light square in the drive frames",
+          "fixed": false,
+          "what": "one 493 pixel, 23 by 23 light shape sits at y 20 to 42 in nine of the twelve frames, on the right in shots 1, 2, 3 and 8 (centroid x 207 to 225) and on the left in shots 5, 6, 9, 10 and 11 (x 35 to 51), and is absent in shots 4 and 12. If it is the moon, the cut from shot 3 to shot 5 crosses the whole sky. Q1 asks gamedev what it is"
+        },
+        {
+          "rank": 3,
+          "source": "measured",
+          "priority": "P1",
+          "target": "gull, rogue_wave, petty_officer, navy_sailor and the sea ground",
+          "fixed": false,
+          "what": "the sea ground tile output/enemies_sea_ground.png is one flat colour, #0000BC, and the battle frame is 35.8 percent #0000BC. Four enemy sheets spend that same colour in their own three entry palette: gull 479 px (43.0 percent of the sprite), rogue_wave 627 (30.1), petty_officer 207 (20.6) and navy_sailor 201 (20.1). A three colour sprite cannot re-pick an entry at run time, so either the ground moves off #0000BC or those four sheets drop it"
+        },
+        {
+          "rank": 4,
+          "source": "measured",
+          "priority": "P2",
+          "target": "spr_pp_title_logo",
+          "fixed": false,
+          "what": "two isolated one pixel gold specks at 144,53 and 368,53, the only two opaque pixels in the 448 x 64 sheet with no opaque 4 neighbour. A single accent pixel is invisible at 1x and reads as dirt at 5x; tools/art/title_logo_v2.py owns the drawing"
+        },
+        {
+          "rank": 5,
+          "source": "measured",
+          "priority": "P2",
+          "target": "the eye's own sheet builder, not the art",
+          "fixed": false,
+          "what": "sheet C tile 6 was meant to show the sailor at game size but contains no sailor: none of his eight 16 x 16 frames matches anywhere in sprite_v2_frames/sailor_ow_v2_1x.png. A later round must locate a sprite by template match before cropping it, and Q3 asks gamedev what that frame file is for"
+        },
+        {
+          "rank": 6,
+          "source": "model",
+          "priority": "P2",
+          "target": "the drive frames' car and road, and the sign posts and the sky",
+          "fixed": false,
+          "what": "two independent models named the same failing pair on all twelve tiles: the car body does not separate from the road and the sign posts dissolve into the night sky. That consistency makes it worth a real check, but it is still an impression; the measurable test is a luminance ladder on the car body against the road colour"
+        },
+        {
+          "rank": 7,
+          "source": "model",
+          "priority": "P3",
+          "target": "spr_pp_title_logo, spr_title_car, spr_title_bubble",
+          "fixed": false,
+          "what": "the critic asked for the open outline on the R to be closed, the bubble tail to widen by one pixel, and the bottom left car wheel to move one pixel right. None of the three is verified here and all three are one pixel edits gamedev may already have decided"
+        },
+        {
+          "rank": 8,
+          "source": "measured",
+          "priority": "P3",
+          "target": "spr_title_star",
+          "fixed": false,
+          "what": "no action: the three 8 x 8 frames draw 1, 5 and 9 pixels and the critic called them a classic 8 bit sparkle. Recorded so the row is not re-opened next round"
+        }
+      ],
+      "open_questions": [
+        {
+          "id": "Q1",
+          "for": "gamedev",
+          "question": "the drive frames spend colours that are not NES colours at all, 100 percent of the pixels in all twelve. Is the drive scene meant to be converted to data/nes_palette.json, or does it deliberately run a wider range, and if so which file is the authority?",
+          "evidence": "output/_eye_r10_palette.py, and tools/eye_drive.py --measure-only returning 12 FAIL"
+        },
+        {
+          "id": "Q2",
+          "for": "gamedev",
+          "question": "a 23 x 23 light square sits at the same height in nine of the twelve drive frames and changes sides between shot 3 and shot 5. Is that the moon, and is the side change intended parallax or an error? DRIVE-SHOT-LIST gives the moon to shot 10 only.",
+          "evidence": "output/_eye_r10_verify2.py, centroid x 207 to 225 on the right and 35 to 51 on the left"
+        },
+        {
+          "id": "Q3",
+          "for": "gamedev",
+          "question": "what is output/sprite_v2_frames/<character>_1x.png and _3x.png for? The sailor's own eight frames appear nowhere in sailor_ow_v2_1x.png, and his three colours cover 8129 pixels across the whole frame, so the file reads as a palette study rather than a scene with him in it.",
+          "evidence": "output/_eye_r10_verify2.py, 0 exact 16 x 16 template matches in 8 frames"
+        },
+        {
+          "id": "Q4",
+          "for": "gamedev",
+          "question": "should the eye keep reviewing the drive frames while they are off palette? The scores are comparable with nothing else in this queue, and 12 tiles of the 26 sent this round were them.",
+          "evidence": "output/EYE_AUTO_2026-10-24_R10.md section 7"
+        }
+      ],
+      "rank_note": "rank 2 was inserted after the first pass, when the enemy files landed mid round, so the ranks in this record are this write's order and not the report's section 4 order"
+    },
+    {
+      "round": 11,
+      "card": "t_7e73bb7a",
+      "written_on": "2026-10-24",
+      "baseline": "output/EYE_AUTO_2026-10-24_R10.md",
+      "report": "output/EYE_AUTO_2026-10-24_R11.md",
+      "scope_note": "every PNG under output/ and game/sprites_src/ newer than the round 10 report, then narrowed by pixel comparison with the exact tile round 10 reviewed",
+      "sheets": [
+        {
+          "sheet": "A",
+          "file": "output/_eye_r11_sheet_a.png",
+          "tiles": 9,
+          "about": "nine frames of the first talk and fight capture (frames 0, 8, 16, 25, 33, 41, 50, 62 and 71), each reduced from the 3x window recording to native 256 x 240 and shown at 2x",
+          "review_file": "output/eye_reviews/_eye_r11_sheet_a_20261025T032342Z.md",
+          "model": "gemini-3.8-flash",
+          "seconds": 96.07,
+          "scores": {
+            "nes_authenticity": 5,
+            "readability": 5,
+            "charm": 5,
+            "silhouette": 4,
+            "palette_separation": 5,
+            "outline_coverage": 4,
+            "proportions": 5,
+            "handmade": 5
+          }
+        },
+        {
+          "sheet": "B",
+          "file": "output/_eye_r11_sheet_b.png",
+          "tiles": 6,
+          "about": "title scroll states 1 to 3 and the world frame, each native 256 x 240 at 2x, plus the cloud sprite sheet at 7x and the nine cell dialogue window strip at 7x",
+          "review_file": "output/eye_reviews/_eye_r11_sheet_b_20261025T032348Z.md",
+          "model": "gemini-3.5-flash-lite",
+          "seconds": 6.14,
+          "scores": {
+            "nes_authenticity": 7,
+            "readability": 8,
+            "charm": 7,
+            "silhouette": 7,
+            "palette_separation": 7,
+            "outline_coverage": 6,
+            "proportions": 7,
+            "handmade": 6
+          }
+        },
+        {
+          "sheet": "C",
+          "file": "output/_eye_r11_sheet_c.png",
+          "tiles": 6,
+          "about": "before and after for the two redrawn enemies, the whole battle frame at 2x and the 32 x 32 sea ground at 8x",
+          "review_file": "output/eye_reviews/_eye_r11_sheet_c_20261025T032354Z.md",
+          "model": "gemini-3.1-flash-lite",
+          "seconds": 5.53,
+          "scores": {
+            "nes_authenticity": 6,
+            "readability": 5,
+            "charm": 5,
+            "silhouette": 5,
+            "palette_separation": 4,
+            "outline_coverage": 6,
+            "proportions": 6,
+            "handmade": 7
+          }
+        }
+      ],
+      "fixes": [
+        {
+          "rank": 1,
+          "source": "measured and model",
+          "priority": "P1",
+          "target": "the enemy battle frame, a scene question for gamedev",
+          "fixed": false,
+          "what": "output/enemies_battle_frame.png (256 x 240, 8 colours, 0 pixels off the NES palette) shows no enemy creature: the model saw a lone figure and no enemies, and a second look at sheet C tile 5 agrees. Either the frame is composed before the enemy is placed or the enemy is too small to see at game size. Ask gamedev, do not redraw a sprite for it"
+        },
+        {
+          "rank": 2,
+          "source": "model",
+          "priority": "P1",
+          "target": "spr_pp_deck_rat",
+          "fixed": false,
+          "what": "after the redraw the rat reads as a rat, and the remaining defect is that the gold body is one flat mass, so head, belly and haunch read as one nugget. The model's own fix: lighten the body fill by one step across two or three pixels to break the mass. Its second note, a floating pixel near the ear, is unverified. Measured before the write: 3 colours, 1426 of 3072 pixels drawn, 319 of 3072 pixels differ from the version round 10 reviewed"
+        },
+        {
+          "rank": 3,
+          "source": "model",
+          "priority": "P1",
+          "target": "spr_pp_rope_knot",
+          "fixed": false,
+          "what": "after the redraw the knot reads as rope, and the coil overlaps are one flat gold mass with no light step between them. The model's second suggestion, to close the outline at the bottom so it does not bleed into the blue sea, is wrong for this sprite: round 10 measured 0 pixels of the ground colour in it. Measured: 3 colours, 1485 of 3072 pixels drawn, 155 of 3072 pixels differ from round 10's version"
+        },
+        {
+          "rank": 4,
+          "source": "measured",
+          "priority": "P2",
+          "target": "the talk and fight capture path, not the art",
+          "fixed": false,
+          "what": "the 74 capture frames hold between 985 and 181169 colours each against a console ceiling of 25, so the window recording blends edges and colour and any score on this sequence scores the capture. Record at 1x, or at an exact 3x with no filtering, before the next review of this scene"
+        },
+        {
+          "rank": 5,
+          "source": "model",
+          "priority": "P2",
+          "target": "the title screen grass and right hand border",
+          "fixed": false,
+          "what": "the model asks for the noisy grass pixels to be simplified into repeating silhouettes and the right hand border stripe aligned to the left one. Neither is verified against the pixels, and the same model called the same screen's layers distinct and its cloud clean, so this is logged and not queued"
+        },
+        {
+          "rank": 6,
+          "source": "measured",
+          "priority": "P3",
+          "target": "the caption line under the title, a gamedev decision",
+          "fixed": false,
+          "what": "the title frame carries the line (C) 2026 NAVILINIS at the bottom centre, confirmed at 1x. The model asked for 1990; 2026 is the release year, so this is not a defect unless gamedev wants the screen to claim 1991"
+        }
+      ],
+      "measured_summary": {
+        "pngs_newer_than_round_10_report": 273,
+        "distinct_pixel_contents": 259,
+        "skipped_with_reason": 122,
+        "candidates": 151,
+        "tiles_sent": 21,
+        "requests": 3,
+        "drive_frames_identical_to_round_10": 12,
+        "drive_frames_differing_pixels": 0,
+        "character_sheets_identical_to_round_10": 5,
+        "enemy_sheets_changed": {
+          "deck_rat": 319,
+          "rope_knot": 155
+        },
+        "enemy_sheet_pixels": 3072,
+        "enemy_drawn_px_after_redraw": {
+          "deck_rat": 1426,
+          "rope_knot": 1485
+        },
+        "enemy_drawn_px_before_redraw": {
+          "deck_rat": 1411,
+          "rope_knot": 1476
+        },
+        "title_wordmark_and_car_differing_pixels": 0,
+        "title_scroll_colours": [
+          9,
+          9,
+          9
+        ],
+        "title_world_frame_colours": 8,
+        "talk_capture_files": 74,
+        "talk_capture_distinct_frames": 71,
+        "talk_capture_colour_range": [
+          985,
+          181169
+        ],
+        "capture_colour_ceiling": 25
+      },
+      "cost": {
+        "requests": 3,
+        "ok": 3,
+        "refused": 0,
+        "models": {
+          "gemini-3.8-flash": [
+            "A"
+          ],
+          "gemini-3.5-flash-lite": [
+            "B"
+          ],
+          "gemini-3.1-flash-lite": [
+            "C"
+          ]
+        },
+        "pacific_day_calls_before_this_round": 7,
+        "pacific_day_calls_after_this_round": 10,
+        "per_model_day_cap": 20,
+        "pacific_date": "2026-10-24"
+      },
+      "reviewer_warning": "the model is a rough critic: it read the route sign as a debug counter, wanted a release year changed to 1991, and read twelve frame rows as three frames. Measured numbers outrank it",
+      "files": {
+        "scope": "output/_eye_r11_scope.py",
+        "diff": "output/_eye_r11_diff.py",
+        "title_check": "output/_eye_r11_title_check.py",
+        "build": "output/_eye_r11_build.py",
+        "runner": "output/_eye_r11_runner.py",
+        "results": "output/_eye_r11_results.json"
+      }
     }
   ],
   "eye_rounds_note": "written by the assistant profile from the automatic eye rounds; these are ranked suggestions about contact sheets, kept apart from `entries`, which is one row per sprite the game asks for by name. Gamedev and Nayil own the spec and the priority order, and a conflict is resolved in gamedev's favour. Regenerated by output/_eye_r6_queue.py.",
   "updated_by": "gamedev (card t_c5c85156, the title car row's stale measurement and spec 14 line 23)",
   "updated_on": "2026-10-25",
-  "count_note": "31 rows. The 19 rows of the 2026-10-23 source of truth card are unchanged: 15 repointed to game/sprites_src, 2 renamed to the shipped names (spr_title_konrad, spr_title_zander), 2 retired (spr_player_ow, spr_gate_sentry_ow). Card t_bd32a72e redrew hadrian_ow_v2 (status queued_by_eye to redrawn) and changed no other row. AUTO-GEMINI-EYE round 8 (card t_134cacc4) added 12 rows with status queued_by_eye and priority P2, because the eye does not own priority: the 7 enemies whose frame 3 drops a colour, the 3 v2 characters that need two sprite palettes, and the 2 battle frames with no dark boundary ring. No row measures game/art. Card t_b08c01d5 redrew spr_title_cloud (status queued to done) and changed no other row: the shipped cloud went from 94.6 percent on one entry and 4 failing palette_synergy pairs to 52.5 percent on the white body and 0 failing pairs. Card t_bd5cfad5 redrew sailor_ow_v2 (status queued_by_eye to done) and changed no other row: the last of the three v2 characters the eye measured at 4 and 5 colours per 16x16 cell went from 4 entries (ink, white, navy, skin) and 4 failing palette_synergy pairs per frame to 3 entries in exactly one deck sprite palette and 0 failing pairs, with drawn_px unchanged at 1196. Card t_a44ae3db (gamedev, 2026-10-24) ruled Q1 on that row: the three entry sheet stands and the blob floor is re-expressed for a three entry sheet in tests/test_make_characters_v2.py and SPRITE-CRAFT 8.5, because a floor of four entries needs a second sprite palette and was never a gamedev spec; the ruling and its measured numbers are in the row's gamedev_ruling key."
+  "count_note": "31 rows. The 19 rows of the 2026-10-23 source of truth card are unchanged: 15 repointed to game/sprites_src, 2 renamed to the shipped names (spr_title_konrad, spr_title_zander), 2 retired (spr_player_ow, spr_gate_sentry_ow). Card t_bd32a72e redrew hadrian_ow_v2 (status queued_by_eye to redrawn) and changed no other row. AUTO-GEMINI-EYE round 8 (card t_134cacc4) added 12 rows with status queued_by_eye and priority P2, because the eye does not own priority: the 7 enemies whose frame 3 drops a colour, the 3 v2 characters that need two sprite palettes, and the 2 battle frames with no dark boundary ring. No row measures game/art. Card t_b08c01d5 redrew spr_title_cloud (status queued to done) and changed no other row: the shipped cloud went from 94.6 percent on one entry and 4 failing palette_synergy pairs to 52.5 percent on the white body and 0 failing pairs. Card t_bd5cfad5 redrew sailor_ow_v2 (status queued_by_eye to done) and changed no other row: the last of the three v2 characters the eye measured at 4 and 5 colours per 16x16 cell went from 4 entries (ink, white, navy, skin) and 4 failing palette_synergy pairs per frame to 3 entries in exactly one deck sprite palette and 0 failing pairs, with drawn_px unchanged at 1196. Card t_a44ae3db (gamedev, 2026-10-24) ruled Q1 on that row: the three entry sheet stands and the blob floor is re-expressed for a three entry sheet in tests/test_make_characters_v2.py and SPRITE-CRAFT 8.5, because a floor of four entries needs a second sprite palette and was never a gamedev spec; the ruling and its measured numbers are in the row's gamedev_ruling key. Card t_c3ad486b redrew spr_pp_navy_sailor and spr_pp_petty_officer (both queued_by_eye to done) and changed no other row: the two enemies were [3, 3, 2] colours per frame before, the hit frame dropping the navy, and are [3, 3, 3] after, with the body moved off the sea's own $02 navy onto the uniform's $30 white, which took palette_synergy from 2 failing pairs to 0 on the sea ground the enemy is placed on. The five other enemies keep the blanket recolour that drops a colour in frame 3 and stay queued_by_eye, and that is Q1 on the sailor row. Card t_f24ada8a (2026-10-24) redrew spr_pp_deck_rat and spr_pp_rope_knot (both queued_by_eye to done), the only two rows left whose own measured check was red: both were FAIL on palette_synergy with 2 body_ground pairs each, body $07 brown at 1.24:1 on the $02 navy sea ground, and both had [3, 3, 2] colours per frame with the hit frame dropping the brown. They are now [3, 3, 3] and PASS with 0 failing pairs, body $28 gold in scene_sea sp1_brown_gold, drawn by make_enemies.py, the tool that owns both names. It changed no other row: gull and rogue_wave already measured 0 failing pairs on that ground, and bilge_slime too, so the eye round 10 rank 3 reading is now settled for four of the five enemies it named. The P0 car and the P1 title rows above these two stay queued or redrawn: their remaining defects are gamedev's (Q3 on the car's band palette, the cursor's gold, the cone's flat single entry), not a drawing this lane can fix and prove."
 }
