@@ -2094,6 +2094,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "pp_03_harbor_v4b.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_03_harbor_v4b.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_04_navy_sailors.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
