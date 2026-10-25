@@ -17,6 +17,10 @@
     "gate_authority",
     "has_boarding_pass",
     "sailor_spared",
-    "sailor_killed"
+    "sailor_killed",
+    "sign_55_seen",
+    "sign_43_seen",
+    "sign_30_seen",
+    "sign_20_seen"
   ]
 }
