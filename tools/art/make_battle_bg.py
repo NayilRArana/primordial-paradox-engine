@@ -23,6 +23,13 @@ How the NES rules are kept, by construction rather than by hope
 4. Tiles repeat. The layout is a grid of cell letters, so the same 8x8 tile bitmap is reused wherever a
    letter repeats, the way a real NES background is built. The script counts the distinct 8x8 tiles and
    writes the count into the JSON beside each PNG (budget: 128).
+5. The floor under the party block is the shared backdrop on the strips that declare `party_floor`. The
+   block's placement is not typed here: it is read from data\\ui_layouts.json, the battle screen's four
+   sprites with role `party`, so a layout move moves the floor with it. The party bodies are the light entry
+   of each hero triple and those four clear RULE 0 point 2 on the backdrop $0F and not on the mixed floors
+   the corridor and wardroom carry, so both of those paint role 3 (the backdrop) over the block and leave
+   every other pixel of the strip alone (knowledge/PALETTE-RULINGS-2026-10-25.md section 7.4 point 2, card
+   t_d64eb2a9).
 
 Outputs
 -------
@@ -434,6 +441,7 @@ SCENES = [
         "name": "corridor",
         "title": "ship corridor",
         "cell_count": 13,
+        "party_floor": True,
         "notes": [
             "grey steel bulkheads with a rivet seam, a pipe run under the deckhead, a red access hatch",
             "bg0 the bulkhead plate and the deckhead, bg1 the deck floor grating, bg2 the hatch, bg3 the pipes",
@@ -480,6 +488,7 @@ SCENES = [
         "name": "wardroom",
         "title": "wardroom",
         "cell_count": 9,
+        "party_floor": True,
         "notes": [
             "wood panelling under a beamed deckhead with two lamps, three portholes, a laid table",
             "bg0 the panelling, bg1 the beams, chairs and deck, bg2 the portholes at night, bg3 the linen and brass",
@@ -615,6 +624,46 @@ SCENES = [
 # Rendering.
 
 
+def load_party_block(root: str) -> tuple:
+    """The party block's pixel rects, read from data/ui_layouts.json.
+
+    The battle screen's `sprites` list gives four slots at x 224, y 32, 64, 96, 128, each 24x32, already in
+    pixels (its `party` list carries the same four slots in tile coordinates, x 28, y 4, 8, 12, 16 at 8 px
+    tiles). Reading the layout file rather than copying those numbers means the floor follows the block if
+    the block ever moves (PALETTE-RULINGS-2026-10-25.md section 7.4 point 2).
+    """
+    path = os.path.join(root, "data", "ui_layouts.json")
+    with open(path, "r", encoding="utf-8-sig") as handle:
+        data = json.load(handle)
+    for screen in data["screens"]:
+        if screen["name"] != "battle":
+            continue
+        rects = []
+        for sprite in screen.get("sprites", []):
+            if sprite.get("role") != "party":
+                continue
+            rects.append((sprite["x"], sprite["y"], sprite["w"], sprite["h"]))
+        if not rects:
+            raise SystemExit("%s battle screen names no party sprite to floor" % path)
+        party_tiles = [(slot["x"], slot["y"]) for slot in screen.get("party", [])]
+        if len(party_tiles) != len(rects):
+            raise SystemExit(
+                "%s battle screen has %d party sprites and %d party slots: fix the layout before drawing"
+                % (path, len(rects), len(party_tiles))
+            )
+        # The `party` list is in tiles and the `sprites` list in pixels, which is the one place this file
+        # could silently read the wrong unit (it did once). The two lists have to agree, so say so.
+        tile_px = data["frame"]["tile"]
+        for slot, rect in zip(party_tiles, rects):
+            if (slot[0] * tile_px, slot[1] * tile_px) != (rect[0], rect[1]):
+                raise SystemExit(
+                    "%s battle screen: party slot at tile %s is not the sprite at pixel %s"
+                    % (path, slot, (rect[0], rect[1]))
+                )
+        return rects, path
+    raise SystemExit("%s has no battle screen to read the party block from" % path)
+
+
 def load_palette(root: str) -> tuple:
     path = os.path.join(root, "data", "nes_palette.json")
     with open(path, "r", encoding="utf-8-sig") as handle:
@@ -625,7 +674,7 @@ def load_palette(root: str) -> tuple:
     return colours, path
 
 
-def build_scene(scene: dict, entries: list) -> dict:
+def build_scene(scene: dict, entries: list, party_rects=None) -> dict:
     names = [name for name, _ in scene["background"]]
     palettes = {
         name: [(index, entries[index]) for index in numbers] for name, numbers in scene["background"]
@@ -671,6 +720,29 @@ def build_scene(scene: dict, entries: list) -> dict:
                     target[col_index * CELL + x] = role
         cell_names.append(line)
 
+    # The party block's floor, on the strips that declare it: role 3 is the shared backdrop, which every
+    # attribute area may use, so this paints nothing the palettes do not already carry. It runs BEFORE the
+    # pixel resolve and the tile count, so the tiles, the colour list and the sidecar all describe what
+    # ships rather than what was drawn first.
+    party_floor = None
+    if scene.get("party_floor"):
+        if not party_rects:
+            raise SystemExit("scene %s asks for the party floor but no placement was read" % scene["name"])
+        painted = []
+        count = 0
+        for x, y, w, h in party_rects:
+            x0, y0 = max(0, x), max(0, y)
+            x1, y1 = min(W, x + w), min(H, y + h)
+            if x1 <= x0 or y1 <= y0:
+                continue
+            for py in range(y0, y1):
+                row = roles[py]
+                for px in range(x0, x1):
+                    row[px] = 3
+                    count += 1
+            painted.append([x0, y0, x1 - x0, y1 - y0])
+        party_floor = {"rects": painted, "pixels": count}
+
     # resolve every pixel through its attribute area, so a pixel can never borrow another area's palette
     pixels = [[backdrop_hex] * W for _ in range(H)]
     palette_of_area = []
@@ -713,6 +785,7 @@ def build_scene(scene: dict, entries: list) -> dict:
         "used": used,
         "tiles": tiles,
         "palette_of_area": palette_of_area,
+        "party_floor": party_floor,
     }
 
 
@@ -737,7 +810,7 @@ def write_frame(pixels: list, path: str, backdrop_hex: str) -> None:
 
 def scene_json(scene: dict, built: dict, entries: list, png_name: str, palette_file: str) -> dict:
     tile_list = built["tiles"]
-    return {
+    meta = {
         "format": 1,
         "kind": "battle_background",
         "name": "bg_battle_%s" % scene["name"],
@@ -790,6 +863,22 @@ def scene_json(scene: dict, built: dict, entries: list, png_name: str, palette_f
         "generator": "tools/art/make_battle_bg.py",
         "notes": scene["notes"],
     }
+    if built["party_floor"]:
+        # Named in the sidecar rather than only in the pixels: the block's floor is a decision, and a
+        # reader of this file should not have to diff the strip to learn what the right hand column does.
+        meta["party_floor"] = {
+            "role": "3 (the shared backdrop)",
+            "hex": entries[BACKDROP],
+            "source": "data/ui_layouts.json, the battle screen's sprites with role party",
+            "rects": built["party_floor"]["rects"],
+            "pixels": built["party_floor"]["pixels"],
+            "reason": (
+                "the four party bodies are the light entry of each hero triple and clear RULE 0 point 2 on "
+                "the backdrop and not on this strip's mixed floor; PALETTE-RULINGS-2026-10-25.md section 7.4 "
+                "point 2, card t_d64eb2a9"
+            ),
+        }
+    return meta
 
 
 def scene_palette_json(scene: dict, entries: list) -> dict:
@@ -845,6 +934,7 @@ def main(argv=None) -> int:
 
     root = os.path.abspath(args.root)
     entries, palette_path = load_palette(root)
+    party_rects, party_path = load_party_block(root)
     out_dir = os.path.join(root, "game", "sprites_src", "bg")
     palette_dir = os.path.join(root, "data", "palettes")
     preview_path = args.preview or os.path.join(root, "output", "bg_battle_preview.png")
@@ -853,8 +943,16 @@ def main(argv=None) -> int:
 
     images = []
     print("palette: %s (64 entries, backdrop $%02X %s)" % (os.path.relpath(palette_path, root), BACKDROP, entries[BACKDROP]))
+    print(
+        "party block: %s, %d slot(s) %s"
+        % (
+            os.path.relpath(party_path, root),
+            len(party_rects),
+            " ".join("%dx%d at %d,%d" % (w, h, x, y) for x, y, w, h in party_rects),
+        )
+    )
     for scene in SCENES:
-        built = build_scene(scene, entries)
+        built = build_scene(scene, entries, party_rects)
         png_path = os.path.join(out_dir, "bg_battle_%s.png" % scene["name"])
         write_png(built["pixels"], png_path)
         images.append(Image.open(png_path).convert("RGB"))
@@ -872,7 +970,7 @@ def main(argv=None) -> int:
             handle.write("\n")
 
         print(
-            "%s: %dx%d, unique tiles %d/128, colours %d/25, cells %d types"
+            "%s: %dx%d, unique tiles %d/128, colours %d/25, cells %d types%s"
             % (
                 scene["name"],
                 W,
@@ -880,6 +978,9 @@ def main(argv=None) -> int:
                 len(built["tiles"]),
                 len(built["used"]),
                 len(scene["cells"]),
+                ""
+                if not built["party_floor"]
+                else ", party floor %d px on $%02X" % (built["party_floor"]["pixels"], BACKDROP),
             )
         )
 

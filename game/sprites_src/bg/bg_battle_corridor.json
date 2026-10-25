@@ -136,11 +136,11 @@
       ]
     }
   ],
-  "unique_tiles": 40,
+  "unique_tiles": 41,
   "unique_tile_budget": 128,
   "tiles_used_once": 12,
   "tile_reuse": {
-    "max_times_a_tile_repeats": 64,
+    "max_times_a_tile_repeats": 58,
     "total_tile_slots": 448
   },
   "colours_used": [
@@ -293,5 +293,32 @@
     "grey steel bulkheads with a rivet seam, a pipe run under the deckhead, a red access hatch",
     "bg0 the bulkhead plate and the deckhead, bg1 the deck floor grating, bg2 the hatch, bg3 the pipes",
     "the hatch is a 32x48 block, so its cells are quadrants of one shape rather than four shapes"
-  ]
+  ],
+  "party_floor": {
+    "role": "3 (the shared backdrop)",
+    "hex": "#000000",
+    "source": "data/ui_layouts.json, the battle screen's sprites with role party",
+    "rects": [
+      [
+        224,
+        32,
+        24,
+        32
+      ],
+      [
+        224,
+        64,
+        24,
+        32
+      ],
+      [
+        224,
+        96,
+        24,
+        16
+      ]
+    ],
+    "pixels": 1920,
+    "reason": "the four party bodies are the light entry of each hero triple and clear RULE 0 point 2 on the backdrop and not on this strip's mixed floor; PALETTE-RULINGS-2026-10-25.md section 7.4 point 2, card t_d64eb2a9"
+  }
 }
