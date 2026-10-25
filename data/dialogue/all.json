@@ -508,6 +508,114 @@
           ]
         }
       ]
+    },
+    {
+      "id": "drive_sign_55",
+      "speaker": "narrator",
+      "lines": [
+        "* SOUTHAMPTON 55.",
+        "* BASINGSTOKE 20.",
+        "* The countdown starts."
+      ]
+    },
+    {
+      "id": "drive_sign_43",
+      "speaker": "narrator",
+      "lines": [
+        "* SOUTHAMPTON 43.",
+        "* BASINGSTOKE 8.",
+        "* Twelve miles gone."
+      ]
+    },
+    {
+      "id": "drive_sign_30",
+      "speaker": "narrator",
+      "lines": [
+        "* SOUTHAMPTON 30.",
+        "* WINCHESTER 12.",
+        "* The sea is on the radio."
+      ]
+    },
+    {
+      "id": "drive_sign_20",
+      "speaker": "narrator",
+      "lines": [
+        "* SOUTHAMPTON 20.",
+        "* WINCHESTER 2.",
+        "* One lane now."
+      ]
+    },
+    {
+      "id": "drive_radio_1",
+      "speaker": "narrator",
+      "lines": [
+        "* The radio finds a station.",
+        "* A weather bulletin.",
+        "* Rain from the west."
+      ]
+    },
+    {
+      "id": "drive_radio_2",
+      "speaker": "narrator",
+      "lines": [
+        "* A traffic report.",
+        "* A lane shut at Winchester.",
+        "* The car does not slow."
+      ]
+    },
+    {
+      "id": "drive_radio_3",
+      "speaker": "narrator",
+      "lines": [
+        "* A phone in, on the storm.",
+        "* He says it is not natural.",
+        "* The signal drifts."
+      ]
+    },
+    {
+      "id": "drive_radio_4",
+      "speaker": "narrator",
+      "lines": [
+        "* The news. A power cut.",
+        "* Two streets, dark.",
+        "* Nobody gives a cause."
+      ]
+    },
+    {
+      "id": "drive_radio_5",
+      "speaker": "narrator",
+      "lines": [
+        "* The shipping forecast.",
+        "* Wight. Portland. Force 8.",
+        "* The reader says it twice."
+      ]
+    },
+    {
+      "id": "drive_radio_6",
+      "speaker": "narrator",
+      "lines": [
+        "* Portsmouth. Sailings held.",
+        "* Nothing sails before dawn.",
+        "* The wipers keep time."
+      ]
+    },
+    {
+      "id": "drive_radio_7",
+      "speaker": "narrator",
+      "lines": [
+        "* Static. Then a voice.",
+        "* It says the road is clear.",
+        "* The car keeps its speed."
+      ]
+    },
+    {
+      "id": "drive_cathedral",
+      "speaker": "narrator",
+      "lines": [
+        "* A long nave on the hill.",
+        "* A square tower. No lights.",
+        "* Winchester is asleep."
+      ]
     }
   ]
 }
