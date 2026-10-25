@@ -1464,7 +1464,7 @@
         "card": "t_13e25e31",
         "command": "python tools/palette_synergy.py --scene title --background output/exhaust_road_ground.png --sprite game/sprites_src/title/spr_title_exhaust.png --frame-w 16 --frame-h 16 --at 0,0",
         "result": "FAIL, 1 sprite file, 9 failing pairs",
-        "ground": "output/exhaust_road_ground.png, 16x16 at 76,200, the placement tools/art/compose_title_preview.py draws the puff at (car_x, CAR_Y + 14): $0F black 189 px (73.8 percent), $20 white 34 px (13.3), $0C 17 px (6.6), $0B 16 px (6.2)",
+        "ground": "output/exhaust_road_ground.png, 16x16 at 76,200, the placement the composer drew the puff at before card t_2a34652e (its old CAR_Y 186 plus 14): $0F black 189 px (73.8 percent), $20 white 34 px (13.3), $0C 17 px (6.6), $0B 16 px (6.2). The composer now reads the placement from the game and sits the puff at 76,207; the ruling in knowledge/PALETTE-RULINGS-2026-10-25.md holds at both crops (same four entries), and the sweep at the game's own window is the authoritative measurement.",
         "measured_pairs": [
           "body $0C and ground $0F are 0 luminance rows apart, RULE 0 point 2 wants 2 (frames 0)",
           "body $0C is the ground colour on $0C, the figure has no edge (frame 0)",

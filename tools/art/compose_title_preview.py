@@ -13,15 +13,20 @@ addendum. Everything here is original and clean room: the script only reads the
 PNG strips the other parts wrote and it copies no art, no letterform and no data
 from any existing game.
 
-The layer table (screen y, scroll speed, frame rate) is read from the world
-generator's own manifest, output/title_world_manifest.json, so the composer and
-the world can never drift apart. If that file is missing, the fallback table below
-is the same one the world generator documents.
+Placement comes from the same sources the game draws from, so the preview cannot
+drift off the shipping frame (card t_2a34652e): the layer table from data/title.json,
+the file the title screen itself loads, and the car, cone and sign positions from the
+PP_TITLE macros in game/scripts/pp_title/pp_title.gml, exactly as pp_title_data and
+pp_title_draw_cone/pp_title_draw_sign read them. If data/title.json is missing, the
+fallback table below is pp_title_defaults() in that same .gml.
 
-The car parts are placed by looking at the car sprite itself, not by hard coded
-numbers: the wheel arch centres and the two window openings are read out of the
-pixels, so a redrawn car body still gets its wheels under the arches and its two
-heads behind the glass.
+The v2 car bakes its wheels into the 64x32 body (tools/art/title_car_v2.py) and
+pp_title_draw_car draws no separate wheel, no bust and no bubble (the cast is off the
+title as of TS2-ART-A; spr_title_wheel, spr_title_konrad, spr_title_zander and
+spr_title_bubble stay on disk for the interior scenes later). So the composer pastes
+none of them either: the preview shows exhaust, body, cloud, nothing else over the
+car. The arch centres and window openings are still read out of the car's pixels and
+reported, as a check on the sprite, not as a paste position.
 
 Determinism: no clock, no unseeded randomness, no network, no window. Run the
 script twice and the sha256 of both outputs is the same.
@@ -37,6 +42,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 
 from PIL import Image
@@ -47,40 +53,61 @@ FRAME_W, FRAME_H = 256, 240
 SCALE = 3
 
 # ---------------------------------------------------------------------------------------------------
-# The layer table, used only when output/title_world_manifest.json is missing. It is the table
-# tools/art/make_title_world.py documents, so both halves of the title screen agree.
+# The layer table, used only when data/title.json is missing. It is pp_title_defaults(), the table in
+# game/scripts/pp_title/pp_title.gml. When the file is present it is the table the game loads (the
+# file's rows lay over these, and today the file moves downs to 96, the verge to 128 and the road
+# and fg to 192), so the composer and the shipping screen read the same two sources in the same
+# order, exactly as pp_title_read_data + pp_title_data do.
 # ---------------------------------------------------------------------------------------------------
 FALLBACK_LAYERS = [
-    {"name": "title_L1_sky", "y": 0, "speed": 0.0, "fps": 2.0},
-    {"name": "title_L2_clouds", "y": 0, "speed": 0.05, "fps": 0.0},
-    {"name": "title_L3_downs", "y": 92, "speed": 0.15, "fps": 0.0},
-    {"name": "title_L4_fields", "y": 128, "speed": 0.35, "fps": 0.0},
-    {"name": "title_L5_verge", "y": 120, "speed": 0.70, "fps": 0.0},
-    {"name": "title_L6_road", "y": 196, "speed": 1.00, "fps": 0.0},
-    {"name": "title_L7_fg", "y": 196, "speed": 1.30, "fps": 0.0},
+    {"name": "title_L1_sky", "y": 0, "speed": 0.0},
+    {"name": "title_L2_clouds", "y": 0, "speed": 0.05},
+    {"name": "title_L3_downs", "y": 92, "speed": 0.15},
+    {"name": "title_L4_fields", "y": 128, "speed": 0.35},
+    {"name": "title_L5_verge", "y": 120, "speed": 0.70},
+    {"name": "title_L6_road", "y": 196, "speed": 1.00},
+    {"name": "title_L7_fg", "y": 196, "speed": 1.30},
 ]
 
-# The road sign is baked into the verge tile as a plate at these tile coordinates
-# (see SIGN_X and SIGN_Y in tools/art/make_title_world.py). The separate sign strip
-# carries the same 89x16 plate with the counting down numbers on it, so the composer
-# draws the strip exactly over the baked plate and the number counts down as the
-# verge scrolls.
-SIGN_TILE_X, SIGN_TILE_Y = 30, 30
+# The fixed placements come from the game's own macros, parsed out of
+# game/scripts/pp_title/pp_title.gml at run time, exactly as the screen reads them:
+# pp_title_draw_car uses PP_TITLE_CAR_X/PP_TITLE_CAR_Y (and the exhaust at car_y + 14),
+# pp_title_draw_cone uses PP_TITLE_CONE_X/PP_TITLE_CONE_Y, pp_title_draw_sign uses
+# PP_TITLE_SIGN_X/PP_TITLE_SIGN_Y relative to the verge layer, and pp_title_draw_logo
+# uses PP_TITLE_LOGO_X/PP_TITLE_LOGO_Y. Card t_2a34652e: the composer used to carry a
+# hand-kept CAR_Y of 186 where the game draws 193, so the preview the eye rounds judge
+# sat 7 px above every frame that ships. There is deliberately NO fallback for these
+# numbers: a missing .gml is an error, not a silent stale integer.
+GAME_SCRIPT = os.path.join("game", "scripts", "pp_title", "pp_title.gml")
+MACRO_NAMES = ("PP_TITLE_CAR_X", "PP_TITLE_CAR_Y", "PP_TITLE_CONE_X", "PP_TITLE_CONE_Y",
+               "PP_TITLE_SIGN_X", "PP_TITLE_SIGN_Y", "PP_TITLE_LOGO_X", "PP_TITLE_LOGO_Y")
 
-# Where the car stands on the road. CAR_X comes from the world manifest (the world
-# generator reserved x 76..140 for it). CAR_Y puts the tyre bottoms, the last row of
-# the 32 px car sprite, on the near half of the tarmac.
-FALLBACK_CAR_X = 76
-FALLBACK_CONE_X = 140
-CAR_Y = 186
 
-# The wheel sprite is 10x10 and the tyre bottom is the last row of the car sprite,
-# so a wheel sits at rows 22..31 of the 64x32 car.
-WHEEL_SIZE = 10
-WHEEL_BOTTOM_ROW = 31
+def read_game_macros(root: str) -> dict[str, int]:
+    """The PP_TITLE placement macros, read out of the game's own script file.
 
-# The logo sits top centre, in the sky, above the horizon.
-LOGO_X, LOGO_Y = (FRAME_W - 224) // 2, 2
+    Same cross-read style as tests/test_title_bands.py pins the layer table: the numbers
+    are taken from the file that draws the screen, never copied into this one.
+    """
+    path = os.path.join(root, GAME_SCRIPT)
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            source = handle.read()
+    except OSError as exc:
+        raise SystemExit("compose_title_preview needs the game script to place the car: %s" % exc)
+    found: dict[str, int] = {}
+    for name in MACRO_NAMES:
+        match = re.search(r"#macro\s+%s\s+(-?\d+)\b" % re.escape(name), source)
+        if not match:
+            raise SystemExit("no #macro %s in %s" % (name, path))
+        found[name] = int(match.group(1))
+    return found
+
+
+# The road sign is drawn over the verge at these tile coordinates, read from the game's
+# macros (see read_game_macros). The verge tile carries the posts at these coordinates
+# (see SIGN_X and SIGN_Y in tools/art/make_title_world.py), so the plate and the posts
+# belong together.
 
 # The prompt blinks under the logo; the menu replaces it after the press.
 PROMPT_Y = 72
@@ -339,11 +366,15 @@ def palette_image(colours: list[tuple[int, int, int, int]]) -> Image.Image:
 # ---------------------------------------------------------------------------------------------------
 
 class Scene:
-    """Everything the composer needs to draw one frame, worked out once from the art on disk."""
+    """Everything the composer needs to draw one frame, worked out once from the art and the game on disk."""
 
-    def __init__(self, art: TitleArt, root: str, out_dir: str):
+    def __init__(self, art: TitleArt, root: str):
         self.art = art
-        self.layers, self.car_x, self.cone_x = self.read_manifest(root, out_dir)
+        self.m = read_game_macros(root)
+        self.layers, self.car_x, self.car_y = self.read_data_title(root, self.m)
+        self.cone_x, self.cone_y = self.m["PP_TITLE_CONE_X"], self.m["PP_TITLE_CONE_Y"]
+        self.sign_x, self.sign_y = self.m["PP_TITLE_SIGN_X"], self.m["PP_TITLE_SIGN_Y"]
+        self.logo_x, self.logo_y = self.m["PP_TITLE_LOGO_X"], self.m["PP_TITLE_LOGO_Y"]
 
         car = art.frame("spr_title_car", 0)
         self.ink = (11, 11, 15, 255)
@@ -355,36 +386,37 @@ class Scene:
         if len(self.arches) != 2:
             self.notes.append("the car sprite has %d wheel arches, not 2" % len(self.arches))
         if len(self.windows) != 2:
-            self.notes.append("the car sprite has %d glass openings, not 2" % len(self.windows))
+            self.notes.append("the car sprite has %d glass openings, not 2 (the v2 glass is one dark tint, "
+                              "so this is the shipped state, and no bust is drawn anyway)" % len(self.windows))
 
-    def read_manifest(self, root: str, out_dir: str):
-        path = os.path.join(out_dir, "title_world_manifest.json")
+    def read_data_title(self, root: str, macros: dict):
+        """The layer table from data/title.json, the file the game itself loads.
+
+        pp_title_data layers pp_title_defaults with anything title.json names, and the
+        screen keeps the macro car position unless the file overrides it, so this reads
+        the same two things in the same order. If the file is missing the fallback table
+        is pp_title_defaults() itself.
+        """
+        path = os.path.join(root, "data", "title.json")
         if not os.path.isfile(path):
-            path = os.path.join(root, "output", "title_world_manifest.json")
-        if not os.path.isfile(path):
-            return list(FALLBACK_LAYERS), FALLBACK_CAR_X, FALLBACK_CONE_X
-        with open(path, "r", encoding="utf-8") as handle:
+            return list(FALLBACK_LAYERS), macros["PP_TITLE_CAR_X"], macros["PP_TITLE_CAR_Y"]
+        with open(path, "r", encoding="utf-8-sig") as handle:
             data = json.load(handle)
+        rows = data.get("layers", [])
+        if not rows:
+            return list(FALLBACK_LAYERS), macros["PP_TITLE_CAR_X"], macros["PP_TITLE_CAR_Y"]
         layers = []
-        for entry in data.get("compose", []):
-            layers.append({
-                "name": entry["name"],
-                "y": entry["y"],
-                "speed": entry["speed"],
-                "fps": 0.0,
-            })
-        if not layers:
-            layers = list(FALLBACK_LAYERS)
-        # The world generator gives the star layer a two frame twinkle; the frame rate is in
-        # the sidecar JSON of the layer itself.
+        for entry in rows:
+            layers.append({"name": entry["name"], "y": entry["y"],
+                           "speed": entry["speed"], "fps": 0.0})
+        # The star layer's two frame twinkle is on its own strip's frame rate.
         for layer in layers:
             meta = self.art.meta.get(layer["name"])
             if meta:
                 layer["fps"] = float(meta.get("fps", 0.0))
-        car_x = data.get("car_x", [FALLBACK_CAR_X, FALLBACK_CONE_X])
-        car_left = car_x[0] if car_x else FALLBACK_CAR_X
-        cone_x = data.get("cone_at", FALLBACK_CONE_X)
-        return layers, car_left, cone_x
+        car_x = int(data.get("car_x", macros["PP_TITLE_CAR_X"]))
+        car_y = int(data.get("car_y", macros["PP_TITLE_CAR_Y"]))
+        return layers, car_x, car_y
 
 
 def compose_frame(scene: Scene, t: float, camera_x: float,
@@ -406,6 +438,7 @@ def compose_frame(scene: Scene, t: float, camera_x: float,
                               (0, layer["y"]))
 
     # The road sign, drawn over the plate the verge tile carries, so the number counts down.
+    # The game draws it at PP_TITLE_SIGN_X over the verge's own y plus PP_TITLE_SIGN_Y.
     if "spr_title_sign" in art.frames:
         verge = next((l for l in scene.layers if l["name"] == "title_L5_verge"), None)
         if verge is not None:
@@ -413,54 +446,29 @@ def compose_frame(scene: Scene, t: float, camera_x: float,
             sign_index = int((t % 10.0) / 2.5) % art.count("spr_title_sign")
             sign = art.frame("spr_title_sign", sign_index)
             for shift in (-512, 0, 512):
-                x = SIGN_TILE_X - offset + shift
+                x = scene.sign_x - offset + shift
                 if -sign.width < x < FRAME_W:
-                    frame.alpha_composite(sign, (x, verge["y"] + SIGN_TILE_Y))
+                    frame.alpha_composite(sign, (x, verge["y"] + scene.sign_y))
 
-    # The headlight cone, on the road ahead of the car.
+    # The headlight cone, on the road ahead of the car, at the game's own placement.
     if "spr_title_cone" in art.frames:
-        frame.alpha_composite(art.frame("spr_title_cone", 0), (scene.cone_x, 200))
+        frame.alpha_composite(art.frame("spr_title_cone", 0), (scene.cone_x, scene.cone_y))
 
-    # The car and the cast. The timings come from spec 14: the wheels turn, the body bobs on a
-    # frame cycle, the exhaust puffs every 20 frames, Konrad glances at his watch and Zander bobs
-    # his head to the music. Frame counts come from the strips themselves.
+    # The car and its exhaust. The timings come from spec 14: the body's frames turn over on
+    # a beat cycle and the exhaust puffs in its own cycle. The v2 car bakes its wheels, and
+    # the shipping title draws no wheel sprite, no bust and no bubble over the car
+    # (pp_title_draw_car), so neither does the preview. The cast strips stay on disk for the
+    # interior scenes later.
     car_x = scene.car_x
+    car_y = scene.car_y
     body_index = (int(t * 12) // 2) % art.count("spr_title_car")
-    wheel_index = int(t * 12) % art.count("spr_title_wheel")
 
-    # The exhaust puff, behind the rear of the car, then the wheels, then the body over them.
+    # The exhaust puff, behind the rear of the car, then the body over it.
     puff = int(t * 12) % 20
     if "spr_title_exhaust" in art.frames and puff < 4:
-        frame.alpha_composite(art.frame("spr_title_exhaust", puff % 4), (car_x, CAR_Y + 14))
+        frame.alpha_composite(art.frame("spr_title_exhaust", puff % 4), (car_x, car_y + 14))
 
-    if scene.arches:
-        for centre in scene.arches:
-            frame.alpha_composite(art.frame("spr_title_wheel", wheel_index),
-                                  (car_x + centre - WHEEL_SIZE // 2, CAR_Y + WHEEL_BOTTOM_ROW - WHEEL_SIZE + 1))
-    else:
-        for dx in (9, 41):
-            frame.alpha_composite(art.frame("spr_title_wheel", wheel_index), (car_x + dx, CAR_Y + 22))
-
-    frame.alpha_composite(art.frame("spr_title_car", body_index), (car_x, CAR_Y))
-
-    # The two heads, in the two windows. The left window is the passenger, the right window is
-    # the driver, because the car drives to the right.
-    if len(scene.windows) == 2:
-        left, right = scene.windows
-        bust_y = CAR_Y + max(0, (scene.band_top + scene.band_bottom) // 2 - GLYPH_H // 2 - 1)
-        for opening, name in ((left, "spr_title_zander"), (right, "spr_title_konrad")):
-            if name not in art.frames:
-                continue
-            index = int(t * 8) % art.count(name)
-            bust = art.frame(name, index)
-            x = car_x + (opening[0] + opening[1]) // 2 - bust.width // 2
-            frame.alpha_composite(bust, (x, bust_y))
-
-    # The speech bubble, when Zander turns to speak. Once per loop, over the second half.
-    if "spr_title_bubble" in art.frames and 6.0 <= (t % 10.0) <= 7.0:
-        bubble_x = car_x + (scene.windows[0][0] if scene.windows else 18) - 1
-        frame.alpha_composite(art.frame("spr_title_bubble", int(t * 6) % 3),
-                              (bubble_x, CAR_Y - 10))
+    frame.alpha_composite(art.frame("spr_title_car", body_index), (car_x, car_y))
 
     # Zander's storm cloud, which follows the car. A soft flash every 8 to 12 seconds.
     if "spr_title_cloud" in art.frames:
@@ -470,9 +478,9 @@ def compose_frame(scene: Scene, t: float, camera_x: float,
         frame.alpha_composite(art.frame("spr_title_cloud", cloud_index),
                               (car_x + CLOUD_DX, CLOUD_DY))
 
-    # The logo, with its gold shimmer every 4 seconds.
+    # The logo, at the game's own placement, with its gold shimmer every 4 seconds.
     logo_index = 1 if (t % 4.0) < 0.4 else 0
-    frame.alpha_composite(art.frame("spr_pp_title_logo", logo_index), (LOGO_X, LOGO_Y))
+    frame.alpha_composite(art.frame("spr_pp_title_logo", logo_index), (scene.logo_x, scene.logo_y))
 
     # The prompt, blinking, and then the menu.
     if t < MENU_AT:
@@ -647,11 +655,11 @@ def main() -> int:
     art.need(
         "title_L1_sky", "title_L2_clouds", "title_L3_downs", "title_L4_fields",
         "title_L5_verge", "title_L6_road", "title_L7_fg",
-        "spr_title_car", "spr_title_wheel",
+        "spr_title_car",
         "spr_pp_title_logo", "spr_pp_font8", "spr_pp_menu_cursor",
     )
 
-    scene = Scene(art, root, out_dir)
+    scene = Scene(art, root)
 
     frames = []
     for index in range(args.frames):

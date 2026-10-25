@@ -95,7 +95,11 @@ entries under the puff are exactly the four the road strip carries, in the share
 
 **No composer change follows from this row.** One drift was found while measuring and is carded separately:
 the composer's `CAR_Y` is 186 where the game uses `PP_TITLE_CAR_Y` 193, and the composer still pastes the
-separate wheel sprite that the v2 car bakes in.
+separate wheel sprite that the v2 car bakes in. Fixed the same day by card t_2a34652e: the composer now
+reads the placements out of the game's own macros and the layer table out of `data/title.json` (the file
+`pp_title_data` loads), pastes no wheel, bust or bubble, and `tests/test_title_preview_placements.py` pins
+all three. The drift did not change this ruling: the sweep section 1 ran at the game's placement (76,207)
+stands, and the same four entries hold at the composer's old (76,200).
 
 ## 4. The band consequence: the body that ships is `$20`, not the redraw's `$10`
 

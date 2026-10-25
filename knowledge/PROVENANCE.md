@@ -1440,3 +1440,29 @@ gate reports it NOT MEASURED or advisory, never gated, whatever it measures; and
 independent sources, the output PNGs on disk that its name excludes and the output PNGs this repository's data names
 but the tree does not hold, so the absent half is a number and a list rather than silence.
 Copied expression: none
+
+## TITLE-PREVIEW-DRIFT, 2026-10-25: a preview that is judged must read its placement from the thing it previews (card t_2a34652e)
+Studied: this repository's own files, read only: `tools/art/compose_title_preview.py` (the composer's own constants,
+the manifest reader, the compose order), `game/scripts/pp_title/pp_title.gml` (`PP_TITLE_CAR_X/Y`, `PP_TITLE_CONE_X/Y`,
+`PP_TITLE_SIGN_X/Y`, `PP_TITLE_LOGO_X/Y`, `pp_title_defaults`, `pp_title_read_data`, `pp_title_data`,
+`pp_title_draw_car`, `pp_title_draw_sign`, `pp_title_draw_cone`, `pp_title_draw_logo`), `data/title.json` and its
+`game/datafiles/title.json` mirror (`cmp`: identical), `output/title_world_manifest.json`,
+`tests/test_title_bands.py` (the cross-read style and its pinned `(76, 193)`), `tools/art/title_car_v2.py` (the baked
+wheels), `tools/art/title_cloud_ground.py` (the reader of `CLOUD_DY` from the composer's source), and
+`knowledge/PALETTE-RULINGS-2026-10-25.md` sections 3 and 6. No decompiled material was read for this card and no
+expression from any game is in it.
+Mechanics learned: two. One, a hand-copied constant in a preview tool is a drift with a delay built in: CAR_Y 186
+against the game's 193 stayed invisible because the preview and the screen are read by different eyes and nothing
+compared them; the fix that holds is the one that removes the second copy (read the value from the file that draws
+the screen, refuse to run without it) rather than the one that corrects the number. Two, the drift was worse than
+the card named: the composer's manifest carried the pre-I32 layer table (downs 92, road 196) while the game reads
+96 and 192 from data/title.json, so "the world can never drift apart" was true only against the world generator
+that wrote the manifest, not against the screen the manifest's own numbers had already been corrected away from.
+Our implementation differs by: the composer now takes its placements from the game's macros and its layer table
+from the game's data file, in the same order `pp_title_data` layers them, with no silent fallback for the macro
+numbers at all; the pastes match `pp_title_draw_car` (exhaust, body, nothing else over the car), while the arch
+and window pixel readers stay in the file as a reported sprite check instead of a paste position; and
+`tests/test_title_preview_placements.py` pins all three drift surfaces (car and cone and sign and logo equal the
+.gml, no module-level CAR_Y exists, the table equals data/title.json, the fallback equals pp_title_defaults, no
+wheel/bust/bubble is pasted by either side), so the halves cannot disagree quietly again.
+Copied expression: none
