@@ -461,14 +461,23 @@ CURSOR_BODY = [(1, 1), (2, 1),
 
 
 def cursor_frame(index: int, colours) -> Image.Image:
-    """The arrowhead: grey outline, white body when lit, grey body when unlit.
+    """The arrowhead: a 1 px rim, a solid white body when lit and a 50 percent white dither when unlit.
 
     Card t_a1170172: this sheet used to spend the project palette's $0b0b0f, $b38f28 and $2e2e3a, none of which is a
     PPU output, and the composite check refused the $0b0b0f the moment the cursor was on screen. The two frames are
-    now the same white and grey the text uses, which every band of the title declares.
+    now the same white and dark green the text uses, which every ground band declares.
+
+    Card t_ae4bbd15: the unlit frame used to be the whole silhouette in $0B dark green, and that is invisible where
+    the cursor is actually drawn. The composer puts the menu at CURSOR_X, CURSOR_Y = 6, 66, which is row band 4 of
+    the title, and data/palettes/scene_title.json paints band 4 with bg1, the sky: measured on the composed frame
+    with this sprite removed, the 8 x 8 cell under the cursor is 64 pixels of $11 #0078f8. Body $0B on ground $11 is
+    2.10:1, one luminance row apart, so tools/palette_synergy.py refused the frame (1 failing pair, body_ground).
+    White $20 on that sky reads 4.35:1, so the unlit state is now the same arrow drawn as a 50 percent dither of
+    $20 over the sky it stands on: the silhouette never leaves the screen and the blink still reads, because the
+    dithered arrow is a mid tone and the lit one is solid white. No entry is added; both frames fit sp3.
     """
     img = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
-    edge = rgb(FONT_DIM)
+    edge = rgb(FONT_DIM if index == 0 else FONT_INK)
     body = set(CURSOR_BODY)
     for x, y in body:
         for dx in (-1, 0, 1):
@@ -478,9 +487,10 @@ def cursor_frame(index: int, colours) -> Image.Image:
                     continue
                 if 0 <= point[0] < CELL and 0 <= point[1] < CELL:
                     img.putpixel(point, edge)
-    fill = rgb(FONT_INK if index == 0 else FONT_DIM)
+    fill = rgb(FONT_INK)
     for x, y in body:
-        img.putpixel((x, y), fill)
+        if index == 0 or (x + y) % 2 == 0:
+            img.putpixel((x, y), fill)
     return img
 
 

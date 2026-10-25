@@ -357,21 +357,35 @@ def test_cursor_is_an_outlined_arrow_that_changes_state(generated):
                     outline.add((x + dx, y + dy))
     # Card t_a1170172: the outline and the unlit body used to be the project palette's ink and the body gold. Neither
     # is a 2C02 output, so the cursor is drawn from the same two entries the font is: $20 white for the lit body and
-    # $0B dark green for the outline and the unlit body, which are the two colours every ground band declares.
+    # $0B dark green for the lit frame's outline.
+    # Card t_ae4bbd15: the unlit frame is no longer the whole silhouette in $0B. Measured on the composed frame with
+    # this sprite removed, the cell the cursor is drawn in is 64 pixels of $11 #0078f8, the band 4 sky, and body $0B
+    # on that ground is 2.10:1, which tools/palette_synergy.py refused. The unlit frame is now the same arrow as a
+    # 50 percent white dither with a white rim, so it still reads as the arrow and still dims.
     sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
     import make_title_ui as gen
     lit_ink = tuple(int(gen.FONT_INK[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
     dim_ink = tuple(int(gen.FONT_DIM[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
-    for name, cell, fill in (("frame 0", frame0, lit_ink), ("frame 1", frame1, dim_ink)):
-        for x in range(8):
-            for y in range(8):
-                pixel = cell[x, y]
-                if (x, y) in body:
-                    assert pixel == fill, "cursor %s body pixel %d,%d is %r" % (name, x, y, pixel)
-                elif (x, y) in outline:
-                    assert pixel == dim_ink, "cursor %s outline pixel %d,%d is %r" % (name, x, y, pixel)
-                else:
-                    assert pixel[3] == 0, "cursor %s has ink outside the arrow at %d,%d" % (name, x, y)
+    for x, y in body:
+        assert frame0[x, y] == lit_ink, "cursor frame 0 body pixel %d,%d is %r" % (x, y, frame0[x, y])
+        expected = lit_ink if (x + y) % 2 == 0 else (0, 0, 0, 0)
+        assert frame1[x, y] == expected, "cursor frame 1 body pixel %d,%d is %r" % (x, y, frame1[x, y])
+    for x, y in outline:
+        assert frame0[x, y] == dim_ink, "cursor frame 0 outline pixel %d,%d is %r" % (x, y, frame0[x, y])
+        assert frame1[x, y] == lit_ink, "cursor frame 1 outline pixel %d,%d is %r" % (x, y, frame1[x, y])
+    for x in range(8):
+        for y in range(8):
+            if (x, y) in body or (x, y) in outline:
+                continue
+            assert frame0[x, y][3] == 0, "cursor frame 0 has ink outside the arrow at %d,%d" % (x, y)
+            assert frame1[x, y][3] == 0, "cursor frame 1 has ink outside the arrow at %d,%d" % (x, y)
+    # Both frames have to give the ground rule a light body to read: $20 is the entry the rule measures on the sky
+    # the cursor is drawn on (card t_ae4bbd15, palette_synergy body_ground), and the unlit frame must not spend any
+    # other entry or it would be back to a dark shape on blue.
+    entries0 = {frame0[x, y] for x in range(8) for y in range(8) if frame0[x, y][3]}
+    entries1 = {frame1[x, y] for x in range(8) for y in range(8) if frame1[x, y][3]}
+    assert entries0 == {lit_ink, dim_ink}, "cursor frame 0 spends %r, not exactly $20 and $0B" % (entries0,)
+    assert entries1 == {lit_ink}, "cursor frame 1 spends %r, not exactly $20" % (entries1,)
 
 
 # ---------------------------------------------------------------------------------------------------------------
