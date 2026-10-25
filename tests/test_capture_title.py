@@ -20,7 +20,13 @@ import os
 import shutil
 import tempfile
 
+import pytest
 from PIL import Image
+
+# Card TEST-CLASSIFY-33: every test in this module loads tools/capture_title.py, which binds
+# ctypes.windll.user32 at module level (line 128), so on a Linux host the import raises
+# AttributeError before a line of any test runs. The marker is a skip there, never a pass.
+pytestmark = pytest.mark.windows_only
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")

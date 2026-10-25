@@ -10,6 +10,8 @@ import json
 import os
 import re
 
+import pytest
+
 import check_build_inputs
 import check_cleanroom
 import check_data
@@ -118,6 +120,9 @@ def test_build_time_data_is_kept_out_of_the_bundle():
             "so the engine ships it" % name)
 
 
+# Card TEST-CLASSIFY-33: the last assertion lists the tracked sources through git, and a zip of the
+# tree has no history, so off the box this is a skip and not a verdict.
+@pytest.mark.needs_git_checkout
 def test_the_ai_cache_is_kept_out_of_the_bundle():
     """The Meta client's recorded answers are a build input read by tools, never by GML.
 
@@ -158,6 +163,8 @@ def test_the_ai_cache_is_kept_out_of_the_bundle():
         assert rel in tracked, "%s is not in the commit, so replay cannot answer from it" % rel
 
 
+# Card TEST-CLASSIFY-33: reads the tracked file list out of git, which a zip of the tree cannot answer.
+@pytest.mark.needs_git_checkout
 def test_the_palette_tables_stay_committed_where_the_tests_read_them():
     """Not mirrored, still tracked.
 
@@ -185,6 +192,9 @@ def test_data_passes():
     assert check_data.check(ROOT) == []
 
 
+# Card TEST-CLASSIFY-33: tools/check_build_inputs.py asks git what the commit carries, and it exits
+# with "not inside a git repository" on a copy of the tree, which is a skip and not a defect.
+@pytest.mark.needs_git_checkout
 def test_build_inputs_are_committed():
     """Every Included File the project declares must resolve to a source the commit carries.
 

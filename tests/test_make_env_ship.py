@@ -289,6 +289,9 @@ def test_this_lanes_own_map_at_the_plain_name_is_rewritten(tmp_path):
 
 # ---------------------------------------------------------------------------- 6. the committed art is current
 
+# Card TEST-CLASSIFY-33: builds the outputs on this host and compares them with the committed copies,
+# so only the Pillow and zlib builds that wrote the committed files pass it.
+@pytest.mark.host_png_bytes
 def test_the_committed_outputs_are_what_the_script_writes_today(built, tmp_path):
     fresh = built["files"]
     for key, fresh_path in fresh.items():

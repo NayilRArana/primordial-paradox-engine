@@ -20,6 +20,13 @@ import pytest
 
 pytest.importorskip("PIL")
 
+# Card TEST-CLASSIFY-33, applied at the 2026-10-23 10:35 gate (card t_37657207): load_tool() imports
+# tools/capture_first_fight.py, which imports capture_title and play_demo at module level, and
+# capture_title binds ctypes.windll.user32 at line 128. On the Pine Linux hosts that import raises
+# AttributeError before a line of any test here runs, which is the same class as tests/test_capture_title.py.
+# The marker is a skip off Windows, never a pass: these seven rows run on the Windows suite.
+pytestmark = pytest.mark.windows_only
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, "tools", "capture_first_fight.py")
 

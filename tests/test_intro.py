@@ -24,6 +24,7 @@ import os
 import subprocess
 import sys
 
+import pytest
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -72,6 +73,10 @@ def test_the_fade_is_deterministic():
     assert first.tobytes() == second.tobytes()
 
 
+# Card TEST-CLASSIFY-33: this compares the PNG the generator writes on this host with the committed
+# copy, byte for byte. The pixels agree off the box; the Pillow and zlib encoder does not, so only the
+# host that wrote the committed file can pass it.
+@pytest.mark.host_png_bytes
 def test_the_star_generator_rewrites_the_committed_sprite():
     art = load("pp_intro_art")
     palette = art.load_palette()

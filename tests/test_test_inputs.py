@@ -9,6 +9,13 @@ checker that can only print PASS is worthless.
 import importlib.util
 import os
 
+import pytest
+
+# Card TEST-CLASSIFY-33: every test here drives tools/check_test_inputs.py, which asks git what the
+# commit carries, so the offloaded zip cannot answer it. tools/pine_offload.py already excludes this
+# file; the marker covers a run that passes `tests/` wholesale.
+pytestmark = pytest.mark.needs_git_checkout
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
 
