@@ -1265,3 +1265,30 @@ one draw call's pitch and another's frames disagreed by four pixels; and by nami
 (the bake cache answering with its own function, and two unguarded member reads that could end a fight) rather than
 working around them in the tool.
 Copied expression: none
+
+## DRIVE-MAP, 2026-10-24: the drive corridor's map row and palette set (card t_e8a8f18a)
+Studied: this repository's own files, read only: `assets/tiles/drive/TILES.md` and `drive_tiles.json` (the sheet's
+character column, its four background palettes and the palette.json role behind every sheet role),
+`data/tile_classes_drive.json` (the walkable classification), `data/palette.json` (the master roles and indices),
+`data/room_palettes.json` (the append only sets), `data/maps/all.json`, `data/scenes/all.json`,
+`game/scripts/pp_map/pp_map.gml` and `game/scripts/pp_map_tile/pp_map_tile.gml` (how a row is loaded, which set a
+room palette resolves to, and the three draw planes), `game/scripts/pp_scene/pp_scene.gml` (a camera command is a
+tile coordinate times `PP_TILE`), `game/scripts/pp_config/pp_config.gml` (`PP_FRAME_W`, `PP_FRAME_H`,
+`PP_CAMERA_MOVE_STEPS`, `PP_FADE_STEPS`), `tools/check_data.py` (the row rules), `tools/sync_art.py` (which folders
+reach the build index), `tests/test_quay_tiles_wire.py` (the shape a wire test takes), `knowledge/DRIVE-SHOT-LIST.md`
+and `specs/14-title-screen-drive.md`. No decompiled material was read for this card and no expression from any game
+is in it.
+Mechanics learned: three. One, a map row's geometry is derivable from the cutscene that plays over it rather than
+authored beside it: the furthest camera tile in the scene's own commands plus the frame width is the width floor,
+and the camera's own y plus the frame height is the height floor, so a row can be checked against the film instead of
+against taste. Two, the same room palette id chooses the tile table at draw time (`pp_map_tile_set_for_room`), which
+means a new room palette is also a new art set and the row can be legal while the art it names is not yet wired. And
+three, a palette set can be derived from an art sheet's own manifest: every group lists sheet roles, every sheet role
+names a palette.json role, so the set is the union of those names plus the four drawing roles, and no one has to pick
+colours.
+Our implementation differs by: computing the collision grid from the tile class file rather than typing it, so a
+reclassification moves it; opening the safety barrier in four named places so the near verge is walkable from the
+road and the map is one region rather than two; generating the row from a tool that refuses a tree which has drifted
+(`--check`) instead of pasting it once; and declaring the whole sheet colourable in the set even though this row
+places no gantry tile, because the sign belongs to the corridor and not to this pass.
+Copied expression: none

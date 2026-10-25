@@ -82,6 +82,25 @@
         "sea_1",
         "warn"
       ]
+    },
+    {
+      "id": "drive_night",
+      "note": "the night drive: tarmac, lane paint, the chalk-lit verge, the sodium lamp and the barrier steel",
+      "roles": [
+        "ink",
+        "paper",
+        "dim",
+        "text",
+        "grey_1",
+        "grey_3",
+        "grey_5",
+        "moss_1",
+        "moss_2",
+        "moss_3",
+        "moss_5",
+        "stone_2",
+        "gold_5"
+      ]
     }
   ]
 }

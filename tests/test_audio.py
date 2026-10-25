@@ -63,12 +63,16 @@ CUE_IDS = [
 # and assets\\audio\\pp_03_harbor\\pp_03_harbor.ogg is on disk, so the references are intended and the
 # pin moves, not the data. Those three references are working tree changes, not committed ones: this
 # pin only holds at HEAD once they are committed, and it must ride in the same commit as them.
-# The twelve that remain, and why each is still unreferenced:
+# PP-02 (The Drive) left this list on 2026-10-24, card t_e8a8f18a. Two references appeared for it:
+# data\\maps\\all.json gives "music": "PP-02" to the drive_m4_corridor row, and data\\scenes\\all.json opens
+# drive_to_southampton with {"cmd": "music", "id": "PP-02"}. The row's own note in data\\audio.json calls it
+# "The Drive", assets\\audio\\pp_drive\\NOTES-v3.md prints this film's eleven hard cuts on its downbeats at 125
+# bars, and the scene sums to exactly the 10,680 steps that cue is scored for, so the references are intended
+# and the pin moves, not the data. The two references ride in the same commit as this pin.
+# The eleven that remain, and why each is still unreferenced:
 #   PP-01  delivered and scored, but the title path streams it by file name through
 #          pp_audio_play_theme, so no map, scene or encounter asks for the id. It needs a title
 #          scene command, which is a data change this pin cannot make for it.
-#   PP-02  delivered as pp_drive_v2. The drive runs from the title path too; no scene in the slice
-#          carries a music command for it yet.
 #   PP-08  not composed. No assets\\audio\\pp_08_dead_rising folder; the row falls back to PP-03.
 #   PP-09  not composed. No assets\\audio\\pp_09_data_center folder; falls back to PP-03.
 #   PP-10  not composed. Boss row with no folder; falls back to PP-06 so the fight keeps priority 12.
@@ -81,7 +85,7 @@ CUE_IDS = [
 #   PP-15b not composed. The mercy ending; falls back to PP-01.
 #   PP-16  not composed. No folder; falls back to PP-01.
 RECORDED_UNREFERENCED = [
-    "PP-01", "PP-02", "PP-08", "PP-09", "PP-10", "PP-11", "PP-12",
+    "PP-01", "PP-08", "PP-09", "PP-10", "PP-11", "PP-12",
     "PP-13", "PP-14", "PP-15a", "PP-15b", "PP-16",
 ]
 
@@ -284,13 +288,14 @@ def test_every_music_reference_in_the_data_resolves_to_a_cue_row():
 
 def test_unreferenced_cue_rows_are_the_recorded_debt_list():
     """DEFECT, reported on card t_0c5dc024. Card item 2 wants every row reachable from a reference
-    or marked unused on purpose, and data\\audio.json has no such marker, so twelve rows are simply
+    or marked unused on purpose, and data\\audio.json has no such marker, so eleven rows are simply
     unreferenced: the boss themes, the endings and the opening cues are not asked for by any map,
     scene or encounter yet. The exact set is pinned so the state is visible and cannot drift
     silently; the fix is a reference or an unused flag in the data, which this card may not add.
     The pin moved once, on 2026-10-23 (card t_6b4724a9): PP-03 left it when the quay maps and the
     gate checkpoint scene gained their PP-03 music reference, and the list explains each row that
-    is still on it."""
+    is still on it. It moved a second time, on 2026-10-24 (card t_e8a8f18a): PP-02 left it when the
+    drive corridor map row and the drive scene named it as their music."""
     referenced = {ref for _name, _path, ref in _music_references()
                   if isinstance(ref, str) and ref.startswith("PP-")}
     assert referenced, "no cue is referenced at all, so this test proves nothing"
