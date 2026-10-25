@@ -2166,6 +2166,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "pp_05_small_ship_v5.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_05_small_ship_v5.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_arrival.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
