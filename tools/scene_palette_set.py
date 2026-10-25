@@ -328,11 +328,33 @@ def build(root: str = ROOT) -> dict:
         "hero_palettes": hero_block(colours),
         "scenes": scenes,
         # The audit rows come from the scene files (JUDGED_KEY), not from a constant here: see the note beside
-        # JUDGED_KEY. A row whose baked frame is not on disk is dropped, because output/ is not in git and a fresh
-        # worktree has none of these PNGs; validate() only measures rows that are in the file.
-        "audit": [row for row in judged_rows(root)
-                  if os.path.isfile(os.path.join(root, row["background"]))],
+        # JUDGED_KEY. A row whose baked frame is not on disk is an ERROR, not a row that quietly disappears:
+        # output/ is not in git, so a tree without these frames is a broken tree, and dropping the row is how
+        # data/scene_palettes.json came to hold 6 audit rows that a rebuild could only reproduce 3 of in a
+        # clean checkout (card t_19b41ab7). See audit_rows().
+        "audit": audit_rows(root),
     }
+
+
+def audit_rows(root: str = ROOT) -> list:
+    """The audit rows, with a hard failure for any row whose baked frame is not on disk.
+
+    The frames are committed and each one is written by a tool, so the only way one is absent is a broken
+    checkout or a moved path. Failing here names the row, the scene and the writer; returning a shorter list
+    would make `build --write` strip rows out of data/scene_palettes.json and leave the file looking derived.
+    """
+    rows = []
+    for row in judged_rows(root):
+        path = os.path.join(root, row["background"].replace("/", os.sep))
+        if not os.path.isfile(path):
+            raise SystemExit(
+                "scene_palette_set: judged row of scene %r names %s, which is not on disk. It is committed, and "
+                "written by a tool (output/cloud_sky_ground.png by tools/art/title_cloud_ground.py, "
+                "output/bg_battle_*_frame.png by tools/art/make_battle_bg.py), so a tree without it is a broken "
+                "tree: rebuild the frame or fix the row, do not ship a shorter audit list."
+                % (row["scene"], row["background"]))
+        rows.append(row)
+    return rows
 
 
 def write(root: str, payload: dict) -> str:

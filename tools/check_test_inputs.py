@@ -56,6 +56,13 @@ FIXTURES = (
     "assets/audio/pp_drive/mix_check_v3.json",
     "assets/audio/pp_drive/pp_drive_v3_humanized.wav",
     "assets/audio/pp_01_title/pp_01_title.wav",
+    # Card t_19b41ab7: the three grounds three judged rows and one palette test measure by path. All three were
+    # matched by output/* and in no commit, so a clean checkout of 5f290c5 was red on three rows while this
+    # list's own row stayed green, which is the hole this list exists to close. They are derived, not pasted:
+    # the crop by tools/art/title_cloud_ground.py, both battle frames by tools/art/make_battle_bg.py.
+    "output/cloud_sky_ground.png",
+    "output/bg_battle_corridor_frame.png",
+    "output/bg_battle_deck_night_frame.png",
     # The twelve drive captures tests/test_eye_drive.py samples. tools/eye_drive.py reads them by name from
     # output/drive and measures each frame's own pixels, so they are that test's input, not a preview: with
     # them absent a clean checkout reported twelve failed shots and three reds (card t_d2c52f15). They are

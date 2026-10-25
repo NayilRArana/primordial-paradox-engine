@@ -10,7 +10,10 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
+
+import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
@@ -243,3 +246,53 @@ def test_the_cloud_declares_itself_a_layer_in_its_sidecar_and_in_its_generator()
     gen = open(os.path.join(ROOT, "tools", "art", "make_title_car.py"),
                encoding="utf-8").read()
     assert 'meta["layer"] = True' in gen, "the generator stopped owning the declaration"
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# The fixtures the rows read (card t_19b41ab7). Three rows named a baked frame that output/* excluded and no
+# commit carried, so a clean checkout of 5f290c5 was red on this file while this machine was green.
+
+def tracked_paths():
+    """Every path git tracks under the project, relative to the project root, or None when git cannot answer."""
+    try:
+        out = subprocess.run(["git", "ls-files", "--", "."], cwd=ROOT, capture_output=True, text=True,
+                             timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if out.returncode != 0:
+        raise AssertionError("git ls-files failed in %s: %s" % (ROOT, out.stderr.strip()[:400]))
+    return set(out.stdout.splitlines())
+
+
+def test_every_judged_rows_ground_is_a_file_a_clean_checkout_carries():
+    """The row that would have caught t_19b41ab7 before Pine did: a ground a row measures has to be in git.
+
+    build() drops nothing any more (tools/scene_palette_set.py audit_rows()), so this is the earlier gate:
+    the frames the six judged rows name are committed. Three of them were not on 2026-10-25.
+    """
+    tracked = tracked_paths()
+    if tracked is None:
+        pytest.skip("git is not available on this machine, so the tracked set cannot be read")
+    missing = sorted({row["background"] for row in judged_rows() if row["background"] not in tracked})
+    assert missing == [], ("a judged row measures a frame no commit carries, so a clean checkout fails on it: %s"
+                           % missing)
+
+
+def test_the_committed_cloud_ground_is_the_crop_its_generator_builds():
+    """The crop the cloud row reads is derived, not pasted: this compares it with the tool's own bytes.
+
+    output/cloud_sky_ground.png is 48x16 of title_L1_sky frame 0 at the composer's CLOUD_DY. Before card
+    t_19b41ab7 nothing wrote it: it was a one-off crop, in no commit, and a clean checkout of 5f290c5 failed
+    the cloud row on the missing file. tools/art/title_cloud_ground.py now owns it, and this row refuses a
+    hand edited or hand pasted replacement.
+    """
+    import title_cloud_ground  # tools/art is on sys.path above
+
+    path = os.path.join(ROOT, "output", "cloud_sky_ground.png")
+    assert os.path.isfile(path), "output/cloud_sky_ground.png is missing; build it with tools/art/title_cloud_ground.py"
+    with open(path, "rb") as handle:
+        on_disk = handle.read()
+    assert title_cloud_ground.build(ROOT) == on_disk, (
+        "output/cloud_sky_ground.png is not what tools/art/title_cloud_ground.py builds, so it is either stale "
+        "or hand edited: rerun the tool")
+

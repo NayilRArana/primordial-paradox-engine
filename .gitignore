@@ -38,6 +38,21 @@ output/*
 !output/sfx_preview_3x.png
 !output/render2_demo_preview.png
 !output/scene_palettes.json
+# Three frames that tracked tests read by path and three judged rows name as the ground they measure, and
+# that no commit carried. Card t_19b41ab7, measured 2026-10-25: a clean checkout of 5f290c5 reported
+# "3 failed, 33 passed" on tests/test_palette_synergy.py and tests/test_scene_palette_set.py while this
+# working tree reported 1529 passed, because output/* excluded all three and tests/test_test_inputs.py did
+# not name them. They are readings, not decoration, and each one is written by a tool, so none of them is a
+# pasted picture:
+#   output/cloud_sky_ground.png            tools/art/title_cloud_ground.py, the 48x16 crop of title_L1_sky
+#                                          frame 0 at y 80 (the composer's CLOUD_DY) that the cloud is read on
+#   output/bg_battle_corridor_frame.png    tools/art/make_battle_bg.py, the corridor strip in a 256x240 frame
+#   output/bg_battle_deck_night_frame.png  tools/art/make_battle_bg.py, the deck strip in the same frame
+# Per file, after output/*, for the reason above: the folder itself is excluded, so a rule for a folder
+# inside it would be a dead line. These three are also named in tools/check_test_inputs.py FIXTURES.
+!output/cloud_sky_ground.png
+!output/bg_battle_corridor_frame.png
+!output/bg_battle_deck_night_frame.png
 
 # The twelve drive captures tests/test_eye_drive.py samples. tools/eye_drive.py reads
 # output\drive\pp_drive_shot_01.png to _12.png, which the game writes from inside its own draw
