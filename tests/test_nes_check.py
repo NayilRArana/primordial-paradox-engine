@@ -21,6 +21,7 @@ import pytest
 from PIL import Image
 
 import nes_check
+import check_ui_nes
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SPRITES = os.path.join(ROOT, "game", "sprites_src", "title")
@@ -302,3 +303,128 @@ def test_the_3x_preview_exists_and_shows_the_window_at_three_times(tmp_path):
         if preview.getpixel((x, y)) == white
     )
     assert text_white > 200, "the preview carries %d text pixels, too few to read" % text_white
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# The three UI windows, proved on data\ui_layouts.json and the 3x previews rather than on a promise.
+# Card t_852f3689: the audit's three reds were the window json and the preview tests above, which card
+# t_a1170172 made green by repainting the window; these tests are the part that did not exist, so a window
+# could drift off the 8x8 grid or a committed report could describe an older frame and nothing would say so.
+
+UI_SCREENS = ("battle", "dialogue", "menu")
+
+
+def ui_copies(tmp_path):
+    """A throwaway root holding only the files the UI gate reads, so a test can break a copy."""
+    import shutil
+
+    for relative in ("data/ui_layouts.json", "data/nes_palette.json"):
+        target = tmp_path / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(os.path.join(ROOT, *relative.split("/")), target)
+    for screen in UI_SCREENS:
+        for relative in ("game/sprites_src/ui/screens/ui_%s.png" % screen,
+                         "game/sprites_src/ui/screens/ui_%s_sprites.json" % screen,
+                         "output/ui_%s_preview.png" % screen,
+                         "output/ui_%s_nes_report.json" % screen):
+            target = tmp_path / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(os.path.join(ROOT, *relative.split("/")), target)
+    return str(tmp_path)
+
+
+def run_ui_gate(root, *extra):
+    import io
+    from contextlib import redirect_stdout
+
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        code = check_ui_nes.main(["--root", root] + list(extra))
+    return code, buffer.getvalue()
+
+
+def test_the_three_ui_screens_pass_the_ui_gate_on_the_real_files():
+    """data\\ui_layouts.json rectangles on whole 8x8 tiles, the previews are the frames, the reports agree."""
+    code, out = run_ui_gate(ROOT)
+    assert code == 0, out
+    for screen in UI_SCREENS:
+        assert "%s: " % screen in out, out
+    assert "0 attribute area violations" in out, out
+
+
+def test_every_ui_window_is_whole_tiles_and_holds_its_own_border():
+    with open(os.path.join(ROOT, "data", "ui_layouts.json"), "r", encoding="utf-8-sig") as handle:
+        layouts = json.load(handle)
+    assert layouts["kind"] == "ui_layouts"
+    assert layouts["frame"] == {"w": 256, "h": 240, "tile": 8, "cols": 32, "rows": 30}
+    assert [screen["name"] for screen in layouts["screens"]] == list(UI_SCREENS)
+    for screen in layouts["screens"]:
+        for window in screen["windows"]:
+            assert check_ui_nes.tile_rect(window, window["name"]) == [], window
+            # One tile border on every side, so the interior is (w-2) x (h-2) whole tiles and text starts at x+1.
+            assert window["w"] >= 3 and window["h"] >= 3, window
+            assert window["x"] + window["w"] <= 32 and window["y"] + window["h"] <= 30, window
+        for sprite in screen["sprites"]:
+            assert check_ui_nes.px_rect(sprite, sprite.get("role", "")) == [], sprite
+
+
+def test_each_ui_preview_is_its_frame_at_three_times():
+    with open(os.path.join(ROOT, "data", "ui_layouts.json"), "r", encoding="utf-8-sig") as handle:
+        layouts = json.load(handle)
+    for screen in layouts["screens"]:
+        frame = os.path.join(ROOT, screen["frame_png"].replace("/", os.sep))
+        preview = os.path.join(ROOT, screen["preview_png"].replace("/", os.sep))
+        assert screen["preview_scale"] == 3, screen["name"]
+        assert check_ui_nes.preview_is_the_frame(frame, preview) == [], (
+            "%s: the 3x preview is not the frame it claims to show" % screen["name"])
+        with Image.open(preview) as img:
+            assert img.size == (768, 720), (screen["name"], img.size)
+
+
+def test_each_ui_report_states_zero_area_violations_and_sixteen_colours_at_most():
+    """The three lines this card quotes come from here: 0 attribute area violations, 16 colours or fewer."""
+    lines = []
+    for screen in UI_SCREENS:
+        path = os.path.join(ROOT, "output", "ui_%s_nes_report.json" % screen)
+        with open(path, "r", encoding="utf-8") as handle:
+            report = json.load(handle)
+        background = report["background"]
+        assert report["ok"] is True, (screen, report["problems"])
+        assert background["problems"] == [], (screen, background["problems"])
+        assert background["offending_blocks"] == [], (screen, background["offending_blocks"])
+        assert background["blocks"] == 240, (screen, background["blocks"])
+        assert report["screen"]["problems"] == [], (screen, report["screen"]["problems"])
+        assert report["screen"]["colours"] <= 16, (screen, report["screen"]["colours"])
+        assert background["distinct_colour_sets"] <= 16, (screen, background["distinct_colour_sets"])
+        assert report["backdrop"] == "#000000", (screen, report["backdrop"])
+        lines.append("%s: 0 attribute area violations, %d colours on screen, %d colour sets, %d palettes"
+                     % (screen, report["screen"]["colours"], background["distinct_colour_sets"],
+                        background["palette_count"]))
+    assert len(lines) == 3
+
+
+def test_the_ui_gate_refuses_a_report_that_describes_an_older_frame(tmp_path):
+    """The defect this card found: reports dated 00:00 beside frames rewritten at 22:47, nothing noticing."""
+    root = ui_copies(tmp_path)
+    path = os.path.join(root, "output", "ui_battle_nes_report.json")
+    with open(path, "r", encoding="utf-8") as handle:
+        report = json.load(handle)
+    report["screen"]["colours"] += 1
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(report, handle, indent=2)
+    code, out = run_ui_gate(root)
+    assert code == 1, out
+    assert "battle: the report says" in out and "regenerate the report" in out, out
+
+
+def test_the_ui_gate_refuses_a_sprite_off_the_8x8_grid(tmp_path):
+    root = ui_copies(tmp_path)
+    path = os.path.join(root, "data", "ui_layouts.json")
+    with open(path, "r", encoding="utf-8-sig") as handle:
+        layouts = json.load(handle)
+    layouts["screens"][2]["sprites"][0]["x"] = 17   # menu cursor, 17 px is not a multiple of 8
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(layouts, handle, indent=2)
+    code, out = run_ui_gate(root)
+    assert code == 1, out
+    assert "menu.sprites[0]" in out and "not a multiple of 8" in out, out

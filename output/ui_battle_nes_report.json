@@ -1,0 +1,103 @@
+{
+  "size": [
+    256,
+    240
+  ],
+  "palette_count_allowed": 55,
+  "backdrop": "#000000",
+  "backdrop_from": "declared",
+  "palette": {
+    "problems": [],
+    "off_palette_pixels": 0,
+    "off_palette_colours": 0
+  },
+  "background": {
+    "problems": [],
+    "blocks": 240,
+    "offending_blocks": [],
+    "palettes": [
+      [
+        "#0000bc",
+        "#7c7c7c",
+        "#fcfcfc"
+      ],
+      [
+        "#0000bc",
+        "#f8b800",
+        "#fcfcfc"
+      ],
+      [
+        "#7c7c7c",
+        "#f8b800",
+        "#fcfcfc"
+      ]
+    ],
+    "palette_count": 3,
+    "distinct_colour_sets": 8,
+    "all_blocks_palette_legal": true
+  },
+  "screen": {
+    "problems": [],
+    "colours": 5,
+    "top": [
+      [
+        "#0000bc",
+        20155
+      ],
+      [
+        "#7c7c7c",
+        18504
+      ],
+      [
+        "#000000",
+        14356
+      ],
+      [
+        "#fcfcfc",
+        6351
+      ],
+      [
+        "#f8b800",
+        2074
+      ]
+    ]
+  },
+  "sprite": {
+    "problems": [],
+    "count": 7,
+    "offending_boxes": [],
+    "palettes": [
+      [
+        "#7c7c7c",
+        "#f8b800",
+        "#fcfcfc"
+      ]
+    ],
+    "palette_count": 1,
+    "max_per_line": 3,
+    "busiest_line": 95
+  },
+  "problems": [],
+  "ok": true,
+  "frame": {
+    "path": "<repo>\\game\\sprites_src\\ui\\screens\\ui_battle.png",
+    "source_size": [
+      256,
+      240
+    ],
+    "format": "PNG",
+    "frames": 1,
+    "scale": 1,
+    "crop": [
+      0,
+      0,
+      256,
+      240
+    ],
+    "crop_how": "already 256x240"
+  },
+  "palette_path": "<repo>\\data\\nes_palette.json",
+  "palette_usable": 55,
+  "palette_entries": 64,
+  "overlay": "<repo>\\output\\ui_checks\\_battle_overlay.png"
+}

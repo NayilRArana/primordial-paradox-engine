@@ -1,0 +1,87 @@
+{
+  "size": [
+    256,
+    240
+  ],
+  "palette_count_allowed": 55,
+  "backdrop": "#000000",
+  "backdrop_from": "declared",
+  "palette": {
+    "problems": [],
+    "off_palette_pixels": 0,
+    "off_palette_colours": 0
+  },
+  "background": {
+    "problems": [],
+    "blocks": 240,
+    "offending_blocks": [],
+    "palettes": [
+      [
+        "#0000bc",
+        "#f8b800",
+        "#fcfcfc"
+      ]
+    ],
+    "palette_count": 1,
+    "distinct_colour_sets": 4,
+    "all_blocks_palette_legal": true
+  },
+  "screen": {
+    "problems": [],
+    "colours": 4,
+    "top": [
+      [
+        "#0000bc",
+        52899
+      ],
+      [
+        "#fcfcfc",
+        7025
+      ],
+      [
+        "#000000",
+        1104
+      ],
+      [
+        "#f8b800",
+        412
+      ]
+    ]
+  },
+  "sprite": {
+    "problems": [],
+    "count": 1,
+    "offending_boxes": [],
+    "palettes": [
+      [
+        "#f8b800"
+      ]
+    ],
+    "palette_count": 1,
+    "max_per_line": 1,
+    "busiest_line": 199
+  },
+  "problems": [],
+  "ok": true,
+  "frame": {
+    "path": "<repo>\\game\\sprites_src\\ui\\screens\\ui_menu.png",
+    "source_size": [
+      256,
+      240
+    ],
+    "format": "PNG",
+    "frames": 1,
+    "scale": 1,
+    "crop": [
+      0,
+      0,
+      256,
+      240
+    ],
+    "crop_how": "already 256x240"
+  },
+  "palette_path": "<repo>\\data\\nes_palette.json",
+  "palette_usable": 55,
+  "palette_entries": 64,
+  "overlay": "<repo>\\output\\ui_checks\\_menu_overlay.png"
+}
