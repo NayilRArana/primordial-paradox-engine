@@ -26,6 +26,17 @@ Outputs (game/sprites_src/chars/, one PNG plus one JSON each):
     <name>_god_battle.png  168x32, the same 7 frames with the god form weapon (Percy, Konrad, Zander, Hadrian)
 Preview: output/chars_contact.png at 4x with labels, output/chars_preview_3x.png at 3x.
 
+The four party battle sheets are drawn in ONE reserved hero triple each (card t_d5483a88, decision of record
+knowledge/PALETTE-RULINGS-2026-10-25.md sections 7 to 7.6). A NES frame has four sprite palettes of three
+entries plus transparent, and the four reserved hero palettes in data/scene_palettes.json "hero_palettes" ARE
+a battle strip's four sprite palettes, so each party sheet is exactly three opaque colours: the ink $0F, the
+hero's body entry (the LIGHT entry of the triple, because the body is what RULE 0 point 2 judges and the party
+block's floor is $0F) and the hero's accent. The drawing is the reviewed battle silhouette read through three
+roles instead of fourteen codes, and every inked 8x8 tile has to carry all three, so the sheet is provably one
+palette rather than three colours that happen to fit one. See PARTY_TRIPLES and party_battle_grid().
+
+Provenance (card t_d5483a88): studied this repository's own sheets and palettes; copied expression: none.
+
 Determinism: no clock, no randomness, no dict iteration order dependence (every set is sorted before use),
 PNG carries no timestamp, JSON is written with LF endings. Run twice, the sha256 of every output is equal.
 
@@ -743,6 +754,215 @@ def battle_sheet(spec, god):
 
 
 # ----------------------------------------------------------------------------------------------------------------
+# The party battle sheets: one reserved hero triple each (card t_d5483a88, PALETTE-RULINGS-2026-10-25 7 to 7.6).
+#
+# The four triples are already written in data/scene_palettes.json "hero_palettes" with "fixed": true, and on a
+# battle strip they ARE the strip's four sprite palettes, so nothing here invents a colour. The body role is the
+# LIGHT entry of the triple (Percy $12, Hadrian $23, Konrad $27, Zander $21) and the ink is $0F, because the
+# party block is drawn on the $0F floor of every battle strip and RULE 0 point 2 judges the body against it:
+# on $0F those four read 3.75, 6.38, 10.25 and 9.79 to 1. The third entry is the accent, and the ruling's named
+# cost stands: the ink $0F equals the floor, so the outline merges into it and the body carries the edge.
+# ----------------------------------------------------------------------------------------------------------------
+PARTY_INK = 0x0F
+PARTY_TRIPLES = {
+    "percy": {"body": 0x12, "accent": 0x28},
+    "hadrian": {"body": 0x23, "accent": 0x03},
+    "zander": {"body": 0x21, "accent": 0x31},
+    "konrad": {"body": 0x27, "accent": 0x00},
+}
+
+# The reviewed battle drawing speaks in fourteen codes; on a party sheet each one is read as one of three roles.
+# The mass of the figure is the body. The hair, the beard, the collar and the cloth highlight are the accent,
+# which is what gives a two-tone figure at three entries. The ink is the silhouette and every interior line.
+PARTY_ROLE = {
+    "k": "k",   # ink: outline, eye, mouth, boot
+    "c": "b",   # cloth: the mass of the figure
+    "s": "b",   # skin
+    "S": "b",   # skin shadow
+    "d": "a",   # the far leg and every dark cloth: the shadow side is the accent
+    "C": "a",   # cloth highlight: the lit shoulder line
+    "h": "a",   # hair
+    "H": "a",   # hair shine
+    "j": "a",   # beard
+    "w": "a",   # shirt front and collar
+    "a": "a",   # the character's own accent
+    "m": "a",   # weapon shaft: one solid object with its head, so the shaft reads against the body
+    "M": "a",   # weapon head
+    "t": "a",   # god form spray (never on a party sheet, mapped so no code is missing)
+}
+PARTY_CODES = ("k", "b", "a")
+
+
+def party_hexes(palette, name):
+    """The three colours of one party sheet, read out of data/nes_palette.json by entry number."""
+    triple = PARTY_TRIPLES[name]
+    colours = palette["colours"]
+    return {"k": colours[PARTY_INK], "b": colours[triple["body"]], "a": colours[triple["accent"]]}
+
+
+def party_trim(grid, spec, pose):
+    """The three details the repaint adds, each one earning its place in the drawing as well as in the budget.
+
+    A three entry sheet is only worth having if a tile looks like the figure everywhere, so the drawing gains
+    the marks the recolour would otherwise lose and they read as the clothes they are: a belt across the waist,
+    a shin rather than a shadow on the far leg, and a cuff at the top of each boot.
+    """
+    # Belt: two rows across the waist, over cloth only, so the arm and the shirt front keep their own line.
+    for y in (16, 17):
+        for x in range(5, 18):
+            if grid.get(x, y) in ("c", "C"):
+                grid.put(x, y, "a")
+    # The far leg's shin is cloth: the shadow is the thigh, not the whole limb.
+    for y in range(26, 29):
+        for x in range(5, 13):
+            if grid.get(x, y) == "d":
+                grid.put(x, y, "c")
+    # Boot cuffs.
+    for x in list(range(5, 10)) + list(range(13, 18)):
+        if grid.get(x, 28) in ("c", "d"):
+            grid.put(x, 28, "a")
+    # A grip on the shaft where the fist closes on it.
+    if pose is not None and spec["battle"].get("weapon_in_normal"):
+        hand_x, hand_y = pose["hand"]
+        for y in (hand_y, hand_y + 1):
+            for x in range(hand_x + 1, min(BATTLE_W, hand_x + 5)):
+                if grid.get(x, y) == "m":
+                    grid.put(x, y, "a")
+
+
+def tile_roles(grid):
+    """Per 8x8 tile, the set of roles it carries. Empty tiles are not tiles of the figure."""
+    found = {}
+    for ty in range(BATTLE_H // TILE):
+        for tx in range(BATTLE_W // TILE):
+            roles = set()
+            for y in range(ty * TILE, ty * TILE + TILE):
+                for x in range(tx * TILE, tx * TILE + TILE):
+                    code = grid.get(x, y)
+                    if code:
+                        roles.add(code)
+            if roles:
+                found[(tx, ty)] = roles
+    return found
+
+
+def carry_tiles(grid):
+    """Give every inked tile the roles it is short of, in the drawing's own terms.
+
+    The accent is the top edge of a mass (the light falls on it) and the body is the lit face under that edge,
+    so a tile short of an accent takes one of its body pixels, a tile short of a body takes one of its accent
+    pixels, and a tile short of a line takes an edge pixel. Pixels with filled neighbours are preferred, so the
+    mark lands inside a mass where it reads as the fold it is; a tile too thin to give one up (a lone outline
+    pixel) has its neighbour grown instead, and the build prints how many tiles that was. Returns the tiles it
+    touched, so the count is reported rather than hidden.
+    """
+    touched = []
+    for (tx, ty), roles in sorted(tile_roles(grid).items()):
+        if roles == set(PARTY_CODES):
+            continue
+        x0, x1 = tx * TILE, tx * TILE + TILE - 1
+        y0, y1 = ty * TILE, ty * TILE + TILE - 1
+        box = [(x, y) for y in range(y0, y1 + 1) for x in range(x0, x1 + 1)]
+        changed = False
+        for missing in ("a", "b", "k"):
+            if missing in roles:
+                continue
+            source = {"a": "b", "b": "a", "k": "b"}[missing]
+            held = [p for p in box if grid.get(p[0], p[1]) == source]
+            if missing == "k":
+                candidates = [p for p in box if grid.get(p[0], p[1]) in ("a", "b")
+                              and any(not grid.get(nx, ny) for nx, ny in
+                                      ((p[0] - 1, p[1]), (p[0] + 1, p[1]), (p[0], p[1] - 1), (p[0], p[1] + 1)))]
+                if not candidates:
+                    candidates = [p for p in box if grid.get(p[0], p[1]) in ("a", "b")]
+            elif missing == "a":
+                # The light falls on the top of a mass: a body pixel whose own top edge is bare.
+                candidates = [p for p in held if grid.get(p[0], p[1] - 1) in (None, "k")] or held
+            else:
+                # The body is the lit face: the accent pixel under a top edge is the one that goes body.
+                candidates = [p for p in held if grid.get(p[0], p[1] - 1) == "a"] or held
+            if missing != "k" and len(held) < 2:
+                # Taking the only pixel of that role would cost the tile the role it already has.
+                candidates = []
+
+            def buried(pixel):
+                x, y = pixel
+                return -sum(1 for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))
+                            if grid.get(nx, ny))
+
+            if candidates:
+                candidates.sort(key=lambda p: (buried(p), p))
+                x, y = candidates[0]
+                grid.put(x, y, missing)
+                roles = roles | {missing}
+                changed = True
+                continue
+            # Nothing to give up: grow one of the tile's pixels into an empty neighbour inside the tile.
+            filled = [(x, y) for x, y in box if grid.get(x, y)]
+            if not filled:
+                continue
+            filled.sort(key=lambda p: (buried(p), p))
+            for x, y in filled:
+                grown = False
+                for dx, dy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+                    nx, ny = x + dx, y + dy
+                    if x0 <= nx <= x1 and y0 <= ny <= y1 and not grid.get(nx, ny):
+                        grid.put(nx, ny, missing)
+                        roles = roles | {missing}
+                        changed = True
+                        grown = True
+                        break
+                if grown:
+                    break
+        if changed:
+            touched.append((tx, ty))
+    return touched
+
+
+def party_battle_grid(spec, pose):
+    """One party battle frame, as three roles, with the token that keeps every tile a carrier."""
+    review = battle_frame(spec, pose, False)
+    party_trim(review, spec, pose)
+    grid = Grid(BATTLE_W, BATTLE_H)
+    for (x, y), code in review.px.items():
+        grid.put(x, y, PARTY_ROLE[code])
+    touched = carry_tiles(grid)
+    return grid, touched
+
+
+def party_battle_sheet(spec):
+    frames = []
+    touched = []
+    for index, (_label, pose) in enumerate(POSES):
+        grid, carried = party_battle_grid(spec, pose)
+        frames.append(grid)
+        touched.extend((index, tile) for tile in carried)
+    return frames, touched
+
+
+def check_party_triple(image, name):
+    """Refuse a party sheet that is not exactly three colours in every inked 8x8 tile."""
+    colours = set()
+    pixels = image.load()
+    tile_sets = set()
+    for ty in range(image.height // TILE):
+        for tx in range(image.width // TILE):
+            found = set()
+            for y in range(ty * TILE, ty * TILE + TILE):
+                for x in range(tx * TILE, tx * TILE + TILE):
+                    value = pixels[x, y]
+                    if value[3]:
+                        found.add(value[:3])
+                        colours.add(value[:3])
+            if found:
+                tile_sets.add(frozenset(found))
+    if len(colours) != 3 or len(tile_sets) != 1:
+        raise SystemExit("%s: %d colours and %d distinct per-tile colour sets, expected 3 and 1"
+                         % (name, len(colours), len(tile_sets)))
+    return sorted(colours), len(tile_sets)
+
+
+# ----------------------------------------------------------------------------------------------------------------
 # The per tile colour solver. A sprite tile holds 3 opaque colours plus transparent; a frame drawn from parts
 # can exceed that, so the excess is recoloured to the nearest colour the tile already keeps.
 # ----------------------------------------------------------------------------------------------------------------
@@ -896,6 +1116,7 @@ def build(root):
     notes = []
     solved = []
     contact_rows = []
+    party_carried = []
     for spec in character_specs():
         hexes = code_map(spec)
         for code, value in sorted(hexes.items()):
@@ -908,9 +1129,19 @@ def build(root):
         write_sheet(out_dir, spec["name"] + "_ow", ow, OW_W, OW_H, OW_FPS, notes)
         solved.append((spec["name"] + "_ow", tiles_changed, recoloured))
 
-        battle = sheet_image(battle_sheet(spec, False), hexes, BATTLE_W, BATTLE_H)
-        battle, tiles_changed, recoloured = solve_tiles(battle)
+        if spec["name"] in PARTY_TRIPLES:
+            # One reserved hero triple, one palette per figure (card t_d5483a88). No solver: the drawing is
+            # already three colours, and check_party_triple refuses a sheet where a single tile carries fewer.
+            party_frames, carried = party_battle_sheet(spec)
+            battle = sheet_image(party_frames, party_hexes(palette, spec["name"]), BATTLE_W, BATTLE_H)
+            tiles_changed, recoloured = 0, 0
+            party_carried.append((spec["name"], carried))
+        else:
+            battle = sheet_image(battle_sheet(spec, False), hexes, BATTLE_W, BATTLE_H)
+            battle, tiles_changed, recoloured = solve_tiles(battle)
         check_with_nes_check(battle, spec["name"] + "_battle")
+        if spec["name"] in PARTY_TRIPLES:
+            check_party_triple(battle, spec["name"] + "_battle")
         write_sheet(out_dir, spec["name"] + "_battle", battle, BATTLE_W, BATTLE_H, BATTLE_FPS, notes)
         solved.append((spec["name"] + "_battle", tiles_changed, recoloured))
         entries = [("OVERWORLD 8 FRAMES 16X16", ow), ("BATTLE 7 FRAMES 24X32", battle)]
@@ -934,7 +1165,7 @@ def build(root):
     preview3_path = os.path.join(preview_dir, "chars_preview_3x.png")
     preview3.save(preview3_path, "PNG")
 
-    return notes, solved, contact_path, preview3_path
+    return notes, solved, contact_path, preview3_path, party_carried
 
 
 REPO_ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -963,7 +1194,7 @@ def main(argv=None):
     if args.dump:
         dump_frames(root)
         return 0
-    notes, solved, contact_path, preview3_path = build(root)
+    notes, solved, contact_path, preview3_path, party_carried = build(root)
     # NES-PALETTES: the ship scene owns four sprite palettes of three entries, and the two cast sheets
     # that ship uses are enforced to them here, at the end of the build, so a regeneration cannot put
     # a fourth colour back into an 8x16 group. data/palettes/scene_ship.json is the budget;
@@ -986,6 +1217,12 @@ def main(argv=None):
     print("tile solver (colours above 3 in an 8x8 tile, recoloured to the nearest kept colour):")
     for name, tiles, pixels in solved:
         print("  %-22s %d tiles, %d pixels" % (name, tiles, pixels))
+    print("party battle sheets (one reserved hero triple each, every inked tile carries all three):")
+    for name, carried in party_carried:
+        tiles = sorted(set(tile for _frame, tile in carried))
+        print("  %-22s %d tile(s) given back a role%s"
+              % (name, len(tiles),
+                 (": " + " ".join("(%d,%d)" % t for t in tiles)) if tiles else ""))
     print("previews:")
     print("  " + contact_path)
     print("  " + preview3_path)
