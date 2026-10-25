@@ -294,6 +294,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "drive_tiles.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "drive_tiles.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "hadrian_battle.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -2080,6 +2089,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "pp_03_harbor_v3.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_03_harbor_v4b.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_03_harbor_v4b.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },

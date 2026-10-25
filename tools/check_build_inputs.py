@@ -62,6 +62,9 @@ ART_SOURCES = (
     # Card R28: the exterior tile set (card R46) is written one folder down, in env/quay/, and tools/sync_art.py reads
     # that folder too. A source this list does not name would read as a mirror with nothing committed behind it.
     os.path.join(ROOT, "game", "sprites_src", "env", "quay"),
+    # Card t_af836a62: the drive tile set is read from assets/tiles/drive, outside the sprites_src tree, so its folder
+    # is named here too. Without this line the mirrored drive_tiles.png resolves to no committed source.
+    os.path.join(ROOT, "assets", "tiles", "drive"),
 )
 SFX_FOLDER = "sfx"
 # Direction C's vocabulary. Kept apart from the two older words on purpose; see the docstring.

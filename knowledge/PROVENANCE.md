@@ -1292,3 +1292,30 @@ road and the map is one region rather than two; generating the row from a tool t
 (`--check`) instead of pasting it once; and declaring the whole sheet colourable in the set even though this row
 places no gantry tile, because the sign belongs to the corridor and not to this pass.
 Copied expression: none
+
+## DRIVE-TILE-WIRE, 2026-10-24: the drive sheet is wired to its map row (card t_af836a62)
+Studied: this repository's own files, read only: `assets/tiles/drive/drive_tiles.json` (the character column, the
+index of every tile, the four palette groups and the palette.json role behind each sheet role) and its `TILES.md`
+(where the sheet lives, and the 16px grid rule), `data/room_palettes.json` (the `drive_night` set and its thirteen
+roles), `data/palette.json` (the master roles), `data/maps/all.json` (the `drive_m4_corridor` row and its legend),
+`game/scripts/pp_map_tile/pp_map_tile.gml` (the existing ship, quay and office tables, the plane constants and the
+four answer functions this card extends), `game/scripts/pp_map/pp_map.gml` (how a room palette becomes a set and how
+a set becomes a sheet and a column count at draw time), `tools/sync_art.py` and `tools/check_build_inputs.py` (the
+mirror folders and the two directions the commit gate checks), and `tests/test_quay_tiles_wire.py` (the shape a wire
+test takes). No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: three. One, a set name is not a set until the table builder branches on it: adding a room palette
+id and a rows function is not enough, because the builder answers every unknown set with another set's rows, so a
+half wired set draws the wrong planes and the wrong palette groups while looking correct in the data. Two, a
+character is not a tile: the drive sheet reuses `w`, which the quay spends on water, so a per-set branch written as
+"everything except the ship" silently animates the wrong art once a third sheet reuses the letter; naming the set the
+animation belongs to is the fix, and the rule generalises to every character-keyed behaviour. Three, delivery is part
+of the wire and has two gates, not one: the mirror has to read the folder the art card chose (`sync_art.py`), and the
+commit checker has to know that folder as a source (`check_build_inputs.py`), or the sheet ships in the build index
+while a fresh checkout cannot rebuild it.
+Our implementation differs by: reading every character, index, palette group and plane from the sheet's own manifest
+in the test rather than restating 24 numbers, so a redraw that reorders the sheet is caught instead of pinned; keeping
+the sheet in the art card's own `assets/tiles/drive` folder and teaching the mirror to read it rather than moving
+another lane's art to fit an existing source list; asserting the empty above plane explicitly, because "the corridor
+has no fitting drawn over the walker" is a decision that a later tile could violate without any test noticing; and
+pinning the drive's `w` to `barrier_post` so the quay's water branch cannot reach it.
+Copied expression: none

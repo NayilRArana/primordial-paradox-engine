@@ -47,7 +47,11 @@ CHARS_SRC = os.path.join(ROOT, "game", "sprites_src", "chars")
 # because it is one set of its own and the art lane keeps its generator and its TILES.md page with it. The mirror
 # therefore reads that subfolder too, so a set written there still reaches the build with no hand copy.
 ENV_QUAY_SRC = os.path.join(ENV_SRC, "quay")
-SOURCES = (SRC, ENV_SRC, CHARS_SRC, ENV_QUAY_SRC)
+# Card t_af836a62: the drive tile set (DRIVE-TILES, t_d0e73725) is written into assets\tiles\drive\ and its own TILES.md
+# fixes that as the place to look, so the map row that names drive_tiles reaches the build from here. The sheet stays
+# where its card put it: this mirror reads the card's folder rather than the card moving its sheet into sprites_src.
+DRIVE_SRC = os.path.join(ROOT, "assets", "tiles", "drive")
+SOURCES = (SRC, ENV_SRC, CHARS_SRC, ENV_QUAY_SRC, DRIVE_SRC)
 DST = os.path.join(ROOT, "game", "datafiles", "art")
 INDEX = "title_manifest.json"
 
