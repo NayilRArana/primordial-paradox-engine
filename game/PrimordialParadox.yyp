@@ -2022,6 +2022,24 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "pp_01_title_v7.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_01_title_v7.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_01_title_v8.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_01_title_v8.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_03_harbor.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
@@ -2139,6 +2157,24 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "pp_boarding_v2.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_boarding_v2.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_boarding_v2_humanized.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_boarding_v2_humanized.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_drive.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
@@ -2170,6 +2206,15 @@
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
       "name": "pp_drive_v3_humanized.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "pp_drive_v4.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "pp_drive_v4.ogg",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
