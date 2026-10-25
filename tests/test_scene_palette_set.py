@@ -141,43 +141,70 @@ def test_every_judged_row_lives_in_a_scene_file_and_names_a_frame_and_a_cast():
         assert row["sprites"], row
 
 
-def test_the_deck_audit_row_names_the_fight_cast_and_not_the_walking_sailor():
-    """The row corrected on 2026-10-24: the deck's four palettes were solved for sailor_battle + navy_sailor."""
-    deck = [row for row in judged_rows() if row["scene"] == "battle_deck_night"]
-    assert len(deck) == 1, deck
-    sprites = [os.path.basename(path) for path in deck[0]["sprites"]]
-    assert "sailor_battle.png" in sprites
-    assert "navy_sailor.png" in sprites
-    assert "sailor_ow_v2.png" not in sprites, "the walking sailor has no deck palette and is judged on the ship"
+def test_the_battle_rows_name_the_party_four_and_no_walking_sheet():
+    """Card t_0949bd4e: the cast of a battle row is the party's four battle sheets, and nothing else.
+
+    The deck row named the fight cast (sailor_battle + navy_sailor) from 2026-10-24 until this card, and the
+    corridor row named a 16x16 walking sheet. Both are the same defect: every battle screen puts four 24x32
+    party slots at x=224 (data/ui_layouts.json) and the PPU gives the strip four sprite palettes, so a strip that
+    draws all four heroes has no slot left for an enemy (ruling 7.5: the enemy is background art there) and no
+    slot for the map's walking cast. Measured under the hero four: the old deck cast fails 126, the old corridor
+    cast fails 24 (all of them zander_ow_v2), the party's four sheets fail 0 on both.
+    """
+    party = ["percy_battle.png", "hadrian_battle.png", "zander_battle.png", "konrad_battle.png"]
+    for scene_id in ("battle_corridor", "battle_deck_night"):
+        rows = [row for row in judged_rows() if row["scene"] == scene_id and not row.get("by_product")]
+        assert len(rows) == 1, (scene_id, rows)
+        sprites = [os.path.basename(path) for path in rows[0]["sprites"]]
+        assert sprites == party, (scene_id, sprites)
+        assert rows[0].get("exempt"), \
+            "%s is red until palette_synergy reads the party_cast half (card t_6e8ca42f)" % scene_id
+    # The sailor is still judged where he is drawn: the ship's own ground and the strip's fight cast.
+    ship = [os.path.basename(path) for row in judged_rows() if row["scene"] == "ship" for path in row["sprites"]]
+    assert "sailor_battle.png" in ship, ship
+    assert "sailor_ow_v2.png" in ship, ship
 
 
-def test_the_cast_check_catches_the_row_that_was_stale():
-    """The mutation this check exists for: the old row, put back, is refused with the $12 the draw lane measured."""
+def test_the_cast_check_catches_the_walking_sheet_put_back_on_a_battle_row():
+    """The mutation this check exists for, kept alive after this card moved both rows behind an exemption.
+
+    A 16x16 walking sheet on a battle row is the defect the corridor row carried until card t_0949bd4e. A row
+    marked exempt is skipped by design, so the mutation clears the exemption the way the ruling says one ends,
+    and the check has to name the sheet.
+    """
     broken = json.loads(json.dumps(data()))
+    mutated = 0
     for row in broken["audit"]:
-        if row["scene"] == "battle_deck_night":
-            row["sprites"] = ["game/sprites_src/chars/sailor_battle.png",
-                              "game/sprites_src/chars/sailor_ow_v2.png"]
+        if row["scene"] == "battle_corridor" and row["sprites"] and "percy_battle.png" in row["sprites"][0]:
+            row["sprites"] = ["game/sprites_src/chars/zander_ow_v2.png"]
+            row.pop("exempt", None)
+            mutated += 1
+    assert mutated == 1, broken["audit"]
     problems = scene_palette_set.cast_problems(ROOT, broken)
     assert len(problems) == 1, problems
-    assert "battle_deck_night" in problems[0]
-    assert "sailor_ow_v2.png" in problems[0]
-    assert "$12" in problems[0]
+    assert "battle_corridor" in problems[0]
+    assert "zander_ow_v2.png" in problems[0]
     # And it is part of validate, so the suite fails on it rather than only this function.
-    assert any("sailor_ow_v2.png" in problem for problem in scene_palette_set.validate(ROOT, broken))
+    assert any("zander_ow_v2.png" in problem for problem in scene_palette_set.validate(ROOT, broken))
 
 
-def test_every_judged_row_of_the_shipped_file_has_a_cast_its_scene_can_carry():
-    """No exemptions here: the shipped rows that are enforced measure clean, through the tool's own cast reading."""
+def test_every_enforced_judged_row_has_a_cast_its_scene_can_carry():
+    """The enforced rows measure clean through the tool's own cast reading; the exempt ones are named below."""
     assert scene_palette_set.cast_problems(ROOT, data()) == []
 
 
-def test_the_exempt_rows_are_the_known_two_and_say_why():
-    """An exemption is a ruling, not a way to quiet the check, so the exact list is held here."""
+def test_the_exempt_rows_are_the_known_three_and_say_why():
+    """An exemption is a ruling, not a way to quiet the check, so the exact list is held here.
+
+    Card t_0949bd4e added the third: the corridor and the deck rows both draw the party's four battle sheets,
+    and both measure red only because tools/palette_synergy.py reads a party_cast scene against the scene's own
+    four rows instead of the hero four (card t_6e8ca42f). Both exemptions say that, and both say when they end.
+    """
     exempt = [row for row in judged_rows() if row.get("exempt")]
     assert [(row["scene"], os.path.basename(row["sprites"][0])) for row in exempt] == [
         ("battle_corridor", "percy_battle.png"),
         ("battle_corridor", "sprites_v2_sheet.png"),
+        ("battle_deck_night", "percy_battle.png"),
     ], exempt
     for row in exempt:
         assert len(row["exempt"]) > 80, "an exemption has to say why, in words: %s" % row["exempt"]

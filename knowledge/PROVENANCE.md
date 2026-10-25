@@ -1466,3 +1466,30 @@ and window pixel readers stay in the file as a reported sprite check instead of 
 .gml, no module-level CAR_Y exists, the table equals data/title.json, the fallback equals pp_title_defaults, no
 wheel/bust/bubble is pasted by either side), so the halves cannot disagree quietly again.
 Copied expression: none
+
+## BATTLE-CAST-ROWS, 2026-10-25: a battle strip's four sprite palettes are spent on the four figures the screen draws (card t_0949bd4e)
+Studied: this repository's own files, read only: `data/ui_layouts.json` (the one battle screen layout and its four
+24x32 party slots at x=224 plus the two 32x32 enemy slots), `data/palettes/scene_battle_corridor.json` and
+`data/palettes/scene_battle_deck_night.json` (the two judged rows), `tools/scene_palette_set.py` (`scene_payload`,
+`scene`, `allowed_sprite_sets`, `scene_entries`, `cast_problems`, `JUDGED_KEY`), `tools/palette_synergy.py`
+(`analyse`, `frame_report`, `tile_fails`, `pair_rules`, `cast_problems`, `gate`), `tools/art/make_battle_bg.py`
+(`scene_palette_json` and the whole file write that drops the `judged` key), the four battle frames in `output/`,
+the party, sailor and enemy sheets in `game/sprites_src/`, and `knowledge/PALETTE-RULINGS-2026-10-24.md` sections 4,
+5 and 11 plus `knowledge/PALETTE-RULINGS-2026-10-25.md` sections 7 and 9. No decompiled material was read for this
+card and no expression from any game is in it.
+Mechanics learned: two, both about the NES rather than about this project. One, a sprite palette is selected per
+8x8 tile from four palettes, so a screen that draws four full size party figures has spent the entire sprite budget
+before an enemy is drawn at all: the standard answer, and the one this project's own art bible records for Final
+Fantasy and Castlevania, is that the monster becomes background art, because background palettes are selected per
+16x16 attribute area and are a separate budget. Two, background art is not free either: one palette carries a whole
+16x16 area, so an enemy redrawn as background still needs a background triple that carries its three colours, and
+on the deck today none of the four does (27 of navy_sailor's 37 inked tiles fit none). That is why the recast is a
+cast decision with a measured price rather than a relabel.
+Our implementation differs by: the battle screen's cast is declared as data, one `judged` row per scene, and the
+four reserved hero triples are substituted for a `party_cast` scene's own four sprite rows by
+`allowed_sprite_sets()` rather than a scene being allowed to carry eight palettes; the row that measures a strip
+lives in the scene file that solved it, so a cast and the thing that checks it cannot drift into two files; the
+enemy route is recorded as a card with its own measurement instead of being quietly dropped when the party took the
+fourth slot; and a row that cannot be measured honestly (this one, until the tool reads the hero four) carries an
+exemption that names the card that ends it, so the red state is a dated decision and not a silenced check.
+Copied expression: none

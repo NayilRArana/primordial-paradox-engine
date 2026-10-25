@@ -376,4 +376,204 @@ workspace: `cover_count.py`, `hero_price.py`, `cast_budget.py`, `solve2.py`, `fi
 - **The store screenshot set.** Which captures the submission ships is the submission kit's question, and the
   kit is not this card.
 
+---
+
+# Card `t_0949bd4e`: the corridor and deck rows' cast, now that the party sheets are one triple each
+
+Written by gamedev, 2026-10-25, answering the card that section 9 above reserved. Every number below was measured
+in this repository on 2026-10-25 by the tools named beside it. The card's own before numbers were re-measured
+first and reproduce exactly (corridor 191 fails, 73 / 86 / 32 cast problems on percy, hadrian and zander_ow_v2;
+deck 0 fails), so the three answers start from the same state the card described.
+
+The question is a cast question and it is answered with a cast, not with arithmetic: which sheets a strip's four
+sprite palettes are spent on. The palette arithmetic itself is unchanged by this card.
+
+## 10. Q1: the corridor row draws the party's four battle sheets and nothing else. `zander_ow_v2` comes off.
+
+**Answer: the second branch. The row names `percy_battle.png`, `hadrian_battle.png`, `zander_battle.png` and
+`konrad_battle.png`, and the walking sheet leaves the row.**
+
+Three measured facts, in the order they decide it.
+
+1. **Every battle screen draws four party sprites and no walking one.** `data/ui_layouts.json` holds one battle
+   screen layout, `"name": "battle"`, and its `sprites` list is four 24x32 slots at x=224, y=32, 64, 96 and 128
+   (`"role": "party"`) plus the 32x32 enemy slots at 24,64 and 96,88. There is no per strip variant, so the
+   corridor strip is that screen: four 24x32 party figures on the right edge. `zander_ow_v2.png` is a 16x16
+   walking sheet with 8 frames, the overworld cast, and the battle screen has no slot its geometry fits.
+2. **The four hero triples cannot carry it, and that is a measurement rather than a preference.** Under the
+   `party_cast` reading (the hero four as the scene's sprite palettes, which is what
+   `scene_palette_set.allowed_sprite_sets()` already returns and what card `t_6e8ca42f` will make
+   `palette_synergy` read) the row as shipped fails 24 pairs and every one of them is `zander_ow_v2.png`:
+   8 `palette_count` and 16 `set_member`. 0 of its 32 inked 8x8 tiles fits any hero triple. The sheet is
+   `{01, 11, 31}`, the deck's old sp3 (ruling section 5 of the 24 October file), and no hero triple holds those
+   three entries.
+3. **Removing it costs nothing that was working.** The corridor row was the only judged row in the tree that
+   named `zander_ow_v2.png`, and it named it on a battle ground, which is not the ground the sheet is drawn on.
+   Measured under the hero four, the party's four battle sheets on that same row and that same ground fail 0
+   pairs and leave 0 of their 289 inked tiles uncovered.
+
+## 11. Q2: yes, the corridor scene's sprite half is the four hero triples. Only the row and its note change.
+
+**Answer: yes, and the derived file already says so.** `data/scene_palettes.json` carries `party_cast: true` on
+all four battle strips (`tools/scene_palette_set.py` `PARTY_CAST_SCENES`), `allowed_sprite_sets()` returns the
+four hero triples for such a scene instead of its own four rows, and `scene_entries()` unions the backdrop, the
+four background rows and the hero four and nothing else. So the palette half of the question was answered on card
+`t_c93a983f`; what was still wrong was the row, which named a cast the strip does not draw. This card changes the
+row's `sprites` list, its `note` and its `exempt` text, and nothing else.
+
+The one gap left is on the tool side and it is carded: `tools/palette_synergy.py` `analyse()` builds its `Scene`
+from `scene_palette_set.scene(root, scene_id)`, and `scene()` uses `scene_payload()`, which returns the scene's own
+four sprite rows. So the gate still judges a `party_cast` scene against rows the party does not spend, and the
+recast row measures 324 fails in today's gate (see section 13). Card `t_6e8ca42f` closes that; this card writes
+the row so that the cast is right the moment the tool reads the right half.
+
+## 12. Q3: the deck is recast. The party takes its four sprite palettes and the enemy leaves the sprite half.
+
+**Answer: recast, not leave. The deck row names the party's four battle sheets.**
+
+The deck's PASS was real arithmetic on the wrong cast, and section 7.1 said so in advance: it "spends all four
+deck triples on `sailor_battle.png` and `navy_sailor.png`, so it has no slot left for the party that the same room
+draws at x=224. That PASS is a PASS on the cast the row names, not on the room." The card inherits that sentence
+with one correction of its own: the walking sheet is not on the deck row and has not been since card `t_4f18c0ac`
+(2026-10-24), so the row's cast was `sailor_battle.png` plus `enemies/navy_sailor.png`, not `sailor_ow_v2`.
+
+Why recast is forced rather than chosen: the deck is the same battle screen as the corridor (`data/ui_layouts.json`
+has one battle layout), so it draws the four 24x32 party slots, and the PPU gives a strip four sprite palettes.
+A strip that draws all four heroes therefore has no sprite palette for an enemy at all, which is the Castlevania
+and Final Fantasy convention ruling 7.5 already wrote down: the enemy is background art there.
+
+Measured, all with the hero four as the scene's sprite palettes:
+
+| row | result |
+| --- | --- |
+| the deck row as shipped (`sailor_battle.png`, `navy_sailor.png`) | FAIL, 126 fails, all cast: `sailor_battle.png` 93, `navy_sailor.png` 33 |
+| the deck row recast (the four party battle sheets) | PASS, 0 fails, 0 uncovered tiles |
+| the corridor row as shipped | FAIL, 24 fails, all `zander_ow_v2.png` |
+| the corridor row recast | PASS, 0 fails, 0 uncovered tiles |
+
+**Two prices, both measured, both other cards.**
+
+1. **The enemy has no slot, and the deck's background set does not carry it either.** Ruling 7.5 sends the enemy
+   to the background palettes. On the deck that is not a free move: a tile is drawn when one background triple
+   carries its colour set, and measured per 8x8 tile against the deck's four background triples, 27 of
+   `navy_sailor.png`'s 37 inked tiles fit none of them (10 fit), and 41 of `sailor_battle.png`'s 72 fit none
+   (31 fit). So `navy_sailor`'s `$02 $0F $30` needs a deck background triple of its own before the enemy can be
+   drawn on this strip at all. That is the art lane's file (`tools/art/make_battle_bg.py`).
+2. **The deck's party block is not on `$0F`.** Section 7.4 point 2 ruled that the party block's floor is `$0F` on
+   every battle strip, and card `t_d64eb2a9` landed that on the corridor and the wardroom. The deck and the quay
+   were scoped out of that card, and the builder's own comment on it says the two floors are a gamedev decision.
+   This is that decision: **the deck's block floor becomes `$0F`, the same change, and the quay's does too so the
+   four strips cannot disagree.** Measured today, per slot, ground under the 24x32 box, under the hero four:
+
+   | strip | y=32 | y=64 | y=96 | y=128 | pair fails at the block |
+   | --- | --- | --- | --- | --- | --- |
+   | corridor | `$0F` 768 | `$0F` 768 | `$0F` 768 | `$0F` 768 | 0 |
+   | wardroom | `$0F` 768 | `$0F` 768 | `$0F` 768 | `$0F` 768 | 0 |
+   | deck night | `$01` 624, `$11` 86, `$21` 58 | `$00` 443, `$10` 193, `$02` 132 | `$0F` 384, `$00` 306, `$02` 72 | `$0F` 768 | konrad 14, zander 7, percy 21, hadrian 0 = 42 `body_ground` |
+   | quay dusk | `$01` 656, `$11` 96, `$26` 16 | `$00` 279, `$01` 261, `$11` 120, `$02` 83 | `$0F` 384, `$00` 279, `$02` 83, `$10` 22 | `$0F` 768 | konrad 14, percy 21, zander 21, hadrian 0 = 56 `body_ground` |
+
+   The two strips that already stand on `$0F` read 0 at the block, which is the check that the reading is right
+   and that the number is the floor's, not the sheets'.
+
+## 13. What landed, measured before and after
+
+**Landed.**
+
+- `data/palettes/scene_battle_corridor.json`: `sprites` is the party's four battle sheets; `note` and `exempt`
+  rewritten. The `exempt` now says the row draws the party four, that `zander_ow_v2` is a walking sheet the hero
+  four cannot carry (24 pairs, 0 of 32 tiles), that the row measures red only for the tool reason carded as
+  `t_6e8ca42f`, and that the exemption ends when that card lands.
+- `data/palettes/scene_battle_deck_night.json`: the same four sheets, a new `note` that names the layout and
+  where the sailor is still judged (the ship row against `ts_ship.png`), and a new `exempt` that carries the two
+  measured prices above.
+- `data/scene_palettes.json` rebuilt with `python tools/scene_palette_set.py build --write`: 10 lines added and
+  6 removed, all inside those two audit rows. Nothing else in the derived file moved, and a second build is
+  byte identical (`diff --strip-trailing-cr`, 0 lines).
+- `tests/test_scene_palette_set.py`: the two battle rows are held to the party four and to an exemption; the
+  mutation test now puts the walking sheet back on the corridor row (with its exemption cleared, because an
+  exempt row is skipped by design) and requires the check to name it; the exempt list is the known three.
+
+**Before and after, the gate, this tree, 2026-10-25.**
+
+| run | entries | gated | advisory | per entry fails |
+| --- | --- | --- | --- | --- |
+| before | 6 | 0 | 4 | corridor 191, corridor contact sheet 11, deck 0, ship tileset 0, ship title 242, title 135 = 551 |
+| after | 6 | 0 | 5 | corridor 324, corridor contact sheet 11, deck 324, ship tileset 0, ship title 242, title 135 = 1036 |
+
+Both rows go from "wrong cast, some measurable state" to "right cast, 324 fails that are the tool's own half",
+and both read 0 under the hero four. Nothing is gated, so `--gate` still exits 0, and
+`python tools/scene_palette_set.py validate` prints PASS, 12 scenes, 4 hero palettes.
+
+**Per row, the state that is honest to quote.**
+
+| row | today's gate (scene's own rows) | hero four read (what `t_6e8ca42f` gives) | at the game's block |
+| --- | --- | --- | --- |
+| corridor, as shipped | 191 fails (percy 73, hadrian 86, zander_ow_v2 32) | 24 fails, all zander_ow_v2 | 24, all zander_ow_v2; percy and hadrian read 0 at every slot |
+| corridor, recast | 324 fails (289 palette_count, 35 set_member) | **0 fails, 0 uncovered** | 0 fails |
+| deck, as shipped | 0 fails (PASS) | 126 fails (sailor_battle 93, navy_sailor 33) | not restated: the enemy is never drawn in the party's slots |
+| deck, recast | 324 fails (289 palette_count, 35 set_member) | **0 fails, 0 uncovered** | 42 body_ground at the block, the floor price above |
+
+The "at the game's block" column is the placement the game actually draws (x=224, the four 24x32 slots) and the
+other two are the row's own placement, which is the tool's default: for a 24x32 frame that is 116,192, centred
+with the feet on the bottom band. The two are both quoted because they answer different questions and because
+the row format cannot yet say "these four sheets sit in four different slots" (see section 14).
+
+## 14. What this does not decide, and the two hazards it names
+
+- **The tool half.** `tools/palette_synergy.py` still reads a `party_cast` scene's own four rows. Card
+  `t_6e8ca42f` is ready on the board for that. Neither card alone makes the corridor row measure 0: this one
+  makes the cast right, that one makes the reading right, and both are needed for the number.
+- **The deck and quay block floors and the enemy's background triple.** Decided above, drawn by the art lane.
+  Two cards carry the work: `t_12c9b18f` (the two floors, through `tools/art/make_battle_bg.py`, one region of two
+  frames, the same shape as card `t_d64eb2a9`) and `t_34b1d96a` (which background triple on the deck spends the
+  enemy's three colours, and what the strip costs for it).
+- **A hazard this card found and did not cause.** `tools/art/make_battle_bg.py` writes
+  `data/palettes/scene_battle_*.json` whole (`scene_palette_json()`, then `json.dump`), and it emits no `judged`
+  key. So the next regeneration of any battle strip deletes that strip's audit row, which is where both rows this
+  card just wrote live. Card `t_5802ecdb` is the fix: the generator has to carry the key forward. Until it does,
+  anyone regenerating the corridor or the deck strip silently undoes this card, and card `t_12c9b18f` is
+  sequenced behind it for exactly that reason.
+- **The party walking sheets now sit on no audit row.** `zander_ow_v2.png` was named by exactly one row (the
+  corridor battle row, on the wrong ground), and `percy_ow_v2.png`, `konrad_ow_v2.png` and `hadrian_ow_v2.png` are
+  named by none. Their real ground is the map, not a battle strip, and the ship row already judges `sailor_ow_v2`
+  against `ts_ship.png`, so the shape of the fix is known. Card `t_dec4e92c` asks which ground, and carries the
+  measured starting point: of the four triples, two are still carried by town rows (`$02 $12 $30` for Percy and
+  the sailor, `$07 $17 $28` for Konrad) and two are carried by NO row in the twelve sets at all (`$01 $11 $31`
+  for Zander, `$00 $0F $30` for Hadrian), measured over `data/palettes/scene_*.json` by
+  `measure_triples.py` in this card's workspace.
+- **The row's single `at`.** One judged row carries one placement for its whole cast, so the four party slots
+  cannot be expressed by one row; expressing them needs four rows (one sheet each, one `at` each) or a per sprite
+  placement field. Named, not changed.
+- **`"gate": false` on all twelve scenes.** Untouched, as before.
+
+**Cards this ruling created, all with this card as their parent.**
+
+| card | who | what |
+| --- | --- | --- |
+| `t_5802ecdb` | builder | the strip generator must carry the `judged` key forward instead of deleting the row it does not write |
+| `t_12c9b18f` | builder | the deck night and quay dusk party block floors to `$0F` (waits on `t_5802ecdb`) |
+| `t_34b1d96a` | gamedev | which deck background triple spends the enemy's three colours, and what the strip costs for it |
+| `t_dec4e92c` | gamedev | which ground judges the four party walking sheets, two of which no row in the twelve sets carries |
+| `t_39b06dd5` | builder | drops the two rows' exemptions once `t_6e8ca42f` is in HEAD, and holds both rows enforced (waits on that card) |
+
+**Checks run on this tree, 2026-10-25, and what they returned.**
+
+- `python tools/scene_palette_set.py build` before the edit: byte identical to the shipped file
+  (`diff --strip-trailing-cr`, 0 lines), so the file was derived and the generator was not already drifted.
+- `python tools/scene_palette_set.py build --write` after the edit: 10 insertions, 6 deletions, both inside the two
+  audit rows; a second build byte identical.
+- `python tools/scene_palette_set.py validate`: PASS, 12 scenes, 4 hero palettes.
+- `python tools/palette_synergy.py --gate`: 6 entries, 0 gated, 5 advisory, 0 not measured, exit 0 (the numbers in
+  section 13's table).
+- `python -m pytest tests/test_scene_palette_set.py tests/test_palette_synergy.py tests/test_scene_palettes.py
+  tests/test_make_battle_bg.py -q`: 57 passed.
+- The per sheet and per slot readings are from `measure_cast.py`, `measure_slots.py` and `measure_enemy.py` in this
+  card's workspace, which call `tools/palette_synergy.py`'s own `analyse()`, `frame_report()` and `Grid` rather
+  than restating the arithmetic.
+
+Provenance: studied this repository's own files only (`data/ui_layouts.json`, `data/palettes/scene_battle_*.json`,
+`tools/scene_palette_set.py`, `tools/palette_synergy.py`, `tools/art/make_battle_bg.py`, the four battle frames and
+the sheets in `game/sprites_src/`). No decompiled material, and no expression from another game, is in this
+card. Copied expression: none.
+
 
