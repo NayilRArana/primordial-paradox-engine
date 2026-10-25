@@ -97,10 +97,11 @@ JUDGED_FIELDS = ("background", "sprites")
 # four sprite rows today and that behaviour is correct.
 #
 # The declaration lives HERE and not in data/palettes/scene_battle_*.json because tools/art/make_battle_bg.py
-# writes those four files whole: a key added there is dropped the next time a strip is regenerated (measured
-# 2026-10-25 06:17, the party-floor card's run rewrote all four and kept nothing it does not itself write). The
-# wiring is per scene all the same: build() emits party_cast into data/scene_palettes.json and every checker
-# reads that, so a fifth battle strip is one line here and no change anywhere else.
+# writes those four files whole and emits neither `judged` nor this key (read at HEAD 2026-10-25), and the copy
+# added to the files earlier that morning did not survive the next working session: anything the generator does
+# not itself write is one regeneration away from disappearing. The wiring is per scene all the same: build()
+# emits party_cast into data/scene_palettes.json and every checker reads that, so a fifth battle strip is one
+# line here and no change anywhere else.
 PARTY_CAST_KEY = "party_cast"
 PARTY_CAST_SCENES = ("battle_corridor", "battle_deck_night", "battle_quay_dusk", "battle_wardroom")
 # A judged row whose file is a BY-PRODUCT: gitignored, and written differently by two generators, so a clean
