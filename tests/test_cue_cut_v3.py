@@ -58,14 +58,20 @@ def test_the_cuts_are_the_bars_the_shot_list_names():
     assert [cut["bar"] for cut in payload()["cuts"]] == [8, 18, 25, 34, 46, 59, 69, 79, 92, 105, 113]
 
 
-def test_the_drift_is_the_86_step_snap_and_not_a_rounding_blunder():
-    """Every cut runs late by (86 - 85.714) steps a bar, so the drift grows bar by bar."""
+def test_the_drift_is_one_cuts_rounding_and_not_a_lattice_offset():
+    """Decision D18: the cut steps are round(bar x 85.714), so each is within half a step of its own downbeat.
+
+    The retired 86 step snap is the counter-example, and it is asserted against rather than described: on that
+    lattice every cut runs late by bar x 0.286 steps, which is 32 steps at the last cut.
+    """
     cuts = payload()["cuts"]
+    per_bar = payload()["grid"]["steps_per_bar"]
     for cut in cuts:
-        expected = cut["bar"] * (86 - 85.714)
-        assert abs(cut["drift_steps"] - expected) <= 0.6, (cut["bar"], cut["drift_steps"], expected)
-    drifts = [cut["drift_steps"] for cut in cuts]
-    assert drifts == sorted(drifts), drifts
+        exact = cut["bar"] * per_bar
+        assert abs(cut["step"] - exact) <= 0.5, (cut["bar"], cut["step"], exact)
+        retired = cut["bar"] * (86 - per_bar)
+        assert abs(cut["drift_steps"]) < retired, (cut["bar"], cut["drift_steps"], retired)
+    assert max(abs(cut["drift_steps"]) for cut in cuts) <= 0.5
 
 
 def test_the_dump_has_a_line_a_bar_and_a_marker_a_cut():
