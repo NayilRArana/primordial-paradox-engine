@@ -55,7 +55,7 @@ def test_the_delivered_report_is_the_178_second_render():
 def test_the_script_still_runs_on_a_slice(tmp_path):
     report = tmp_path / "slice.json"
     proc = subprocess.run([sys.executable, MIX_SCRIPT, "--seconds", "30", "--report", str(report)],
-                          capture_output=True, text=True, timeout=300)
+                          capture_output=True, text=True, timeout=300, stdin=subprocess.DEVNULL)
     assert proc.returncode in (0, 1), proc.stdout + proc.stderr
     with open(report, encoding="utf-8") as handle:
         payload = json.load(handle)
