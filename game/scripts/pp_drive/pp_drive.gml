@@ -12,7 +12,15 @@
 ///
 /// The clock is the music's clock (knowledge/DRIVE-SHOT-LIST.md section 1): 60 steps a second, a shot's own duration in
 /// steps from the table, and no shot longer than 1,200 steps, which is the twenty second ceiling the shot list holds.
-/// Fades are 12 steps, per spec 06 and pacing 4.2.
+/// Fades are 12 steps, per spec 06 and pacing 4.2. The grid is the exact one, 85.714 steps a bar at 126 bpm, and every
+/// cut in the table is `round(bar x 85.714)` (decision D18, knowledge/GAMEDEV-DECISIONS-2026-10-24.md): the twelve
+/// durations here are the same twelve numbers data/scenes/all.json spends, and tests/test_drive_map.py now compares the
+/// two tables shot for shot so the copy cannot drift.
+///
+/// Capture only (decision D19). The drive that ships is the `drive_to_southampton` scene of data/scenes/all.json on the
+/// map drive_m4_corridor, played by the spec 06 runner. This room exists so a capture run can write the twelve pictures
+/// from inside the game: it is reachable only when PP_DRIVE_ROOM is set, which no real launch sets. It is not on the
+/// route and it must not be wired into it.
 
 /// The two environment names this screen reads. Split the way every PP_ name in this project is split, so the macro
 /// definition is not itself a use of the name (the same pattern as PP_SLICE and PP_SCENE_SELFTEST_ENV).
@@ -49,18 +57,18 @@
 /// this file prints the id itself as the placeholder text rather than inventing a line).
 function pp_drive_shots() {
     return [
-        { n: 1,  id: "bigben",      place: "city",    steps: 688,  sign: "",   pages: [] },
-        { n: 2,  id: "street",      place: "city",    steps: 860,  sign: "",   pages: [] },
-        { n: 3,  id: "gantry_55",   place: "gantry",  steps: 602,  sign: "55", pages: ["drive_sign_55"] },
-        { n: 4,  id: "rain",        place: "motorway", steps: 774, sign: "",   pages: [] },
-        { n: 5,  id: "radio_1_2",   place: "motorway", steps: 1032, sign: "",  pages: ["drive_radio_1", "drive_radio_2"] },
-        { n: 6,  id: "radio_3_4_43", place: "motorway", steps: 1118, sign: "43", pages: ["drive_radio_3", "drive_radio_4", "drive_sign_43"] },
-        { n: 7,  id: "cutting",     place: "cutting", steps: 860,  sign: "",   pages: [] },
-        { n: 8,  id: "cathedral",   place: "cathedral", steps: 860, sign: "",  pages: ["drive_cathedral"] },
-        { n: 9,  id: "radio_5_6_7_30", place: "motorway", steps: 1118, sign: "30", pages: ["drive_radio_5", "drive_radio_6", "drive_radio_7", "drive_sign_30"] },
-        { n: 10, id: "downland",    place: "downland", steps: 1118, sign: "",  pages: [] },
-        { n: 11, id: "slip_20",     place: "slip",    steps: 688,  sign: "20", pages: ["drive_sign_20"] },
-        { n: 12, id: "docks",       place: "docks",   steps: 962,  sign: "",   pages: [] }
+        { n: 1,  id: "bigben",      place: "city",    steps: 686,  sign: "",   pages: [] },
+        { n: 2,  id: "street",      place: "city",    steps: 857,  sign: "",   pages: [] },
+        { n: 3,  id: "gantry_55",   place: "gantry",  steps: 600,  sign: "55", pages: ["drive_sign_55"] },
+        { n: 4,  id: "rain",        place: "motorway", steps: 771, sign: "",   pages: [] },
+        { n: 5,  id: "radio_1_2",   place: "motorway", steps: 1029, sign: "",  pages: ["drive_radio_1", "drive_radio_2"] },
+        { n: 6,  id: "radio_3_4_43", place: "motorway", steps: 1114, sign: "43", pages: ["drive_radio_3", "drive_radio_4", "drive_sign_43"] },
+        { n: 7,  id: "cutting",     place: "cutting", steps: 857,  sign: "",   pages: [] },
+        { n: 8,  id: "cathedral",   place: "cathedral", steps: 857, sign: "",  pages: ["drive_cathedral"] },
+        { n: 9,  id: "radio_5_6_7_30", place: "motorway", steps: 1115, sign: "30", pages: ["drive_radio_5", "drive_radio_6", "drive_radio_7", "drive_sign_30"] },
+        { n: 10, id: "downland",    place: "downland", steps: 1114, sign: "",  pages: [] },
+        { n: 11, id: "slip_20",     place: "slip",    steps: 686,  sign: "20", pages: ["drive_sign_20"] },
+        { n: 12, id: "docks",       place: "docks",   steps: 994,  sign: "",   pages: [] }
     ];
 }
 

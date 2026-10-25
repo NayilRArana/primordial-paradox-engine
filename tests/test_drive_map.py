@@ -18,7 +18,10 @@ So everything here is pinned to a file that already owns the fact:
     data/room_palettes.json               the drive_night set this card lands
     data/palette.json                     the master roles and their indices
     game/scripts/pp_config/pp_config.gml  PP_FRAME_W, PP_FRAME_H, PP_CAMERA_MOVE_STEPS, PP_FADE_STEPS
-    knowledge/DRIVE-SHOT-LIST.md          the film's 10,680 steps (section 8), which the scene row has to sum to
+    knowledge/DRIVE-SHOT-LIST.md          the film's 10,680 steps (section 8), which the scene row has to sum to,
+                                          and the eleven cut steps (section 1) this test cuts the scene at
+    game/scripts/pp_drive/pp_drive.gml    pp_drive_shots(), the room's capture table, which must stay the scene's
+                                          twelve durations (decision D19: the room is capture only)
     tools/art/make_drive_map.py           the generator, run with --check so the tree cannot drift from it
 
 No test here reads the network, writes a tracked file, or needs GameMaker.
@@ -298,6 +301,94 @@ def test_the_scene_still_sums_to_the_shot_lists_ten_thousand_steps():
             total += camera
     assert total == FILM_STEPS, "the scene spends %d steps, the shot list states %d" % (total, FILM_STEPS)
     assert scene()["commands"][-1]["cmd"] == "end", "the scene does not end on the end command"
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# 4b. The twelve durations exist twice, in the room's GML table and in the scene's command list. Decision D19
+# (knowledge/GAMEDEV-DECISIONS-2026-10-24.md) keeps the room as a capture rig, so the copy is allowed to exist but
+# not to drift: this test cuts the scene at the shot list's own eleven cut steps and requires every window's steps
+# and its say ids to be the room's row. Nothing here is read from the room's table to place a cut, or it would agree
+# with itself.
+
+def room_shots() -> list:
+    text = read(os.path.join("game", "scripts", "pp_drive", "pp_drive.gml"))
+    rows = []
+    pattern = (r'\{\s*n:\s*(\d+),\s*id:\s*"([^"]*)",\s*place:\s*"([^"]*)",\s*steps:\s*(\d+),'
+               r'\s*sign:\s*"([^"]*)",\s*pages:\s*\[([^\]]*)\]')
+    for match in re.finditer(pattern, text):
+        rows.append({"n": int(match.group(1)), "id": match.group(2), "place": match.group(3),
+                     "steps": int(match.group(4)), "sign": match.group(5),
+                     "pages": re.findall(r'"([^"]+)"', match.group(6))})
+    return rows
+
+
+def shot_list_cuts() -> tuple:
+    """Section 1's eleven hard cuts, in steps and in the cue bars they are written on."""
+    text = read(os.path.join("knowledge", "DRIVE-SHOT-LIST.md"))
+    match = re.search(r"are at steps (.*?)which are bars (.*?)of the cue", text, re.S)
+    assert match, "knowledge/DRIVE-SHOT-LIST.md section 1 no longer names the eleven cut steps"
+    steps = [int(value.replace(",", "")) for value in re.findall(r"\d[\d,]*", match.group(1))]
+    bars = [int(value.replace(",", "")) for value in re.findall(r"\d[\d,]*", match.group(2))]
+    return steps, bars
+
+
+def scene_step_costs() -> list:
+    fade = config_macro("PP_FADE_STEPS")
+    camera = config_macro("PP_CAMERA_MOVE_STEPS")
+    costs = []
+    for command in scene()["commands"]:
+        kind = command.get("cmd")
+        costs.append(command["steps"] if kind == "wait" else
+                     fade if kind == "fade" else
+                     camera if kind == "camera" else 0)
+    return costs
+
+
+def test_the_room_table_and_the_scene_are_the_same_twelve_durations():
+    rows = room_shots()
+    cuts, bars = shot_list_cuts()
+    commands = scene()["commands"]
+    costs = scene_step_costs()
+
+    assert len(rows) == 12, "pp_drive_shots() carries %d rows" % len(rows)
+    assert len(cuts) == 11, "the shot list names %d cuts" % len(cuts)
+    assert bars == [8, 18, 25, 34, 46, 59, 69, 79, 92, 105, 113], bars
+    assert [row["n"] for row in rows] == list(range(1, 13))
+
+    # 1. every cut is a command boundary of the scene, so a shot cannot end halfway through a wait
+    boundary_at = {}
+    running = 0
+    for index, cost in enumerate(costs):
+        running += cost
+        boundary_at[running] = index + 1
+    for step in cuts:
+        assert step in boundary_at, "cut at step %d falls inside a command, so the scene is on another lattice" % step
+
+    bounds = [0] + [boundary_at[step] for step in cuts] + [len(commands)]
+    windows = [commands[bounds[i]:bounds[i + 1]] for i in range(len(bounds) - 1)]
+    assert len(windows) == 12
+
+    # 2. each window is the room's duration, and its captions are the room's pages in the same order
+    opening = 0
+    for index, window in enumerate(windows):
+        close = cuts[index] if index < len(cuts) else FILM_STEPS
+        spent = sum(costs[bounds[index]:bounds[index + 1]])
+        assert spent == close - opening, \
+            "shot %d spends %d steps, section 1 makes it %d" % (index + 1, spent, close - opening)
+        assert rows[index]["steps"] == spent, \
+            "pp_drive_shots() shot %d says %d steps, the scene spends %d" % (index + 1, rows[index]["steps"], spent)
+        said = [command["id"] for command in window if command.get("cmd") == "say"]
+        assert said == rows[index]["pages"], \
+            "shot %d says %r, the room's row says %r" % (index + 1, said, rows[index]["pages"])
+        if rows[index]["sign"]:
+            assert "drive_sign_%s" % rows[index]["sign"] in said, \
+                "shot %d is the sign %s and does not say it" % (index + 1, rows[index]["sign"])
+        opening = close
+
+    # 3. the eight places the shot list counts, and the total both copies agree on
+    assert len({row["place"] for row in rows}) == 8, sorted({row["place"] for row in rows})
+    assert sum(row["steps"] for row in rows) == FILM_STEPS
+    assert opening == FILM_STEPS
 
 
 # ---------------------------------------------------------------------------------------------------------------

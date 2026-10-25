@@ -57,6 +57,8 @@ pp_app_boot();
 
 // Card R21a: the drive room's door. Unset in every real launch, so the game opens where the route says it does. A
 // proof run sets PP_DRIVE_ROOM and the frame moves to rm_pp_drive through the app's own room door (pp_drive_goto_room
-// asks for PPMode.cutscene and room_goto, the drive being a cutscene and its room the screen's owner), because the
-// route is card R21b's to wire.
+// asks for PPMode.cutscene and room_goto, the drive being a cutscene and its room the screen's owner). This door is the
+// capture door and it stays a capture door: decision D19 (knowledge/GAMEDEV-DECISIONS-2026-10-24.md) rules that the
+// drive ships as the drive_to_southampton scene on drive_m4_corridor, which is the step data/slice.json already plays.
+// Do not route the slice here.
 if (environment_get_variable(PP_DRIVE_ROOM) != "") pp_drive_goto_room();

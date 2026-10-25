@@ -1,8 +1,13 @@
-# Primordial Paradox decisions, 2026-10-24 (second file of the day): the TALK capture
+# Primordial Paradox decisions, 2026-10-24 (second file of the day): the TALK capture, and the drive's grid
 
 Three rulings this card needed, and the two engine bugs the work uncovered. Written after the capture passed, so every
 number here is quoted from a run rather than intended. Card **t_27aa179e** ("make the TALK path provable from outside
 the game"), child of the first-fight capture card.
+
+`D15` to `D17` and the two bugs are the TALK capture. `D18` and `D19`, at the bottom of this file under their own
+heading, are the drive's bar lattice and which of its two artifacts ships (card **t_ce63cb65**, raised by the review
+t_3cca8576 of R21a and R21b). They live in this file because `knowledge/DRIVE-SHOT-LIST.md`, `pp_drive.gml` and
+`obj_pp_game/Create_0.gml` all already cite `knowledge/GAMEDEV-DECISIONS-2026-10-24.md` by path.
 
 ---
 
@@ -147,3 +152,132 @@ Written by gamedev, 2026-10-24. Check for this file: it exists; D15 names all si
 each one; D16 names the five legs and why each waits on a line; D17 names six thresholds and the frame each was
 measured on; the bug section names the exact guard and the exact crash text; and the proof section names a run whose
 log and recording are both in this repository.
+
+---
+
+# The drive: the lattice and the artifact, card t_ce63cb65
+
+Raised by the review t_3cca8576 (`knowledge/REVIEW-R21-DRIVE-2026-10-24.md`, findings F1 and F5) of the drive room
+(R21a, t_e9c7b280) and the drive scene (R21b, t_c27552e3). Neither finding was a code defect. Both were questions only
+this lane can answer, and both are answered from the tree's own numbers rather than from preference.
+
+## D18. The drive is cut to the exact 85.714 step bar, not 86 and not 87
+
+**The ruling.** `steps_per_bar = 3 x 3600 / 126 = 85.7142857`, and a hard cut sits at
+`cut step = round(bar x steps_per_bar)`. That one lattice owns every duration in the film: the twelve shots, the
+scene's command list, the room's capture table, and the shot list's tables.
+
+**Why the exact bar rather than the integer 86.** The clock under the picture is the rendered cue, and the cue's bar is
+85.714 steps because 126 bpm at 60 steps a second is exactly that. 86 is not a second opinion about the music, it is
+what the old durations were typed on: it divides all eleven of them perfectly only because they were built on it. Its
+price is 0.286 steps a bar, which no single shot shows and the last cut does, 32 steps late, 0.54 s, more than a beat
+(a beat is 28.57 steps). A cut that lands half a second after its downbeat is a mistake a viewer hears.
+
+**Why not the 87 the title machine runs on.** `data/title_timing.json` `bar_steps` is 87 on purpose and its own
+`_integer_note` says why: 87 is three whole beats of 29, so the title's beat derived car bob and its bar derived star
+twinkle cannot slip against each other. That is right for a repeating animation constant, where a 1.5 percent tempo
+error is invisible. It is wrong for a cut: 87 puts the last cut 113 steps (1.88 s) early, and the same twelve bar
+counts then make a 10,793 step film, which moves the cue's own 10,680 scoring, the interlude's 2,400 and the 13,080
+wall total. So the title keeps 87 for what it animates, and the drive reads `bpm`, `steps_per_bar` and
+`scroll.px_per_step` from the same file and never `bar_steps`.
+
+**The cost, printed by `assets/audio/pp_drive/cue_cut_v3.py` on this tree.**
+
+| bar | cut step | downbeat with the file's 85.714 | drift steps | drift s |
+| --- | --- | --- | --- | --- |
+| 8 | 686 | 685.7 | +0.29 | +0.005 |
+| 18 | 1,543 | 1,542.9 | +0.15 | +0.002 |
+| 25 | 2,143 | 2,142.8 | +0.15 | +0.003 |
+| 34 | 2,914 | 2,914.3 | -0.28 | -0.005 |
+| 46 | 3,943 | 3,942.8 | +0.16 | +0.003 |
+| 59 | 5,057 | 5,057.1 | -0.13 | -0.002 |
+| 69 | 5,914 | 5,914.3 | -0.27 | -0.004 |
+| 79 | 6,771 | 6,771.4 | -0.41 | -0.007 |
+| 92 | 7,886 | 7,885.7 | +0.31 | +0.005 |
+| 105 | 9,000 | 9,000.0 | +0.03 | +0.001 |
+| 113 | 9,686 | 9,685.7 | +0.32 | +0.005 |
+
+Worst 0.41 steps, 7 ms, at bar 79 with the file's three place 85.714; 0.43 steps on the exact `3 x 3600 / 126`, which
+is the figure `knowledge/DRIVE-SHOT-LIST.md` section 8 quotes. Either way it is inside one frame at 60 steps a second,
+and it does not accumulate because every cut is computed from its own bar number. The film stays 10,680 steps =
+178.00 s, so the cue, the interlude and the 13,080 wall total do not move. That is the practical argument for this
+lattice over 87: the decision costs no downstream number.
+
+**What is retired and what is left standing.** The 86 snap is retired everywhere it decided a duration:
+`data/scenes/all.json`, `pp_drive_shots()` in `game/scripts/pp_drive/pp_drive.gml`, and
+`knowledge/DRIVE-SHOT-LIST.md` sections 1, 2, 3 and 8. `assets/audio/pp_drive/NOTES-v3.md` still prints the old 86 step
+dump (cut 1 at step 688, drift +2.29) because it is the record of the CUE-DRIVE run that produced it; it is left as
+evidence of the retired grid rather than rewritten, and no duration in it is spent by the game. The artifacts that
+matter (`cue_map_v3.json`, `cut_dump_v3.txt`) are regenerated by the script on every run and now carry the exact grid.
+`knowledge/BEAT-SHEET-VERIFY-2026-10-24.md` finding `D2` and question `Q1` ask exactly this question; D18 is the
+answer, and that file is another lane's untracked work, so it is cited here rather than edited.
+
+**What this does not prove.** This is the picture against the music's score, not against the record. If the rendered
+`title_theme` ogg's real tempo is not exactly 126.000, or its first downbeat is not at sample zero, the whole picture
+grid can still sit off the record by one constant offset. That is an ear question on the audio lane and it is named
+here instead of assumed. What the arithmetic does prove is that no cut drifts from its own bar, which is the property
+the film's rule asks for.
+
+## D19. The drive ships as the scene on `drive_m4_corridor`; `rm_pp_drive` is capture only
+
+**The ruling.** What a player sees is the `drive_to_southampton` scene of `data/scenes/all.json`, played by the spec 06
+runner on the map `drive_m4_corridor`. `rm_pp_drive` and `pp_drive.gml` are a capture rig: reachable only when
+`PP_DRIVE_ROOM` is set, which no real launch sets, and not on the route.
+
+**Why, in order of weight.**
+
+1. **The route already plays the scene.** `data/slice.json` step `drive` is kind `scene`, scene
+   `drive_to_southampton`, map `drive_m4_corridor` (160 x 24, road on row 8, start (0,8), arrive (159,8)). It is built,
+   mapped, palette set and tested. Shipping the room means building a second road to the same place.
+2. **The scene is the architecture.** One command list in data, played by one runner, is how every other scene in the
+   game works, and it is what lets the twelve shots be edited as content instead of as GML.
+3. **The room would need three changes before it could ship, and one of them is a spec fix.** A door on the route; its
+   twelve durations becoming a read of the data rather than a second copy; and pages that advance on the player's
+   press, because `pp_drive_page_index` advances them on their own share of a shot today, against spec 05 and against
+   the shot list's own "a page advances on the player's press". That is real work buying nothing the scene does not
+   already do, on the screen most likely to be seen first.
+4. **The eight places are not lost by choosing the scene.** They are the scene's camera windows on the corridor: tile
+   x 37 for the gantry and the motorway shots, 83 for Twyford Down, 141 for the cathedral, 25 for the downland, 0 for
+   the opening and the docks. The shot list section 4.1 says which window is which place, and the review checked all
+   twelve pictures against it.
+5. **The duplicate is closed by a test, not a promise.** `tests/test_drive_map.py` now cuts the scene's flat command
+   list at the shot list's eleven cut steps and compares each window's steps and its `say` ids, in order, against
+   `pp_drive_shots()`. A change to either copy fails the suite, which is the thing the review found missing.
+6. **The cost is one small piece of unreachable code.** `pp_drive.gml` has to keep compiling while nothing launches
+   it. The same test covers it, and `PP_DRIVE_ROOM` keeps it out of every real run. If it rots, what is lost is the
+   `tools/capture_drive.py` path, not the game. If the room ever has to ship, that is a new decision on its own card,
+   not a re-reading of this one.
+
+**What choosing the scene gives up.** The title machine's two frame palette flash. Shot 10 is the storm, and the only
+whole screen palette flash in the build lives in `pp_title.gml` (the storm clock, 2 frames from
+`data/title_flash.json`), while the scene runner's fifteen commands have no flash. So shot 10 ships with
+`sfx thunder_soft` and a wait, silent on the palette, until a `flash` command is added to spec 06. That is a runner
+question on its own card, and it is the one thing the room branch would have given for free.
+
+## Proof for D18 and D19, run on this tree
+
+* `python tools/check_data.py` -> `check_data: all files pass`.
+* `python -m pytest tests/test_drive_map.py tests/test_slice_route.py tests/test_scene_runner.py tests/test_cue_cut_v3.py
+  tests/test_drive_tiles_wire.py -q` -> 82 passed in 1.40 s.
+* `python -m pytest tests/test_audio.py tests/test_drive_v2.py tests/test_title_timing.py tests/test_mix_check_v3.py -q`
+  -> 41 passed in 3.46 s, so the audio lane's own pins still hold and the title keeps its 87.
+* `python assets/audio/pp_drive/cue_cut_v3.py` exit 0: `film: 12 shots, 10680 steps = 178.00 s`, `cut steps: section 2
+  running totals match section 1`, every cut `snaps to the stated bar`, worst drift -0.41 steps at cut 8.
+* `python tools/check_provenance.py` -> 29 modules, every one mapped. `python tools/check_cleanroom.py` -> clean.
+  `python tools/check_spec_review.py` -> exit 0, with the three specs already pending before this card.
+* The segmentation behind D19 reason 5 was run before it was written as a test: 59 scene commands summing 10,680, the
+  eleven cut steps all landing on command boundaries, and all twelve windows' step totals and `say` ids equal to
+  `pp_drive_shots()` row for row.
+* What is not proven: nothing was launched in GameMaker, and no cut was listened to against the record.
+
+## Provenance for D18 and D19
+
+No external code, art, audio, dialogue or decompiled material was read, retyped or reused for these two rulings.
+Every number is from this repository's own files and its own runs: `data/title_timing.json`,
+`data/scenes/all.json`, `data/slice.json`, `data/maps/all.json`, `game/scripts/pp_drive/pp_drive.gml`,
+`game/objects/obj_pp_game/Create_0.gml`, `game/scripts/pp_scene/pp_scene.gml`,
+`game/scripts/pp_config/pp_config.gml`, `knowledge/DRIVE-SHOT-LIST.md`, `assets/audio/pp_drive/cue_cut_v3.py` with its
+two artifacts, and `knowledge/REVIEW-R21-DRIVE-2026-10-24.md`.
+
+The 85.714 lattice is arithmetic from the theme's own stated tempo, not a studied mechanic, and the scene over the room
+is this project's own runner architecture.
