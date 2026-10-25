@@ -44,6 +44,10 @@ FIXTURES = (
     # The frame tests/test_palette_synergy.py measures with palette_synergy.analyse(). It was the
     # skipped input that made that test look healthy: absent, the test passed without measuring.
     "output/nes_title_frame.png",
+    # Card t_dc6305d6: the ship screen with the dialogue box, the ground the sailor battle sheet is measured on.
+    # It was the last capture a test read by path that no commit carried, so a HEAD worktree reported the
+    # absent file as an art failure.
+    "output/ship_dialogue.png",
 )
 
 # The calls that answer "is this input here". A skip guarded by one of these is the defect.

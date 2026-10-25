@@ -174,9 +174,18 @@ def test_r6_for_a_multi_tile_figure_is_asked_per_8x8_tile(tmp_path):
 
 
 def test_the_shipped_battle_sheet_is_seven_declared_24x32_frames():
-    """The real sheet: 168x32 is seven frames of 24x32 as its own sidecar declares, and the ship set carries it."""
+    """The real sheet: 168x32 is seven frames of 24x32 as its own sidecar declares, and the ship set carries it.
+
+    Card t_dc6305d6: the background is a capture, and it is a tracked input. `output/` is ignored at
+    `.gitignore` line 28, but nine captures under it are committed on purpose because tests read them by path,
+    and this one is now the tenth: it is listed in `tools/check_test_inputs.py` FIXTURES so a HEAD worktree
+    cannot lack it. Before that it existed only on the machine that ran the capture, and the red it raised read
+    as an art failure instead of a missing file.
+    """
     background = os.path.join(ROOT, "output", "ship_dialogue.png")
-    assert os.path.isfile(background), "%s is committed" % background
+    assert os.path.isfile(background), (
+        "%s is a tracked fixture and must be in the checkout; if it is gone, the commit that removed it is "
+        "the defect, not this test" % background)
     result = palette_synergy.analyse(ROOT, "ship", background, ["game/sprites_src/chars/sailor_battle.png"])
     sprite = result["sprites"][0]
     assert sprite["frame"] == [24, 32], sprite["frame"]

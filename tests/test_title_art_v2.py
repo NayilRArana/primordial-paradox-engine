@@ -30,19 +30,36 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TITLE_DIR = os.path.join(ROOT, "game", "sprites_src", "title")
 PY = sys.executable or "python"
 
+# Card t_dc6305d6: the sheets the pins below measure are drawn into this directory, never into the repository.
+# Before this, the autouse fixture below rewrote game/sprites_src/title/spr_pp_title_logo.png in place, so the
+# pin that walks the wordmark's pixels read a file another lane could be writing at the same moment: a torn or
+# half repainted sheet reads as "body pixels touch the background, so the outline has holes", which is exactly
+# the red that came back after e617f54. A test that owns its input cannot be torn by a neighbour.
+DRAWN_DIR = None
+
 
 @pytest.fixture(scope="module", autouse=True)
-def v2_sprites():
-    """Draw both sprites before anything is measured.
+def v2_sprites(tmp_path_factory):
+    """Draw both sprites into a private root before anything is measured.
 
     The v2 generators are the source of truth for these two files, so this fixture runs them rather than
-    trusting whatever is on disk: tests/test_make_title_ui.py still carries the v1 logo generator, which writes
-    the same sprite name into a temporary root, and the module order of a suite run must not decide which logo
-    the checks see.
+    trusting whatever is on disk. It runs them into its own root for the reason in DRAWN_DIR above, and it
+    copies `data/` in because the generators read data/nes_palette.json.
+
+    tests/test_make_title_ui.py still carries the v1 logo generator, which writes the same sprite name into a
+    temporary root, and the module order of a suite run must not decide which logo the checks see.
     """
+    global DRAWN_DIR
+    root = tmp_path_factory.mktemp("v2_sprites")
+    shutil.copytree(os.path.join(ROOT, "data"), root / "data")
+    os.makedirs(root / "game" / "sprites_src" / "title")
     for script in (("tools", "art", "title_logo_v2.py"), ("tools", "art", "title_car_v2.py")):
-        result = subprocess.run([PY, os.path.join(*script)], cwd=ROOT, capture_output=True, text=True, stdin=subprocess.DEVNULL)
+        result = subprocess.run([PY, os.path.join(*script), "--root", str(root)], cwd=ROOT,
+                                capture_output=True, text=True, stdin=subprocess.DEVNULL)
         assert result.returncode == 0, result.stdout + result.stderr
+    DRAWN_DIR = os.path.join(str(root), "game", "sprites_src", "title")
+    for sprite in ("spr_pp_title_logo", "spr_title_car"):
+        assert os.path.isfile(os.path.join(DRAWN_DIR, sprite + ".png")), sprite
     return True
 
 
@@ -230,7 +247,14 @@ def logo_geometry():
 
 
 def logo_frame(index: int) -> Image.Image:
-    with Image.open(os.path.join(TITLE_DIR, "spr_pp_title_logo.png")) as image:
+    """A frame of the sheet the generator drew for this run, not of the copy in the repository.
+
+    DRAWN_DIR is the fixture's own root. Reading the repository here is what let a neighbour's write show up as
+    holes in the outline, and it also let a stale committed sheet pass a pin that claimed to measure the art.
+    test_the_committed_logo_is_the_generator_output is the pin that holds the committed copy to the same picture.
+    """
+    source = DRAWN_DIR or TITLE_DIR
+    with Image.open(os.path.join(source, "spr_pp_title_logo.png")) as image:
         sheet = image.convert("RGBA")
     return sheet.crop((index * 224, 0, (index + 1) * 224, 64))
 
@@ -338,15 +362,22 @@ def test_the_gold_shimmer_crosses_both_lines():
         assert changed > 20, "%s takes no shimmer, %d pixels changed" % (text, changed)
         assert after > before, "%s gains no gold in the shimmer frame (%d -> %d)" % (text, before, after)
 def test_the_wordmark_is_outlined_in_an_ink_its_body_is_not():
-    """The letters carry an outline, so no letter pixel touches the sky.
+    """The letters carry an outline, so no letter pixel touches the sky, and the crack is measured apart.
 
     This is the pin review round 1 item 2 asked for: it checks the outline exists and that it is what closes the mark,
-    not just that the sheet is a legal set of colours. Measured on the committed sheet, frame 0: $0F black 2426 px, $00
-    grey 2407 px, $28 gold 313 px, 0 body pixels with a transparent 4-neighbour, 1552 ink pixels on the body's edge.
+    not just that the sheet is a legal set of colours. Measured on the shipped sheet, frame 0: $0F black 2421 px, $00
+    grey 2404 px, $28 gold 330 px, 0 letter pixels with a transparent 4-neighbour, 1557 ink pixels on the body's edge.
 
     Counting colours is not enough on its own, which is why the pin below this one passed while the wordmark was a gold
     blob: three inks is the same number whether the third one outlines the letters or fills a shadow inside them. This
     one walks the pixels. The body has to be closed, and the ink has to be the thing closing it.
+
+    Spec 14's crack is the one gold thing that is meant to sit over the sky: it crosses the O of PARADOX through the
+    O's counter, which is a hole in the letter, so twelve of its eighteen pixels border a transparent pixel and no
+    outline can close them. The card that ported the crack here (t_e5338932) forbids a second outline or a fourth
+    colour, so the crack is exempted by name and pinned on its own terms below: every one of its pixels is gold, and
+    the exemption is exactly the crack and nothing else. The letters keep the closed body rule unchanged, which is why
+    `open_gap` still has to be zero.
     """
     path = os.path.join(TITLE_DIR, "spr_pp_title_logo.png")
     with Image.open(path) as image:
@@ -369,7 +400,15 @@ def test_the_wordmark_is_outlined_in_an_ink_its_body_is_not():
     assert tally[ink] > 1000, f"the outline ink {ink} is only {tally[ink]} px, too thin to be an outline"
     assert max(luma(rgb) for rgb in body) > luma(ink), "the outline is not the darkest ink on the sheet"
 
+    mod = logo_module()
+    colours, _ = mod.nes_tile.load_nes_palette(ROOT)
+    gold = colours[mod.GOLD][:3]
+    crack, _box = mod.crack_pixels()
+    drawn = sum(1 for point in crack if px[point][:3] == gold)
+    assert drawn == len(crack), f"only {drawn} of the crack's {len(crack)} pixels are gold"
+
     open_gap = 0
+    crack_over_sky = 0
     contact = 0
     for y in range(1, frame.height - 1):
         for x in range(1, frame.width - 1):
@@ -379,8 +418,43 @@ def test_the_wordmark_is_outlined_in_an_ink_its_body_is_not():
             neighbours = [px[x - 1, y], px[x + 1, y], px[x, y - 1], px[x, y + 1]]
             if here[:3] != ink:
                 if any(n[3] == 0 for n in neighbours):
-                    open_gap += 1
+                    if here[:3] == gold and (x, y) in crack:
+                        crack_over_sky += 1
+                    else:
+                        open_gap += 1
             elif any(n[3] and n[:3] != ink for n in neighbours):
                 contact += 1
     assert open_gap == 0, f"{open_gap} body pixels touch the background, so the outline has holes"
+    assert crack_over_sky > 6, \
+        f"only {crack_over_sky} crack pixels read over the O's counter, so the crack does not split the letter"
     assert contact > 500, f"only {contact} ink pixels sit against the body, so the ink is not the outline"
+
+
+def test_the_committed_logo_is_the_generator_output():
+    """The sheet in the repository is the picture the generator draws, pixel for pixel.
+
+    Card t_dc6305d6. Without this, the two are free to drift: the crack port (t_e5338932) changed the generator
+    and the committed PNG was never regenerated, so HEAD carried a sheet whose crack is 1 gold pixel of 18 and
+    whose O is not split. Nothing failed, because the fixture used to redraw the repository copy before the pins
+    read it. The pins now read the drawn copy and this pin holds the committed copy to it.
+
+    Pixels, not PNG bytes: the byte comparison is the host_png_bytes class, where the zlib and Pillow builds
+    that wrote the file decide the answer. The pixels off the box agree.
+    """
+    committed = os.path.join(TITLE_DIR, "spr_pp_title_logo.png")
+    drawn = os.path.join(DRAWN_DIR, "spr_pp_title_logo.png")
+    with Image.open(committed) as image:
+        left = image.convert("RGBA")
+    with Image.open(drawn) as image:
+        right = image.convert("RGBA")
+    assert left.size == right.size, "committed %s, drawn %s" % (left.size, right.size)
+    from PIL import ImageChops
+
+    difference = ImageChops.difference(left, right)
+    box = difference.getbbox()
+    assert box is None, (
+        "the committed sheet is not what tools/art/title_logo_v2.py draws: pixels differ inside %r, first "
+        "committed %r drawn %r; regenerate the sprite in the same commit as the generator change" % (
+            box,
+            left.getpixel((box[0], box[1])) if box else None,
+            right.getpixel((box[0], box[1])) if box else None))
