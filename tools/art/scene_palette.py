@@ -763,6 +763,15 @@ def apply_title(root: str) -> dict:
     # is what the art on disk is finally expressed in, and data/palettes/scene_title.json "bands" is the decision.
     import title_bands
     report["bands"] = title_bands.apply(root)
+    # The fade twins are derived art too, and they are the last thing lifted: every pass above can rewrite a base
+    # strip, so the fades are rebuilt here from the bases as they are on disk now, exactly as the flash strips are
+    # a few lines up. Card t_cd6a0d24 measured what leaving them out costs: 13 committed fade strips were the
+    # fades of pictures the game no longer draws, five animations behind their own art, and nothing noticed.
+    # The generator is imported from this file's own tree and not from `root`: a pass can be run over a copy of the
+    # art (tests/test_title_art_v2.py does exactly that), and a copy carries no tools/ directory.
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import pp_intro_art
+    report["fades"] = {"strips": pp_intro_art.write_fades(root)}
     return report
 
 

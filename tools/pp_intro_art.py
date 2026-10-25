@@ -19,6 +19,19 @@ theme.
 Nothing here is traced, sampled or copied from any published game: the fade rule is the hardware
 rule from ART-BIBLE.md, and the star is drawn from its own three shapes in this file.
 
+Where this tool sits in the art order
+-------------------------------------
+The fade strips are derived art: they are a picture of a base strip that something else draws. So they are
+written LAST, after every pass that can rewrite a base, which today is a generator (tools/art/make_title_*.py,
+tools/art/title_car_v2.py, ...) and then tools/art/scene_palette.py `apply` and its band pass. Rebuilding them
+earlier is what card t_cd6a0d24 measured: 13 committed fades were the fades of bases the game no longer draws.
+Two things hold the order down, and neither one is a convention:
+
+  * tools/art/scene_palette.py apply_title ends by calling write_fades() here, the same way it already ends by
+    rebuilding the flash strips, so the art pass that runs last also leaves the fades agreeing with it;
+  * tests/test_intro.py pins every committed fade to the fade of the base strip beside it, so a lane that
+    repaints a base and skips the fades gets a red test instead of a stale picture.
+
 Usage:
     python tools/pp_intro_art.py            write the stars and every fade strip
     python tools/pp_intro_art.py --check    exit 1 when any of them is missing or out of date
@@ -207,6 +220,134 @@ def write_star_sprite(palette) -> int:
     return 0
 
 
+def fade_rule(root: str):
+    """What the scene's sprite pass owns, so a fade twin here is written the way that pass would leave it.
+
+    tools/art/scene_palette.py apply_title repaints every sheet in its TITLE_SPRITES list, except the ones the
+    band plan paints afterwards. The cloud's and the exhaust's fade twins are in that list, so that pass used to
+    repaint a file this tool had just written, and the two disagreed: the shipped cloud fade spent $00 and $28
+    while this tool drew $0D and $10, and a rerun of the generator quietly undid the enforcement (card
+    t_cd6a0d24, measured on the tree as committed). The star already had this fix; the fades get the same one.
+
+    Returns (owned names, scene or None). The scene is loaded once here instead of once per strip.
+    """
+    art_dir = os.path.join(root, "tools", "art")
+    if art_dir not in sys.path:
+        sys.path.insert(0, art_dir)
+    import scene_palette
+
+    scene = scene_palette.load_scene(root, "title")
+    band_painted = {name for name in (scene.payload.get("band_sprites") or {})
+                    if not name.startswith("_")}
+    owned = frozenset(name for name in scene_palette.TITLE_SPRITES if name not in band_painted)
+    return owned, scene
+
+
+def fade_for(twin: str, base: Image.Image, meta: dict, steps: int, palette, rule) -> Image.Image:
+    """The fade strip that ships: one brightness row darker, then inside the scene palette when that pass owns it."""
+    faded = fade_image(base, steps, palette)
+    owned, scene = rule
+    if twin not in owned or scene is None:
+        return faded
+    import scene_palette
+
+    frame_w = meta.get("frame_w", faded.width)
+    frame_h = meta.get("frame_h", faded.height)
+    scene_palette.enforce_sprites(faded, scene, frame_w, frame_h, sprite_height=min(16, frame_h))
+    return faded
+
+
+def fade_sidecar(sidecar: dict, twin: str) -> dict:
+    """The fade's own sidecar: the base's frame geometry, its own name, and the note that says where it came from."""
+    child = dict(sidecar)
+    child["name"] = twin
+    child["note"] = "one NES brightness row darker per step, written by tools/pp_intro_art.py"
+    return child
+
+
+def write_fades(root: str | None = None, palette=None) -> int:
+    """Write every fade strip and its sidecar from the base strips as they are on disk right now.
+
+    Callable from tools/art/scene_palette.py, which is the pass that runs last: reading the base back off disk
+    is what makes the order of the art passes stop mattering (see the flash strips in that file, same rule).
+    Returns the number of strips written.
+    """
+    root = root or ROOT
+    palette = palette or load_palette()
+    src = os.path.join(root, "game", "sprites_src", "title")
+    rule = fade_rule(root)
+    written = 0
+    for name in FADED_ANIMATIONS:
+        png = os.path.join(src, name + ".png")
+        sidecar_path = os.path.join(src, name + ".json")
+        if not os.path.isfile(png) or not os.path.isfile(sidecar_path):
+            print("skip: %s has no strip or sidecar yet" % name)
+            continue
+        with open(sidecar_path, "r", encoding="utf-8") as handle:
+            sidecar = json.load(handle)
+        with Image.open(png) as source:
+            base = source.convert("RGBA")
+        for steps in range(1, FADE_STEPS + 1):
+            twin = "%s_fade%d" % (name, steps)
+            faded = fade_for(twin, base, sidecar, steps, palette, rule)
+            faded.save(os.path.join(src, twin + ".png"))
+            with open(os.path.join(src, twin + ".json"), "w", encoding="utf-8", newline="\n") as handle:
+                handle.write(json.dumps(fade_sidecar(sidecar, twin), indent=2, sort_keys=True,
+                                        ensure_ascii=False) + "\n")
+            written += 1
+    return written
+
+
+def check_fades(root: str | None = None, palette=None) -> list[str]:
+    """Every fade strip that is missing or not the fade of the base beside it, as lines to print.
+
+    The comparison is on pixels and on the sidecar's own fields, not on PNG bytes: the pixels are the picture and
+    the encoder is not (tests/conftest.py, host_png_bytes). Until card t_cd6a0d24 this function did not exist and
+    --check only asked whether the file was there, so five animations could sit behind their bases for days and
+    the tool that was supposed to notice said nothing.
+    """
+    root = root or ROOT
+    palette = palette or load_palette()
+    src = os.path.join(root, "game", "sprites_src", "title")
+    rule = fade_rule(root)
+    stale = []
+    for name in FADED_ANIMATIONS:
+        png = os.path.join(src, name + ".png")
+        sidecar_path = os.path.join(src, name + ".json")
+        if not os.path.isfile(png) or not os.path.isfile(sidecar_path):
+            continue
+        with open(sidecar_path, "r", encoding="utf-8") as handle:
+            sidecar = json.load(handle)
+        with Image.open(png) as source:
+            base = source.convert("RGBA")
+        for steps in range(1, FADE_STEPS + 1):
+            twin = "%s_fade%d" % (name, steps)
+            want = fade_for(twin, base, sidecar, steps, palette, rule)
+            path = os.path.join(src, twin + ".png")
+            if not os.path.isfile(path):
+                stale.append("STALE: %s is missing" % path)
+                continue
+            with Image.open(path) as handle:
+                have = handle.convert("RGBA")
+            if have.size != want.size:
+                stale.append("STALE: %s is %dx%d, and the base beside it fades to %dx%d"
+                             % (path, have.width, have.height, want.width, want.height))
+                continue
+            if have.tobytes() != want.tobytes():
+                differing = sum(1 for a, b in zip(have.getdata(), want.getdata()) if a != b)
+                stale.append("STALE: %s is not the fade of %s (%d pixel(s) differ)"
+                             % (path, os.path.basename(png), differing))
+            sidecar_out = os.path.join(src, twin + ".json")
+            if not os.path.isfile(sidecar_out):
+                stale.append("STALE: %s is missing" % sidecar_out)
+                continue
+            with open(sidecar_out, "r", encoding="utf-8") as handle:
+                have_sidecar = json.load(handle)
+            if have_sidecar != fade_sidecar(sidecar, twin):
+                stale.append("STALE: %s does not carry the base's frame geometry" % sidecar_out)
+    return stale
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Write the NES fade strips and the star sprite.")
     parser.add_argument("--check", action="store_true",
@@ -216,45 +357,20 @@ def main(argv=None) -> int:
     palette = load_palette()
 
     if args.check:
-        stale = 0
+        stale = []
         star_png = os.path.join(TITLE_SRC, STAR_NAME + ".png")
         if not os.path.isfile(star_png):
-            print("STALE: %s is missing" % star_png)
-            stale += 1
-        for name in FADED_ANIMATIONS:
-            for step in range(1, FADE_STEPS + 1):
-                path = os.path.join(TITLE_SRC, "%s_fade%d.png" % (name, step))
-                if not os.path.isfile(path):
-                    print("STALE: %s is missing" % path)
-                    stale += 1
+            stale.append("STALE: %s is missing" % star_png)
+        stale.extend(check_fades(ROOT, palette))
+        for line in stale:
+            print(line)
         return 1 if stale else 0
 
     write_star_sprite(palette)
     if args.stars_only:
         return 0
 
-    written = 0
-    for name in FADED_ANIMATIONS:
-        png = os.path.join(TITLE_SRC, name + ".png")
-        sidecar_path = os.path.join(TITLE_SRC, name + ".json")
-        if not os.path.isfile(png) or not os.path.isfile(sidecar_path):
-            print("skip: %s has no strip or sidecar yet" % name)
-            continue
-        with open(sidecar_path, "r", encoding="utf-8") as handle:
-            sidecar = json.load(handle)
-        with Image.open(png) as source:
-            base = source.convert("RGBA")
-        for step in range(1, FADE_STEPS + 1):
-            faded = fade_image(base, step, palette)
-            out_png = os.path.join(TITLE_SRC, "%s_fade%d.png" % (name, step))
-            faded.save(out_png)
-            child = dict(sidecar)
-            child["name"] = "%s_fade%d" % (name, step)
-            child["note"] = ("one NES brightness row darker per step, written by tools/pp_intro_art.py")
-            out_json = os.path.join(TITLE_SRC, "%s_fade%d.json" % (name, step))
-            with open(out_json, "w", encoding="utf-8", newline="\n") as handle:
-                handle.write(json.dumps(child, indent=2, sort_keys=True, ensure_ascii=False) + "\n")
-            written += 1
+    written = write_fades(ROOT, palette)
     print("fades: %d strips written for %d animations" % (written, len(FADED_ANIMATIONS)))
     return 0
 

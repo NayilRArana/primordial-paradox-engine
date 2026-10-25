@@ -1319,3 +1319,30 @@ another lane's art to fit an existing source list; asserting the empty above pla
 has no fitting drawn over the walker" is a decision that a later tile could violate without any test noticing; and
 pinning the drive's `w` to `barrier_post` so the quay's water branch cannot reach it.
 Copied expression: none
+
+## TITLE-FADE-DRIFT, 2026-10-25: derived art is lifted last, and the checker reads it (card t_cd6a0d24)
+Studied: this repository's own files, read only: `tools/pp_intro_art.py` (the fade rule, the forbidden `$0D` entry, the
+star's own palette-enforcement fix, and a `--check` that documented staleness it never measured),
+`tools/art/scene_palette.py` (`apply_title`'s pass order: two area passes, the checker flatten, the sprite list, the
+`rebuild_flash` call, then `title_bands.apply`; `enforce_sprites` and its 8x16 grouping; `TITLE_SPRITES` and which
+names the band plan takes over), `data/palettes/scene_title.json` (`band_sprites`, the four sprite palettes, the note
+that the fade twins are not band painted), `tools/art/make_title_world.py:rebuild_flash` (the same derived-strip
+argument, already solved for the `_flash` twins), `tools/check_scene_palettes.py` (every `TITLE_SPRITES` sheet is
+judged for three colours per 8x16 group and one sprite palette per group), and `tests/conftest.py` plus `pytest.ini`
+(the `host_png_bytes` and `needs_git_checkout` classes, which is why the new pins compare pixels and read HEAD). No
+decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: two. One, a derived strip is a build-order fact and not a file: any pass that can rewrite a base
+strip invalidates every picture named after it, so the only durable arrangement is that the last pass rebuilds the
+derived strips from the base as it is on disk, which is what this repo had already accepted for the `_flash` twins and
+had never extended to the fades. Two, two tools writing one file with two different rules cannot be detected by a
+checker that asks whether the file exists: the cloud's fade twin was being written raw by one tool and re-mapped into
+the sprite palette by the other, so the shipped bytes were neither one rule nor the other, and only a pixel-level
+comparison against the base names which rule lost.
+Our implementation differs by: computing the fade twin inside the generator for exactly the sheets the scene's sprite
+pass owns, read from the scene data rather than from a copy of the list, so the two writers now compose to the same
+answer in either order; rebuilding the fades at the end of `apply_title` next to the flash rebuild instead of asking
+lanes to remember a command; making `--check` report the pixel count that differs per strip, which is the number that
+tells a lane whether the base moved or the rule moved; and judging the new pin from the HEAD pair so a lane's
+uncommitted repaint can never make another lane's suite red, while the working copy is still judged by the command a
+lane actually runs.
+Copied expression: none

@@ -11,7 +11,10 @@ What these tests hold down, and why each one earns its place:
      every point inside the 256x240 frame and above the crawl band;
   6. the crawl data is 6 beats of at most 32 columns with the card's timing numbers;
   7. tools/capture_title.py still carries the --intro path at the card's four times, because the frames
-     this card is reviewed on come from that path.
+     this card is reviewed on come from that path;
+  8. every committed fade strip is the fade of the base strip committed beside it, which is the ordering
+     rule card t_cd6a0d24 was opened for: five animations had fades of pictures the game no longer draws,
+     and the tool that was supposed to notice only asked whether the files existed.
 
 Run: python -m pytest tests/test_intro.py -q
 """
@@ -19,8 +22,10 @@ Run: python -m pytest tests/test_intro.py -q
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 
@@ -127,3 +132,133 @@ def test_the_capture_path_keeps_the_cards_four_times():
     assert "def run_intro_capture(" in text
     assert "INTRO_TIMES = (1.0, 4.0, 8.0, 14.0)" in text
     assert "intro_%d.png" in text
+
+
+# ---------------------------------------------------------------------------------------------------------
+# Card t_cd6a0d24: the fade strips are derived art, so they have to be the fades of the bases that ship.
+# ---------------------------------------------------------------------------------------------------------
+
+def committed(rel: str) -> bytes:
+    """The bytes HEAD holds for one path, so the pair a commit ships is what gets judged.
+
+    The `./` makes the path relative to ROOT: this tree is a subdirectory of the repo it lives in, so a bare
+    `HEAD:game/...` names the wrong place.
+    """
+    result = subprocess.run(["git", "-C", ROOT, "show", "HEAD:./%s" % rel.replace("\\", "/")],
+                            capture_output=True, stdin=subprocess.DEVNULL)
+    assert result.returncode == 0, result.stderr.decode("utf-8", "replace")
+    return result.stdout
+
+
+def committed_image(rel: str) -> Image.Image:
+    with Image.open(io.BytesIO(committed(rel))) as handle:
+        return handle.convert("RGBA")
+
+
+@pytest.mark.needs_git_checkout
+def test_every_committed_fade_strip_is_the_fade_of_the_base_it_ships_with():
+    """The ordering rule, as a red test: ship a base without re-running the fades and this fails, naming the file.
+
+    Measured on the tree this card was opened on: 13 strips across five animations were the fades of pictures the
+    game no longer draws, and the only thing that could have noticed asked whether the file existed.
+
+    The pair judged here is the one in HEAD, not the working copy. A lane can be mid repaint with a base that is
+    newer than any fade it has written yet, and that is not a defect the suite should report at someone else's
+    door; the working copy is judged by `python tools/pp_intro_art.py --check`, which is the command a lane runs
+    after touching art. Both sides of the comparison come from the same commit, so this one can only be red for
+    the thing that matters: a commit that shipped a stale fade.
+    """
+    art = load("pp_intro_art")
+    palette = art.load_palette()
+    rule = art.fade_rule(ROOT)
+    stale = []
+    for name in art.FADED_ANIMATIONS:
+        base_rel = "game/sprites_src/title/%s.png" % name
+        sidecar = json.loads(committed("game/sprites_src/title/%s.json" % name).decode("utf-8"))
+        base = committed_image(base_rel)
+        for steps in range(1, art.FADE_STEPS + 1):
+            twin = "%s_fade%d" % (name, steps)
+            want = art.fade_for(twin, base, sidecar, steps, palette, rule)
+            have = committed_image("game/sprites_src/title/%s.png" % twin)
+            assert have.size == want.size, "%s is %dx%d and its base fades to %dx%d" % (
+                twin, have.width, have.height, want.width, want.height)
+            if have.tobytes() != want.tobytes():
+                differing = sum(1 for a, b in zip(have.getdata(), want.getdata()) if a != b)
+                stale.append("%s%s.png is not the fade of %s.png (%d pixel(s) differ)"
+                             % ("game/sprites_src/title/", twin, name, differing))
+    assert stale == [], "\n".join(stale)
+
+
+def test_the_fade_check_catches_a_base_repainted_underneath_it(tmp_path):
+    """A stale fade is reported as stale, not as missing: the check has to read the picture, not the file list."""
+    art = load("pp_intro_art")
+    palette = art.load_palette()
+    root = private_root(tmp_path)
+    src = os.path.join(root, "game", "sprites_src", "title")
+    # The working tree can hold a base a lane has not finished with, so the copy starts from fades this test wrote
+    # itself: the subject is the detector, not the state of somebody else's art.
+    art.write_fades(root, palette)
+    assert art.check_fades(root, palette) == []
+
+    # Repaint one base strip the way an art lane would: an opaque pixel becomes another chip colour. Its fades are
+    # now pictures of a strip that no longer exists.
+    base_path = os.path.join(src, "title_L6_road.png")
+    with Image.open(base_path) as handle:
+        sheet = handle.convert("RGBA")
+    painted = None
+    for y in range(sheet.height):
+        for x in range(sheet.width):
+            if painted is None and sheet.getpixel((x, y))[3] == 255:
+                sheet.putpixel((x, y), palette[0x21] + (255,))
+                painted = (x, y)
+    assert painted is not None
+    sheet.save(base_path)
+
+    stale = art.check_fades(root, palette)
+    assert any("title_L6_road_fade1.png is not the fade of title_L6_road.png" in line for line in stale), stale
+    # The strips of the other animations are still the fades of their own bases: the check is per strip, not a
+    # whole-directory flag that one repaint would silence.
+    assert not any("title_L7_fg" in line for line in stale), stale
+
+
+def test_writing_the_fades_twice_changes_nothing(tmp_path):
+    """The generator is the last writer, so a second run has to be a no-op: that is what makes the order safe.
+
+    scene_palette.py's apply pass ends by calling write_fades() here, so on a lane that runs the art order the
+    generator runs twice in a row. If the second write differed, every art pass would leave the tree dirty.
+    """
+    art = load("pp_intro_art")
+    palette = art.load_palette()
+    root = private_root(tmp_path)
+    src = os.path.join(root, "game", "sprites_src", "title")
+    art.write_fades(root, palette)
+    first = read_pngs(src)
+    art.write_fades(root, palette)
+    second = read_pngs(src)
+    changed = [name for name in first if first[name] != second[name]]
+    assert changed == [], changed
+
+
+def private_root(tmp_path) -> str:
+    """A root with the palette, the scene and the title art copied in, so a test can rewrite art and nothing else."""
+    root = os.path.join(str(tmp_path), "root")
+    src = os.path.join(root, "game", "sprites_src", "title")
+    os.makedirs(src, exist_ok=True)
+    os.makedirs(os.path.join(root, "data", "palettes"), exist_ok=True)
+    shutil.copy(os.path.join(ROOT, "data", "nes_palette.json"),
+                os.path.join(root, "data", "nes_palette.json"))
+    shutil.copy(os.path.join(ROOT, "data", "palettes", "scene_title.json"),
+                os.path.join(root, "data", "palettes", "scene_title.json"))
+    title = os.path.join(ROOT, "game", "sprites_src", "title")
+    for name in os.listdir(title):
+        shutil.copy(os.path.join(title, name), os.path.join(src, name))
+    return root
+
+
+def read_pngs(directory: str) -> dict:
+    out = {}
+    for name in sorted(os.listdir(directory)):
+        if name.endswith(".png"):
+            with open(os.path.join(directory, name), "rb") as handle:
+                out[name] = handle.read()
+    return out
