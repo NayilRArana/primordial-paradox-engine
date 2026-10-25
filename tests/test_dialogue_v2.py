@@ -15,6 +15,12 @@ What this file holds down, and why each check earns its place:
      per choice, which is what makes "picking a gate choice sets gate_passed and exactly one of the three" true. The
      gate entry the card asks for is in the file, so this runs instead of skipping, and section 5 pins that scene's
      own four pages of three lines and its three labels.
+  5. TERMINATION. Every `goto` is walked as a graph, so a chain that comes back to a dialogue it already played is
+     refused rather than trusted. The probe that catches a loop is itself fed a self goto and a two step loop.
+  6. THE RUNTIME CONTRACT, EXERCISED. The engine is GML and pytest cannot call it, so this file carries a small
+     headless box: `box_open`, `box_pick` and a `Ledger` that stands in for pp_ledger. One test pins the harness to
+     pp_dialogue_pick's own body, line order included, and the rest run it over the real data, so "picking a choice
+     applies every flag in sets" is measured on the file rather than read as prose.
 """
 
 from __future__ import annotations
@@ -22,8 +28,6 @@ from __future__ import annotations
 import json
 import os
 import re
-
-import pytest
 
 import check_data
 
@@ -168,6 +172,8 @@ def test_every_choice_fits_the_panel_and_names_real_ids():
     ids = {row["id"] for row in dialogue_rows()}
     seen_choices = 0
     for row in dialogue_rows():
+        if "choices" in row:
+            assert 1 <= len(row["choices"]) <= check_data.CHOICES, (row["id"], len(row["choices"]))
         for index, choice in enumerate(row.get("choices", [])):
             seen_choices += 1
             assert 1 <= len(choice["label"]) <= check_data.CHOICE_LABEL_CHARS, (row["id"], index, choice["label"])
@@ -177,6 +183,8 @@ def test_every_choice_fits_the_panel_and_names_real_ids():
             if "goto" in choice:
                 assert choice["goto"] in ids, (row["id"], index, choice["goto"])
         assert len(row.get("choices", [])) <= check_data.CHOICES, row["id"]
+    assert seen_choices > 0, (
+        "no entry carries a choice list, so the loop above proved nothing; the gate scene is missing")
     assert seen_choices == sum(len(row.get("choices", [])) for row in dialogue_rows())
 
 
@@ -342,8 +350,8 @@ def choice_entries():
 
 def test_a_choice_list_sets_one_pivot_flag_and_one_branch_flag_each():
     rows = choice_entries()
-    if not rows:
-        pytest.skip("no entry carries choices yet: the gate checkpoint waits on data/flags.json (see the card)")
+    assert rows, (
+        "no entry carries choices, so the pivot and branch rule is unproven; the gate ask must be in the file")
 
     for row in rows:
         sets = [set(choice["sets"]) for choice in row["choices"]]
@@ -443,6 +451,204 @@ def test_the_dock_office_hands_over_the_pass_on_its_last_page():
     assert handover["sets"] == ["has_boarding_pass"], handover.get("sets")
     assert "sets" not in office, "the pass is handed over in the second entry, not the first"
 
+
+def test_every_shorthand_line_can_wrap_inside_30_characters():
+    """The other half of "every line is 30 characters or fewer": the shorthand wraps by word, so no word may be 31."""
+    for row in dialogue_rows():
+        for index, line in enumerate(row.get("lines", [])):
+            for word in line.split(" "):
+                assert len(word) <= check_data.LINE_CHARS, (row["id"], index, word, len(word))
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# 6. Every goto chain terminates.
+
+
+def goto_graph():
+    """The goto edges only: an entry to each dialogue its choices continue into."""
+    graph = {}
+    for row in dialogue_rows():
+        targets = [choice["goto"] for choice in row.get("choices", []) if "goto" in choice]
+        if targets:
+            graph[row["id"]] = targets
+    return graph
+
+
+def first_cycle(graph):
+    """The first path that comes back to a node it already visited, or None when the graph is acyclic.
+
+    A stack entry carries its own path, so a node repeated anywhere behind the cursor is a loop and not a diamond:
+    two choices reaching the same reply is legal, a reply reaching back into the ask is not.
+    """
+    for start in sorted(graph):
+        stack: list = [(start, (start,))]
+        while stack:
+            node, path = stack.pop()
+            for target in graph.get(node, ()):
+                if target in path:
+                    return path + (target,)
+                stack.append((target, path + (target,)))
+    return None
+
+
+def test_every_goto_chain_terminates():
+    graph = goto_graph()
+    assert graph, "no entry carries a goto, so termination is unproven"
+    by_id = rows_by_id()
+    for source, targets in graph.items():
+        for target in targets:
+            assert target in by_id, (source, target)
+    cycle = first_cycle(graph)
+    assert cycle is None, "the goto chain never terminates: %s" % " -> ".join(cycle)
+
+
+def test_the_cycle_probe_catches_a_self_goto_and_a_two_step_loop():
+    """A probe that cannot fail is not a probe, so it is fed both shapes of a loop and a clean chain."""
+    assert first_cycle({"alone": ["alone"]}) == ("alone", "alone")
+    assert first_cycle({"ask": ["reply"], "reply": ["ask"]}) == ("ask", "reply", "ask")
+    assert first_cycle({"ask": ["reply"], "reply": []}) is None
+
+
+def test_a_goto_target_ends_the_beat_instead_of_asking_again():
+    """The reply entries carry no choices, which is what makes each gate chain one hop and the box close after it."""
+    by_id = rows_by_id()
+    for source, targets in goto_graph().items():
+        for target in targets:
+            assert "choices" not in by_id[target], (source, target)
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# 7. The runtime contract, exercised: a pick applies every flag in its `sets`.
+
+
+class Ledger:
+    """pp_ledger in the small: flag name to value, written in one place, which is the engine's own rule."""
+
+    def __init__(self):
+        self.flags = {}
+
+    def set_flag(self, name, value):
+        self.flags[name] = value
+
+
+def box_flag_list(row, field):
+    """pp_dialogue_flag_list: a copy of the row's flag list, empty when the field is absent."""
+    names = row.get(field, [])
+    return list(names) if isinstance(names, list) else []
+
+
+def box_choice_list(row):
+    """pp_dialogue_choice_list: label, the flags it sets, and the dialogue it goes to ("" for close)."""
+    out = []
+    for choice in row.get("choices", []):
+        out.append({
+            "label": choice["label"],
+            "sets": box_flag_list(choice, "sets"),
+            "goto": choice.get("goto", ""),
+        })
+    return out
+
+
+def box_open(by_id, dialogue_id):
+    """pp_dialogue_open, reduced to the fields the pick and the flag contract read."""
+    row = by_id[dialogue_id]
+    return {
+        "id": row["id"],
+        "speaker": row["speaker"],
+        "sets": box_flag_list(row, "sets"),
+        "choices": box_choice_list(row),
+        "closed": False,
+    }
+
+
+def box_pick(ledger, by_id, box, index):
+    """pp_dialogue_pick in the engine's own order: the choice's flags, the entry's flags, then the goto.
+
+    Returns True when the box closed and False when it stayed open, which is the GML's own return value.
+    """
+    if box["closed"] or not box["choices"]:
+        return False
+    if index < 0 or index >= len(box["choices"]):
+        return False
+    choice = box["choices"][index]
+    for name in choice["sets"]:
+        ledger.set_flag(name, True)
+    for name in box["sets"]:
+        ledger.set_flag(name, True)
+    if choice["goto"] != "":
+        box.update(box_open(by_id, choice["goto"]))
+        return False
+    box["closed"] = True
+    return True
+
+
+def test_the_harness_is_the_gml_pick_path_in_the_same_order():
+    """The pin: if pp_dialogue_pick reorders the flags or drops the goto, the harness stops describing the engine."""
+    code = code_of(DIALOGUE_GML)
+    pick = function_body(code, "pp_dialogue_pick")
+    choice_flags = pick.index("pp_dialogue_apply_flags(_choice.sets)")
+    entry_flags = pick.index("pp_dialogue_apply_flags(_d.sets)")
+    goto = pick.index("pp_dialogue_open(_choice.goto)")
+    close = pick.index("_d.closed = true;")
+    assert choice_flags < entry_flags < goto < close, pick
+
+    apply_flags = function_body(code, "pp_dialogue_apply_flags")
+    assert "while (_i < array_length(_names))" in apply_flags, apply_flags
+    assert "pp_ledger_set_flag(global.pp_ledger, _names[_i], true);" in apply_flags, apply_flags
+
+    opened = function_body(code, "pp_dialogue_open")
+    assert 'sets: pp_dialogue_flag_list(_row, "sets"),' in opened, opened
+    assert "choices: pp_dialogue_choice_list(_row)," in opened, opened
+
+    choices = function_body(code, "pp_dialogue_choice_list")
+    assert 'sets: pp_dialogue_flag_list(_choice, "sets"),' in choices, choices
+    assert "_goto = _choice.goto;" in choices, choices
+
+
+def test_picking_a_gate_choice_sets_every_flag_it_names():
+    """The card's runtime half: pick each of the three, and the ledger holds exactly that choice's flags."""
+    by_id = rows_by_id()
+    assert len(box_open(by_id, "quay_gate_choice")["choices"]) == 3
+    for index in range(3):
+        ledger = Ledger()
+        box = box_open(by_id, "quay_gate_choice")
+        choice = box["choices"][index]
+        closed = box_pick(ledger, by_id, box, index)
+
+        assert set(ledger.flags) == set(choice["sets"]), (index, ledger.flags, choice["sets"])
+        assert all(ledger.flags.values()), ledger.flags
+        assert closed is False, "a choice with a goto continues in the same box"
+        assert box["id"] == choice["goto"], (box["id"], choice["goto"])
+        assert box["closed"] is False, "the box must stay open on the reply"
+
+        # And the branch flag this pick set is one of the three, never two of them.
+        assert len(set(ledger.flags) & set(GATE_BRANCH_FLAGS)) == 1, ledger.flags
+
+
+def test_every_choice_in_the_file_sets_exactly_the_flags_it_names():
+    by_id = rows_by_id()
+    seen = 0
+    for row in choice_entries():
+        for index in range(len(row["choices"])):
+            seen += 1
+            ledger = Ledger()
+            box = box_open(by_id, row["id"])
+            box_pick(ledger, by_id, box, index)
+            expected = set(row["choices"][index]["sets"]) | set(row.get("sets", []))
+            assert set(ledger.flags) == expected, (
+                row["id"], index, sorted(ledger.flags), sorted(expected))
+    assert seen == 3, "the file is expected to hold the gate's three choices and no others, found %d" % seen
+
+
+def test_a_pick_without_a_goto_closes_the_box_and_still_sets_its_flags():
+    """Every landed choice continues, so the close path is proved on a row of its own rather than on air."""
+    by_id = {"close_me": {"id": "close_me", "speaker": "narrator", "pages": [{"lines": ["* Pick."]}],
+                          "choices": [{"label": "Out.", "sets": ["gate_passed"]}]}}
+    ledger = Ledger()
+    box = box_open(by_id, "close_me")
+    assert box_pick(ledger, by_id, box, 0) is True
+    assert box["closed"] is True
+    assert ledger.flags == {"gate_passed": True}
 
 
 # ---------------------------------------------------------------------------------------------------------------
