@@ -253,24 +253,34 @@ def test_the_cloud_declares_itself_a_layer_in_its_sidecar_and_in_its_generator()
 # commit carried, so a clean checkout of 5f290c5 was red on this file while this machine was green.
 
 def tracked_paths():
-    """Every path git tracks under the project, relative to the project root, or None when git cannot answer.
+    """The paths git tracks in THIS project, relative to the project root, or None when git cannot answer.
 
-    None when there is no git at all and when the tree is not inside a repository: a bare `git archive`
-    extraction has no .git, so asking it what is committed is unanswerable rather than a failure, and this row
-    must not turn that into a red. Where a repository exists (the live tree, a detached worktree) it answers,
-    and a broken git is an error, not a skip.
+    None in two cases, both unanswerable rather than failures. No git at all, or a tree that is not inside a
+    repository: a bare `git archive` extraction has no .git, which is the measuring stick this card used. And a
+    tree that sits inside SOME repository that is not the one that owns it: an archive unpacked under another
+    checkout still answers `git ls-files`, and answers with the wrong set, which turned this row red on a
+    correct tree once already. The ownership test is the project's own manifest: the repository that owns
+    projects/primordial-paradox tracks its DEVLOG.md. Where a repository passes both (the live tree, a detached
+    worktree) the set answers, and a broken git is still an error rather than a skip.
     """
+    def git(*arguments):
+        return subprocess.run(["git", *arguments], cwd=ROOT, capture_output=True, text=True, timeout=120)
+
     try:
-        out = subprocess.run(["git", "ls-files", "--", "."], cwd=ROOT, capture_output=True, text=True,
-                             timeout=120)
+        top = git("rev-parse", "--show-toplevel")
     except (OSError, subprocess.SubprocessError):
         return None
-    if out.returncode != 0:
-        message = (out.stderr or "").lower()
-        if "not a git repository" in message or "not a git repo" in message:
-            return None
-        raise AssertionError("git ls-files failed in %s: %s" % (ROOT, out.stderr.strip()[:400]))
-    return set(out.stdout.splitlines())
+    if top.returncode != 0 or not top.stdout.strip():
+        return None
+    listing = git("ls-files", "--full-name")
+    if listing.returncode != 0:
+        raise AssertionError("git ls-files failed in %s: %s" % (ROOT, listing.stderr.strip()[:400]))
+    tracked = set(listing.stdout.splitlines())
+    relative = os.path.relpath(ROOT, top.stdout.strip())
+    prefix = "" if os.path.normpath(relative) == "." else relative.replace(os.sep, "/") + "/"
+    if prefix + "DEVLOG.md" not in tracked:
+        return None
+    return {path[len(prefix):] for path in tracked if path.startswith(prefix)}
 
 
 def test_every_judged_rows_ground_is_a_file_a_clean_checkout_carries():
@@ -281,7 +291,7 @@ def test_every_judged_rows_ground_is_a_file_a_clean_checkout_carries():
     """
     tracked = tracked_paths()
     if tracked is None:
-        pytest.skip("no git here (a bare archive, or git is not installed), so the tracked set cannot be read")
+        pytest.skip("no repository that owns this tree, so what it commits cannot be read (see tracked_paths)")
     missing = sorted({row["background"] for row in judged_rows() if row["background"] not in tracked})
     assert missing == [], ("a judged row measures a frame no commit carries, so a clean checkout fails on it: %s"
                            % missing)
