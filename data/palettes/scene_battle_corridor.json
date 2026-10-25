@@ -22,7 +22,7 @@
         "game/sprites_src/chars/zander_ow_v2.png"
       ],
       "note": "the corridor battle ground against the three hero battle sheets",
-      "exempt": "the party battle sheets fit no scene set in the project: measured 2026-10-24, percy_battle has 60 of 73 inked tiles uncovered, zander_battle 66 of 72, konrad_battle 35 of 72, hadrian_battle 40 of 72, and no cover in 6 palettes carries all four plus an enemy (knowledge/PALETTE-RULINGS-2026-10-24.md section 8). That is a project budget decision across every battle strip and it has its own card; this row stays so the pair column keeps being measured"
+      "exempt": "BUDGET RULED 2026-10-25 on card t_8c27208b (knowledge/PALETTE-RULINGS-2026-10-25.md sections 7 and 7.1): a fifth sprite palette is refused because the PPU has four, so the party battle sheets are being repainted to the four RESERVED HERO PALETTES already written in hero_palettes (percy $0F $12 $28, hadrian $0F $03 $23, zander $0F $21 $31, konrad $0F $00 $27, nine entries of the twelve a frame allows), with the body role on the light entry and the party block floor at $0F. Measured 2026-10-25 for the repaint card: as drawn the four sheets need 26 three-entry palettes (percy 12, hadrian 4, konrad 7, zander 6; 19 colours, 39 distinct tile colour sets over 289 tiles), the recolour cost per sheet is 67, 18, 27 and 34 percent of its pixels, and the enemies get background palettes on a strip that draws four heroes rather than a fifth slot. This row stays exempt until that art lands, and it stays so the pair column keeps being measured"
     },
     {
       "background": "output/bg_battle_corridor_frame.png",

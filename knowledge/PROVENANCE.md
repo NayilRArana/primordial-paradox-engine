@@ -1387,3 +1387,29 @@ sheet, so a regeneration cannot drop it; the four frames are drawn once and shar
 generator instead of being copied; and the row keeps the old figure measurement beside the new layer one, so what changed and
 why is legible later.
 Copied expression: none
+
+## BATTLE-CAST-BUDGET, 2026-10-25: a scene's sprite palettes are four, and the party is drawn in one triple each (card t_8c27208b)
+Studied: this repository's own files, read only: `knowledge/ART-BIBLE.md` section 1.1 (what a scanline of sprites can
+be), section 1.2 (the 4 + 4 palette arithmetic, 12 opaque sprite colours per frame), section 2.3 (Final Fantasy I's
+side view with the party down the right edge) and section 2.4 (Castlevania's one palette for Simon and the rest shared
+by enemies, and why Simon reads: no black in his palette), `data/scene_palettes.json` `hero_palettes`,
+`data/palettes/scene_battle_corridor.json`, `data/ui_layouts.json` (the party block at x 224 and the two 32x32 enemy
+slots), `tools/palette_synergy.py` (the per tile R6 reading and the two messages that name a fifth sprite palette),
+`tools/scene_palette_set.py` (`allowed()` unioning the scene four with the hero four), `tools/nes_audit_all.py`
+(`discover()` and what it treats as a frame, a sheet and a captured frame), `pine_offload.py` in the arananet tree
+(`OUTPUT_KEEP` and the comment that argues for it), `knowledge/PALETTE-PASS-LIST.md` run 10 sections 2, 7 and 9, and
+`knowledge/SUBMISSION-KIT-2026-10-24.md` section 1.1. No decompiled material was read for this card and no expression
+from any game is in it.
+Mechanics learned: three. One, a multi tile NES figure is not one palette's worth of pixels, so a scene's sprite
+budget has to be checked per 8x8 tile, and the question "does one palette carry this figure" is the wrong question for
+anything taller than one tile. Two, the four sprite palettes a frame has are a CEILING, so a cast of four figures plus
+an enemy cannot each own a palette; the studied games solve it by drawing the monster as background art and giving the
+player figure the palette with no black in it. Three, an upload manifest that ships "what a test reads" is right, and
+the measurement defect is on the other side: a checker that prints a smaller universe without saying so is not
+advisory, it is quieter.
+Our implementation differs by: the budget is written per scene in `data/scene_palettes.json` with the four hero triples
+fixed by number rather than chosen at draw time; the measurement is an exact set cover over every tile's opaque colour
+set, so the price of a repaint is a number of triples and a percentage of pixels rather than an opinion; the body role
+and the floor are decided by two instruments the tool already owns (row gap or 3:1) instead of by a rule of thumb; and
+the audit treats a by product that no clean checkout can reproduce as NOT MEASURED rather than as a hard refusal.
+Copied expression: none
