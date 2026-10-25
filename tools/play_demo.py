@@ -832,21 +832,17 @@ def run_demo(script, keep_raw=False):
     # Card PINE-HONEST (t_84fe63ff): both modules come in on first use, and a host with no window primitives
     # refuses here, where a window would actually be opened, so --check and --dry-run still work where nothing can
     # be shown. 4 is the harness's not-measured code, so a reader sees "not measured" and never "passed".
-    try:
-        cap = capture_module()
-        launch = launch_module()
-    except PlatformUnavailable as error:
+    cap = capture_module()  # raises PlatformUnavailable when the drawing path cannot be imported at all
+    pp_launch = launch_module()
+    FFMPEG = ffmpeg_path()
+    if not can_draw():
         print(UNAVAILABLE_LINE)
-        print("  %s" % error)
-        return EXIT_UNAVAILABLE
-    if not getattr(cap, "WINDOW_PRIMITIVES", False):
-        print(UNAVAILABLE_LINE)
-        print("  this host has no window primitives")
+        print("  this host has no window primitives, so there is no window to record")
         return EXIT_UNAVAILABLE
     # Card CAPTURE-QUIET: the gate is asked before anything is opened or deleted, so a refused run leaves the last
     # good recording on disk and costs one log line.
     if not LAUNCH.gate("demo recording"):
-        return EXIT_UNAVAILABLE
+        return pp_launch.EXIT_REFUSED
     if not FFMPEG:
         print("ffmpeg was not found in the winget package folder and is not on PATH")
         return 1
@@ -889,7 +885,7 @@ def run_demo(script, keep_raw=False):
     extra = {}
     for part in script["game"].get("env", {}) or {}:
         extra[part] = script["game"]["env"][part]
-    run = launch.start_game(exe_path, win_path, log_path=log_path, policy=LAUNCH, label="demo recording",
+    run = pp_launch.start_game(exe_path, win_path, log_path=log_path, policy=LAUNCH, label="demo recording",
                                extra=extra or None)
     process = run.process
     cap.start_watchdog(process, int(seconds) + 240)
