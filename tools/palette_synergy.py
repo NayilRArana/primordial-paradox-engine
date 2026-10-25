@@ -345,8 +345,8 @@ def tile_fails(grid: Grid, scene, image: Image.Image, box, where: str) -> tuple:
             uncovered += 1
             named = " ".join(grid.code(entry) if entry >= 0 else "off-palette" for entry in sorted(needs))
             problems.append(fail("palette_count",
-                                 "%s: 8x8 tile at %d,%d needs %s, which no single sprite palette of the scene "
-                                 "carries, so the frame needs a fifth sprite palette"
+                                 "%s: 8x8 tile at %d,%d needs %s, which none of the scene's four sprite palettes "
+                                 "carries, so the drawing has to change or the set does"
                                  % (where, left, top, named),
                                  tile=[left, top], colours=named, subject="cast"))
     return problems, inked, uncovered
@@ -437,8 +437,8 @@ def frame_report(grid: Grid, scene, image: Image.Image, box, background: Image.I
     tiles = None
     if whole and not fits:
         problems.append(fail("palette_count",
-                             "no single sprite palette of the scene carries this frame's colours, so it needs a "
-                             "fifth sprite palette", subject="cast"))
+                             "none of the scene's four sprite palettes carries this frame's colours, so the "
+                             "drawing has to change or the set does", subject="cast"))
     elif figure:
         # A multi-tile figure: R6 per 8x8 tile, one fail per uncovered tile.
         found, tiles_inked, tiles_uncovered = tile_fails(
@@ -664,18 +664,55 @@ def audit_entries(root: str, data: dict) -> list:
             "at": item.get("at"),
             "frame": item.get("frame"),
             "gate": bool(entry.get("gate", False)),
+            "by_product": bool(item.get(scene_palette_set.BY_PRODUCT_KEY, False)),
         })
     return out
+
+
+def missing_inputs(root: str, item: dict) -> list:
+    """The files an audit row names that are not on disk, in the order the row names them."""
+    out = []
+    background = item.get("background")
+    if background and not os.path.isfile(resolve(root, background)):
+        out.append(background)
+    for path in item.get("sprites") or []:
+        if not os.path.isfile(resolve(root, path)):
+            out.append(path)
+    return out
+
+
+def not_measured(item: dict, missing: list) -> dict:
+    """A by-product row whose file this tree does not carry, reported instead of refused.
+
+    A by-product is gitignored and two generators write different content under one name (the contact sheet:
+    tools/art/make_characters_v2.py measures 11 records here, tools/art/make_title_rows_v2.py 3 on the far side),
+    so no clean checkout reproduces it and an audit row cannot claim it as evidence. Refusing the whole run cost
+    three Pine jobs (v10aR-0, v10aU-0, v10aV-0); the ruling is that such a row reports NOT MEASURED with a printed
+    line (knowledge/PALETTE-RULINGS-2026-10-25.md section 8, card t_c93a983f).
+    """
+    return {
+        "scene": item["scene"], "background": item["background"], "sprites": list(item["sprites"]),
+        "measured": False, "by_product": True, "gated": False,
+        "ok": True, "fail_count": 0, "problems": [], "skipped": list(missing),
+    }
 
 
 def gate(root: str) -> tuple:
     data = scene_palette_set.load(root)
     results = []
     for item in audit_entries(root, data):
+        missing = missing_inputs(root, item)
+        if item["by_product"] and missing:
+            results.append(not_measured(item, missing))
+            continue
         frame_w = item["frame"][0] if item["frame"] else None
         frame_h = item["frame"][1] if item["frame"] else None
         result = analyse(root, item["scene"], item["background"], item["sprites"], item["at"], frame_w, frame_h)
-        result["gated"] = item["gate"]
+        # A by-product that IS present is measured, and reported as advisory whatever it measures: it is a
+        # diagnostic, not a cast ruling (card t_c93a983f).
+        result["gated"] = item["gate"] and not item["by_product"]
+        result["by_product"] = item["by_product"]
+        result["measured"] = True
         results.append(result)
     blocked = [result for result in results if result["gated"] and not result["ok"]]
     advisory = [result for result in results if not result["gated"] and not result["ok"]]
@@ -690,6 +727,9 @@ def write_audit(root: str, results: list, path: str | None = None) -> str:
         "mode": "gate",
         "results": [{"scene": result["scene"], "background": result["background"], "gated": result["gated"],
                      "ok": result["ok"], "fail_count": result["fail_count"],
+                     "measured": result.get("measured", True),
+                     "by_product": bool(result.get("by_product", False)),
+                     "skipped": result.get("skipped", []),
                      "fails": sorted({problem["rule"] for problem in result["problems"]}),
                      "problems": result["problems"]} for result in results],
     }
@@ -814,7 +854,14 @@ def main(argv=None) -> int:
     if args.gate:
         results, blocked, advisory = gate(root)
         path = write_audit(root, results, args.out)
+        unmeasured = [result for result in results if not result.get("measured", True)]
         for result in results:
+            if not result.get("measured", True):
+                print("palette_synergy %-9s %-18s %-44s NOT MEASURED (by product, not in this tree: %s)"
+                      % ("advisory", result["scene"], os.path.basename(result["background"]),
+                         ", ".join(result.get("skipped") or ["no file named"])))
+                continue
+            # A by-product still prints "advisory" whatever it measures: it is a diagnostic, never the gate.
             tag = "GATED" if result["gated"] else "advisory"
             print("palette_synergy %-9s %-18s %-44s %s, %d fail(s)"
                   % (tag, result["scene"], os.path.basename(result["background"]),
@@ -823,8 +870,9 @@ def main(argv=None) -> int:
                 print("    %-16s %s" % (problem["rule"], problem["detail"]))
             if result["fail_count"] > 6:
                 print("    ... %d more in %s" % (result["fail_count"] - 6, shown(root, path)))
-        print("palette_synergy: %d entry(ies), %d gated failure(s), %d advisory failure(s); report %s"
-              % (len(results), len(blocked), len(advisory), shown(root, path)))
+        print("palette_synergy: %d entry(ies), %d gated failure(s), %d advisory failure(s), "
+              "%d not measured; report %s"
+              % (len(results), len(blocked), len(advisory), len(unmeasured), shown(root, path)))
         return 1 if blocked else 0
 
     if not (args.scene and args.background and args.sprite):

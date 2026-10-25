@@ -30,7 +30,8 @@
         "output/sprites_v2_sheet.png"
       ],
       "note": "the sprites_v2 contact sheet, the whole v2 cast read against one ground at a time",
-      "exempt": "a contact sheet is a diagnostic, not a cast: it draws the whole v2 roster in one image, so no single palette set can carry it and a cast check on it would say nothing"
+      "by_product": true,
+      "exempt": "a contact sheet is a diagnostic, not a cast: it draws the whole v2 roster in one image, so no single palette set can carry it and a cast check on it would say nothing. It is also a BY PRODUCT: output/sprites_v2_sheet.png is gitignored, so no clean checkout reproduces it, and two generators write different content under the one name (tools/art/make_characters_v2.py measures 11 records on this machine, tools/art/make_title_rows_v2.py 3 on the far side). Card t_c93a983f, ruling section 8 of knowledge/PALETTE-RULINGS-2026-10-25.md: when the file is absent the row reports NOT MEASURED with a printed line instead of refusing the run, and when it is present it is measured and reported advisory whatever it measures"
     }
   ],
   "background": [

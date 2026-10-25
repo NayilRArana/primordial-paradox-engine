@@ -109,6 +109,104 @@ def test_four_colours_in_one_frame_fails_sprite_tile(tmp_path):
     assert "palette_count" in rules_of(result), result["problems"]
 
 
+def test_no_message_names_a_fifth_sprite_palette(tmp_path):
+    """Card t_c93a983f: a frame has FOUR sprite palettes, so the remedy is the drawing or the set.
+
+    The tool used to print "... so the frame needs a fifth sprite palette" per uncovered tile and again for a
+    whole frame, and that sentence is what made the party battle cast read as an open budget question for a week
+    (ruling 7.1 of knowledge/PALETTE-RULINGS-2026-10-25.md: the PPU picks a sprite palette with two attribute
+    bits, so a fifth one is not a budget that can be raised). The rule name, the tile coordinates and the colour
+    set stay exactly where every reader and the audit counts already expect them.
+    """
+    source = open(os.path.join(ROOT, "tools", "palette_synergy.py"), encoding="utf-8").read()
+    assert "fifth sprite palette" not in source, "the tool still names a palette the chip does not have"
+    pixels = {}
+    for top in range(0, 32, 8):
+        for left in range(0, 24, 8):
+            pair = (0x0F, 0x0C) if (left, top) == (16, 8) else (0x0F, 0x00)
+            for y in range(top, top + 8):
+                for x in range(left, left + 8):
+                    pixels[(x, y)] = COLOURS[pair[(x + y) % 2]]
+    result = analyse(tmp_path, {}, pixels, size=(24, 32),
+                     sidecar={"frame_w": 24, "frame_h": 32, "frames": 1})
+    assert "fifth sprite palette" not in json.dumps(result["problems"]), result["problems"]
+    palette_count = [problem for problem in result["problems"] if problem["rule"] == "palette_count"]
+    assert palette_count, result["problems"]
+    assert palette_count[0]["tile"] == [16, 8], palette_count[0]
+    assert palette_count[0]["colours"] == "$0C $0F", palette_count[0]
+    assert "none of the scene's four sprite palettes" in palette_count[0]["detail"], palette_count[0]
+
+
+def by_product_root(tmp_path, by_product=True, gate=True):
+    """A tree whose only audit row is the by-product row: data/ copied, output/ deliberately absent."""
+    import shutil
+
+    root = str(tmp_path / "tree")
+    shutil.copytree(os.path.join(ROOT, "data"), os.path.join(root, "data"))
+    path = os.path.join(root, "data", "scene_palettes.json")
+    payload = json.load(open(path, encoding="utf-8"))
+    row = [item for item in payload["audit"] if item.get("by_product")]
+    assert len(row) == 1, payload["audit"]
+    row = row[0]
+    row["sprites"] = ["output/not_in_this_tree.png"]
+    if by_product:
+        row["by_product"] = True
+    else:
+        row.pop("by_product", None)
+    row.pop("exempt", None)
+    payload["audit"] = [row]
+    for entry in payload["scenes"]:
+        if entry["id"] == row["scene"]:
+            entry["gate"] = gate
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(payload, handle, indent=2)
+        handle.write("\n")
+    return root
+
+
+def test_a_by_product_row_with_no_file_reports_not_measured_instead_of_exiting(tmp_path, capsys):
+    """Card t_c93a983f: output/sprites_v2_sheet.png is gitignored, and refusing on it cost three Pine jobs.
+
+    A by-product is a diagnostic no clean checkout reproduces, so the row reports NOT MEASURED with a printed
+    line (ruling section 8) rather than SystemExit for the whole gate, and it never gates the build.
+    """
+    root = by_product_root(tmp_path)
+    results, blocked, advisory = palette_synergy.gate(root)
+    assert len(results) == 1, results
+    assert results[0]["measured"] is False, results[0]
+    assert results[0]["by_product"] is True, results[0]
+    assert results[0]["gated"] is False, results[0]
+    assert results[0]["skipped"] == ["output/bg_battle_corridor_frame.png", "output/not_in_this_tree.png"], results[0]
+    assert blocked == [] and advisory == [], (blocked, advisory)
+
+    code = palette_synergy.main(["--gate", "--root", root])
+    out = capsys.readouterr().out
+    assert code == 0, out
+    assert "NOT MEASURED" in out, out
+    assert "not_in_this_tree.png" in out, out
+    report = json.load(open(os.path.join(root, "output", "palette_synergy.json"), encoding="utf-8"))
+    assert report["results"][0]["measured"] is False, report["results"][0]
+    assert report["results"][0]["by_product"] is True, report["results"][0]
+
+
+def test_a_by_product_row_that_is_present_is_measured_and_advisory(tmp_path):
+    """Whatever it measures, a by-product is advice: it is a contact sheet, not a cast ruling."""
+    root = by_product_root(tmp_path)
+    path = os.path.join(root, "data", "scene_palettes.json")
+    payload = json.load(open(path, encoding="utf-8"))
+    payload["audit"][0]["sprites"] = [os.path.join(ROOT, "game", "sprites_src", "chars", "percy_battle.png")]
+    payload["audit"][0]["background"] = os.path.join(ROOT, "output", "bg_battle_corridor_frame.png")
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(payload, handle, indent=2)
+        handle.write("\n")
+    results, blocked, advisory = palette_synergy.gate(root)
+    result = results[0]
+    assert result["measured"] is True and result["by_product"] is True, result
+    assert result["gated"] is False, "a by-product must not gate the build whatever it measures"
+    assert blocked == [], blocked
+    assert result["fail_count"] == len(result["problems"]), result
+
+
 def test_the_pair_table_covers_every_sprite_palette(tmp_path):
     result = analyse(tmp_path, {}, {(x, y): COLOURS[0x20] for x in range(16) for y in range(16)})
     frame = result["sprites"][0]["frames"][0]

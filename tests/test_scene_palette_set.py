@@ -199,6 +199,65 @@ def test_the_quay_strip_has_no_judged_row_because_nothing_in_play_draws_it():
     assert "battle_quay_dusk" in scene_palette_set.scene_ids(data()), "the set still exists; only its row is absent"
 
 
+def test_a_battle_strip_spends_four_sprite_triples_not_eight():
+    """Card t_c93a983f and ruling 7.1: on a battle strip the four hero palettes ARE the strip's four.
+
+    allowed() used to union the scene's four sprite rows with the four hero palettes, so a checker built on it
+    could approve a drawing no frame can hold (the PPU has four sprite palettes and no fifth). The replacement
+    is encoded per scene: only the four battle strips declare party_cast, and on those the hero four stand in
+    for the scene's own rows instead of being added to them.
+    """
+    payload = data()
+    heroes = [payload["hero_palettes"][name]["colours"] for name in scene_palette_set.HEROES]
+    assert heroes == [[15, 18, 40], [15, 3, 35], [15, 33, 49], [15, 0, 39]], heroes
+    for scene_id in ("battle_corridor", "battle_deck_night", "battle_quay_dusk", "battle_wardroom"):
+        rows = scene_palette_set.allowed_sprite_sets(payload, scene_id)
+        assert rows == heroes, (scene_id, rows)
+        assert len(rows) == 4, (scene_id, len(rows), "a frame has four sprite palettes, so four triples")
+
+    # The four towns, the ship, the title, the icons, the sea and the ui scene keep their own four rows, and
+    # their entry set is unchanged: every background entry plus every sprite entry plus the hero entries.
+    for scene_id in ("title", "ship", "icons", "sea", "ui", "southampton", "westminster", "winchester"):
+        entry = scene_palette_set.find_scene(payload, scene_id)
+        assert scene_palette_set.allowed_sprite_sets(payload, scene_id) == [
+            row["colours"] for row in entry["sprites"]], scene_id
+        expected = {entry["backdrop"]}
+        for row in entry["background"] + entry["sprites"]:
+            expected.update(row["colours"])
+        expected.update(scene_palette_set.hero_entries(payload))
+        assert scene_palette_set.scene_entries(payload, scene_id) == expected, scene_id
+
+    # And on a battle strip the entry set is the backdrop plus the background rows plus the hero four, with the
+    # strip's own sprite rows NOT added on top.
+    corridor = scene_palette_set.find_scene(payload, "battle_corridor")
+    expected = {corridor["backdrop"]}
+    for row in corridor["background"]:
+        expected.update(row["colours"])
+    for row in heroes:
+        expected.update(row)
+    assert scene_palette_set.scene_entries(payload, "battle_corridor") == expected
+
+
+def test_only_the_four_battle_strips_declare_the_party_cast():
+    declared = sorted(entry["id"] for entry in data()["scenes"] if entry.get(scene_palette_set.PARTY_CAST_KEY))
+    assert declared == ["battle_corridor", "battle_deck_night", "battle_quay_dusk", "battle_wardroom"], declared
+
+
+def test_the_by_product_flag_survives_the_rebuild_and_says_what_it_means():
+    """Card t_c93a983f: the contact sheet row is a by-product, and the derived file has to carry the flag.
+
+    output/sprites_v2_sheet.png is gitignored and two generators write different content under the one name, so
+    the row cannot be evidence a clean checkout reproduces. audit_rows() carries the flag through, which is what
+    lets tools/palette_synergy.py report the row NOT MEASURED when the file is absent (ruling section 8).
+    """
+    rows = judged_rows()
+    by_product = [row for row in rows if row.get(scene_palette_set.BY_PRODUCT_KEY)]
+    assert [(row["scene"], os.path.basename(row["sprites"][0])) for row in by_product] == [
+        ("battle_corridor", "sprites_v2_sheet.png")], by_product
+    shipped = [row for row in data()["audit"] if row.get(scene_palette_set.BY_PRODUCT_KEY)]
+    assert shipped == by_product, "build --write must carry the flag into data/scene_palettes.json"
+
+
 def test_cli_validate_and_list(capsys):
     assert scene_palette_set.main(["validate"]) == 0
     out = capsys.readouterr().out

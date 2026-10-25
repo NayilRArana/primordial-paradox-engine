@@ -89,6 +89,25 @@ HERO_ROLES = ("outline", "body", "accent")
 JUDGED_KEY = "judged"
 JUDGED_FIELDS = ("background", "sprites")
 
+# Card t_c93a983f. On a scene that draws the party (the four battle strips) the four RESERVED HERO PALETTES ARE
+# its four sprite palettes, so they REPLACE the scene's own four rows instead of adding to them: ruling 7.1 of
+# knowledge/PALETTE-RULINGS-2026-10-25.md, because the PPU picks a sprite palette with two attribute bits and a
+# frame therefore has four of them and nowhere to put a fifth. A per scene flag in the DERIVED file rather than
+# a global change, because the towns, the ship, the title, the icons, the sea and the ui scene carry their own
+# four sprite rows today and that behaviour is correct.
+#
+# The declaration lives HERE and not in data/palettes/scene_battle_*.json because tools/art/make_battle_bg.py
+# writes those four files whole: a key added there is dropped the next time a strip is regenerated (measured
+# 2026-10-25 06:17, the party-floor card's run rewrote all four and kept nothing it does not itself write). The
+# wiring is per scene all the same: build() emits party_cast into data/scene_palettes.json and every checker
+# reads that, so a fifth battle strip is one line here and no change anywhere else.
+PARTY_CAST_KEY = "party_cast"
+PARTY_CAST_SCENES = ("battle_corridor", "battle_deck_night", "battle_quay_dusk", "battle_wardroom")
+# A judged row whose file is a BY-PRODUCT: gitignored, and written differently by two generators, so a clean
+# checkout cannot reproduce it. The row is reported NOT MEASURED instead of refusing the whole run (ruling
+# section 8; three Pine jobs refused on output/sprites_v2_sheet.png before this flag existed).
+BY_PRODUCT_KEY = "by_product"
+
 
 # -----------------------------------------------------------------------------------------------------------------
 # Loading.
@@ -161,13 +180,34 @@ def hero_entries(data: dict) -> set:
     return out
 
 
+def allowed_sprite_sets(data: dict, scene_id: str) -> list:
+    """The sprite triples a scene's art may spend: FOUR, never eight (card t_c93a983f).
+
+    A scene that declares party_cast (the four battle strips) is drawn with the four RESERVED HERO PALETTES as
+    its four sprite palettes, so the hero triples are what a checker may approve on it and the scene's own
+    declared rows are not added on top: ruling 7.1 of knowledge/PALETTE-RULINGS-2026-10-25.md, "on a battle strip
+    the four reserved hero palettes ARE the strip's four sprite palettes". Every other scene spends its own four
+    rows, which is how the towns, the ship, the title, the icons, the sea and the ui scene behave.
+    """
+    entry = find_scene(data, scene_id)
+    if entry.get(PARTY_CAST_KEY):
+        return [list(map(int, data["hero_palettes"][name]["colours"])) for name in HEROES]
+    return [list(map(int, row["colours"])) for row in entry.get("sprites", [])]
+
+
 def scene_entries(data: dict, scene_id: str) -> set:
-    """Every entry the scene may spend: the backdrop, the 4 background and 4 sprite palettes, and the heroes."""
+    """Every entry the scene may spend: the backdrop, the 4 background palettes, and the 4 sprite palettes.
+
+    On a party_cast scene the sprite half is the hero four (allowed_sprite_sets), not its own rows plus the
+    heroes: a checker that approved eight palettes would approve art no frame can draw (card t_c93a983f).
+    """
     entry = find_scene(data, scene_id)
     out = {int(entry["backdrop"])}
-    for row in entry["background"] + entry["sprites"]:
+    for row in entry["background"]:
         out.update(int(value) for value in row["colours"])
-    if entry.get("heroes", True):
+    for row in allowed_sprite_sets(data, scene_id):
+        out.update(row)
+    if entry.get("heroes", True) and not entry.get(PARTY_CAST_KEY):
         out.update(hero_entries(data))
     return out
 
@@ -236,7 +276,7 @@ def judged_rows(root: str) -> list:
                      "background": row["background"],
                      "sprites": list(row["sprites"]),
                      "note": row.get("note", "")}
-            for key in ("at", "frame", "exempt"):
+            for key in ("at", "frame", "exempt", BY_PRODUCT_KEY):
                 if key in row:
                     entry[key] = row[key]
             rows.append(entry)
@@ -261,6 +301,9 @@ def scene_from_source(root: str, path: str, colours) -> dict:
         "sprites": [{"name": row.get("name", "sp%d" % index), "colours": list(map(int, row["colours"]))}
                     for index, row in enumerate(payload["sprites"])],
         "heroes": True,
+        # Card t_c93a983f. Written from PARTY_CAST_SCENES, not read from the scene file: see the note beside
+        # that constant for the measurement that decided it.
+        PARTY_CAST_KEY: scene_id in PARTY_CAST_SCENES,
         "source": "%s/%s" % (PALETTE_DIR.replace(os.sep, "/"), os.path.basename(path)),
         # Every scene starts advisory. The first gate run on the frames that ship today reports failing pairs in
         # all of them (output/palette_synergy_gate.json), so gating one now would stop the build on art nobody has
@@ -319,6 +362,12 @@ def build(root: str = ROOT) -> dict:
             "palette 0, so entry 0 of background palette 0 is the backdrop.",
             "heroes true means the scene also carries the 4 reserved hero palettes, so a character concept is "
             "quantised against the colours it will really ship with.",
+            "party_cast true means the scene draws the party, so its 4 sprite palettes ARE the 4 reserved hero "
+            "palettes: they replace the scene's own sprite rows instead of adding to them, because the PPU has "
+            "4 sprite palettes and a frame has nowhere to put a fifth (knowledge/PALETTE-RULINGS-2026-10-25.md "
+            "section 7.1, card t_c93a983f). A scene without the flag keeps its own 4 sprite rows, so the towns, "
+            "the ship, the title, the icons, the sea and the ui scene are unchanged; the four battle strips carry "
+            "it and nothing else does.",
             "gate true means tools/palette_synergy.py may fail the build on this scene; a scene with gate false "
             "still reports its failing pairs, and gamedev decides when it becomes gated.",
             "Generated by tools/scene_palette_set.py build --write from data/palettes/scene_*.json. Do not hand "
@@ -440,6 +489,15 @@ def validate(root: str = ROOT, data: dict | None = None) -> list:
             total.update(int(value) for value in row.get("colours", []))
         if len(total) > 25:
             problems.append("%s: %d colours across the set, one frame may show 25" % (scene_id, len(total)))
+        party = entry.get(PARTY_CAST_KEY, False)
+        if not isinstance(party, bool):
+            problems.append("%s: %s is %r, expected true or false" % (scene_id, PARTY_CAST_KEY, party))
+        elif party and not entry.get("heroes", True):
+            problems.append("%s: %s true but heroes false, so the party would have no palette to be drawn in"
+                            % (scene_id, PARTY_CAST_KEY))
+        elif party and len(allowed_sprite_sets(data, scene_id)) != 4:
+            problems.append("%s: %s true but %d sprite palettes are allowed, a frame has 4"
+                            % (scene_id, PARTY_CAST_KEY, len(allowed_sprite_sets(data, scene_id))))
 
     for item in data.get("audit", []):
         for key in ("scene", "background", "sprites"):
@@ -449,6 +507,9 @@ def validate(root: str = ROOT, data: dict | None = None) -> list:
             problems.append("audit names unknown scene %r" % item["scene"])
         if item.get("exempt") is not None and not str(item.get("exempt")).strip():
             problems.append("audit entry on %r is exempt with no reason given" % item.get("scene"))
+        if BY_PRODUCT_KEY in item and not isinstance(item[BY_PRODUCT_KEY], bool):
+            problems.append("audit entry on %r has %s %r, expected true or false"
+                            % (item.get("scene"), BY_PRODUCT_KEY, item.get(BY_PRODUCT_KEY)))
 
     problems.extend(cast_problems(root, data))
     return problems
@@ -466,14 +527,16 @@ def cast_problems(root: str, data: dict) -> list:
     failure, because a scene whose frame still fails its pair column can carry its cast perfectly well.
 
     A row marked "exempt" is skipped: the tests hold the exact list of exempt rows, so an exemption is a ruling
-    with a reason in the scene file, not a quiet escape. A row whose frame or sheets are not on disk is skipped
-    too, because output/ is not in git and a fresh worktree has none of it.
+    with a reason in the scene file, not a quiet escape. A row marked "by_product" is skipped as well, because
+    its file is one no clean checkout reproduces and whatever it measures is advisory, not a cast ruling (card
+    t_c93a983f, ruling section 8). A row whose frame or sheets are not on disk is skipped too, because output/
+    is not in git and a fresh worktree has none of it.
     """
     import palette_synergy  # local: palette_synergy imports this module, so this cannot be a top level import
 
     problems = []
     for item in data.get("audit", []):
-        if item.get("exempt"):
+        if item.get("exempt") or item.get(BY_PRODUCT_KEY):
             continue
         background = item.get("background")
         if not background or not os.path.isfile(os.path.join(root, background)):

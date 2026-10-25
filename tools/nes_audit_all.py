@@ -54,6 +54,7 @@ import argparse
 import importlib.util
 import json
 import os
+import re
 import sys
 from collections import Counter
 
@@ -225,6 +226,90 @@ def capture_note(rel: str, root: str):
     return scale, [int(value) for value in viewport], (
         "a window capture with its viewport recorded in %s.json: cropped to %s and read at %dx, so the row "
         "measures the art and not the capture path" % (os.path.basename(rel)[:-4], viewport, scale))
+
+
+def named_output_files(root: str) -> list:
+    """The output PNGs this repository's own tracked data names, sorted.
+
+    A tree that has been narrowed (the far side carries only what a test reads, see pine_offload.py OUTPUT_KEEP)
+    still carries `data/`, so the files the data names but the tree does not hold can be counted and named: that
+    is the difference between "153 files pass" and "153 files pass, and 31 this tree cannot see". Read as text
+    rather than as JSON because a name can sit in any string of any data file, and the scan must not care which.
+    """
+    pattern = re.compile(r"output/[A-Za-z0-9_./\-]+\.png")
+    names = set()
+    data_dir = os.path.join(root, "data")
+    if not os.path.isdir(data_dir):
+        return []
+    for current, dirs, files in os.walk(data_dir):
+        dirs.sort()
+        for name in sorted(files):
+            if not name.lower().endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(current, name), "r", encoding="utf-8-sig", errors="ignore") as handle:
+                    text = handle.read()
+            except OSError:
+                continue
+            for match in pattern.findall(text.replace("\\\\", "/")):
+                names.add(match)
+    return sorted(names)
+
+
+def output_scope(root: str, targets: list, only: str | None = None) -> dict:
+    """What this run measured in output/, and what it did not and why (card t_c93a983f).
+
+    The universe is built from what is ON DISK, so a narrowed tree silently reads fewer files and a reader cannot
+    tell a clean 153 from a shrunken one. This records the scope as numbers: the files measured, the output PNGs
+    on disk that were not audit subjects because their name excludes them (neither a `preview` nor a `title_run_`
+    capture), and the output PNGs this repository's data names that are not in this tree at all. The last number
+    is the one the far side has to print (ruling section 8): it is advisory by design, and the scope says so
+    instead of quietly measuring a smaller universe.
+    """
+    audited = [target.rel for target in targets if target.rel.startswith(OUTPUT_ROOT + "/")]
+    on_disk = []
+    output_dir = os.path.join(root, OUTPUT_ROOT)
+    if os.path.isdir(output_dir):
+        for name in sorted(os.listdir(output_dir)):
+            path = os.path.join(output_dir, name)
+            if os.path.isfile(path) and name.lower().endswith(".png"):
+                on_disk.append("%s/%s" % (OUTPUT_ROOT, name))
+    audited_set = set(audited)
+    excluded = [rel for rel in on_disk if rel not in audited_set]
+    named = named_output_files(root)
+    absent = [rel for rel in named if not os.path.isfile(os.path.join(root, rel.replace("/", os.sep)))]
+    return {
+        "measured": len(targets),
+        "asset_measured": sum(1 for target in targets if target.scope == "asset"),
+        "output_measured": len(audited),
+        "output_on_disk": len(on_disk),
+        "excluded_by_name": excluded,
+        "named_but_absent": absent,
+        "only": only,
+    }
+
+
+def scope_lines(scope: dict, limit: int = 6) -> list:
+    """The scope as the lines a person reads: the count, then what was skipped and why."""
+    lines = []
+    if scope["only"]:
+        lines.append("  scope: %d file(s) measured (%d asset, %d output), filtered by --only %r; an output file "
+                     "skipped by name is not counted here"
+                     % (scope["measured"], scope["asset_measured"], scope["output_measured"], scope["only"]))
+    else:
+        lines.append("  scope: %d file(s) measured (%d asset, %d output); %d PNG(s) in output/ on disk, %d of them "
+                     "skipped by name (not a preview and not a title_run_ capture)"
+                     % (scope["measured"], scope["asset_measured"], scope["output_measured"],
+                        scope["output_on_disk"], len(scope["excluded_by_name"])))
+    if scope["named_but_absent"]:
+        names = scope["named_but_absent"]
+        lines.append("  scope: %d output file(s) named by this repository's data are not in this tree, so they "
+                     "were not measured: %s%s"
+                     % (len(names), ", ".join(names[:limit]),
+                        ", ... %d more" % (len(names) - limit) if len(names) > limit else ""))
+    else:
+        lines.append("  scope: every output file this repository's data names is in this tree")
+    return lines
 
 
 def discover(root: str, only: str | None = None) -> list:
@@ -562,6 +647,40 @@ def worst_line(record: dict) -> str:
     return "%s at [%d, %d]" % (block["rule"], block["box"][0], block["box"][1])
 
 
+def run_synergy(root: str):
+    """The palette synergy check, as a new check in this audit (card PAL-SYSTEM).
+
+    tools\\palette_synergy.py measures what ne_check and nes_composite_check cannot: whether a sprite's body
+    separates from the ground drawn behind it, and whether both layers stay inside the scene's palette set
+    (ART-BIBLE RULE 0). It is imported and called, not shelled out, because it is a Python module like the
+    other two. A missing tool or a scene with no palette set is reported as unmeasured, never as a pass.
+    """
+    path = os.path.join(root, "tools", "palette_synergy.py")
+    if not os.path.isfile(path):
+        return {"entries": 0, "gated_failures": 0, "advisory_failures": 0, "report": None,
+                "unmeasured": "tools/palette_synergy.py is missing, so synergy was not measured", "rows": []}
+    module = load_module("nes_audit_palette_synergy", path)
+    try:
+        results, blocked, advisory = module.gate(root)
+    except SystemExit as error:
+        return {"entries": 0, "gated_failures": 0, "advisory_failures": 0, "report": None,
+                "unmeasured": str(error), "rows": []}
+    report = os.path.relpath(module.write_audit(root, results), root).replace(os.sep, "/")
+    rows = []
+    for result in results:
+        rows.append({
+            "scene": result["scene"],
+            "background": result["background"],
+            "gated": result["gated"],
+            "ok": result["ok"],
+            "fail_count": result["fail_count"],
+            "rules": sorted({problem["rule"] for problem in result["problems"]}),
+            "first": [problem["detail"] for problem in result["problems"][:3]],
+        })
+    return {"entries": len(results), "gated_failures": len(blocked), "advisory_failures": len(advisory),
+            "report": report, "rows": rows, "unmeasured": None}
+
+
 def render_markdown(records: list, verdict: dict) -> str:
     failing = sorted([r for r in records if not r["ok"]],
                      key=lambda r: (-(r["offending_pixels"] or 0), r["path"]))
@@ -722,6 +841,29 @@ def render_markdown(records: list, verdict: dict) -> str:
     else:
         add("No failing file was available to preview: every file passes.")
     add("")
+    add("## Palette synergy: does the sprite read on the ground it stands on")
+    add("")
+    synergy = verdict.get("synergy")
+    if not synergy:
+        add("Synergy was not measured.")
+    elif synergy.get("unmeasured"):
+        add("Synergy was not measured: %s" % synergy["unmeasured"])
+    else:
+        add("%d pair(s) checked by `tools/palette_synergy.py` against ART-BIBLE RULE 0: %d gated failure(s), "
+            "%d advisory failure(s). Report: `%s`."
+            % (synergy["entries"], synergy["gated_failures"], synergy["advisory_failures"], synergy["report"]))
+        add("")
+        add("| scene | background | verdict | failures | rules | first failure |")
+        add("|---|---|---|---|---|---|")
+        for row in synergy["rows"]:
+            add("| %s | `%s` | %s%s | %d | %s | %s |"
+                % (row["scene"], row["background"], "PASS" if row["ok"] else "FAIL",
+                   "" if row["gated"] else " (advisory)", row["fail_count"], ", ".join(row["rules"]) or "-",
+                   (row["first"][0] if row["first"] else "-").replace("|", "/")))
+        add("")
+        add("A scene is gated once gamedev sets `gate: true` in `data/scene_palettes.json`; until then its pairs "
+            "are reported and do not stop the build, because the art has not been repainted yet.")
+    add("")
     return "\n".join(lines)
 
 
@@ -762,6 +904,7 @@ def audit(root: str, only: str | None = None, write: bool = True) -> dict:
     targets = discover(root, only)
     if not targets:
         return {"records": [], "verdict": None, "exit_code": 2, "targets": 0}
+    scope = output_scope(root, targets, only)
 
     records = []
     for target in targets:
@@ -778,15 +921,20 @@ def audit(root: str, only: str | None = None, write: bool = True) -> dict:
         records.append(audit_one(root, target, nes_check, composite, palette))
 
     gated_failures = [r for r in records if r["gated"] and (not r["ok"] or r["unmeasured"])]
+    synergy = run_synergy(root)
+    synergy_gated = bool(synergy and synergy["gated_failures"])
     verdict = {
-        "verdict": "PASS" if not gated_failures else "FAIL",
-        "gated_failures": len(gated_failures),
-        "advisory_failures": sum(1 for r in records if not r["gated"] and (not r["ok"] or r["unmeasured"])),
-        "exit_code": 0 if not gated_failures else 1,
+        "verdict": "PASS" if not gated_failures and not synergy_gated else "FAIL",
+        "gated_failures": len(gated_failures) + (synergy["gated_failures"] if synergy else 0),
+        "advisory_failures": sum(1 for r in records if not r["gated"] and (not r["ok"] or r["unmeasured"]))
+                             + (synergy["advisory_failures"] if synergy else 0),
+        "exit_code": 0 if (not gated_failures and not synergy_gated) else 1,
         "palette": os.path.relpath(palette_path, root).replace(os.sep, "/"),
         "palette_source": palette_why,
         "composite_checker": composite is not None,
         "preview": None,
+        "synergy": synergy,
+        "scope": scope,
     }
 
     if write:
@@ -850,14 +998,25 @@ def main(argv=None) -> int:
     unmeasured = [r for r in records if r["unmeasured"]]
 
     if args.quiet:
-        print("nes_audit_all: %s, %d file(s), %d failing (%d gated), %d unmeasured, exit %d"
+        scope = verdict.get("scope") or {}
+        print("nes_audit_all: %s, %d file(s), %d failing (%d gated), %d unmeasured, %d output file(s) skipped, "
+              "exit %d"
               % (verdict["verdict"], len(records), len(failing), verdict["gated_failures"],
-                 len(unmeasured), result["exit_code"]))
+                 len(unmeasured), len(scope.get("excluded_by_name") or []) + len(scope.get("named_but_absent") or []),
+                 result["exit_code"]))
         return result["exit_code"]
 
     print("nes_audit_all: %s  %d file(s), %d failing, %d unmeasured"
           % (verdict["verdict"], len(records), len(failing), len(unmeasured)))
+    for line in scope_lines(verdict["scope"]):
+        print(line)
     print("  palette: %s (%s)" % (verdict["palette"], verdict["palette_source"]))
+    synergy = verdict.get("synergy") or {}
+    if synergy.get("unmeasured"):
+        print("  synergy: NOT MEASURED (%s)" % synergy["unmeasured"])
+    elif synergy:
+        print("  synergy: %d pair(s), %d gated failure(s), %d advisory (report %s)"
+              % (synergy["entries"], synergy["gated_failures"], synergy["advisory_failures"], synergy["report"]))
     for record in sorted(failing, key=lambda r: (-(r["offending_pixels"] or 0), r["path"])):
         size = record.get("size") or [0, 0]
         print("  FAIL %-9s %-56s %dx%d  %s px  %s"

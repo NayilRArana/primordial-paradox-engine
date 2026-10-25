@@ -1413,3 +1413,30 @@ set, so the price of a repaint is a number of triples and a percentage of pixels
 and the floor are decided by two instruments the tool already owns (row gap or 3:1) instead of by a rule of thumb; and
 the audit treats a by product that no clean checkout can reproduce as NOT MEASURED rather than as a hard refusal.
 Copied expression: none
+
+## PALETTE-ARITHMETIC-AND-AUDIT-SCOPE, 2026-10-25: four sprite palettes, a by-product that cannot refuse a run, and an audit that prints the universe it measured (card t_c93a983f)
+Studied: this repository's own tools and its own ruling, read only: `knowledge/PALETTE-RULINGS-2026-10-25.md`
+sections 7.1, 8 and 9 (the four sprite palettes the PPU has, the eight the data model spent, the by-product row and
+the far side's shrunken universe), `knowledge/ART-BIBLE.md` section 1.2 and RULE 0 point 1 (the 4 + 4 arithmetic),
+`tools/palette_synergy.py` (`frame_report()`, `tile_fails()`, `gate()`, `write_audit()`), `tools/scene_palette_set.py`
+(`scene_entries()`, `build()`, `judged_rows()`, `audit_rows()`), `tools/nes_audit_all.py` (`discover()` and the
+verdict it prints), `pine_offload.py` in the arananet tree (`OUTPUT_KEEP` and the comment that argues for it, read
+only, not edited), and `tests/` for the rows that measure all four. No decompiled material was read for this card and
+no expression from any game is in it.
+Mechanics learned: four. One, a palette budget the hardware does not have cannot be described as a missing resource:
+a message that names a remedy no frame can hold turns a settled ruling into an open question, which is what the
+party battle cast read as for a week. Two, a set of palettes and a set of COLOURS are different objects, so a checker
+that unions palettes and then tests membership in the union approves art that no single palette carries; the union
+has to be replaced at the palette level, not filtered afterwards. Three, evidence has a provenance: a file two
+generators write differently and git ignores is not evidence about either, so the honest report is NOT MEASURED with
+a named path rather than a refusal that costs whole runs. Four, a universe built from what is on disk is a claim
+about the tree, not about the project, so a run has to print its scope as numbers or a narrowed tree reads as a
+passing one.
+Our implementation differs by: the party cast is a per scene property emitted into the derived set
+(`party_cast`, true for the four battle strips) rather than a global change, so the eight other scenes keep the
+behaviour they had; the declaration lives in the tool because the strip generator writes the four scene files whole
+and drops what it does not itself write (measured 2026-10-25 06:17); the by-product is a flag on the audit row and the
+gate reports it NOT MEASURED or advisory, never gated, whatever it measures; and the audit scope is counted from two
+independent sources, the output PNGs on disk that its name excludes and the output PNGs this repository's data names
+but the tree does not hold, so the absent half is a number and a list rather than silence.
+Copied expression: none

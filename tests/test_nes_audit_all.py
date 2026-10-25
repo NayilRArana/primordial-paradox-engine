@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import glob
+import json
 import os
 
 import numpy as np
@@ -30,6 +31,35 @@ def solid(width, height, colour, alpha=255):
 
 # -----------------------------------------------------------------------------------------------------------------
 # Every file in the project is found, and found at the right scope.
+
+def test_the_scope_line_counts_the_output_files_the_run_did_not_measure(tmp_path):
+    """Card t_c93a983f: the far side printed FAIL 153 file(s) where this tree reads 184, and nothing said so.
+
+    A narrowed tree still carries data/, so the output files that data names and the tree does not hold can be
+    counted and named, and the output PNGs on disk that are not audit subjects say why they were skipped.
+    """
+    output = tmp_path / "output"
+    output.mkdir()
+    write_png(str(output / "scene_preview.png"), solid(256, 240, (0x00, 0x00, 0x00)))
+    write_png(str(output / "stray_sheet.png"), solid(8, 8, (0x10, 0x10, 0x10)))
+    palettes = tmp_path / "data" / "palettes"
+    palettes.mkdir(parents=True)
+    (palettes / "scene_battle_corridor.json").write_text(
+        json.dumps({"judged": [{"background": "output/bg_battle_corridor_frame.png",
+                                "sprites": ["game/sprites_src/chars/percy_battle.png"]}]}),
+        encoding="utf-8")
+
+    targets = audit.discover(str(tmp_path))
+    assert [target.rel for target in targets] == ["output/scene_preview.png"], [t.rel for t in targets]
+    scope = audit.output_scope(str(tmp_path), targets)
+    assert scope["measured"] == 1 and scope["output_on_disk"] == 2, scope
+    assert scope["excluded_by_name"] == ["output/stray_sheet.png"], scope
+    assert scope["named_but_absent"] == ["output/bg_battle_corridor_frame.png"], scope
+
+    lines = audit.scope_lines(scope)
+    assert any("1 file(s) measured" in line and "skipped by name" in line for line in lines), lines
+    assert any("bg_battle_corridor_frame.png" in line and "not measured" in line for line in lines), lines
+
 
 def test_every_asset_png_is_discovered():
     targets = audit.discover(ROOT)
@@ -140,3 +170,5 @@ def test_the_exit_code_is_the_gated_verdict(tmp_path, capsys):
     assert code in (0, 1)
     line = capsys.readouterr().out
     assert "nes_audit_all:" in line and "exit" in line
+    # Card t_c93a983f: the run says how much of the universe it looked at, so a narrowed tree is visible.
+    assert "skipped" in line, line
