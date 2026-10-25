@@ -410,22 +410,27 @@ def build_wheel(frame: int) -> Image.Image:
 
 # ---------------------------------------------------------------------------------------------------
 # The exhaust puff
+#
+# Card t_474cde50 (gamedev). The puff is a TILED LAYER, not a figure: over one full scroll its 16x16 window
+# sits on four ground colours that span 2C02 rows 0 to 2 ($0F black, $0B green, $0C teal, $20 white), and no
+# single body entry clears RULE 0 point 2 on both ends. palette_synergy judges it by R1b overlay_contrast,
+# which is why save_strip declares it. The four frames are drawn in tools/art/make_title_exhaust_v2.py so one
+# file owns them; this generator asks that file for them in the entries the puff can actually ship.
+#
+# The body is $20 white and the outline $0C, not the $10 light grey the redraw was first drawn in: the puff
+# sits in screen bands 12 to 13, which data/palettes/scene_title.json paints with bg3 ($0C $0B $20), and
+# tools/art/title_bands.py flattens a $10 body to $20 on the way to the tree (measured: 118 pixels move).
+# A generator that drew $10 and let the band pass recolour it would be drawing something the tree never ships.
 # ---------------------------------------------------------------------------------------------------
 
-EXHAUST_W, EXHAUST_H = 12, 10
+EXHAUST_BODY = "#f8f8f8"     # $20 white, the puff's body, in bg3
+EXHAUST_OUTLINE = "#004058"  # $0C dark teal, the 1 px outline, in bg3
 
 
-def build_exhaust(frame: int) -> Image.Image:
-    """A puff of exhaust, growing and fading as it goes back."""
-    image = new_image(EXHAUST_W, EXHAUST_H)
-    draw = ImageDraw.Draw(image)
-    size = 2 + frame
-    alpha = (230, 190, 150, 100)[frame]
-    draw.ellipse((8 - size, 5 - size, 8 + size, 5 + size), fill=rgba(DIM, alpha))
-    if frame > 0:
-        inner = size - 1
-        draw.ellipse((8 - inner, 5 - inner, 8 + inner, 5 + inner), fill=rgba(BRIGHT, alpha))
-    return image
+def build_exhaust_frames() -> list[Image.Image]:
+    """The four puff frames, growing 5x4 to 12x10, asked for in the entries bg3 carries."""
+    import make_title_exhaust_v2 as exhaust
+    return exhaust.build_frames(EXHAUST_BODY, EXHAUST_OUTLINE)
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -449,7 +454,8 @@ BUST_TOP = 4
 # are drawn centred in their box (wheel, exhaust, bubble) stay centred.
 FRAMES = {
     "spr_title_wheel": (16, 16, 3, 3),
-    "spr_title_exhaust": (16, 16, 2, 3),
+    # spr_title_exhaust is NOT here: its four frames are hand drawn 16x16 cells in
+    # tools/art/make_title_exhaust_v2.py and are already the shipping size and position (card t_474cde50).
     "spr_title_konrad": (16, 16, 2, BUST_TOP),
     "spr_title_zander": (16, 16, 2, BUST_TOP),
     "spr_title_bubble": (16, 16, 1, 3),
@@ -709,6 +715,19 @@ def build_cloud(frame: int) -> Image.Image:
 # Writing the strips
 # ---------------------------------------------------------------------------------------------------
 
+# Sheets the art lane declares TILED LAYERS rather than figures, so their sidecar says so and palette_synergy
+# reads them through R1b overlay_contrast instead of the row gap and the blob test (gamedev rulings on card
+# t_1dc346b9 for the cloud and card t_474cde50 for the exhaust). A regeneration has to carry the declaration or
+# the next run silently turns a layer back into a figure.
+LAYER_SHEETS = ("spr_title_cloud", "spr_title_exhaust")
+
+# Sheets drawn in data/nes_palette.json's 2C02 entries rather than the retired data/palette.json table the
+# rest of this generator draws in. Only the exhaust so far (card t_474cde50): its four cells are shared with
+# tools/art/make_title_exhaust_v2.py, which is a 2C02 tool. The scene pass is a no-op on these entries because
+# both of them are bg3's, so nothing the band plan owns moves.
+CHIP_DRAWN_SHEETS = ("spr_title_exhaust",)
+
+
 def save_strip(name: str, frames: list[Image.Image], fps: float, sprite_dir: str) -> str:
     width = frames[0].width
     height = frames[0].height
@@ -722,7 +741,10 @@ def save_strip(name: str, frames: list[Image.Image], fps: float, sprite_dir: str
     # itself a tiled layer and palette_synergy judges it by R1b overlay_contrast on its own ground crop.
     # save_strip must carry that declaration or a regeneration silently drops it (cf3d43a made a 24x16 frame
     # a figure, and the white crown then reads white_blob against the 5 white px in the sky crop).
-    if name == "spr_title_cloud":
+    # Card t_474cde50 ruling: the exhaust is the same object class. Its 16x16 window crosses four ground
+    # colours over one scroll ($0F, $0B, $0C, $20), so RULE 0 point 2's row gap and body contrast cannot be
+    # satisfied by any single body entry and the row could never pass as a figure; R1b reads it correctly.
+    if name in LAYER_SHEETS:
         meta["layer"] = True
     with open(os.path.join(sprite_dir, name + ".json"), "w", encoding="utf-8") as handle:
         json.dump(meta, handle, indent=2, sort_keys=True)
@@ -873,7 +895,7 @@ def main() -> int:
     parts = {
         "spr_title_car": [build_car_body(bob) for bob in (0, 1, 0)],
         "spr_title_wheel": [build_wheel(index) for index in range(4)],
-        "spr_title_exhaust": [build_exhaust(index) for index in range(4)],
+        "spr_title_exhaust": build_exhaust_frames(),
         "spr_title_konrad": [build_konrad(index) for index in range(8)],
         "spr_title_zander": [build_zander(index) for index in range(8)],
         "spr_title_bubble": [build_bubble(index) for index in range(3)],
@@ -901,7 +923,13 @@ def main() -> int:
         path = save_strip(name, frames, fps[name], sprite_dir)
         used = set()
         for frame in frames:
-            used |= palette_indices(frame)
+            if name in CHIP_DRAWN_SHEETS:
+                # This sheet is drawn in data/nes_palette.json's 2C02 entries, not in the retired
+                # data/palette.json table the rest of this file draws in, so the count is of the colours
+                # the sheet actually spends and tools/nes_check.py is what proves they are chip entries.
+                used |= {(pixel[0], pixel[1], pixel[2]) for pixel in frame.getdata() if pixel[3]}
+            else:
+                used |= palette_indices(frame)
         if len(used) > MAX_SPRITE_COLOURS:
             raise SystemExit("%s uses %d colours, the limit is %d" % (name, len(used), MAX_SPRITE_COLOURS))
         print("  %-20s %dx%d  %d frames  %2d colours  %s"

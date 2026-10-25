@@ -1364,3 +1364,26 @@ owns the sheet, not hand-edited once; the sailor's judged row in `scene_ship.jso
 gate can run, not a capture; and both rulings are recorded inside the queue rows beside the old measurements rather than
 overwriting them, so the history of what each PASS meant on its day survives the ruling.
 Copied expression: none
+
+## EXHAUST-LAYER, 2026-10-25: an effect with no single ground is a layer, and the band plan decides its body (card t_474cde50)
+Studied: this repository's own files, read only: `knowledge/ART-BIBLE.md` RULE 0 point 2 and its two amendments,
+`knowledge/PALETTE-RULINGS-2026-10-24.md` section 7 (the declaration rule) and section 11 Q2 (the car's repaint to `$20`),
+`tools/palette_synergy.py` (`is_sprite_frame`, `layer_rules`, `frame_report`), `tools/art/contrast_check.py` (`geometry`,
+`sidecar_entry`, the 2C02 luminance and WCAG contrast the numbers come from), `tools/art/title_bands.py` (`sprite_palettes`,
+`map_image`, `paint_sheet`), `tools/art/scene_palette.py` (`apply_title`'s pass order and its fade rebuild),
+`tools/pp_intro_art.py` (`fade_sidecar` copying the base declaration), `tools/art/compose_title_preview.py` and
+`game/scripts/pp_title/pp_title.gml` (the draw order on both sides), `output/title_world_manifest.json` and the seven title
+layer strips (the swept ground), and `data/palettes/scene_title.json` (bands and `band_sprites`). No decompiled material was
+read for this card and no expression from any game is in it.
+Mechanics learned: two. One, a contrast instrument that asks about "the ground" is answering a question about one surface;
+an effect drawn over a scrolling strip is measured against every ground colour of that strip at once, and when those colours
+span the brightness rows the instrument has an empty answer window, so the honest reading is the layer one where EITHER the
+ink or the body may carry the edge. Two, the painting passes that make a composite frame legal (the band plan) are upstream of
+any redraw: a body colour the band does not hold is not a design choice, it is a pixel the pass will rewrite, so the generator
+has to draw the colour the tree can keep.
+Our implementation differs by: the qualification test is written down as a measurement (sweep the scene's own layer table and
+read the window) rather than as an argument about size or subject; the declaration is written by the generator that owns the
+sheet, so a regeneration cannot drop it; the four frames are drawn once and shared between the redraw tool and the owning
+generator instead of being copied; and the row keeps the old figure measurement beside the new layer one, so what changed and
+why is legible later.
+Copied expression: none

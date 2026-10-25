@@ -564,7 +564,8 @@
           "the gold crack through the O reads as a lightning bolt, which is spec 14's shape",
           "it asked for the open outline on the R to be closed and for an orphan corner pixel to be removed; the orphan specks are real but not where the model said"
         ]
-      }
+      },
+      "eye_round_12": "round 12 measured the 18 pixel redraw (0.06 percent of the sheet) and the sheet A reviewer said it adds noise and buys no legibility."
     },
     {
       "id": "spr_pp_window",
@@ -1002,7 +1003,8 @@
           "the frames look like a frozen stamp sliding across the screen, which the 1.1 and 1.3 percent change measurement confirms",
           "the wheels are one dark teal mass and want a lighter entry, blocked behind the open Q1 on t_13e25e31"
         ]
-      }
+      },
+      "eye_round_12": "round 12 measured both files: the redraw folder copy is a 10-23 draft with 7 colours, the authored file at 00:09 has 3 colours. Two models on two sheets named the wheels as the weakest part of the car."
     },
     {
       "id": "spr_title_cloud",
@@ -1213,7 +1215,8 @@
         "model_calls": [
           "'nice fluffy cloud sprites'"
         ]
-      }
+      },
+      "eye_round_12": "round 12 looked at the cloud at 7x on sheet C: the third cell's diagonal white streak reads as a scribble to the reviewer."
     },
     {
       "id": "spr_title_cone",
@@ -1366,7 +1369,8 @@
       },
       "q_for_gamedev": [
         "Q3 which palette judges the cone: measured, the beam at 140,200 falls over band bg3 ($0C, $0B, $20), which carries no light mid entry, so a three step falloff cannot be drawn inside it. The row's own palette_roles ask for $28 / $10 / $00, which sit in sp0 and sp2 and in no band. May the shipped cone move to the three step sheet and be judged on sprite palettes rather than on bg3, or does the band palette win and the cone stays one flat entry?"
-      ]
+      ],
+      "eye_round_12": "round 12 measured the redraw against the file the game draws: redraw 3 colours, 1352 of 3840 pixels, 01:20; authored 1 colour, 1246 pixels, 20:24. The redraw has not landed."
     },
     {
       "id": "spr_title_exhaust",
@@ -1384,11 +1388,11 @@
       },
       "palette_roles": {
         "legal_entries": [
-          "$10 light grey (new puff)",
-          "$00 grey (old puff)"
+          "$20 white (the puff's body, 118 px on the shipped sheet)",
+          "$0C dark teal (the 1 px outline, 70 px on the shipped sheet)"
         ],
-        "scene_palette_set": "title sp0 [$0F, $00, $28]",
-        "why": "two entries are enough for a puff that grows; anything more and the four frames read as flicker"
+        "scene_palette_set": "title sp2 [$0C, $10, $20] and sp3 [$0C, $0B, $20] both carry the pair; the band plan draws this sheet inside bg3 [$0C, $0B, $20]",
+        "why": "two entries are enough for a puff that grows; anything more and the four frames read as flicker. Rewritten by gamedev ruling on card t_474cde50: the row used to list $10 light grey and $00 grey, and neither can ship. $10 is not in bg3, which is the band the puff is drawn in, so tools/art/title_bands.py flattens it to $20 (measured: 118 pixels move); $00 cannot join either entry in one frame, because no title sprite palette carries $00 with $20 or with $10."
       },
       "nes_grid": {
         "frame_w": 16,
@@ -1453,9 +1457,9 @@
       "check": {
         "command": "python tools/nes_check.py game/sprites_src/title/spr_title_exhaust.png --type sprite",
         "means": "must print PASS: every pixel a data/nes_palette.json entry, width and height multiples of 8, at most 3 opaque colours per 8x8 tile, at most 25 colours per sheet",
-        "result": "PASS on 2026-10-23 by card t_4e54cc9e, re-measured from this path"
+        "result": "PASS on 2026-10-25 from this path after the redraw landed: 64x16, 16 tiles, 2 colours"
       },
-      "status": "queued",
+      "status": "done",
       "palette_synergy_measured_2026_10_24": {
         "card": "t_13e25e31",
         "command": "python tools/palette_synergy.py --scene title --background output/exhaust_road_ground.png --sprite game/sprites_src/title/spr_title_exhaust.png --frame-w 16 --frame-h 16 --at 0,0",
@@ -1475,19 +1479,66 @@
         "date": "2026-10-23",
         "ruling": "knowledge/PALETTE-RULINGS-2026-10-23.md ruling 3",
         "why": "the queue measures the authored tree game/sprites_src. game/art was untracked, gitignored and deleted by this card, and the runtime reads game/datafiles/art, which tools/sync_art.py rebuilds from game/sprites_src. Every number in this row was measured from this path on 2026-10-23.",
-        "sidecar": "game/sprites_src/title/spr_title_exhaust.png.json",
-        "sha256": "eeb5aa84c05209210596f0541920d253853a8945d2e94a8c0ed5d34fcad22c52"
+        "sidecar": "game/sprites_src/title/spr_title_exhaust.json",
+        "sha256": "8af54414a9a0f1484aaf1d8c4bb4f96657f0c3f37234704227db15e1510c16d6"
       },
       "palette_roles_check": {
         "shipped_entries": [
           "$0C",
           "$20"
         ],
-        "listed_entries_not_spent": [
-          "$00",
-          "$10"
+        "listed_entries_not_spent": [],
+        "note": "corrected by the gamedev ruling on card t_474cde50: the row listed $10 and $00, and the shipped sheet spends $20 and $0C. The list is now the pair the sheet draws in and the pair bg3 carries, so a listed entry the sheet does not spend cannot come back."
+      },
+      "status_note": "Done on 2026-10-25 by gamedev's ruling on card t_474cde50. The row was redrawn by card t_9774ff51 into four growing frames with a 1 px outline, and the 4 failing pairs it measured were the arithmetic floor for any 16x16 figure on this ground. The ruling is that the puff is a TILED LAYER, not a figure: over one scroll its 16x16 window crosses four ground entries ($0F black 72.7 percent, $0B green 15.4, $0C teal 6.0, $20 white 5.9) on 2C02 rows 0 and 2, so no single body can clear RULE 0 point 2 on both ends, and R1b passes on all four frames. The same ruling moved the body from $10 to $20, because the puff's band is bg3 ($0C $0B $20) and the band pass flattens a $10 body (118 pixels). The shipped sheet is #f8f8f8 118 px plus #004058 70 px, nes_check PASS, palette_synergy PASS with 0 failing pairs.",
+      "after": {
+        "card": "t_9774ff51",
+        "date": "2026-10-25",
+        "path": "output/redraws/spr_title_exhaust.png",
+        "size": [
+          64,
+          16
         ],
-        "note": "measured from the shipped sheet on 2026-10-23; a listed entry the sheet does not spend is a palette_roles question for gamedev, not a defect this card decides"
+        "frames": 4,
+        "frame_px": [
+          16,
+          16
+        ],
+        "sha256": "8af54414a9a0f1484aaf1d8c4bb4f96657f0c3f37234704227db15e1510c16d6",
+        "entries": [
+          "$20 #f8f8f8 body (118 px on the sheet)",
+          "$0C #004058 outline (70 px on the sheet)"
+        ],
+        "drawn_px_per_frame": [
+          16,
+          36,
+          56,
+          80
+        ],
+        "largest_fill_per_frame": [
+          "$0C 10 px (62.5 percent)",
+          "$20 20 px (55.6)",
+          "$20 36 px (64.3)",
+          "$20 56 px (70.0)"
+        ],
+        "worst_tile_opaque": 2,
+        "nes_check": "PASS (tools/nes_check.py output/redraws/spr_title_exhaust.png --type sprite, 64x16, 16 tiles, 2 colours)",
+        "palette_synergy_before": "FAIL, 9 failing pairs on output/exhaust_road_ground.png (card t_13e25e31, re-run by card t_9774ff51)",
+        "palette_synergy_after": "PASS, 0 failing pairs, measured as the tiled layer it is: game/sprites_src/title/spr_title_exhaust.png on output/exhaust_road_ground.png at 0,0, every frame printing 'tiled layer so R1b: ink $0C', palettes that fit [2, 3], all 12 inked 8x8 tiles covered, worst tile 2 colours. As a 16x16 figure the same drawing measures 4 failing pairs, which the ruling shows is the floor for any body on this ground.",
+        "sheet": "output/sprites_v2_sheet.png band at 32,2952, 256x64, the strip at 4x, plus a second band of the four frames on output/exhaust_road_ground.png",
+        "tool": "tools/art/make_title_exhaust_v2.py (hand authored grids, shared with the owning generator tools/art/make_title_car.py), sheet rebuilt by tools/art/make_title_rows_v2.py",
+        "q": "answered by gamedev on card t_474cde50, see the gamedev_ruling block below"
+      },
+      "gamedev_ruling": {
+        "card": "t_474cde50",
+        "date": "2026-10-25",
+        "q1": "The exhaust puff is a TILED LAYER. game/sprites_src/title/spr_title_exhaust.json carries \"layer\": true, written by the generator (tools/art/make_title_car.py, LAYER_SHEETS), and its four fade twins inherit it through tools/pp_intro_art.py's fade_sidecar.",
+        "why": "The figure instrument presumes one ground and the puff has four. Swept over 1200 scroll steps from output/title_world_manifest.json, the 16x16 window at the game's placement (76, 207) holds $0F black 72.7 percent, $0B green 15.4, $0C teal 6.0, $20 white 5.9, all four in every frame, and the ends are luminance rows 0 and 2. A body clearing 3:1 on $0B (luma 0.0698) needs 0.31 or more; one clearing 3:1 on $20 (0.9387) needs 0.30 or less; the window is empty, and the row gap cannot help because no entry is two rows from both rows 0 and 2. Under R1b the pair passes on all four grounds: body $20 at 19.77:1 on $0F, 8.25:1 on $0B, 10.55:1 on $0C, and ink $0C at 10.55:1 on $20.",
+        "q2_composer_order": "The ordering is intended, not an accident. pp_title.gml's draw event draws the seven night layers first (line 488, title_L7_fg among them), then the sign, the cone, the car (line 491), the cloud, the logo, and inside pp_title_draw_car the exhaust is drawn before the car body. compose_title_preview.py pastes in the same order. The black under the puff is the road band's own tarmac, spent as bg3's shared backdrop $0F, and the sweep above is the evidence: the window's four entries are the road strip's.",
+        "consequence_entries": "The body moved from the redraw's $10 to $20, because the puff sits in screen bands 12 and 13 and the band plan gives those bg3 ($0C $0B $20). tools/art/title_bands.py flattens a $10 body to $20 on the way to the tree (measured: 118 pixels move), so the generator now draws the shipping pair and output/redraws is drawn in it too.",
+        "what_landed": "game/sprites_src/title/spr_title_exhaust.png and its four fade twins (rewritten by tools/art/make_title_car.py), the base sidecar's layer flag, tools/art/make_title_car.py (LAYER_SHEETS, CHIP_DRAWN_SHEETS, build_exhaust_frames), tools/art/make_title_exhaust_v2.py (build_frames), data/palettes/scene_title.json unchanged, knowledge/PALETTE-RULINGS-2026-10-25.md, and the ART-BIBLE RULE 0 point 2 amendment.",
+        "left_open": "The fade twins do not hold R1b against the unfaded ground (2, 8, 12, 12 failing pairs), because in the game they are drawn while the whole frame fades under them; nothing in the audit measures them today and it is a separate card. Konrad and Zander still want entries no title palette carries. The wheel row stays a figure and stays drawn even though the v2 car bakes its wheels.",
+        "file": "knowledge/PALETTE-RULINGS-2026-10-25.md"
       }
     },
     {
@@ -5434,10 +5485,163 @@
         "runner": "output/_eye_r11_runner.py",
         "results": "output/_eye_r11_results.json"
       }
+    },
+    {
+      "round": 12,
+      "card": "t_5050c3a7",
+      "written_on": "2026-10-25",
+      "baseline": "output/EYE_AUTO_2026-10-24_R11.md",
+      "report": "output/EYE_AUTO_2026-10-25_R12.md",
+      "scope_note": "every PNG under output/ and game/sprites_src/ newer than the round 11 report, hashed for pixel duplicates, then narrowed by comparing each candidate with the tile an earlier round reviewed",
+      "sheets": [
+        {
+          "sheet": "A",
+          "file": "output/_eye_r12_sheet_a.png",
+          "tiles": 9,
+          "about": "four sprite redraws before and after (wordmark, car, traffic cone, speech bubble) plus the redrawn cone drawn on its own ground, integer scales, 9 tiles",
+          "review_file": "<repo>/output/eye_reviews/_eye_r12_sheet_a_20261025T112514Z.md",
+          "model": "gemini-3.5-flash",
+          "seconds": 41.33,
+          "scores": {
+            "nes_authenticity": 8,
+            "readability": 7,
+            "charm": 7,
+            "silhouette": 6,
+            "palette_separation": 6,
+            "outline_coverage": 6,
+            "proportions": 6,
+            "handmade": 7
+          }
+        },
+        {
+          "sheet": "B",
+          "file": "output/_eye_r12_sheet_b.png",
+          "tiles": 9,
+          "about": "the NES fade ladder: sky band steps 1 and 2, road band steps 1 to 3, car steps 1 to 3, and the star strip, 9 tiles",
+          "review_file": "<repo>/output/eye_reviews/_eye_r12_sheet_b_20261025T112604Z.md",
+          "model": "gemini-3.6-flash",
+          "seconds": 49.28,
+          "scores": {
+            "nes_authenticity": 8,
+            "readability": 7,
+            "charm": 6,
+            "silhouette": 6,
+            "palette_separation": 6,
+            "outline_coverage": 6,
+            "proportions": 7,
+            "handmade": 9
+          }
+        },
+        {
+          "sheet": "C",
+          "file": "output/_eye_r12_sheet_c.png",
+          "tiles": 6,
+          "about": "the title screen three times (the reference frame and two moments of the 21:20 run) plus the cloud, star and exhaust strips at game scale, 6 tiles",
+          "review_file": "<repo>/output/eye_reviews/_eye_r12_sheet_c_20261025T112958Z.md",
+          "model": "gemini-3.5-flash-lite",
+          "seconds": 7.15,
+          "scores": {
+            "nes_authenticity": 8,
+            "readability": 7,
+            "charm": 7,
+            "silhouette": 7,
+            "palette_separation": 6,
+            "outline_coverage": 7,
+            "proportions": 7,
+            "handmade": 7
+          }
+        }
+      ],
+      "fixes": [
+        {
+          "rank": 1,
+          "source": "measured",
+          "priority": "P1",
+          "target": "the title fade ladder, tools/pp_intro_art.py write_fades",
+          "fixed": false,
+          "what": "every strip's fade3 and fade4 are pixel identical: the fourth step of the four step fade changes nothing. Measured with output/_eye_r12_scope.py over all 48 fade strips written at 00:58. A fade that finishes a step early is not wrong on the hardware, but a card counting four steps is counting five pictures for four stages.",
+          "who": "the art lane that owns tools/pp_intro_art.py, not this card"
+        },
+        {
+          "rank": 2,
+          "source": "measured and model",
+          "priority": "P1",
+          "target": "the sky band of the intro fade, title_L1_sky_fade1..4",
+          "fixed": false,
+          "what": "the sky cannot fade gradually: its two blues are $12 (0000FC step of the palette) so one step down lands them in the darkest row and the second step is black, while the road band needs three steps and the car three. Measured: title_L1_sky_fade2 carries 2 colours and fade3 is black, title_L6_road_fade1 carries 2, fade2 2, fade3 black. The sheet B reviewer reached the same answer without the numbers: the sky flickers out while the road is still fading.",
+          "who": "the art lane that owns the title layers, not this card"
+        },
+        {
+          "rank": 3,
+          "source": "measured",
+          "priority": "P1",
+          "target": "spr_title_cone, the redraw has not landed",
+          "fixed": false,
+          "what": "output/redraws/spr_title_cone.png is 3 colours and 1352 of 3840 pixels drawn (01:20); game/sprites_src/title/spr_title_cone.png is still the one colour sheet from 20:24 with 1246 pixels. The game draws the one colour cone, which cannot show a lit side or a stripe. The redraw exists in the redraw folder only.",
+          "who": "the sprite redraw lane, through tools/sync_art.py and its own check"
+        },
+        {
+          "rank": 4,
+          "source": "measured",
+          "priority": "P2",
+          "target": "output/redraws/spr_title_car.png is an old draft, not a redraw",
+          "fixed": false,
+          "what": "the car file in the redraw folder is from 10-23 13:05 and carries 7 colours, 2688 pixels drawn; the file the game draws was rewritten at 00:09 today and carries 3 colours and 3162 pixels. An NES sprite may spend 3 colours plus transparency, so the 7 colour draft could not ship. It must not be used as the after picture of the car: sheet A tile 4 shows it as such and that label is wrong in the sheet, corrected here.",
+          "who": "the sprite redraw lane"
+        },
+        {
+          "rank": 5,
+          "source": "model, two independent reviewers",
+          "priority": "P2",
+          "target": "the title car wheels, both in the sheet and in the fade steps",
+          "fixed": false,
+          "what": "the sheet A reviewer named broken wheel outlines on the car and the sheet B reviewer named floating orphan wheel pixels in the same car two steps darker. Both cannot count pixels, so this is a look, not a measurement, but two models on two sheets landing on the same wheel is worth one pass by the lane that owns the car.",
+          "who": "the sprite redraw lane"
+        },
+        {
+          "rank": 6,
+          "source": "model",
+          "priority": "P3",
+          "target": "the title screen frame as a player sees it",
+          "fixed": false,
+          "what": "sheet C: the menu box outline has a gap at its top left corner, the third cloud cell carries a diagonal white streak the reviewer read as a scribble, the largest exhaust cell's dither is not symmetric, and the copyright line is thin next to the chunky title font. All four are one pixel edits in files the title lane owns.",
+          "who": "the title lane"
+        }
+      ],
+      "measured": {
+        "pngs_newer_than_r11": 181,
+        "distinct_pixel_contents": 53,
+        "build_copies_skipped": 106,
+        "pixel_duplicates_skipped": 20,
+        "drive_frames_unchanged": "12 of 12, 132 of 245760 pixels differ on each, the same count, the tile border",
+        "speech_bubble_and_window_redraws": "0 differing pixels against the authored files",
+        "wordmark_redraw": "18 of 28672 pixels differ (0.06 percent)",
+        "fade_step_3_equals_step_4_on_every_strip": true,
+        "title_reference_equals_run_1": "0 of 61440 pixels differ, run 2 differs in 19.15 percent",
+        "sheet_c_off_palette_colours": [
+          "#AEADAD",
+          "#AEB2B2"
+        ]
+      },
+      "cost": {
+        "requests": 3,
+        "models_used": [
+          "gemini-3.5-flash",
+          "gemini-3.6-flash",
+          "gemini-3.5-flash-lite"
+        ],
+        "models_refused": {
+          "gemini-3.8-flash": "The read operation timed out on sheet C, the chain moved to gemini-3.5-flash-lite"
+        },
+        "free_tier_per_model_per_day": 20,
+        "pacific_date": "2026-10-25",
+        "spend_before_round": "none on this Pacific date",
+        "spend_after_round": "3 ok calls, one per sheet, three different models"
+      }
     }
   ],
   "eye_rounds_note": "written by the assistant profile from the automatic eye rounds; these are ranked suggestions about contact sheets, kept apart from `entries`, which is one row per sprite the game asks for by name. Gamedev and Nayil own the spec and the priority order, and a conflict is resolved in gamedev's favour. Regenerated by output/_eye_r6_queue.py.",
-  "updated_by": "gamedev (card t_c5c85156, the title car row's stale measurement and spec 14 line 23)",
+  "updated_by": "gamedev (card t_474cde50, the exhaust row's ruling: a tiled layer, and the $20 body its band can carry)",
   "updated_on": "2026-10-25",
-  "count_note": "31 rows. The 19 rows of the 2026-10-23 source of truth card are unchanged: 15 repointed to game/sprites_src, 2 renamed to the shipped names (spr_title_konrad, spr_title_zander), 2 retired (spr_player_ow, spr_gate_sentry_ow). Card t_bd32a72e redrew hadrian_ow_v2 (status queued_by_eye to redrawn) and changed no other row. AUTO-GEMINI-EYE round 8 (card t_134cacc4) added 12 rows with status queued_by_eye and priority P2, because the eye does not own priority: the 7 enemies whose frame 3 drops a colour, the 3 v2 characters that need two sprite palettes, and the 2 battle frames with no dark boundary ring. No row measures game/art. Card t_b08c01d5 redrew spr_title_cloud (status queued to done) and changed no other row: the shipped cloud went from 94.6 percent on one entry and 4 failing palette_synergy pairs to 52.5 percent on the white body and 0 failing pairs. Card t_bd5cfad5 redrew sailor_ow_v2 (status queued_by_eye to done) and changed no other row: the last of the three v2 characters the eye measured at 4 and 5 colours per 16x16 cell went from 4 entries (ink, white, navy, skin) and 4 failing palette_synergy pairs per frame to 3 entries in exactly one deck sprite palette and 0 failing pairs, with drawn_px unchanged at 1196. Card t_a44ae3db (gamedev, 2026-10-24) ruled Q1 on that row: the three entry sheet stands and the blob floor is re-expressed for a three entry sheet in tests/test_make_characters_v2.py and SPRITE-CRAFT 8.5, because a floor of four entries needs a second sprite palette and was never a gamedev spec; the ruling and its measured numbers are in the row's gamedev_ruling key. Card t_c3ad486b redrew spr_pp_navy_sailor and spr_pp_petty_officer (both queued_by_eye to done) and changed no other row: the two enemies were [3, 3, 2] colours per frame before, the hit frame dropping the navy, and are [3, 3, 3] after, with the body moved off the sea's own $02 navy onto the uniform's $30 white, which took palette_synergy from 2 failing pairs to 0 on the sea ground the enemy is placed on. The five other enemies keep the blanket recolour that drops a colour in frame 3 and stay queued_by_eye, and that is Q1 on the sailor row. Card t_f24ada8a (2026-10-24) redrew spr_pp_deck_rat and spr_pp_rope_knot (both queued_by_eye to done), the only two rows left whose own measured check was red: both were FAIL on palette_synergy with 2 body_ground pairs each, body $07 brown at 1.24:1 on the $02 navy sea ground, and both had [3, 3, 2] colours per frame with the hit frame dropping the brown. They are now [3, 3, 3] and PASS with 0 failing pairs, body $28 gold in scene_sea sp1_brown_gold, drawn by make_enemies.py, the tool that owns both names. It changed no other row: gull and rogue_wave already measured 0 failing pairs on that ground, and bilge_slime too, so the eye round 10 rank 3 reading is now settled for four of the five enemies it named. The P0 car and the P1 title rows above these two stay queued or redrawn: their remaining defects are gamedev's (Q3 on the car's band palette, the cursor's gold, the cone's flat single entry), not a drawing this lane can fix and prove. Card t_b825be3e redrew spr_title_cone (status queued to done) and changed no other row: the shipped sheet was one entry on all 1246 drawn pixels, and the redraw is three stepped entries ($28 lamp 200 px, $10 mid 448 px, $00 far 704 px) on 1352 drawn px, nes_check PASS with the worst 8x8 tile holding one opaque colour, and palette_synergy PASS with 0 failing pairs of 16 on the road ground rebuilt from the seven shipped title layers at the cone's own placement. Whether the shipped sheet moves is gamedev's, posted as Q3 on the row."
+  "count_note": "31 rows. The 19 rows of the 2026-10-23 source of truth card are unchanged: 15 repointed to game/sprites_src, 2 renamed to the shipped names (spr_title_konrad, spr_title_zander), 2 retired (spr_player_ow, spr_gate_sentry_ow). Card t_bd32a72e redrew hadrian_ow_v2 (status queued_by_eye to redrawn) and changed no other row. AUTO-GEMINI-EYE round 8 (card t_134cacc4) added 12 rows with status queued_by_eye and priority P2, because the eye does not own priority: the 7 enemies whose frame 3 drops a colour, the 3 v2 characters that need two sprite palettes, and the 2 battle frames with no dark boundary ring. No row measures game/art. Card t_b08c01d5 redrew spr_title_cloud (status queued to done) and changed no other row: the shipped cloud went from 94.6 percent on one entry and 4 failing palette_synergy pairs to 52.5 percent on the white body and 0 failing pairs. Card t_bd5cfad5 redrew sailor_ow_v2 (status queued_by_eye to done) and changed no other row: the last of the three v2 characters the eye measured at 4 and 5 colours per 16x16 cell went from 4 entries (ink, white, navy, skin) and 4 failing palette_synergy pairs per frame to 3 entries in exactly one deck sprite palette and 0 failing pairs, with drawn_px unchanged at 1196. Card t_a44ae3db (gamedev, 2026-10-24) ruled Q1 on that row: the three entry sheet stands and the blob floor is re-expressed for a three entry sheet in tests/test_make_characters_v2.py and SPRITE-CRAFT 8.5, because a floor of four entries needs a second sprite palette and was never a gamedev spec; the ruling and its measured numbers are in the row's gamedev_ruling key. Card t_c3ad486b redrew spr_pp_navy_sailor and spr_pp_petty_officer (both queued_by_eye to done) and changed no other row: the two enemies were [3, 3, 2] colours per frame before, the hit frame dropping the navy, and are [3, 3, 3] after, with the body moved off the sea's own $02 navy onto the uniform's $30 white, which took palette_synergy from 2 failing pairs to 0 on the sea ground the enemy is placed on. The five other enemies keep the blanket recolour that drops a colour in frame 3 and stay queued_by_eye, and that is Q1 on the sailor row. Card t_f24ada8a (2026-10-24) redrew spr_pp_deck_rat and spr_pp_rope_knot (both queued_by_eye to done), the only two rows left whose own measured check was red: both were FAIL on palette_synergy with 2 body_ground pairs each, body $07 brown at 1.24:1 on the $02 navy sea ground, and both had [3, 3, 2] colours per frame with the hit frame dropping the brown. They are now [3, 3, 3] and PASS with 0 failing pairs, body $28 gold in scene_sea sp1_brown_gold, drawn by make_enemies.py, the tool that owns both names. It changed no other row: gull and rogue_wave already measured 0 failing pairs on that ground, and bilge_slime too, so the eye round 10 rank 3 reading is now settled for four of the five enemies it named. The P0 car and the P1 title rows above these two stay queued or redrawn: their remaining defects are gamedev's (Q3 on the car's band palette, the cursor's gold, the cone's flat single entry), not a drawing this lane can fix and prove. Card t_b825be3e redrew spr_title_cone (status queued to done) and changed no other row: the shipped sheet was one entry on all 1246 drawn pixels, and the redraw is three stepped entries ($28 lamp 200 px, $10 mid 448 px, $00 far 704 px) on 1352 drawn px, nes_check PASS with the worst 8x8 tile holding one opaque colour, and palette_synergy PASS with 0 failing pairs of 16 on the road ground rebuilt from the seven shipped title layers at the cone's own placement. Whether the shipped sheet moves is gamedev's, posted as Q3 on the row. Card t_9774ff51 redrew spr_title_exhaust (status queued to redrawn) and changed no other row: the shipped sheet's body flipped from $0C in frame 0 to $20 in frames 1 to 3, and the redraw is $10 body with a $0C outline in one sprite palette (sp2), growing 5x4 to 12x10 over the four frames. nes_check PASS, palette_synergy 9 failing pairs to 4, and the 4 left are one pair repeated (body $10 at 1.79:1 on the road's $20 marking). The row is redrawn, not done: whether an effect puff is a figure or a layer is Q for gamedev, and under R1b the same sheet passes 0 of 16. Card t_474cde50 (gamedev, 2026-10-25) answered that Q and closed the row: the puff is a tiled layer, because over one scroll its 16x16 window crosses four ground entries on 2C02 rows 0 and 2 and no body entry can clear RULE 0 point 2 on both ends (failing pairs: 4 as a figure, the arithmetic floor, and 0 under R1b). The same ruling moved the body from the redraw's $10 to $20, since the puff's band is bg3 and the band pass flattens $10 (118 pixels); the generator now draws the shipping pair and the shipped sheet is #f8f8f8 118 px plus #004058 70 px, nes_check PASS, palette_synergy PASS 0 failing pairs."
 }

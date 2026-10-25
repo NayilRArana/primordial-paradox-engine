@@ -3,5 +3,6 @@
   "frame_h": 16,
   "frame_w": 16,
   "frames": 4,
+  "layer": true,
   "name": "spr_title_exhaust"
 }

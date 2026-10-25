@@ -323,6 +323,17 @@ Concept art, backgrounds and sprites are designed INSIDE the NES palette system,
    which keeps a mid body on a mid ground refused: $00 on $11 is one row apart at 1.00:1 and still FAILS. Measured
    on the four battle strips, this removes exactly one pair, `sailor_battle.png` frame 2's $10 on the deck's $0F
    backdrop, and changes nothing else on corridor, quay dusk, wardroom or deck.
+   Amendment, gamedev ruling on card t_474cde50 (2026-10-25): what qualifies a sheet to declare itself a layer is
+   that it has NO single ground, and that is measured, not argued from its size or its subject. Sweep the scene's
+   own layer table over a scroll and read the window the sprite is drawn in: the exhaust puff's 16x16 window holds
+   four entries in every frame, $0F black 72.7 percent, $0B green 15.4, $0C teal 6.0, $20 white 5.9, and its ends
+   are 2C02 luminance rows 0 and 2, so no body can clear 3:1 on both (a body clearing $0B needs luminance 0.31 or
+   more, one clearing $20 needs 0.30 or less) and no entry can be two rows from a ground that spans rows 0 and 2.
+   Under R1b the same drawing passes on all four frames, ink $0C at 10.55:1 on the $20 marking and body $20 at
+   19.77:1, 8.25:1 and 10.55:1 on the three dark grounds. A sheet with ONE ground is a figure however small it is,
+   so the wheel, the driver busts and every walking sheet stay under the two instruments above; the declaration is
+   granted per sheet with the sweep done, never claimed, and it is never a way around a figure that cannot be
+   drawn. The title set, the numbers and what was left open are in `knowledge\PALETTE-RULINGS-2026-10-25.md`.
 3. A sprite's 3 colours: 1 dark outline, 1 mid body, 1 accent or light. The hero palettes are reserved and reused
    (Percy blue and gold, Hadrian near black and purple, Zander light blue, Konrad grey and amber).
 4. Backgrounds spend their 4 palettes by area (attribute 16x16 rule): sky, ground, buildings, accents. No palette
