@@ -162,6 +162,65 @@ def test_car_colours_are_nes_and_the_window_band_is_tinted():
     assert len(opaque_colours(path)) <= 7
 
 
+def car_module():
+    """The car generator as a module, so the pins below measure the drawing that wrote the PNG."""
+    art = os.path.join(ROOT, "tools", "art")
+    if art not in sys.path:
+        sys.path.insert(0, art)
+    import title_car_v2
+
+    return title_car_v2
+
+
+def title_sprite_palettes() -> dict:
+    """{palette name: set of 2C02 entries} for the title's four sprite palettes, off the scene file itself."""
+    with open(os.path.join(ROOT, "data", "palettes", "scene_title.json"), encoding="utf-8-sig") as handle:
+        scene = json.load(handle)
+    return {row["name"]: {int(entry) for entry in row["colours"]} for row in scene["sprites"]}
+
+
+def test_the_car_body_is_the_light_entry_and_nothing_is_darker_than_the_ink():
+    """Card t_1738de73: the repaint that gives the car a reading on the road.
+
+    tools/palette_synergy.py reads a tiled layer's ink as the frame's DARKEST colour and its body as the largest
+    fill that is not that ink, and RULE 0 point 2 asks one of the two to clear 3:1 on every ground under the car.
+    Both of the old car's colours were dark, so no ground could pass it: $0B reads 2.40:1 against black and
+    1.00:1 against itself. The ruling (knowledge/PALETTE-RULINGS-2026-10-24.md section 11 Q2) moves the LARGEST
+    FILL onto the near white the sheet's own palette sp3 already holds. This pin holds the generator to that: the
+    drawn frames spend only sp3's three entries, the largest fill is the body role, and nothing in the drawing is
+    darker than the ink entry, which is what keeps the tool reading the ink as $0C.
+    """
+    mod = car_module()
+    colours, index_of = mod.nes_tile.load_nes_palette(ROOT)
+    sp3 = title_sprite_palettes()["sp3"]
+    assert {colours[entry] for entry in (mod.BODY, mod.SHADOW, mod.DARK)} == {colours[entry] for entry in sp3}, \
+        (mod.BODY, mod.SHADOW, mod.DARK, sorted(sp3))
+    for phase in (0, 1, 2):
+        counts = mod.fills(mod.build_frame(phase, colours), index_of)
+        assert set(counts) == sp3, (phase, sorted(counts), sorted(sp3))
+        largest = max(counts, key=lambda entry: counts[entry])
+        assert largest == mod.BODY, (phase, counts)
+        assert not [entry for entry in counts if entry in mod.BLACK_GUARD], (phase, counts)
+
+
+def test_the_committed_car_sheet_is_the_generator_geometry():
+    """The repaint moved colour, not pixels: the committed sheet carries the generator's own alpha mask.
+
+    The scene palette pass and the band pass both repaint the sheet after the generator writes it, so a colour
+    comparison here would pin those passes rather than the drawing. The silhouette is the part they never change,
+    and a repaint that resized, moved or opened up the car would show in it and nowhere else.
+    """
+    mod = car_module()
+    colours, _index_of = mod.nes_tile.load_nes_palette(ROOT)
+    drawn = mod.strip([mod.build_frame(phase, colours) for phase in (0, 1, 2)])
+    with Image.open(os.path.join(TITLE_DIR, "spr_title_car.png")) as image:
+        committed = image.convert("RGBA")
+    assert committed.size == drawn.size, (committed.size, drawn.size)
+    moved = [(x, y) for y in range(drawn.height) for x in range(drawn.width)
+             if (drawn.getpixel((x, y))[3] == 0) != (committed.getpixel((x, y))[3] == 0)]
+    assert not moved, moved[:8]
+
+
 def test_title_draws_no_cast_but_keeps_the_files():
     script = open(os.path.join(ROOT, "game", "scripts", "pp_title", "pp_title.gml"),
                   encoding="utf-8").read()

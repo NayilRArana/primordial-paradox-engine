@@ -3,6 +3,7 @@
   "frame_h": 32,
   "frame_w": 64,
   "frames": 3,
+  "layer": true,
   "name": "spr_title_car_fade2",
   "note": "one NES brightness row darker per step, written by tools/pp_intro_art.py"
 }
