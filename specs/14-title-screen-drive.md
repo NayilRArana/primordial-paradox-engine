@@ -20,7 +20,7 @@ Parallax layers, back to front, with scroll speed relative to the road:
 7. Foreground blur, 1.3x: occasional grass tufts and a fence post passing in front of the car.
 
 ## The car
-- An original small, slightly battered British hatchback (think boxy 1980s family car, not any real model or badge), racing green with one mismatched beige door, roof rack with a suitcase strapped on (Zander's luggage for the ship).
+- An original small, slightly battered British hatchback (think boxy 1980s family car, not any real model or badge). The body is near white ($20) so the car holds apart from the road it drives on; the racing green ($0B) is its shadow side, running along the bottom of the body, the sills, the arches and the tyres, and the darkest teal ($0C) takes the glass, the shut lines and the outline. There is no mismatched door. Roof rack with a suitcase strapped on (Zander's luggage for the ship). Colour decided in knowledge/PALETTE-RULINGS-2026-10-24.md section 11 Q2; the sheet is game/sprites_src/title/spr_title_car.png, three entries and no fourth.
 - Animation: 4 frame wheels; body bob of 1 px on a 6 frame cycle; exhaust puff every 20 frames; headlights off until golden hour, then on.
 - Through the windows, two bust sprites: Konrad driving (right side of the car, British), Zander in the passenger seat. Idle loops: Konrad glances at his watch (8 frames, every 6 seconds), Zander bobs his head to music (4 frames) and once per loop turns to say something, a tiny speech bubble with "..." appears and Konrad does not react.
 
