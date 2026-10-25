@@ -379,6 +379,14 @@
           "spawn": "start",
           "once": false,
           "condition": ""
+        },
+        {
+          "x": 17,
+          "y": 39,
+          "kind": "say",
+          "id": "ship_aboard",
+          "once": false,
+          "condition": ""
         }
       ],
       "actors": [
