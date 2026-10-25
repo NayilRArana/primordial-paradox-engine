@@ -33,7 +33,7 @@ What is proven, in the card's own order:
      spawns plus the save point walkable;
   5. every walkable cell of the deck is reachable from spawns.start, 176 of 176, and opening the story
      flag adds exactly the one hatch tile and nothing else;
-  6. the runner's own command list and check_data.SCENE_COMMANDS are the same 15 strings, both ship
+  6. the runner's own command list and check_data.SCENE_COMMANDS are the same 16 strings, both ship
      scenes use only those, and both end on end;
   7. the log scene's own move commands, simulated from its start tile against the collision grid,
      land the hero on the tile that carries the save trigger deck_save at 3,2.
@@ -109,7 +109,7 @@ LOG_SCENE = "ship_log"
 BOARDING_SCENE = "ship_boarding"
 LOG_START = (3, 7)
 LOG_PATH = [(3, 7), (3, 6), (3, 5), (3, 4), (3, 3), (3, 2)]
-RUNNER_COMMANDS = 15
+RUNNER_COMMANDS = 16
 
 DIRECTIONS = ((1, 0), (-1, 0), (0, 1), (0, -1))
 

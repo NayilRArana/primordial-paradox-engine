@@ -92,6 +92,22 @@
         "strength": { "type": "integer", "minimum": 1, "maximum": 2 }
       }
     },
+    "flash": {
+      "type": "object",
+      "required": ["cmd"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": { "const": "flash" },
+        "steps": {
+          "type": "integer", "minimum": 1, "maximum": 8,
+          "description": "Frames the frame stays flooded. Defaults to PP_FLASH_STEPS, 2, the title's own storm clock. Costs the scene no steps."
+        },
+        "role": {
+          "type": "string", "minLength": 1,
+          "description": "A role the scene's map declares in data/room_palettes.json. Defaults to paper."
+        }
+      }
+    },
     "spawn": {
       "type": "object",
       "required": ["cmd", "actor"],
@@ -161,6 +177,7 @@
         { "$ref": "#/$defs/fade" },
         { "$ref": "#/$defs/camera" },
         { "$ref": "#/$defs/shake" },
+        { "$ref": "#/$defs/flash" },
         { "$ref": "#/$defs/spawn" },
         { "$ref": "#/$defs/destroy" },
         { "$ref": "#/$defs/battle" },

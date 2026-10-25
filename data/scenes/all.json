@@ -314,6 +314,7 @@
         { "cmd": "wait", "steps": 491 },
         { "cmd": "camera", "x": 25, "y": 8 },
         { "cmd": "sfx", "id": "thunder_soft" },
+        { "cmd": "flash", "steps": 2 },
         { "cmd": "wait", "steps": 600 },
         { "cmd": "wait", "steps": 490 },
         { "cmd": "camera", "x": 37, "y": 8 },

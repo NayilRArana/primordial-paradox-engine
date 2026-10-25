@@ -110,7 +110,7 @@ TRIGGER_ID_TABLES = {
 }
 SCENE_COMMANDS = {
     "say", "move", "face", "wait", "fade", "music", "sfx", "camera",
-    "shake", "spawn", "destroy", "battle", "setflag", "branch", "end",
+    "shake", "flash", "spawn", "destroy", "battle", "setflag", "branch", "end",
 }
 DIRECTIONS = {"up", "down", "left", "right"}
 AUDIO_KINDS = {"music", "sfx", "ui"}
@@ -468,6 +468,9 @@ class Checker:
         """A room palette is a named list of role names, capped at 16 colours, every role a real master palette role."""
         filename = "data/room_palettes.json"
         self.room_palette_ids = set()
+        # The roles of each set, by set id, so a scene command that names a role (a `flash`) is judged against the set
+        # the room it plays in declares, not against every role in the master palette (card t_531bc76c).
+        self.room_palette_roles = {}
         if master is None or not isinstance(master, dict):
             # A master palette that failed its own check has already been reported. Without its roles the roles below
             # cannot be judged, so this check reports the sets by count only and does not invent unknown role errors.
@@ -500,6 +503,9 @@ class Checker:
             roles = self.require(entry, "roles", "list", filename, path)
             if roles is None:
                 continue
+            if isinstance(set_id, str):
+                _role_list = roles if isinstance(roles, list) else []
+                self.room_palette_roles[set_id] = [role for role in _role_list if isinstance(role, str)]
             if len(roles) > MAX_COLOURS_ON_SCREEN:
                 self.error(filename, path + ".roles",
                            "%d colours, the screen cap is %d (spec 13)" % (len(roles), MAX_COLOURS_ON_SCREEN))
@@ -1616,6 +1622,24 @@ class Checker:
                     strength = self.want(command, "strength", "int", filename, command_path)
                     if strength is not None:
                         self.in_range(strength, 1, 2, filename, command_path + ".strength")
+                elif cmd == "flash":
+                    # A flash floods the frame in one role for a handful of frames and costs the scene no steps, so
+                    # there is nothing here about durations: only that the frames and the colour are real (card
+                    # t_531bc76c, spec 06). The role is judged against the set the room this scene plays in declares,
+                    # not against the whole master palette, because a role the set does not carry draws as the
+                    # missing colour and that is a screen no palette of the set can produce (spec 13 rule 2).
+                    steps = self.want(command, "steps", "int", filename, command_path)
+                    if steps is not None:
+                        self.in_range(steps, 1, 8, filename, command_path + ".steps")
+                    role = self.want(command, "role", "str", filename, command_path)
+                    if role is not None:
+                        map_row = ids["map"].get(map_name) if isinstance(map_name, str) else None
+                        room_palette = map_row.get("room_palette") if isinstance(map_row, dict) else None
+                        declared = self.room_palette_roles.get(room_palette, []) if isinstance(room_palette, str) else []
+                        if declared and role not in declared:
+                            self.error(filename, command_path + ".role",
+                                       "%r is not a role in %r, the set %r declares; a flash may only spend a colour "
+                                       "the room already draws with" % (role, room_palette, map_name))
             del battle_seen
 
         # branch is the only control flow, so a cycle of branches would be a cutscene that never ends (spec 06 rule 3).

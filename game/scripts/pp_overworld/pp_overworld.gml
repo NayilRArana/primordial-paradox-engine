@@ -33,6 +33,11 @@ function pp_overworld_new(_map_id, _spawn_name) {
         steps: 0,
         shake_steps: 0,
         shake_strength: 0,
+        // The whole screen flash a scene's `flash` command asks for (card t_531bc76c): frames left to draw and the
+        // role the frame is flooded with. Declared here for the same reason `steps` is: the first draw of any overworld
+        // reads its keys, and a missing one ends the game on that frame.
+        flash_steps: 0,
+        flash_role: "paper",
         music: "",
         sfx: "",
         battle_request: "",
@@ -152,6 +157,18 @@ function pp_world_move_step(_world) {
     }
     _hero.px = floor(lerp(_hero.from_x, _hero.to_x, _t));
     _hero.py = floor(lerp(_hero.from_y, _hero.to_y, _t));
+}
+
+/// Ask for a whole screen flash (card t_531bc76c): N frames of the frame flooded in one role the room's palette set
+/// declares. It spends no steps of the scene, because the world's own clock counts it down in pp_overworld_step; a
+/// step count of zero or less asks for nothing rather than for a flash nobody can see.
+function pp_world_flash(_world, _steps, _role) {
+    if (!is_struct(_world)) return false;
+    var _frames = round(_steps);
+    if (_frames <= 0) return false;
+    _world.flash_steps = min(_frames, PP_FLASH_MAX_STEPS);
+    if (is_string(_role) && _role != "") _world.flash_role = _role;
+    return true;
 }
 
 function pp_world_spawn_actor(_world, _name, _tx, _ty) {
@@ -353,6 +370,10 @@ function pp_overworld_step(_world) {
     // moving through a scene, a dialogue or a walk; pp_map_draw reads it on the same frame it is drawn.
     _world.steps += 1;
     if (_world.shake_steps > 0) _world.shake_steps -= 1;
+    // The flash counts down here, at the top of the step, exactly as the shake does, so the frame that asked for it
+    // draws it: N on the step it is set, N-1 on the next, and off when it reaches zero. A `flash` command spends no
+    // steps of its own, so this is the only clock it has (card t_531bc76c, spec 06).
+    if (_world.flash_steps > 0) _world.flash_steps -= 1;
     if (_world.trigger_lock > 0) _world.trigger_lock -= 1;
 
     // The entry autosave (spec 11 rule 4) is asked every step and fires exactly once per entry, on a settled screen.
@@ -552,6 +573,15 @@ function pp_overworld_draw(_world) {
                 pp_font_cols(PP_TEXT_RIGHT - PP_TEXT_X), 8, 1);
         }
         draw_set_halign(fa_left);
+    }
+
+    // A flash is the whole frame flooded in one role the room's own palette set declares (card t_531bc76c): a palette
+    // change, never a blend, so the screen still spends one declared colour and spec 13's no-gradients rule holds.
+    // Drawn over the map, the actors and the box, and under the fade, because a fade is the darker statement of intent.
+    if (_world.flash_steps > 0) {
+        draw_set_alpha(1);
+        draw_set_colour(pp_role_colour(_world.flash_role));
+        draw_rectangle(0, 0, PP_FRAME_W, PP_FRAME_H, false);
     }
 
     if (!is_undefined(_world.fade)) {

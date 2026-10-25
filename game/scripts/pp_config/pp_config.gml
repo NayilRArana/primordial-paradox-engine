@@ -224,10 +224,13 @@ enum PPElement {
 #macro PP_ARROW_OFF 15
 
 // Cutscene runner (spec 06). Camera pans in 24 steps, music crossfades in 30, shake is 1 or 2 pixels every 2 steps.
+// A flash is 2 frames of one declared role flooded over the frame, 8 at most, and it costs the scene no steps.
 #macro PP_CAMERA_MOVE_STEPS 24
 #macro PP_MUSIC_FADE_STEPS 30
 #macro PP_SHAKE_MAX_STEPS 60
 #macro PP_SHAKE_PERIOD 2
+#macro PP_FLASH_STEPS 2
+#macro PP_FLASH_MAX_STEPS 8
 #macro PP_SCENE_WARN_COMMANDS 256
 
 // Save slot (spec 11). One file, one backup, a 64 KB buffer, and the format number the loader checks before anything

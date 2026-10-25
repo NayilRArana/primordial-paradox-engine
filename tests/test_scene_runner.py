@@ -43,6 +43,7 @@ COMMAND_ARGS = {
     "sfx": ({"id"}, {"id"}),
     "camera": (set(), {"x", "y", "actor"}),
     "shake": (set(), {"steps", "strength"}),
+    "flash": (set(), {"steps", "role"}),
     "spawn": ({"actor", "x", "y"}, {"actor", "x", "y"}),
     "destroy": ({"actor"}, {"actor"}),
     "battle": ({"id"}, {"id"}),
@@ -109,7 +110,7 @@ def test_runner_command_list_and_switch_agree_in_both_directions():
     text = read_text(SCENE_GML)
     commands = runner_commands(text)
     assert commands == [
-        "say", "move", "face", "wait", "fade", "music", "sfx", "camera", "shake",
+        "say", "move", "face", "wait", "fade", "music", "sfx", "camera", "shake", "flash",
         "spawn", "destroy", "battle", "setflag", "branch", "end",
     ], "the runner's command list changed; spec 06's table has to change with it"
 
@@ -316,3 +317,52 @@ def test_the_debug_keys_are_gated_and_the_self_test_walks_the_scene_list():
 
     game_step = read_text(GAME_STEP_GML)
     assert "pp_scene_debug_key(global.pp.world);" in game_step, "nothing calls the scene debug keys"
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# 9: the flash (card t_531bc76c). The storm's lightning over a map: a palette change on steps the film already
+# spends, so the command may not wait, may not own a runner state, and may not be its own clock.
+
+def test_the_flash_command_costs_the_scene_no_steps_and_names_a_declared_role():
+    text = read_text(SCENE_GML)
+    start = gml_function(text, "pp_scene_command_start")
+    flash_case = start[start.find('case "flash"'):]
+    flash_case = flash_case[:flash_case.find('case "spawn"')]
+    assert flash_case, "the runner has no flash case"
+    assert "pp_world_flash(" in flash_case, "the flash case does not hand the flash to the world"
+    assert "pp_scene_advance(_sc, _world);" in flash_case, "the flash case does not advance, so it would hang the scene"
+    assert "_sc.state = " not in flash_case, (
+        "the flash case sets a runner state, so it waits for a clock of its own and the film's steps move")
+    assert "_sc.timer" not in flash_case, "the flash case carries a timer, which is a wait by another name"
+    assert 'PP_FLASH_STEPS' in flash_case, "the flash case does not read the 2 frame default from pp_config"
+
+    # The default role is a role every set in data/room_palettes.json declares, so the default draws a colour the
+    # screen already spends; a role no set declares would draw the missing colour instead.
+    assert '_flash_role = "paper";' in flash_case, "the flash default role is not paper"
+    sets = read_json("data/room_palettes.json")["sets"]
+    for entry in sets:
+        assert "paper" in entry["roles"], "set %s does not declare the flash's default role" % entry["id"]
+
+    # The world owns the flash and counts it down on its own clock, exactly as it owns the shake.
+    world = read_text(OVERWORLD_GML)
+    created = gml_function(text=world, name="pp_overworld_new")
+    assert "flash_steps: 0," in created and 'flash_role: "paper"' in created, \
+        "a fresh overworld does not declare the flash, so the first draw of a flashing scene reads a missing key"
+    step = gml_function(text=world, name="pp_overworld_step")
+    assert "if (_world.flash_steps > 0) _world.flash_steps -= 1;" in step, "nothing counts the flash down"
+    setter = gml_function(text=world, name="pp_world_flash")
+    assert "PP_FLASH_MAX_STEPS" in setter, "the world's flash setter is not capped by pp_config"
+    draw = gml_function(text=world, name="pp_overworld_draw")
+    assert "_world.flash_steps > 0" in draw, "the frame is never flooded, so the command would be invisible"
+    assert "pp_role_colour(_world.flash_role)" in draw, (
+        "the flash is not drawn in a role from the room's own set (spec 13 rule 2: no colour literal at a draw site)")
+
+
+def test_a_committed_scene_exercises_the_flash():
+    """Acceptance for the card: the command is used by a real scene, not only listed."""
+    used = [(row["id"], index, command) for row in scenes() for index, command in enumerate(row["commands"])
+            if command.get("cmd") == "flash"]
+    assert used, "no committed scene uses the flash, so the command is declared and never played"
+    for scene_id, index, command in used:
+        assert set(command) <= {"cmd", "steps", "role"}, "scene %s[%d] carries an argument no runner reads" % (
+            scene_id, index)

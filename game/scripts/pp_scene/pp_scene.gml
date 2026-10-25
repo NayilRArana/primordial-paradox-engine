@@ -11,8 +11,10 @@
 /// can leave the runner in a state that only a key press escapes.
 
 /// The commands this runner implements. The checker reads this list from data\scenes and refuses anything else.
+/// `flash` (card t_531bc76c) is the storm's lightning over a map: the frame flooded in one declared role for a
+/// handful of frames, which is a palette change on steps the scene already spends and never a wait of its own.
 function pp_scene_commands() {
-    return ["say", "move", "face", "wait", "fade", "music", "sfx", "camera", "shake",
+    return ["say", "move", "face", "wait", "fade", "music", "sfx", "camera", "shake", "flash",
             "spawn", "destroy", "battle", "setflag", "branch", "end"];
 }
 
@@ -298,6 +300,21 @@ function pp_scene_command_start(_sc, _world) {
             if (variable_struct_exists(_cmd, "strength")) _shake_strength = _cmd.strength;
             _world.shake_steps = min(_shake_steps, PP_SHAKE_MAX_STEPS);
             _world.shake_strength = _shake_strength;
+            pp_scene_advance(_sc, _world);
+            return;
+
+        case "flash":
+            // Card t_531bc76c: the storm's lightning. The world holds the flash and its own clock counts it down, so
+            // this command costs the scene ZERO steps and the film's 10,680 do not move (decision D19's named cost,
+            // paid without touching the cut grid). It advances in the same step it runs, which is why a `sfx` and a
+            // `flash` next to each other land on the same frame: the sound and the light agree.
+            var _flash_steps = PP_FLASH_STEPS;
+            if (variable_struct_exists(_cmd, "steps")) _flash_steps = _cmd.steps;
+            var _flash_role = "paper";
+            if (variable_struct_exists(_cmd, "role")) _flash_role = _cmd.role;
+            pp_world_flash(_world, _flash_steps, _flash_role);
+            show_debug_message("PP scene: flash " + string(_flash_role) + " for " + string(_flash_steps)
+                + " frames at " + string(_sc.id) + "[" + string(_sc.index) + "]");
             pp_scene_advance(_sc, _world);
             return;
 

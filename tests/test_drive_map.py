@@ -303,6 +303,35 @@ def test_the_scene_still_sums_to_the_shot_lists_ten_thousand_steps():
     assert scene()["commands"][-1]["cmd"] == "end", "the scene does not end on the end command"
 
 
+def test_shot_ten_flashes_on_the_thunder_and_costs_the_film_no_steps():
+    """Card t_531bc76c. Shot 10 is the storm: the thunder and the light have to be the same beat, and the light has
+    to be free. A flash that were priced as a wait would move the twelve durations, the eleven cuts and the cue."""
+    commands = scene()["commands"]
+    thunder = [index for index, command in enumerate(commands)
+               if command.get("cmd") == "sfx" and command.get("id") == "thunder_soft"]
+    assert len(thunder) == 1, "the drive names thunder_soft %d times, the shot list once" % len(thunder)
+    after = commands[thunder[0] + 1]
+    assert after.get("cmd") == "flash", \
+        "the command after the thunder is %r, so the picture and the sound disagree on the loudest beat" % (after,)
+
+    # The two frame clock is the title's own, read from the file the title drives its storm with, not retyped here.
+    title_frames = read_json("data/title_flash.json")["frames"]
+    assert after.get("steps") == title_frames, \
+        "the flash asks for %r frames, the title's storm clock is %d" % (after.get("steps"), title_frames)
+
+    # A flash costs zero steps: it is a palette change over steps the film already spends, so the total does not move.
+    costs = scene_step_costs()
+    assert costs[thunder[0] + 1] == 0, "the flash is priced at %d steps, so the cut grid moves" % costs[thunder[0] + 1]
+    assert sum(costs) == FILM_STEPS, "the film now spends %d steps, the shot list states %d" % (sum(costs), FILM_STEPS)
+
+    # And every other exact zero cost command in the drive is one the runner advances in the same step it runs.
+    free = {"say", "sfx", "music", "setflag", "face", "flash", "end"}
+    for index, command in enumerate(commands):
+        if command["cmd"] not in free:
+            assert costs[index] > 0, "%s at %d is priced at zero steps and is not a free command" % (
+                command["cmd"], index)
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # 4b. The twelve durations exist twice, in the room's GML table and in the scene's command list. Decision D19
 # (knowledge/GAMEDEV-DECISIONS-2026-10-24.md) keeps the room as a capture rig, so the copy is allowed to exist but

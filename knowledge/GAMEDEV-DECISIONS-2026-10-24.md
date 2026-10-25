@@ -254,6 +254,18 @@ whole screen palette flash in the build lives in `pp_title.gml` (the storm clock
 `sfx thunder_soft` and a wait, silent on the palette, until a `flash` command is added to spec 06. That is a runner
 question on its own card, and it is the one thing the room branch would have given for free.
 
+**Resolved 2026-10-24 by card t_531bc76c.** The cost is paid, and the film did not move. The scene runner grew a
+`flash` command (spec 06 row and rule 8): an optional `steps` (default `PP_FLASH_STEPS`, 2, the title's own storm
+clock, 8 at most) and an optional `role` (default `paper`, which every set in `data/room_palettes.json` declares). The
+world holds the flash and floods the frame in that role, drawn under the fade and over everything else, so it is a
+palette change and not a blend (spec 13). It costs the scene ZERO steps: the command advances in the step it runs and
+`pp_overworld_step` counts the frames down on its own clock, exactly as it counts the shake down. `drive_to_southampton`
+[49] is `sfx thunder_soft` and [50] is `flash 2`, both of which advance in the same step, so the sound and the light
+land on the same frame. The film is still 10,680 steps and the twelve durations, the eleven cuts and the cue's grid are
+untouched; `tests/test_drive_map.py` pins the flash's zero cost and reads its frame count from `data/title_flash.json`
+rather than retyping it, and `tests/test_scene_runner.py` refuses a flash case that sets a runner state or a timer.
+`knowledge/DRIVE-SHOT-LIST.md` `Q1` carries the ruling, so the shot list stops asking.
+
 ## Proof for D18 and D19, run on this tree
 
 * `python tools/check_data.py` -> `check_data: all files pass`.

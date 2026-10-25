@@ -96,11 +96,11 @@ ceiling and they are the same place in the same weather). Twelve beats, twelve s
 
 ## 3. The twelve shots: what the coder types
 
-The runner implements fifteen commands (`pp_scene_commands()` in `game/scripts/pp_scene/pp_scene.gml`:
-`say`, `move`, `face`, `wait`, `fade`, `music`, `sfx`, `camera`, `shake`, `spawn`, `destroy`, `battle`, `setflag`,
+The runner implements sixteen commands (`pp_scene_commands()` in `game/scripts/pp_scene/pp_scene.gml`:
+`say`, `move`, `face`, `wait`, `fade`, `music`, `sfx`, `camera`, `shake`, `flash`, `spawn`, `destroy`, `battle`, `setflag`,
 `branch`, `end`). The column below names only commands from that list. `camera` is 24 steps a move (spec 06), so a
 shot with one camera command spends 24 of its steps on movement and the rest on `wait` or on a `say` the player
-closes.
+closes. `flash` costs no steps at all: it floods the frame for two frames over steps the shot already spends.
 
 | # | Commands in order | Cue it plays | Picture |
 | --- | --- | --- | --- |
@@ -113,7 +113,7 @@ closes.
 | 7 | `fade in 12` (back from the interlude), `camera` (24), `wait 821` | `title_theme` resumes on the bar line, engine | L3 offset 170 to 200: the chalk cutting at L3 x 232 to 300 centred |
 | 8 | `camera` (24), `say drive_cathedral`, `wait 833` | `title_theme`, engine, blips | L3 offset 320 to 340: the cathedral nave at L3 x 400 to 452 |
 | 9 | `say drive_radio_5`, `say drive_radio_6`, `say drive_radio_7`, `say drive_sign_30`, `camera` (24), `wait 1091` | `title_theme`, engine, blips | `spr_title_sign` frame 3; L3 window 0 to 90 |
-| 10 | `camera` (24), `sfx thunder_soft`, `wait 1090` | `title_theme`, engine, `thunder_soft` on the lightning | cloud sprite `spr_title_cloud`, then L3 offset 0 to 60 for the downland and the chalk horse at L3 x 148; the 2 frame palette flash is `Q1` |
+| 10 | `camera` (24), `sfx thunder_soft`, `flash 2`, `wait 1090` | `title_theme`, engine, `thunder_soft` and the flash on the same frame | cloud sprite `spr_title_cloud`, then L3 offset 0 to 60 for the downland and the chalk horse at L3 x 148; the 2 frame `flash` is `Q1`, settled |
 | 11 | `camera` (24), `say drive_sign_20`, `wait 662` | `title_theme`, engine, blips | `spr_title_sign` frame 4, cone up, the road narrowing to one lane |
 | 12 | `camera` x2 (48), `wait 934`, `fade out 12`, then `end` | `title_theme` and engine hold through the fade | docks: no art in the layer set, see `Q3` |
 
@@ -237,15 +237,21 @@ table or if a cut does not fall on a bar.
 ## 9. Q: for gamedev, and two notes
 
 These are conflicts between the card, the specs and the code as they stand today. Per the gamedev specs rule I
-am not deciding them, and none of them changes a duration in section 2.
+am not deciding them, and none of them changes a duration in section 2. `Q1` is the exception: it was ruled by card
+t_531bc76c on 2026-10-24 and is recorded settled below; `Q2` and `Q3` still stand.
 
-- `Q1` The card names `flash` as a runner command. It is not one: spec 06's command table and the implemented
-  `pp_scene_commands()` have no flash, and the only whole-screen palette flash in the build is the title's own
-  storm clock in `pp_title.gml` (2 frames from `data/title_flash.json`). Shot 10 is written with `sfx
-  thunder_soft` and a `wait`, so it is buildable today but silent on the palette. Half of this is settled: `D19`
-  rules that the drive ships as a scene, so the "play it inside the title machine that already owns the flash"
-  branch is closed. What is left is one question for the runner: add a flash command to spec 06, or ship shot 10
-  with the thunder and no palette flash.
+- `Q1` **Settled 2026-10-24 (card t_531bc76c): `flash` is a runner command, and shot 10 uses it.** The card named
+  `flash`; spec 06's table and `pp_scene_commands()` did not have it, and the only whole-screen palette flash in the
+  build was the title's own storm clock in `pp_title.gml` (2 frames from `data/title_flash.json`). `D19` rules that the
+  drive ships as a scene, so the "play it inside the title machine that already owns the flash" branch is closed; the
+  runner grew the command instead. The shape: `flash` takes an optional `steps` (default `PP_FLASH_STEPS`, 2, the
+  title's own clock, 8 at most) and an optional `role` (default `paper`, which every set in `data/room_palettes.json`
+  declares). It floods the whole 256x240 frame in that role for those frames, so it is a palette change and never a
+  blend (spec 13), it is drawn under the fade and over everything else, and the world counts the frames down on its own
+  clock. **It costs the scene no steps**, which is why the film is still 10,680: a flash priced as a wait would have
+  moved shot 10's 1,114, the eleven cuts after it and the cue's grid with them. In the scene, `flash` sits directly
+  after `sfx thunder_soft`, and both commands advance in the same step, so the sound and the light land on the same
+  frame. The checker refuses a role the scene's own room set does not declare.
 - `Q2` Spec 14 calls the waltz `title_theme` and also cue PP-01, while `data/audio.json` registers PP-01 as
   "Wessex Lane, Move-In Day" and its `sounds` list has neither `title_theme`, `car_engine_loop` nor
   `thunder_soft` (nor any rain cue). This file uses the three ids spec 14 names. The musician lane owns
