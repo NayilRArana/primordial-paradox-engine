@@ -52,7 +52,13 @@ FRAME_W, FRAME_H = 256, 240
 # sheets plus the sailor actor. sailor_battle.png came off this list on card t_a6a7a436: the ship's four sprite
 # palettes are the party's four walking triples now (ruling section 17), a 168x32 battle figure is drawn on a
 # strip and never on a walking map, and under these four rows 40 of its 72 inked 8x8 tiles are uncovered by any
-# row. Its own ground is card t_0b9c2faf.
+# row.
+# Card t_0b9c2faf answered the sheet's own card and this list is the RETIRED verdict: it is not the sailor
+# fight's art (that is game/sprites_src/enemies/navy_sailor.png, 32x32, drawn as background art in the battle
+# screen's 32x32 enemy slot), no 24x32 slot in this game is anything but a hero's, and no single sprite palette
+# carries a frame of it (two or three do, and the PPU gives four rows to the whole strip). So it is judged on no
+# row, it is out of this list and out of tools/art/scene_palette.py's solve pool, and
+# tools/art/make_characters.py no longer writes it. This list and that one are the same five names by test.
 SHIP_SPRITES = ("hadrian_ow_v2", "konrad_ow_v2", "zander_ow_v2", "percy_ow_v2", "sailor_ow_v2")
 MAX_SPRITES_PER_LINE = 8
 MAX_SPRITES = 64

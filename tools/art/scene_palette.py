@@ -821,7 +821,19 @@ def apply_title(root: str) -> dict:
     return report
 
 
-SHIP_SPRITES = ["sailor_ow", "sailor_battle"]
+# The ship's cast is the WALKING cast, and this list is the same five sheets tools/check_scene_palettes.py
+# judges on the ship's judged row and the same five the room draws (game/scripts/pp_overworld/pp_overworld.gml
+# pp_hero_sheet zander_ow_v2, pp_sailor_sheet sailor_ow_v2, and the party's four walking sheets on the other
+# three rooms). Card t_0b9c2faf retired the two 2026-10-22 names this list carried:
+#   - sailor_battle is a 168x32 SEVEN FRAME 24x32 battle sheet, and no slot in this game takes it. The battle
+#     screen's enemy slot is 32x32 px and reads game/sprites_src/enemies/<enemy id>.png as background art
+#     (pp_battle_draw_enemy, card t_4275136f), and the only 24x32 slots are the four party slots in
+#     data/ui_layouts.json, which are the four heroes. Measured on this tree: it carries ten entries
+#     ($00 $02 $07 $08 $0F $10 $17 $27 $30 $36) and every frame of it needs two or three sprite palettes of
+#     three, where each party battle sheet needs exactly one. It is judged on no row, it is out of this pool,
+#     and tools/art/make_characters.py no longer writes it (see BATTLE_RETIRED there).
+#   - sailor_ow is the 2026-10-22 walking sheet that sailor_ow_v2 replaced, and pp_overworld draws the v2.
+SHIP_SPRITES = ["hadrian_ow_v2", "konrad_ow_v2", "zander_ow_v2", "percy_ow_v2", "sailor_ow_v2"]
 CHARS_DIR = os.path.join("game", "sprites_src", "chars")
 
 

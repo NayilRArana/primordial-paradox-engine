@@ -1297,3 +1297,185 @@ Provenance for section 18: studied this repository's own files only (`tools/art/
 the four strips and their sidecars, `game/scripts/pp_battle_director/pp_battle_director.gml`, and the 2026-10-24 and
 2026-10-25 ruling files plus the commits `157f11a`, `e53a160`, `0b5dd01`). No decompiled material, and no
 expression from another game, is in this card. Copied expression: none.
+
+## 19. Q1, Q2 and Q3 on `sailor_battle.png`: it is not the fight's art, no ground in this project can carry it, and it is retired from both lists (card t_0b9c2faf)
+
+**Answer, all three.** Q1: the sheet is retired, and neither of the card's two options is what happened. It is not
+the sailor fight's battle art, because that art exists and is `game/sprites_src/enemies/navy_sailor.png`, drawn
+untinted as background art in the battle screen's own 32x32 enemy slot; and `navy_sailor.png` did not replace it,
+because the two were drawn for two different slots and neither slot has ever named this sheet. The honest sentence
+is shorter than either option: **`sailor_battle.png` is the fifth character sheet of the sprite pipeline, built for
+a 24x32 party column that has exactly four slots and four names, and no encounter, no layout slot and no draw call
+in any commit has ever asked for it.** Q2: it is judged on no row, and no row could be found for it, because a
+24x32 slot on a battle strip holds one figure in one sprite palette and this sheet is not one palette in any of its
+seven frames, while as background art the best strip in the project carries 21 of its 72 inked 8x8 tiles. Q3: the
+judge's list is right and the pool's was a 2026-10-22 leftover; `tools/art/scene_palette.py` now carries the judge's
+five names, `tools/check_scene_palettes.py` says in words that the sheet is retired, and
+`tools/art/make_characters.py` stops writing it.
+
+### 19.1 What the sheet is, measured on this tree, 2026-10-25
+
+| sheet | size | frames | opaque px | entries |
+| --- | --- | --- | --- | --- |
+| `chars/sailor_battle.png` | 168x32 | 7 of 24x32, 8 fps | 2398 | 10: `$00 $02 $07 $08 $0F $10 $17 $27 $30 $36` |
+| `chars/hadrian_battle.png` | 168x32 | 7 of 24x32, 8 fps | 2424 | 3: `$03 $0F $23` |
+| `chars/percy_battle.png` | 168x32 | 7 of 24x32, 8 fps | 2819 | 3: `$0F $12 $28` |
+| `chars/zander_battle.png` | 168x32 | 7 of 24x32, 8 fps | 2425 | 3: `$0F $21 $31` |
+| `chars/konrad_battle.png` | 168x32 | 7 of 24x32, 8 fps | 2472 | 3: `$00 $0F $27` |
+| `enemies/navy_sailor.png` | 96x32 | 3 of 32x32, 8 fps | 1002 | 3: `$02 $0F $30` |
+
+Where it came from: `tools/art/make_characters.py` `character_specs()` is a five entry cast list (`percy`, `hadrian`,
+`zander`, `konrad`, `sailor`), and `build()` writes an `_ow` sheet and a `_battle` sheet for every entry. The four
+heroes are in `PARTY_TRIPLES` and get one reserved triple each; the sailor is not, so he went through
+`solve_tiles()` like a 2026-10-22 character and came out at ten entries. That is the whole of the sheet's identity.
+Last pixel change: commit `e29612f` on 2026-10-22 08:24 (SPRITE-REDRAW-1). `navy_sailor.png` first tracked in
+`10e0b00` the same morning at 08:34, written by `tools/art/make_enemies.py`. **There was no 2026-10-21 retirement
+event**, and the card's guess of one is the one part of its premise the history does not carry.
+
+### 19.2 Q1: the fight's enemy is `navy_sailor.png`, and this sheet has never had a draw call
+
+1. **The slot it would need is 32x32 and it reads a different folder.** `data/ui_layouts.json` screen `battle`
+   declares its two enemy slots as `32x32` px at tile (3,8) and tile (12,11). `pp_battle_enemy_slot()` resolves the
+   first one, and `pp_battle_draw_enemy()` asks the art index for the enemy's **id** (`pp_battle_enemy_sprite`), which
+   `tools/sync_art.py` mirrors out of `game/sprites_src/enemies/`. The tutorial encounter is
+   `data/encounters/all.json` `tutorial_sailors` with `"enemies": ["navy_sailor"]`, and `data/enemies/roster.json`
+   gives `navy_sailor` the sheet `game/sprites_src/enemies/navy_sailor.png`. A 24 px wide sheet under a 32 px slot
+   from a folder the resolver never reads is not a candidate; it is a different animal.
+2. **No GML file has ever named it.** `git log --all -S sailor_battle -- game/scripts` returns no commit. Every
+   reference to the string in this repository is a tool, a palette note, a queue row about a different asset, or the
+   cleanroom record. Nothing in the game has ever asked for it, so there is no draw call to name, and the card's
+   request to name one is answered with that: none exists, and none ever did.
+3. **It ships anyway.** It is an entry in `game/datafiles/art/title_manifest.json` (the `chars` mirror reads the
+   whole folder) and an `IncludedFile` at `game/PrimordialParadox.yyp` line 522. That is the only thing the game ever
+   did with it: carry 5376 px of art it never reads. Section 19.6 says why this card does not remove that.
+4. **So the two options in Q1 are both wrong in the same direction.** `navy_sailor.png` was not a replacement, it
+   was always the enemy: it is painted in exactly three entries (`$02 $0F $30`), which is what ruling 7.5 and card
+   `t_34b1d96a` require of a figure drawn as background art, and its 32x32 frame matches the slot. The party column
+   is the only place a 24x32 sheet can stand, its four slots are named in `data/ui_layouts.json` (KONRAD, ZANDER,
+   PERCY, HADRIAN), and `data/characters/party.json` has never had a fifth member.
+
+### 19.3 Q2: it is judged nowhere, and the measurement says no row in this project can hold it
+
+**No sprite row can carry a frame of it.** The PPU has four sprite palettes and a party slot is one figure in one
+of them (ruling 7, card `t_8c27208b`), which is why every party battle sheet is exactly one triple in every frame.
+Measured per frame, using the project's own `load_master()` table: `sailor_battle` carries 7, 5, 7, 7, 8, 7 and 4
+entries across its seven frames, so the fewest sprite triples that carry a frame is **2** (frames 1 and 6) or **3**
+(every other frame), ten across the sheet, against **1** for each of the four hero sheets. It cannot be a party
+figure at any ground, at any placement, in any row.
+
+**No background triple can carry it either.** As background art the figure stands on the strip and each inked 8x8
+tile of it has to fit ONE of that strip's four background triples plus the shared backdrop (ruling 7.5, section 12).
+Swept over all twelve scenes in `data/scene_palettes.json`, the number of its 72 inked 8x8 tiles that some triple of
+that strip carries whole:
+
+| strip | carried | of 72 inked | uncovered |
+| --- | --- | --- | --- |
+| `battle_wardroom` | 21 | 72 | 51 |
+| `battle_deck_night` | 20 | 72 | 52 |
+| `battle_corridor` | 2 | 72 | 70 |
+| `battle_quay_dusk` | 2 | 72 | 70 |
+| `ship` | 3 | 72 | 69 |
+| `title` | 0 | 72 | 72 |
+
+Priced against the deck, the best the project has: the entries it needs and `bg2` (`$00 $30 $02`, or `$02 $0F $30`
+plus the `$0F` backdrop) does not have are `$07 $08 $17 $27 $36`, which is section 15.5's list and section 15.5's
+count, and this sweep agrees with it from the other end. Carrying it would cost three more background entries on a
+strip whose enemy slots are already spent, for a figure the room does not draw.
+
+**And the two DO NOTs are both held by measurement.** A walking room's row: the ship's four walking rows read
+`FAIL, 53 failing pairs` and 40 of 72 inked tiles uncovered on it, and `enforce_sprites()` would rewrite 621 of its
+2398 opaque pixels (measured this card, and unchanged from section 17.4). A fifth sprite palette: does not exist
+(ruling 7.1), and it would not help, because the sheet needs three.
+
+So Q2's answer is the card's own second branch: **it is not drawn, so it is retired from the budget instead of judged
+on a ground it never stands on.** The ship's row already stopped carrying it on card `t_a6a7a436` (40 of its 72 inked
+tiles fit no row under the party's four walking triples, against 0 of 72 under the old rows). Nothing replaces that
+absence: the count of rows it is judged on is zero, and this card keeps it zero on purpose.
+
+### 19.4 Q3: one list, and it is the judge's
+
+At HEAD before this card the two constants named different casts:
+
+| file | constant | what it drove |
+| --- | --- | --- |
+| `tools/art/scene_palette.py:824` | `SHIP_SPRITES = ["sailor_ow", "sailor_battle"]` | the ship solve's sprite pool, AND the `enforce_sprites()` pass in `apply_ship()` that WRITES pixels |
+| `tools/check_scene_palettes.py:56` | `SHIP_SPRITES = ("hadrian_ow_v2", "konrad_ow_v2", "zander_ow_v2", "percy_ow_v2", "sailor_ow_v2")` | what the suite measures against the ship's four rows |
+
+The judge's list is right: it is the cast the three ship rooms actually draw (the party's four walking sheets plus
+the sailor actor, `pp_overworld` `pp_hero_sheet` and `pp_sailor_sheet`), and it is the same five names
+`data/palettes/scene_ship.json` judged row carries. The pool's list was the 2026-10-22 cast, and it still carried the
+enforcement pass, which is not a dead line: `apply --scene ship` would have repainted 621 pixels of a sheet no room
+draws. The pin card `t_a6a7a436` added to `write_scene()` protects the palette FILE, not the pixels on disk.
+
+So the pool now IS the judge's five, in the judge's order, and both files say the retirement in words so that the
+next worker reading either one cannot put the sheet back. The pool change moves no palette row, because the ship's
+sprite half is pinned (`sprites_pinned: true`) and `solve --scene ship --write` keeps it; what it does change is what
+the enforce pass touches, which is the point.
+
+`tools/art/make_characters.py` is the third place, and the one that would put the file back. It is now:
+
+- `BATTLE_RETIRED = {"sailor"}` and `writes_battle_sheet(name)`, consulted by `build()` before it draws or writes a
+  battle sheet, so a regeneration leaves the retired sheet alone instead of rewriting it through `solve_tiles()`.
+- the four heroes are untouched: they are still in `PARTY_TRIPLES` and still get their one triple each.
+- the committed PNG and its sidecar stay on disk byte for byte. A generator that stops writing a file is not the same
+  as deleting art, and deleting it is section 19.6's paragraph.
+
+### 19.5 What landed, measured before and after
+
+**Landed.**
+
+- `tools/art/scene_palette.py`: `SHIP_SPRITES` is the judge's five walking sheets, with the retirement and the numbers
+  above written beside it.
+- `tools/check_scene_palettes.py`: the list is unchanged (it was right) and its comment now records the verdict
+  instead of deferring to this card.
+- `tools/art/make_characters.py`: `BATTLE_RETIRED`, `writes_battle_sheet()`, and a `build()` that writes a battle
+  sheet only for a character who has a slot.
+- `tests/test_scene_palettes.py`: two new tests. One holds the pool, the judge and the judged row to the same five
+  names and holds `sailor_battle` and `sailor_ow` out of all three. The other holds the retirement three ways: the
+  generator refuses to write it, no scene file in `data/scene_palettes.json` names it on any row and no `.gml` under
+  `game/scripts` names it at all, and the shape argument is measured rather than asserted (every party battle frame
+  is exactly one triple, no frame of this sheet is).
+- No palette number, no strip pixel and no sheet pixel moved: `data/palettes/scene_ship.json`,
+  `data/scene_palettes.json`, the four strips, the four hero sheets and `sailor_battle.png` are byte identical.
+
+**Checks run on this tree, 2026-10-25, and what they returned.**
+
+- `python tools/art/scene_palette.py apply --scene ship --root <scratch>` over a scratch root carrying
+  `data/nes_palette.json`, `data/palettes/scene_ship.json`, `ts_ship.png` and every chars sheet: **exit 0, 0 pixels
+  moved** on the tileset and on all five walking sheets, and `sailor_battle.png` byte identical afterwards
+  (`2400b4ff8b23` before and after). Under the old pool the same command reported **621 pixels moved** on it.
+- `python tools/art/scene_palette.py solve --scene ship`: keeps the pinned sprite half and the 2 judged rows, prints
+  the four rows the file carries, exit 0.
+- `python tools/check_scene_palettes.py`: PASS, both scenes inside their declared palettes, five ship sprites.
+- `python tools/scene_palette_set.py validate`: PASS, 12 scenes, 4 hero palettes.
+- `python tools/palette_synergy.py --gate`: 9 entries, 0 gated, 6 advisory, exit 0, unchanged.
+- `python -m pytest tests/test_scene_palettes.py`: 7 passed (5 before, plus these 2).
+- Whole suite: see the DEVLOG entry for this card.
+
+### 19.6 What this does not decide
+
+- **The file itself, and the build's Included File entry.** `game/sprites_src/chars/sailor_battle.png` stays on disk
+  and stays listed in `game/PrimordialParadox.yyp`. Removing it drops one art index entry (117 to 116), one
+  Included File (276 data files to 275) and 5376 px of shipped art, and it can only be proven by a build. GameMaker
+  is not installed on this machine, so a card that does it has to land with a build, not before one. Named, not
+  smuggled in.
+- **`sailor_ow` (v1).** It is out of the pool by this card because it is not the sheet the room draws
+  (`pp_overworld` draws `sailor_ow_v2`), and it costs nothing to leave out: it carries two entries, so the enforce
+  pass moved 0 pixels of it before and does not open it now. But `make_characters.py` still writes it and still runs
+  an `enforce_sprites()` pass over it, and the same is true of every other `_ow` sheet the v1 generator writes. The
+  v1 walking set is a separate dead set with its own provenance and its own card.
+- **Any other scene's pool.** Only the ship's two constants are reconciled here. No other scene file carries a
+  solve pool of its own.
+- **No strip's background spend.** This card buys no colour for anything: the deck's `bg2` stays `$00 $30 $02`, which
+  is what its own enemy stands on and what card `t_34b1d96a` paid for, and the sheet that needed `$07 $08 $17 $27 $36`
+  is not drawn, so it is not paid.
+
+Provenance for section 19: studied this repository's own files only
+(`tools/art/scene_palette.py`, `tools/check_scene_palettes.py`, `tools/art/make_characters.py`,
+`tools/art/make_enemies.py`, `tools/sync_art.py`, `tools/palette_synergy.py`, `tools/scene_palette_set.py`,
+`data/ui_layouts.json`, `data/encounters/all.json`, `data/enemies/roster.json`, `data/characters/party.json`,
+`data/nes_palette.json`, `data/scene_palettes.json`, `data/palettes/scene_ship.json`,
+`game/scripts/pp_battle_director/pp_battle_director.gml`, `game/scripts/pp_overworld/pp_overworld.gml`,
+`game/PrimordialParadox.yyp`, the five `_battle` sheets, the seven `_ow` sheets and `navy_sailor.png`, and the commit
+history of all of them). No decompiled material was read for this card and no expression from any game is in it.
+Copied expression: none.

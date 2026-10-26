@@ -114,3 +114,112 @@ def test_the_check_reports_its_numbers_so_a_reviewer_can_read_them():
         saved = json.load(handle)
     assert saved["failures"] == []
     assert set(saved["scenes"]) == {"title", "ship"}
+
+
+WALKING_CAST = ("hadrian_ow_v2", "konrad_ow_v2", "zander_ow_v2", "percy_ow_v2", "sailor_ow_v2")
+
+
+def test_the_solve_pool_and_the_judge_name_the_same_five_walking_sheets():
+    """Card t_0b9c2faf Q3: two lists called SHIP_SPRITES disagreed, so the pool and the judge drew different casts.
+
+    scene_palette.SHIP_SPRITES is what the solver pools and what `apply --scene ship` enforces; check_scene_palettes
+    .SHIP_SPRITES is what the suite measures against the ship's four rows. On HEAD they were
+    ["sailor_ow", "sailor_battle"] against the five walking sheets, so the pool enforced a 168x32 battle sheet into a
+    walking room's triples (621 of its 2398 opaque pixels rewritten) while the judge did not look at it at all. One
+    cast, one list, and the judged row is the third statement of it that has to agree.
+    """
+    pool = list(scene_palette.SHIP_SPRITES)
+    judge = list(check_scene_palettes.SHIP_SPRITES)
+    assert pool == judge, (pool, judge)
+    assert tuple(pool) == WALKING_CAST, pool
+    for retired in ("sailor_battle", "sailor_ow"):
+        assert retired not in pool, "%s is retired from the ship's budget (card t_0b9c2faf)" % retired
+
+    # The pool may not name a sheet that is not on disk, and the row may not name a sheet the pool does not.
+    for name in pool:
+        base = os.path.join(ROOT, "game", "sprites_src", "chars", name)
+        assert os.path.isfile(base + ".png") and os.path.isfile(base + ".json"), base
+    with open(os.path.join(ROOT, "data", "palettes", "scene_ship.json"), "r", encoding="utf-8") as handle:
+        ship = json.load(handle)
+    rows = [row for row in ship["judged"] if "ts_ship.png" in row["background"]]
+    assert len(rows) == 1, rows
+    judged = [os.path.basename(path)[:-4] for path in rows[0]["sprites"]]
+    # The row's own order is the order card t_a6a7a436 wrote it in; the membership is what has to agree.
+    assert sorted(judged) == sorted(pool), (judged, pool)
+
+
+def test_the_retired_sailor_battle_sheet_is_rebuilt_by_nothing_and_stands_on_no_row():
+    """Card t_0b9c2faf Q1 and Q2: sailor_battle.png is retired, and the two measurements that retire it.
+
+    Q1: it is not the sailor fight's art. No GML file in any commit has ever named it (git log -S over
+    game/scripts is empty), the encounter draws navy_sailor.png, and the battle screen's enemy slot is 32x32 px and
+    reads game/sprites_src/enemies/<id>.png. Q2: it is judged on no row, and it must not be put back on one. Its own
+    shape is why: every party battle frame is ONE reserved hero triple, and no frame of this sheet is, so no 24x32
+    party slot can draw it; as background art on a strip, the best any strip's four background triples carry is 21
+    of its 72 inked 8x8 tiles (wardroom), 20 on the deck.
+    """
+    sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
+    import make_characters  # noqa: E402
+
+    assert make_characters.writes_battle_sheet("sailor") is False, "the retired sheet would be rebuilt"
+    assert make_characters.BATTLE_RETIRED == {"sailor"}
+    for keeps in ("percy", "hadrian", "zander", "konrad"):
+        assert make_characters.writes_battle_sheet(keeps) is True, keeps
+
+    # The drawing stays on disk and is still the 168x32 seven frame sheet the ruling measured.
+    base = os.path.join(ROOT, "game", "sprites_src", "chars", "sailor_battle")
+    with open(base + ".json", "r", encoding="utf-8") as handle:
+        meta = json.load(handle)
+    assert (meta["frame_w"], meta["frame_h"], meta["frames"]) == (24, 32, 7), meta
+    from PIL import Image  # noqa: E402
+    with Image.open(base + ".png") as handle:
+        assert handle.size == (168, 32), handle.size
+
+    # No scene in the project names it on any row, judged or solved.
+    with open(os.path.join(ROOT, "data", "scene_palettes.json"), "r", encoding="utf-8") as handle:
+        whole = json.load(handle)
+    for scene in whole["scenes"]:
+        for row in scene["sprites"]:
+            assert "sailor_battle" not in json.dumps(row), (scene["id"], row)
+        for row in scene.get("judged", []):
+            assert "sailor_battle" not in json.dumps(row), (scene["id"], row)
+
+    # And no draw call names it, which is what "retired" means here: nothing in the game asks the art index for it.
+    scripts = os.path.join(ROOT, "game", "scripts")
+    for folder, _dirs, files in os.walk(scripts):
+        for name in files:
+            if not name.endswith(".gml"):
+                continue
+            with open(os.path.join(folder, name), "r", encoding="utf-8", errors="replace") as handle:
+                assert "sailor_battle" not in handle.read(), "%s names the retired sheet" % name
+
+    # The crux: a party battle frame is one reserved hero triple, and not one frame of this sheet is.
+    entries_of = _frame_entries
+    for hero in ("hadrian_battle", "percy_battle", "zander_battle", "konrad_battle"):
+        per_frame = entries_of(os.path.join(ROOT, "game", "sprites_src", "chars", hero + ".png"), 24, 32)
+        assert all(len(one) == 3 for one in per_frame), (hero, per_frame)
+    retired = entries_of(os.path.join(ROOT, "game", "sprites_src", "chars", "sailor_battle.png"), 24, 32)
+    assert all(len(one) > 3 for one in retired), retired
+
+
+def _frame_entries(path, frame_w, frame_h):
+    """The set of 2C02 entries in each frame of a sheet, read through the project's own palette table."""
+    from PIL import Image  # noqa: E402
+
+    _colours, _usable, index_of = scene_palette.load_master(ROOT)
+    out = []
+    with Image.open(path) as handle:
+        image = handle.convert("RGBA")
+        pixels = image.load()
+        for frame in range(image.width // frame_w):
+            entries = set()
+            for y in range(frame_h):
+                for x in range(frame * frame_w, (frame + 1) * frame_w):
+                    r, g, b, a = pixels[x, y]
+                    if a == 0:
+                        continue
+                    entry = index_of.get((r, g, b))
+                    assert entry is not None, (path, frame, x, y, (r, g, b))
+                    entries.add(entry)
+            out.append(entries)
+    return out

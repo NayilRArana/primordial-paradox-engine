@@ -1617,6 +1617,55 @@ it by forgetting the key; and the walking cast is named in one place per tool (`
 enforce list in the character generator) so a sheet that stops being drawn leaves both lists instead of one.
 Copied expression: none
 
+## PARTY-CAST-READ, 2026-10-25: a party_cast strip is read against the four palettes it can actually draw (card t_6e8ca42f)
+Studied: this repository's own files, read only: `tools/scene_palette_set.py` (`find_scene`, `scene_payload`,
+`scene`, `allowed_sprite_sets`, `scene_entries`, `cast_problems` and the `party_cast` key), `tools/palette_synergy.py`
+(`analyse`, the caller that mattered, plus `frame_report`, `tile_fails` and `gate`), `tools/art/scene_palette.py`
+(the `Scene` class those callers hand the payload to, and what it does with `sprites`), `data/scene_palettes.json`
+(`hero_palettes`, the four `party_cast` strips, and the six audit rows with their two exemptions),
+`data/palettes/scene_battle_corridor.json`, `data/palettes/scene_battle_deck_night.json`, the four party battle
+sheets in `game/sprites_src/chars/`, the two corridor and deck frames in `output/`, and
+`knowledge/PALETTE-RULINGS-2026-10-25.md` sections 7.1 and 8. No decompiled material was read for this card and no
+expression from any game is in it.
+Mechanics learned: two, one about the hardware and one about the tool. One, the four sprite palettes are a hard
+ceiling per screen and the palette is chosen per 8x8 tile at draw time, so what a screen can draw is a property of
+the frame rather than of the declaration a scene file happens to hold: an audit that judges a sheet against a list
+the frame never uploads is measuring a room that does not exist. Two, when the same arithmetic is reached through
+more than one door (a checker reading an audit row, a quantiser reading a scene, a painter reading a palette set),
+fixing the door that happens to be red leaves the others reading the wrong four, so the substitution belongs at the
+one point all of them pass through, and the older accessor has to keep returning the same rows or a second list
+quietly grows back.
+Our implementation differs by: the substitution is a single function, `allowed_sprite_rows()`, and both shapes
+readers ask for (rows with names, bare colour sets) are derived from it rather than maintained beside it;
+`scene_payload()` takes the sprite half as an argument instead of deciding it, so the default stays the scene's own
+rows and only the caller that knows about `party_cast` opts in; and a scene without the flag is left as it was,
+which is how the ship, the title and the towns are shown untouched by the change.
+Copied expression: none
+
+## BATTLE-BG-OWNER, 2026-10-25: a generated file and its generator are one owner, and dead data still has to be declared somewhere (card t_8ebcb489)
+Studied: this repository's own files, read only: `tools/art/make_battle_bg.py` (`SCENES`, `scene_palette_json`,
+`read_existing_scene_palette`, `carry_judged`, `write_scene_palette`), `tools/scene_palette_set.py`
+(`allowed_sprite_rows`, `allowed_sprite_sets`, `scene`, `scene_payload`, `scene_entries`, `scene_from_source`,
+`validate`, `PARTY_CAST_SCENES`), `tools/palette_synergy.py` (the gate), `data/palettes/scene_battle_*.json` (all
+four), `data/scene_palettes.json`, `data/nes_palette.json`, `data/ui_layouts.json`, the four strips and their
+sidecars, the commits `157f11a`, `e53a160` and `0b5dd01`, and `knowledge/PALETTE-RULINGS-2026-10-24.md` plus
+sections 11, 12, 15 and 17 of `knowledge/PALETTE-RULINGS-2026-10-25.md`. No decompiled material was read for this
+card and no expression from any game is in it.
+Mechanics learned: two. One, a file written whole by a generator has exactly one owner, and the disagreement can run
+in either direction: the deck's palette file carried four rows the generator did not emit AND was missing a note the
+generator did emit, so "the hand copy is stale" and "the generator is stale" were both true in one file, and only
+regenerating and diffing tells you which lines belong to which direction. Two, data nobody spends is not data nobody
+reads: a `party_cast` strip's own four sprite rows are substituted away for drawing and for cast measurement, and
+they are still read by the scene validator (the 25 colour ceiling) and emitted into the derived set, so they are
+declaration level and cannot be left to drift even though no frame uploads them.
+Our implementation differs by: the generator's table follows the measurement rather than the other way around, and
+the reason is written as a test (the deck's declared rows must not equal the corridor's, because that is what the
+defect looked like); the notes policy is stated in the module docstring as a numbered rule with the reason `judged`
+is carried and `notes` is not, so the next hand written block in one of these files has a documented home; and the
+end to end property (regenerate every committed palette file, byte for byte) is a pin rather than a manual check, so
+the next strip card cannot pass its acceptance while the generator and the files disagree.
+Copied expression: none
+
 ## BATTLE-DRAW, 2026-10-25: the battle field's strip, enemy and party are drawn from the shipped sheets (card t_4275136f)
 Studied: this repository's own files, read only: `game/scripts/pp_battle_director/pp_battle_director.gml` (the field
 draw and its state), `game/scripts/pp_data/pp_data.gml` (the bundle loader), `game/scripts/pp_art/pp_art.gml` (the
@@ -1644,26 +1693,23 @@ and the two placeholder rectangles the screen drew before there was art were rem
 draws, because a flat block beside an enemy sprite reads as a second enemy.
 Copied expression: none
 
-## BATTLE-BG-OWNER, 2026-10-25: a generated file and its generator are one owner, and dead data still has to be declared somewhere (card t_8ebcb489)
-Studied: this repository's own files, read only: `tools/art/make_battle_bg.py` (`SCENES`, `scene_palette_json`,
-`read_existing_scene_palette`, `carry_judged`, `write_scene_palette`), `tools/scene_palette_set.py`
-(`allowed_sprite_rows`, `allowed_sprite_sets`, `scene`, `scene_payload`, `scene_entries`, `scene_from_source`,
-`validate`, `PARTY_CAST_SCENES`), `tools/palette_synergy.py` (the gate), `data/palettes/scene_battle_*.json` (all
-four), `data/scene_palettes.json`, `data/nes_palette.json`, `data/ui_layouts.json`, the four strips and their
-sidecars, the commits `157f11a`, `e53a160` and `0b5dd01`, and `knowledge/PALETTE-RULINGS-2026-10-24.md` plus
-sections 11, 12, 15 and 17 of `knowledge/PALETTE-RULINGS-2026-10-25.md`. No decompiled material was read for this
-card and no expression from any game is in it.
-Mechanics learned: two. One, a file written whole by a generator has exactly one owner, and the disagreement can run
-in either direction: the deck's palette file carried four rows the generator did not emit AND was missing a note the
-generator did emit, so "the hand copy is stale" and "the generator is stale" were both true in one file, and only
-regenerating and diffing tells you which lines belong to which direction. Two, data nobody spends is not data nobody
-reads: a `party_cast` strip's own four sprite rows are substituted away for drawing and for cast measurement, and
-they are still read by the scene validator (the 25 colour ceiling) and emitted into the derived set, so they are
-declaration level and cannot be left to drift even though no frame uploads them.
-Our implementation differs by: the generator's table follows the measurement rather than the other way around, and
-the reason is written as a test (the deck's declared rows must not equal the corridor's, because that is what the
-defect looked like); the notes policy is stated in the module docstring as a numbered rule with the reason `judged`
-is carried and `notes` is not, so the next hand written block in one of these files has a documented home; and the
-end to end property (regenerate every committed palette file, byte for byte) is a pin rather than a manual check, so
-the next strip card cannot pass its acceptance while the generator and the files disagree.
+## SAILOR-BATTLE-RETIRED, 2026-10-25: a battle sheet for a slot the game does not have is retired from the budget, not given a ground (card t_0b9c2faf)
+Studied: this repository's own files, read only: `tools/art/scene_palette.py`, `tools/check_scene_palettes.py`,
+`tools/art/make_characters.py`, `tools/art/make_enemies.py`, `tools/sync_art.py`, `tools/palette_synergy.py`,
+`tools/scene_palette_set.py`, `data/ui_layouts.json`, `data/encounters/all.json`, `data/enemies/roster.json`,
+`data/characters/party.json`, `data/nes_palette.json`, `data/scene_palettes.json`, `data/palettes/scene_ship.json`,
+`game/scripts/pp_battle_director/pp_battle_director.gml`, `game/scripts/pp_overworld/pp_overworld.gml`,
+`game/PrimordialParadox.yyp`, the four hero battle sheets, the walking cast, `navy_sailor.png`, and their commit
+history. No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: two. One, a slot's geometry is the first disqualifier and it is cheaper to read than the palette:
+the battle screen's enemy slot is declared 32x32 in `data/ui_layouts.json` and reads `enemies/<id>.png` through the
+art index, while the party column is four 24x32 slots named by member, so a 24x32 sheet that is not a hero has no
+slot to be drawn in no matter what colour it carries. Two, "three colours per 8x8 tile" and "one palette per figure"
+are different rules and only the second one decides a party slot: every party battle sheet is 3 entries per frame
+because a slot draws ONE sprite palette, and a sheet whose worst TILE is legal can still need three palettes in a
+single frame, which is what this one does (2 to 3 per frame, 10 across the sheet) and why the old PASS on a 16x16
+tile rule never meant it could be drawn.
+Our implementation differs by: the retired sheet is declared rather than deleted (`BATTLE_RETIRED` in the v1
+character generator plus one list in each tool), so the game keeps its art and the pipeline stops producing it, and
+the two `SHIP_SPRITES` constants that had drifted apart are one cast by test rather than by comment.
 Copied expression: none

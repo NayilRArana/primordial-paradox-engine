@@ -771,6 +771,21 @@ PARTY_TRIPLES = {
     "konrad": {"body": 0x27, "accent": 0x00},
 }
 
+# Card t_0b9c2faf: a character with no battle slot does not get a battle sheet written, so the retired sheet
+# cannot reappear on disk every time this generator runs. The sailor is the one character this applies to: he is
+# an actor who walks the ship's lower deck (pp_overworld's pp_sailor_sheet, sailor_ow_v2), the tutorial fight's
+# enemy figure is game/sprites_src/enemies/navy_sailor.png drawn as background art in the battle screen's own
+# 32x32 enemy slot, and the only 24x32 slots in the game are the four party slots data/ui_layouts.json names for
+# the four heroes. His committed game/sprites_src/chars/sailor_battle.png is left on disk untouched, because
+# deleting art and dropping an Included File is a build input change with its own rebuild; this generator simply
+# stops producing it. The measurement behind the verdict is in knowledge/PALETTE-RULINGS-2026-10-25.md section 19.
+BATTLE_RETIRED = {"sailor"}
+
+
+def writes_battle_sheet(name):
+    """Whether this character has a battle slot to stand in. False for a retired sheet (card t_0b9c2faf)."""
+    return name not in BATTLE_RETIRED
+
 # The reviewed battle drawing speaks in fourteen codes; on a party sheet each one is read as one of three roles.
 # The mass of the figure is the body. The hair, the beard, the collar and the cloth highlight are the accent,
 # which is what gives a two-tone figure at three entries. The ink is the silhouette and every interior line.
@@ -1129,22 +1144,26 @@ def build(root):
         write_sheet(out_dir, spec["name"] + "_ow", ow, OW_W, OW_H, OW_FPS, notes)
         solved.append((spec["name"] + "_ow", tiles_changed, recoloured))
 
-        if spec["name"] in PARTY_TRIPLES:
-            # One reserved hero triple, one palette per figure (card t_d5483a88). No solver: the drawing is
-            # already three colours, and check_party_triple refuses a sheet where a single tile carries fewer.
-            party_frames, carried = party_battle_sheet(spec)
-            battle = sheet_image(party_frames, party_hexes(palette, spec["name"]), BATTLE_W, BATTLE_H)
-            tiles_changed, recoloured = 0, 0
-            party_carried.append((spec["name"], carried))
-        else:
-            battle = sheet_image(battle_sheet(spec, False), hexes, BATTLE_W, BATTLE_H)
-            battle, tiles_changed, recoloured = solve_tiles(battle)
-        check_with_nes_check(battle, spec["name"] + "_battle")
-        if spec["name"] in PARTY_TRIPLES:
-            check_party_triple(battle, spec["name"] + "_battle")
-        write_sheet(out_dir, spec["name"] + "_battle", battle, BATTLE_W, BATTLE_H, BATTLE_FPS, notes)
-        solved.append((spec["name"] + "_battle", tiles_changed, recoloured))
-        entries = [("OVERWORLD 8 FRAMES 16X16", ow), ("BATTLE 7 FRAMES 24X32", battle)]
+        battle = None
+        if writes_battle_sheet(spec["name"]):
+            if spec["name"] in PARTY_TRIPLES:
+                # One reserved hero triple, one palette per figure (card t_d5483a88). No solver: the drawing is
+                # already three colours, and check_party_triple refuses a sheet where a single tile carries fewer.
+                party_frames, carried = party_battle_sheet(spec)
+                battle = sheet_image(party_frames, party_hexes(palette, spec["name"]), BATTLE_W, BATTLE_H)
+                tiles_changed, recoloured = 0, 0
+                party_carried.append((spec["name"], carried))
+            else:
+                battle = sheet_image(battle_sheet(spec, False), hexes, BATTLE_W, BATTLE_H)
+                battle, tiles_changed, recoloured = solve_tiles(battle)
+        entries = [("OVERWORLD 8 FRAMES 16X16", ow)]
+        if battle is not None:
+            check_with_nes_check(battle, spec["name"] + "_battle")
+            if spec["name"] in PARTY_TRIPLES:
+                check_party_triple(battle, spec["name"] + "_battle")
+            write_sheet(out_dir, spec["name"] + "_battle", battle, BATTLE_W, BATTLE_H, BATTLE_FPS, notes)
+            solved.append((spec["name"] + "_battle", tiles_changed, recoloured))
+            entries.append(("BATTLE 7 FRAMES 24X32", battle))
 
         if spec["battle"]["weapon"] and spec["name"] != "sailor":
             god = sheet_image(battle_sheet(spec, True), hexes, BATTLE_W, BATTLE_H)
