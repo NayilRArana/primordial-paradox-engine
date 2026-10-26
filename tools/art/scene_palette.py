@@ -23,7 +23,7 @@ using anything this module knows.
 A scene file can hold two things a solve does not compute, and write_scene() carries both forward: the
 `judged` row (the ground the room's cast is measured on) and a half marked pinned (`sprites_pinned` for a
 cast decision like the party's four walking triples on the ship, `background_pinned` for a ruled row set, which
-the ship carried until card t_463bc8c1 replaced it with the measured floor below). See the docstring of
+the ship carried until card t_463cb8c1 replaced it with the measured floor below). See the docstring of
 write_scene(). The ship's background half no longer needs its pin: the rows are the fit to the drawing that the
 solve itself now measures, and solve_ship() refuses a proposal that repaints more of the drawing than the rows
 already in the file.
@@ -72,7 +72,7 @@ PALETTE_DIR = os.path.join("data", "palettes")
 #   background_pinned   the background rows are a ruling, not a solve product, so a solve keeps them
 #                       (ruling section 21, card t_23b5739a). The ship no longer carries the key: its solve now
 #                       measures the DRAWING and keeps the file's rows whenever the proposal repaints more of it
-#                       (ruling section 23, card t_463bc8c1), which is the same protection with a number behind it.
+#                       (ruling section 23, card t_463cb8c1), which is the same protection with a number behind it.
 JUDGED_KEY = "judged"
 SPRITES_PINNED_KEY = "sprites_pinned"
 BACKGROUND_PINNED_KEY = "background_pinned"
@@ -1028,7 +1028,7 @@ def solve_ship(root: str, write: bool = False) -> dict:
 
     One, it measures the DRAWING (`ship_drawing()`, make_env_ship.render_sheet()) and not the enforced PNG. The
     PNG is the drawing after the rows on disk were applied to it, so solving it asks the rows to agree with
-    themselves; card t_463bc8c1 measured the difference on 2026-10-25, when the same proposal covered every tile
+    themselves; card t_463cb8c1 measured the difference on 2026-10-25, when the same proposal covered every tile
     of the enforced sheet and repainted 646 pixels of the drawing.
 
     Two, the proposal has to beat the rows already in the file, by the measure ruling section 21.2 used: pixels of
@@ -1094,7 +1094,7 @@ def ship_drawing(root: str) -> Image.Image:
     The rows exist to serve the drawing, so the drawing is what a solve has to measure. Measuring
     `game/sprites_src/env/ts_ship.png` instead is circular: that file is the drawing AFTER the enforce pass
     repainted it into the rows on disk, so the solver is shown its own answer and reports a disagreement it
-    cannot fix (measured 2026-10-25 on card t_463bc8c1: on the enforced sheet the proposal covered every tile,
+    cannot fix (measured 2026-10-25 on card t_463cb8c1: on the enforced sheet the proposal covered every tile,
     on the drawing the same proposal repaints 646 pixels). `render_sheet()` is pure geometry with no file input,
     so it is the same picture under any root; a tree without the generator falls back to the PNG on disk.
     """
@@ -1180,7 +1180,7 @@ def describe(result: dict) -> None:
     elif proposal.get("pixels") is not None and filed.get("pixels") is not None \
             and proposal["pixels"] > filed["pixels"]:
         print("  NOT applied: the proposal repaints more of the drawing than the rows already in the file, so a "
-              "write would make the art worse (card t_463bc8c1).")
+              "write would make the art worse (card t_463cb8c1).")
         print("  the file's rows are the better fit and stay as they are.")
         print("  file: %s" % _display(result["path"]))
     else:

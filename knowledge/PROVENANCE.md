@@ -1836,3 +1836,9 @@ takes the steel row's pale glass instead of spending a row on its old steel and 
 floor inside the solver that prints both numbers and refuses a worse write, with `background_pinned` still supported
 for a half that genuinely is a ruling.
 Copied expression: none
+
+Correction on the same card, 2026-10-26: the card number was written as `t_463bc8c1` (two letters transposed) in the
+shipped note of `data/palettes/scene_ship.json` and in five docstrings of `tools/art/scene_palette.py`. It is
+`t_463cb8c1`. Only the identifier changed; the sheet was regenerated after the edit and is byte identical, and
+`pytest tests/test_make_env_ship.py tests/test_scene_palette_set.py tests/test_scene_palettes.py -q -> 59 passed`
+re-ran green.
