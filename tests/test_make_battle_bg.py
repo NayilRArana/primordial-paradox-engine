@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Pins for the battle strips' party block floor (card t_d64eb2a9).
+"""Pins for the battle strips' party block floor and the scene palette writer (cards t_d64eb2a9, t_5802ecdb).
 
 The ruling on card t_8c27208b (knowledge/PALETTE-RULINGS-2026-10-25.md section 7.4 point 2) decided the floor
 under the party block is the shared backdrop $0F on the battle strips, because the four party bodies are the
 light entry of each hero triple and those four clear RULE 0 point 2 on $0F and not on the mixed floors the
-corridor and wardroom carry. tools/art/make_battle_bg.py draws it. These tests hold down four things:
+corridor and wardroom carry. tools/art/make_battle_bg.py draws it. These tests hold down five things:
 
   1. the block's placement is READ from data/ui_layouts.json rather than typed, and the layout's tile-unit
      party list and its pixel-unit sprites list agree, which is the one unit error the loader could make
@@ -15,6 +15,10 @@ corridor and wardroom carry. tools/art/make_battle_bg.py draws it. These tests h
      without the flag is the clipped block and its pixel count, no more, no less;
   4. the committed strip PNGs are what the generator writes now, so the shipped art and the code that owns
      it cannot drift apart (the same shape tests/test_title_art_v2.py uses for the v2 title art).
+  5. the scene palette writer carries an existing file's `judged` rows through unchanged and in the place
+     that file keeps them, writes no such key on a fresh tree, and refuses a file that is not a scene palette
+     for the scene it is drawing, because one regeneration of a strip used to delete a cast ruling and
+     nothing failed (card t_5802ecdb).
 
 No em dash or en dash anywhere in this file: the project refuses them at the door (tests/test_project.py).
 
@@ -178,3 +182,86 @@ def test_the_sidecar_names_the_floor_where_it_applies(built):
             assert "t_d64eb2a9" in floor["reason"]
         else:
             assert "party_floor" not in meta, name
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# The scene palette writer (card t_5802ecdb). A file the generator owns is written whole, so a `judged` row that
+# only a card wrote is one regeneration away from being deleted with nothing failing. These pins are the writer's.
+
+JUDGED = {
+    "background": "output/bg_battle_corridor_frame.png",
+    "sprites": ["game/sprites_src/chars/percy_battle.png"],
+    "note": "a test row, standing in for a cast ruling",
+    "exempt": "a test exemption, so the row carries the field a ruled row carries",
+}
+
+
+def write_scene_file(root, name: str, payload: dict):
+    """A scene palette file in a throwaway tree, written the way the hand edited ones are (indent 2, trailing \\n)."""
+    folder = root / "data" / "palettes"
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / ("scene_battle_%s.json" % name)
+    path.write_bytes((json.dumps(payload, indent=2) + "\n").encode("utf-8"))
+    return path
+
+
+def test_a_judged_row_keeps_its_bytes_through_the_writer(tmp_path, built):
+    entries, _, _ = built
+    corridor = scene("corridor")
+    payload = mb.scene_palette_json(corridor, entries)
+    # The hand written files keep `judged` straight after `notes`, so the row goes exactly where they put it.
+    ordered = {}
+    for key, value in payload.items():
+        ordered[key] = value
+        if key == "notes":
+            ordered["judged"] = [JUDGED]
+    path = write_scene_file(tmp_path, "corridor", ordered)
+    before = path.read_bytes()
+
+    written, kept = mb.write_scene_palette(str(tmp_path), corridor, entries)
+
+    assert os.path.abspath(written) == os.path.abspath(str(path))
+    assert kept == 1
+    after = json.loads(path.read_bytes().decode("utf-8"))
+    assert after["judged"] == [JUDGED], "the row is carried as data, not re-derived from the generator"
+    assert list(after) == list(ordered), "the key stays in the position the hand written file keeps it in"
+    assert path.read_bytes() == before, "no palette moved, so a regeneration rewrites the same bytes"
+
+
+def test_a_fresh_tree_writes_no_judged_key(tmp_path, built):
+    entries, _, _ = built
+    wardroom = scene("wardroom")
+
+    written, kept = mb.write_scene_palette(str(tmp_path), wardroom, entries)
+
+    with open(written, "rb") as handle:
+        payload = json.loads(handle.read().decode("utf-8"))
+    assert kept == 0
+    assert "judged" not in payload, "a tree with no file gets a clean file, not an empty audit list"
+    assert payload["kind"] == "scene_palette"
+    assert payload["scene"] == "battle_wardroom"
+    assert payload["background"] == mb.scene_palette_json(wardroom, entries)["background"]
+
+
+@pytest.mark.parametrize(
+    "bait",
+    [
+        {"format": 1, "kind": "battle_background", "scene": "battle_corridor"},
+        {"format": 1, "kind": "scene_palette", "scene": "battle_wardroom"},
+    ],
+    ids=["not a scene palette", "another scene"],
+)
+def test_the_writer_refuses_a_file_that_is_not_this_scene(tmp_path, built, bait):
+    entries, _, _ = built
+    corridor = scene("corridor")
+    path = write_scene_file(tmp_path, "corridor", dict(bait, judged=[JUDGED]))
+    before = path.read_bytes()
+
+    with pytest.raises(SystemExit) as refused:
+        mb.write_scene_palette(str(tmp_path), corridor, entries)
+
+    message = str(refused.value)
+    assert "scene_battle_corridor.json" in message, "the refusal names the file it will not overwrite"
+    assert "not a scene palette for battle_corridor" in message, "and the scene it wanted"
+    assert path.read_bytes() == before, "a refused write leaves the file exactly as it was"
+

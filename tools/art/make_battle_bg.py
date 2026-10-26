@@ -31,6 +31,13 @@ How the NES rules are kept, by construction rather than by hope
    every other pixel of the strip alone (knowledge/PALETTE-RULINGS-2026-10-25.md section 7.4 point 2, card
    t_d64eb2a9).
 
+6. The scene palette file keeps the audit rows it already carries. `data\\palettes\\scene_battle_<name>.json` is
+   written whole, and the `judged` list in it is a cast decision plus the row that measures it (cards t_4f18c0ac
+   and t_0949bd4e), so a regeneration used to delete a ruling without failing anything. The writer now carries
+   that one key forward unchanged, in the position it already holds, and refuses a file that is not a scene
+   palette for the same scene rather than overwriting it. Every palette, note and hex still comes from this
+   file, so the scene file keeps one owner for its numbers.
+
 Outputs
 -------
     game\\sprites_src\\bg\\bg_battle_<name>.png        the strip
@@ -913,6 +920,87 @@ def scene_palette_json(scene: dict, entries: list) -> dict:
     }
 
 
+# The audit rows a scene palette file carries beside its palettes: a cast decision and the row that measures it.
+# tools/scene_palette_set.py reads the same key out of the same files (JUDGED_KEY there), which is why this script
+# must not drop it: cards t_4f18c0ac and t_0949bd4e wrote rows into files this generator owns.
+JUDGED_KEY = "judged"
+
+
+def read_existing_scene_palette(palette_file: str, scene_name: str):
+    """The scene palette already at `palette_file`, or None when there is none.
+
+    Refuses rather than guesses: the file is about to be replaced whole, so a file that is not a scene palette
+    for THIS scene is not this script's to overwrite.
+    """
+    if not os.path.isfile(palette_file):
+        return None
+    with open(palette_file, "r", encoding="utf-8-sig") as handle:
+        try:
+            existing = json.load(handle)
+        except ValueError as error:
+            raise SystemExit(
+                "%s is not readable JSON (%s): refusing to regenerate a scene palette over it"
+                % (palette_file, error)
+            )
+    if not isinstance(existing, dict):
+        raise SystemExit(
+            "%s holds a %s, not a scene palette object: refusing to regenerate over it"
+            % (palette_file, type(existing).__name__)
+        )
+    expected = "battle_%s" % scene_name
+    if existing.get("kind") != "scene_palette" or existing.get("scene") != expected:
+        raise SystemExit(
+            "%s is not a scene palette for %s (kind %r, scene %r): refusing to regenerate over it"
+            % (palette_file, expected, existing.get("kind"), existing.get("scene"))
+        )
+    return existing
+
+
+def carry_judged(payload: dict, existing: dict) -> dict:
+    """`payload` plus the `judged` list `existing` carries, put back in the position that file keeps it in.
+
+    Only that key is carried. Every palette, note and hex stays derived from this script, so the file keeps one
+    owner for its numbers and the hand written rows keep their own content untouched.
+    """
+    if JUDGED_KEY not in existing:
+        return payload
+    keys = list(existing.keys())
+    anchor = None
+    for key in reversed(keys[:keys.index(JUDGED_KEY)]):
+        if key in payload:
+            anchor = key
+            break
+    out = {}
+    for key, value in payload.items():
+        out[key] = value
+        if key == anchor:
+            out[JUDGED_KEY] = existing[JUDGED_KEY]
+    if anchor is None:
+        out[JUDGED_KEY] = existing[JUDGED_KEY]
+    return out
+
+
+def write_scene_palette(root: str, scene: dict, entries: list) -> tuple:
+    """Write data/palettes/scene_battle_<name>.json whole, carrying its `judged` rows forward (card t_5802ecdb).
+
+    Returns (path, rows kept). A fresh tree has no file, so it keeps no rows and the file is written without a
+    `judged` key at all.
+    """
+    palette_dir = os.path.join(root, "data", "palettes")
+    os.makedirs(palette_dir, exist_ok=True)
+    palette_file = os.path.join(palette_dir, "scene_battle_%s.json" % scene["name"])
+    payload = scene_palette_json(scene, entries)
+    existing = read_existing_scene_palette(palette_file, scene["name"])
+    kept = 0
+    if existing is not None:
+        payload = carry_judged(payload, existing)
+        kept = len(payload.get(JUDGED_KEY, []))
+    with open(palette_file, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(payload, handle, indent=2)
+        handle.write("\n")
+    return palette_file, kept
+
+
 def write_preview(images: list, path: str) -> tuple:
     gap = 8
     width = COLS * CELL
@@ -960,10 +1048,7 @@ def main(argv=None) -> int:
         frame_path = os.path.join(os.path.dirname(preview_path), "bg_battle_%s_frame.png" % scene["name"])
         write_frame(built["pixels"], frame_path, entries[BACKDROP])
 
-        palette_file = os.path.join(palette_dir, "scene_battle_%s.json" % scene["name"])
-        with open(palette_file, "w", encoding="utf-8", newline="\n") as handle:
-            json.dump(scene_palette_json(scene, entries), handle, indent=2)
-            handle.write("\n")
+        palette_file, judged_kept = write_scene_palette(root, scene, entries)
 
         meta = scene_json(scene, built, entries, os.path.basename(png_path), os.path.relpath(palette_file, root).replace(os.sep, "/"))
         with open(os.path.join(out_dir, "bg_battle_%s.json" % scene["name"]), "w", encoding="utf-8", newline="\n") as handle:
@@ -971,7 +1056,7 @@ def main(argv=None) -> int:
             handle.write("\n")
 
         print(
-            "%s: %dx%d, unique tiles %d/128, colours %d/25, cells %d types%s"
+            "%s: %dx%d, unique tiles %d/128, colours %d/25, cells %d types%s%s"
             % (
                 scene["name"],
                 W,
@@ -982,6 +1067,9 @@ def main(argv=None) -> int:
                 ""
                 if not built["party_floor"]
                 else ", party floor %d px on $%02X" % (built["party_floor"]["pixels"], BACKDROP),
+                ""
+                if not judged_kept
+                else ", judged rows kept %d" % judged_kept,
             )
         )
 
