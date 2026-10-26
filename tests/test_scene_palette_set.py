@@ -159,10 +159,15 @@ def test_the_battle_rows_name_the_party_four_and_no_walking_sheet():
         assert sprites == party, (scene_id, sprites)
         assert rows[0].get("exempt"), \
             "%s is red until palette_synergy reads the party_cast half (card t_6e8ca42f)" % scene_id
-    # The sailor is still judged where he is drawn: the ship's own ground and the strip's fight cast.
-    ship = [os.path.basename(path) for row in judged_rows() if row["scene"] == "ship" for path in row["sprites"]]
-    assert "sailor_battle.png" in ship, ship
-    assert "sailor_ow_v2.png" in ship, ship
+    # The ship's row is its WALKING cast (card t_a6a7a436): the party's four walking sheets plus the sailor
+    # actor, and no battle sheet. A walking room draws walking sheets, the ship's four rows are the party's four
+    # triples, and sailor_battle.png is a 168x32 battle figure that no encounter and no draw call names; its own
+    # ground is card t_0b9c2faf.
+    ship = [os.path.basename(path) for row in judged_rows()
+            if row["scene"] == "ship" and "ts_ship.png" in row["background"] for path in row["sprites"]]
+    assert ship == ["hadrian_ow_v2.png", "percy_ow_v2.png", "zander_ow_v2.png", "konrad_ow_v2.png",
+                    "sailor_ow_v2.png"], ship
+    assert "sailor_battle.png" not in ship, ship
 
 
 def test_the_cast_check_catches_the_walking_sheet_put_back_on_a_battle_row():
@@ -313,11 +318,56 @@ def test_the_ship_judged_row_names_the_tileset_and_not_the_capture():
     assert len(ship) == 1, ship
     row = ship[0]
     sprites = [os.path.basename(path) for path in row["sprites"]]
-    assert "sailor_ow_v2.png" in sprites and "sailor_battle.png" in sprites, sprites
+    assert "sailor_ow_v2.png" in sprites, sprites
+    # Card t_a6a7a436 ruling section 17: the row is the WALKING cast, so the battle sheet is off it. Keeping it
+    # here judged a 24x32 fight figure on a ground a walking room never draws it on, which is card t_0949bd4e's
+    # defect (a walking sheet on a battle strip) in the other direction.
+    assert "sailor_battle.png" not in sprites, sprites
     assert row["at"] == [64, 64], row
     assert not [r for r in judged_rows()
                 if r["scene"] == "ship" and "ship_dialogue" in r["background"]], (
         "no ship judged row may name the capture as its ground (t_1dc346b9)")
+
+
+def test_the_four_walking_grounds_carry_the_party_four_walking_triples():
+    """Card t_a6a7a436 ruling section 17: the ship is a walking ground, so it carries the party's four triples.
+
+    The towns were solved on card t_dec4e92c (section 16). The ship was not: its four rows were solved from
+    ts_ship.png's own 8x8 subtiles with the sailor cast in the pool, and of the four walking sheets only Percy
+    fitted one of them (measured 2026-10-25 at 64,64 on ts_ship.png: percy 0 failing pairs, konrad 8, zander 32,
+    hadrian 8). The sailor costs no row of his own, because his sheet is the same three entries as Percy's.
+    """
+    import scene_palette
+
+    payload = data()
+    party = [(0x00, 0x0F, 0x30), (0x07, 0x17, 0x28), (0x01, 0x11, 0x31), (0x02, 0x12, 0x30)]
+    walking = {}
+    for scene_id in ("southampton", "westminster", "winchester", "ship"):
+        rows = [tuple(int(value) for value in row["colours"])
+                for row in scene_palette_set.find_scene(payload, scene_id)["sprites"]]
+        walking[scene_id] = sorted(rows)
+    for scene_id, rows in walking.items():
+        assert rows == sorted(party), (scene_id, rows)
+
+    def sheet_entries(name):
+        from PIL import Image
+        scene = scene_palette_set.scene(ROOT, "ship")
+        path = os.path.join(ROOT, "game", "sprites_src", "chars", name + ".png")
+        with Image.open(path) as handle:
+            image = handle.convert("RGBA")
+        out = set()
+        for frame in range(image.width // 16):
+            for ty in (0, 8):
+                for tx in (0, 8):
+                    box = (frame * 16 + tx, ty, frame * 16 + tx + 7, ty + 7)
+                    out.update(scene_palette._pixel_counts(image, box, scene.index_of, {}))
+        return out
+
+    assert sheet_entries("sailor_ow_v2") == sheet_entries("percy_ow_v2") == {0x02, 0x12, 0x30}, (
+        "the walking sailor and Percy share one triple, which is why the sailor needs no row of his own")
+    for name, triple in (("hadrian_ow_v2", {0x00, 0x0F, 0x30}), ("konrad_ow_v2", {0x07, 0x17, 0x28}),
+                         ("zander_ow_v2", {0x01, 0x11, 0x31}), ("percy_ow_v2", {0x02, 0x12, 0x30})):
+        assert sheet_entries(name) == triple, (name, sheet_entries(name))
 
 
 def test_the_cloud_declares_itself_a_layer_in_its_sidecar_and_in_its_generator():

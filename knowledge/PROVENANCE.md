@@ -1592,3 +1592,27 @@ owner and a later run cannot drift from them; the spend is the minimum that reac
 the card first proposed; and the enemy's sheet is left untouched, because the ruling that sent it to the background
 also ruled that it keeps its own three colours.
 Copied expression: none
+
+## SHIP-WALKING-CAST, 2026-10-25: the ship's four sprite palettes are the party's four walking triples, and the sailor rides one of them (card t_a6a7a436)
+Studied: this repository's own files, read only: `data/palettes/scene_ship.json` and the three town scene files,
+`data/scene_palettes.json`, `data/maps/all.json`, `data/maps/ship_sample.json`, `data/encounters/all.json`,
+`data/enemies/roster.json`, `data/nes_palette.json`, `tools/art/scene_palette.py` (`solve_ship`, `write_scene`,
+`enforce_sprites`), `tools/scene_palette_set.py` (`validate`, `cast_problems`), `tools/palette_synergy.py`
+(`analyse`, `frame_report`, `tile_fails`, `gate`), `tools/check_scene_palettes.py` (`check_ship`),
+`tools/art/make_characters.py` (the ship enforce pass), `game/scripts/pp_overworld/pp_overworld.gml` (both drawing
+macros and `pp_overworld_draw_hero`), `game/scripts/pp_data/pp_data.gml` (how the ship map is loaded), the four
+party walking sheets, the sailor's two sheets and `game/sprites_src/env/ts_ship.png`. No decompiled material was
+read for this card and no expression from any game is in it.
+Mechanics learned: two. One, the four sprite palettes are chosen per 8x8 tile at draw time, so two figures share a
+row for free when their three entries are identical, and that equality is a measurement rather than a hope: the
+walking sailor's `$02 $12 $30` IS Percy's triple, which is why a five-sheet walking cast fits four rows and why the
+question "whose row does the sailor take" has the answer "nobody's". Two, a palette file that two owners write is a
+file one of them silently deletes: this solver wrote the scene file whole and emitted no audit row, so the row a
+previous card landed was one `solve --write` from gone, and the third instance of that defect (after the battle
+strip generator and the exterior map generator) is what closed it for good rather than per scene.
+Our implementation differs by: the ship's rows are declared a cast decision in the file itself (`sprites_pinned`)
+instead of being defended in prose, and `write_scene()` reads that flag before it solves, so the guard travels with
+the data rather than with a card; the audit row is carried forward unconditionally, so no future generator can drop
+it by forgetting the key; and the walking cast is named in one place per tool (`SHIP_SPRITES` in the checker, the
+enforce list in the character generator) so a sheet that stops being drawn leaves both lists instead of one.
+Copied expression: none

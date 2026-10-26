@@ -20,6 +20,10 @@ generators call `apply_scene()` after they have drawn and snapped, so what lands
 inside the budget, and tools/nes_composite_check.py checks the result again from the pixels, without
 using anything this module knows.
 
+A scene file can hold two things a solve does not compute, and write_scene() carries both forward: the
+`judged` row (the ground the room's cast is measured on) and a sprite half marked `sprites_pinned` (a
+cast decision, like the party's four walking triples on the ship). See the docstring of write_scene().
+
 The three rules it enforces, all from knowledge/ART-BIBLE.md section 1:
 
   background   16x16 screen areas; one palette of 3 entries plus the shared backdrop per area
@@ -57,6 +61,11 @@ CELL = 16          # background attribute area
 SUBTILE = 8        # sprite tile
 LIMIT = 3          # colours per palette, besides the backdrop / plus transparency
 PALETTE_DIR = os.path.join("data", "palettes")
+# Two keys this solver writes around rather than computes, both owned by the scene file itself:
+#   judged            the audit row that says which ground the room's cast is measured on (card t_1dc346b9)
+#   sprites_pinned    the sprite half is a cast decision, so a solve keeps it (ruling section 17, t_a6a7a436)
+JUDGED_KEY = "judged"
+SPRITES_PINNED_KEY = "sprites_pinned"
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -469,8 +478,40 @@ def solve(profiles, backlog=None, rounds: int = 4, gamma=None, keep=None) -> lis
     return chosen
 
 
+def _file_payload(path: str) -> dict:
+    """The scene file as it is on disk, or {} when there is none. A file that cannot be read is not a file to
+    carry anything forward from, so it is treated the same way."""
+    if not os.path.isfile(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8-sig") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
 def write_scene(root: str, name: str, backdrop: int, background, sprites, notes) -> str:
+    """Write the scene file, carrying forward the two halves a solve does not own.
+
+    A scene file can be written by more than one card. `judged` is the audit row that says what ground a room's
+    cast is measured on, and this solver has never emitted one, so a solve used to delete it (the defect card
+    t_5802ecdb closed on tools/art/make_battle_bg.py and card t_dec4e92c closed on make_exterior_maps.py, same
+    shape in a third file). `sprites_pinned: true` marks a sprite half that is a CAST DECISION rather than a
+    solve product: the ship's four rows are the party's four walking triples, shared with the towns by hand
+    (knowledge/PALETTE-RULINGS-2026-10-25.md section 17, card t_a6a7a436), so a solve keeps that half and the
+    notes that explain it and prints what it kept. The background half is always the solver's.
+    """
     colours, usable, _index_of = load_master(root)
+    path = scene_path(root, name)
+    before = _file_payload(path)
+    pinned = bool(before.get(SPRITES_PINNED_KEY))
+    if pinned and before.get("sprites"):
+        sprites = [[int(entry) for entry in row["colours"]] for row in before["sprites"]]
+        if before.get("notes"):
+            notes = list(before["notes"])
+        print("scene_palette: %s keeps its pinned sprite half and its notes (sprites_pinned true); the "
+              "background half is still the solver's" % os.path.basename(path))
     payload = {
         "format": 1,
         "kind": "scene_palette",
@@ -487,7 +528,12 @@ def write_scene(root: str, name: str, backdrop: int, background, sprites, notes)
                     for index, row in enumerate(sprites)],
         "notes": notes,
     }
-    path = scene_path(root, name)
+    if pinned:
+        payload[SPRITES_PINNED_KEY] = True
+    if before.get(JUDGED_KEY):
+        payload[JUDGED_KEY] = before[JUDGED_KEY]
+        print("scene_palette: %s keeps its %d judged row(s) verbatim"
+              % (os.path.basename(path), len(before[JUDGED_KEY])))
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")

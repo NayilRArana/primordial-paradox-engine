@@ -1195,11 +1195,14 @@ def main(argv=None):
         dump_frames(root)
         return 0
     notes, solved, contact_path, preview3_path, party_carried = build(root)
-    # NES-PALETTES: the ship scene owns four sprite palettes of three entries, and the two cast sheets
-    # that ship uses are enforced to them here, at the end of the build, so a regeneration cannot put
-    # a fourth colour back into an 8x16 group. data/palettes/scene_ship.json is the budget;
-    # tools/check_scene_palettes.py is the judge.
-    for name in ("sailor_ow", "sailor_battle"):
+    # NES-PALETTES: the ship scene owns four sprite palettes of three entries, and they are the party's four
+    # walking triples (ruling section 17, card t_a6a7a436), so the walking sailor is enforced to them here, at the
+    # end of the build, so a regeneration cannot put a fourth colour back into an 8x16 group.
+    # data/palettes/scene_ship.json is the budget; tools/check_scene_palettes.py is the judge.
+    # sailor_battle.png is NOT in this pass any more: it is a 168x32 battle sheet, the ship's rows no longer carry
+    # it, and enforcing it would repaint 621 of its 2398 opaque pixels into the party's triples (measured on card
+    # t_a6a7a436). Its ground is card t_0b9c2faf.
+    for name in ("sailor_ow",):
         try:
             sys.path.insert(0, HERE)
             import scene_palette

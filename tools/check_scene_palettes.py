@@ -48,7 +48,12 @@ SPRITE_HEIGHT = 16
 SUBTILE = 8
 CELL = 16
 FRAME_W, FRAME_H = 256, 240
-SHIP_SPRITES = ("sailor_ow", "sailor_battle")
+# The ship's cast is its WALKING cast, because a walking room draws walking sheets: the party's four walking
+# sheets plus the sailor actor. sailor_battle.png came off this list on card t_a6a7a436: the ship's four sprite
+# palettes are the party's four walking triples now (ruling section 17), a 168x32 battle figure is drawn on a
+# strip and never on a walking map, and under these four rows 40 of its 72 inked 8x8 tiles are uncovered by any
+# row. Its own ground is card t_0b9c2faf.
+SHIP_SPRITES = ("hadrian_ow_v2", "konrad_ow_v2", "zander_ow_v2", "percy_ow_v2", "sailor_ow_v2")
 MAX_SPRITES_PER_LINE = 8
 MAX_SPRITES = 64
 MAX_COLOURS_ON_SCREEN = 25
@@ -206,9 +211,10 @@ def check_ship(root: str, report: dict) -> list[str]:
                             "tiles_outside_background_palettes": len(homeless_bg),
                             "sheet": [sheet.width, sheet.height]}
 
-    # Sprites are the ship's own cast, not its walls. A background tile may spend the shared backdrop
+    # Sprites are the ship's walking cast, not its walls. A background tile may spend the shared backdrop
     # as its fourth colour; a sprite cannot, because its fourth state is transparency, so the sheet is
-    # deliberately not held to the sprite rule. The sailor is.
+    # deliberately not held to the sprite rule. The party's four walking sheets and the sailor actor are
+    # (card t_a6a7a436, ruling section 17).
     per_asset = {}
     for name in SHIP_SPRITES:
         base = os.path.join(root, "game", "sprites_src", "chars", name)

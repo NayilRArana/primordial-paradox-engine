@@ -272,13 +272,18 @@ def test_r6_for_a_multi_tile_figure_is_asked_per_8x8_tile(tmp_path):
 
 
 def test_the_shipped_battle_sheet_is_seven_declared_24x32_frames():
-    """The real sheet: 168x32 is seven frames of 24x32 as its own sidecar declares, and the ship set carries it.
+    """The real sheet: 168x32 is seven frames of 24x32 as its own sidecar declares.
 
     Card t_dc6305d6: the background is a capture, and it is a tracked input. `output/` is ignored at
     `.gitignore` line 28, but nine captures under it are committed on purpose because tests read them by path,
     and this one is now the tenth: it is listed in `tools/check_test_inputs.py` FIXTURES so a HEAD worktree
     cannot lack it. Before that it existed only on the machine that ran the capture, and the red it raised read
     as an art failure instead of a missing file.
+
+    Card t_a6a7a436: the ship's four sprite rows are the party's four walking triples now (ruling section
+    17), so the geometry is what this row measures; the sheet's coverage is 40 of its 72 inked 8x8 tiles
+    uncovered under those rows, which is the measurement that took it off the ship's judged row. It is
+    judged on no ground until card t_0b9c2faf answers where a battle figure belongs.
     """
     background = os.path.join(ROOT, "output", "ship_dialogue.png")
     assert os.path.isfile(background), (
@@ -289,7 +294,8 @@ def test_the_shipped_battle_sheet_is_seven_declared_24x32_frames():
     assert sprite["frame"] == [24, 32], sprite["frame"]
     assert len(sprite["frames"]) == 7, len(sprite["frames"])
     assert sprite["figure"] is True, sprite
-    assert sprite["tiles"] == {"inked": 72, "uncovered": 0}, sprite["tiles"]
+    assert sprite["tiles"]["inked"] == 72, sprite["tiles"]
+    assert sprite["tiles"]["uncovered"] == 40, sprite["tiles"]
 
 
 def test_cli_writes_a_json_report_and_sets_the_exit_code(tmp_path):
@@ -353,8 +359,11 @@ def test_the_two_ruled_grounds_measure_clean_today():
         assert frame["layer"] is True, frame
     assert csheet["tiles"]["uncovered"] == 0, csheet["tiles"]
 
-    for sheet in ["game/sprites_src/chars/sailor_ow_v2.png",
-                  "game/sprites_src/chars/sailor_battle.png"]:
+    for sheet in ["game/sprites_src/chars/hadrian_ow_v2.png",
+                  "game/sprites_src/chars/konrad_ow_v2.png",
+                  "game/sprites_src/chars/zander_ow_v2.png",
+                  "game/sprites_src/chars/percy_ow_v2.png",
+                  "game/sprites_src/chars/sailor_ow_v2.png"]:
         result = palette_synergy.analyse(ROOT, "ship", "game/sprites_src/env/ts_ship.png",
                                          [sheet], at=(64, 64))
         assert result["ok"], (sheet, result["problems"])

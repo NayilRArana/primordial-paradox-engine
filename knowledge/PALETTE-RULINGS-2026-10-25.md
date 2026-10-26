@@ -945,3 +945,223 @@ Provenance: studied this repository's own files only (`data/palettes/scene_*.jso
 `tools/scene_palette_set.py`, `tools/palette_synergy.py`, `tools/art/make_exterior_maps.py`,
 `tools/art/make_characters_v2.py`, `tools/art/scene_palette.py`, `game/sprites_src/env/ts_exterior.json`, the four
 walking sheets, the three map frames and `data/maps/*.json`). Copied expression: none.
+
+## 17. The ship's four sprite palettes are the party's four walking triples, and the walking sailor costs no row because his triple IS Percy's
+
+Card `t_a6a7a436`, raised by 16.6. Measured 2026-10-25 on this tree at `d429b7a`, over
+`data/palettes/scene_ship.json` as HEAD carried it and `game/sprites_src/env/ts_ship.png` at `--at 64,64`.
+
+**Answer, three parts.** Q1: the first option, with one correction to its own parenthetical. The ship's four
+sprite rows are re-solved for the party and become the party's four walking triples, `$00 $0F $30` (hadrian),
+`$02 $12 $30` (percy), `$01 $11 $31` (zander), `$07 $17 $28` (konrad). The sailor's walking row does not have to
+MOVE, it has to be SHARED: `sailor_ow_v2.png` is `$02 $12 $30` to the entry, which is Percy's triple, so he is
+drawn in Percy's row and the party's four rows carry five walking sheets with nothing repainted. Q2 is refused on
+two measurements, not one. Q3 is refused because the file-per-room split would carry the same four rows twice.
+`sailor_battle.png` comes off the ship's judged row in the same edit, and its ground is card `t_0b9c2faf`.
+
+### 17.1 The starting state, measured per sheet
+
+Seven colours across the four rows, and of the five walking sheets exactly one fitted one of them:
+
+| sheet | its triple | row it fits at HEAD | cast problems | inked 8x8 tiles that fit no row |
+| --- | --- | --- | --- | --- |
+| `hadrian_ow_v2` | `$00 $0F $30` | none | 8 `palette_count` | 30 of 32 |
+| `konrad_ow_v2` | `$07 $17 $28` | none | 8 `palette_count` | 26 of 32 |
+| `zander_ow_v2` | `$01 $11 $31` | none | 24 `set_member` + 8 `palette_count` | 32 of 32 |
+| `percy_ow_v2` | `$02 $12 $30` | `sp1` | 0 | 0 |
+| `sailor_ow_v2` | `$02 $12 $30` | `sp1` | 0 | 0 |
+| `sailor_battle` | ten entries, `$00 $02 $07 $08 $0F $10 $17 $27 $30 $36` | mixes, no single row | 0 uncovered | 0 of 72 |
+
+The card's numbers reproduce exactly. What the card did not say is WHY the rows were what they were, and it is the
+fact that decides Q1: `tools/art/scene_palette.py` `solve_ship()` solves the sprite half from
+**`ts_ship.png`'s own 8x8 subtiles with `SHIP_SPRITES` in the pool**, so the four rows are a property of the
+tileset plus the sailor, and `scene_ship.json`'s note said so in its own words ("the sheet cut to 8x8, so any tile
+can also be drawn as sprites"). They were never solved for a walking cast at all.
+
+### 17.2 Q1: the rows are the party's four, and the sailor is carried by one of them exactly
+
+The constraint is section 7.1 and 16.6: a ground that draws the party has to carry the party's four walking
+triples in its four rows, because the PPU has four sprite palettes and no fifth. The ship is a ground that draws
+the party: `data/maps/ship_sample.json` is the map `rm_pp_ship` plays (`game/scripts/pp_data/pp_data.gml` lines
+115 to 121 append it beside `maps/all.json`), the deck and the cabin are `ship_small` and `ship_cabin` in
+`data/maps/all.json`, and `pp_overworld_draw_hero()` draws the party's figure on all three.
+
+The measurement that makes this cheap is one row of the table above: `sailor_ow_v2.png` and `percy_ow_v2.png` are
+the same three entries, not merely similar ones. A shared triple is the only kind of sharing the hardware allows,
+and it is exact here, so the sailor does not displace a hero and no hero loses his colours. Percy keeps `sp1`,
+where his triple already was and where the sailor was already drawn; the other three rows are solved:
+
+| row | HEAD | after | whose |
+| --- | --- | --- | --- |
+| `sp0` | `$00 $0F $10` | `$00 $0F $30` | hadrian (`$10` `#bcbcbc` becomes `$30` `#fcfcfc`) |
+| `sp1` | `$02 $12 $30` | `$02 $12 $30` | percy, unchanged, and the walking sailor |
+| `sp2` | `$07 $17 $36` | `$01 $11 $31` | zander (the rust and the skin leave, the pale blues arrive) |
+| `sp3` | `$08 $27 $28` | `$07 $17 $28` | konrad (`$08` `#503000` becomes `$07` `#881400`) |
+
+Measured after, `tools/palette_synergy.py --scene ship --background game/sprites_src/env/ts_ship.png` with all
+five sheets at `--at 64,64`: **PASS, 0 failing pair(s)**, 32 inked 8x8 tiles each and 0 uncovered, and each sheet
+reports exactly one row in its `palettes that fit` column (hadrian `[0]`, percy `[1]`, zander `[2]`, konrad `[3]`,
+the sailor `[1]`).
+
+The four rows are now the same four triples the three towns carry (16.2), which is what makes the party's walk
+read the same on every ground it walks. The row ORDER differs from the towns because it is not a decision: Percy
+stays on `sp1` because the sailor is there, and `scene_palette_set.HEROES` already orders the battle strips
+differently again, so there is no project-wide hero-to-row convention to break or keep.
+
+**What the spend costs, measured.** The rows stop being a second drawable copy of the ship tileset. Every 8x8
+subtile of `ts_ship.png` with pixels, against the four rows:
+
+| rows | subtiles | fit no row |
+| --- | --- | --- |
+| HEAD | 192 | **52** |
+| this ruling | 192 | **141** |
+
+So the old note's promise was already only two thirds true, and it is now a third true. Nothing draws a ship tile
+as a sprite today: `pp_map_draw()` draws the room from the tileset, and the four BACKGROUND rows still carry all
+48 tiles (`tools/check_scene_palettes.py`: 0 tiles outside the background palettes). A ship effect that has to be
+drawn from the sprite layer is a card that moves a row or draws it from the background set.
+
+**And the four sheets cost the rows nothing.** `tools/art/scene_palette.py` `enforce_sprites()` against the four
+rows, in memory, on this tree:
+
+| sheet | opaque pixels moved, HEAD rows | this ruling's rows |
+| --- | --- | --- |
+| `hadrian_ow_v2` | 288 | **0** |
+| `konrad_ow_v2` | 376 | **0** |
+| `zander_ow_v2` | 1150 (all of it) | **0** |
+| `percy_ow_v2` | 0 | **0** |
+| `sailor_ow_v2` | 0 | **0** |
+| `sailor_battle` | 0 | 621 of 2398 |
+
+The last row is 17.4's business.
+
+### 17.3 Q2: the two casts DO share a screen, and three heroes lose their colours, not two
+
+The option is "the party is drawn with the sailor's rows indoors because the two casts never share a screen, which
+needs a measured statement of which hero triple survives and which two heroes lose their colours there". Both
+halves of that premise fail.
+
+1. **They share a screen.** `data/maps/ship_sample.json` (the room `rm_pp_ship` plays) declares two sailor actors
+   on the map the party walks: `sailor_watch` at 9,9 facing left and `sailor_galley` at 20,13 facing up, both
+   `kind: sailor`. `pp_overworld` draws them with `PP_SAILOR_SHEET "sailor_ow_v2"` (line 627) on the same frame it
+   draws the hero with `PP_HERO_SHEET "zander_ow_v2"` (line 626). There is no room in the slice where a sailor
+   actor and the party are not on one screen together.
+2. **Three heroes lose their colours, not two.** Under the sailor's rows the survivors are Percy and the sailor:
+   konrad 8 `palette_count` with 26 of his 32 inked tiles fitting no row, hadrian 8 with 30 of 32, zander 32 with
+   32 of 32. Forty eight failing pairs over three sheets, and Zander's whole body leaves the set.
+
+So Q2 is not a trade that can be measured better, it is a trade whose premise is false. Refused.
+
+### 17.4 `sailor_battle.png` comes off the row, and that is the same defect in the other direction
+
+The card's DO NOT says not to put a walking sheet on a battle strip. Card `t_0949bd4e` removed exactly that
+(`zander_ow_v2` off the corridor row) on the reasoning that a row's ground has to be the ground the room draws on.
+The ship's row was carrying the mirror image: a 168x32 seven frame BATTLE sheet, judged on a walking room's
+tileset, under rows now spent on walking figures. Three measurements say it does not belong there.
+
+1. **Nothing draws it.** `data/encounters/all.json` has three encounters and the ship one is `tutorial_sailors`
+   with `"enemies": ["navy_sailor"]`; `data/enemies/roster.json` gives `navy_sailor` the sheet
+   `game/sprites_src/enemies/navy_sailor.png`. `pp_overworld` draws two sheets and neither is this one. No GML file
+   names it.
+2. **The ship's rows cannot carry it any more.** Under the four walking rows, 40 of its 72 inked 8x8 tiles fit no
+   row (0 of 72 before), and the tool reads **FAIL, 53 failing pairs** on the ship ground.
+3. **Enforcing it into those rows would damage the sheet.** 621 of its 2398 opaque pixels would be repainted, which
+   is why `tools/art/make_characters.py` no longer runs its `enforce_sprites()` pass over it.
+
+Section 15.5 said its home "is already written down and it is the ship". That sentence was answering a different
+question (whether the DECK STRIP's background budget should carry it) and it is corrected here: a judged row's
+ground is the ground the room is drawn on, and the ship's ground is a walking room. Its own card, `t_0b9c2faf`,
+asks whether it is the sailor fight's battle art or a retired sheet, and where a battle figure is judged. Until
+that lands it is judged on no row, which is the honest state for a sheet no room draws.
+
+### 17.5 Q3: a second scene file would carry the same four rows and drift
+
+Refused on measurement. The three ship rooms (`ship_small` deck, `ship_cabin`, `ship_sample` lower deck) share one
+tileset and one walking cast: the party walks all three, and the only cast difference between them is the two
+sailor actors on the lower deck, who cost no row because they are Percy's triple. A file per room would therefore
+hold four identical triples twice, and the second copy could only drift from the first. The pattern the towns use
+is one file per TOWN because each town is its own ground; the ship is one ground (`ts_ship.png`) with three rooms
+drawn on it. The deck's own row already exists and is a battle strip (`scene_battle_deck_night`, recast by card
+`t_0949bd4e` and spent on the enemy's colours by card `t_34b1d96a`); nothing about it is touched here.
+
+### 17.6 The generator hazard, closed here rather than carded
+
+`tools/art/scene_palette.py` `write_scene()` wrote the scene file WHOLE with no `judged` key, so
+`solve --scene ship --write` would have (a) deleted card `t_1dc346b9`'s audit row and (b) re-solved the party's
+four rows back into the tileset plus sailor pool. That is the third instance of one defect: card `t_5802ecdb`
+closed it on `tools/art/make_battle_bg.py` and card `t_dec4e92c` on `tools/art/make_exterior_maps.py`.
+
+Fixed at the cause, with two behaviours and two constants (`JUDGED_KEY`, `SPRITES_PINNED_KEY`):
+
+- `judged` is carried forward verbatim, always, whatever wrote it. Printed when it happens.
+- a sprite half marked `"sprites_pinned": true` in the file is a CAST DECISION, not a solve product: the solve
+  keeps the rows AND the notes that explain them, and prints that it kept them. The background half is still the
+  solver's. `data/palettes/scene_ship.json` carries the flag and a note that says why.
+- `tests/test_scene_palettes.py` holds both: a scratch root with a copy of the shipped file, a solve against it
+  that must keep the sprite half, the notes and the judged row while the background half moves, and a control with
+  the pin removed that must take the solver's rows.
+
+The pin exists because the row solve is a decision shared by hand with the towns (16.2). A scene whose sprite half
+is a solve product keeps no flag and behaves exactly as before, which is every other scene file in the tree.
+
+### 17.7 What landed, measured before and after
+
+| run | entries | gated | advisory | ship row | ship/title row | total problems |
+| --- | --- | --- | --- | --- | --- | --- |
+| before | 9 | 0 | 6 | 0 | 242 | 549 |
+| after | 9 | 0 | 6 | 0 | 242 | 549 |
+
+The totals do not move, and that is the honest reading: the old row measured 0 on the cast it named (the sailor's
+two sheets), so the gate could not see the defect at all. What moves is WHAT the row measures. The same is true of
+`tools/check_scene_palettes.py`, which passes before and after and now holds five walking sheets instead of two
+sailor sheets: `0` groups over three colours and `0` groups outside a palette on all five.
+
+Landed:
+
+- `data/palettes/scene_ship.json`: `sp0`, `sp2` and `sp3` solved to hadrian, zander and konrad, `sp1` unchanged,
+  `sprites_pinned: true`, the sprite note and the judged row rewritten with the numbers above, and
+  `judged[0].sprites` now the walking cast (hadrian, percy, zander, konrad, sailor_ow_v2) at the unchanged
+  `at [64, 64]`.
+- `data/scene_palettes.json`: rebuilt with `python tools/scene_palette_set.py build --write`, one ship entry and
+  one audit row moved.
+- `tools/art/scene_palette.py`: `write_scene()` carries `judged` and a pinned sprite half forward; both printed.
+- `tools/check_scene_palettes.py`: `SHIP_SPRITES` is the walking cast.
+- `tools/art/make_characters.py`: the enforce pass is `sailor_ow` only, with the 621 pixels measured in the comment.
+- Tests: `tests/test_scene_palette_set.py` (the ship row's cast, and the four walking grounds carry the same four
+  triples, with the sailor and Percy's sheets held to the same three entries), `tests/test_scene_palettes.py` (the
+  pinned half and the judged row survive a solve), `tests/test_palette_synergy.py` (the ship ground carries the
+  five walking sheets; `sailor_battle`'s coverage is recorded as 40 of 72 rather than asserted as clean).
+
+Checks on this tree, 2026-10-25:
+
+- `python tools/scene_palette_set.py build --write` then `validate`: **PASS, 12 scenes, 4 hero palettes**.
+- `python tools/palette_synergy.py --gate`: the table above, exit 0.
+- `python tools/check_scene_palettes.py`: **PASS**, five ship sprites, no group over three colours.
+- `python -m pytest tests/test_scene_palette_set.py tests/test_palette_synergy.py tests/test_scene_palettes.py
+  tests/test_nes_composite_check.py tests/test_make_env_ship.py tests/test_make_characters_v2.py -q`: 97 passed.
+- The per sheet, per row and per subtile numbers are from `measure_sheets.py` and `measure_spend.py` in this
+  card's workspace, which call `palette_synergy.Grid`, `frame_pixels`, `scene_palette.Scene` and
+  `enforce_sprites()` rather than restating the arithmetic.
+
+### 17.8 What this does not decide
+
+- **`sailor_battle.png`'s ground.** Card `t_0b9c2faf`. It is judged on no row until that lands, and
+  `tools/art/scene_palette.py`'s `SHIP_SPRITES` solve pool still lists it, which only matters for a scene file
+  created from scratch (a pinned half never reaches the file). The two lists disagreeing is named on that card.
+- **A ship tile drawn from the sprite layer.** 141 of 192 subtiles fit no row now. Nothing draws one; a card that
+  wants one moves a row or draws it as background.
+- **A ship NPC that is not the sailor.** The four rows are the party's and the sailor's exactly; a third walking
+  cast on the ship has no row and would have to displace one, which is a card this one does not write.
+- **The body-against-ground pairs on the new cast.** The ship reads 0 failing pairs, so there is nothing to hand
+  on: `ts_ship.png` at 64,64 is dark plating and every body reads against it. The towns' paving question stays
+  card `t_454c1876`'s.
+- **The party's walking identity everywhere.** Unchanged from 16.6: battle sheets are the hero triples, walking
+  sheets are triples bought from a walking ground, and the ship is now a signed-up member of that rule.
+
+Provenance for section 17: studied this repository's own files only (`data/palettes/scene_ship.json`,
+`data/scene_palettes.json`, `data/maps/all.json`, `data/maps/ship_sample.json`, `data/encounters/all.json`,
+`data/enemies/roster.json`, `data/nes_palette.json`, `tools/art/scene_palette.py`, `tools/scene_palette_set.py`,
+`tools/palette_synergy.py`, `tools/check_scene_palettes.py`, `tools/art/make_characters.py`,
+`game/scripts/pp_overworld/pp_overworld.gml`, `game/scripts/pp_data/pp_data.gml`, the four walking sheets, the
+sailor's two sheets and `game/sprites_src/env/ts_ship.png`). No decompiled material, and no expression from
+another game, is in this card. Copied expression: none.

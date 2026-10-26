@@ -64,6 +64,47 @@ def test_the_scenes_stay_inside_the_colour_cap():
         assert budget["sprite_colours"] <= 12, name
 
 
+def test_a_solve_keeps_a_pinned_sprite_half_and_its_judged_row(tmp_path):
+    """Card t_a6a7a436: the ship's sprite half is a CAST decision, and a solve used to overwrite it.
+
+    write_scene() wrote the scene file whole and emitted no `judged` key, so `solve --scene ship --write` deleted
+    the audit row card t_1dc346b9 landed and re-solved the party's four walking triples back into the sailor's
+    pool. Measured here on a scratch root that holds only the master palette and a copy of the shipped file: the
+    solver's background half lands, the pinned sprite half, its notes and the judged row survive, and a file
+    WITHOUT the pin still takes the solver's rows (the mechanism is the pin, not "never write sprites").
+    """
+    import shutil
+
+    (tmp_path / "data" / "palettes").mkdir(parents=True)
+    shutil.copy(os.path.join(ROOT, "data", "nes_palette.json"), str(tmp_path / "data" / "nes_palette.json"))
+    with open(os.path.join(ROOT, "data", "palettes", "scene_ship.json"), encoding="utf-8") as handle:
+        shipped = json.load(handle)
+    target = tmp_path / "data" / "palettes" / "scene_ship.json"
+    target.write_text(json.dumps(shipped, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    solver_rows = [[0x00, 0x10, 0x30], [0x02, 0x12, 0x30], [0x07, 0x17, 0x36], [0x08, 0x27, 0x28]]
+    solver_background = [[0x00, 0x10, 0x30], [0x10, 0x28, 0x30], [0x02, 0x07, 0x17], [0x00, 0x02, 0x21]]
+    scene_palette.write_scene(str(tmp_path), "ship", 0x0F, solver_background, solver_rows, ["solved by a rerun"])
+    with open(str(target), encoding="utf-8") as handle:
+        written = json.load(handle)
+
+    assert written["sprites"] == shipped["sprites"], "a solve re-solved a pinned sprite half"
+    assert written["notes"] == shipped["notes"], "a solve overwrote the notes that explain the pinned half"
+    assert written["judged"] == shipped["judged"], "a solve deleted the judged row"
+    assert written["sprites_pinned"] is True, written.get("sprites_pinned")
+    background = [row["colours"] for row in written["background"]]
+    assert background == solver_background, "the background half is the solver's and did not land"
+
+    # The control: the same call on a file with no pin takes the solver's sprite rows.
+    del shipped["sprites_pinned"]
+    target.write_text(json.dumps(shipped, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    scene_palette.write_scene(str(tmp_path), "ship", 0x0F, solver_background, solver_rows, ["solved by a rerun"])
+    with open(str(target), encoding="utf-8") as handle:
+        unpinned = json.load(handle)
+    assert [row["colours"] for row in unpinned["sprites"]] == solver_rows, unpinned["sprites"]
+    assert unpinned["judged"] == shipped["judged"], "the judged row is carried whether the half is pinned or not"
+
+
 def test_the_check_reports_its_numbers_so_a_reviewer_can_read_them():
     """The card asks for the palette sets and the check output, so the report carries both as data."""
     path = os.path.join(ROOT, "output", "scene_palettes.json")
