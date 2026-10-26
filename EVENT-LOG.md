@@ -6,3 +6,4 @@ EVENT-LOG. Baseline tag hackathon-baseline-2026-10-25 at ae3a6cb (2026-10-25 22:
 2026-10-26 07:15 | 1a242a4 | t_28a81f2c | FIX-YYP-6 placement: the devlog entry goes where a reader looks, newest first (card t_28a81f2c)
 2026-10-26 07:22 | a85b8fc | t_b412f8eb | EVENT-LOG-COMMIT: the generator ships with its check mode, and a commit that only refreshes the log is not a row (card t_b412f8eb)
 2026-10-26 07:28 | 6adabf0 | t_6d66f32d | DECISIONS-SWEEP: four Q for gamedev cards get one rulings file and four unblocks (card t_6d66f32d)
+2026-10-26 07:29 | 3df8baa | t_6d66f32d | DECISIONS-SWEEP: four Q for gamedev cards get one rulings file and four unblocks (card t_6d66f32d)
