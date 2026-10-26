@@ -265,7 +265,20 @@ def cast():
             # so grey moves from the accent to the mid body: ink is the outline, the seams and the sleek hair;
             # grey $00 is the suit; pale $30 is the face and the lit rim. The three entries are the ones the
             # shipped sheet already spent, so this redraw adds no colour and takes no palette decision.
-            "palette": {"k": INK, "s": PALE, "h": INK, "a": GREY, "b": PALE},
+            # 2026-10-25 (card t_454c1876, ruling knowledge/PALETTE-RULINGS-2026-10-25.md section 20): the record
+            # above is kept as written and the suit moves from grey $00 to pale $30. Measured, not chosen: the
+            # tool measures a frame's body as its largest fill that is not the outline, and a body of $00 grey
+            # clears NO ground the party walks on. Against the towns' street $00 #7c7c7c it is `invisible`
+            # (identical) and against a black $0F joint it is `same_hue_row` (grey on grey, both row 0); every
+            # other row 0 entry is under 3:1 from $00 as well, so no dark street can carry a row 0 grey body.
+            # With the suit pale, $30 is the largest fill in all eight frames (24 + 40 pixels in the two frames
+            # where the arms cover the shirt) and the body reads 3 luminance rows above both street entries.
+            # Grey is not spent and not dropped, it changes job: it is the shaded rim the "rim" part already
+            # draws on the shoulders and sleeves (8 pixels), so the sheet still spends all three of sp0's
+            # entries, $00 $0F $30, and RULE 0 point 3 still gets an outline, a body and a third tone. A pale
+            # suit with a mid grey edge is also the reading the rim was written for: it used to light a black
+            # suit's edge, and now it shades a white one's.
+            "palette": {"k": INK, "s": PALE, "h": INK, "a": PALE, "b": GREY},
             "decor": ["sleek_hair", "rim", "bident"],
         },
     ]

@@ -1455,10 +1455,10 @@ the enforce pass touches, which is the point.
 ### 19.6 What this does not decide
 
 - **The file itself, and the build's Included File entry.** `game/sprites_src/chars/sailor_battle.png` stays on disk
-  and stays listed in `game/PrimordialParadox.yyp`. Removing it drops one art index entry (117 to 116), one
-  Included File (276 data files to 275) and 5376 px of shipped art, and it can only be proven by a build. GameMaker
-  is not installed on this machine, so a card that does it has to land with a build, not before one. Named, not
-  smuggled in.
+  and stays listed in `game/PrimordialParadox.yyp` in this section's own commit. Removing it drops one art index entry
+  (117 to 116), one Included File (276 data files to 275) and 5376 px of shipped art, and it can only be proven by a
+  build. GameMaker was believed absent on this machine when this was written, so a card that does it has to land with a
+  build, not before one. Named, not smuggled in. **Card `t_4848159e` did it, see 19.7.**
 - **`sailor_ow` (v1).** It is out of the pool by this card because it is not the sheet the room draws
   (`pp_overworld` draws `sailor_ow_v2`), and it costs nothing to leave out: it carries two entries, so the enforce
   pass moved 0 pixels of it before and does not open it now. But `make_characters.py` still writes it and still runs
@@ -1479,3 +1479,227 @@ Provenance for section 19: studied this repository's own files only
 `game/PrimordialParadox.yyp`, the five `_battle` sheets, the seven `_ow` sheets and `navy_sailor.png`, and the commit
 history of all of them). No decompiled material was read for this card and no expression from any game is in it.
 Copied expression: none.
+
+## 20. The towns' spawning street moves off the light group: the party walks in white, the paving was $10, and no light entry can carry them (card t_454c1876)
+
+The card arrived with three failing rows, one per town, all three measured against the frame the map generator composes at
+that town's spawn: southampton 36 failing pairs, westminster 88, winchester 32, 156 in all. Every one of them was the street
+against the sheets' own bodies, and every one of them was a light ground. This section answers the three questions the card
+asked, Q1 what the ground under the party is, Q2 which entries each of the party's bodies clears, Q3 whether the ground or
+the sprite moves, and records the one ruling that came out of them: **the walkable ground is the thing that moves, because a
+white body is the thing that cannot.**
+
+### 20.1 The four lines that decide the question, and the four bodies they judge
+
+All four are read from `tools/palette_synergy.py`, not restated: `NEAR_WHITE = 0.60` (line 109), `LIGHT_GROUND = 0.25`
+(line 110), `ROW_GAP_MIN = 2` (line 108), `FIGURE_GROUND_CONTRAST_MIN = 3.0` (line 129). A pair fails as
+
+- **white_blob** when the body is 0.60 or more AND the ground is 0.25 or more;
+- **body_ground** when the two are fewer than 2 rows apart AND under 3.0:1;
+- **same_hue_row** when body and ground are one hue family on one row;
+- **invisible** when they are the same entry.
+
+Luminance and row come from `tools/art/contrast_check.py`'s 2C02 table through `Grid`:
+
+| entry | hex | luminance | row | hue | who wears it as a body |
+| --- | --- | --- | --- | --- | --- |
+| `$30` | `#fcfcfc` | 0.973 | 3 | grey | `percy_ow_v2`, `hadrian_ow_v2` |
+| `$31` | `#a4e4fc` | 0.704 | 3 | hue_1 | `zander_ow_v2` |
+| `$28` | `#f8b800` | 0.542 | 2 | hue_8 | `konrad_ow_v2` |
+| `$10` | `#bcbcbc` | 0.503 | 1 | grey | the paving, before this card |
+| `$00` | `#7c7c7c` | 0.202 | 0 | grey | the asphalt and the kerbstone |
+| `$0F` | `#000000` | 0.000 | 0 | grey | the shared backdrop |
+
+Two of the four party bodies are at or above `NEAR_WHITE` on the tool's own reading (`$30` 0.973, `$31` 0.704); `$28` at
+0.542 is not, and fails by the row gap instead. The street's `$10` at 0.503 is nearly twice `LIGHT_GROUND`. So the street and
+the party cannot both keep what they had.
+
+### 20.2 Q2 first, because it settles Q1 and Q3: which ground can carry each body
+
+`pair_rules` called for every body the party walks in, against every entry a town ground draws, is the whole answer:
+
+| body | paving `$10` | white `$30` | stone `$00` | black `$0F` | grass `$2A` |
+| --- | --- | --- | --- | --- | --- |
+| `$30` percy, hadrian | white_blob | invisible, white_blob | **PASS** | **PASS** | body_ground, white_blob |
+| `$31` zander | white_blob | body_ground, white_blob | **PASS** (3.00:1) | **PASS** | body_ground, white_blob |
+| `$28` konrad | body_ground | body_ground | **PASS** (2 rows) | **PASS** | body_ground |
+| `$00` hadrian, before | body_ground | PASS | invisible | same_hue_row | PASS |
+
+Read the last row carefully, because it is the reason the sprite could not be the thing that moved: a `$00` grey body
+clears exactly two of the five grounds in that table, `$30` white and `$2A` grass, and neither is a ground a town lets the
+party stand on. `$30` is the cathedral and tower stone, which is solid; grass is the park, which is carded separately
+(section 20.8). Against the street it is `invisible` on the asphalt (the same entry) and `same_hue_row` on a black joint.
+
+Every other row of that table says the same thing from the other side: **`$00` and `$0F` are the only two entries a street
+can be made of that all four walking bodies clear.** `$00` passes all four, `$0F` passes all four, and every light entry
+fails at least three of them.
+
+### 20.3 Q1: what the ground under the party actually was
+
+The three spawn boxes were light pavement and nothing else that mattered. At the tile level, before and after, counted
+pixel by pixel out of `game/sprites_src/env/ts_exterior.png` (HEAD against this card's working tree; `3F` is the 2C02 byte
+that carries the same `#000000` as the row's `$0F`):
+
+| tile | walkable | before (HEAD) | after |
+| --- | --- | --- | --- |
+| `pavement_a` | yes | `$10` 256 | `$00` 196, black 60 |
+| `pavement_b` | yes | `$10` 256 | `$00` 169, black 87 |
+| `pavement_grate` | yes | `$00` 56, `$10` 176, black 24 | `$00` 157, black 99 |
+| `kerb_w`, `kerb_e` | yes | `$00` 118, `$10` 80, `$30` 42, black 16 | `$00` 192, black 64 |
+| `road_b` | yes | `$00` 230, `$10` 6, black 20 | `$00` 230, black 26 |
+| `road_line` | yes | `$00` 220, `$30` 20, black 16 | `$00` 220, black 36 |
+| `road_line_h` | yes | `$00` 215, `$10` 3, `$30` 20, black 18 | `$00` 215, black 41 |
+| `crosswalk` | yes | `$00` 128, `$30` 128 | `$00` 128, black 128 |
+| `gutter` | yes | `$00` 136, `$10` 64, black 56 | `$00` 144, black 112 |
+| `cobble_a` | yes | `$00` 146, `$10` 110 | `$00` 110, black 146 |
+| `cobble_b` | yes | `$00` 171, `$10` 85 | `$00` 85, black 171 |
+| `cobble_c` | yes | `$00` 139, `$10` 117 | `$00` 117, black 139 |
+| `quay_stone` | yes | `$00` 74, `$10` 182 | `$00` 182, black 74 |
+| `quay_flag` | yes | `$00` 135, `$10` 121 | `$00` 121, black 135 |
+| `road_a` | yes | `$00` 240, black 16 | unchanged |
+| `grass_a`, `grass_b`, `grass_c` | yes | `$09`, `$0A`, `$2A` | unchanged, carded |
+| `blank` | yes | black 256 | unchanged |
+
+Two details the table makes plain and the earlier notes did not. `pavement_a` and `pavement_b` were a **flat field of one
+entry**: their slab rectangles covered all 16x16, so the `M` under them never showed and Winchester's spawn tile had a box
+of 256 pixels of `$10` with no joint in it at all. And the kerb spent **all three** of `bg0_stone`'s entries on an edge the
+party stands on: Westminster's spawn is `kerb_w` at tile 16,20.
+
+### 20.4 The ruling: `$10` and `$30` become architecture, and the street is drawn in `$00` and the backdrop
+
+`bg0_stone` keeps its three entries. Nothing about the palette row moves; what moves is **which of the three a walkable tile
+may spend**. `M` `$00` and the shared backdrop `$0F` are the walkable band. `L` `$10` and `W` `$30` are architecture only and
+stay exactly where they are on roofs, tower and cathedral stone, benches, railings, lamps, the phone box, the sign and the
+awning. The street is now:
+
+- asphalt in `$00` with black wear and a **black** centre line (`$00` against `$0F` reads 5.03:1; the line was `$30` on `$00`
+  and that is a light ground a party walks on);
+- flagstones in `$00` with a one pixel black joint, which also gives `pavement_a` and `pavement_b` their texture back;
+- cobbles and quay flags in `$00` with black between the stones (they used to be `$00` gaps with `$10` stones, i.e. the same
+  two entries with the light one on the majority of the tile);
+- a kerb of grey stone with a black gutter on the road side and a black shadow line, three tones down to two;
+- and the crossing bars in black rather than white.
+
+The generator's header now carries the numbers and the reason, and the `FEATURES` key it writes into
+`game/sprites_src/env/ts_exterior.json` reads **"road with centre line"** instead of "road with white line", because the
+marking is no longer white and a key that says white about black art is a lie in a committed file.
+`tools/check_ts_exterior.py`'s `CARD_FEATURES` moved with it, since that list is where the string is asserted.
+
+### 20.5 Hadrian moves with the street, and the palette row does not
+
+Hadrian's walking sheet is the one sprite that could not simply be left alone. `hadrian_ow_v2` was drawn with `$00` grey as
+the suit and `$30` pale as the accent (`tools/art/make_characters_v2.py`, card t_bd32a72e's redraw), so his measured body
+was `$00`, and section 20.2's last row is the verdict on that body: it clears no street the party can walk on. His frames
+were therefore reporting `invisible` and `same_hue_row` against the very ground he walks on.
+
+The fix is an accent swap inside `sp0`, not a new row: ink stays the outline, seams and sleek hair; **pale `$30` becomes the
+suit** (24 and 40 pixels of the largest fill in the two frames where the arms cover the shirt, so the body is pale in all
+eight frames); **grey `$00` returns as the shaded rim** the `rim` part already draws on the shoulders and sleeves (8 pixels).
+The sheet still spends all three of `sp0`'s entries, `$00 $0F $30`, so `tests/test_scene_palette_set.py`'s "each sheet's own
+colours are exactly its row" still holds, and RULE 0 point 3 still gets an outline, a body and a third tone. The row itself
+is untouched: `sp0` is `$00 $0F $30` before and after, and no scene palette file moves.
+
+I tried the two tone version first (grey dropped entirely) and reverted it: it satisfies the pair rules and fails the art
+bible, which asks a walking sheet for three tones, and it also failed that same row test honestly. A pale suit with a mid
+grey edge is also what the rim was written for; it used to light a black suit's edge and now it shades a white one's.
+
+### 20.6 What landed, measured before and after
+
+**Landed.**
+
+- `tools/art/make_ts_exterior.py`: the fourteen walkable street tiles above, the header note with the measured numbers, and
+  the `FEATURES` key rename.
+- `tools/art/make_characters_v2.py`: hadrian's `palette` entry, with the record of card t_bd32a72e's redraw kept as written
+  and this card's ruling appended beside it.
+- `tools/check_ts_exterior.py`: **check 13**, "every tile a player can walk on draws only entries under 0.25 luminance",
+  with a named exemption list whose only members are `grass_a`, `grass_b` and `grass_c`, each carrying the card that ends
+  the exemption (`t_b01c88ff`). The check reads the sheet pixel by pixel and names the tile and entry that breaks it. This is
+  the durable half of the card: the street cannot drift back, and neither can any future walkable tile.
+- `game/sprites_src/env/ts_exterior.png` and `.json`, `game/sprites_src/chars/hadrian_ow_v2.png`, all regenerated by their
+  own generators.
+- `output/southampton_sample_frame.png`, `output/westminster_sample_frame.png`, `output/winchester_sample_frame.png`: the
+  three grounds, regenerated by `tools/art/make_exterior_maps.py`. The sweep measures these pixels, so a commit that moved
+  the tileset and left the frames behind would report the same 156 failures again on a clean checkout.
+- `output/ts2_world_preview.png`: the tileset preview, written by `tools/art/make_ts_exterior.py`.
+- `data/scene_palettes.json`: three lines, the three judged notes, so the committed payload matches the scene files it is
+  built from.
+- `data/palettes/scene_southampton.json`, `scene_westminster.json`, `scene_winchester.json`: the judged note in each one
+  gains a dated closing sentence. The measurement that was there is kept, not overwritten.
+- `knowledge/DEVLOG.md`: one entry, newest first.
+
+**Measured.**
+
+- The three town rows: southampton 36, westminster 88, winchester 32 failing pairs, **0, 0, 0** after. Per sheet per town:
+  percy body `$30`, konrad `$28`, zander `$31`, hadrian `$30`, every one of them on ground `$00,$0F`, 0 failing pairs and
+  0 cast problems.
+- `python tools/palette_synergy.py --gate`: 9 entries, 0 gated, **6 advisory failing and 549 problems** before; 9 entries,
+  0 gated, **3 advisory and 383 problems** after. The 166 that left are the 156 town pairs plus the character contact
+  sheet's 16 problems falling to 6, which is a by-product no card judges (the sheet is regenerated by two generators, and
+  hadrian's pale suit moves it). Per entry now: 0, 6, 0, 0, 242, 0, 135, 0, 0.
+- `python tools/check_ts_exterior.py`: 61 checks passed, 0 failed, with check 13 PASS over **all 20 walkable tiles** and 3
+  exemptions printed.
+- `python tools/scene_palette_set.py validate`: PASS, 12 scenes, 4 hero palettes.
+- `build --write` run in a **clean worktree of HEAD** (`git worktree add --detach HEAD`, 71f168d) with exactly this card's
+  files applied changes `data/scene_palettes.json` by three lines: the three judged notes, and nothing else. No scene
+  palette number moves, no row moves, no colour is bought. That file is in this commit for those three lines only.
+- **The clean worktree suite**: `<home>/AppData/Local/Python/bin/python.exe -m pytest -q -p no:cacheprovider tests`
+  in that worktree, after `tools/sync_data.py` and `tools/sync_art.py --no-project`, is **1622 passed, 0 failed, 479
+  warnings in 270.74s**.
+- **The shared working tree cannot run the gate at all, and that is not this card.** Three tests fail in it,
+  `test_make_env_ship.py::test_every_colour_on_the_sheet_is_one_of_the_ten_declared`,
+  `test_make_env_ship.py::test_the_committed_outputs_are_what_the_script_writes_today` and
+  `test_scene_palette_set.py::test_build_reproduces_the_file_on_disk`, because `data/palettes/scene_ship.json` is being
+  edited and not committed by the ship lane (its `bg1` and `bg2` rows are swapped). Measured rather than assumed:
+  `make_env_ship.build()` into an isolated root carrying that palette file **at HEAD** reproduces the committed
+  `game/sprites_src/env/ts_ship.png` exactly, sha256 `2d2130393454...604d37bbbe`, so the committed art is right and the
+  fresh build under the uncommitted rows is what differs. The commit therefore went in on a private index with the clean
+  worktree as its gate evidence and a BYPASS entry in `guard/gate-log/2026-10-25.md`, the same arrangement card t_12c9b18f
+  used two commits before this one. The hook's own FAIL entry for the attempt it refused is in that log too, unedited.
+- `output/scene_palettes.json` is **not** in this commit, and that was measured too: regenerating it with hadrian's sheet
+  put back to HEAD's bytes still differs from the committed copy by 58 insertions and 25 deletions, all of them in the
+  ship's reported sprite rows. It was already stale at HEAD for another lane's reason and card **t_8690e219** closes it;
+
+### 20.7 Q3, and the option that was refused
+
+The card offered three ways out: move the ground, move the sprite, or buy a second walking triple for the party. The third
+is closed by the hardware and by two earlier rulings. A scene spends **four** sprite palettes, all four are the party
+(section 16.6), and the towns' four rows are `sp0 $00 $0F $30`, `sp1 $07 $17 $28`, `sp2 $01 $11 $31`, `sp3 $02 $12 $30`
+because each walking sheet's own colours fit exactly one of them (section 16, card t_dec4e92c). There is no fifth row to
+darken, and the same four rows are the ship's walking rows in a solve that is in flight on another lane (section 17,
+t_a6a7a436). Moving any row would reopen a solve that two cards just closed, to buy a colour the party has no room for.
+
+Moving the sprite was the option that looked cheapest and is the one that fails measurement: the party is **deliberately**
+white. Its bodies are pale or gold because these are the same four heroes drawn on a night deck, a black title and a dark
+corridor, and their near white bodies are what makes them read there. If the street stayed light, the honest fix would be to
+repaint four hero sheets once for the asphalt and once for the paving, and that is precisely the extra palette per hero the
+project has already ruled it cannot afford.
+
+So the ground moved, and the ground is the part of a town the project has thousands of tiles of and can restyle without
+touching a single character.
+
+### 20.8 What this does not decide, and the hazards it names
+
+- **The park is still light, and it is still walkable.** `grass_a`, `grass_b` and `grass_c` draw `$2A #58d854` at 0.518,
+  which is a light ground by the same 0.25 line: `$30` on it is `body_ground, white_blob`, `$31` and `$28` are
+  `body_ground`. The three tiles are what `make_exterior_maps.py` paints OSM park cells with, so the party can walk into the
+  park in all three towns. Card **t_b01c88ff** closes it and owns the exemption check 13 carries.
+- **The street is now one tone plus the backdrop.** That is a real art consequence of a white party on a NES: it reads as a
+  dark street with the buildings providing the light, which is how these three towns already read under their black
+  backdrop, but nobody has looked at it. A screenshot card is the honest next step, and this section deliberately does not
+  claim the street looks better, only that it measures clean.
+- **No frame was captured on hardware and no build was run.** GameMaker is not installed on this machine, so these are
+  palette and pixel measurements through the project's own tools, not the PPU. `tools/nes_composite_check.py` is run over
+  the three frames by check 12 and passed; nothing here claims more than that.
+- **The character contact sheet** (`output/sprites_v2_sheet.png`) is a by-product two generators write, and hadrian's two
+  tone attempt showed it moving with any sheet change. Its 6 remaining problems are advisory and no card judges it.
+- **`output/scene_palettes.json` is stale at HEAD** and this card leaves it alone: card **t_8690e219**.
+- **Any other scene's ground.** Only the three towns' street group is reconciled here. The ship's deck, the corridor and the
+  battle strips are other groups with their own cards.
+
+Provenance for section 20: studied this repository's own files only (`tools/palette_synergy.py`,
+`tools/check_ts_exterior.py`, `tools/art/make_ts_exterior.py`, `tools/art/make_characters_v2.py`,
+`tools/art/make_exterior_maps.py`, `tools/art/contrast_check.py`, `tools/scene_palette_set.py`, `knowledge/ART-BIBLE.md`,
+`knowledge/PALETTE-SYNERGY.md`, `data/nes_palette.json`, `data/palettes/scene_southampton.json`,
+`scene_westminster.json`, `scene_winchester.json`, `game/sprites_src/env/ts_exterior.json`, the tileset and the four
+walking sheets, and the commit history of all of them). No decompiled material was read for this card and no expression
+from any game is in it. Copied expression: none.

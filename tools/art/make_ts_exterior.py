@@ -13,6 +13,16 @@ Rules this file obeys; tools/check_ts_exterior.py measures them:
   * the whole sheet carries 14 distinct colours, under the 25 a frame may show;
   * flat colour bands only; the only dithering is the 2 pixel checker where two entries meet.
 
+THE WALKABLE BAND IS DARK, AND THAT IS MEASURED RATHER THAN FELT (card t_454c1876, 2026-10-25). The party's
+four walking sheets carry near white bodies, $30 #fcfcfc (percy, hadrian), $31 #a4e4fc (zander) and $28 #f8b800
+(konrad), and ART-BIBLE RULE 0 point 2 refuses a near white body (luminance 0.60 or more) on a light ground
+(0.25 or more). So the ground under them has to sit below 0.25 luminance, and this street group has exactly two
+entries that do: M $00 #7c7c7c at 0.202 and the shared backdrop $0F at 0.000. L $10 #bcbcbc measures 0.503 and
+W $30 0.973, so both are ARCHITECTURE ONLY: roofs, tower and cathedral stone, benches, railings, lamps and signs.
+No tile a player can walk on draws either of them, and tools/check_ts_exterior.py check 13 holds that tile by
+tile. The three towns' spawn frames measured 36, 88 and 32 pair failures before this and 0 after
+(knowledge/PALETTE-RULINGS-2026-10-25.md section 20).
+
 Background tiles on a NES are opaque: the PPU has no transparency on the background layer, so every street
 object here is drawn on its own ground (pavement grey under the phone box and the lamp, grass green under the
 tree and the hedge). That is also why a prop tile spends one of its 3 colours on its shadow ring.
@@ -41,6 +51,7 @@ SHEET_H = TILE * ROWS
 # NES background palettes: 3 entries each plus the one shared backdrop.
 # Characters used by the tile art. 'k' is the backdrop, so it is free; it is not one of the 3.
 PALETTES = {
+    # M and k are the walkable band and L and W are architecture only: see the note at the top of this file.
     "bg0_stone": {"M": 0, "L": 16, "W": 48},      # $00 #7c7c7c, $10 #bcbcbc, $30 #fcfcfc
     "bg1_brick": {"A": 7, "B": 23, "C": 40},      # $07 #881400, $17 #e45c10, $28 #f8b800
     "bg2_green": {"G": 9, "D": 10, "H": 42},      # $09 #007800, $0A #006800, $2A #58d854
@@ -103,70 +114,85 @@ def road(variant: int):
         for x, y in dots:
             g.rect(x, y, x + 1, y + 1, "k")
         if variant == 1:
-            g.rect(6, 6, 8, 7, "L")
+            # A worn patch in the asphalt. It used to be L, the only light block on a walkable tile.
+            g.rect(6, 6, 8, 7, "k")
     return build
 
 
 def road_line_v(g: Grid) -> None:
-    """Vertical road, broken white centre line: 10 px dash, 6 px gap, continuous across tile edges."""
+    """Vertical road, broken centre line: 10 px dash, 6 px gap, continuous across tile edges.
+
+    The line is the shared black, not W: a centre line in white is a light ground the party walks on, and a
+    white line under a white body is the white blob RULE 0 point 2 refuses. Black on the asphalt's M reads
+    at 5.03:1.
+    """
     road(0)(g)
-    g.rect(7, 0, 8, 9, "W")
+    g.rect(7, 0, 8, 9, "k")
 
 
 def road_line_h(g: Grid) -> None:
-    """Horizontal road, the same dash rotated."""
+    """Horizontal road, the same dash rotated, and the same black line (see road_line_v)."""
     road(1)(g)
-    g.rect(0, 7, 9, 8, "W")
+    g.rect(0, 7, 9, 8, "k")
 
 
 def crosswalk(g: Grid) -> None:
+    """Zebra bars in the shared black: a crossing is walked, so its bars cannot be W either."""
     g.fill("M")
     for y in (0, 1, 4, 5, 8, 9, 12, 13):
-        g.hl(y, 0, TILE - 1, "W")
+        g.hl(y, 0, TILE - 1, "k")
 
 
 def kerb(west: bool):
+    """The raised edge: a black gutter on the road side, the grey kerbstone, a black shadow, then pavement.
+
+    This tile used to spend all three entries (M, L and W) on an edge, and the party spawns ON a kerb in
+    Westminster (tile 16,20 of westminster_sample.json), so it was the single largest light ground in the
+    three towns: 80 pixels of $10 and 42 of $30 inside the sprite's own 16x16 box. A grey stone against a
+    black gutter reads the same edge without a light entry at all.
+    """
+
     def build(g: Grid) -> None:
         g.fill("M")
         if west:
-            g.rect(0, 0, 4, 15, "L")
-            g.rect(5, 0, 7, 15, "W")
-            g.hl(0, 5, 7, "M")
-            g.hl(8, 5, 7, "M")
+            g.rect(0, 0, 2, 15, "k")
             g.vl(8, 0, 15, "k")
         else:
-            g.rect(11, 0, 15, 15, "L")
-            g.rect(8, 0, 10, 15, "W")
-            g.hl(0, 8, 10, "M")
-            g.hl(8, 8, 10, "M")
+            g.rect(13, 0, 15, 15, "k")
             g.vl(7, 0, 15, "k")
     return build
 
 
 def pavement(variant: int):
+    """Flagstones: M slabs with the shared black between them, where the tile used to be one flat L field.
+
+    The old geometry covered all 16x16 with slabs, so both pavement tiles were a single colour with no joint
+    at all, and Winchester's spawn tile (pavement_b at 16,19) had a 16x16 box of 256 pixels of one entry, $10.
+    A one pixel joint of the shared backdrop costs nothing and gives the surface its texture back.
+    """
+    bands = [(0, 6), (8, 14)] if variant == 0 else [(0, 4), (6, 10), (12, 14)]
+
     def build(g: Grid) -> None:
-        g.fill("M")
-        if variant == 0:
-            stones = [(0, 0, 7, 7), (8, 0, 15, 7), (0, 8, 7, 15), (8, 8, 15, 15)]
-        else:
-            stones = [(0, 0, 5, 5), (6, 0, 11, 5), (12, 0, 15, 5),
-                      (0, 6, 3, 11), (4, 6, 9, 11), (10, 6, 15, 11),
-                      (0, 12, 7, 15), (8, 12, 15, 15)]
-        for x0, y0, x1, y1 in stones:
-            g.rect(x0, y0, x1, y1, "L")
+        g.fill("k")
+        for x0, x1 in bands:
+            for y0, y1 in bands:
+                g.rect(x0, y0, x1, y1, "M")
     return build
 
 
 def pavement_grate(g: Grid) -> None:
+    """A drain in the flags: a black opening with grey bars."""
     pavement(0)(g)
-    g.rect(3, 4, 12, 11, "M")
+    g.rect(3, 4, 12, 11, "k")
     for x in range(4, 12, 2):
-        g.vl(x, 5, 10, "k")
+        g.vl(x, 5, 10, "M")
 
 
 def cobbles(pattern: int):
+    """Cobbles: M stones with the shared black in the gaps. It used to be M gaps and L stones."""
+
     def build(g: Grid) -> None:
-        g.fill("M")
+        g.fill("k")
         if pattern == 0:
             stones = [(1, 1, 3, 2), (5, 1, 3, 2), (9, 1, 3, 2), (13, 1, 2, 2),
                       (1, 4, 3, 2), (5, 4, 3, 2), (9, 4, 3, 2), (13, 4, 2, 2),
@@ -184,7 +210,7 @@ def cobbles(pattern: int):
                       (1, 6, 5, 3), (7, 6, 8, 3),
                       (1, 11, 5, 3), (7, 11, 5, 3), (12, 11, 3, 3)]
         for x, y, w, h in stones:
-            g.rect(x, y, x + w - 1, y + h - 1, "L")
+            g.rect(x, y, x + w - 1, y + h - 1, "M")
     return build
 
 
@@ -210,16 +236,18 @@ def grass(variant: int):
 
 
 def quay(variant: int):
+    """Quay stone: M flags with the shared black between them (it used to be M gaps and L flags)."""
+
     def build(g: Grid) -> None:
-        g.fill("M")
+        g.fill("k")
         if variant == 0:
             for y in range(0, 16, 5):
                 for x in range(0, 16, 8):
-                    g.rect(x + 1, y, x + 7, y + 3, "L")
+                    g.rect(x + 1, y, x + 7, y + 3, "M")
         else:
             for y in range(0, 16, 6):
                 for x in range(0, 16, 6):
-                    g.rect(x + 1, y + 1, x + 4, y + 4, "L")
+                    g.rect(x + 1, y + 1, x + 4, y + 4, "M")
     return build
 
 
@@ -609,12 +637,11 @@ def wall_top(g: Grid) -> None:
 
 
 def gutter(g: Grid) -> None:
+    """A drainage channel in the street: a black run with two M cross bars. It used to spend L on the lips."""
     g.fill("M")
-    g.rect(4, 0, 5, 15, "L")
-    g.rect(10, 0, 11, 15, "L")
-    g.rect(6, 0, 9, 15, "k")
+    g.rect(4, 0, 11, 15, "k")
     for y in (3, 11):
-        g.hl(y, 6, 9, "M")
+        g.hl(y, 4, 11, "M")
 
 
 def sign_street(g: Grid) -> None:
@@ -720,7 +747,10 @@ SOLID = {
 }
 ANIMATIONS = {"water": ["water_a", "water_b"]}
 FEATURES = {
-    "road with white line": ["road_a", "road_b", "road_line", "road_line_h"],
+    # The card that asked for this tileset named the marking in white; card t_454c1876 moved the marking to
+    # the shared black because a walkable tile cannot carry a light entry (see the walkable band note above),
+    # so the key names what the tiles now draw. tools/check_ts_exterior.py requires this exact string.
+    "road with centre line": ["road_a", "road_b", "road_line", "road_line_h"],
     "kerb": ["kerb_w", "kerb_e"],
     "pavement": ["pavement_a", "pavement_b", "pavement_grate"],
     "cobbles": ["cobble_a", "cobble_b", "cobble_c"],

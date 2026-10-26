@@ -130,7 +130,7 @@
     ]
   },
   "features": {
-    "road with white line": [
+    "road with centre line": [
       "road_a",
       "road_b",
       "road_line",
@@ -250,13 +250,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        15,
-        16
+        15
       ],
       "hex": [
         "#000000",
-        "#7c7c7c",
-        "#bcbcbc"
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -266,13 +264,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        15,
-        48
+        15
       ],
       "hex": [
         "#000000",
-        "#7c7c7c",
-        "#fcfcfc"
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -282,15 +278,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        15,
-        16,
-        48
+        15
       ],
       "hex": [
         "#000000",
-        "#7c7c7c",
-        "#bcbcbc",
-        "#fcfcfc"
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -300,11 +292,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        48
+        15
       ],
       "hex": [
-        "#7c7c7c",
-        "#fcfcfc"
+        "#000000",
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -314,15 +306,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        15,
-        16,
-        48
+        15
       ],
       "hex": [
         "#000000",
-        "#7c7c7c",
-        "#bcbcbc",
-        "#fcfcfc"
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -332,15 +320,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        15,
-        16,
-        48
+        15
       ],
       "hex": [
         "#000000",
-        "#7c7c7c",
-        "#bcbcbc",
-        "#fcfcfc"
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -349,10 +333,12 @@
       "name": "pavement_a",
       "palette": "bg0_stone",
       "entries": [
-        16
+        0,
+        15
       ],
       "hex": [
-        "#bcbcbc"
+        "#000000",
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -361,10 +347,12 @@
       "name": "pavement_b",
       "palette": "bg0_stone",
       "entries": [
-        16
+        0,
+        15
       ],
       "hex": [
-        "#bcbcbc"
+        "#000000",
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -374,13 +362,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        15,
-        16
+        15
       ],
       "hex": [
         "#000000",
-        "#7c7c7c",
-        "#bcbcbc"
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -390,11 +376,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        16
+        15
       ],
       "hex": [
-        "#7c7c7c",
-        "#bcbcbc"
+        "#000000",
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -404,11 +390,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        16
+        15
       ],
       "hex": [
-        "#7c7c7c",
-        "#bcbcbc"
+        "#000000",
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -418,11 +404,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        16
+        15
       ],
       "hex": [
-        "#7c7c7c",
-        "#bcbcbc"
+        "#000000",
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -464,11 +450,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        16
+        15
       ],
       "hex": [
-        "#7c7c7c",
-        "#bcbcbc"
+        "#000000",
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -542,11 +528,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        16
+        15
       ],
       "hex": [
-        "#7c7c7c",
-        "#bcbcbc"
+        "#000000",
+        "#7c7c7c"
       ],
       "solid": false
     },
@@ -1190,13 +1176,11 @@
       "palette": "bg0_stone",
       "entries": [
         0,
-        15,
-        16
+        15
       ],
       "hex": [
         "#000000",
-        "#7c7c7c",
-        "#bcbcbc"
+        "#7c7c7c"
       ],
       "solid": false
     },

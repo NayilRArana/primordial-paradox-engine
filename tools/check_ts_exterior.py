@@ -27,6 +27,9 @@ Every rule below is measured against the files on disk, not restated from the ge
 12. The project's own validators agree: tools/nes_check.py passes over the sheet as a background with the black
     backdrop, and tools/nes_composite_check.py passes over each 256x240 frame. This tool does not restate the
     NES rules, it runs them.
+13. Every tile a player can walk on draws only entries under 0.25 luminance, because the party's walking bodies
+    are near white and RULE 0 point 2 refuses a near white body on a light ground. Named exemptions carry the
+    card that ends them (today: the park's grass, card t_b01c88ff).
 
 Exit 0 when every check passes, 1 when any fails, with each failure on its own line.
 
@@ -46,12 +49,25 @@ from collections import deque
 
 from PIL import Image
 
+TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.join(TOOLS_DIR, "art") not in sys.path:
+    sys.path.insert(0, os.path.join(TOOLS_DIR, "art"))
+import contrast_check  # noqa: E402  (the WCAG luminance table: reused, not restated)
+
 TILE = 16
 BACKDROP_HEX = "#000000"
 MAP_W, MAP_H = 32, 30
+# RULE 0 point 2's light line, and the same numbers tools/palette_synergy.py uses (LIGHT_GROUND 0.25, a near
+# white body 0.60). A ground at or above this luminance turns the party's $30, $31 and $28 bodies into the white
+# blob RULE 0 refuses, so no tile a player can walk on may draw an entry at or above it.
+LIGHT_GROUND = 0.25
+# Walkable tiles that are still light, each named with the card that ends the exemption. Measured 2026-10-25:
+# the park's grass draws H $2A #58d854 at 0.518, which is the same white blob hazard on a surface card
+# t_454c1876 did not touch (it moved the paving, not the park). Card t_b01c88ff closes it.
+WALKABLE_LIGHT_EXEMPT = {"grass_a": "t_b01c88ff", "grass_b": "t_b01c88ff", "grass_c": "t_b01c88ff"}
 SAMPLE_MAPS = ("westminster_sample", "winchester_sample", "southampton_sample")
 CARD_FEATURES = [
-    "road with white line", "kerb", "pavement", "cobbles", "brick building walls (3 variants)",
+    "road with centre line", "kerb", "pavement", "cobbles", "brick building walls (3 variants)",
     "shop front with awning", "doors", "windows with light", "red phone box", "post box", "hedge", "tree",
     "lamp post", "bollard", "quay stone", "water (2 frames)", "railing", "bench", "traffic light",
     "crosswalk", "Big Ben tower pieces (4 tiles tall)", "cathedral wall pieces",
@@ -186,6 +202,48 @@ def check_sheet(root: str, rep: Report) -> dict:
               "every tile carries a boolean solid flag",
               "some tiles have no boolean solid flag")
     return meta
+
+
+def check_walkable_band(root: str, meta: dict, rep: Report) -> None:
+    """Rule 13: a tile a player can walk on draws only entries under the light line.
+
+    ART-BIBLE RULE 0 point 2 refuses a near-white body (luminance 0.60 or more) on a light ground (0.25 or
+    more), and the party's four walking sheets carry $30 #fcfcfc, $31 #a4e4fc and $28 #f8b800 as their bodies.
+    So the ground under their feet has to sit below 0.25 luminance wherever they can stand, and the only way
+    to know that is to read the tiles they can stand on. Card t_454c1876 moved the street off it: pavement,
+    cobbles, kerbs, roads, the crossing and the quay now draw bg0_stone's M $00 (0.202) and the shared
+    backdrop $0F (0.000), and its L $10 (0.503) and W $30 (0.973) are architecture only.
+    """
+    by_hex, _usable = load_palette(root)
+    sheet = Image.open(os.path.join(root, "game", "sprites_src", "env", "ts_exterior.png")).convert("RGBA")
+    walkable = [tile for tile in meta["tiles"] if not tile.get("solid")]
+    light = []
+    for tile in walkable:
+        idx = tile["index"]
+        cx, cy = (idx % meta["columns"]) * TILE, (idx // meta["columns"]) * TILE
+        box = sheet.crop((cx, cy, cx + TILE, cy + TILE)).convert("RGBA")
+        worst = None
+        for px in box.getdata():
+            if px[3] == 0:
+                continue
+            rgb = tuple(px[:3])
+            entry = by_hex.get("#%02x%02x%02x" % rgb)
+            if entry is None:
+                continue
+            value = contrast_check.luminance(rgb)
+            if value >= LIGHT_GROUND and (worst is None or value > worst[1]):
+                worst = (int(entry["index"]), value)
+        if worst is not None and tile["name"] not in WALKABLE_LIGHT_EXEMPT:
+            light.append("%s draws $%02X at luminance %.3f" % (tile["name"], worst[0], worst[1]))
+    exempt = sorted(name for name in WALKABLE_LIGHT_EXEMPT if name in {tile["name"] for tile in walkable})
+    rep.check(not light,
+              "all %d walkable tile(s) draw only entries under %.2f luminance, %d exemption(s) named"
+              % (len(walkable), LIGHT_GROUND, len(exempt)),
+              "walkable tile(s) drawing a light entry (under %.2f is the rule): %s"
+              % (LIGHT_GROUND, "; ".join(light)))
+    for name in exempt:
+        rep.lines.append("EXEMPT %s: walkable and light (%.2f is the line), carded as %s"
+                         % (name, LIGHT_GROUND, WALKABLE_LIGHT_EXEMPT[name]))
 
 
 def load_map(root: str, mid: str) -> dict:
@@ -324,6 +382,7 @@ def main(argv=None) -> int:
     root = args.root or repo_root()
     rep = Report()
     meta = check_sheet(root, rep)
+    check_walkable_band(root, meta, rep)
     maps = [check_map(root, mid, meta, rep) for mid in SAMPLE_MAPS]
     check_previews(root, rep)
     run_validators(root, rep)
