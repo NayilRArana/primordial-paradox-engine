@@ -113,6 +113,10 @@ Files and numbers it moves:
 
 Not a spec change: no number in `specs/` moves. The 126 in this card's brief was the card's own line and it loses to the
 cue's spec, which is what the musician already did by keeping 168.
+The third question on the card, the trade the hook meter and the AI ear disagree about, is ruled the way the lane already
+reads it: the hook meter wins, and if the fight state reads static the fix is more instrumental variation in the second
+half (the break, the noise timbre, the drum rungs, the counterline), never a second melody. No new melodic material is
+commissioned for this cue, so v6's 30 of 60 paired read is the number to beat by variation alone.
 Landed by: nothing, this ruling changes no file. A promotion of `pp_04_navy_sailors_v3` (hook 100, ear 32) or of a
 two-state fight take is a one line data change plus its note, on a forward card.
 
@@ -145,6 +149,10 @@ Not a spec change: no number in `specs/` moves.
 Handoff: the percy pair goes to `t_cdb3a6be` and needs no ruling from this file; `a3fdc46` already carried both streams
 and the yyp entries that name them. `percy_theme` in `data/audio.json` `PP-06` still names the v1 asset and neither
 newer take, which is D4's rule applied: candidates do not become the boss theme until `PP-06` names them.
+Also settled by the same measurement, because the audit asked it in a comment on `t_f034f9d0`: the theme streams are
+committed, not generated. Today `python tools/check_build_inputs.py` reports 0 `MISSING FROM COMMIT` and 0 `UNCOMMITTED
+SOURCE` rows, and the two commits named above carried each source ogg in the same commit as the yyp entry that includes
+it, which is the pattern the fourth repeat of this defect (a3fdc46) settled. A future theme take lands the same way.
 
 ---
 
