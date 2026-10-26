@@ -8,12 +8,14 @@ that is on disk byte for byte, so a hand edit that drifts from the measured art 
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import subprocess
 import sys
 
 import pytest
+from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
@@ -434,22 +436,31 @@ def test_every_judged_rows_ground_is_a_file_a_clean_checkout_carries():
 
 
 def test_the_committed_cloud_ground_is_the_crop_its_generator_builds():
-    """The crop the cloud row reads is derived, not pasted: this compares it with the tool's own bytes.
+    """The crop the cloud row reads is derived, not pasted: this compares it with the tool's own pixels.
 
     output/cloud_sky_ground.png is 48x16 of title_L1_sky frame 0 at the composer's CLOUD_DY. Before card
     t_19b41ab7 nothing wrote it: it was a one-off crop, in no commit, and a clean checkout of 5f290c5 failed
     the cloud row on the missing file. tools/art/title_cloud_ground.py now owns it, and this row refuses a
     hand edited or hand pasted replacement.
+
+    Pixels, not PNG bytes (card t_78db3b2c, measured 2026-10-25). A Pine run built the same 48x16 crop from
+    the same source rows and wrote a file that differed from byte 36 on, which is the low byte of the first
+    IDAT length: signature and IHDR agreed, only the deflate differed, and each disk's copy was stable
+    (this machine 80a7f373397fe133). A hand pasted crop still changes pixels, which is what this row is
+    for, so it reads the crop and not the encoder.
     """
     import title_cloud_ground  # tools/art is on sys.path above
 
     path = os.path.join(ROOT, "output", "cloud_sky_ground.png")
     assert os.path.isfile(path), "output/cloud_sky_ground.png is missing; build it with tools/art/title_cloud_ground.py"
-    with open(path, "rb") as handle:
-        on_disk = handle.read()
-    assert title_cloud_ground.build(ROOT) == on_disk, (
-        "output/cloud_sky_ground.png is not what tools/art/title_cloud_ground.py builds, so it is either stale "
-        "or hand edited: rerun the tool")
+    built = title_cloud_ground.build(ROOT)
+    with Image.open(io.BytesIO(built)) as fresh, Image.open(path) as on_disk:
+        assert fresh.size == on_disk.size, (
+            "output/cloud_sky_ground.png is %s and tools/art/title_cloud_ground.py builds %s"
+            % (on_disk.size, fresh.size))
+        assert fresh.convert("RGBA").tobytes() == on_disk.convert("RGBA").tobytes(), (
+            "output/cloud_sky_ground.png is not what tools/art/title_cloud_ground.py builds, so it is either "
+            "stale or hand edited: rerun the tool")
 
 
 # -----------------------------------------------------------------------------------------------------------------
