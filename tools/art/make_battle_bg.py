@@ -38,6 +38,12 @@ How the NES rules are kept, by construction rather than by hope
    palette for the same scene rather than overwriting it. Every palette, note and hex still comes from this
    file, so the scene file keeps one owner for its numbers.
 
+7. The `notes` list is this script's as well (card t_8ebcb489). `judged` is a whole key only a card writes, so it
+   can be carried forward by key; `notes` is generator text that hand edits had been appending to, and a carry
+   rule for it would need a marker telling generator lines from hand lines. So there is no carry rule: the writer
+   emits `notes` whole, and a note that has to survive a regeneration is a line in the SCENES table below. Two
+   notes that lived only in a written file now live there, and the two hand edited files reproduce byte for byte.
+
 Outputs
 -------
     game\\sprites_src\\bg\\bg_battle_<name>.png        the strip
@@ -543,6 +549,9 @@ SCENES = [
             "bg0 the sky, bg1 the sea, bg2 the deck and railing, bg3 the rigging, which is why the rigging cells are black",
             "the sea horizon is one flat row of tiles so the far water stays a straight band, as it must at 256 px",
             "bg2 $00 $30 $02 is also the triple the enemy is drawn from: both enemy slots in data/ui_layouts.json (tile 3,8 and 12,11, 32x32) fall on bg2 cells, and the third entry is $30 rather than $10 so navy_sailor.png's own triple $02 $0F $30 fits whole, $0F coming from the shared backdrop (knowledge/PALETTE-RULINGS-2026-10-25.md section 15, card t_34b1d96a)",
+            # Written into data/palettes/scene_battle_deck_night.json by card t_cc0c5bd5 as a hand typed line and moved
+            # here by card t_8ebcb489, because the writer owns the notes list whole (this file's point 7).
+            "sprite palettes are declared for the battle cast the scene draws: solved 2026-10-24 (card t_cc0c5bd5, ruling knowledge/PALETTE-RULINGS-2026-10-24.md) against sailor_battle.png (168x32, seven 24x32 frames) and navy_sailor.png (96x32, three 32x32 frames), the strip's fight cast; the walking cast keeps its own grounds (ship sp1 for sailor and percy, sp1 of the other three battle strips and the three towns for konrad), so those 16x16 sheets are not carried here and are not judged here; since card t_0949bd4e this strip is party_cast, so these four rows are the declaration and not the spend (tools/scene_palette_set.py allowed_sprite_rows returns the four reserved hero triples for this scene, and the rows are spent on nothing but the scene's own 25 colour count), kept because they are the only set ever measured for this strip's own slots: a deck that stops being party_cast re-measures them rather than resurrects them (card t_8ebcb489)",
         ],
         "background": [
             ("bg0", [0x02, 0x01, 0x30]),
@@ -551,10 +560,13 @@ SCENES = [
             ("bg3", [0x0F, 0x02, 0x00]),
         ],
         "sprites": [
-            ("sp0", [0x00, 0x10, 0x0F]),
-            ("sp1", [0x07, 0x17, 0x28]),
-            ("sp2", [0x02, 0x12, 0x30]),
-            ("sp3", [0x01, 0x11, 0x31]),
+            # The four rows card t_cc0c5bd5 solved and wrote into data/palettes/scene_battle_deck_night.json, which were
+            # the corridor's boilerplate rows here until card t_8ebcb489. A file and its generator that disagree is a
+            # regeneration reverting a measured decision, so the table follows the file.
+            ("sp0", [0x00, 0x0F, 0x10]),
+            ("sp1", [0x02, 0x0F, 0x30]),
+            ("sp2", [0x07, 0x17, 0x36]),
+            ("sp3", [0x08, 0x27, 0x28]),
         ],
         "layout": [
             "sssssssssssssmss",
@@ -584,6 +596,10 @@ SCENES = [
             "dusk sky in flat bands with a 2 px checker at each band edge, the town roofline, a crane silhouette, water, granite quay with bollards",
             "bg0 the sky, bg1 the quay stone, bg2 the water, bg3 the silhouettes, which put the sky colour in role 2 so the crane reads as a hole in the sky",
             "the crane is a 64x32 block, so its four cells are quadrants of one shape",
+            # The ruling that nothing draws this strip. It was a hand typed line in data/palettes/scene_battle_quay_dusk.json
+            # until card t_8ebcb489, which is one regeneration away from gone: the writer owns the notes list whole (this
+            # file's point 7), so a note that has to survive is a line here. Text unchanged from the written file.
+            "NO cast and NO judged row, by gamedev ruling on card t_4f18c0ac (knowledge/PALETTE-RULINGS-2026-10-24.md): nothing in play draws this strip. No encounter row names it (no bg_battle or background key exists in data/encounters/all.json), pp_battle_bg_for_room in game/scripts/pp_battle_director/pp_battle_director.gml maps only lower_deck, ship_cabin and deck_day, so a fight on southampton_town_quay (room_palette quay_night) falls back to the corridor strip, and the slice's two fights are both on the ship. The pier cast lands with the card that authorises a pier fight, and it is the Navy pair: navy_sailor plus petty_officer, which both need $02 $0F $30, so that card moves sp2's $12 to $0F (the same move the deck made on 2026-10-24) and adds the judged row in the same edit",
         ],
         "background": [
             ("bg0", [0x26, 0x16, 0x28]),

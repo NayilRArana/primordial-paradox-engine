@@ -1165,3 +1165,135 @@ Provenance for section 17: studied this repository's own files only (`data/palet
 `game/scripts/pp_overworld/pp_overworld.gml`, `game/scripts/pp_data/pp_data.gml`, the four walking sheets, the
 sailor's two sheets and `game/sprites_src/env/ts_ship.png`). No decompiled material, and no expression from
 another game, is in this card. Copied expression: none.
+
+## 18. Q1 and Q2 on the battle strip's scene file: the deck's four declared rows are the 2026-10-24 solve, and the notes list is the generator's (card t_8ebcb489)
+
+**Answer, both parts.** Q1: the deck's four own sprite rows ARE dead data (a `party_cast` strip is read against
+the four reserved hero triples and nothing else), and they are still the record, so `SCENES` in
+`tools/art/make_battle_bg.py` now declares the four rows the file carries. Q2: there is no `notes` carry rule. The
+generator owns the notes list whole, the two hand written notes are lines in `SCENES` now, and nothing else about
+the file is hand editable. After the change, regenerating all four strips moves **0 lines** in all four palette
+files, where HEAD 0b5dd01 moved 64 in the deck's and 5 in the quay's.
+
+### 18.1 The measurement, refreshed
+
+The card's numbers were taken at HEAD 29128aa (deck 46 changed lines, quay 3). Between that measurement and this
+card, card `t_34b1d96a` added a note to the deck's `SCENES` entry and typed the generator's stock sprite note into
+the file by hand, so the same scratch root comparison at HEAD 0b5dd01 reads:
+
+| file | changed lines at HEAD | what they were |
+| --- | --- | --- |
+| `scene_battle_corridor.json` | 0 | 2 judged rows carried |
+| `scene_battle_wardroom.json` | 0 | nothing carried |
+| `scene_battle_deck_night.json` | 64 | 38 of them the four sprite rows, and three notes lines: the missing bg2 note, the 2026-10-24 solve note, and the stock note the file carried twice |
+| `scene_battle_quay_dusk.json` | 5 | the ruling note the generator does not emit |
+
+So the deck had three defects in one file, not two: rows the generator did not emit, a note the generator emits
+that the file did not carry (the bg2 enemy note from `t_34b1d96a`, which reached the background numbers and not the
+note), and a hand note. A regeneration is a two way disagreement, and both directions are closed here.
+
+### 18.2 Q1: the rows are dead, and dead data still has an owner
+
+Measured, not assumed, on this tree:
+
+- `tools/scene_palette_set.py` `allowed_sprite_rows()` returns the four `HERO_PALETTES` triples for a scene in
+  `PARTY_CAST_SCENES`, and `scene()` and `allowed_sprite_sets()` both go through it, so every reader that draws or
+  measures a `party_cast` strip spends the hero four and never the file's own rows.
+- `scene_entries()` takes the backdrop, the four background rows and the hero four for such a scene.
+- The rows are not spent on nothing: `validate()` unions background and sprite rows for the scene's 25 colour
+  ceiling, so they are still declaration level data and a bad entry there fails the build.
+- No GML reads `data/palettes/scene_battle_*.json` (the only GML mentions are two comments in `pp_config.gml` and
+  `pp_title.gml`), so no runtime spends them either.
+
+Dead or not, the two candidate sets were not equal in kind. The generator's four (`sp0` `$00 $10 $0F`, `sp1`
+`$07 $17 $28`, `sp2` `$02 $12 $30`, `sp3` `$01 $11 $31`) were the corridor's boilerplate: `sp0`, `sp1` and `sp2`
+byte equal to the corridor's own (`battle_corridor/sprites/sp0..sp2`), `sp3` zander's walking triple. The file's
+four (`$00 $0F $10`, `$02 $0F $30`, `$07 $17 $36`, `$08 $27 $28`) are carried by exactly one row each in the twelve
+sets, and they are the four entries card `t_cc0c5bd5` measured on 2026-10-24 to carry `sailor_battle.png`'s inks and
+`navy_sailor.png`'s own triple.
+
+**Ruling: the generator follows the file.** A regeneration must never replace a measured set with an unmeasured
+default; that is the same defect class card `t_5802ecdb` closed for `judged`, and the direction of the fix is fixed
+by which side holds a measurement. Adopting the generator's set would have deleted four triples that exist nowhere
+else in the twelve sets and written the corridor's rows into a strip that has its own.
+
+Two limits, written rather than implied:
+
+- The rows name a cast ruling 12 retired from the sprite half, so nothing draws them today. They are kept because
+  they are the only set ever measured for this strip's own four slots and because they cost nothing (14 colours
+  across the deck set, ceiling 25). The strip's own note says exactly that, in the generator, so the next reader
+  does not have to re-derive it.
+- A deck that stops being `party_cast` (a pier fight is the case the quay's note already anticipates) **re-measures**
+  these rows. It does not resurrect them, and it does not copy another strip's.
+
+### 18.3 Q2: notes are the generator's whole list, so a note that must survive is a line in `SCENES`
+
+`judged` is carried by key because it is a whole key that only a card writes, it sits in a position the file
+chooses, and carrying it is one dictionary insertion. `notes` is different in every one of those respects: it is a
+single list mixing four stock lines, the scene's own lines and a trailing stock line, so a carry rule would need a
+marker that tells generator lines from hand lines, and every future hand edit would have to keep the marker honest.
+That convention is more machinery than the two notes are worth.
+
+So the notes list stays derived, whole, and the two notes that had to survive became generator content verbatim:
+
+- the deck's `solved 2026-10-24 (card t_cc0c5bd5 ...)` note, with one clause added, because the cast it names has
+  since been retired and a reader deserves the current fact: `since card t_0949bd4e this strip is party_cast, so
+  these four rows are the declaration and not the spend ... a deck that stops being party_cast re-measures them
+  rather than resurrects them (card t_8ebcb489)`;
+- the quay's `NO cast and NO judged row, by gamedev ruling on card t_4f18c0ac ...` note, unchanged word for word.
+
+The quay note moves up one line, because the writer emits the stock sprite note last and always has. That is a
+position inside a JSON array, no palette entry moved, and it buys the property this card exists for: the committed
+file is what the generator writes, byte for byte, so the next strip regeneration cannot lose the ruling again.
+
+### 18.4 What landed, and what moved
+
+- `tools/art/make_battle_bg.py`: the deck's `sprites` table is the four rows the file carries, with a comment saying
+  so; the deck's scene notes gained the 2026-10-24 solve note (plus the `party_cast` clause); the quay's scene notes
+  gained the ruling note; the module docstring's point 7 states the notes policy and the reason `judged` is
+  different.
+- `data/palettes/scene_battle_deck_night.json`: 2 lines (the bg2 note inserted, the solve note amended). The four
+  sprite rows did not move because they were already right.
+- `data/palettes/scene_battle_quay_dusk.json`: 2 lines (the ruling note reordered ahead of the stock sprite note,
+  and the comma that goes with it).
+- `game/sprites_src/bg/bg_battle_deck_night.json`: the deck sidecar's `sprite_palettes` now carry the file's four
+  rows. They had carried the generator's boilerplate since 2026-10-24, so the sidecar was consistent with the code
+  and inconsistent with the palette file, which is the same two owners defect in a third file.
+- `data/scene_palettes.json` does not move and is not in this commit: the derived entry reads the background and
+  sprite NUMBERS, and neither changed (measured by running `scene_from_source()` over HEAD's file and this one for
+  all four battle scenes: equal).
+- No strip pixel moved: the four PNGs hash to the same sha256 before and after
+  (`0d103668...` corridor, `0512e531...` deck, `0ea86642...` quay, `2b6b4208...` wardroom).
+
+### 18.5 What this does not decide
+
+- **The deck's and the quay's party block floors.** Card `t_12c9b18f` owns both, and its acceptance now holds: a
+  regeneration moves 0 palette lines before it starts.
+- **Whether a `party_cast` strip should carry the hero four in its own `sprites` list.** That is the honest end
+  state (the file would then say what the strip spends), and it is a four file change with its own measurements, so
+  it is not smuggled in here. Named.
+- **No carry rule for any other key.** `notes` is not carried, `judged` is, and a future hand written block in one of
+  these files is expected to become a `SCENES` line or a `judged` row rather than an edit to the output.
+
+**Checks run on this tree, 2026-10-25, and what they returned.**
+
+- The card's own evidence command, re-run after the change: `python tools/art/make_battle_bg.py --root <scratch>`
+  over a copy of `data/nes_palette.json`, `data/ui_layouts.json` and `data/palettes/`, then
+  `diff --strip-trailing-cr` each regenerated palette file against the committed one: **0 lines, all four**. The
+  four regenerated PNGs are byte identical to the committed ones (`cmp` clean).
+- `python -m pytest tests/test_make_battle_bg.py -q`: 17 passed (13 before, plus four new pins: the deck's declared
+  rows are the file's, every committed palette file reproduces byte for byte, a hand added note does not survive,
+  and the two ruling notes are generator content).
+- `python -m pytest tests/test_make_battle_bg.py tests/test_scene_palette_set.py tests/test_scene_palettes.py
+  tests/test_palette_synergy.py tests/test_battle_draw.py tests/test_nes_audit_all.py -q`: 113 passed.
+- `python tools/scene_palette_set.py validate`: PASS, 12 scene(s), 4 hero palette(s).
+- `python tools/check_scene_palettes.py`: PASS.
+- `python tools/palette_synergy.py --gate`: 9 entry(ies), 0 gated failure(s), 6 advisory failure(s), exit 0, the
+  same shape as HEAD because no palette number moved.
+
+Provenance for section 18: studied this repository's own files only (`tools/art/make_battle_bg.py`,
+`tools/scene_palette_set.py`, `tools/palette_synergy.py`, `tools/check_scene_palettes.py`,
+`data/palettes/scene_battle_*.json`, `data/scene_palettes.json`, `data/nes_palette.json`, `data/ui_layouts.json`,
+the four strips and their sidecars, `game/scripts/pp_battle_director/pp_battle_director.gml`, and the 2026-10-24 and
+2026-10-25 ruling files plus the commits `157f11a`, `e53a160`, `0b5dd01`). No decompiled material, and no
+expression from another game, is in this card. Copied expression: none.

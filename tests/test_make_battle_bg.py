@@ -18,7 +18,10 @@ corridor and wardroom carry. tools/art/make_battle_bg.py draws it. These tests h
   5. the scene palette writer carries an existing file's `judged` rows through unchanged and in the place
      that file keeps them, writes no such key on a fresh tree, and refuses a file that is not a scene palette
      for the scene it is drawing, because one regeneration of a strip used to delete a cast ruling and
-     nothing failed (card t_5802ecdb).
+     nothing failed (card t_5802ecdb);
+  6. the `notes` list is the generator's, not a field hand edits append to: the deck's four declared sprite
+     rows ARE the rows its file carries, and every one of the four committed palette files reproduces byte
+     for byte from the generator plus its own `judged` rows (card t_8ebcb489).
 
 No em dash or en dash anywhere in this file: the project refuses them at the door (tests/test_project.py).
 
@@ -159,15 +162,30 @@ def test_the_tile_count_describes_what_ships(built):
 
 
 def test_the_committed_strips_are_what_the_generator_writes(built, tmp_path):
+    """The strip in git is the picture the generator draws, pixel for pixel.
+
+    Pixels, not PNG bytes (card t_78db3b2c, measured 2026-10-25). A Pine run rebuilt bg_battle_corridor.png
+    from these same pixels and held a file byte identical to this machine's copy (sha256 0d1036688fc56c77),
+    while the copy an offloaded run wrote out of the generator differed from byte 36 on: byte 36 is the low
+    byte of the first IDAT length, so the signature and the whole IHDR (width, height, depth, colour type,
+    interlace) agreed and only the deflate differed. That made the old byte comparison a report on the zlib
+    build, not on the art, and it could not be green off Windows. What this pin has to catch is stale art,
+    and stale art is a pixel difference; test_title_art_v2.py reads its committed sheet the same way.
+    """
     entries, _, table = built
     for name in ("corridor", "wardroom", "deck_night", "quay_dusk"):
         path = tmp_path / ("bg_battle_%s.png" % name)
         mb.write_png(table[name][0]["pixels"], str(path))
         committed = os.path.join(BG_DIR, "bg_battle_%s.png" % name)
-        assert path.read_bytes() == open(committed, "rb").read(), (
-            "run tools/art/make_battle_bg.py: %s is not what the generator writes" % committed
-        )
-        assert Image.open(committed).size == (mb.W, mb.H)
+        assert os.path.isfile(committed), "run tools/art/make_battle_bg.py: %s is missing" % committed
+        with Image.open(path) as fresh, Image.open(committed) as shipped:
+            assert shipped.size == (mb.W, mb.H), committed
+            assert fresh.size == shipped.size, (
+                "%s: the generator writes %s and the committed file is %s" % (name, fresh.size, shipped.size)
+            )
+            assert fresh.convert("RGBA").tobytes() == shipped.convert("RGBA").tobytes(), (
+                "run tools/art/make_battle_bg.py: %s is not what the generator writes, pixel for pixel" % committed
+            )
 
 
 def test_the_sidecar_names_the_floor_where_it_applies(built):
@@ -264,4 +282,88 @@ def test_the_writer_refuses_a_file_that_is_not_this_scene(tmp_path, built, bait)
     assert "scene_battle_corridor.json" in message, "the refusal names the file it will not overwrite"
     assert "not a scene palette for battle_corridor" in message, "and the scene it wanted"
     assert path.read_bytes() == before, "a refused write leaves the file exactly as it was"
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# The notes list and the declared sprite rows (card t_8ebcb489). The writer owns both, so the two defects this card
+# closed are pinned the same way: what the generator declares has to be what the committed file carries, and a note
+# added to the output has to be one regeneration away from gone rather than a title to be carried.
+
+PALETTE_DIR = os.path.join(ROOT, "data", "palettes")
+
+
+def committed_palette(name: str) -> str:
+    return os.path.join(PALETTE_DIR, "scene_battle_%s.json" % name)
+
+
+def test_the_deck_declares_the_four_rows_its_own_file_carries():
+    """The rows are read from the file, not from the corridor.
+
+    Until card t_8ebcb489 SCENES carried the corridor's boilerplate rows for the deck while the deck's own file
+    carried the four rows card t_cc0c5bd5 solved, so a regeneration reverted a measured decision: 46 changed lines,
+    0 of them a judged row. A file and its generator that disagree is the defect, and the measured set is the record.
+    """
+    declared = scene("deck_night")["sprites"]
+    assert declared == [
+        ("sp0", [0x00, 0x0F, 0x10]),
+        ("sp1", [0x02, 0x0F, 0x30]),
+        ("sp2", [0x07, 0x17, 0x36]),
+        ("sp3", [0x08, 0x27, 0x28]),
+    ], "the deck's four rows are the 2026-10-24 solve (card t_cc0c5bd5), not a copy of another strip's"
+    assert declared != scene("corridor")["sprites"], (
+        "the corridor's rows used to live here; if they are back, a regeneration is reverting the deck again"
+    )
+    with open(committed_palette("deck_night"), "r", encoding="utf-8-sig") as handle:
+        committed = json.load(handle)
+    assert [list(row["colours"]) for row in committed["sprites"]] == [colours for _, colours in declared]
+
+
+def test_a_regeneration_reproduces_every_committed_palette_file(tmp_path, built):
+    """The end to end property card t_12c9b18f's acceptance needs: regenerate, diff, 0 lines.
+
+    Nothing is excluded from the comparison. The rows, the notes and the carried `judged` rows all have to come back
+    byte for byte, which is what stops the next strip regeneration from reverting a hand decision.
+    """
+    entries, _, _ = built
+    for name in ("corridor", "wardroom", "deck_night", "quay_dusk"):
+        folder = tmp_path / name / "data" / "palettes"
+        folder.mkdir(parents=True)
+        (folder / ("scene_battle_%s.json" % name)).write_bytes(open(committed_palette(name), "rb").read())
+
+        written, _kept = mb.write_scene_palette(str(tmp_path / name), scene(name), entries)
+
+        assert os.path.abspath(written) == os.path.abspath(str(folder / ("scene_battle_%s.json" % name)))
+        assert open(written, "rb").read() == open(committed_palette(name), "rb").read(), (
+            "%s does not reproduce from the generator: run tools/art/make_battle_bg.py" % name
+        )
+
+
+def test_a_hand_added_note_does_not_survive_a_regeneration(tmp_path, built):
+    """`judged` is carried because it is a whole key only a card writes. `notes` is not: it is the generator's text.
+
+    So a note that has to survive belongs in SCENES, and a note typed into the written file is one regeneration away
+    from gone. This is the decision, not an accident, so it is pinned.
+    """
+    entries, _, _ = built
+    quay = scene("quay_dusk")
+    payload = mb.scene_palette_json(quay, entries)
+    payload["notes"] = list(payload["notes"]) + ["a hand typed note, standing in for a ruling written into the file"]
+    path = write_scene_file(tmp_path, "quay_dusk", payload)
+    assert "a hand typed note" in path.read_text(encoding="utf-8")
+
+    mb.write_scene_palette(str(tmp_path), quay, entries)
+
+    after = json.loads(path.read_bytes().decode("utf-8"))
+    assert "a hand typed note" not in json.dumps(after), "notes are the generator's whole list"
+    assert after["notes"] == mb.scene_palette_json(quay, entries)["notes"]
+
+
+def test_the_two_hand_notes_that_must_survive_are_lines_in_the_generator():
+    """The record is not lost by owning the notes list: the two ruling notes ARE generator content now."""
+    deck_notes = " ".join(scene("deck_night")["notes"])
+    quay_notes = " ".join(scene("quay_dusk")["notes"])
+    assert "t_cc0c5bd5" in deck_notes, "the deck's 2026-10-24 solve note has to survive a regeneration"
+    assert "party_cast" in deck_notes, "and it has to say the rows are the declaration, not the spend"
+    assert "t_4f18c0ac" in quay_notes, "the quay's no cast and no judged row ruling has to survive a regeneration"
+
 

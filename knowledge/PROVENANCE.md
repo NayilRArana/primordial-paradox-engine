@@ -1643,3 +1643,27 @@ sidecar is accepted as a single frame background record instead of being forced 
 and the two placeholder rectangles the screen drew before there was art were removed rather than left under the real
 draws, because a flat block beside an enemy sprite reads as a second enemy.
 Copied expression: none
+
+## BATTLE-BG-OWNER, 2026-10-25: a generated file and its generator are one owner, and dead data still has to be declared somewhere (card t_8ebcb489)
+Studied: this repository's own files, read only: `tools/art/make_battle_bg.py` (`SCENES`, `scene_palette_json`,
+`read_existing_scene_palette`, `carry_judged`, `write_scene_palette`), `tools/scene_palette_set.py`
+(`allowed_sprite_rows`, `allowed_sprite_sets`, `scene`, `scene_payload`, `scene_entries`, `scene_from_source`,
+`validate`, `PARTY_CAST_SCENES`), `tools/palette_synergy.py` (the gate), `data/palettes/scene_battle_*.json` (all
+four), `data/scene_palettes.json`, `data/nes_palette.json`, `data/ui_layouts.json`, the four strips and their
+sidecars, the commits `157f11a`, `e53a160` and `0b5dd01`, and `knowledge/PALETTE-RULINGS-2026-10-24.md` plus
+sections 11, 12, 15 and 17 of `knowledge/PALETTE-RULINGS-2026-10-25.md`. No decompiled material was read for this
+card and no expression from any game is in it.
+Mechanics learned: two. One, a file written whole by a generator has exactly one owner, and the disagreement can run
+in either direction: the deck's palette file carried four rows the generator did not emit AND was missing a note the
+generator did emit, so "the hand copy is stale" and "the generator is stale" were both true in one file, and only
+regenerating and diffing tells you which lines belong to which direction. Two, data nobody spends is not data nobody
+reads: a `party_cast` strip's own four sprite rows are substituted away for drawing and for cast measurement, and
+they are still read by the scene validator (the 25 colour ceiling) and emitted into the derived set, so they are
+declaration level and cannot be left to drift even though no frame uploads them.
+Our implementation differs by: the generator's table follows the measurement rather than the other way around, and
+the reason is written as a test (the deck's declared rows must not equal the corridor's, because that is what the
+defect looked like); the notes policy is stated in the module docstring as a numbered rule with the reason `judged`
+is carried and `notes` is not, so the next hand written block in one of these files has a documented home; and the
+end to end property (regenerate every committed palette file, byte for byte) is a pin rather than a manual check, so
+the next strip card cannot pass its acceptance while the generator and the files disagree.
+Copied expression: none

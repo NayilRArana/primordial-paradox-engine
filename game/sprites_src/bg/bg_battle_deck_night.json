@@ -87,52 +87,52 @@
       "name": "sp0",
       "colours": [
         0,
-        16,
-        15
+        15,
+        16
       ],
       "hex": [
         "#7c7c7c",
-        "#bcbcbc",
-        "#000000"
+        "#000000",
+        "#bcbcbc"
       ]
     },
     {
       "name": "sp1",
       "colours": [
-        7,
-        23,
-        40
+        2,
+        15,
+        48
       ],
       "hex": [
-        "#881400",
-        "#e45c10",
-        "#f8b800"
+        "#0000bc",
+        "#000000",
+        "#fcfcfc"
       ]
     },
     {
       "name": "sp2",
       "colours": [
-        2,
-        18,
-        48
+        7,
+        23,
+        54
       ],
       "hex": [
-        "#0000bc",
-        "#0058f8",
-        "#fcfcfc"
+        "#881400",
+        "#e45c10",
+        "#f0d0b0"
       ]
     },
     {
       "name": "sp3",
       "colours": [
-        1,
-        17,
-        49
+        8,
+        39,
+        40
       ],
       "hex": [
-        "#0000fc",
-        "#0078f8",
-        "#a4e4fc"
+        "#503000",
+        "#fca044",
+        "#f8b800"
       ]
     }
   ],
@@ -291,6 +291,7 @@
     "night sky with stars and a moon, a sea horizon, rigging and a railing, steel deck plates",
     "bg0 the sky, bg1 the sea, bg2 the deck and railing, bg3 the rigging, which is why the rigging cells are black",
     "the sea horizon is one flat row of tiles so the far water stays a straight band, as it must at 256 px",
-    "bg2 $00 $30 $02 is also the triple the enemy is drawn from: both enemy slots in data/ui_layouts.json (tile 3,8 and 12,11, 32x32) fall on bg2 cells, and the third entry is $30 rather than $10 so navy_sailor.png's own triple $02 $0F $30 fits whole, $0F coming from the shared backdrop (knowledge/PALETTE-RULINGS-2026-10-25.md section 15, card t_34b1d96a)"
+    "bg2 $00 $30 $02 is also the triple the enemy is drawn from: both enemy slots in data/ui_layouts.json (tile 3,8 and 12,11, 32x32) fall on bg2 cells, and the third entry is $30 rather than $10 so navy_sailor.png's own triple $02 $0F $30 fits whole, $0F coming from the shared backdrop (knowledge/PALETTE-RULINGS-2026-10-25.md section 15, card t_34b1d96a)",
+    "sprite palettes are declared for the battle cast the scene draws: solved 2026-10-24 (card t_cc0c5bd5, ruling knowledge/PALETTE-RULINGS-2026-10-24.md) against sailor_battle.png (168x32, seven 24x32 frames) and navy_sailor.png (96x32, three 32x32 frames), the strip's fight cast; the walking cast keeps its own grounds (ship sp1 for sailor and percy, sp1 of the other three battle strips and the three towns for konrad), so those 16x16 sheets are not carried here and are not judged here; since card t_0949bd4e this strip is party_cast, so these four rows are the declaration and not the spend (tools/scene_palette_set.py allowed_sprite_rows returns the four reserved hero triples for this scene, and the rows are spent on nothing but the scene's own 25 colour count), kept because they are the only set ever measured for this strip's own slots: a deck that stops being party_cast re-measures them rather than resurrects them (card t_8ebcb489)"
   ]
 }
