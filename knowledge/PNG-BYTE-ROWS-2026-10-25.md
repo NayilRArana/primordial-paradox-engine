@@ -66,11 +66,31 @@ One changed pixel fails each row, and both files came back byte identical to the
   46 passed in 4.39s. That run exists because the live tree of that moment carried another lane's uncommitted
   `data/palettes/scene_ship.json`, which leaves `test_build_reproduces_the_file_on_disk` red for a reason that is
   not this card; the worktree proves the two rows at a tree nobody else was editing.
-- Pine, `python pine_offload.py --files tests/test_make_battle_bg.py,tests/test_scene_palette_set.py --shards 1
-  --name pngbytes` from `arananet\pine`: `results_txt` reads `45 passed, 1 skipped in 3.70s` and `summary` reads
-  `SUMMARY passed=45 failed=0`. Both rows PASSED there rather than skipping. The one skip is
+- Pine, live tree, `python pine_offload.py --files tests/test_make_battle_bg.py,tests/test_scene_palette_set.py
+  --shards 1 --name pngbytes` from `arananet\pine`: `results_txt` reads `45 passed, 1 skipped in 3.70s` and
+  `summary` reads `SUMMARY passed=45 failed=0`. Both rows PASSED there rather than skipping. The one skip is
   `test_every_judged_rows_ground_is_a_file_a_clean_checkout_carries`, which asks git and the upload is a zip.
   Evidence: `arananet\pine\data\results\offload-pngbytes-0.json`, `status: completed`, `upload_attempts: 1`.
+- Pine, live tree again at 19:12 after this card's commit, `--name pngbytes2`: `44 passed, 1 failed, 1 skipped` and
+  `SUMMARY passed=44 failed=1`, the one failure being
+  `tests/test_scene_palette_set.py::test_build_reproduces_the_file_on_disk` at `At index 6 diff: {'id': 'ship'...}`.
+  That is the other lane's uncommitted ship palette edit travelling in the zip, not a card row. Evidence:
+  `arananet\pine\data\results\offload-pngbytes2-0.json`.
+- Pine, the committed tree, `--name pngbytes-commit3`: `.........................................s.... [100%]
+  45 passed, 1 skipped in 3.48s` and `SUMMARY passed=45 failed=0`. This is the card's acceptance measurement. It
+  offloads a throwaway `git worktree` checked out at `d70ff45` (this card's commit) through a copy of
+  `pine_offload.py` placed two directories below `projects`, so `REPO` resolves to that clean checkout instead of
+  the shared working tree; the zip was 11,349,650 bytes and the upload needed two attempts after a
+  `ConnectionError` on the first, which the tool retried. Both card rows passed there, and the one skip is the git
+  row above. Result file:
+  `wt-t_78db3b2c\projects\gamedev\pine\data\results\offload-pngbytes-commit3-0.json` under the gamedev scratch
+  directory, copied to `knowledge\PNG-BYTE-ROWS-2026-10-25-pine.json` in the follow-up commit that carries this
+  section.
+
+The two Pine numbers differ only in the tree they measure: the live tree at 19:12 held another lane's uncommitted
+`data/palettes/scene_ship.json`, and the committed tree at `d70ff45` does not. Neither number was taken with a card
+row failing.
+
 
 ## One thing the repo did to this card, recorded because it is the hazard the lane wrapper exists for
 
