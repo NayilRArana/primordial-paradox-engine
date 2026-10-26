@@ -28,8 +28,10 @@ Every rule below is measured against the files on disk, not restated from the ge
     backdrop, and tools/nes_composite_check.py passes over each 256x240 frame. This tool does not restate the
     NES rules, it runs them.
 13. Every tile a player can walk on draws only entries under 0.25 luminance, because the party's walking bodies
-    are near white and RULE 0 point 2 refuses a near white body on a light ground. Named exemptions carry the
-    card that ends them (today: the park's grass, card t_b01c88ff).
+    are near white and RULE 0 point 2 refuses a near white body on a light ground. The exemption list is empty:
+    the park was its last member and the grass was darkened on card t_b01c88ff (knowledge/PALETTE-RULINGS-2026-10-25.md
+    section 22). The list stays in the tool so a future exemption is a decision that shows up in a diff with a
+    card name on it, not a quiet pass.
 
 Exit 0 when every check passes, 1 when any fails, with each failure on its own line.
 
@@ -61,10 +63,10 @@ MAP_W, MAP_H = 32, 30
 # white body 0.60). A ground at or above this luminance turns the party's $30, $31 and $28 bodies into the white
 # blob RULE 0 refuses, so no tile a player can walk on may draw an entry at or above it.
 LIGHT_GROUND = 0.25
-# Walkable tiles that are still light, each named with the card that ends the exemption. Measured 2026-10-25:
-# the park's grass draws H $2A #58d854 at 0.518, which is the same white blob hazard on a surface card
-# t_454c1876 did not touch (it moved the paving, not the park). Card t_b01c88ff closes it.
-WALKABLE_LIGHT_EXEMPT = {"grass_a": "t_b01c88ff", "grass_b": "t_b01c88ff", "grass_c": "t_b01c88ff"}
+# Walkable tiles still light, each named with the card that ends it. EMPTY since card t_b01c88ff: the park's
+# grass drew H $2A #58d854 at 0.518, the white blob hazard card t_454c1876 did not touch. The three walkable
+# grass tiles were darkened instead, not this check weakened; the list stays so an exemption shows in a diff.
+WALKABLE_LIGHT_EXEMPT: dict[str, str] = {}
 SAMPLE_MAPS = ("westminster_sample", "winchester_sample", "southampton_sample")
 CARD_FEATURES = [
     "road with centre line", "kerb", "pavement", "cobbles", "brick building walls (3 variants)",

@@ -1162,6 +1162,21 @@
       ]
     },
     {
+      "scene": "westminster",
+      "background": "output/westminster_sample_frame.png",
+      "sprites": [
+        "game/sprites_src/chars/percy_ow_v2.png",
+        "game/sprites_src/chars/konrad_ow_v2.png",
+        "game/sprites_src/chars/zander_ow_v2.png",
+        "game/sprites_src/chars/hadrian_ow_v2.png"
+      ],
+      "note": "card t_b01c88ff ruling 2026-10-25 (knowledge/PALETTE-RULINGS-2026-10-25.md section 22): the PARK, which is the second ground the party is measured on in this town because until this card the walkable grass was the only exemption tools/check_ts_exterior.py check 13 carried. grass_a, grass_b and grass_c filled with H $2A #58d854 at 0.518, a light ground, and the party walks in $30 (percy, hadrian), $31 (zander) and $28 (konrad), so on this frame at --at 96,176, which is map cell 14,24 painted grass_a and reached from the spawn over 511 walkable cells, the four sheets measured 56 failing pair(s) on ground $2A: white_blob 24 and body_ground 32, which is percy 8 white_blob plus 8 body_ground, konrad 8 body_ground, zander 8 plus 8, hadrian 8 plus 8. Closed on 2026-10-25 by drawing the park in the two entries of bg2_green that sit under RULE 0 point 2's 0.25 line, G $09 #007800 (0.134) as the field and D $0A #006800 (0.099) as its shade, with the shared backdrop $0F (0.000) taking the accent H used to carry, so H is left on the SOLID planting only (tree canopies, hedges, the green awning) and bg2_green keeps all three entries: no scene palette moves and no area budget moves. Re-measured on the regenerated frame at --at 96,176: 0 failing pair(s), 0 cast problems, every sheet's body ($30 percy, $28 konrad, $31 zander, $30 hadrian) on ground $09, $0A and $0F, and the sibling walkable variant measured the same 0 failing pair(s) at --at 80,176 (map cell 13,24, grass_b). tools/check_ts_exterior.py check 13 holds all 20 walkable tiles with an EMPTY exemption list, and the two other towns carry no park cell inside their 15 tile tall frames, so this is the only town that can hold the row.",
+      "at": [
+        96,
+        176
+      ]
+    },
+    {
       "scene": "winchester",
       "background": "output/winchester_sample_frame.png",
       "sprites": [

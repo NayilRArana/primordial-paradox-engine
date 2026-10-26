@@ -1858,3 +1858,141 @@ HEAD, `tools/art/make_env_ship.py`, `tools/art/make_ship_tiles.py`, `tests/test_
 `data/maps/ship_sample_tiled.json`, `knowledge/SHIP-PALETTE-DRIFT-2026-10-25.md`, and the commit history of all of
 them). No decompiled material was read for this card and no expression from any game is in it. Copied expression:
 none.
+
+## 22. The park leaves the light group: the walkable grass was the last exemption check 13 carried, and the fix is in the tile rather than in the check (card t_b01c88ff)
+
+Section 20.8 named this hole and carded it: the street under the party moved to the two dark entries, and the park stayed
+light. This section closes it with the same instrument the street was judged by, and it records the one design call that
+the card left open, which is what a park made of two greens that are 1.24:1 apart is supposed to look like.
+
+### 22.1 The numbers the card came with, re-measured through the tool
+
+All read from `tools/art/contrast_check.py`'s 2C02 table through `tools/palette_synergy.py`'s `Grid`, not restated:
+
+| entry | hex | luminance | row | hue | who wears it |
+| --- | --- | --- | --- | --- | --- |
+| `$2A` | `#58d854` | 0.518 | 2 | hue_A | the walkable grass before this card, and the tree canopies, hedges and green awning after it |
+| `$09` | `#007800` | 0.134 | 0 | hue_9 | `bg2_green`'s G, the park's field after this card |
+| `$0A` | `#006800` | 0.099 | 0 | hue_A | `bg2_green`'s D, the park's shade |
+| `$0F` | `#000000` | 0.000 | 0 | grey | the shared backdrop, the park's accent after this card |
+| `$00` | `#7c7c7c` | 0.202 | 0 | grey | the walkable street (section 20) |
+| `$30` | `#fcfcfc` | 0.973 | 3 | grey | percy's and hadrian's body |
+| `$31` | `#a4e4fc` | 0.704 | 3 | hue_1 | zander's body |
+| `$28` | `#f8b800` | 0.542 | 2 | hue_8 | konrad's body |
+
+Contrast between the candidate grounds and the four bodies, measured on this tree: `$30` on G 5.55:1 (3 rows), `$31` on G
+4.09:1 (3 rows), `$28` on G 3.21:1 (2 rows), and `$00` on G 1.36:1 (0 rows). That last line is the reason hadrian's suit
+had to move in section 20.5 rather than the street: a `$00` body clears no dark ground either.
+
+Three tiles carry the grass: `grass_a` (index 13), `grass_b` (14) and `grass_c` (62), all `bg2_green`, all `solid: false`
+in `game/sprites_src/env/ts_exterior.json`. `tools/art/make_exterior_maps.py` paints OSM park cells with `grass_a` and
+`grass_b` only (`remap_cell`, `name == "park"`), so a composed town frame can never show `grass_c`; check 13 still holds
+all three, because a later card can place the third variant without any measurement moving.
+
+### 22.2 The ground the party actually stands on, and what it measured
+
+The frame a town is judged on is a 16 by 15 tile crop around its spawn (`render_frame`), so whether a town can even show
+the park is arithmetic on its map. Measured on the three maps at this commit:
+
+| town | crop origin | spawn | park cells inside the frame | reachable from the spawn |
+| --- | --- | --- | --- | --- |
+| westminster | 8, 13 | 16, 20 | 31, every one of them walkable | 24, over 511 walkable cells |
+| southampton | 9, 11 | 17, 18 | 0 | 0 |
+| winchester | 8, 12 | 16, 19 | 0 | 0 |
+
+So Westminster is the only town that can hold a judged row about the park, and two of its park cells were measured. Before
+this card, on the frame HEAD ships, at `--at 96,176` (map cell 14,24, `grass_a`) and at `--at 80,176` (map cell 13,24,
+`grass_b`), the party's four walking sheets measured **56 failing pairs each**, every one of them on ground `$2A`:
+`white_blob` 24 and `body_ground` 32, which is percy 8 plus 8, konrad 8, zander 8 plus 8, hadrian 8 plus 8. The cast half
+was already clean (0 uncovered 8x8 tiles on all four sheets), so the 56 were the ground and nothing else.
+
+After the fix, on the regenerated frame, at the same two positions: **0 failing pairs, 0 cast problems**, every sheet's
+body on ground `$09`, `$0A` and `$0F`.
+
+### 22.3 Q1: what a walkable park can be made of
+
+`bg2_green` is `$09 $0A $2A` and the row does not move (section 22.5). Under RULE 0 point 2's 0.25 line exactly two of its
+three entries are legal under a foot: G `$09` at 0.134 and D `$0A` at 0.099, plus the shared backdrop `$0F` at 0.000,
+which every palette row shares and which the street already uses for its joints (section 20.4). The light `$2A` at 0.518
+is legal exactly where nothing walks on it, and that is where it stays: the three tree canopies, the two hedges and the
+green awning, all `solid: true`.
+
+The card's first price was this one, and the measurement agrees with it. Its second price (a second, darker walking triple
+for the party) is refused by the hardware for the reason section 16.6 and section 20.7 already gave: a scene has four
+sprite palettes, all four are the party's walking triples here, and there is no fifth row to darken.
+
+### 22.4 Q2: the call the card left open, which is how a tuft is drawn in this band
+
+Two greens 1.24:1 apart are one tone. Filling the park with G and putting D where the old art had shade would have made a
+flat field with invisible texture, and it would have thrown away the shape of the three variants, which are the ground
+noise the maps rely on. The light accent H was 3.08:1 against the field, and the only entry left in this palette that
+clears 3:1 against G is the shared backdrop at 3.69:1. So the light accent became the dark accent, in the same shapes:
+`grass_a` puts a single black fleck where it put a single light fleck, `grass_b` puts a 2 by 2 black clump where it put a
+2 by 2 light clump, and `grass_c` keeps its 2 pixel checker as a G/D dither and puts the four black flecks where its shade
+flecks were. Counted on the regenerated sheet, per tile:
+
+| tile | G `$09` | D `$0A` | backdrop `$0F` | worst luminance |
+| --- | --- | --- | --- | --- |
+| `grass_a` | 205 | 47 | 4 | 0.134 |
+| `grass_b` | 222 | 10 | 24 | 0.134 |
+| `grass_c` | 125 | 127 | 4 | 0.134 |
+
+No tile spends more than 2 colours besides the backdrop, so the 3 colour area rule and the 25 colour frame ceiling are
+untouched, and the sheet's own colour count stays 14.
+
+### 22.5 What landed, measured before and after
+
+**Landed.**
+
+- `tools/art/make_ts_exterior.py`: the three walkable grass tiles, the header note with the measured numbers, and the
+  comment beside `bg2_green` that says H is now solid-only.
+- `game/sprites_src/env/ts_exterior.png` and `.json`, regenerated by that generator. The json's per-tile `entries` for the
+  three grass tiles now read `9, 10, 15` with the matching hexes, which is the generator describing what it drew.
+- `output/westminster_sample_frame.png`, regenerated by `tools/art/make_exterior_maps.py`. The two other towns' frames
+  come out byte-identical to HEAD, which is the table in 22.2 seen from the other side.
+- `tools/check_ts_exterior.py`: `WALKABLE_LIGHT_EXEMPT` is empty, and check 13's docstring and comment say so.
+- `data/palettes/scene_westminster.json`: a second judged row, the park at `--at 96,176`, with the party's four walking
+  sheets, the 56 before and the 0 after written into its note.
+- `data/scene_palettes.json`: that row as the tenth audit entry, from `scene_palette_set.py build --write`. Nothing else
+  in the file moves.
+- `tests/test_check_ts_exterior.py`: three rows over check 13, its empty exemption list and the park's ground colours,
+  because no test in the suite ran that check before this card.
+- `tests/test_scene_palette_set.py`: the town row format holds three spawn rows and the one park row, with its map cell,
+  its cast and the card in its note.
+- `knowledge/DEVLOG.md`: one entry.
+
+**Measured.**
+
+- `python tools/check_ts_exterior.py`: **58 checks passed, 0 failed**, exit 0, check 13 PASS over all 20 walkable tiles
+  with 0 exemptions. It was 61 checks with 3 EXEMPT lines before, and the 3 that left are exactly those lines.
+- `python tools/palette_synergy.py --gate`: 9 entry(ies), 0 gated failure(s), 2 advisory failure(s), 1 not measured
+  before; **10 entry(ies), 0 gated failure(s), 2 advisory failure(s), 1 not measured** after. The entry count rises by
+  one because this card adds one judged row, and the two advisories are the `battle_corridor` and `title` readings of the
+  title frame, which this card does not touch. Westminster now appears twice and both of its rows PASS with 0 fails.
+- `python tools/scene_palette_set.py validate`: PASS, 12 scene(s), 4 hero palette(s).
+- Both generators reproduce their own output byte for byte on a second run (md5 of the scene file, the tileset and the
+  frame unchanged on the rerun).
+- The judged row at `--at 96,176` and at `--at 80,176`, four sheets each: 0 failing pairs, 0 cast problems, ground `$09`,
+  `$0A` and `$0F`.
+
+### 22.6 What this does not decide
+
+- **Whether it looks like grass.** A park made of a 0.134 field, a 0.099 shade and black tufts is what the measurement
+  allows, and it was drawn in the shapes the old art used. Whether that reads as grass on a CRT is not measured by this
+  card, the same open question section 20.8 left for the street. A screenshot card is the honest next step.
+- **`grass_c` is measured only at the tile level.** No map places it, so no judged frame can stand a party on it. Check
+  13 holds it; a row would need a map that paints it.
+- **The other two towns' parks.** Their crops carry no park cell (table, 22.2), so their grass is held by check 13 and by
+  the fact that the tiles are the same three tiles, not by a judged frame of their own.
+- **No build and no hardware capture.** GameMaker is not installed on this machine, so these are pixel, palette and ground
+  measurements through the project's own tools. `tools/nes_composite_check.py` is run over the three frames by check 12
+  and passes; nothing here claims more than that.
+- **Section 21 landed while this section was being measured.** Card `t_23b5739a` committed it as `080dc56`, so this
+  section was re-applied on top of that commit rather than merged beside it, and the two are in this file in order.
+
+Provenance for section 22: studied this repository's own files only (`tools/palette_synergy.py`,
+`tools/check_ts_exterior.py`, `tools/art/make_ts_exterior.py`, `tools/art/make_exterior_maps.py`,
+`tools/art/contrast_check.py`, `tools/scene_palette_set.py`, `knowledge/ART-BIBLE.md`, `data/nes_palette.json`,
+`data/palettes/scene_westminster.json`, `scene_southampton.json`, `scene_winchester.json`,
+`game/sprites_src/env/ts_exterior.json`, the tileset, the four walking sheets, and the commit history of all of them). No
+decompiled material was read for this card and no expression from any game is in it. Copied expression: none.

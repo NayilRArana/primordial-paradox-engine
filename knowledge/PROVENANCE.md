@@ -1784,3 +1784,27 @@ Our implementation differs by: the pin is generic in the writer (`background_pin
 beside it, and the design move itself is deferred to a redraw card with both sides of the trade written down
 (ruling section 21.3) instead of being taken here on 137 pixels of art that no map places.
 Copied expression: none
+
+## PARK-IN-THE-DARK-BAND, 2026-10-25: a walkable ground is chosen by the bodies that stand on it, and the last exemption closes in the tile (card t_b01c88ff)
+Studied: this repository's own files, read only: `tools/palette_synergy.py`, `tools/check_ts_exterior.py`,
+`tools/art/make_ts_exterior.py`, `tools/art/make_exterior_maps.py`, `tools/art/contrast_check.py`,
+`tools/scene_palette_set.py`, `knowledge/ART-BIBLE.md` RULE 0 point 2, `knowledge/PALETTE-RULINGS-2026-10-25.md`
+sections 16.6, 20 and 20.8, `data/nes_palette.json`, the three town scene files, `game/sprites_src/env/ts_exterior.json`,
+the tileset and the four walking sheets. No decompiled material was read for this card and no expression from any game
+is in it.
+Mechanics learned: three. One, an exemption list is only as strong as the card name on each entry, and the entry has to
+be closed in the art rather than in the tool: check 13 already printed "EXEMPT grass_a/b/c ... carded as t_b01c88ff", so
+the work was to darken the tile and empty the list in one commit, because a list that keeps a fixed tile after the fix
+is a check that quietly permits exactly what it exists to stop. Two, a two tone ground inside a fixed three entry row
+needs its accent from outside that row: bg2_green's two legal entries are 1.24:1 apart, so the texture moved to the
+shared backdrop (3.69:1 against the field, 2.98:1 against the shade) rather than to the shade, and the backdrop costs no
+entry because every palette row already shares it. Three, a judged row can only be written where the composed crop can
+see the ground: the town frame is a 16 by 15 tile crop around the spawn, so of the three towns only Westminster carries
+park cells inside it (31 of them, 24 reachable from the spawn over 511 walkable cells), and a row written for the other
+two would measure pavement and prove nothing.
+Our implementation differs by: the park keeps bg2_green's three entries and loses its light accent instead of buying a
+second walking triple for the party, which the four sprite palettes per scene do not have room for (sections 16.6 and
+20.7); the accent that used to be light is now the backdrop, drawn in the shapes the old art already used, so the
+variants stay distinguishable without a fourth colour; and the measurement lives in a new test file as well as in the
+check, because nothing in this suite ran check 13 before this card.
+Copied expression: none

@@ -530,16 +530,35 @@ def test_each_town_judged_row_names_the_four_walking_sheets_on_its_own_frame():
     five background palettes and a scene spends four: measured 2026-10-25, it reports 7 palette_count problems
     on southampton and 4 on each of the other two, so as a ground it can never be clean and would charge its own
     background failures to the sprites standing on it (the defect card t_1dc346b9 ruled on).
+
+    Card t_b01c88ff added a SECOND row to westminster and only to westminster: the park, which is the ground the
+    party walks in and the one check 13 carried as an exemption until the grass was darkened. A row on the park
+    is where the light grass showed up as 56 failing pairs before the fix, so it is the number that says the fix
+    is real. The other two towns carry no park cell inside their 15 tile tall frames, which is why they hold no
+    such row rather than a row that measures pavement.
     """
     rows = [row for row in judged_rows() if row["scene"] in TOWNS]
-    assert len(rows) == 3, rows
-    for row in rows:
+    spawn = [row for row in rows if row["at"] == [128, 112]]
+    park = [row for row in rows if row["at"] != [128, 112]]
+    assert len(spawn) == 3, spawn
+    for row in spawn:
         assert row["background"] == "output/%s_sample_frame.png" % row["scene"], row["background"]
         assert row["at"] == [128, 112], row["at"]
         assert [os.path.basename(path) for path in row["sprites"]] == list(WALKING_SHEETS), row["sprites"]
         assert not row.get("exempt"), "the three towns carry the cast, so the rows are enforced, not exempt"
         assert not row.get("by_product"), row
         assert "ts_exterior" in row["note"], "the row has to say why the atlas is not the ground"
+    assert len(park) == 1, park
+    row = park[0]
+    assert row["scene"] == "westminster", row["scene"]
+    assert row["background"] == "output/westminster_sample_frame.png", row["background"]
+    # Map cell 14,24 is grass_a, reached from the spawn, and the frame crop starts at tile 8,13 (x0 8, y0 13).
+    assert row["at"] == [96, 176], row["at"]
+    assert [os.path.basename(path) for path in row["sprites"]] == list(WALKING_SHEETS), row["sprites"]
+    assert not row.get("exempt") and not row.get("by_product"), row
+    assert "t_b01c88ff" in row["note"] and "section 22" in row["note"], (
+        "the park row has to name the card and the ruling section that closed the exemption")
+    assert "0 failing pair(s)" in row["note"], row["note"]
 
 
 def test_the_towns_ground_is_the_frame_their_generator_writes():

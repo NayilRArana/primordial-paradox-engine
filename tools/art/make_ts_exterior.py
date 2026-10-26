@@ -23,6 +23,16 @@ No tile a player can walk on draws either of them, and tools/check_ts_exterior.p
 tile. The three towns' spawn frames measured 36, 88 and 32 pair failures before this and 0 after
 (knowledge/PALETTE-RULINGS-2026-10-25.md section 20).
 
+THE PARK IS IN THE SAME BAND NOW, BY THE SAME MEASUREMENT (card t_b01c88ff, 2026-10-25). The park's three
+walkable tiles were the last exemption check 13 carried, because they filled with H $2A #58d854 at 0.518: a $30
+body on it measures white_blob and $28 measures body_ground. H is now off every walkable grass tile and stays
+only on the SOLID planting and the green awning, so bg2_green's three entries, every scene palette and every
+area budget are untouched. What is left under a player's feet is G $09 #007800 (0.134) as the field and D $0A
+#006800 (0.099) as its shade, with the shared backdrop $0F (0.000) taking over the role H played: the light
+accent became the dark accent, in the same shapes, so a tuft still reads at 3.68:1 against the field instead of
+3.09:1. Measured on the frame tools/art/make_exterior_maps.py composes for Westminster, at the park cell the
+party can reach, in knowledge/PALETTE-RULINGS-2026-10-25.md section 22.
+
 Background tiles on a NES are opaque: the PPU has no transparency on the background layer, so every street
 object here is drawn on its own ground (pavement grey under the phone box and the lamp, grass green under the
 tree and the hedge). That is also why a prop tile spends one of its 3 colours on its shadow ring.
@@ -59,6 +69,8 @@ PALETTES = {
     "bg4_red":   {"M": 0, "S": 22, "W": 48},      # $00 #7c7c7c (shared with stone), $16 #f83800, $30 #fcfcfc
     "bg5_plant": {"G": 9, "A": 7, "M": 0},        # $09 #007800, $07 #881400, $00 #7c7c7c (bark on grass)
 }
+# bg2_green's H is SOLID ONLY since card t_b01c88ff: the tree canopies, the hedges and the green awning keep it,
+# and no walkable grass tile draws it any more, because 0.518 is a light ground under RULE 0 point 2.
 BACKDROP_ENTRY = 15
 BACKDROP_HEX = "#000000"
 
@@ -215,6 +227,15 @@ def cobbles(pattern: int):
 
 
 def grass(variant: int):
+    """The park's walkable ground: G field, D shade, and the backdrop where the light accent used to be.
+
+    Card t_b01c88ff, 2026-10-25: these three tiles were check 13's only exemption because they drew H $2A at
+    0.518, a light ground under RULE 0 point 2, and the party walks in $30, $31 and $28. H is off every walkable
+    grass tile now and stays on the SOLID planting (tree canopies, hedges) and the green awning, so the shapes
+    below are the ones they always were with the LIGHT accent read as the DARK accent: the backdrop $0F at
+    0.000 where H was, at 3.68:1 against the field, and D $0A left holding the mid shade. Two greens 1.23:1
+    apart would have been a flat field, which is why the accent moved to black rather than to the shade.
+    """
     def build(g: Grid) -> None:
         g.fill("G")
         if variant == 0:
@@ -222,16 +243,16 @@ def grass(variant: int):
                 for x in (0, 6, 12):
                     g.rect(x, y, x + 1, y + 1, "D")
             for x, y in [(3, 7), (11, 3), (7, 13), (14, 10)]:
-                g.px(x, y, "H")
+                g.px(x, y, "k")
         elif variant == 1:
             for x, y in [(2, 2), (9, 2), (14, 6), (5, 8), (11, 11), (3, 14)]:
-                g.rect(x, y, x + 1, y + 1, "H")
+                g.rect(x, y, x + 1, y + 1, "k")
             for x, y in [(6, 4), (0, 10), (13, 15)]:
                 g.rect(x, y, x + 1, y + 1, "D")
         else:
-            g.checker("H", phase=1, step=2)
+            g.checker("D", phase=1, step=2)
             for x, y in [(1, 1), (8, 5), (4, 12), (12, 14)]:
-                g.px(x, y, "D")
+                g.px(x, y, "k")
     return build
 
 
