@@ -5,8 +5,8 @@
   "video": "output/demo/run_001.mp4",
   "beat_source": "knowledge/mechanics/PACING-AND-CUTSCENES.md section 9, the 32 beat sheet, 900 s",
   "command": "python tools\\play_demo.py",
-  "why": "The card asks which beats the demo covers today, so nobody reads the manifest as a promise about the game. A beat is covered when the recording shows its own action; partial when the build shows part of it or a stand-in; not_reachable when the room or scene it needs does not exist in this build yet (game/rooms holds rm_pp_boot, rm_pp_title and rm_pp_ship, and PP_NEW_GAME_ROOM is rm_pp_ship, game/scripts/pp_config/pp_config.gml:170).",
-  "not_reachable_why": "The build goes title, menu, crawl, a 240 step drive and the fade, then loads rm_pp_ship in one jump. Beats 8 to 25 need the twelve drive shots and the Southampton maps, and beats 27 to 32 need the cabin, the hold, the deck and the departure; none of those rooms or scenes exist yet, so no script can reach them.",
+  "why": "The card asks which beats the demo covers today, so nobody reads the manifest as a promise about the game. A beat is covered when the recording shows its own action; partial when the build shows part of it or a stand-in; not_reachable when the recording cannot show it in 71 s. The build has four rooms (rm_pp_boot, rm_pp_title, rm_pp_ship and rm_pp_drive, the last of which is reachable only with PP_DRIVE_ROOM set and is not on the route), and PP_NEW_GAME_ROOM is rm_pp_ship (game/scripts/pp_config/pp_config.gml:172).",
+  "not_reachable_why": "The recording holds one route step on purpose (card DEMO-WALK): data/slice.json hands the crawl to the drive scene drive_to_southampton, which plays on the drive_m4_corridor map, spends 10,680 steps of waits and pages twelve captions that each wait for a press, so it cannot fit a 71 s recording and the script sets PP_ROUTE_HOLD=drive instead. That leaves rm_pp_ship's own map standing, which is the room this video walks. Beats 8 to 19 are therefore out of this recording rather than out of the build: the scene and the corridor map exist. Beats 20 to 25 need the quay gate, the boarding scene and a room that spawns the tutorial fight, and no room in this build spawns an encounter.",
   "beats": [
     {
       "beat": 1,
@@ -180,7 +180,7 @@
       "authored_s": 40,
       "state": "partial",
       "events": ["e09", "e10", "e11", "e12", "e13", "e14", "e15", "e16", "e17", "e18", "e19"],
-      "evidence": "one room (rm_pp_ship, game/rooms/rm_pp_ship/rm_pp_ship.yy) with eight Right presses a second apart and one confirm at the sailor, which opens the dialogue box; the same walk the ship capture uses (tools/capture_title.py, SHIP_WALK_STEPS = 8), not the three room corridor"
+      "evidence": "one room (rm_pp_ship, game/rooms/rm_pp_ship/rm_pp_ship.yy) with eight Right presses a second apart, which is the same walk the ship capture uses (tools/capture_title.py, SHIP_WALK_STEPS = 8), not the three room corridor. The game log of the 2026-10-26 take carries eight 'PP audio: footstep played' lines against the eight presses (output/demo/demo-walk-2026-10-26_verify.json, footsteps 8), so the presses reached the walker. The confirm at e18 is pressed where a sailor would stand and opens no dialogue: data/maps/all.json places no talk entity on ship_small, so the room has nothing to talk to yet and this beat's 40 authored seconds are only partly covered"
     },
     {
       "beat": 27,

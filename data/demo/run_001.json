@@ -2,12 +2,16 @@
   "version": 1,
   "name": "run_001",
   "written": "2026-10-22",
-  "why": "The deterministic autoplay of the slice as it exists today: title attract, PRESS START, NEW GAME, the crawl, the transition into rm_pp_ship, eight steps of free walk and one NPC dialogue. One clock in steps at 60 a second, no sleeps read from a stopwatch, no key pressed twice because the run took longer than expected.",
+  "why": "The deterministic autoplay of the slice as it exists today: title attract, PRESS START, NEW GAME, the crawl, the transition into rm_pp_ship, eight steps of free walk and one NPC dialogue. One clock in steps at 60 a second, no sleeps read from a stopwatch, no key pressed twice because the run took longer than expected. Card DEMO-WALK: the game's own route (data/slice.json) hands the crawl to the drive scene, which owns the screen for 178 seconds and whose twelve caption pages each wait for a press, so this run holds that one route step with PP_ROUTE_HOLD and the run room stands in its place. The video is therefore the run room's walk, which is what the submission describes, and not the drive. A launch with no environment takes the drive exactly as data/slice.json says.",
   "beat_source": "knowledge/mechanics/PACING-AND-CUTSCENES.md section 9 (the 32 beat sheet) and ROADMAP-2026-10-22.md section 2 (S1, S2)",
   "game": {
     "exe": "PrimordialParadox.exe",
     "window_title": "Primordial Paradox",
     "launch_args": ["-game", "{win}"],
+    "env": {
+      "PP_ROUTE_HOLD": "drive"
+    },
+    "env_note": "PP_ROUTE_HOLD is read by pp_title_crawl_handoff (game/scripts/pp_title/pp_title.gml, card DEMO-WALK) and names the route steps this run does not hand to. It is set here rather than in play_demo.py so the recipe stays in the script, and it stays empty in every launch a player makes.",
     "note": "the form measured on this PC on 2026-10-21 and recorded in tools/capture_title.py: <game>.exe -game <data>.win is the only form that starts the game instead of opening a file dialog"
   },
   "clock": {
@@ -171,14 +175,14 @@
       "kind": "key",
       "key": "confirm",
       "beat": 26,
-      "note": "confirm at the sailor, which opens the dialogue box in spr_pp_window (the same press tools/capture_title.py --room ship makes)"
+      "note": "confirm at the sailor's tile, the same press tools/capture_title.py --room ship makes. Measured on the 2026-10-26 take (card DEMO-WALK): no dialogue box opens, because data/maps/all.json places no talk entity on ship_small, so the room holds nothing to talk to yet. The press stays in the script because it is the beat's own action and the row the box will come from"
     },
     {
       "id": "e19",
       "step": 4200,
       "kind": "note",
       "beat": 26,
-      "note": "the dialogue box is on screen; five seconds of it are held in the recording so a viewer can read it"
+      "note": "the room is held still for five seconds after the walk, so the recording ends on the whole room rather than on the last step. No dialogue box is up: measured on the 2026-10-26 take, the confirm at e18 opens nothing because ship_small carries no talk entity yet"
     }
   ],
   "checks": {

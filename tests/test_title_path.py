@@ -230,3 +230,53 @@ def test_the_title_object_enters_the_screen_once():
     create = code_of(TITLE_OBJECT)
     assert "pp_title_enter({})" in create
     assert "pp_title_state_new()" not in create, "the state is made in pp_title_enter, not a second time in Create"
+
+
+# Card DEMO-WALK. The day 1 video is the run room's free walk, and the game's own route hands the crawl to the drive
+# scene, which owns the screen for 178 s and pages twelve captions that each wait for a press. So the recording holds
+# that one route step: the crawl resolves the step the route names, is told it is held, and leaves the run room
+# standing. These pins hold the switch to that shape, and hold the script and the route to the same step id.
+
+DEMO_SCRIPT = os.path.join(ROOT, "data", "demo", "run_001.json")
+SLICE = os.path.join(ROOT, "data", "slice.json")
+
+
+def test_a_held_route_step_leaves_the_run_room_standing():
+    """The held check sits on the resolved route id and returns before any handoff is taken."""
+    code = code_of(TITLE)
+    handoff = body_of(code, "pp_title_crawl_handoff")
+    held_at = handoff.find("pp_title_route_held(_next_id)")
+    assert held_at != -1, "the handoff must ask whether the route's next step is held in this run"
+    assert held_at < handoff.find("pp_slice_handoff(_next)"), (
+        "the held check must come before the handoff, or the drive scene is asked for and runs anyway")
+    assert handoff.find("pp_title_route_held(_next_id)") > handoff.find('pp_slice_route_row("crawl")'), (
+        "the id that is held is the route's own next step, not a name written into the screen")
+
+
+def test_the_held_switch_is_one_environment_name_and_empty_means_take_the_step():
+    """PP_ROUTE_HOLD is split like every other PP_ name, and an unset value takes the route as the file says."""
+    code = code_of(TITLE)
+    assert '#macro PP_ROUTE_HOLD "PP_" + "ROUTE_HOLD"' in code, "the environment name is split, not written whole"
+    helper = body_of(code, "pp_title_route_held")
+    assert "environment_get_variable(PP_ROUTE_HOLD)" in helper
+    assert 'if (_held == "") return false;' in helper, "an unset switch must take the step, never hold it"
+    assert "string_split(_held" in helper, "the switch names one id or a comma separated list of them"
+
+
+def test_the_demo_script_holds_the_step_the_route_actually_names_after_the_crawl():
+    """The script's switch and data/slice.json cannot drift: the id the script holds is the crawl's own next step."""
+    with open(DEMO_SCRIPT, "r", encoding="utf-8") as handle:
+        script = json.load(handle)
+    with open(SLICE, "r", encoding="utf-8") as handle:
+        route = json.load(handle)["route"]
+    env = (script.get("game") or {}).get("env") or {}
+    held = [part.strip() for part in str(env.get("PP_ROUTE_HOLD", "")).split(",") if part.strip()]
+    rows = {row["id"]: row for row in route["steps"]}
+    assert held, "data/demo/run_001.json sets PP_ROUTE_HOLD, so the recording's path is stated in the script"
+    assert route["first"] in rows and "crawl" in rows, "the route the script relies on has a crawl row"
+    crawl_next = rows["crawl"].get("next", "")
+    for identifier in held:
+        assert identifier in rows, "the script holds %r, which data/slice.json does not have" % identifier
+        assert identifier == crawl_next, (
+            "the script holds %r but the route hands the crawl to %r, so the hold would not take"
+            % (identifier, crawl_next))

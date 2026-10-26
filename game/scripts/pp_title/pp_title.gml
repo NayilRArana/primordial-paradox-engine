@@ -385,6 +385,26 @@ function pp_title_goto_run_room() {
     return true;
 }
 
+/// The route steps a capture holds (card DEMO-WALK). data\demo\run_001.json names the ids in its game.env, one or more
+/// comma separated, and every id it names is a step the crawl does not hand to in that run. The day 1 video holds
+/// "drive": the drive is a 178 second cutscene whose twelve caption pages each wait for a press, so it cannot be the
+/// shot a 71 s recording is cut from, and holding it leaves the new run's own map standing, which is the handoff this
+/// screen made before the route existed. Empty in every real launch, so a player's run takes the route as the file says.
+/// Split the same way every other PP_ environment name is, so the macro's definition is not itself a use of the name.
+#macro PP_ROUTE_HOLD "PP_" + "ROUTE_HOLD"
+
+/// Is this route step held in this run? One environment read per handoff, and none at all when the name is unset.
+function pp_title_route_held(_id) {
+    if (string(_id) == "") return false;
+    var _held = environment_get_variable(PP_ROUTE_HOLD);
+    if (_held == "") return false;
+    var _parts = string_split(_held, ",");
+    for (var i = 0; i < array_length(_parts); i += 1) {
+        if (string_trim(_parts[i]) == string(_id)) return true;
+    }
+    return false;
+}
+
 /// What follows the crawl on the demo's route (data/slice.json, card R24). The crawl is the last thing this screen
 /// plays, so the step after it is where the run begins, and the route is the one place that says what that step is.
 /// A route whose next step is not in the build yet, which is the drive until card R21 writes it, leaves the new run's
@@ -397,6 +417,13 @@ function pp_title_crawl_handoff() {
     if (!is_struct(_crawl) || !variable_struct_exists(_crawl, "next")) return false;
     var _next_id = string(_crawl.next);
     if (_next_id == "") return false;
+    // A step this run holds is not taken (card DEMO-WALK), and the run room stands in its place. The line names both
+    // the step and the variable, so the recording's own log answers why the route stopped here.
+    if (pp_title_route_held(_next_id)) {
+        show_debug_message("PP title: the route's step " + _next_id + " is held by " + PP_ROUTE_HOLD
+            + " in this run, so the run room stands and the crawl did not hand to the route");
+        return false;
+    }
     var _next = pp_slice_route_row(_next_id);
     if (!is_struct(_next)) {
         show_debug_message("PP title: the route after the crawl names " + _next_id + ", which is not in the route");
