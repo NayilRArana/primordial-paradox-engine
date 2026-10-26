@@ -149,22 +149,37 @@ def find_scene(data: dict, scene_id: str) -> dict:
                      % (scene_id, DATA_FILE.replace(os.sep, "/"), ", ".join(sorted(scene_ids(data)))))
 
 
-def scene_payload(entry: dict) -> dict:
-    """The shape tools/art/scene_palette.py Scene reads: backdrop, background[4], sprites[4], scene name."""
+def scene_payload(entry: dict, sprites=None) -> dict:
+    """The shape tools/art/scene_palette.py Scene reads: backdrop, background[4], sprites[4], scene name.
+
+    `sprites` is the sprite half to write, as rows of name + colours; it defaults to the scene's OWN four rows,
+    which is right for every scene that spends its own rows. Callers that must read the room rather than the
+    declaration pass allowed_sprite_rows(), which is the hero four on a party_cast strip (card t_6e8ca42f).
+    """
+    rows = entry["sprites"] if sprites is None else sprites
     payload = {
         "scene": entry["id"],
         "backdrop": entry["backdrop"],
         "background": [{"name": row.get("name", "bg%d" % index), "colours": list(row["colours"])}
                        for index, row in enumerate(entry["background"])],
         "sprites": [{"name": row.get("name", "sp%d" % index), "colours": list(row["colours"])}
-                    for index, row in enumerate(entry["sprites"])],
+                    for index, row in enumerate(rows)],
     }
     return payload
 
 
 def scene(root: str, scene_id: str) -> scene_palette.Scene:
-    """A scene_palette.Scene for this scene, so callers reuse the enforcement arithmetic instead of copying it."""
-    return scene_palette.Scene(scene_payload(find_scene(load(root), scene_id)), root)
+    """A scene_palette.Scene for this scene, so callers reuse the enforcement arithmetic instead of copying it.
+
+    The sprite half comes from allowed_sprite_rows(), not from the entry's own rows, because on a party_cast
+    strip the four reserved hero palettes ARE the strip's four sprite palettes (ruling 7.1, card t_c93a983f).
+    Reading the declaration there measured every repainted party sheet as needing a palette the chip cannot
+    have, while the triple it draws with was the strip's own (card t_6e8ca42f). One assembly point, so a
+    checker, a quantiser and a painter all read the same four.
+    """
+    data = load(root)
+    entry = find_scene(data, scene_id)
+    return scene_palette.Scene(scene_payload(entry, allowed_sprite_rows(data, scene_id)), root)
 
 
 def hero(data: dict, name: str) -> dict:
@@ -181,19 +196,29 @@ def hero_entries(data: dict) -> set:
     return out
 
 
-def allowed_sprite_sets(data: dict, scene_id: str) -> list:
-    """The sprite triples a scene's art may spend: FOUR, never eight (card t_c93a983f).
+def allowed_sprite_rows(data: dict, scene_id: str) -> list:
+    """The sprite half of a scene as Scene rows (name + colours): FOUR rows, never eight (card t_c93a983f).
 
     A scene that declares party_cast (the four battle strips) is drawn with the four RESERVED HERO PALETTES as
     its four sprite palettes, so the hero triples are what a checker may approve on it and the scene's own
     declared rows are not added on top: ruling 7.1 of knowledge/PALETTE-RULINGS-2026-10-25.md, "on a battle strip
     the four reserved hero palettes ARE the strip's four sprite palettes". Every other scene spends its own four
     rows, which is how the towns, the ship, the title, the icons, the sea and the ui scene behave.
+
+    This is the shape scene() assembles a Scene from (card t_6e8ca42f); allowed_sprite_sets() is the same rows
+    with the names dropped, kept for the callers that only compare entry sets.
     """
     entry = find_scene(data, scene_id)
     if entry.get(PARTY_CAST_KEY):
-        return [list(map(int, data["hero_palettes"][name]["colours"])) for name in HEROES]
-    return [list(map(int, row["colours"])) for row in entry.get("sprites", [])]
+        return [{"name": name, "colours": list(map(int, data["hero_palettes"][name]["colours"]))}
+                for name in HEROES]
+    return [{"name": row.get("name", "sp%d" % index), "colours": list(map(int, row["colours"]))}
+            for index, row in enumerate(entry.get("sprites", []))]
+
+
+def allowed_sprite_sets(data: dict, scene_id: str) -> list:
+    """The entry sets of allowed_sprite_rows(): four triples of colour numbers."""
+    return [row["colours"] for row in allowed_sprite_rows(data, scene_id)]
 
 
 def scene_entries(data: dict, scene_id: str) -> set:
