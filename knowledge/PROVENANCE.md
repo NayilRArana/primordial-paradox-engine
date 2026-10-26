@@ -1759,3 +1759,28 @@ keep a file in the tree that no slot can draw; the two tests that measured the d
 absence in the authored tree, the mirror, the art index and the project instead of pretending to measure art that is
 gone.
 Copied expression: none
+
+## SHIP-ROWS-PINNED, 2026-10-25: a row set that is an input to the art is a ruling, so the file says which half a solve may not touch (card t_23b5739a)
+Studied: this repository's own files, read only: `tools/art/scene_palette.py` at `7a73469` and at HEAD (the solver,
+`write_scene()`, `solve_ship()`, `describe()`, `enforce_ship_sheet()`), `tools/art/make_env_ship.py` and its `PALETTE`,
+`tools/art/make_ship_tiles.py`, `tests/test_make_env_ship.py`, `tests/test_scene_palettes.py`,
+`tests/test_scene_palette_set.py`, `tests/test_make_ship_tiles.py`, `tools/scene_palette_set.py`,
+`tools/check_scene_palettes.py`, `tools/check_env_tiles.py`, `data/nes_palette.json`,
+`data/palettes/scene_ship.json`, `game/sprites_src/env/ts_ship.png` and `ts_ship_tiled.json`,
+`data/maps/ship_sample_tiled.json`, `knowledge/SHIP-PALETTE-DRIFT-2026-10-25.md`, and the commit history of all of
+them. No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: three. One, when a generator repaints its own output into a data file, the data file is an input
+and not a product, so "the solver is right and the file is stale" is the wrong reading even when every checker passes:
+the honest measurement is the one against the RAW sheet, before the pass, which is why the two row sets read 762 and
+625 repainted pixels of 12288 here and both read a perfect sheet after enforcement. Two, a palette row is not only a
+coverage optimum, it is the set of colours a future drawing is allowed to use, so a row that wins on today's flat
+fills can still be the wrong row: the solver's water row has no white in it, and the sheet's own table reserves `$30`
+for foam, which the tool maps to `$28` gold under those rows. Three, "pin the half" is cheaper and more honest than
+"remember not to run the generator": the pin is a key in the file the solver already reads, it is testable with a
+control that removes the key, and refusing to rewrite a file whose parsed payload is unchanged keeps a pinned write
+from leaving a layout only diff.
+Our implementation differs by: the pin is generic in the writer (`background_pinned` handled beside
+`sprites_pinned`) rather than a ship special case, the report still prints the proposal and adds the file's own rows
+beside it, and the design move itself is deferred to a redraw card with both sides of the trade written down
+(ruling section 21.3) instead of being taken here on 137 pixels of art that no map places.
+Copied expression: none

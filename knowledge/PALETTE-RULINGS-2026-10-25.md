@@ -1703,3 +1703,158 @@ Provenance for section 20: studied this repository's own files only (`tools/pale
 `scene_westminster.json`, `scene_winchester.json`, `game/sprites_src/env/ts_exterior.json`, the tileset and the four
 walking sheets, and the commit history of all of them). No decompiled material was read for this card and no expression
 from any game is in it. Copied expression: none.
+
+# Card `t_23b5739a`: the ship's four background rows, and what stops a solve from moving them
+
+## 21. Q1, Q2 and Q3 on the ship's background rows: the sheet keeps the rows it was painted into, because the solver's rows trade white foam for deep blue, and the half is now pinned (card `t_23b5739a`)
+
+Carried over from card `t_92d59163`, which refused an uncommitted edit to `data/palettes/scene_ship.json` because the
+rows are an INPUT to the pixels of `ts_ship.png`, and left the design question here with its numbers attached. Q1: do
+the rows move to the solver's grouping or stay. Q2: if they move, how the sheet keeps ten colours. Q3: if they stay,
+what stops the next solve from re-proposing them.
+
+The answers are Q1 stay, Q2 not taken (and measured so the redraw card can take it), Q3 a key in the file that the
+solver honours, not a convention.
+
+### 21.1 The card's fact, re-measured, and one number corrected
+
+`tools/art/scene_palette.py solve --scene ship` (report only since `cbb6ff4`) prints a different background half from
+the one the file ships with, and the disagreement reproduces on this tree:
+
+```
+proposed: bg1 $07 $17 $30   bg2 $02 $12 $28        (bg0 $00 $10 $30 and bg3 $00 $02 $21 agree, sprite half agrees)
+shipped : bg1 $12 $28 $30   bg2 $02 $07 $17
+```
+
+One correction. The card, and the note it came from, name the colour that leaves the sheet as `$2C #3cbcfc`. That
+pairing is wrong, and `data/nes_palette.json` is the authority: `$21` is `#3cbcfc` (entry 33, the sheet's `c`, "sea
+crest") and `$2C` is `#00e8d8`, which has never been on this sheet. Measured by listing the sheet's own colours
+against the master table, the entry that leaves is `$21`. Every other number in the card reproduces exactly.
+
+### 21.2 The measurement, refreshed on the tree this section lands on
+
+Two builds of `tools/art/make_env_ship.py` into scratch roots seeded the way `tests/test_make_env_ship.py` seeds
+them, one per row set, and the drawn sheet read without the scene palette pass for the third column:
+
+| | shipped rows | solver's proposal |
+| --- | --- | --- |
+| rows | bg0 `$00 $10 $30`, bg1 `$12 $28 $30`, bg2 `$02 $07 $17`, bg3 `$00 $02 $21` | bg0 `$00 $10 $30`, bg1 `$07 $17 $30`, bg2 `$02 $12 $28`, bg3 `$00 $02 $21` |
+| the built `ts_ship.png` | sha256 `2d213039345402edede01a670e0771c6315e1dd9d17d675abc0220604d37bbbe`, byte identical to the committed sheet | sha256 `82394a4367ec265ae19b591a74a1278068cf76ce42dfaa51a31d5589a32102ce` |
+| pixels that differ from the committed sheet | 0 of 12288 | 151 of 12288 |
+| tiles that differ | none | 6: `lifebuoy` 20 px, `water_a` 40, `water_b` 40, `water_edge` 22, `water_deep` 13, `water_foam` 16 |
+| colours on the built sheet | the ten declared (`$0F $00 $10 $30 $02 $12 $17 $28 $07 $21`) | nine: `$21 #3cbcfc` leaves, nothing enters |
+| pixels the rows repaint on the RAW drawn sheet | 762 of 12288 (6.20%) | 625 of 12288 (5.09%) |
+
+Fourteen of the 48 tiles are assigned to a different row under the two sets; only six of them change pixels, because
+the cargo family (`crate` 36 px, `crate_stack` 12, `barrel` 20, `table` 12) is drawn with brass `$28` that NEITHER set
+can carry, so it loses the same pixels either way. The per tile difference is the whole of the proposal's gain:
+
+| tile | row, shipped / proposal | raw pixels repainted, shipped / proposal | what the proposal keeps |
+| --- | --- | --- | --- |
+| `lifebuoy` (placed twice in `ship_sample_tiled.json`) | bg0 / bg1 | 16 / 4 | the ring's 16 rust `$17` pixels, which the shipped rows repaint to steel mid `$00` |
+| `water_a` | bg1 / bg2 | 54 / 14 | 40 deep `$02` pixels |
+| `water_b` | bg1 / bg2 | 54 / 14 | 40 deep `$02` pixels |
+| `water_edge` | bg1 / bg2 | 66 / 44 | 22 deep `$02` pixels |
+| `water_deep` | bg3 / bg2 | 10 / 3 | 10 mid `$12` pixels, at the cost of the 3 `$21` crest pixels it was the last home of |
+| `water_foam` | bg1 / bg2 | 90 / 74 | 16 deep `$02` pixels |
+
+`warning` (0 lost either way) and `bollard` (43 lost either way) also change row, to no pixel effect.
+
+### 21.3 Q1: the rows stay. The solver is the closer fit to the drawing, and that is not the only thing a row has to be
+
+The proposal is better on the metric that is not circular: it repaints 137 fewer of the artist's drawn pixels, it is
+worse on no tile, and it fixes a real defect, because the lifebuoy is drawn orange and white and the shipped rows
+render it grey. Three things keep the rows where they are.
+
+**One, the water family it improves is a flat fill that no room draws.** On the committed sheet `water_a`, `water_b`,
+`water_edge` and `water_foam` are 256 identical pixels of `$12` each; on the raw sheet they are `$12` with strips of
+`$02` and `$21`, and every build repaints 149 of those crest pixels. `ship_sample_tiled.json` places no water tile at
+all, and only `lifebuoy` out of the six is placed (twice). So 137 pixels of gain lands on art no map on this tree
+draws, and 12 of them are the lifebuoy ring.
+
+**Two, the proposal takes the only row the declared foam colour can live on.** The sheet's own table says `$30` is
+"white paint: corridor lines, rim light, foam". The shipped rows put the water family on bg1 `$12 $28 $30`, where white
+is itself; the proposal puts it on bg2 `$02 $12 $28`, where `nearest_in($30)` measured through the tool is `$28
+#f8b800`. White foam on the ship would be repainted gold, and `$10` steel light goes the same way. The deep blue the
+proposal keeps is a colour the water already loses today at the fill level; the white is the one the redraw is going
+to want.
+
+**Three, dropping the tenth colour is not a one sheet change.** `$21` is what `tools/art/make_ship_tiles.py` draws
+the ship interior's terminal screen with (its `PALETTE` row `("c", 0x21, "#3cbcfc", "sea crest and the terminal's
+screen")`), and `tests/test_make_ship_tiles.py` holds that sheet's palette as a SUBSET of this one. A nine colour ship
+sheet therefore means redrawing a 96 tile interior sheet and its test, which is another sheet's card and another
+sheet's art.
+
+So the mismatch this card was handed is in the DRAWING, not in the rows: the cargo is drawn with brass the rows cannot
+show, and the water with crest that no water row can show under either set (149 drawn pixels, of which 3 survive).
+Both rows are orderings of the same trade, and the trade can only be settled by the redraw. The rows stay, and this
+section hands the redraw both sides of it.
+
+### 21.4 Q2: not taken, and the receipt a redraw card needs to take it
+
+If a later card moves the rows it has to move the sheet in the same commit: `ts_ship.png` becomes sha256 `82394a43...`,
+six tiles are repainted, and the ten colour budget has to be paid for by redrawing `lifebuoy`, `water_a`, `water_b`,
+`water_edge`, `water_deep` and `water_foam` inside the new rows, or by dropping `$21` to nine colours, which takes
+`tools/art/make_ship_tiles.py` and `tests/test_make_ship_tiles.py` with it. The numbers it needs are in 21.2, and the
+`background_pinned` key documented below is the switch it removes to do it.
+
+### 21.5 Q3: the pin, because a solver that is right keeps proposing
+
+The report is not the problem; the write was, and `cbb6ff4` already gave the ship the `write=False` default the title
+had. What was still open is a deliberate `solve --scene ship --write`, and the answer is the same mechanism the sprite
+half already uses:
+
+- `data/palettes/scene_ship.json` carries `"background_pinned": true` and a note with the numbers above.
+- `tools/art/scene_palette.py` has `BACKGROUND_PINNED_KEY`; `write_scene()` keeps a pinned background half and its
+  notes the way it keeps `sprites_pinned`, and prints what it kept. Removing the key is how a card that means to move
+  the design does it.
+- `write_scene()` no longer rewrites a file whose parsed payload is already what it would write, so a pinned `--write`
+  leaves no layout only diff behind.
+- `solve --scene ship` still prints the PROPOSAL and now says it is not applied and what the file's rows are, so the
+  disagreement stays visible without being applied.
+- `tests/test_scene_palettes.py::test_a_solve_keeps_a_pinned_background_half` holds it, with the control that the same
+  call moves the rows once the key is gone. The sprite half's test seeds its scratch copy without the new key, with a
+  comment saying why.
+
+Measured at the command line, in a scratch root holding the master palette, the scene file, the sheet and the five
+cast sheets:
+
+```
+before:        sha256 44b68bfa...  rows [[0,16,48],[18,40,48],[2,7,23],[0,2,33]]  pinned True
+solve --scene ship --write
+  scene_palette: scene_ship.json already holds these rows; nothing written
+after:         sha256 44b68bfa...  rows unchanged                                     pinned True
+(key removed, same command)
+after control: sha256 0fdbecd4...  rows [[0,16,48],[7,23,48],[2,18,40],[0,2,33]]      pinned False
+```
+
+### 21.6 What landed, and what this does not decide
+
+Landed on card `t_23b5739a`: the ruling above; `background_pinned: true` plus its note in
+`data/palettes/scene_ship.json`; the key, the `write_scene()` handling, the unchanged-file guard, the honest report
+and the pin plumbing in `tools/art/scene_palette.py`; the new test and the comment in the existing one; this section;
+a DEVLOG entry and a PROVENANCE entry. No palette row, no pixel of `ts_ship.png`, no tile table and no map moved.
+
+Green on this tree: `python -m pytest tests/test_make_env_ship.py tests/test_scene_palette_set.py
+tests/test_scene_palettes.py -q` reads 53 passed, 0 failed; `python tools/check_scene_palettes.py --quiet` exits 0;
+`python tools/scene_palette_set.py build` exits 0 and derives the same set.
+
+Not decided here. Whether the ship's sea is deep `$02` or mid `$12` at the fill level; whether the cargo family should
+carry brass `$28`; whether the budget should be nine. The lifebuoy stays grey in the one room that places it until the
+redraw, and that is the cost this ruling accepts, on the record, with its 16 pixels measured. No GameMaker build and
+no hardware capture back any of it; this is palette and pixel measurement through the project's own tools.
+
+Two hazards. The sheet's water family is a flat fill named after things it does not draw (foam, edge, two frames),
+which is what makes a 137 pixel row difference hard to judge and is the redraw's first job. And the background half
+printed the same four rows on every run of this card, while the sprite half's row ORDER was seen once to come back
+permuted in a scratch root (the same four rows in different slots); it was not chased, and nothing in this section
+rests on the sprite half's order.
+
+Provenance for section 21: studied this repository's own files only (`tools/art/scene_palette.py` at `7a73469` and at
+HEAD, `tools/art/make_env_ship.py`, `tools/art/make_ship_tiles.py`, `tests/test_make_env_ship.py`,
+`tests/test_scene_palettes.py`, `tests/test_scene_palette_set.py`, `tests/test_make_ship_tiles.py`,
+`tools/scene_palette_set.py`, `tools/check_scene_palettes.py`, `tools/check_env_tiles.py`, `data/nes_palette.json`,
+`data/palettes/scene_ship.json`, `game/sprites_src/env/ts_ship.png` and `ts_ship_tiled.json`,
+`data/maps/ship_sample_tiled.json`, `knowledge/SHIP-PALETTE-DRIFT-2026-10-25.md`, and the commit history of all of
+them). No decompiled material was read for this card and no expression from any game is in it. Copied expression:
+none.

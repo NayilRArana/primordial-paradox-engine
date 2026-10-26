@@ -79,6 +79,9 @@ def test_a_solve_keeps_a_pinned_sprite_half_and_its_judged_row(tmp_path):
     shutil.copy(os.path.join(ROOT, "data", "nes_palette.json"), str(tmp_path / "data" / "nes_palette.json"))
     with open(os.path.join(ROOT, "data", "palettes", "scene_ship.json"), encoding="utf-8") as handle:
         shipped = json.load(handle)
+    # Card t_23b5739a pinned the BACKGROUND half of the shipped file too. This test is about the sprite half, so
+    # its scratch copy drops that one key; the background pin and its own control are measured below.
+    shipped.pop("background_pinned", None)
     target = tmp_path / "data" / "palettes" / "scene_ship.json"
     target.write_text(json.dumps(shipped, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -103,6 +106,47 @@ def test_a_solve_keeps_a_pinned_sprite_half_and_its_judged_row(tmp_path):
         unpinned = json.load(handle)
     assert [row["colours"] for row in unpinned["sprites"]] == solver_rows, unpinned["sprites"]
     assert unpinned["judged"] == shipped["judged"], "the judged row is carried whether the half is pinned or not"
+
+
+def test_a_solve_keeps_a_pinned_background_half(tmp_path):
+    """Card t_23b5739a: the ship's background rows are a ruling, and a `solve --write` used to move them.
+
+    The rows are an INPUT to the pixels of ts_ship.png (make_env_ship's scene palette pass repaints the sheet into
+    them), so the solver's rows for this sheet rebuild a different PNG and drop one of the ten declared colours.
+    Ruling section 21 keeps the shipped rows and marks the half `background_pinned: true`; removing the key is how
+    a later card that means to move the design does it, which is the control measured at the end.
+    """
+    import shutil
+
+    (tmp_path / "data" / "palettes").mkdir(parents=True)
+    shutil.copy(os.path.join(ROOT, "data", "nes_palette.json"), str(tmp_path / "data" / "nes_palette.json"))
+    with open(os.path.join(ROOT, "data", "palettes", "scene_ship.json"), encoding="utf-8") as handle:
+        shipped = json.load(handle)
+    assert shipped.get("background_pinned") is True, (
+        "the shipped ship file lost its background pin, so the next solve --write repaints ts_ship.png")
+    target = tmp_path / "data" / "palettes" / "scene_ship.json"
+    target.write_text(json.dumps(shipped, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    solver_rows = [[0x00, 0x10, 0x30], [0x02, 0x12, 0x30], [0x07, 0x17, 0x36], [0x08, 0x27, 0x28]]
+    solver_background = [[0x00, 0x10, 0x30], [0x10, 0x28, 0x30], [0x02, 0x07, 0x17], [0x00, 0x02, 0x21]]
+    scene_palette.write_scene(str(tmp_path), "ship", 0x0F, solver_background, solver_rows, ["solved by a rerun"])
+    with open(str(target), encoding="utf-8") as handle:
+        written = json.load(handle)
+
+    assert [row["colours"] for row in written["background"]] == [row["colours"] for row in shipped["background"]], (
+        "a solve moved a pinned background half, which repaints ts_ship.png")
+    assert written["background_pinned"] is True, written.get("background_pinned")
+    assert written["notes"] == shipped["notes"], "the note that explains the pin was overwritten"
+    assert written["judged"] == shipped["judged"], "a solve deleted the judged row"
+
+    # The control: drop the key and the same call moves the background rows, so the pin is the mechanism.
+    shipped.pop("background_pinned")
+    target.write_text(json.dumps(shipped, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    scene_palette.write_scene(str(tmp_path), "ship", 0x0F, solver_background, solver_rows, ["solved by a rerun"])
+    with open(str(target), encoding="utf-8") as handle:
+        unpinned = json.load(handle)
+    assert [row["colours"] for row in unpinned["background"]] == solver_background, unpinned["background"]
+    assert "background_pinned" not in unpinned
 
 
 def test_the_check_reports_its_numbers_so_a_reviewer_can_read_them():

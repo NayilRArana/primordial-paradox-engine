@@ -21,8 +21,9 @@ inside the budget, and tools/nes_composite_check.py checks the result again from
 using anything this module knows.
 
 A scene file can hold two things a solve does not compute, and write_scene() carries both forward: the
-`judged` row (the ground the room's cast is measured on) and a sprite half marked `sprites_pinned` (a
-cast decision, like the party's four walking triples on the ship). See the docstring of write_scene().
+`judged` row (the ground the room's cast is measured on) and a half marked pinned (`sprites_pinned` for a
+cast decision like the party's four walking triples on the ship, `background_pinned` for a ruled row set
+like the ship's four background rows). See the docstring of write_scene().
 
 The three rules it enforces, all from knowledge/ART-BIBLE.md section 1:
 
@@ -62,11 +63,14 @@ CELL = 16          # background attribute area
 SUBTILE = 8        # sprite tile
 LIMIT = 3          # colours per palette, besides the backdrop / plus transparency
 PALETTE_DIR = os.path.join("data", "palettes")
-# Two keys this solver writes around rather than computes, both owned by the scene file itself:
-#   judged            the audit row that says which ground the room's cast is measured on (card t_1dc346b9)
-#   sprites_pinned    the sprite half is a cast decision, so a solve keeps it (ruling section 17, t_a6a7a436)
+# Three keys this solver writes around rather than computes, all owned by the scene file itself:
+#   judged              the audit row that says which ground the room's cast is measured on (card t_1dc346b9)
+#   sprites_pinned      the sprite half is a cast decision, so a solve keeps it (ruling section 17, t_a6a7a436)
+#   background_pinned   the background rows are a ruling, not a solve product, so a solve keeps them
+#                       (ruling section 21, card t_23b5739a)
 JUDGED_KEY = "judged"
 SPRITES_PINNED_KEY = "sprites_pinned"
+BACKGROUND_PINNED_KEY = "background_pinned"
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -493,7 +497,7 @@ def _file_payload(path: str) -> dict:
 
 
 def write_scene(root: str, name: str, backdrop: int, background, sprites, notes) -> str:
-    """Write the scene file, carrying forward the two halves a solve does not own.
+    """Write the scene file, carrying forward the parts a solve does not own.
 
     A scene file can be written by more than one card. `judged` is the audit row that says what ground a room's
     cast is measured on, and this solver has never emitted one, so a solve used to delete it (the defect card
@@ -501,18 +505,32 @@ def write_scene(root: str, name: str, backdrop: int, background, sprites, notes)
     shape in a third file). `sprites_pinned: true` marks a sprite half that is a CAST DECISION rather than a
     solve product: the ship's four rows are the party's four walking triples, shared with the towns by hand
     (knowledge/PALETTE-RULINGS-2026-10-25.md section 17, card t_a6a7a436), so a solve keeps that half and the
-    notes that explain it and prints what it kept. The background half is always the solver's.
+    notes that explain it and prints what it kept.
+
+    `background_pinned: true` marks the same thing for the BACKGROUND half: the rows are a ruling, not a solve
+    product (ruling section 21, card t_23b5739a). The ship's rows are an input to the pixels of ts_ship.png, so a
+    solve that writes them repaints the art; measured on 2026-10-25 the solver's rows rebuild a different sheet
+    (151 pixels over 6 tiles) and drop one of the ten declared colours. Pinning the half means a
+    `solve --write` prints the proposal and keeps the file, and removing the key is how a card that means to move
+    the design does it. A file with neither pin takes the solver's rows for both halves, which is the control the
+    tests measure.
     """
     colours, usable, _index_of = load_master(root)
     path = scene_path(root, name)
     before = _file_payload(path)
     pinned = bool(before.get(SPRITES_PINNED_KEY))
+    background_pinned = bool(before.get(BACKGROUND_PINNED_KEY)) and bool(before.get("background"))
     if pinned and before.get("sprites"):
         sprites = [[int(entry) for entry in row["colours"]] for row in before["sprites"]]
-        if before.get("notes"):
-            notes = list(before["notes"])
-        print("scene_palette: %s keeps its pinned sprite half and its notes (sprites_pinned true); the "
-              "background half is still the solver's" % os.path.basename(path))
+        print("scene_palette: %s keeps its pinned sprite half (sprites_pinned true)" % os.path.basename(path))
+    if background_pinned:
+        background = [[int(entry) for entry in row["colours"]] for row in before["background"]]
+        if "backdrop" in before:
+            backdrop = int(before["backdrop"])
+        print("scene_palette: %s keeps its pinned background half (background_pinned true); the proposal is "
+              "not applied" % os.path.basename(path))
+    if (pinned or background_pinned) and before.get("notes"):
+        notes = list(before["notes"])
     payload = {
         "format": 1,
         "kind": "scene_palette",
@@ -531,10 +549,17 @@ def write_scene(root: str, name: str, backdrop: int, background, sprites, notes)
     }
     if pinned:
         payload[SPRITES_PINNED_KEY] = True
+    if background_pinned:
+        payload[BACKGROUND_PINNED_KEY] = True
     if before.get(JUDGED_KEY):
         payload[JUDGED_KEY] = before[JUDGED_KEY]
         print("scene_palette: %s keeps its %d judged row(s) verbatim"
               % (os.path.basename(path), len(before[JUDGED_KEY])))
+    if before and before == payload:
+        # Both halves pinned (or the solve landed exactly the rows already there): do not rewrite the file, so a
+        # `solve --write` cannot leave a layout-only diff in the tree it was told to keep.
+        print("scene_palette: %s already holds these rows; nothing written" % os.path.basename(path))
+        return path
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
@@ -995,9 +1020,14 @@ def solve_ship(root: str, write: bool = False) -> dict:
     solve that writes by default therefore edits the art, and card t_92d59163 measured exactly that on
     2026-10-25: the solver proposes `bg1 $07 $17 $30` and `bg2 $02 $12 $28` where the committed file carries
     `bg1 $12 $28 $30` and `bg2 $02 $07 $17`, the enforced sheet then repaints 151 pixels over 6 tiles, and
-    the entry `$2C #3cbcfc` leaves the sheet, so a ten colour tileset reads nine and
+    the entry `$21 #3cbcfc` leaves the sheet, so a ten colour tileset reads nine and
     `tests/test_make_env_ship.py` fails twice. The proposal is not wrong about the sheet it measured: the
     committed rows are the fixed point of solve plus enforce, and only the two together can move.
+
+    Card t_23b5739a ruled on that on 2026-10-25: the rows STAY for now (ruling section 21), so
+    `data/palettes/scene_ship.json` carries `background_pinned: true` and `write_scene()` keeps them even
+    when `--write` is passed. The report below still prints the proposal, because it is the honest
+    measurement of the drawing, and `pinned` in the result is what says the file will not take it.
     """
     colours, usable, index_of = load_master(root)
     path = os.path.join(root, "game", "sprites_src", "env", "ts_ship.png")
@@ -1027,13 +1057,18 @@ def solve_ship(root: str, write: bool = False) -> dict:
         "also be drawn as sprites",
         "solved by tools/art/scene_palette.py and checked by tools/nes_composite_check.py",
     ]
+    pinned = bool(_file_payload(scene_path(root, "ship")).get(BACKGROUND_PINNED_KEY))
+    kept = [[int(entry) for entry in row["colours"]]
+            for row in _file_payload(scene_path(root, "ship")).get("background", [])] if pinned else None
     path_out = write_scene(root, "ship", backdrop, background, sprites, notes) if write else scene_path(root, "ship")
-    scene = load_scene(root, "ship") if write else proposed_scene(root, "ship", backdrop, background, sprites)
+    scene = load_scene(root, "ship") if (write and not pinned) else proposed_scene(root, "ship", backdrop,
+                                                                                   background, sprites)
     leftover = 0
     for counts in profiles:
         _index, covered = scene.pick_bg(counts)
         leftover += sum(counts.values()) - covered
-    return {"path": path_out, "scene": scene, "areas": len(profiles), "pixels_outside": leftover, "written": write}
+    return {"path": path_out, "scene": scene, "areas": len(profiles), "pixels_outside": leftover,
+            "written": write, "pinned": pinned, "kept": kept}
 
 
 def proposed_scene(root: str, name: str, backdrop: int, background, sprites) -> "Scene":
@@ -1050,6 +1085,14 @@ def proposed_scene(root: str, name: str, backdrop: int, background, sprites) -> 
     }, root)
 
 
+def _display(path: str) -> str:
+    """A path for a report: relative when that makes sense, absolute when it does not (another drive)."""
+    try:
+        return os.path.relpath(path)
+    except ValueError:
+        return path
+
+
 def describe(result: dict) -> None:
     scene = result["scene"]
     colours = scene.colours
@@ -1061,8 +1104,17 @@ def describe(result: dict) -> None:
             print("  %s %d  %s" % (label, index,
                                    "  ".join("$%02X #%02x%02x%02x" % ((entry,) + colours[entry])
                                              for entry in row)))
-    print("  %s: %s" % ("written" if result.get("written") else "proposal only, nothing written; the file is",
-                        os.path.relpath(result["path"])))
+    if result.get("pinned"):
+        print("  NOT applied: the background rows are PINNED (background_pinned true, ruling section 21) and the "
+              "sprite half is pinned too, so a write keeps the file's own rows and touches neither half.")
+        if result.get("kept"):
+            print("  the file's rows are: " + " | ".join(
+                "bg%d %s" % (index, " ".join("$%02X" % entry for entry in row))
+                for index, row in enumerate(result["kept"])))
+        print("  file: %s" % _display(result["path"]))
+    else:
+        print("  %s: %s" % ("written" if result.get("written") else "proposal only, nothing written; the file is",
+                            _display(result["path"])))
 
 
 def compose_frame(root: str, out_path: str) -> str:
