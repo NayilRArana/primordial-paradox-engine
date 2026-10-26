@@ -1,4 +1,8 @@
 {
+  "backdrop": {
+    "entry": 15,
+    "hex": "#000000"
+  },
   "columns": 16,
   "format": 1,
   "image": "ts_ship.png",

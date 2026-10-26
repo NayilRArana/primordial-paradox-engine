@@ -126,7 +126,8 @@ def test_build_writes_the_five_outputs_the_card_names(built):
     assert os.path.basename(paths["preview"]) == "env_ship_preview.png"
     meta = load(paths["meta"])
     assert meta == {"name": "ts_ship", "frame_w": 16, "frame_h": 16, "frames": 48,
-                    "fps": 0.0, "kind": "tileset", "columns": 16, "rows": 3}
+                    "fps": 0.0, "kind": "tileset", "columns": 16, "rows": 3,
+                    "backdrop": {"entry": 15, "hex": "#000000"}}
     assert load(paths["map"])["kind"] == "map"
 
 
@@ -359,7 +360,7 @@ def test_check_env_tiles_passes_on_the_repository():
     assert facts["collision_blocked"] + facts["collision_walkable"] == 300
 
 
-# ---------------------------------------------------------------------------- 8. the redrawn sea (card t_463bc8c1)
+# ---------------------------------------------------------------------------- 8. the redrawn sea (card t_463cb8c1)
 #
 # The sea used to be a flat fill named after things it did not draw: on the sheet before this card, water_a, water_b,
 # water_edge and water_foam were 256 identical pixels of $12, because the row they were forced into carried sea mid
@@ -433,7 +434,7 @@ def test_the_two_sea_frames_are_a_swell_and_the_edge_and_foam_are_not_the_same_t
 
 
 def test_the_cargo_family_keeps_the_brass_its_row_can_show(built):
-    """Q2 of card t_463bc8c1: brass is GIVEN a row, not quietly dropped from the drawing."""
+    """Q2 of card t_463cb8c1: brass is GIVEN a row, not quietly dropped from the drawing."""
     image = Image.open(built["files"]["sheet"]).convert("RGB")
     for name in CARGO:
         drawn = drawn_counts(name)[0x28]
@@ -444,9 +445,9 @@ def test_the_cargo_family_keeps_the_brass_its_row_can_show(built):
 
 
 def test_the_scene_palette_pass_repaints_only_the_bunk_and_the_lifebuoy(built):
-    """The rows were moved onto the drawing (card t_463bc8c1): what is left over is two other cards' art.
+    """The rows were moved onto the drawing (card t_463cb8c1): what is left over is two other cards' art.
 
-    Pinned exactly, because this is the number ruling 21.2 measured and 21.7 replaced: 762 pixels repainted by the
+    Pinned exactly, because this is the number ruling 21.2 measured and section 23 replaced: 762 pixels repainted by the
     old rows, 76 by these. A future redraw that raises it, or a row edit that raises it, has to move this test.
     """
     drawn = ms.render_sheet()

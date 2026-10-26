@@ -2158,3 +2158,70 @@ Provenance for section 23: studied this repository's own files only (`tools/art/
 `ts_ship_tiled.json`, `data/maps/ship_sample_tiled.json`, `output/env_ship_preview.png`, sections 21 and 22 of this
 file, `knowledge/SHIP-PALETTE-DRIFT-2026-10-25.md`, and the commit history of all of them). No decompiled material was
 read for this card and no expression from any game is in it. Copied expression: none.
+
+## 24. The ship sheet declares its backdrop: the 44 px the audit charged were the steel grey guess, not a drawing bug (card `t_4d5984b4`)
+
+Run 12 of the palette pass list (`knowledge/PALETTE-PASS-LIST.md`, card `t_585efccb`) turned one GAME ASSET red for the
+first time since run 11: `game/sprites_src/env/ts_ship.png`, 256x48, `44 px background_area x3`, reproduced on this PC
+and on Pine at HEAD `8220c95`. This section is the ruling. The drawing is legal NES art, `background_area` is right, and
+the input the audit measured was wrong: the sheet's sidecar did not declare its backdrop, so the audit guessed one and
+guessed the steel grey.
+
+### 24.1 What the three areas actually carry
+
+The three failing blocks are `[112, 16]` (20 px), `[96, 16]` (12 px) and `[32, 32]` (12 px), which are tile ids 23
+`barrel`, 22 `crate_stack` and 34 `table`, the rust group, each already declaring `colours: "r,o,y"` in
+`ts_ship_tiled.json`. Every one of them carries `#000000 #881400 #e45c10 #f8b800`. That is four colours including the
+backdrop and three besides it, and the three besides it are exactly the ship scene's `bg2` row in
+`data/scene_palettes.json`, entry numbers `[7, 23, 40]`. So each area is the hardware maximum and nothing over it: the
+one shared backdrop `$0F` plus one three entry background row. There is nothing here to repaint.
+
+### 24.2 Why the audit saw four colours besides the backdrop
+
+`tools/nes_audit_all.py::declared_backdrop()` reads a background's backdrop from the sidecar beside the PNG and falls
+back to the sheet's most common opaque colour only when that key is missing. `ts_ship.json` did not carry the key. On
+this sheet the fallback picks the wrong colour, because steel mid `$00 #7c7c7c` is 3553 opaque pixels and the black
+backdrop `$0F` is 3350. A guessed grey then makes every black seam on the rust row a fourth colour in its area. Measured
+both ways on the same committed PNG: guessed `#7c7c7c` gives 44 offending pixels over 3 areas; declared `#000000` gives
+0 offending pixels over 0 areas.
+
+`game/sprites_src/env/ts_exterior.json` already declares `{"entry": 15, "hex": "#000000"}` and has never failed this
+rule. The ship's sidecar was the one beside a measured sheet that was missing it.
+
+### 24.3 The fix
+
+`tools/art/make_env_ship.py` gains `BACKDROP_DECLARED`, derived from the backdrop row of its own `PALETTE` table (entry
+15, `#000000`), and writes it into both `ts_ship.json` and `ts_ship_tiled.json`, so the declaration cannot drift from
+the palette table and a regeneration keeps it. No pixel moved: after `python tools/art/make_env_ship.py`, `git diff
+--stat` on the build's outputs names the two JSON files and nothing else, with `ts_ship.png`,
+`data/maps/ship_sample_tiled.json` and `output/env_ship_preview.png` byte identical.
+
+`tests/test_make_env_ship.py::test_build_writes_the_five_outputs_the_card_names` pins the meta dict exactly, so it gains
+the key too. That pin is what holds the declaration through a rebuild.
+
+### 24.4 Checked
+
+- `python tools/nes_audit_all.py --only ts_ship --no-write`: PASS, 1 file, 0 failing, exit 0. Before: FAIL, 44 px,
+  `background_area x3`, exit 1.
+- `python tools/nes_audit_all.py --no-write`: 183 files, 34 failing, exit 1. Before: 183 files, 35 failing. The row that
+  left the list is this asset; the 34 that remain are output previews and captures, all another lane's.
+- `python tools/check_env_tiles.py`: PASS, 48 tiles, 10 colours, map 20x15, `worst_area_colours 3`.
+- `python -m pytest` over the ten env, palette, audit and ship suites: 171 passed.
+
+### 24.5 The class this names, and what it does not decide
+
+45 of the 54 background assets the audit measures carry no declared backdrop: the 42 title layers including every fade
+and flash variant, and the 3 ui screens. Every one of them passes today only because its most common opaque colour
+happens to BE the backdrop. Any repaint that flips that count turns a legal sheet red exactly the way this one did, with
+the same phantom that cost this card. The rule the audit's own docstring states is the durable one: art whose backdrop
+is not its commonest colour must declare it. Enforcing the declaration on every background sheet belongs to whichever
+generator owns that sheet, not to this card, and none of them fails today, so no card is opened for it here.
+
+`data/scene_palettes.json` was not touched; the palette entries are NES-PALETTES `t_c8156a77`'s.
+
+Provenance for section 24: studied this repository's own files only (`tools/nes_audit_all.py`,
+`tools/art/make_env_ship.py`, `tools/check_env_tiles.py`, `game/sprites_src/env/ts_ship.json`,
+`game/sprites_src/env/ts_ship_tiled.json`, `game/sprites_src/env/ts_exterior.json`, `data/scene_palettes.json`,
+`data/nes_palette.json`, `tests/test_make_env_ship.py`, `tests/test_nes_audit_all.py`, and the audit's own measured
+output at HEAD `8220c95`). No decompiled material was read for this card and no expression from any game is in it.
+Copied expression: none.

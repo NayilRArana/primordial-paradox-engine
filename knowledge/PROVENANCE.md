@@ -1837,9 +1837,14 @@ floor inside the solver that prints both numbers and refuses a worse write, with
 for a half that genuinely is a ruling.
 Copied expression: none
 
-Correction on the same card, 2026-10-26: the card number was written as `t_463bc8c1` (two letters transposed) in the
-shipped note of `data/palettes/scene_ship.json` and in five docstrings of `tools/art/scene_palette.py`. It is
-`t_463cb8c1`. Only the identifier changed; the sheet was regenerated after the edit and is byte identical, and
+Correction on the same card, 2026-10-26: two pointers in this card's own prose were wrong. The card number was
+written as `t_463bc8c1` (two letters transposed) in the shipped note of `data/palettes/scene_ship.json`, in five
+docstrings of `tools/art/scene_palette.py` and in four in the two ship test files; it is `t_463cb8c1`. The same note
+and three code comments cited "ruling section 21.7", which this card never wrote: the ruling is section 23, because
+the card allowed an addendum 21.7 or a new section and a new section is what was written. Both classes of pointer are
+now the real identifiers. The lesson is that a receipt has to name the thing the board answers to, and that choosing a
+new section obliges every pointer to say 23. No row, pixel or number changed; the sheet was regenerated after the
+edit and is byte identical, and
 `pytest tests/test_make_env_ship.py tests/test_scene_palette_set.py tests/test_scene_palettes.py -q -> 59 passed`
 re-ran green.
 
@@ -1860,4 +1865,54 @@ Our implementation differs by: the normalization sits at the printer (`shown_pat
 rather than at the embedder, so every consumer of this tool's stdout inherits the portable form, and it matches the
 `.replace(os.sep, "/")` spelling the art lane already uses instead of introducing a second convention. The row stays
 measured on Pine rather than being deselected there.
+Copied expression: none
+
+## TS-SHIP-AREA, 2026-10-26: a checker that guesses its input is measuring the guess, so an art sheet has to declare its own backdrop (card `t_4d5984b4`)
+Studied: this repository's own files, read only: `tools/nes_audit_all.py` (`declared_backdrop()`, `block_offenders()`,
+`measure()`), `tools/nes_check.py`, `tools/art/make_env_ship.py`, `tools/check_env_tiles.py`,
+`game/sprites_src/env/ts_ship.json`, `game/sprites_src/env/ts_ship_tiled.json`,
+`game/sprites_src/env/ts_exterior.json`, `data/scene_palettes.json`, `data/nes_palette.json`,
+`tests/test_make_env_ship.py`, `tests/test_nes_audit_all.py`, and the audit's own measured output at HEAD `8220c95`. No
+decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: three. One, a rule that reads its own free parameter from the pixels cannot be trusted on a sheet
+where two candidate values are close: the NES area rule charges every colour besides the backdrop, so a backdrop guessed
+as the commonest colour makes the true backdrop a chargeable colour, and on this sheet the guess was decided by 203
+pixels of margin (3553 grey against 3350 black). The rule was right and the measurement was wrong, which is the failure
+mode that looks exactly like an art bug from the outside. Two, the fix belongs in the art's declaration and not in the
+rule's tolerance, because relaxing the checker to accept four colours would let a genuinely over-budget area through
+forever; declaring the input is what keeps the rule strict and the reading true. Three, the declaration has to be
+generated from the same table the art is drawn from, or the next build resets it: the key now comes from the backdrop row
+of the generator's own palette table, so the two cannot drift, and the proof that no pixel moved is that a rerun leaves
+the sheet, the map and the preview byte identical and changes only the two sidecars.
+Our implementation differs by: the declaration lives in the tileset sidecar that already exists beside every sheet in this
+project, rather than in a new per-asset config, because `tools/nes_audit_all.py` already reads exactly that file and
+already prefers it over the guess; and the class the card exposed is recorded rather than silenced, since 45 of the 54
+measured background assets carry no declaration and pass today only because their commonest colour happens to be the
+backdrop.
+Copied expression: none
+
+## FIRST-FIGHT-ROUTE, 2026-10-26: a route file only one harness followed is a route no player has (card `t_009836b9`)
+Studied: this repository's own files, read only, no decompiled material and no expression from any game in it:
+`data/slice.json`, `data/scenes/all.json` (`drive_to_southampton`, `quay_gate_checkpoint`, `ship_boarding`),
+`data/maps/all.json` (`drive_m4_corridor`, `southampton_town_quay`, `ship_small`), `game/scripts/pp_app/pp_app.gml`
+(the route reader and the `PP_SLICE` walk), `game/scripts/pp_scene/pp_scene.gml` (the runner's `take_scene`, `end` and
+`branch`), `game/scripts/pp_overworld/pp_overworld.gml` (the one place a finished runner is dropped, and the encounter
+door), `game/scripts/pp_title/pp_title.gml` (`pp_title_crawl_handoff`), `game/scripts/pp_input/pp_input.gml` (the
+action table), `data/schemas/cutscenes.schema.json`, `tools/check_data.py`, `tools/art/make_drive_map.py`,
+`tests/test_slice_route.py`, `tests/test_scene_runner.py`, `tests/test_drive_map.py`, and
+`knowledge/FIRST-FIGHT-FINDING-2026-10-26.md` as it stood at commit `35806b1`.
+Mechanics learned: three. One, a route that is only read behind an environment flag is not a route but a harness: the
+crawl took its handoff from the same file every launch reads, and the very next edge was read only when `PP_SLICE` was
+set, so the demo advanced exactly one step for a player and stopped on a map with no trigger. The fix is not a second
+walk but the same `next` edge taken by the player's run through the same handoff door, with a cursor of its own so a
+`PP_SLICE` run never takes a step twice. Two, the honest place to catch "this scene ended" is the one place a finished
+runner is let go, not the `end` command: a scene can also finish by running out of commands or by its command cap, and a
+hook on `end` alone would miss those and be a second path that can disagree. Three, a long opening cutscene is not the
+gate in front of the first fight, it is the invitation: 10,680 steps and twelve press-gated captions is the drive's own
+work (cue PP-02, eleven cuts), so it stays whole and gains the skip a player can press instead of being cut down to a
+capture's length.
+Our implementation differs by: the route's player half lives in five small functions beside the walk rather than in a
+second state machine, a scene row opts in to being skippable with one boolean instead of the runner guessing from
+length, and the corridor gets a `map` trigger on its own start tile as a floor under the route rather than a portal the
+scene has to name. The decisions are written in `specs/20-demo-route.md` and rules 9 and 10 of `specs/06`.
 Copied expression: none

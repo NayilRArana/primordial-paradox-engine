@@ -75,6 +75,14 @@ PALETTE = [
 ]
 
 BACKDROP = "k"
+_BACKDROP_ROW = [row for row in PALETTE if row[0] == BACKDROP][0]
+# The backdrop is declared in the sidecars, not only listed in the palette table: tools/nes_audit_all.py
+# reads a background's backdrop from its sidecar before it measures any 16x16 attribute area, and falls
+# back to the sheet's most common colour when the key is missing. On this sheet that guess is WRONG,
+# because the steel grey $00 (3553 px) outnumbers the black backdrop $0F (3350 px), and a guessed grey
+# then charges every black seam against the three colours an area may carry (44 px over 3 areas, card
+# t_4d5984b4). Declaring it here is what keeps the audit measuring the backdrop the art actually uses.
+BACKDROP_DECLARED = {"entry": _BACKDROP_ROW[1], "hex": _BACKDROP_ROW[2]}
 KEY_TO_RGBA = {}
 for _key, _entry, _hex, _use in PALETTE:
     _v = _hex.lstrip("#")
@@ -443,7 +451,7 @@ def porthole_a(c: Cell) -> None:
     c.annulus(C, C, 7.4, 5.8, "l")
     # The glass is steel light, not sea blue: a three tone sea and a steel frame are four colours in one
     # attribute area, and the frame is the part that has to stay metal. Pale glass with a white glare reads as
-    # daylight through a window and fits the steel-and-white row (ruling section 21.7).
+    # daylight through a window and fits the steel-and-white row (ruling section 23).
     c.disc(C, C, 5.2, "l")
     c.hline(6, 5, 10, "w")
     c.set(4, 9, "w")
@@ -606,7 +614,7 @@ def rail_bar(c: Cell) -> None:
 # -----------------------------------------------------------------------------------------------------------------
 # The sea. Five tiles on three tones: sea mid $12 is the body, sea crest $21 is the light on a wave and the foam,
 # sea deep $02 is the trough under a crest and the whole of the deep water. Nothing here is white: white is the
-# ship's paint, and a row that carries white cannot also carry the crest (ruling section 21.7).
+# ship's paint, and a row that carries white cannot also carry the crest (ruling section 23).
 
 
 def crest(c: Cell, y: int, x0: int, length: int) -> None:
@@ -1025,6 +1033,7 @@ def tileset_json(sheet_png: str) -> dict:
         "columns": COLUMNS,
         "margin": 0,
         "spacing": 0,
+        "backdrop": BACKDROP_DECLARED,
         "tiledversion": "1.11.0",
         "type": "tileset",
         "properties": [
@@ -1315,6 +1324,7 @@ def build(root: str) -> dict:
         "kind": "tileset",
         "columns": COLUMNS,
         "rows": (TILE_COUNT + COLUMNS - 1) // COLUMNS,
+        "backdrop": BACKDROP_DECLARED,
     })
     write_json(os.path.join(env_dir, "ts_ship_tiled.json"), tileset_json("ts_ship.png"))
 

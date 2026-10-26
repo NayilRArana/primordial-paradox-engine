@@ -1,4 +1,8 @@
 {
+  "backdrop": {
+    "entry": 15,
+    "hex": "#000000"
+  },
   "columns": 16,
   "fps": 0.0,
   "frame_h": 16,
