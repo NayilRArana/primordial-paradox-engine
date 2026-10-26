@@ -294,10 +294,73 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "bg_battle_corridor.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "bg_battle_corridor.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "bg_battle_deck_night.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "bg_battle_deck_night.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "bg_battle_quay_dusk.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "bg_battle_quay_dusk.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "bg_battle_wardroom.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "bg_battle_wardroom.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "bilge_slime.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "bilge_slime.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "deck_rat.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "deck_rat.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "drive_tiles.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "drive_tiles.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "gull.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "gull.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },
@@ -375,6 +438,15 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "navy_sailor.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "navy_sailor.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "percy_battle.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
@@ -411,10 +483,37 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "petty_officer.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "petty_officer.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "quay_tiles.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",
       "name": "quay_tiles.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "rogue_wave.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "rogue_wave.png",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "rope_knot.png",
+      "CopyToMask": -1,
+      "filePath": "datafiles/art",
+      "name": "rope_knot.png",
       "resourceType": "GMIncludedFile",
       "resourceVersion": "2.0"
     },

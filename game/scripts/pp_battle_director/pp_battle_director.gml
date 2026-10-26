@@ -86,6 +86,9 @@ function pp_battle_new(_encounter, _enemy, _party, _ledger) {
         // a build that is missing the art says so once instead of every step.
         bg_name: "",
         bg_missing_said: false,
+        // Card t_4275136f: the same courtesy for the enemy's own sheet, which is looked up in the art index by the
+        // enemy row's id at draw time rather than cached here, because the index is the build's, not the fight's.
+        enemy_art_said: false,
         rng: pp_rng_new(_encounter.seed)
     };
 
@@ -907,9 +910,9 @@ function pp_battle_draw_field(_battle) {
         return _name;
     }
 
-    // The strip is baked but not in the build's art index yet: tools\sync_art.py mirrors title, env and chars and
-    // does not read game\sprites_src\bg\, and this card may not edit that tool. A missing strip is a field with no
-    // picture and never an error, and it is said once rather than every step.
+    // Card t_4275136f: the strip reaches the build now. tools\sync_art.py mirrors game\sprites_src\bg\ (and the enemy
+    // sheets) into game\datafiles\art, so this branch is the build that is missing the file rather than every build.
+    // A missing strip is a field with no picture and never an error, and it is said once rather than every step.
     if (!_battle.bg_missing_said) {
         _battle.bg_missing_said = true;
         show_debug_message("PP battle: " + _sprite + " is not in the art index, the field draws without its strip");
@@ -918,7 +921,140 @@ function pp_battle_draw_field(_battle) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// Drawing. No sprites yet, so every actor is a flat rectangle in a palette role; spec 13 owns the final art.
+// The actors: the enemy sheet and the party's sheets (card t_4275136f)
+//
+// Ruling 7.5 of knowledge\PALETTE-RULINGS-2026-10-25.md: on a battle strip that draws all four heroes the enemy is
+// BACKGROUND art, and the four sprite palettes are the party's. The two draws below are not interchangeable. The
+// party's sheets cost one sprite triple each, which are the four reserved hero triples (ruling 7.2, the paint landed
+// on card t_d5483a88); the enemy's sheet costs no sprite palette at all, because its three colours are already
+// carried by the background triple of the area it stands on plus the scene's one shared backdrop. On the deck that
+// is bg2 $00 $30 $02 plus $0F, which carries the sailor's sheet ($02 $0F $30) whole (rulings 15.3 and 15.4, card
+// t_34b1d96a). That is why the enemy is drawn with PP_UNTINTED: it is background art standing in the background's
+// own colours, not a sprite that needs a row.
+//
+// Every number here is the battle screen's own row in data\ui_layouts.json, read at run time instead of restated in
+// code: the enemy's slot is that row's first `enemies` entry (tile 3,8 at 32x32) and the party column is its `party`
+// array (four 24x32 slots at tile x 28, tile y 4, 8, 12 and 16), whose `member` names are the ids the sheets are
+// named after. No hero and no enemy is named in this file, because a table in code is a second place to disagree
+// with the art lane; tests\test_enemy_phases.py and tests\test_prometheus_interrupt.py already refuse an enemy name
+// here for the same reason, and tests\test_battle_draw.py holds these readers to the file's own members and tiles.
+
+/// The battle screen's row in data\ui_layouts.json, or undefined when the bundle has none. One reader, so the slots
+/// below cannot disagree with each other or with the file.
+function pp_battle_layout() {
+    if (!is_struct(global.pp_data)) return undefined;
+    if (!variable_struct_exists(global.pp_data, "ui_layouts")) return undefined;
+    var _file = global.pp_data.ui_layouts;
+    if (!is_struct(_file) || !is_array(_file.screens)) return undefined;
+    for (var i = 0; i < array_length(_file.screens); i++) {
+        if (string(_file.screens[i].name) == "battle") return _file.screens[i];
+    }
+    return undefined;
+}
+
+/// "24x32" as [24, 32]. A layout row states a tile rect and the pixel size a sheet is, and the pixel size is what a
+/// draw call needs; the tile rect is what the tests check the pixel size against.
+function pp_battle_pixels(_text) {
+    var _parts = string_split(string(_text), "x");
+    if (array_length(_parts) < 2) return [0, 0];
+    return [real(_parts[0]), real(_parts[1])];
+}
+
+/// The battle screen's first enemy slot, in pixels: the layout's tile rect times 8, and the size its row states.
+/// Undefined when there is no layout, which is a bundle the boot card has already complained about.
+function pp_battle_enemy_slot() {
+    var _screen = pp_battle_layout();
+    if (is_undefined(_screen)) return undefined;
+    if (!is_array(_screen.enemies) || array_length(_screen.enemies) == 0) return undefined;
+    var _row = _screen.enemies[0];
+    var _size = pp_battle_pixels(_row.pixels);
+    return { x: _row.x * 8, y: _row.y * 8, w: _size[0], h: _size[1] };
+}
+
+/// The party column: one slot per member the layout names, in the file's own order, top slot first. The id is the
+/// member name lowered, because the sheets are named after the hero (game\sprites_src\chars\<id>_battle.png).
+function pp_battle_party_slots() {
+    var _out = [];
+    var _screen = pp_battle_layout();
+    if (is_undefined(_screen)) return _out;
+    if (!is_array(_screen.party)) return _out;
+    for (var i = 0; i < array_length(_screen.party); i++) {
+        var _row = _screen.party[i];
+        var _size = pp_battle_pixels(_row.pixels);
+        array_push(_out, { id: string_lower(string(_row.member)),
+                           x: _row.x * 8, y: _row.y * 8, w: _size[0], h: _size[1] });
+    }
+    return _out;
+}
+
+/// The art index name of a hero's battle sheet: the hero id and "_battle". tools\sync_art.py has mirrored that
+/// folder since card ASSEMBLE, so the sheets were in the index before anything drew them.
+function pp_battle_party_sprite(_id) {
+    return string(_id) + "_battle";
+}
+
+/// The art index name of the enemy's sheet, or "" when this build has none. game\sprites_src\enemies\ holds one
+/// sheet per enemy id that has art, which is why the id is the name: no table maps an enemy to a file, and a second
+/// table would be a second place to disagree with the art lane. An enemy with no sheet returns "" and draws a block.
+function pp_battle_enemy_sprite(_battle) {
+    if (!is_struct(_battle) || !is_struct(_battle.enemy)) return "";
+    if (!variable_struct_exists(_battle.enemy, "id")) return "";
+    var _name = string(_battle.enemy.id);
+    if (_name == "") return "";
+    if (!pp_art_has(_name)) return "";
+    return _name;
+}
+
+/// The frame an actor's sheet is on. The sheets are 8 fps strips (frames 0 and 1 are the idle pair and the last is
+/// the hit frame), so the frame comes off the fight's own counters: the turn, at 120 steps, plus the steps since the
+/// phase began. pp_art_frame_at does the wrap, so a sheet with one frame is always frame 0.
+function pp_battle_actor_frame(_battle, _name) {
+    return pp_art_frame_at(_name, _battle.turn * 120 + _battle.phase_steps);
+}
+
+/// The enemy, as background art in the battle screen's own enemy slot. PP_UNTINTED is the whole palette argument this
+/// call makes: the sheet is drawn exactly as authored, in the three colours its sidecar names ($0F $02 $30), so no
+/// sprite palette is spent on it and the strip keeps its four for the party.
+function pp_battle_draw_enemy(_battle, _slot) {
+    if (is_undefined(_slot)) return false;
+
+    var _name = pp_battle_enemy_sprite(_battle);
+    if (_name != "") {
+        pp_art_draw(_name, pp_battle_actor_frame(_battle, _name), _slot.x, _slot.y, PP_UNTINTED, 1);
+        return true;
+    }
+
+    // No sheet in the index for this enemy: the flat block the screen drew before the art landed, in the same slot,
+    // so a fight still shows an enemy standing there. Said once per fight, not once per step.
+    if (!_battle.enemy_art_said) {
+        _battle.enemy_art_said = true;
+        show_debug_message("PP battle: no sheet for enemy " + string(_battle.enemy.id)
+            + " in the art index, the slot draws a block");
+    }
+    draw_set_colour(pp_role_colour("text"));
+    draw_rectangle(_slot.x, _slot.y, _slot.x + _slot.w - 1, _slot.y + _slot.h - 1, false);
+    return false;
+}
+
+/// The party: one battle sheet per slot the layout names, in the reserved hero triples the sheets are painted on. A
+/// slot whose sheet is not in the build is skipped and the rest still draw, because one missing sheet must not empty
+/// the block. Returns how many were drawn, which is the number the test and the capture both read.
+function pp_battle_draw_party(_battle) {
+    var _slots = pp_battle_party_slots();
+    var _drawn = 0;
+    for (var i = 0; i < array_length(_slots); i++) {
+        var _slot = _slots[i];
+        var _name = pp_battle_party_sprite(_slot.id);
+        if (!pp_art_has(_name)) continue;
+        pp_art_draw(_name, pp_battle_actor_frame(_battle, _name), _slot.x, _slot.y, PP_UNTINTED, 1);
+        _drawn += 1;
+    }
+    return _drawn;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Drawing. The field is a baked strip, the enemy and the party are their own sheets, and every other mark is a flat
+// rectangle or a glyph in a palette role (spec 13 owns the final art).
 //
 // RULE 0 first (card R48): the battle screen spends four roles and no others, ink, paper, dim and text, the only
 // four every set in data\room_palettes.json carries. The field used to ask for hazard, accent and warn, and a fight
@@ -936,22 +1072,33 @@ function pp_battle_draw(_battle) {
     // it (knowledge\SPEC-DELTAS.md T1's draw order: map, dimmer, battle field, GUI).
     pp_battle_draw_field(_battle);
 
-    // The field: the hero on the left, the enemy on the right, both above the menu band.
-    draw_set_colour(pp_role_colour("ink"));
-    draw_rectangle(40, 96, 72, 144, false);
+    // Card t_4275136f: the actors. The enemy stands in the battle screen's own enemy slot as background art and the
+    // party's sheets fill the slots its `party` array names, both read from data\ui_layouts.json. The two flat
+    // rectangles that used to be here (a hero at 40,96 and an enemy block at 176,72) were the pre art stand-ins and
+    // they are gone, because a placeholder left on screen beside the real draws would read as a second enemy. The
+    // enemy's name, its health bar and the damage popup follow it to the left half for the same reason.
+    var _enemy_slot = pp_battle_enemy_slot();
+    pp_battle_draw_enemy(_battle, _enemy_slot);
+    pp_battle_draw_party(_battle);
 
-    draw_set_colour(pp_role_colour("text"));
-    draw_rectangle(176, 72, 224, 136, false);
-    // Card BATTLE-FONT-WIRE: the enemy's name is the sheet's glyphs, centred over its block. The names in
-    // data/enemies/all.json are 11 characters at the longest, so 88 px centred on x 200 stays inside the frame.
-    pp_font_draw_centre(_battle.enemy.name, 200, 56, 1);
+    if (!is_undefined(_enemy_slot)) {
+        // Card BATTLE-FONT-WIRE: the enemy's name is the sheet's glyphs, over the slot the enemy stands in. The names
+        // in data/enemies/all.json run to 11 characters (88 px) and the slot's centre would put the first glyph
+        // outside the frame, so the name is centred on x 48, the nearest 8 px cell boundary that holds the longest
+        // name whole (x 4 to x 92) and still reads as the enemy's own label.
+        pp_font_draw_centre(_battle.enemy.name, 48, 56, 1);
 
-    // Enemy health bar, 64 px wide.
-    var _hp_frac = _battle.enemy_hp / max(1, _battle.enemy.max_hp);
-    draw_set_colour(pp_role_colour("dim"));
-    draw_rectangle(168, 144, 232, 148, false);
-    draw_set_colour(pp_role_colour("text"));
-    draw_rectangle(168, 144, 168 + floor(64 * _hp_frac), 148, false);
+        // Enemy health bar, twice the slot's width, under the enemy's own body: on the deck that is x 8 to 71,
+        // y 100 to 103, inside the strip's lower band and clear of the party column.
+        var _bar_w = _enemy_slot.w * 2;
+        var _bar_x = _enemy_slot.x - 16;
+        var _bar_y = _enemy_slot.y + _enemy_slot.h + 4;
+        var _hp_frac = _battle.enemy_hp / max(1, _battle.enemy.max_hp);
+        draw_set_colour(pp_role_colour("dim"));
+        draw_rectangle(_bar_x, _bar_y, _bar_x + _bar_w - 1, _bar_y + 3, false);
+        draw_set_colour(pp_role_colour("text"));
+        draw_rectangle(_bar_x, _bar_y, _bar_x + floor(_bar_w * _hp_frac), _bar_y + 3, false);
+    }
 
     // Player health and will. Card BATTLE-FONT-WIRE wrote this as `HP 12 OF 12` because the sheet had no slash;
     // card SHEET-GLYPH-GAP (t_f476435e, decision D13) grew the sheet a slash and the two brackets, so the line now
@@ -1005,10 +1152,12 @@ function pp_battle_draw(_battle) {
         }
     }
 
-    if (_battle.popup_steps > 0) {
-        // Card BATTLE-FONT-WIRE: the number is the sheet's glyphs on a plate of the room's ink, because the block it
-        // rises over is filled with the light role and white on #c8c8d4 is not a number a player can read.
-        pp_font_draw_plated_centre(string(_battle.popup_value), 200, 120 - (PP_DAMAGE_POPUP_STEPS - _battle.popup_steps), 1);
+    if (_battle.popup_steps > 0 && !is_undefined(_enemy_slot)) {
+        // Card BATTLE-FONT-WIRE: the number is the sheet's glyphs on a plate of the room's ink, because it rises over
+        // the enemy's sheet, and white on a light body is not a number a player can read. Card t_4275136f moves it
+        // from x 200 to the enemy's own slot centre with the enemy it belongs to.
+        pp_font_draw_plated_centre(string(_battle.popup_value), _enemy_slot.x + _enemy_slot.w * 0.5,
+                                   120 - (PP_DAMAGE_POPUP_STEPS - _battle.popup_steps), 1);
     }
 
     if (_battle.phase == PPBattlePhase.telegraph) {

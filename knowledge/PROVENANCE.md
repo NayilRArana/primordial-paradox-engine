@@ -1616,3 +1616,30 @@ the data rather than with a card; the audit row is carried forward unconditional
 it by forgetting the key; and the walking cast is named in one place per tool (`SHIP_SPRITES` in the checker, the
 enforce list in the character generator) so a sheet that stops being drawn leaves both lists instead of one.
 Copied expression: none
+
+## BATTLE-DRAW, 2026-10-25: the battle field's strip, enemy and party are drawn from the shipped sheets (card t_4275136f)
+Studied: this repository's own files, read only: `game/scripts/pp_battle_director/pp_battle_director.gml` (the field
+draw and its state), `game/scripts/pp_data/pp_data.gml` (the bundle loader), `game/scripts/pp_art/pp_art.gml` (the
+index reader and `pp_art_draw`), `game/scripts/pp_font/pp_font.gml` (`pp_font_draw_centre`, `pp_font_width`),
+`data/ui_layouts.json` (the battle slots and the four member names), `data/enemies/all.json` and
+`data/enemies/roster.json`, `data/characters/party.json`, `data/palettes/scene_battle_deck_night.json`,
+`data/scene_palettes.json`, `data/nes_palette.json`, `game/sprites_src/bg/bg_battle_*.json` and the four strips,
+`game/sprites_src/enemies/*.json` and the seven enemy sheets, the four `game/sprites_src/chars/*_battle.json` sheets,
+`tools/sync_art.py`, `tools/check_build_inputs.py`, `tools/palette_synergy.py`, `tools/scene_palette_set.py`,
+`tools/capture_first_fight.py`, `tools/play_demo.py`, `tools/capture_title.py`, `tools/pp_launch.py`, and
+`knowledge/PALETTE-RULINGS-2026-10-25.md` sections 7 and 15. No decompiled material was read for this card and no
+expression from any game is in it.
+Mechanics learned: two. One, a battle screen is three draw calls with three different colour owners: the strip is
+background art and spends the ground's own rows, the enemy is background art too and is judged on `bg2` plus the
+backdrop (36 inked 8x8 tiles, 0 out, ruling 15.3), and the party is four sprite sheets judged one reserved triple
+each, so the same pixel coordinates on one screen are governed by three different rules and no single "the battle
+background passes" claim covers all of them. Two, art that no tool mirrors is art no build has: `pp_battle_draw_field`
+asked for the deck strip on every frame for months and `pp_art_has` answered no every time, because the mirror read
+five source folders and `bg` was not one of them, and a sidecar with no `frame_w` was skipped as malformed, so the
+defect was two lines apart in one file and neither line could see the other.
+Our implementation differs by: the slots are read from `data/ui_layouts.json` at run time instead of being restated in
+the GML, so the director cannot disagree with the design file and no hero name lives in code; the battle strip's
+sidecar is accepted as a single frame background record instead of being forced into the animation shape it never had;
+and the two placeholder rectangles the screen drew before there was art were removed rather than left under the real
+draws, because a flat block beside an enemy sprite reads as a second enemy.
+Copied expression: none

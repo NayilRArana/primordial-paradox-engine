@@ -51,7 +51,14 @@ ENV_QUAY_SRC = os.path.join(ENV_SRC, "quay")
 # fixes that as the place to look, so the map row that names drive_tiles reaches the build from here. The sheet stays
 # where its card put it: this mirror reads the card's folder rather than the card moving its sheet into sprites_src.
 DRIVE_SRC = os.path.join(ROOT, "assets", "tiles", "drive")
-SOURCES = (SRC, ENV_SRC, CHARS_SRC, ENV_QUAY_SRC, DRIVE_SRC)
+# Card t_4275136f: the battle screen's own two art folders were never mirrored. game\sprites_src\bg\ holds the four
+# baked 256x112 strips (BG-BATTLE) and game\sprites_src\enemies\ holds the seven 32x32 enemy sheets, and neither
+# reached game\datafiles\art, so pp_art_has("bg_battle_deck_night") was false in every build: pp_battle_draw_field
+# printed "not in the art index" and drew the field without its strip, and the tutorial fight had no enemy sheet to
+# draw. Two folders here, one index, nothing else changes.
+BG_SRC = os.path.join(ROOT, "game", "sprites_src", "bg")
+ENEMY_SRC = os.path.join(ROOT, "game", "sprites_src", "enemies")
+SOURCES = (SRC, ENV_SRC, CHARS_SRC, ENV_QUAY_SRC, DRIVE_SRC, BG_SRC, ENEMY_SRC)
 DST = os.path.join(ROOT, "game", "datafiles", "art")
 INDEX = "title_manifest.json"
 
@@ -80,8 +87,18 @@ def source_entries() -> list[dict]:
                 continue
             with open(os.path.join(folder, fname), "r", encoding="utf-8") as fh:
                 meta = json.load(fh)
-            if "name" not in meta or "frame_w" not in meta:
+            if "name" not in meta:
                 continue
+            if "frame_w" not in meta:
+                # Card t_4275136f: a battle strip's sidecar is not an animation record. Its own generator,
+                # tools\art\make_battle_bg.py, writes kind battle_background and declares the size as width and
+                # height, because a strip is one 256x112 picture and not a row of frames. Before this branch the
+                # four strips were skipped here in silence, which is why no build ever carried one.
+                if meta.get("kind") != "battle_background":
+                    continue
+                if "width" not in meta or "height" not in meta:
+                    raise SystemExit("sync_art: %s is a battle background with no width or height" % fname)
+                meta = dict(meta, frame_w=int(meta["width"]), frame_h=int(meta["height"]), frames=1, fps=0.0)
             if meta["name"] in seen:
                 continue
             png = fname[:-5] + ".png"
@@ -105,6 +122,11 @@ def source_entries() -> list[dict]:
             if meta.get("kind") == "tileset":
                 entry["kind"] = "tileset"
                 entry["columns"] = int(meta.get("columns", 1))
+            elif meta.get("kind") == "battle_background":
+                # Card t_4275136f: one picture, 256x112, drawn whole at the field origin. The kind is written so a
+                # reader of the index can tell a strip from an animation without opening the sidecar, and the
+                # runtime is unchanged: frames is 1, so pp_art_draw asks for source x 0.
+                entry["kind"] = "background"
             seen.add(meta["name"])
             entries.append(entry)
     return entries

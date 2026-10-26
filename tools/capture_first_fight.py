@@ -273,6 +273,16 @@ def start_recorder(rect, out_path):
     os.makedirs(BUILD_DIR, exist_ok=True)
     log_path = os.path.join(BUILD_DIR, "first_fight_ffmpeg.log")
     handle = open(log_path, "wb")
+    # Card t_4275136f: read the binary through play_demo.ffmpeg_path(), not play_demo.FFMPEG. The module global is
+    # None until the finder has run, and this tool never ran it, so every launch reached Popen with None and died on
+    # "expected str, bytes or os.PathLike object, not NoneType" after the game window was already up. Measured on this
+    # host 2026-10-25: two launches died here, the second after PP_FFMPEG was set correctly, which is how the global
+    # and not the search was identified.
+    ffmpeg = play_demo.ffmpeg_path()
+    if not ffmpeg:
+        handle.close()
+        raise SystemExit("capture_first_fight: no ffmpeg on this host (set PP_FFMPEG to the binary), so nothing can "
+                         "be recorded; the game was not kept running")
     arguments = [
         "-f", "gdigrab", "-framerate", str(FPS),
         "-offset_x", str(x), "-offset_y", str(y),
@@ -283,7 +293,7 @@ def start_recorder(rect, out_path):
         "-r", str(FPS), "-c:v", "libx264", "-preset", "ultrafast", "-crf", "20", "-pix_fmt", "yuv420p",
         out_path,
     ]
-    process = subprocess.Popen([play_demo.FFMPEG, "-hide_banner", "-y"] + arguments,
+    process = subprocess.Popen([ffmpeg, "-hide_banner", "-y"] + arguments,
                                stdout=handle, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
     return process, handle, log_path
 

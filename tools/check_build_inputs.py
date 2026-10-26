@@ -65,6 +65,11 @@ ART_SOURCES = (
     # Card t_af836a62: the drive tile set is read from assets/tiles/drive, outside the sprites_src tree, so its folder
     # is named here too. Without this line the mirrored drive_tiles.png resolves to no committed source.
     os.path.join(ROOT, "assets", "tiles", "drive"),
+    # Card t_4275136f: the battle screen's strips and enemy sheets are mirrored now (tools/sync_art.py BG_SRC and
+    # ENEMY_SRC). A folder this list does not name would make eleven new Included Files resolve to no committed
+    # source, so both are named here, and tests/test_battle_draw.py fails when the two lists drift apart.
+    os.path.join(ROOT, "game", "sprites_src", "bg"),
+    os.path.join(ROOT, "game", "sprites_src", "enemies"),
 )
 SFX_FOLDER = "sfx"
 # Direction C's vocabulary. Kept apart from the two older words on purpose; see the docstring.

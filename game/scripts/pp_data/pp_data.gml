@@ -109,7 +109,11 @@ function pp_data_load() {
         powers: pp_data_json("powers.json"),
         flags: pp_data_json("flags.json"),
         audio: pp_data_json("audio.json"),
-        slice: pp_data_json("slice.json")
+        slice: pp_data_json("slice.json"),
+        // data\ui_layouts.json is the design file the battle screen's slots come from (card t_4275136f). It has
+        // shipped in the bundle since ASSEMBLE, unused by any script; the director reads it now instead of restating
+        // four slot rects and four hero names in code.
+        ui_layouts: pp_data_json("ui_layouts.json")
     };
 
     // The ship room's own map file (card ASSEMBLE). data\maps\ship_sample.json holds just the map rm_pp_ship plays;
