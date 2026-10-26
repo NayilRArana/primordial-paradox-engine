@@ -152,6 +152,11 @@ def test_the_battle_rows_name_the_party_four_and_no_walking_sheet():
     draws all four heroes has no slot left for an enemy (ruling 7.5: the enemy is background art there) and no
     slot for the map's walking cast. Measured under the hero four: the old deck cast fails 126, the old corridor
     cast fails 24 (all of them zander_ow_v2), the party's four sheets fail 0 on both.
+
+    Card t_39b06dd5: both rows carried an exemption while tools/palette_synergy.py read a party_cast scene
+    against the scene's own four rows (card t_6e8ca42f). That tool change landed, the rows measure 0 fails
+    through the hero four, and their exemptions ended, so the assertion below is inverted on purpose: an
+    exemption back on a party row is how a red row goes quiet.
     """
     party = ["percy_battle.png", "hadrian_battle.png", "zander_battle.png", "konrad_battle.png"]
     for scene_id in ("battle_corridor", "battle_deck_night"):
@@ -159,8 +164,8 @@ def test_the_battle_rows_name_the_party_four_and_no_walking_sheet():
         assert len(rows) == 1, (scene_id, rows)
         sprites = [os.path.basename(path) for path in rows[0]["sprites"]]
         assert sprites == party, (scene_id, sprites)
-        assert rows[0].get("exempt"), \
-            "%s is red until palette_synergy reads the party_cast half (card t_6e8ca42f)" % scene_id
+        assert not rows[0].get("exempt"), \
+            "%s draws the party four and is enforced, so its cast is measured and not exempted" % scene_id
     # The ship's row is its WALKING cast (card t_a6a7a436): the party's four walking sheets plus the sailor
     # actor, and no battle sheet. A walking room draws walking sheets, the ship's four rows are the party's four
     # triples, and sailor_battle.png is a 168x32 battle figure that no encounter and no draw call names; its own
@@ -173,11 +178,11 @@ def test_the_battle_rows_name_the_party_four_and_no_walking_sheet():
 
 
 def test_the_cast_check_catches_the_walking_sheet_put_back_on_a_battle_row():
-    """The mutation this check exists for, kept alive after this card moved both rows behind an exemption.
+    """The mutation this check exists for, kept alive after this card cleared both rows' exemptions.
 
-    A 16x16 walking sheet on a battle row is the defect the corridor row carried until card t_0949bd4e. A row
-    marked exempt is skipped by design, so the mutation clears the exemption the way the ruling says one ends,
-    and the check has to name the sheet.
+    A 16x16 walking sheet on a battle row is the defect the corridor row carried until card t_0949bd4e. The row
+    is enforced since card t_39b06dd5, so the mutation only has to put the sheet back; the pop stays so the
+    fixture does not depend on that, and the check has to name the sheet.
     """
     broken = json.loads(json.dumps(data()))
     mutated = 0
@@ -200,18 +205,18 @@ def test_every_enforced_judged_row_has_a_cast_its_scene_can_carry():
     assert scene_palette_set.cast_problems(ROOT, data()) == []
 
 
-def test_the_exempt_rows_are_the_known_three_and_say_why():
+def test_the_exempt_row_is_the_known_one_and_says_why():
     """An exemption is a ruling, not a way to quiet the check, so the exact list is held here.
 
-    Card t_0949bd4e added the third: the corridor and the deck rows both draw the party's four battle sheets,
-    and both measure red only because tools/palette_synergy.py reads a party_cast scene against the scene's own
-    four rows instead of the hero four (card t_6e8ca42f). Both exemptions say that, and both say when they end.
+    One row is exempt: the corridor contact sheet, which is a diagnostic and a by-product, and it says why.
+    The corridor and deck party rows were the other two until card t_39b06dd5: they measured red only because
+    tools/palette_synergy.py read a party_cast scene against the scene's own four rows instead of the hero four
+    (card t_6e8ca42f). That tool change landed, both rows read 0 failing pairs through the hero four, and their
+    exemptions ended, exactly as their own text said they would.
     """
     exempt = [row for row in judged_rows() if row.get("exempt")]
     assert [(row["scene"], os.path.basename(row["sprites"][0])) for row in exempt] == [
-        ("battle_corridor", "percy_battle.png"),
         ("battle_corridor", "sprites_v2_sheet.png"),
-        ("battle_deck_night", "percy_battle.png"),
     ], exempt
     for row in exempt:
         assert len(row["exempt"]) > 80, "an exemption has to say why, in words: %s" % row["exempt"]

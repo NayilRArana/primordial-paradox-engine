@@ -22,8 +22,7 @@
         "game/sprites_src/chars/zander_battle.png",
         "game/sprites_src/chars/konrad_battle.png"
       ],
-      "note": "the corridor battle ground against the party's four battle sheets, one sheet per reserved hero triple: percy $0F $12 $28, hadrian $0F $03 $23, zander $0F $21 $31, konrad $0F $00 $27 (card t_0949bd4e)",
-      "exempt": "CAST RULED 2026-10-25 on card t_0949bd4e (knowledge/PALETTE-RULINGS-2026-10-25.md section 10): the row draws the party's four battle sheets and nothing else. Every battle screen puts four 24x32 party slots at x=224 (data/ui_layouts.json, screen battle) and the PPU gives a strip four sprite palettes, so on a battle strip those four ARE the four reserved hero triples (ruling 7.1 of the same file). zander_ow_v2 comes off: it is a 16x16 walking sheet, the map's cast, and measured 0 of its 32 inked tiles fit any hero triple (24 failing pairs, 8 palette_count and 16 set_member). This row still measures red for one reason and it is not the cast: tools/palette_synergy.py builds its Scene from scene_palette_set.scene(), which returns the scene's own four rows, so a party_cast scene is judged against rows the party does not spend (card t_6e8ca42f). Measured 2026-10-25 with the hero four as the scene's sprite rows: PASS, 0 failing pairs and 0 uncovered tiles, both at the row's own placement and at the game's four slots x=224 y=32/64/96/128, where the block floor is $0F since card t_d64eb2a9. Remove this exemption when t_6e8ca42f lands."
+      "note": "the corridor battle ground against the party's four battle sheets, one sheet per reserved hero triple: percy $0F $12 $28, hadrian $0F $03 $23, zander $0F $21 $31, konrad $0F $00 $27 (card t_0949bd4e)"
     },
     {
       "background": "output/bg_battle_corridor_frame.png",
