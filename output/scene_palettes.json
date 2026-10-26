@@ -24,27 +24,22 @@
         ],
         [
           [
-            0,
-            88,
-            248
+            124,
+            124,
+            124
+          ],
+          [
+            188,
+            188,
+            188
           ],
           [
             248,
             184,
             0
-          ],
-          [
-            252,
-            252,
-            252
           ]
         ],
         [
-          [
-            0,
-            0,
-            188
-          ],
           [
             136,
             20,
@@ -54,18 +49,23 @@
             228,
             92,
             16
+          ],
+          [
+            248,
+            184,
+            0
           ]
         ],
         [
           [
-            124,
-            124,
-            124
-          ],
-          [
             0,
             0,
             188
+          ],
+          [
+            0,
+            88,
+            248
           ],
           [
             60,
@@ -303,12 +303,12 @@
     "frame": "ship_stack.png",
     "report": [
       "ship_stack.png    frame 256x240  read at scale 1 from 256x240 (already 256x240, crop [0, 0, 256, 240])",
-      "  colours: 10 in the frame, 25 allowed; backdrop #7c7c7c (the most common colour in the frame)",
-      "  background: 240 blocks, 9 distinct colour sets, 4 palette(s) cover them, 4 allowed",
-      "    palette #000000 #881400 #e45c10",
-      "    palette #000000 #bcbcbc #fcfcfc",
-      "    palette #000000 #bcbcbc #f8b800",
+      "  colours: 10 in the frame, 25 allowed; backdrop #000000 (the 2nd most common colour, chosen because it leaves fewer blocks offending)",
+      "  background: 240 blocks, 11 distinct colour sets, 4 palette(s) cover them, 4 allowed",
       "    palette #0000bc #0058f8 #3cbcfc",
+      "    palette #7c7c7c #bcbcbc #f8b800",
+      "    palette #7c7c7c #bcbcbc #fcfcfc",
+      "    palette #881400 #e45c10 #f8b800",
       "  sprites: not checked (no --sprite-mask and no --sprites)",
       "  PASS: 0 block(s) violate the background rules, 0 sprite(s) violate the sprite rules",
       "  palette: data\\nes_palette.json (55 usable of 64 entries)"
@@ -316,10 +316,10 @@
   },
   "ship_sheet": {
     "background_histogram": [
-      35,
-      6,
-      6,
-      1
+      29,
+      7,
+      7,
+      5
     ],
     "sheet": [
       256,

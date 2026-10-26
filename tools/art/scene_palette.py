@@ -22,8 +22,11 @@ using anything this module knows.
 
 A scene file can hold two things a solve does not compute, and write_scene() carries both forward: the
 `judged` row (the ground the room's cast is measured on) and a half marked pinned (`sprites_pinned` for a
-cast decision like the party's four walking triples on the ship, `background_pinned` for a ruled row set
-like the ship's four background rows). See the docstring of write_scene().
+cast decision like the party's four walking triples on the ship, `background_pinned` for a ruled row set, which
+the ship carried until card t_463bc8c1 replaced it with the measured floor below). See the docstring of
+write_scene(). The ship's background half no longer needs its pin: the rows are the fit to the drawing that the
+solve itself now measures, and solve_ship() refuses a proposal that repaints more of the drawing than the rows
+already in the file.
 
 The three rules it enforces, all from knowledge/ART-BIBLE.md section 1:
 
@@ -67,7 +70,9 @@ PALETTE_DIR = os.path.join("data", "palettes")
 #   judged              the audit row that says which ground the room's cast is measured on (card t_1dc346b9)
 #   sprites_pinned      the sprite half is a cast decision, so a solve keeps it (ruling section 17, t_a6a7a436)
 #   background_pinned   the background rows are a ruling, not a solve product, so a solve keeps them
-#                       (ruling section 21, card t_23b5739a)
+#                       (ruling section 21, card t_23b5739a). The ship no longer carries the key: its solve now
+#                       measures the DRAWING and keeps the file's rows whenever the proposal repaints more of it
+#                       (ruling section 23, card t_463bc8c1), which is the same protection with a number behind it.
 JUDGED_KEY = "judged"
 SPRITES_PINNED_KEY = "sprites_pinned"
 BACKGROUND_PINNED_KEY = "background_pinned"
@@ -1011,28 +1016,32 @@ def solve_title(root: str, write: bool = False) -> dict:
 
 
 def solve_ship(root: str, write: bool = False) -> dict:
-    """Measure the ship art and propose four background and four sprite palettes that cover it.
+    """Measure the ship DRAWING and propose four background and four sprite palettes that cover it.
 
-    `write` defaults to False for the same reason `solve_title()`'s does, and the ship's version of the loop
-    is sharper because the sheet is not drawn FROM these rows, it is repainted INTO them:
+    `write` defaults to False for the same reason `solve_title()`'s does, and the ship's version of the loop is
+    sharper because the sheet is not drawn FROM these rows, it is repainted INTO them:
     `tools/art/make_env_ship.py build()` runs `enforce_ship_sheet()` over the in-memory sheet and saves the
-    result, so the rows in `data/palettes/scene_ship.json` are an input to the pixels of `ts_ship.png`. A
-    solve that writes by default therefore edits the art, and card t_92d59163 measured exactly that on
-    2026-10-25: the solver proposes `bg1 $07 $17 $30` and `bg2 $02 $12 $28` where the committed file carries
-    `bg1 $12 $28 $30` and `bg2 $02 $07 $17`, the enforced sheet then repaints 151 pixels over 6 tiles, and
-    the entry `$21 #3cbcfc` leaves the sheet, so a ten colour tileset reads nine and
-    `tests/test_make_env_ship.py` fails twice. The proposal is not wrong about the sheet it measured: the
-    committed rows are the fixed point of solve plus enforce, and only the two together can move.
+    result, so the rows in `data/palettes/scene_ship.json` are an input to the pixels of `ts_ship.png`. A solve
+    that writes by default therefore edits the art, and card t_92d59163 measured exactly that on 2026-10-25.
 
-    Card t_23b5739a ruled on that on 2026-10-25: the rows STAY for now (ruling section 21), so
-    `data/palettes/scene_ship.json` carries `background_pinned: true` and `write_scene()` keeps them even
-    when `--write` is passed. The report below still prints the proposal, because it is the honest
-    measurement of the drawing, and `pinned` in the result is what says the file will not take it.
+    Two things keep that honest, and neither is a convention:
+
+    One, it measures the DRAWING (`ship_drawing()`, make_env_ship.render_sheet()) and not the enforced PNG. The
+    PNG is the drawing after the rows on disk were applied to it, so solving it asks the rows to agree with
+    themselves; card t_463bc8c1 measured the difference on 2026-10-25, when the same proposal covered every tile
+    of the enforced sheet and repainted 646 pixels of the drawing.
+
+    Two, the proposal has to beat the rows already in the file, by the measure ruling section 21.2 used: pixels of
+    the drawing the row set repaints, then tiles it splits. A proposal that repaints more is reported in full and
+    not written, `--write` or not, because writing it makes the art worse: on 2026-10-25 the ship's file rows
+    repaint 76 of 12288 pixels and split 2 tiles, and the solver's proposal repaints 725 and splits 19 (646 before
+    the ship's art was redrawn in its rows, so the redraw widened the gap). The `background_pinned: true` key
+    (ruling section 21.5, card t_23b5739a) is the other half of the same idea and still wins when present, but the
+    redrawn art no longer needs it: the numbers are the pin now, and a later proposal that is genuinely better
+    moves the rows without anyone having to remove a key.
     """
     colours, usable, index_of = load_master(root)
-    path = os.path.join(root, "game", "sprites_src", "env", "ts_ship.png")
-    with Image.open(path) as handle:
-        image = handle.convert("RGBA")
+    image = ship_drawing(root)
     profiles = area_profiles(image, index_of)
     backdrop = 0x0F
     background = solve(profiles, backlog=[backdrop])
@@ -1057,18 +1066,69 @@ def solve_ship(root: str, write: bool = False) -> dict:
         "also be drawn as sprites",
         "solved by tools/art/scene_palette.py and checked by tools/nes_composite_check.py",
     ]
-    pinned = bool(_file_payload(scene_path(root, "ship")).get(BACKGROUND_PINNED_KEY))
-    kept = [[int(entry) for entry in row["colours"]]
-            for row in _file_payload(scene_path(root, "ship")).get("background", [])] if pinned else None
-    path_out = write_scene(root, "ship", backdrop, background, sprites, notes) if write else scene_path(root, "ship")
-    scene = load_scene(root, "ship") if (write and not pinned) else proposed_scene(root, "ship", backdrop,
-                                                                                   background, sprites)
+    before = _file_payload(scene_path(root, "ship"))
+    pinned = bool(before.get(BACKGROUND_PINNED_KEY))
+    file_rows = [[int(entry) for entry in row["colours"]] for row in before.get("background", [])]
+    kept = file_rows if (pinned and file_rows) else None
+    proposal_pixels, proposal_split = repaint_cost(profiles, backdrop, background)
+    file_pixels, file_split = repaint_cost(profiles, backdrop, file_rows)
+    worse = file_pixels is not None and proposal_pixels > file_pixels
+    write_this = write and not pinned and not worse
+    path_out = write_scene(root, "ship", backdrop, background, sprites, notes) if write_this \
+        else scene_path(root, "ship")
+    scene = load_scene(root, "ship") if write_this else proposed_scene(root, "ship", backdrop,
+                                                                      background, sprites)
     leftover = 0
     for counts in profiles:
         _index, covered = scene.pick_bg(counts)
         leftover += sum(counts.values()) - covered
     return {"path": path_out, "scene": scene, "areas": len(profiles), "pixels_outside": leftover,
-            "written": write, "pinned": pinned, "kept": kept}
+            "written": write_this, "pinned": pinned, "kept": kept,
+            "proposal": {"pixels": proposal_pixels, "tiles_split": proposal_split},
+            "file": {"pixels": file_pixels, "tiles_split": file_split}}
+
+
+def ship_drawing(root: str) -> Image.Image:
+    """The ship sheet as make_env_ship DRAWS it, before the scene palette pass repaints it into the rows.
+
+    The rows exist to serve the drawing, so the drawing is what a solve has to measure. Measuring
+    `game/sprites_src/env/ts_ship.png` instead is circular: that file is the drawing AFTER the enforce pass
+    repainted it into the rows on disk, so the solver is shown its own answer and reports a disagreement it
+    cannot fix (measured 2026-10-25 on card t_463bc8c1: on the enforced sheet the proposal covered every tile,
+    on the drawing the same proposal repaints 646 pixels). `render_sheet()` is pure geometry with no file input,
+    so it is the same picture under any root; a tree without the generator falls back to the PNG on disk.
+    """
+    try:
+        import make_env_ship
+        return make_env_ship.render_sheet().convert("RGBA")
+    except (ImportError, OSError):
+        path = os.path.join(root, "game", "sprites_src", "env", "ts_ship.png")
+        with Image.open(path) as handle:
+            return handle.convert("RGBA")
+
+
+def repaint_cost(profiles, backdrop: int, rows) -> tuple:
+    """(pixels a row set would repaint of the drawing, tiles it would split) for one background half.
+
+    The same measure ruling section 21.2 used on the raw sheet: a pixel is repainted when its colour is not in
+    the row its tile picks, and a tile is split when any of its pixels is. `rows` may be empty.
+    """
+    if not rows:
+        return (None, None)
+    sets = [set(row) | {backdrop} for row in rows]
+    pixels = 0
+    split = 0
+    for counts in profiles:
+        total = sum(counts.values())
+        covered = 0
+        for allowed in sets:
+            here = sum(n for entry, n in counts.items() if entry in allowed)
+            if here > covered:
+                covered = here
+        pixels += total - covered
+        if total > covered:
+            split += 1
+    return (pixels, split)
 
 
 def proposed_scene(root: str, name: str, backdrop: int, background, sprites) -> "Scene":
@@ -1104,6 +1164,11 @@ def describe(result: dict) -> None:
             print("  %s %d  %s" % (label, index,
                                    "  ".join("$%02X #%02x%02x%02x" % ((entry,) + colours[entry])
                                              for entry in row)))
+    proposal = result.get("proposal") or {}
+    filed = result.get("file") or {}
+    if proposal.get("pixels") is not None and filed.get("pixels") is not None:
+        print("  repaint on the drawing: the proposal %d of 12288 pixels over %d tiles, the file's rows %d over "
+              "%d tiles" % (proposal["pixels"], proposal["tiles_split"], filed["pixels"], filed["tiles_split"]))
     if result.get("pinned"):
         print("  NOT applied: the background rows are PINNED (background_pinned true, ruling section 21) and the "
               "sprite half is pinned too, so a write keeps the file's own rows and touches neither half.")
@@ -1112,9 +1177,16 @@ def describe(result: dict) -> None:
                 "bg%d %s" % (index, " ".join("$%02X" % entry for entry in row))
                 for index, row in enumerate(result["kept"])))
         print("  file: %s" % _display(result["path"]))
+    elif proposal.get("pixels") is not None and filed.get("pixels") is not None \
+            and proposal["pixels"] > filed["pixels"]:
+        print("  NOT applied: the proposal repaints more of the drawing than the rows already in the file, so a "
+              "write would make the art worse (card t_463bc8c1).")
+        print("  the file's rows are the better fit and stay as they are.")
+        print("  file: %s" % _display(result["path"]))
     else:
         print("  %s: %s" % ("written" if result.get("written") else "proposal only, nothing written; the file is",
                             _display(result["path"])))
+
 
 
 def compose_frame(root: str, out_path: str) -> str:

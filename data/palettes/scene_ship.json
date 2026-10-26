@@ -16,77 +16,74 @@
     },
     {
       "colours": [
-        18,
-        40,
-        48
+        0,
+        16,
+        40
       ],
       "hex": [
-        "#0058f8",
-        "#f8b800",
-        "#fcfcfc"
+        "#7c7c7c",
+        "#bcbcbc",
+        "#f8b800"
       ],
       "name": "bg1"
     },
     {
       "colours": [
-        2,
         7,
-        23
+        23,
+        40
       ],
       "hex": [
-        "#0000bc",
         "#881400",
-        "#e45c10"
+        "#e45c10",
+        "#f8b800"
       ],
       "name": "bg2"
     },
     {
       "colours": [
-        0,
         2,
+        18,
         33
       ],
       "hex": [
-        "#7c7c7c",
         "#0000bc",
+        "#0058f8",
         "#3cbcfc"
       ],
       "name": "bg3"
     }
   ],
-  "background_pinned": true,
   "format": 1,
-  "kind": "scene_palette",
-  "notes": [
-    "backdrop $0F black is the hull shadow and the hatch void",
-    "background palettes cover the 48 16x16 tiles of ts_ship.png, one palette per tile; unchanged from the committed sheet so the tileset does not have to be redrawn",
-    "sprite palettes are the party's four walking triples, sp0 hadrian $00 $0F $30, sp1 percy $02 $12 $30, sp2 zander $01 $11 $31, sp3 konrad $07 $17 $28 (ruling section 17, card t_a6a7a436). The party walks all three ship rooms (deck, cabin, lower deck) and the PPU has four sprite palettes with no fifth, so the four rows are the party's four, the same four triples the three towns carry. The walking sailor costs no row of his own: sailor_ow_v2.png is $02 $12 $30 too, so he is drawn in sp1 beside percy, which is why percy keeps the row the sailor already had. The rows no longer carry the tileset cut to 8x8: measured on this tree, 141 of ts_ship.png's 192 inked 8x8 subtiles fit none of the four rows, where 52 of 192 fitted none before. A ship tile that has to be drawn as a sprite needs a row spent on it, and the four background rows still carry all 48 tiles (tools/check_scene_palettes.py reads 0 tiles outside the background palettes).",
-    "sprites_pinned true: the sprite half is a cast decision shared by hand with the towns, so tools/art/scene_palette.py solve --scene ship --write keeps it and keeps this file's judged row instead of re-solving both",
-    "background_pinned true: the four background rows are a RULING, not a solve product (knowledge/PALETTE-RULINGS-2026-10-25.md section 21, card t_23b5739a), so solve --scene ship --write keeps them and prints what it kept. Measured 2026-10-25 on this tree: the solver proposes bg1 $07 $17 $30 and bg2 $02 $12 $28, and on the RAW drawn sheet those rows repaint 625 of 12288 pixels against 762 for the rows here, so the solver is the closer fit to the drawing; but the sheet on disk is the fixed point of solve plus enforce, and only the two together can move. The rows here rebuild ts_ship.png byte for byte (sha256 2d213039...), the proposal builds sha256 82394a43... and repaints 151 pixels over 6 tiles (lifebuoy, water_a, water_b, water_edge, water_deep, water_foam), and it drops entry $21 #3cbcfc sea crest, so the ten colour sheet reads nine. (Card t_23b5739a wrote that entry as $2C; $2C is #00e8d8 and has never been on this sheet, the entry that leaves is $21.) The rows stay until the water and cargo family is redrawn, because the mismatch is in the drawing: the crates are drawn with brass $28 that neither row set can show, and the water with crest $21 that no water row can show, so the redraw moves the art and the rows together."
-  ],
   "judged": [
     {
-      "background": "game/sprites_src/env/ts_ship.png",
       "at": [
         64,
         64
       ],
+      "background": "game/sprites_src/env/ts_ship.png",
+      "note": "card t_1dc346b9 ruling 2026-10-25 named the ground: the ship tileset the room is built from is the authoritative ground for the ship cast, because a ground has to be something a tool can measure and a composed capture is not (output/ship_dialogue.png carries colours off the 2C02 palette, so the tool charges its failures to the sprite standing on it). ts_ship.png is authored inside the ship's four background palettes, so it measures clean and only the sprite's own pair rules can fail. Card t_a6a7a436 ruling section 17 recast the row and kept the placement card t_1dc346b9 gave it, [64, 64]: the cast is now the WALKING cast, the party's four walking sheets plus sailor_ow_v2.png, because a walking room draws walking sheets. Measured 2026-10-25 at --at 64,64 against the four rows this file now carries: hadrian_ow_v2, konrad_ow_v2, zander_ow_v2, percy_ow_v2 and sailor_ow_v2 each fit exactly one row and read 0 failing pairs and 0 uncovered 8x8 tiles (32 inked each), hadrian on sp0, percy on sp1, zander on sp2, konrad on sp3, and the sailor on sp1 beside percy. sailor_battle.png came off this row: it is a 168x32 seven frame BATTLE sheet, no encounter draws it (data/encounters/all.json tutorial_sailors is navy_sailor), pp_overworld draws exactly two sheets (zander_ow_v2 for the hero and sailor_ow_v2 for a sailor actor) and it is neither, and under the four walking rows 40 of its 72 inked 8x8 tiles are uncovered by any row, against 0 of 72 under the old rows. Its ground is card t_0b9c2faf. The capture stays what it is, the dialogue screen that ships; it is no longer named as a ground.",
       "sprites": [
         "game/sprites_src/chars/hadrian_ow_v2.png",
         "game/sprites_src/chars/percy_ow_v2.png",
         "game/sprites_src/chars/zander_ow_v2.png",
         "game/sprites_src/chars/konrad_ow_v2.png",
         "game/sprites_src/chars/sailor_ow_v2.png"
-      ],
-      "note": "card t_1dc346b9 ruling 2026-10-25 named the ground: the ship tileset the room is built from is the authoritative ground for the ship cast, because a ground has to be something a tool can measure and a composed capture is not (output/ship_dialogue.png carries colours off the 2C02 palette, so the tool charges its failures to the sprite standing on it). ts_ship.png is authored inside the ship's four background palettes, so it measures clean and only the sprite's own pair rules can fail. Card t_a6a7a436 ruling section 17 recast the row and kept the placement card t_1dc346b9 gave it, [64, 64]: the cast is now the WALKING cast, the party's four walking sheets plus sailor_ow_v2.png, because a walking room draws walking sheets. Measured 2026-10-25 at --at 64,64 against the four rows this file now carries: hadrian_ow_v2, konrad_ow_v2, zander_ow_v2, percy_ow_v2 and sailor_ow_v2 each fit exactly one row and read 0 failing pairs and 0 uncovered 8x8 tiles (32 inked each), hadrian on sp0, percy on sp1, zander on sp2, konrad on sp3, and the sailor on sp1 beside percy. sailor_battle.png came off this row: it is a 168x32 seven frame BATTLE sheet, no encounter draws it (data/encounters/all.json tutorial_sailors is navy_sailor), pp_overworld draws exactly two sheets (zander_ow_v2 for the hero and sailor_ow_v2 for a sailor actor) and it is neither, and under the four walking rows 40 of its 72 inked 8x8 tiles are uncovered by any row, against 0 of 72 under the old rows. Its ground is card t_0b9c2faf. The capture stays what it is, the dialogue screen that ships; it is no longer named as a ground."
+      ]
     },
     {
       "background": "output/nes_title_frame.png",
+      "note": "the ship scene's set against the title ground: what a shared ground costs a scene that did not design for it",
       "sprites": [
         "game/sprites_src/chars/sailor_ow_v2.png"
-      ],
-      "note": "the ship scene's set against the title ground: what a shared ground costs a scene that did not design for it"
+      ]
     }
+  ],
+  "kind": "scene_palette",
+  "notes": [
+    "backdrop $0F black is the hull shadow and the hatch void",
+    "background rows are the four groups the sheet is DRAWN in, one per tile (ruling section 21.7, card t_463bc8c1): bg0 steel and white paint, bg1 steel and brass fittings, bg2 rust and brass cargo and wood, bg3 the sea's three tones. The water family was redrawn on bg3's three colours (mid $12 body, crest $21 wave light and foam, deep $02 troughs) and the porthole glass on bg0's, so the scene palette pass now repaints 76 of 12288 pixels of the drawing where it used to repaint 762: the bunk's rust frame (60 px) and the lifebuoy's four rust bands (16 px), both repainted to a grey a row carries, and both another card's art. These four rows are the measured best fit among all 1929501 four-row sets of the nine non backdrop entries (exhaustive, 2026-10-25), and they are NOT what the solver proposes: `solve --scene ship` proposes bg1 $07 $28 $30 and bg2 $02 $12 $17, which repaints 646 pixels over 19 tiles, so solve_ship() measures the drawing, reports both numbers and refuses to write a proposal worse than the rows already here. That refusal is what replaced `background_pinned`, which this file no longer carries: the pin existed because the rows and the drawing disagreed, and the redraw plus a measured floor is what settled it.",
+    "sprites_pinned true: the sprite half is a cast decision shared by hand with the towns, so tools/art/scene_palette.py solve --scene ship --write keeps it and keeps this file's judged row instead of re-solving both"
   ],
   "rule": "NES: 1 backdrop shared by both layers, 4 background palettes of 3 entries on 16x16 areas, 4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a data/nes_palette.json entry number",
   "scene": "ship",

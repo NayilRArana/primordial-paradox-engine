@@ -24,31 +24,31 @@
       "entry": 16,
       "hex": "#bcbcbc",
       "key": "l",
-      "use": "steel light: upper bulkhead, rivets, fittings"
+      "use": "steel light: upper bulkhead, rivets, fittings, porthole glass"
     },
     {
       "entry": 48,
       "hex": "#fcfcfc",
       "key": "w",
-      "use": "white paint: corridor lines, rim light, foam"
+      "use": "white paint: corridor lines, rim light, porthole glare"
     },
     {
       "entry": 2,
       "hex": "#0000bc",
       "key": "a",
-      "use": "sea deep, navy"
+      "use": "sea deep: troughs under a crest, deep water"
     },
     {
       "entry": 18,
       "hex": "#0058f8",
       "key": "b",
-      "use": "sea mid"
+      "use": "sea mid: the body of the water"
     },
     {
       "entry": 33,
       "hex": "#3cbcfc",
       "key": "c",
-      "use": "sea crest"
+      "use": "sea crest: wave light and foam (the water family's light tone)"
     },
     {
       "entry": 7,
@@ -955,12 +955,12 @@
         {
           "name": "palette_group",
           "type": "string",
-          "value": "sea"
+          "value": "steel"
         },
         {
           "name": "colours",
           "type": "string",
-          "value": "m,l,b"
+          "value": "m,l,w"
         }
       ],
       "type": "wall"
@@ -986,12 +986,12 @@
         {
           "name": "palette_group",
           "type": "string",
-          "value": "sea"
+          "value": "steel"
         },
         {
           "name": "colours",
           "type": "string",
-          "value": "m,l,b"
+          "value": "m,l,w"
         }
       ],
       "type": "wall"

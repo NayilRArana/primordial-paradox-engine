@@ -357,3 +357,110 @@ def test_check_env_tiles_passes_on_the_repository():
     assert facts["nes_check"] == 0
     assert facts["reachable_cells"] == facts["walkable_cells"]
     assert facts["collision_blocked"] + facts["collision_walkable"] == 300
+
+
+# ---------------------------------------------------------------------------- 8. the redrawn sea (card t_463bc8c1)
+#
+# The sea used to be a flat fill named after things it did not draw: on the sheet before this card, water_a, water_b,
+# water_edge and water_foam were 256 identical pixels of $12, because the row they were forced into carried sea mid
+# and nothing else. These tests measure the drawing and the built sheet, so a row move that flattens the sea again, or
+# a redraw that goes back to one colour, fails here instead of shipping.
+
+SEA = (0x02, 0x12, 0x21)          # deep, mid, crest: the three tones of bg3 in data/palettes/scene_ship.json
+CARGO = ("crate", "crate_stack", "barrel", "table", "bollard")
+WATER = ("water_a", "water_b", "water_edge", "water_deep", "water_foam")
+
+
+def entry_of_key() -> dict:
+    return {key: entry for key, entry, _hex, _use in ms.PALETTE}
+
+
+def drawn_counts(name: str) -> dict:
+    """Palette entries of one tile as this file draws it, keyed by 2C02 entry, backdrop included."""
+    keys = entry_of_key()
+    cell = ms.Cell()
+    ms.DRAW[name](cell)
+    counts = {}
+    for y in range(16):
+        for x in range(16):
+            entry = keys[cell.get(x, y)]
+            counts[entry] = counts.get(entry, 0) + 1
+    return counts
+
+
+def sheet_counts(image, name: str) -> dict:
+    """The same count, read off a built sheet, so a repaint shows up as a colour that is not there."""
+    keys = set(entry_of_key().values())
+    chip = load(os.path.join(ROOT, "data", "nes_palette.json"))["colours"]
+    rgba_of = {entry: tuple(int(chip[entry][i:i + 2], 16) for i in (1, 3, 5)) for entry in keys}
+    tid = ms.BY_NAME[name][0]
+    left, top = (tid % 16) * 16, (tid // 16) * 16
+    rgb_of = {rgba: entry for entry, rgba in rgba_of.items()}
+    counts = {}
+    for y in range(16):
+        for x in range(16):
+            entry = rgb_of[image.getpixel((left + x, top + y))[:3]]
+            counts[entry] = counts.get(entry, 0) + 1
+    return counts
+
+
+def test_the_water_family_is_drawn_as_water_in_three_tones():
+    for name in WATER:
+        counts = drawn_counts(name)
+        used = set(counts) - {0x0F}
+        assert used == set(SEA), "%s draws %s, the sea row carries $02 $12 $21" % (
+            name, " ".join("$%02X" % entry for entry in sorted(used)))
+        body = max(used, key=lambda entry: counts[entry])
+        expect = 0x02 if name == "water_deep" else 0x12
+        assert body == expect, "%s is mostly $%02X; deep water is $02 and the rest is $12" % (name, body)
+
+
+def test_the_two_sea_frames_are_a_swell_and_the_edge_and_foam_are_not_the_same_tile():
+    a = ms.Cell()
+    b = ms.Cell()
+    ms.water_a(a)
+    ms.water_b(b)
+    assert a.px != b.px, "water_a and water_b are the same picture, so the sea does not animate"
+    crests = [drawn_counts(name)[0x21] for name in WATER]
+    assert len(set(crests)) > 1, "every water tile carries the same number of crest pixels: %s" % crests
+    # The edge tile is the waterline: its top row is foam, which no other water tile has.
+    assert drawn_counts("water_edge")[0x21] > drawn_counts("water_deep")[0x21], (
+        "the waterline carries less foam than the deep water")
+    cell = ms.Cell()
+    ms.water_edge(cell)
+    assert [cell.get(x, 0) for x in range(16)].count("c") >= 8, (
+        "the top row of water_edge is not a foam line")
+
+
+def test_the_cargo_family_keeps_the_brass_its_row_can_show(built):
+    """Q2 of card t_463bc8c1: brass is GIVEN a row, not quietly dropped from the drawing."""
+    image = Image.open(built["files"]["sheet"]).convert("RGB")
+    for name in CARGO:
+        drawn = drawn_counts(name)[0x28]
+        assert drawn > 0, "%s no longer draws any brass" % name
+        kept = sheet_counts(image, name)[0x28]
+        assert kept == drawn, "%s lost %d of its %d brass pixels to the row it was painted into" % (
+            name, drawn - kept, drawn)
+
+
+def test_the_scene_palette_pass_repaints_only_the_bunk_and_the_lifebuoy(built):
+    """The rows were moved onto the drawing (card t_463bc8c1): what is left over is two other cards' art.
+
+    Pinned exactly, because this is the number ruling 21.2 measured and 21.7 replaced: 762 pixels repainted by the
+    old rows, 76 by these. A future redraw that raises it, or a row edit that raises it, has to move this test.
+    """
+    drawn = ms.render_sheet()
+    image = Image.open(built["files"]["sheet"]).convert("RGBA")
+    assert image.size == drawn.size
+    changed = {}
+    for tid, name, _kind, _solid, _climb, _group in ms.TILES:
+        left, top = (tid % 16) * 16, (tid // 16) * 16
+        count = 0
+        for y in range(16):
+            for x in range(16):
+                if drawn.getpixel((left + x, top + y)) != image.getpixel((left + x, top + y)):
+                    count += 1
+        if count:
+            changed[name] = count
+    assert changed == {"bunk": 60, "lifebuoy": 16}, changed
+

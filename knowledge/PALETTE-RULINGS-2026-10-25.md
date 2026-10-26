@@ -1996,3 +1996,165 @@ Provenance for section 22: studied this repository's own files only (`tools/pale
 `data/palettes/scene_westminster.json`, `scene_southampton.json`, `scene_winchester.json`,
 `game/sprites_src/env/ts_exterior.json`, the tileset, the four walking sheets, and the commit history of all of them). No
 decompiled material was read for this card and no expression from any game is in it. Copied expression: none.
+
+## 23. Q1, Q2 and Q3 on the ship's background rows, second pass: the drawing moves under the rows, the pin comes out, and a measured floor takes its place (card `t_463cb8c1`)
+
+Section 21 kept the ship's four rows and handed the redraw both sides of the trade; this card is that redraw, and it
+pays 21.4's receipt line by line. The short version: the water family is now drawn on the sea's own three tones, the
+portholes are drawn on the steel row, the cargo family keeps every brass pixel because a row now carries brass, and
+the rows are the measured best fit to the drawing. The pin comes out, and what replaces it is a number.
+
+### 23.1 Q1: the water family is redrawn on the sea's own three tones. Foam is crest `$21`, not white `$30`
+
+The defect 21.6 named first was that the water family is "a flat fill named after things it does not draw". On the
+committed sheet `water_a`, `water_b`, `water_edge` and `water_foam` were 256 identical pixels of `$12` each and
+`water_deep` was 246 of `$02`, because the row they were painted into carried `$12` and nothing else the water drew.
+The five tiles are now drawn on `bg3` `$02 $12 $21`, which is the sea's own triple:
+
+| tile | what it draws now | `$02` deep | `$12` mid | `$21` crest |
+| --- | --- | --- | --- | --- |
+| `water_a` | open sea frame one: four crests on an uneven pitch, each with its own trough under it | 11 | 230 | 15 |
+| `water_b` | the same swell, every crest drifted three pixels, the big one a pixel longer | 12 | 228 | 16 |
+| `water_edge` | the water line: a ragged two row foam line across the top, trough under it, sea below | 15 | 213 | 28 |
+| `water_deep` | deep water: navy body, three low swells, two glints | 246 | 8 | 2 |
+| `water_foam` | breaking water: a mass of foam with holes and a trough under its near edge | 15 | 142 | 99 |
+
+The animation pair is `water_a` / `water_b` at `ANIM_FPS` 2.0, and the pair now differs by the three pixel drift and
+the one pixel of crest growth, so the sea moves rather than flickers. The foam tile is deliberately the light one: at
+16 px the thing that says "foam" is how MUCH of the tile is the light tone, so it is 99 crest pixels on a mid body
+where `water_a` is 15 crest pixels on a mid body. A version with six small whitecaps measured 19 crest pixels and read
+as busier calm water; that is recorded because it was tried and rejected on the render, not on the numbers.
+
+**Foam is not white, and the reason is arithmetic.** A row holds three entries. Water needs the deep and the mid to be
+water at all, so the third slot is white or it is crest, never both, and the sheet's own table said `$30` was foam.
+It has to be crest, because `$21` has no other home on this sheet and may not leave it: `tools/art/make_ship_tiles.py`
+draws the ship interior's terminal screen with `$21` and
+`tests/test_make_ship_tiles.py::test_the_palette_is_the_ships_own_strip_palette` holds that sheet's ten colours as a
+SUBSET of this sheet's ten (recited in 21.3 as the third refusal). White foam would therefore mean redrawing a 96 tile
+interior sheet and its test, which is another sheet's card. The table's two lines were rewritten to say what the rows
+can actually do: `$21` reads "sea crest: wave light and foam (the water family's light tone)" and `$30` reads "white
+paint: corridor lines, rim light, porthole glare". White is still on the sheet and still on the water's row set, one
+row over, as the glare in the porthole glass and the paint on the bulkheads.
+
+Measured on the drawing, the water family's loss went from 274 pixels to 0: `water_a` 54 to 0, `water_b` 54 to 0,
+`water_edge` 66 to 0, `water_deep` 10 to 0, `water_foam` 90 to 0.
+
+### 23.2 Q2: the cargo family keeps its brass because a row now carries it
+
+Nothing in the cargo family is redrawn. `crate` 36 brass pixels, `crate_stack` 12, `barrel` 20, `table` 12 and
+`bollard` 67 were being repainted under `bg2` `$02 $07 $17`; `bg2` is now `$07 $17 $28`, the rust pair plus the
+brass, so the whole family repaints nothing and the wood floors, which need only `$07 $17`, are unaffected. The
+fittings that were already drawn with brass on the steel row keep it too: `bulkhead_light` 16, `hatch_closed` 39,
+`pipes` 22, `pipe_vert` 16, `cable_run` 24 and `locker` 12. Brass on the sheet is 276 pixels, cargo plus fittings, and
+all 276 survive the palette pass. The bollard's 43 rust pixels survive as well.
+
+So Q2 of section 21, "whether the cargo family should carry brass", is answered yes, and it is answered in the ROWS
+rather than in the art: the art was already right.
+
+### 23.3 The porthole, which section 21's tables could not see
+
+Both of section 21's candidate sets repainted 80 pixels of `porthole_a` and 80 of `porthole_b`: 160 pixels, the
+largest single loss on the sheet and four times the largest water tile. Neither table in 21.2 names it, because both
+sets lose it equally, so the per tile difference was zero and the total hid it. It is visible on `porthole_a`, which
+`data/maps/ship_sample_tiled.json` places: the glass was sea mid `$12` and the frame steel `$00` and `$10`, and no
+three entry row can hold a sea and a steel frame at once. It could be bought, at a price: the best four row set that
+carries a porthole capable row is 205 pixels against the 76 this card ships, which is the fittings' 129 brass and the
+rest. It is not worth 129 brass pixels, so the tile is redrawn instead: the glass is steel light `$10` with a white
+`$30` glare and one scratch across it, which is daylight through a window and the right read for a porthole on a lit
+deck. The tile table moves `porthole_a` and `porthole_b` from palette group `sea` to `steel`, where a porthole set
+into a bulkhead belongs. Cost: 0 pixels, on a placed tile.
+
+### 23.4 Q3: the rows take the drawing's grouping, the pin comes out, and a measured floor replaces it
+
+The four rows `data/palettes/scene_ship.json` now carries are `bg0` `$00 $10 $30` steel and white paint, `bg1`
+`$00 $10 $28` steel and brass fittings, `bg2` `$07 $17 $28` rust and brass cargo and wood, `bg3` `$02 $12 $21` the
+sea. On the raw drawn sheet they repaint 76 pixels of 12288 (0.62%), in two tiles: the bunk's rust frame 60 and the
+lifebuoy's four rust bands 16. That is 762 down to 76, and 19 tiles down to 2.
+
+The set was not hand picked. `itertools.combinations` over the 84 three entry groups the nine non backdrop entries
+make, taken four at a time, is 1929501 four row sets, and every one of them was scored by how many drawn pixels it
+repaints. The shipped set is the minimum at 76. The nearest rivals:
+
+| repaint | rows | what it buys and what it costs |
+| --- | --- | --- |
+| 76 | `$00 $10 $28`, `$00 $10 $30`, `$02 $12 $21`, `$07 $17 $28` | the set that ships |
+| 145 | `$00 $07 $10` in place of `$00 $10 $28` | the bunk's 60 rust pixels, at the cost of the fittings' 129 brass |
+| 187 | `$07 $17 $30` in place of `$07 $17 $28` | the lifebuoy ring, at the cost of the cargo's 147 brass |
+| 189 | adds `$10 $17 $30` | the bunk and the lifebuoy, and it still pays for the fittings |
+| 205 | `$00 $12 $21` in place of `$00 $10 $28` | the porthole's old steel and sea glass, at the cost of the fittings' brass |
+
+Every rival trades a placed tile for the fittings row, and the fittings row is 129 brass pixels spread over six tiles,
+so the minimum is also the set that costs the fewest placed tiles. The search is in this card's scratch, not in the
+repository: it is a one off measurement, and what lands is the set, the number, and the guard below.
+
+**The solver, measured on the drawing.** `solve_ship()` used to measure `game/sprites_src/env/ts_ship.png`, which is
+the drawing after the rows were already applied, so the solver was scoring its proposal with the pass it was proposing
+to change. On the enforced sheet its proposal "covered every tile", which is the rows agreeing with themselves. It now
+measures `make_env_ship.render_sheet()`, the drawing before the pass, and the difference is the whole of section 21.5:
+
+```
+$ python tools/art/scene_palette.py solve --scene ship
+ship: backdrop $0F #000000   48 16x16 areas, 725 pixels outside the chosen palette before enforcement
+  background 0  $00 #7c7c7c  $10 #bcbcbc  $30 #fcfcfc
+  background 1  $07 #881400  $28 #f8b800  $30 #fcfcfc
+  background 2  $02 #0000bc  $12 #0058f8  $17 #e45c10
+  background 3  $00 #7c7c7c  $02 #0000bc  $21 #3cbcfc
+  repaint on the drawing: the proposal 725 of 12288 pixels over 19 tiles, the file's rows 76 over 2 tiles
+  NOT applied: the proposal repaints more of the drawing than the rows already in the file, so a write would make
+  the art worse (card t_463cb8c1).
+  the file's rows are the better fit and stay as they are.
+```
+
+`--write` prints the same refusal and leaves the file byte identical: sha256 `11199e298c4efd...` before and after,
+which is measured, not assumed. The solver is a heuristic that groups the sheet's colour pairs; it misses the grouping
+the art is drawn in, and the redraw widened the gap rather than narrowing it, because the new foam tile is 99 crest
+pixels the proposal's rows cannot show. That is the honest state of the tool: its proposal is not a better answer to
+argue with, and a refusal is the right output for it.
+
+`background_pinned` therefore comes out of `data/palettes/scene_ship.json`. The key, the `write_scene()` handling and
+`tests/test_scene_palettes.py::test_a_solve_keeps_a_pinned_background_half` all stay, because the mechanism is general
+and a future half may need it; the test now seeds its own scratch copy with the key and keeps its control (the same
+call moves the rows once the key is gone), instead of asserting the shipped file is pinned. What the ship carries
+instead is the note with both numbers in it, and the floor in the solver, which needs no key: a proposal that repaints
+more of the drawing than the rows in the file is reported and not written.
+
+### 23.5 What landed, and what this does not decide
+
+Landed: `tools/art/make_env_ship.py` (the colour rule in the docstring, the ten colour table with its new `$21` and
+`$30` lines, the five water tiles, the porthole glass, the porthole tile group); `tools/art/scene_palette.py`
+(`ship_drawing()`, `repaint_cost()`, the floor in `solve_ship()`, both numbers in `describe()`, the module docstring,
+the `BACKGROUND_PINNED_KEY` comment); `data/palettes/scene_ship.json` (the four rows, the note, no pin);
+`data/scene_palettes.json` and the generated `game/sprites_src/env/ts_ship.png`, `ts_ship.json`,
+`ts_ship_tiled.json`, `data/maps/ship_sample_tiled.json` and `output/env_ship_preview.png`, rebuilt by their own
+generators; `tests/test_make_env_ship.py` (the water family, the brass that survives the pass, and the 76 pixel pin)
+and `tests/test_scene_palettes.py` (the pin test rewritten, the floor's own test with a worse and a better proposal);
+this section; a DEVLOG entry and a PROVENANCE entry. The rebuilt sheet is sha256 `31ff08230addd3eec2a5e41ee71c35e32f8fb79ade433fee744795e8d948c883`.
+
+Green on this tree: `python -m pytest tests/test_make_env_ship.py tests/test_scene_palette_set.py
+tests/test_scene_palettes.py tests/test_make_ship_tiles.py -q` reads 68 passed, 3 warnings (two of them Pillow's
+`getdata` deprecation in `tests/test_make_ship_tiles.py`), 0 failed; `python tools/check_env_tiles.py` exits 0;
+`python tools/check_scene_palettes.py --quiet` exits 0; `python tools/scene_palette_set.py build --write` exits 0 and
+derives the same set.
+
+Not decided here, with the number each would cost. The lifebuoy keeps its orange ring and pays 16 pixels of grey,
+because the row that can show its white ring cannot show its `$17` rust bands, and the row that could show them costs
+the cargo's 147 brass; making the bands grey instead is a redraw of a tile that reads correctly today, and this card
+declines it. The bunk keeps its rust frame and pays 60 pixels of grey for the same reason, and the row that would save
+it costs the fittings' 129 brass. Whether `$21` should leave the sheet and take the ship to nine colours is still
+another sheet's card, and the water family now depends on that colour, so the answer has hardened rather than softened.
+And whether the sea should be drawn at all before a room needs it: the water family is the one part of this card that
+no map places.
+
+Two hazards. `data/maps/ship_sample_tiled.json` places 32 of the 48 tiles and none of the five water tiles, so the sea
+is judgeable only on `output/env_ship_preview.png`, the strip the generator composes, and on the sheet; a room that
+places it may still find the three tone sea too flat against a bulkhead. And the palette pass still repaints 76
+pixels, now pinned by a test that names the two tiles and the number, so the next art change that loses more fails
+loudly instead of silently.
+
+Provenance for section 23: studied this repository's own files only (`tools/art/make_env_ship.py`,
+`tools/art/scene_palette.py`, `tools/art/make_ship_tiles.py`, `tools/scene_palette_set.py`, `tools/check_env_tiles.py`,
+`tools/check_scene_palettes.py`, the four test files named above, `data/nes_palette.json`,
+`data/palettes/scene_ship.json`, `data/scene_palettes.json`, `game/sprites_src/env/ts_ship.png` and
+`ts_ship_tiled.json`, `data/maps/ship_sample_tiled.json`, `output/env_ship_preview.png`, sections 21 and 22 of this
+file, `knowledge/SHIP-PALETTE-DRIFT-2026-10-25.md`, and the commit history of all of them). No decompiled material was
+read for this card and no expression from any game is in it. Copied expression: none.

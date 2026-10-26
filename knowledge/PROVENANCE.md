@@ -1808,3 +1808,31 @@ second walking triple for the party, which the four sprite palettes per scene do
 variants stay distinguishable without a fourth colour; and the measurement lives in a new test file as well as in the
 check, because nothing in this suite ran check 13 before this card.
 Copied expression: none
+
+## SHIP-DRAWN-IN-ITS-ROWS, 2026-10-25: a palette row is a budget of three slots, and the art has to be drawn inside it (card `t_463cb8c1`)
+Studied: this repository's own files, read only: `tools/art/make_env_ship.py`, `tools/art/scene_palette.py`,
+`tools/art/make_ship_tiles.py`, `tools/scene_palette_set.py`, `tools/check_env_tiles.py`,
+`tools/check_scene_palettes.py`, `tests/test_make_env_ship.py`, `tests/test_scene_palettes.py`,
+`tests/test_scene_palette_set.py`, `tests/test_make_ship_tiles.py`, `data/nes_palette.json`,
+`data/palettes/scene_ship.json`, `data/scene_palettes.json`, `game/sprites_src/env/ts_ship.png` and
+`ts_ship_tiled.json`, `data/maps/ship_sample_tiled.json`, `output/env_ship_preview.png`,
+`knowledge/PALETTE-RULINGS-2026-10-25.md` sections 21 and 22, and `knowledge/SHIP-PALETTE-DRIFT-2026-10-25.md`. No
+decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: three. One, a three entry palette row is a budget, and a family of tiles that all need the same
+three colours has to be PAINTED with those three rather than measured into them: the sea was flat because its tiles
+asked for a fourth tone the row could not carry, and no row ordering fixes that, only the drawing does. Two, the
+measure a solver minimises has to be the drawing, not the enforced output, or the solver scores its proposal with the
+very pass it is proposing to change (on the enforced PNG it "covered every tile", which is the rows agreeing with
+themselves); the fix is to measure the generator's own render and to make a worse proposal refused rather than written,
+which is a floor and not a pin, because a floor can be beaten and a pin cannot. Three, when a metric is minimised over
+a whole sheet, the loss that both candidate answers share is invisible: the portholes lost 160 pixels under either row
+set, the largest loss on the sheet, and it appeared in no per tile table because the per tile DIFFERENCE was zero. A
+per tile table of differences hides a constant, so the absolute column has to be read too.
+Our implementation differs by: the deck's four rows keep their meaning (steel and white paint, steel and brass,
+rust and brass, the sea) and the art is redrawn into them instead of the rows being re-solved around the art, so no
+tile's design changes for palette reasons alone; the sea's third tone is the crest `$21` rather than white `$30`
+because `$21` has no other home on this sheet and `make_ship_tiles.py` draws its terminal with it, and the porthole
+takes the steel row's pale glass instead of spending a row on its old steel and sea glass; and the guard is a measured
+floor inside the solver that prints both numbers and refuses a worse write, with `background_pinned` still supported
+for a half that genuinely is a ruling.
+Copied expression: none

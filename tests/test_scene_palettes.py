@@ -109,12 +109,15 @@ def test_a_solve_keeps_a_pinned_sprite_half_and_its_judged_row(tmp_path):
 
 
 def test_a_solve_keeps_a_pinned_background_half(tmp_path):
-    """Card t_23b5739a: the ship's background rows are a ruling, and a `solve --write` used to move them.
+    """Card t_23b5739a: a pinned background half survives a `solve --write`, and the key is the mechanism.
 
     The rows are an INPUT to the pixels of ts_ship.png (make_env_ship's scene palette pass repaints the sheet into
-    them), so the solver's rows for this sheet rebuild a different PNG and drop one of the ten declared colours.
-    Ruling section 21 keeps the shipped rows and marks the half `background_pinned: true`; removing the key is how
-    a later card that means to move the design does it, which is the control measured at the end.
+    them), so a solve that rewrites them rebuilds a different PNG. The key still does that job for a half that
+    genuinely is a ruling; what changed on card t_463bc8c1 is that the SHIP no longer needs it, because its rows are
+    now the measured best fit to the drawing `solve_ship()` itself measures, and a worse proposal is refused instead
+    of written (test_a_ship_solve_will_not_write_a_worse_proposal). So this test seeds its own scratch copy with the
+    key rather than asserting the shipped file carries it, and keeps its control: with the key the rows stay, and
+    without it the same call moves them.
     """
     import shutil
 
@@ -122,10 +125,10 @@ def test_a_solve_keeps_a_pinned_background_half(tmp_path):
     shutil.copy(os.path.join(ROOT, "data", "nes_palette.json"), str(tmp_path / "data" / "nes_palette.json"))
     with open(os.path.join(ROOT, "data", "palettes", "scene_ship.json"), encoding="utf-8") as handle:
         shipped = json.load(handle)
-    assert shipped.get("background_pinned") is True, (
-        "the shipped ship file lost its background pin, so the next solve --write repaints ts_ship.png")
+    pinned = json.loads(json.dumps(shipped))
+    pinned["background_pinned"] = True
     target = tmp_path / "data" / "palettes" / "scene_ship.json"
-    target.write_text(json.dumps(shipped, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    target.write_text(json.dumps(pinned, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     solver_rows = [[0x00, 0x10, 0x30], [0x02, 0x12, 0x30], [0x07, 0x17, 0x36], [0x08, 0x27, 0x28]]
     solver_background = [[0x00, 0x10, 0x30], [0x10, 0x28, 0x30], [0x02, 0x07, 0x17], [0x00, 0x02, 0x21]]
@@ -133,15 +136,15 @@ def test_a_solve_keeps_a_pinned_background_half(tmp_path):
     with open(str(target), encoding="utf-8") as handle:
         written = json.load(handle)
 
-    assert [row["colours"] for row in written["background"]] == [row["colours"] for row in shipped["background"]], (
+    assert [row["colours"] for row in written["background"]] == [row["colours"] for row in pinned["background"]], (
         "a solve moved a pinned background half, which repaints ts_ship.png")
     assert written["background_pinned"] is True, written.get("background_pinned")
-    assert written["notes"] == shipped["notes"], "the note that explains the pin was overwritten"
-    assert written["judged"] == shipped["judged"], "a solve deleted the judged row"
+    assert written["notes"] == pinned["notes"], "the note that explains the pin was overwritten"
+    assert written["judged"] == pinned["judged"], "a solve deleted the judged row"
 
     # The control: drop the key and the same call moves the background rows, so the pin is the mechanism.
-    shipped.pop("background_pinned")
-    target.write_text(json.dumps(shipped, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    pinned.pop("background_pinned")
+    target.write_text(json.dumps(pinned, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     scene_palette.write_scene(str(tmp_path), "ship", 0x0F, solver_background, solver_rows, ["solved by a rerun"])
     with open(str(target), encoding="utf-8") as handle:
         unpinned = json.load(handle)
@@ -289,3 +292,70 @@ def _frame_entries(path, frame_w, frame_h):
                     entries.add(entry)
             out.append(entries)
     return out
+
+
+# --------------------------------------------------------------------------- the drawing under the rows (card t_463bc8c1)
+
+def test_the_ship_file_carries_no_background_pin_and_its_rows_are_the_drawings_fit():
+    """Card t_463bc8c1: the rows are the measured best fit to the drawing, so the pin is gone and the number is the pin.
+
+    Ruling section 23 chose the four rows by scoring all 1929501 four row sets the sheet's nine non backdrop entries
+    can make; this is the number that has to hold when the art moves: 76 pixels of the drawing repainted, in two
+    tiles. It is pinned rather than merely reported because it is what the whole card is for, and a redraw that
+    pushes it up is a decision someone has to make on purpose.
+    """
+    with open(os.path.join(ROOT, "data", "palettes", "scene_ship.json"), encoding="utf-8") as handle:
+        shipped = json.load(handle)
+    assert "background_pinned" not in shipped, (
+        "the ship carries the old background pin again; its rows are now the fit to the drawing, and the solver "
+        "refuses a worse proposal instead (ruling section 23)")
+    assert [[int(entry) for entry in row["colours"]] for row in shipped["background"]] == [
+        [0x00, 0x10, 0x30], [0x00, 0x10, 0x28], [0x07, 0x17, 0x28], [0x02, 0x12, 0x21]], shipped["background"]
+
+    result = scene_palette.solve_ship(ROOT)
+    assert result["file"]["pixels"] == 76, (
+        "the ship's rows repaint %d of the drawing's pixels; they were chosen at 76 (bunk 60, lifebuoy 16)"
+        % result["file"]["pixels"])
+    assert result["file"]["tiles_split"] == 2, result["file"]
+    assert result["proposal"]["pixels"] > result["file"]["pixels"], (
+        "the solver now proposes a better fit (%d against %d): the rows are no longer the drawing's best fit, so "
+        "ruling section 23 needs re-measuring" % (result["proposal"]["pixels"], result["file"]["pixels"]))
+
+
+def test_a_ship_solve_will_not_write_a_worse_proposal(tmp_path):
+    """Card t_463bc8c1: the floor. A proposal that repaints more of the drawing than the shipped rows is not written.
+
+    This is what replaced `background_pinned` on the ship. The first half seeds a scratch root with the shipped file
+    and asserts the refusal; the second seeds the same root with four sea rows, which are obviously not the art's, and
+    asserts that the same call DOES write, so the guard is a floor and not a pin wearing a different name.
+    """
+    import shutil
+
+    (tmp_path / "data" / "palettes").mkdir(parents=True)
+    shutil.copy(os.path.join(ROOT, "data", "nes_palette.json"), str(tmp_path / "data" / "nes_palette.json"))
+    with open(os.path.join(ROOT, "data", "palettes", "scene_ship.json"), encoding="utf-8") as handle:
+        shipped = json.load(handle)
+    target = tmp_path / "data" / "palettes" / "scene_ship.json"
+    target.write_text(json.dumps(shipped, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    before = target.read_bytes()
+
+    refused = scene_palette.solve_ship(str(tmp_path), write=True)
+    assert refused["written"] is False, "a solve wrote a proposal that repaints more than the file's rows"
+    assert refused["proposal"]["pixels"] > refused["file"]["pixels"], refused
+    assert target.read_bytes() == before, "the file moved even though the proposal was refused"
+
+    # The control: a set that is not the drawing's at all. The same proposal beats it, so the call writes.
+    sea = [[0x02, 0x12, 0x21]] * 4
+    control = json.loads(json.dumps(shipped))
+    for index, row in enumerate(control["background"]):
+        row["colours"] = list(sea[index])
+        row["hex"] = ["#%02x%02x%02x" % scene_palette.load_master(ROOT)[0][entry] for entry in sea[index]]
+    target.write_text(json.dumps(control, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    written = scene_palette.solve_ship(str(tmp_path), write=True)
+    assert written["written"] is True, "the floor refused a proposal that is better than the file's rows"
+    with open(str(target), encoding="utf-8") as handle:
+        after = json.load(handle)
+    assert [[int(entry) for entry in row["colours"]] for row in after["background"]] == [
+        [int(entry) for entry in row] for row in written["scene"].background], after["background"]
+

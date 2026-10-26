@@ -12,9 +12,12 @@ game is read, traced, sampled or reproduced. The ship layout is invented here.
 
 Colour rule, and why this file is short on colours: the game must run on a stock NES, so the art obeys the
 Ricoh 2C02. Each 8x8 tile may carry 3 colours plus transparent, and a background 16x16 attribute area picks 3
-colours plus the one shared backdrop. The whole scene therefore uses 10 colours: black as the backdrop plus
-three three-colour groups (steel greys, sea blues, rust and brass). Every 16x16 tile here carries at most 3
-non-backdrop colours, and tools/check_env_tiles.py proves it plus runs tools/nes_check.py over the sheet.
+colours plus the one shared backdrop. The whole scene therefore uses 10 colours: black as the backdrop, the steel
+pair and white paint, the sea's three tones, and rust with brass. The four background rows of
+data/palettes/scene_ship.json group them as steel-and-white, steel-and-brass, rust-and-brass and sea, and every
+16x16 tile here is drawn inside one of those groups, so the scene palette pass repaints nothing it cannot carry.
+Every 16x16 tile carries at most 3 non-backdrop colours, and tools/check_env_tiles.py proves it plus runs
+tools/nes_check.py over the sheet.
 
 Palette entries are the 2C02 system numbers from data/nes_palette.json (built and cited by
 tools/art/nes_palette_build.py), so the sheet passes tools/nes_check.py with its default palette.
@@ -61,11 +64,11 @@ SCALE = 3
 PALETTE = [
     ("k", 0x0F, "#000000", "backdrop: hull shadow, seams, hatch void"),
     ("m", 0x00, "#7c7c7c", "steel mid: deck plates, lower bulkhead, stone"),
-    ("l", 0x10, "#bcbcbc", "steel light: upper bulkhead, rivets, fittings"),
-    ("w", 0x30, "#fcfcfc", "white paint: corridor lines, rim light, foam"),
-    ("a", 0x02, "#0000bc", "sea deep, navy"),
-    ("b", 0x12, "#0058f8", "sea mid"),
-    ("c", 0x21, "#3cbcfc", "sea crest"),
+    ("l", 0x10, "#bcbcbc", "steel light: upper bulkhead, rivets, fittings, porthole glass"),
+    ("w", 0x30, "#fcfcfc", "white paint: corridor lines, rim light, porthole glare"),
+    ("a", 0x02, "#0000bc", "sea deep: troughs under a crest, deep water"),
+    ("b", 0x12, "#0058f8", "sea mid: the body of the water"),
+    ("c", 0x21, "#3cbcfc", "sea crest: wave light and foam (the water family's light tone)"),
     ("r", 0x07, "#881400", "rust dark, wardroom wood dark"),
     ("o", 0x17, "#e45c10", "rust, wardroom wood grain"),
     ("y", 0x28, "#f8b800", "brass, hazard yellow"),
@@ -433,27 +436,30 @@ def locker(c: Cell) -> None:
 
 
 def porthole_a(c: Cell) -> None:
-    """A porthole in a bulkhead, sea frame one: navy sea, pale glare."""
+    """A porthole in a bulkhead, frame one: pale glass with a white glare, one scratch across it."""
     c.fill("m")
     c.hline(0, 0, 15, "k")
     c.hline(15, 0, 15, "k")
     c.annulus(C, C, 7.4, 5.8, "l")
-    c.disc(C, C, 5.2, "b")
-    c.hline(6, 5, 10, "l")
-    c.set(4, 8, "l")
-    c.set(11, 9, "l")
+    # The glass is steel light, not sea blue: a three tone sea and a steel frame are four colours in one
+    # attribute area, and the frame is the part that has to stay metal. Pale glass with a white glare reads as
+    # daylight through a window and fits the steel-and-white row (ruling section 21.7).
+    c.disc(C, C, 5.2, "l")
+    c.hline(6, 5, 10, "w")
+    c.set(4, 9, "w")
+    c.set(11, 10, "w")
 
 
 def porthole_b(c: Cell) -> None:
-    """Sea frame two: the glare has moved, so the portholes live."""
+    """Glass frame two: the glare has moved, so the portholes live."""
     c.fill("m")
     c.hline(0, 0, 15, "k")
     c.hline(15, 0, 15, "k")
     c.annulus(C, C, 7.4, 5.8, "l")
-    c.disc(C, C, 5.2, "b")
-    c.hline(8, 5, 10, "l")
-    c.set(7, 5, "l")
-    c.set(3, 9, "l")
+    c.disc(C, C, 5.2, "l")
+    c.hline(9, 5, 10, "w")
+    c.set(7, 5, "w")
+    c.set(3, 10, "w")
 
 
 def sign_wardroom(c: Cell) -> None:
@@ -597,54 +603,86 @@ def rail_bar(c: Cell) -> None:
     c.hline(8, 0, 15, "m")
 
 
-def water_a(c: Cell) -> None:
-    """Sea, frame one."""
+# -----------------------------------------------------------------------------------------------------------------
+# The sea. Five tiles on three tones: sea mid $12 is the body, sea crest $21 is the light on a wave and the foam,
+# sea deep $02 is the trough under a crest and the whole of the deep water. Nothing here is white: white is the
+# ship's paint, and a row that carries white cannot also carry the crest (ruling section 21.7).
+
+
+def crest(c: Cell, y: int, x0: int, length: int) -> None:
+    """One wave light: a dash of crest on row y with its trough one pixel right and one below.
+
+    Both are wrapped at the tile edge so the water tiles horizontally without a seam, and the trough is a pixel
+    shorter than the light so a crest reads as a lit edge over a shadow instead of a stripe.
+    """
+    for i in range(length):
+        c.set((x0 + i) % TILE, y % TILE, "c")
+    for i in range(max(1, length - 1)):
+        c.set((x0 + 1 + i) % TILE, (y + 1) % TILE, "a")
+
+
+def swell(c: Cell, drift: int, rising: bool = False) -> None:
+    """The open sea: four crests on an uneven pitch, so the tile repeats without reading as a grid."""
     c.fill("b")
-    for y, x0, x1 in ((4, 2, 6), (7, 9, 13), (11, 1, 4)):
-        c.hline(y, x0, x1, "c")
-        c.hline(y + 1, x0 + 1, x1 - 1, "a")
-    c.hline(14, 0, 15, "a")
-    c.hline(15, 0, 15, "a")
+    for index, (y, x0, length) in enumerate(((2, 2, 4), (7, 9, 3), (12, 5, 5), (15, 13, 3))):
+        if rising and index == 2:
+            length += 1          # the big crest grows a pixel, so the pair reads as a swell and not a slide
+        crest(c, y, x0 + drift, length)
+
+
+def water_a(c: Cell) -> None:
+    """Open sea, frame one: the swell at rest."""
+    swell(c, 0)
 
 
 def water_b(c: Cell) -> None:
-    """Sea, frame two: every crest has drifted two pixels."""
-    c.fill("b")
-    for y, x0, x1 in ((4, 4, 8), (7, 11, 15), (11, 3, 6)):
-        c.hline(y, x0, x1, "c")
-        c.hline(y + 1, x0 + 1, x1 - 1, "a")
-    c.hline(14, 0, 15, "a")
-    c.hline(15, 0, 15, "a")
+    """Open sea, frame two: every crest has drifted three pixels and one has grown, at 2 fps."""
+    swell(c, 3, rising=True)
 
 
 def water_edge(c: Cell) -> None:
-    """The water line against the quay: foam at the top, deep below."""
+    """The water line against the quay: ragged foam at the top, its trough under it, then sea."""
     c.fill("b")
-    c.hline(0, 0, 15, "c")
-    c.hline(1, 2, 13, "c")
-    c.hline(2, 4, 9, "c")
-    for y, x0, x1 in ((6, 8, 12), (10, 2, 6)):
-        c.hline(y, x0, x1, "c")
-        c.hline(y + 1, x0 + 1, x1 - 1, "a")
-    c.hline(15, 0, 15, "a")
+    for y, x0, length in ((0, 0, 5), (0, 6, 3), (0, 10, 5), (1, 1, 3), (1, 7, 2), (1, 11, 3)):
+        for i in range(length):
+            c.set((x0 + i) % TILE, y, "c")
+    for x0, length in ((2, 4), (8, 3), (12, 3)):
+        for i in range(length):
+            c.set((x0 + i) % TILE, 2, "a")
+    for y, x0, length in ((6, 11, 3), (11, 2, 4)):
+        crest(c, y, x0, length)
 
 
 def water_deep(c: Cell) -> None:
-    """Deep water: mostly navy, one crest, for the middle of the harbour."""
+    """Deep water: navy body, a low swell catching the light, and one glint on each crest."""
     c.fill("a")
-    c.hline(6, 3, 7, "b")
-    c.hline(7, 4, 6, "c")
-    c.hline(12, 10, 14, "b")
+    for y, x0, length in ((3, 6, 4), (9, 12, 3), (13, 1, 3)):
+        for i in range(length):
+            c.set((x0 + i) % TILE, y, "b")
+    c.set(6, 3, "c")
+    c.set(12, 9, "c")
 
 
 def water_foam(c: Cell) -> None:
-    """Breaking foam where the sea meets a ladder or a mooring."""
+    """Breaking water: a mass of foam on the water, with holes and a trough under its near edge.
+
+    A foam tile that carries the same two dashes as the calm sea reads as busier water, not as breaking water: at
+    16 px the thing that says foam is how MUCH of the tile is the light tone. So this one is mostly crest with the
+    body showing through it, where water_a is mostly body with crest dashes on it.
+    """
     c.fill("b")
-    c.annulus(C, C, 5.2, 3.4, "c")
-    c.rect(6, 6, 9, 9, "c")
-    c.set(3, 3, "c")
-    c.set(12, 12, "c")
-    c.hline(15, 0, 15, "a")
+    for y, x0, length in ((2, 5, 7), (3, 3, 10), (4, 2, 12), (5, 2, 12), (6, 2, 12),
+                          (7, 2, 12), (8, 3, 11), (9, 3, 10), (10, 4, 9), (11, 5, 8), (12, 6, 5)):
+        for i in range(length):
+            c.set(x0 + i, y, "c")
+    # Holes and undercuts, so the mass reads as broken water and not as a flat patch.
+    for x, y in ((5, 4), (6, 4), (10, 6), (11, 6), (4, 7), (9, 9), (8, 10), (7, 9), (11, 5)):
+        c.set(x, y, "a")
+    # The trough under the near edge, and three specks of spray thrown clear of the mass.
+    for x, y in ((5, 13), (6, 13), (7, 13), (8, 13), (9, 12), (10, 12)):
+        c.set(x, y, "a")
+    for x, y in ((13, 3), (14, 6), (12, 10)):
+        c.set(x, y, "c")
 
 
 # -----------------------------------------------------------------------------------------------------------------
@@ -679,8 +717,8 @@ TILES = [
     (24, "lifebuoy", "prop", True, False, "steel"),
     (25, "warning", "floor", False, False, "rust"),
     (26, "locker", "prop", True, False, "steel"),
-    (27, "porthole_a", "wall", True, False, "sea"),
-    (28, "porthole_b", "wall", True, False, "sea"),
+    (27, "porthole_a", "wall", True, False, "steel"),
+    (28, "porthole_b", "wall", True, False, "steel"),
     (29, "sign_wardroom", "wall", True, False, "steel"),
     (30, "sign_machinery", "wall", True, False, "steel"),
     (31, "sign_bridge", "wall", True, False, "steel"),
