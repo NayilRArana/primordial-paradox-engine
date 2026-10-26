@@ -54,12 +54,18 @@ def git(args, cwd=REPO):
     hook or a lane's shell exports them, and an inherited GIT_INDEX_FILE once made a shared repository
     read every tracked file as a staged deletion (manager-intake.md, 2026-10-24). A log generator has no
     business reading a deliberately redirected index, so it asks only the checkout it sits in.
+
+    stdin is closed rather than inherited, for the reason knowledge/SPAWN-HANDLES-2026-10-25.md measured:
+    under a runner that redirects stdout to a log, the parent's stdin handle can already be dead, and a
+    spawn that leaves it unset fails with WinError 6 inside DuplicateHandle before git runs at all. That
+    arrived dressed as a failure of whatever called it (card t_4d5984b4 saw it here, as
+    test_event_log's pathspec test).
     """
     env = {k: v for k, v in os.environ.items()
            if k not in ("GIT_INDEX_FILE", "GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR",
                         "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES")}
     proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, encoding="utf-8",
-                          errors="replace", env=env, creationflags=NOWIN)
+                          errors="replace", env=env, creationflags=NOWIN, stdin=subprocess.DEVNULL)
     if proc.returncode != 0:
         raise RuntimeError("git %s failed: %s" % (" ".join(args), (proc.stderr or "").strip()[:400]))
     return proc.stdout

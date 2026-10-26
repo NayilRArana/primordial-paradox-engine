@@ -64,7 +64,7 @@ spawns so a scanner that matches nothing cannot pass silently.
 
 ## Still open, and deliberately not fixed here
 
-`tools/` carries thirteen unguarded one-shot spawns, found by the same scan:
+`tools/` carried thirteen unguarded one-shot spawns, found by the same scan:
 
     tools/art/make_ship_tiles.py:731     tools/capture_drive.py:354,381,387
     tools/check_readme.py:200            tools/check_ui_nes.py:199
@@ -75,3 +75,17 @@ spawns so a scanner that matches nothing cannot pass silently.
 They are the same shape one level deeper: a tool spawned by a test that itself spawns a child inherits the same
 dead handle. They are not in this commit because each needs its own run to prove the edit harmless, and a
 thirteen-site blind edit late in the day is how a green tool becomes a red one. They want a card with that list.
+
+## Closed one site, 2026-10-26 (card `t_4d5984b4`)
+
+`tools/event_log.py:61` is closed: its `git()` spawn now passes `stdin=subprocess.DEVNULL`. It went red for real
+first, in `tests/test_event_log.py::test_a_commit_that_only_rewrites_the_log_is_not_a_row`, in a full suite run and
+in the commit gate, `OSError: [WinError 6]` at `subprocess.py:1431`. The condition was reproduced on purpose with
+the parent's stdin closed (`0<&-`), which is the runner's shape:
+
+    tools/event_log.py at HEAD        1 WinError 6, exit 1
+    tools/event_log.py with the fix   9 passed, exit 0, 0 WinError 6
+
+Twelve sites remain, the list above minus this line. Redirecting stdout to a log was NOT enough to reproduce it on
+its own (that run passed both before and after), so the trigger is the parent's stdin handle being dead, not the
+redirection; the redirection is only what makes the runner hold a closed handle in the first place.
