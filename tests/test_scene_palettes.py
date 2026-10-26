@@ -113,7 +113,7 @@ def test_a_solve_keeps_a_pinned_background_half(tmp_path):
 
     The rows are an INPUT to the pixels of ts_ship.png (make_env_ship's scene palette pass repaints the sheet into
     them), so a solve that rewrites them rebuilds a different PNG. The key still does that job for a half that
-    genuinely is a ruling; what changed on card t_463bc8c1 is that the SHIP no longer needs it, because its rows are
+    genuinely is a ruling; what changed on card t_463cb8c1 is that the SHIP no longer needs it, because its rows are
     now the measured best fit to the drawing `solve_ship()` itself measures, and a worse proposal is refused instead
     of written (test_a_ship_solve_will_not_write_a_worse_proposal). So this test seeds its own scratch copy with the
     key rather than asserting the shipped file carries it, and keeps its control: with the key the rows stay, and
@@ -305,10 +305,10 @@ def _frame_entries(path, frame_w, frame_h):
     return out
 
 
-# --------------------------------------------------------------------------- the drawing under the rows (card t_463bc8c1)
+# --------------------------------------------------------------------------- the drawing under the rows (card t_463cb8c1)
 
 def test_the_ship_file_carries_no_background_pin_and_its_rows_are_the_drawings_fit():
-    """Card t_463bc8c1: the rows are the measured best fit to the drawing, so the pin is gone and the number is the pin.
+    """Card t_463cb8c1: the rows are the measured best fit to the drawing, so the pin is gone and the number is the pin.
 
     Ruling section 23 chose the four rows by scoring all 1929501 four row sets the sheet's nine non backdrop entries
     can make; this is the number that has to hold when the art moves: 76 pixels of the drawing repainted, in two
@@ -334,7 +334,7 @@ def test_the_ship_file_carries_no_background_pin_and_its_rows_are_the_drawings_f
 
 
 def test_a_ship_solve_will_not_write_a_worse_proposal(tmp_path):
-    """Card t_463bc8c1: the floor. A proposal that repaints more of the drawing than the shipped rows is not written.
+    """Card t_463cb8c1: the floor. A proposal that repaints more of the drawing than the shipped rows is not written.
 
     This is what replaced `background_pinned` on the ship. The first half seeds a scratch root with the shipped file
     and asserts the refusal; the second seeds the same root with four sea rows, which are obviously not the art's, and
