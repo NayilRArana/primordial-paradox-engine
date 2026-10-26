@@ -909,7 +909,7 @@ Landed:
 - `data/palettes/scene_southampton.json`, `scene_westminster.json`, `scene_winchester.json`: `sp0` and `sp2`
   solved to the party's walking triples, `sp1` and `sp3` unchanged, the placeholder note rewritten, one `judged`
   row each.
-- `data/scene_palettes.json` rebuilt with `python tools/scene_palette_set.py build --write`: 60 insertions, 15
+- `data/scene_palettes.json` rebuilt with `python tools/scene_palette_set.py build --write`: 57 insertions and 12
   deletions, all of them the three town scene entries and the three new audit rows.
 - `.gitignore` and `tools/check_test_inputs.py`: the three frames committed and named as fixtures.
 - `tools/art/make_exterior_maps.py`: the carry-forward above.
@@ -921,9 +921,9 @@ Checks on this tree, 2026-10-25:
 - `python tools/scene_palette_set.py build --write` then `validate`: **PASS, 12 scenes, 4 hero palettes**.
 - `python tools/palette_synergy.py --gate`: the table above, exit 0.
 - `python -m pytest tests/test_scene_palette_set.py tests/test_palette_synergy.py tests/test_scene_palettes.py
-  tests/test_make_exterior_maps.py tests/test_test_inputs.py -q`: 65 passed, and the two rows that read the
+  tests/test_make_exterior_maps.py tests/test_test_inputs.py -q`: 67 passed, including the two rows that read the
   repository's own tracked file list (`test_every_judged_rows_ground_is_a_file_a_clean_checkout_carries`,
-  `test_test_inputs`) red until this commit lands, because the frames are staged by it.
+  `test_test_inputs`), which were red until the commit landed because the frames are staged by it.
 - The per sheet, per town and per state numbers are from `measure_frames.py`, `measure_carriers.py`,
   `measure_states.py` and `simulate_rows.py` in this card's workspace, which call `palette_synergy`'s
   `frame_report`, `Grid` and `background_report` rather than restating the arithmetic.
