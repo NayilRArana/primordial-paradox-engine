@@ -553,7 +553,10 @@ def write_scene_palette(root: str, place: dict, meta: dict, ts_meta: dict) -> st
     kept_judged = judged_rows(path)
     if kept_judged:
         scene["judged"] = kept_judged
-    with open(path, "w", encoding="utf-8") as handle:
+    # newline="\n": a text handle on Windows turns every \n into \r\n, so the same run wrote different bytes on the
+    # gate's Linux host and the committed file could never be reproduced there (card t_155bcd6d). Every file this
+    # generator owns is written with an explicit LF for that reason.
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(scene, handle, indent=2)
         handle.write("\n")
     if kept_sprites or kept_judged:
@@ -649,7 +652,7 @@ def main(argv=None) -> int:
             "maps": [map_doc],
         }
         out = os.path.join(root, "data", "maps", place["id"] + ".json")
-        with open(out, "w", encoding="utf-8") as handle:
+        with open(out, "w", encoding="utf-8", newline="\n") as handle:
             json.dump(doc, handle, indent=2)
             handle.write("\n")
 
@@ -682,7 +685,8 @@ def main(argv=None) -> int:
                  len(regions[0]) if regions else 0,
                  100.0 * len(seen) / len(regions[0]) if regions else 0.0,
                  start[0], start[1], landmark, len(palettes_used)))
-    with open(os.path.join(root, "output", "ts_exterior_maps_report.json"), "w", encoding="utf-8") as handle:
+    with open(os.path.join(root, "output", "ts_exterior_maps_report.json"), "w", encoding="utf-8",
+              newline="\n") as handle:
         json.dump({"format": 1, "kind": "ts_exterior_maps_report", "maps": report}, handle, indent=2)
         handle.write("\n")
     return 0
