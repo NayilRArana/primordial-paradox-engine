@@ -2112,6 +2112,24 @@
     },
     {
       "$GMIncludedFile": "",
+      "%Name": "percy_theme_v3.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "percy_theme_v3.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
+      "%Name": "percy_theme_v4.ogg",
+      "CopyToMask": -1,
+      "filePath": "datafiles/streams",
+      "name": "percy_theme_v4.ogg",
+      "resourceType": "GMIncludedFile",
+      "resourceVersion": "2.0"
+    },
+    {
+      "$GMIncludedFile": "",
       "%Name": "pp_01_title.ogg",
       "CopyToMask": -1,
       "filePath": "datafiles/streams",
