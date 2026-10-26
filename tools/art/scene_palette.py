@@ -38,8 +38,9 @@ Clean room: the rules are published hardware behaviour (PPU palettes, PPU attrib
 is our own. No art, palette or data from any published game is read or reproduced here.
 
 Usage:
-    python tools/art/scene_palette.py solve --scene title     # measure the art, write the scene JSON
-    python tools/art/scene_palette.py solve --scene ship
+    python tools/art/scene_palette.py solve --scene title     # measure the art, print the proposal
+    python tools/art/scene_palette.py solve --scene ship      # the same, for the ship sheet's rows
+    python tools/art/scene_palette.py solve --scene ship --write   # move the design, then rebuild the art
     python tools/art/scene_palette.py apply --scene title     # enforce it on the strips on disk
     python tools/art/scene_palette.py show --scene title
 """
@@ -974,14 +975,30 @@ def solve_title(root: str, write: bool = False) -> dict:
     ]
     path = write_scene(root, "title", backdrop, background, sprites, notes) if write else scene_path(root, "title")
     leftover = 0
-    scene = load_scene(root, "title")
+    # Without --write the file on disk is not the thing that was measured, so the report has to be the
+    # PROPOSAL. Printing the file's rows here is how a drift survives: the command looks like it agreed
+    # with the art when it was describing the art's input (card t_92d59163).
+    scene = load_scene(root, "title") if write else proposed_scene(root, "title", backdrop, background, sprites)
     for counts in profiles:
         index, covered = scene.pick_bg(counts)
         leftover += sum(counts.values()) - covered
-    return {"path": path, "scene": scene, "areas": len(profiles), "pixels_outside": leftover}
+    return {"path": path, "scene": scene, "areas": len(profiles), "pixels_outside": leftover, "written": write}
 
 
-def solve_ship(root: str) -> dict:
+def solve_ship(root: str, write: bool = False) -> dict:
+    """Measure the ship art and propose four background and four sprite palettes that cover it.
+
+    `write` defaults to False for the same reason `solve_title()`'s does, and the ship's version of the loop
+    is sharper because the sheet is not drawn FROM these rows, it is repainted INTO them:
+    `tools/art/make_env_ship.py build()` runs `enforce_ship_sheet()` over the in-memory sheet and saves the
+    result, so the rows in `data/palettes/scene_ship.json` are an input to the pixels of `ts_ship.png`. A
+    solve that writes by default therefore edits the art, and card t_92d59163 measured exactly that on
+    2026-10-25: the solver proposes `bg1 $07 $17 $30` and `bg2 $02 $12 $28` where the committed file carries
+    `bg1 $12 $28 $30` and `bg2 $02 $07 $17`, the enforced sheet then repaints 151 pixels over 6 tiles, and
+    the entry `$2C #3cbcfc` leaves the sheet, so a ten colour tileset reads nine and
+    `tests/test_make_env_ship.py` fails twice. The proposal is not wrong about the sheet it measured: the
+    committed rows are the fixed point of solve plus enforce, and only the two together can move.
+    """
     colours, usable, index_of = load_master(root)
     path = os.path.join(root, "game", "sprites_src", "env", "ts_ship.png")
     with Image.open(path) as handle:
@@ -1010,13 +1027,27 @@ def solve_ship(root: str) -> dict:
         "also be drawn as sprites",
         "solved by tools/art/scene_palette.py and checked by tools/nes_composite_check.py",
     ]
-    path_out = write_scene(root, "ship", backdrop, background, sprites, notes)
-    scene = load_scene(root, "ship")
+    path_out = write_scene(root, "ship", backdrop, background, sprites, notes) if write else scene_path(root, "ship")
+    scene = load_scene(root, "ship") if write else proposed_scene(root, "ship", backdrop, background, sprites)
     leftover = 0
     for counts in profiles:
         _index, covered = scene.pick_bg(counts)
         leftover += sum(counts.values()) - covered
-    return {"path": path_out, "scene": scene, "areas": len(profiles), "pixels_outside": leftover}
+    return {"path": path_out, "scene": scene, "areas": len(profiles), "pixels_outside": leftover, "written": write}
+
+
+def proposed_scene(root: str, name: str, backdrop: int, background, sprites) -> "Scene":
+    """A Scene built from a solve's PROPOSAL, so `solve` can describe what it measured and not the file.
+
+    `Scene` is the same object the enforcement and the checkers read, so the report a bare solve prints is
+    the palette set the enforcement would apply, not a summary restated here.
+    """
+    return Scene({
+        "scene": name,
+        "backdrop": backdrop,
+        "background": [{"name": "bg%d" % index, "colours": list(row)} for index, row in enumerate(background)],
+        "sprites": [{"name": "sp%d" % index, "colours": list(row)} for index, row in enumerate(sprites)],
+    }, root)
 
 
 def describe(result: dict) -> None:
@@ -1030,7 +1061,8 @@ def describe(result: dict) -> None:
             print("  %s %d  %s" % (label, index,
                                    "  ".join("$%02X #%02x%02x%02x" % ((entry,) + colours[entry])
                                              for entry in row)))
-    print("  file: %s" % os.path.relpath(result["path"]))
+    print("  %s: %s" % ("written" if result.get("written") else "proposal only, nothing written; the file is",
+                        os.path.relpath(result["path"])))
 
 
 def compose_frame(root: str, out_path: str) -> str:
@@ -1092,7 +1124,9 @@ def main(argv=None) -> int:
     parser.add_argument("--out", default=None)
     parser.add_argument("--write", action="store_true",
                         help="solve only: save the proposed palettes to data/palettes/<scene>.json. The file is "
-                             "an input to the v2 generators, so a solve that writes by default fights the art.")
+                             "an input to the generators for BOTH scenes (the title strips pick their colours "
+                             "out of scene_title.json, and make_env_ship repaints ts_ship.png into "
+                             "scene_ship.json's rows), so a solve that writes by default fights the art.")
     parser.add_argument("--root", default=os.path.dirname(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__)))))
     args = parser.parse_args(argv)
@@ -1101,7 +1135,7 @@ def main(argv=None) -> int:
     status = 0
     for name in names:
         if args.command == "solve":
-            result = solve_title(root, write=args.write) if name == "title" else solve_ship(root)
+            result = solve_title(root, write=args.write) if name == "title" else solve_ship(root, write=args.write)
             describe(result)
         elif args.command == "apply":
             report = apply_title(root) if name == "title" else apply_ship(root)

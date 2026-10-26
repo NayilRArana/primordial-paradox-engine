@@ -1713,3 +1713,28 @@ Our implementation differs by: the retired sheet is declared rather than deleted
 character generator plus one list in each tool), so the game keeps its art and the pipeline stops producing it, and
 the two `SHIP_SPRITES` constants that had drifted apart are one cast by test rather than by comment.
 Copied expression: none
+
+
+## SHIP-PALETTE-DRIFT, 2026-10-25: a palette file that a generator repaints INTO is an input, so a solver that writes it by default edits the art (card t_92d59163)
+Studied: this repository's own files, read only: `tools/art/scene_palette.py` at HEAD and at `7a73469`,
+`tools/art/make_env_ship.py`, `tests/test_make_env_ship.py`, `tools/scene_palette_set.py`,
+`tools/check_scene_palettes.py`, `tools/palette_synergy.py`, `data/nes_palette.json`, `data/scene_palettes.json`,
+`data/palettes/scene_ship.json` and its history, `game/sprites_src/env/ts_ship.png` and its sidecar and their
+history, and the commit history of all of them. No decompiled material was read for this card and no expression
+from any game is in it.
+Mechanics learned: two. One, when a "reproduces the file on disk" row is red and the working tree holds an
+uncommitted copy of a derived file, the uncommitted copy is not automatically the drift: run the generator in a
+clean worktree at the candidate file and compare hashes. Here the result was byte identical, which proved the
+working tree was a derivation, and it still did not settle the question, because the derivation was of the wrong
+thing. Two, direction of dependency is what decides who wins: a palette row set that a generator READS is a
+description, and a row set that a generator REPAINTS INTO is an input, and `enforce_ship_sheet()` makes the ship's
+rows the second kind. Every check that compares the committed art against the rows passes either way, because it
+is measuring the rows' own output; only building the art from each candidate set shows the difference (0 pixels
+and a byte identical sheet for the committed rows, 151 pixels over 6 tiles and a lost `$2C` entry for the solver's
+proposal). The same asymmetry is why `solve_title()` had needed `write=False` since 2026-10-22.
+Our implementation differs by: the file is reverted rather than moved, and the recurring cause is closed in the
+tool instead of in the data (a `write` flag on `solve_ship()` mirroring the title's, plus a report that prints the
+PROPOSAL rather than the file, so the disagreement is visible without being applied). Nothing was redrawn, no
+palette row moved, and the open question (should the ship's rows move, and at what cost to the ten colour budget)
+is left to a card that owns the ship art, with the measurement attached.
+Copied expression: none
