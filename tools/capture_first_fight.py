@@ -203,8 +203,10 @@ def menu_geometry():
         raise SystemExit("pp_battle_draw_menu no longer draws its labels at 24 + (i mod 2) * 104; the label "
                          "cells the FIGHT check samples cannot be trusted")
     # Card t_da94341c: the labels are the 8x8 sheet's glyphs now (card BATTLE-FONT-WIRE), drawn by pp_font_draw, which
-    # advances one 8 px cell per character and paints the sheet's own ink. The cell geometry is unchanged, but the
-    # colour the FIGHT check looks for is the sheet's, not the ink role, so both facts are pinned here.
+    # advances one 8 px cell per character and paints the sheet's own ink. The cell geometry is unchanged, and the
+    # colour the FIGHT check looks for is not a role at all: the sheet's ink is a 2C02 white that the encoder spreads
+    # over near-white values, so the cell is measured against the window's paper (card t_239422fe). Both facts are
+    # pinned here.
     if "pp_font_draw(_entry.label, _x, _yy, 1);" not in text:
         raise SystemExit("pp_battle_draw_menu no longer draws its labels with pp_font_draw; the ink the FIGHT check "
                          "looks for would be a colour the game does not paint")
@@ -438,6 +440,22 @@ def run_capture(policy, show=False):
 PALETTE_SNAP_TOLERANCE = 12
 PALETTE_SNAP_MIN = 0.90
 
+# Card t_239422fe. The command labels are NOT drawn in the ink role. pp_font_draw paints the 8x8 sheet's one ink, which
+# is a 2C02 white (pp_font.gml's header), and on the recorded first fight the FIGHT cell carries its strokes as 41 px
+# exactly on the text role plus about 500 px spread over some twenty near-white values such as (248,247,252) that no
+# palette entry is within 12 of, while the ink role #0b0b0f (11,11,15) appears 0 times in the cell and once in the whole
+# window. The old mask here was exact equality with the ink role, so it scored the label at 0 px on a frame where the
+# label is legible (resume_probe/frames/f_0046.png, box paper 0.952, a crop reads FIGHT POWER / TALK SPARE).
+#
+# A glyph is therefore measured as the paper's opposite: a pixel that differs from the paper role by more than 24 in
+# some channel. 24 is the finding's own measured threshold (FIRST-FIGHT-FINDING-2026-10-26.md finding 2) and it is twice
+# the reader's snap tolerance, so no pixel the reader would have snapped onto the paper counts as a glyph and the
+# paper's own encoder bleed around a stroke does not add one. The paper role is (28,28,36) and the label's strokes
+# measure (200,200,212) to (255,253,255), which is 168 to 227 away, so the threshold sits in empty space between the
+# fill and the strokes rather than being tuned to a frame. The FIGHT cell's own thresholds are unchanged:
+# FIGHT_SPAN_MIN 32 and FIGHT_INK_MIN 20, and the corrected cell reads 121 px over a 39 px span in 5 runs.
+GLYPH_CONTRAST_MIN = 24
+
 
 def game_palette():
     """The colours the game draws with, from data/palette.json, in the order the file lists them."""
@@ -536,6 +554,26 @@ def ink_mask(pixels, rect, colours):
     return mask
 
 
+def contrast_mask(pixels, rect, background, tolerance=GLYPH_CONTRAST_MIN):
+    """The pixels of a cell that are not the colour it is filled with: a glyph, on a paper window.
+
+    Card t_239422fe. The command labels are the sheet's own ink (a 2C02 white), which the encoder spreads over near
+    white values, so no one colour is the label's. What IS known about a glyph is that it is drawn on the window's
+    paper and is not it, so the mask is taken against the paper role instead of for a colour. Measured on
+    resume_probe/frames/f_0046.png this reads the FIGHT cell at 121 px over a 39 px span in 5 runs; the ink role it
+    used to look for appears 0 times in that cell.
+    """
+    x1, y1, x2, y2 = rect
+    mask = {}
+    for y in range(y1, y2 + 1):
+        for x in range(x1, x2 + 1):
+            pixel = pixels[x, y]
+            if (abs(pixel[0] - background[0]) > tolerance or abs(pixel[1] - background[1]) > tolerance
+                    or abs(pixel[2] - background[2]) > tolerance):
+                mask[(x - x1, y - y1)] = True
+    return mask
+
+
 def clusters_x(mask, width):
     """The number of ink runs along x: one per glyph when the font's cells leave a blank column between them."""
     hit = [False] * width
@@ -574,9 +612,13 @@ def ink_rows(mask, height):
 def score_frame(pixels, roles, geom, labels, text_colour=None):
     """Every number the report prints for one frame, computed from the roles and the draw geometry.
 
-    `text_colour` defaults to the ink role, which is what the 8x8 sheet is painted in on the battle screen: the
-    measured battle frames carry the command labels and the result word in the ink role, not in the sheet's own
-    source colour (the sheet's white is remapped by the scene palette the room set bakes, card BATTLE-FONT-WIRE).
+    The command cells are measured as contrast against the window's paper (contrast_mask, card t_239422fe): the
+    sheet paints its one ink as a 2C02 white and the encoder spreads it, so no role colour is the label's.
+
+    `text_colour` names the colour the victory panel's word and "press Z" are measured in, and defaults to the ink
+    role: on the recorded fight's result panel (resume_probe/frames/f_0090.png, panel paper 0.953) those bands do
+    carry the ink role, measured 28 px and 53 px wide. It is NOT used for the command cells, which carry no ink role
+    pixel at all on the same recording.
     """
     box_colour = roles["paper"]
     border_colour = roles["dim"]
@@ -601,12 +643,27 @@ def score_frame(pixels, roles, geom, labels, text_colour=None):
     # no row of a cut frame is ever 70 percent dim (measured on output/first_fight_capture.mp4, see the note at the
     # thresholds). The claim the check exists for is that the window is bounded, so it is measured as the step it is:
     # the outside rows above the window are not paper, and the inside is. A screen that is all paper scores 0 here.
+    #
+    # Card t_239422fe: the second half of that step was never measured. The share of the three rows above the window
+    # that are not paper is 1.0000 on ANY screen that is not paper, so the no-battle recording measured exactly 1.0000
+    # on 123 of 123 frames while the window's own paper measured 0.0001 at most, and on the real fight 40 of the 42
+    # frames with the window up measured 0.667 to 0.678, under the 0.70 threshold, because the window's top edge on a
+    # cut frame sits inside that three row band. A boundary has two sides, so both are counted per column: a column is
+    # bounded when at least one row above the window is not paper AND the window's first inside row is paper. Measured
+    # on the recorded frames: 1.0000 on all 42 command window frames of the real fight, 0.0000 on all 123 frames of the
+    # no-battle recording and on all 75 frames of the real fight without a window. The dim row is still measured above,
+    # because it is the role the director outlines with, and the larger of the two is what the check compares.
     outside = 0
     outside_total = 0
-    for row in range(max(0, by1 - 3), by1):
-        hit, total = rect_stats(pixels, (bx1, row, bx2, row), box_colour, tolerance=0)
-        outside += total - hit
-        outside_total += total
+    for x in range(bx1 + 1, bx2):
+        above = False
+        for row in range(max(0, by1 - 3), by1):
+            if pixels[x, row] != box_colour:
+                above = True
+                break
+        inside = by1 + 1 < SCREEN_H and pixels[x, by1 + 1] == box_colour
+        outside += 1 if (above and inside) else 0
+        outside_total += 1
     if outside_total:
         step = outside / float(outside_total)
         if step > border_hit / float(border_total):
@@ -624,7 +681,10 @@ def score_frame(pixels, roles, geom, labels, text_colour=None):
         best = None
         for top in range(max(0, cy - 2), min(SCREEN_H - glyph, cy + 9) + 1):
             rect = (cx, top, cx + width - 1, top + glyph - 1)
-            mask = ink_mask(pixels, rect, (glyph_colour,))
+            # Card t_239422fe: the cell is measured against the paper it is drawn on, not for one role colour. On a
+            # cut frame the sheet's white label is a spray of near-white values and the ink role appears 0 times, so
+            # an exact colour mask scored a legible FIGHT label at 0 px. See GLYPH_CONTRAST_MIN for the measurement.
+            mask = contrast_mask(pixels, rect, box_colour)
             if best is None or len(mask) > best[0]:
                 best = (len(mask), rect, mask)
         if best is None:
@@ -724,6 +784,18 @@ VIDEO_NES_SHARE_MIN = 0.90
 #      where the draw call says 176), so a cell rect taken from the source alone lands on the wrong rows.
 # The victory panel needs none of that: on frame f_0101 the panel paper measures 0.96, the outcome word 30 px and
 # "press Z" 49 px wide, which is the run reaching its result screen with the word "kill" on it.
+#
+# Card t_239422fe, measured on a REAL first fight (resume_probe/first_fight_resume_capture.mp4, 117 frames, 2026-10-26):
+#   4. The command labels are not the ink role. In the FIGHT cell the ink role #0b0b0f appears 0 times and the label's
+#      strokes are the text role (200,200,212) plus near-white values no palette entry is within 12 of, so a cell
+#      measured for one colour reads 0 px on a legible label. Measured against the paper role (>24 away in a channel)
+#      the cell reads 121 px, a 39 px span and 5 runs, which is FIGHT. Fact 2's "9 runs, 41 px" was measured on material
+#      where the label did land on the ink role.
+#   5. The border step has two sides. "The three rows above the window are not paper" is 1.0 on any screen that is not
+#      paper, so it read 1.0000 on all 123 frames of the no-battle run while the window's paper read 0.0001; on the
+#      real fight the window's top edge falls inside that band and 40 of 42 window frames measured 0.667 to 0.678. The
+#      boundary is measured per column as outside not paper AND inside paper, which reads 1.0 on all 42 window frames
+#      of the real fight and 0.0 on every frame without a window.
 
 
 def video_checks(path):
@@ -756,7 +828,12 @@ def video_checks(path):
     in the report for the lane that owns it.
     """
     checks = {}
-    ffprobe = cap.ffprobe_path(play_demo.FFMPEG)
+    # Card t_239422fe: read the binary through play_demo.ffmpeg_path(), for the same reason start_recorder does (card
+    # t_4275136f). The module global is None until the finder has run, and check_outputs is reachable on its own
+    # through --check, with no launch to have run it: measured on this host 2026-10-26, --check died here on a
+    # NoneType before it scored a single sample, so the "no new launch needed" mode could not score a recording.
+    ffmpeg = play_demo.ffmpeg_path()
+    ffprobe = cap.ffprobe_path(ffmpeg) if ffmpeg else None
     stream = play_demo.video_stream(ffprobe, path) if ffprobe else None
     checks["stream"] = stream
     checks["exists"] = os.path.isfile(path)
@@ -775,7 +852,7 @@ def video_checks(path):
         for fraction in (0.02, 0.2, 0.4, 0.55, 0.7, 0.85, 0.95):
             stamp = max(0.05, duration * fraction)
             out = os.path.join(BUILD_DIR, "first_fight_sample_%02d.png" % int(fraction * 100))
-            ok = cap.extract_frame(play_demo.FFMPEG, path, stamp, out)
+            ok = cap.extract_frame(ffmpeg, path, stamp, out)
             game_share = play_demo.palette_share(out, game_allowed) if ok else None
             nes_share = play_demo.palette_share(out, nes_allowed) if (ok and nes_allowed) else None
             both_share = play_demo.palette_share(out, both_allowed) if ok else None

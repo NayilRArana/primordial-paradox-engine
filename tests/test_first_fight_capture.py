@@ -124,3 +124,107 @@ def test_the_other_lanes_measures_never_gate_this_capture():
     assert talk["gates_this_card"] is False
     # A three TALK spare needs an encounter with talks_to_spare 3 on a battle trigger, and the deck has one.
     assert any(f["encounter"] == "tutorial_sailors" for f in talk["reachable_talk_fights"])
+
+
+# Card t_239422fe. Two measures in this tool were scoring something other than what their names claim, and neither was
+# covered here, so both stayed green in the suite while being wrong on a real first fight (117 frame recording of
+# 2026-10-26, resume_probe/first_fight_resume_capture.mp4):
+#
+#   * the FIGHT cell was masked by exact equality with the ink role #0b0b0f, which appears 0 times in the cell on a
+#     frame whose label is legible: the sheet paints a 2C02 white and the encoder spreads it over near-white values;
+#   * battle_box_border was the share of the three rows above the window that are not paper, which is 1.0000 on any
+#     screen that is not paper: it read 1.0000 on 123 of 123 frames of a recording with no battle in it.
+#
+# The four rows below pin the corrected claims on synthetic screens, so they run without a capture. The numbers they
+# stand for were measured on the recording: FIGHT cell 121 px over a 39 px span in 5 runs, border 1.0000 on all 42
+# command window frames and 0.0000 on every frame without a window.
+
+
+class _Screen(dict):
+    """A frame as score_frame reads it: pixels[x, y], with every unpainted pixel the given colour."""
+
+    def __init__(self, fill):
+        super().__init__()
+        self.fill = fill
+
+    def __missing__(self, key):
+        return self.fill
+
+
+def _window_screen(tool, roles, geom, label_strokes=False):
+    """The command window on a paper fill, the picture above it in the dim role, optionally the FIGHT label on it."""
+    screen = _Screen(roles["paper"])
+    bx1, by1, bx2, by2 = geom["box"]
+    for y in range(max(0, by1 - 3), by1):
+        for x in range(0, tool.SCREEN_W):
+            screen[(x, y)] = roles["dim"]
+    for y in range(by1, by2 + 1):
+        for x in (bx1, bx2):
+            screen[(x, y)] = roles["dim"]
+    if label_strokes:
+        # Five 4 px strokes in the FIGHT cell's 8 px glyph cells, on rows 176 to 181, in the near white the recorded
+        # label actually carries (248,247,252), which is 219 from the paper in the red channel.
+        cx = geom["label_x"][0]
+        for glyph in range(5):
+            for x in range(cx + glyph * 8, cx + glyph * 8 + 4):
+                for y in range(176, 182):
+                    screen[(x, y)] = (248, 247, 252)
+    return screen
+
+
+def test_the_fight_label_is_measured_against_the_paper_not_for_a_role_colour():
+    """A near white FIGHT label on paper is the FIGHT label, even though no palette colour is on its strokes."""
+    tool = load_tool()
+    roles = tool.role_colours()
+    geom = tool.menu_geometry()
+    labels = tool.command_labels()
+    pixels = _window_screen(tool, roles, geom, label_strokes=True)
+    scores = tool.score_frame(pixels, roles, geom, labels)
+    fight = scores["cells"]["FIGHT"]
+    assert fight["ink_pixels"] >= tool.FIGHT_INK_MIN
+    assert fight["bbox_width"] >= tool.FIGHT_SPAN_MIN
+    assert fight["clusters"] == tool.FIGHT_CLUSTERS
+    assert tool.is_menu_frame(scores)
+    # The measure this replaced: the same cell masked by exact equality with the ink role, which is what the recorded
+    # frame carried none of.
+    assert tool.ink_mask(pixels, fight["rect"], (roles["ink"],)) == {}
+
+
+def test_a_paper_window_with_no_label_on_it_is_not_a_fight_command():
+    """The window is up and bounded, so it is a battle frame, but an empty cell is not the FIGHT command."""
+    tool = load_tool()
+    roles = tool.role_colours()
+    geom = tool.menu_geometry()
+    labels = tool.command_labels()
+    pixels = _window_screen(tool, roles, geom, label_strokes=False)
+    scores = tool.score_frame(pixels, roles, geom, labels)
+    assert tool.is_battle_frame(scores)
+    assert scores["cells"]["FIGHT"]["ink_pixels"] == 0
+    assert not tool.is_menu_frame(scores)
+
+
+def test_the_border_step_is_zero_on_a_screen_with_no_window():
+    """The no-battle recording: a screen that is not paper anywhere, where the old measure read exactly 1.0000."""
+    tool = load_tool()
+    roles = tool.role_colours()
+    geom = tool.menu_geometry()
+    labels = tool.command_labels()
+    pixels = _Screen((6, 5, 108))
+    scores = tool.score_frame(pixels, roles, geom, labels)
+    assert scores["battle_box_paper"] == 0.0
+    assert scores["battle_box_border"] == 0.0
+    assert not tool.is_battle_frame(scores)
+
+
+def test_the_border_step_needs_paper_inside_the_window_not_only_picture_above_it():
+    """A screen that is paper everywhere has no boundary: the outside rows are paper too, so the step is zero."""
+    tool = load_tool()
+    roles = tool.role_colours()
+    geom = tool.menu_geometry()
+    labels = tool.command_labels()
+    pixels = _Screen(roles["paper"])
+    scores = tool.score_frame(pixels, roles, geom, labels)
+    assert scores["battle_box_paper"] == 1.0
+    assert scores["battle_box_border"] == 0.0
+    assert not tool.is_battle_frame(scores)
+
