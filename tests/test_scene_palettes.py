@@ -149,14 +149,21 @@ def test_the_solve_pool_and_the_judge_name_the_same_five_walking_sheets():
 
 
 def test_the_retired_sailor_battle_sheet_is_rebuilt_by_nothing_and_stands_on_no_row():
-    """Card t_0b9c2faf Q1 and Q2: sailor_battle.png is retired, and the two measurements that retire it.
+    """Card t_0b9c2faf Q1 and Q2 retired the sheet; card t_4848159e took the drawing out of the tree.
 
     Q1: it is not the sailor fight's art. No GML file in any commit has ever named it (git log -S over
     game/scripts is empty), the encounter draws navy_sailor.png, and the battle screen's enemy slot is 32x32 px and
     reads game/sprites_src/enemies/<id>.png. Q2: it is judged on no row, and it must not be put back on one. Its own
-    shape is why: every party battle frame is ONE reserved hero triple, and no frame of this sheet is, so no 24x32
-    party slot can draw it; as background art on a strip, the best any strip's four background triples carry is 21
-    of its 72 inked 8x8 tiles (wardroom), 20 on the deck.
+    shape was why: every party battle frame is ONE reserved hero triple, and no frame of this sheet was, so no 24x32
+    party slot could draw it; as background art on a strip, the best any strip's four background triples carried was
+    21 of its 72 inked 8x8 tiles (wardroom), 20 on the deck.
+
+    Since card t_4848159e the 168x32 seven frame drawing and its sidecar are deleted, because a declared retirement
+    that still ships is not a retirement: tools/sync_art.py mirrors game/sprites_src/chars/ whole, so the sheet was an
+    entry in the art index and a GMIncludedFile in the project. The measurements above cannot be re-taken here
+    because the input is gone; they live in knowledge/PALETTE-RULINGS-2026-10-25.md section 19. What this test keeps
+    is everything that can still be measured: the generator refuses the sheet, no row names it, no draw call names
+    it, and the drawing is not back on disk.
     """
     sys.path.insert(0, os.path.join(ROOT, "tools", "art"))
     import make_characters  # noqa: E402
@@ -166,14 +173,10 @@ def test_the_retired_sailor_battle_sheet_is_rebuilt_by_nothing_and_stands_on_no_
     for keeps in ("percy", "hadrian", "zander", "konrad"):
         assert make_characters.writes_battle_sheet(keeps) is True, keeps
 
-    # The drawing stays on disk and is still the 168x32 seven frame sheet the ruling measured.
+    # Card t_4848159e: the drawing is gone from the authored tree, so nothing can rebuild it or mirror it.
     base = os.path.join(ROOT, "game", "sprites_src", "chars", "sailor_battle")
-    with open(base + ".json", "r", encoding="utf-8") as handle:
-        meta = json.load(handle)
-    assert (meta["frame_w"], meta["frame_h"], meta["frames"]) == (24, 32, 7), meta
-    from PIL import Image  # noqa: E402
-    with Image.open(base + ".png") as handle:
-        assert handle.size == (168, 32), handle.size
+    assert not os.path.exists(base + ".png"), "the retired sheet is back on disk: %s.png" % base
+    assert not os.path.exists(base + ".json"), "the retired sidecar is back on disk: %s.json" % base
 
     # No scene in the project names it on any row, judged or solved.
     with open(os.path.join(ROOT, "data", "scene_palettes.json"), "r", encoding="utf-8") as handle:
@@ -193,13 +196,12 @@ def test_the_retired_sailor_battle_sheet_is_rebuilt_by_nothing_and_stands_on_no_
             with open(os.path.join(folder, name), "r", encoding="utf-8", errors="replace") as handle:
                 assert "sailor_battle" not in handle.read(), "%s names the retired sheet" % name
 
-    # The crux: a party battle frame is one reserved hero triple, and not one frame of this sheet is.
+    # The crux, half of it still measurable: every party battle frame is exactly one reserved hero triple. The other
+    # half, that no frame of the deleted sheet was, was measured before the input went away (ruling section 19).
     entries_of = _frame_entries
     for hero in ("hadrian_battle", "percy_battle", "zander_battle", "konrad_battle"):
         per_frame = entries_of(os.path.join(ROOT, "game", "sprites_src", "chars", hero + ".png"), 24, 32)
         assert all(len(one) == 3 for one in per_frame), (hero, per_frame)
-    retired = entries_of(os.path.join(ROOT, "game", "sprites_src", "chars", "sailor_battle.png"), 24, 32)
-    assert all(len(one) > 3 for one in retired), retired
 
 
 def _frame_entries(path, frame_w, frame_h):

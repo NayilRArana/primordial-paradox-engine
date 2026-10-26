@@ -519,15 +519,6 @@
     },
     {
       "$GMIncludedFile": "",
-      "%Name": "sailor_battle.png",
-      "CopyToMask": -1,
-      "filePath": "datafiles/art",
-      "name": "sailor_battle.png",
-      "resourceType": "GMIncludedFile",
-      "resourceVersion": "2.0"
-    },
-    {
-      "$GMIncludedFile": "",
       "%Name": "sailor_ow.png",
       "CopyToMask": -1,
       "filePath": "datafiles/art",

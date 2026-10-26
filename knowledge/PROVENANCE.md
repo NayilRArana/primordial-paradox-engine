@@ -1738,3 +1738,24 @@ PROPOSAL rather than the file, so the disagreement is visible without being appl
 palette row moved, and the open question (should the ship's rows move, and at what cost to the ten colour budget)
 is left to a card that owns the ship art, with the measurement attached.
 Copied expression: none
+
+## SAILOR-BATTLE-UNSHIPPED, 2026-10-25: a retirement is not landed until the sheet stops shipping, and the build is the only proof (card t_4848159e)
+Studied: this repository's own files, read only: `tools/sync_art.py`, `tools/gen_project.py`,
+`tools/integration_build.py`, `tools/run.ps1`, `tools/check_build_inputs.py`, `tools/check_test_inputs.py`,
+`game/PrimordialParadox.yyp` and its generator, `game/datafiles/art/title_manifest.json` (generated), the four hero
+battle sheets, `tests/test_sync_art.py`, `tests/test_scene_palettes.py`, `tests/test_palette_synergy.py`, the ruling
+`knowledge/PALETTE-RULINGS-2026-10-25.md` section 19, and the installed toolchain under
+`C:\ProgramData\GameMakerStudio2-LTS2026` and `C:\Program Files\GameMaker-LTS2026`. No decompiled material was read
+for this card and no expression from any game is in it.
+Mechanics learned: three. One, a build list is a mirror plus a generator, so deleting art is two steps and one
+command: the mirror removes the stale PNG by comparing its wanted set against the folder, and a write run of the
+mirror then regenerates the project from what it wrote, which is why the `.yyp` edit is one removed block and not a
+hand edit. Two, an Igor Run mode build does not return until the game process exits, so a command line CI step that
+reads "did it compile and launch" has to close the launched window itself; the window title is the project name and
+the process is `Runner.exe`. Three, the compiled data file count in Igor's own stats line (`da=`) is a cheap before
+and after for any change that adds or removes an Included File, and it reads 276 before and 275 after this deletion.
+Our implementation differs by: the sheet is deleted rather than excluded, because an Included File exception would
+keep a file in the tree that no slot can draw; the two tests that measured the deleted drawing now measure its
+absence in the authored tree, the mirror, the art index and the project instead of pretending to measure art that is
+gone.
+Copied expression: none

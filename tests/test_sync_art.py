@@ -76,6 +76,35 @@ def test_art_mirror_holds_the_sprites_the_project_lists():
         assert os.path.isfile(mirrored), f"{file_path} is not in the mirror"
 
 
+def test_the_retired_sailor_battle_sheet_is_in_neither_the_mirror_nor_the_project():
+    """Card t_4848159e: a sheet declared retired must not ship, and one index entry plus one Included File is shipping.
+
+    Card t_0b9c2faf retired sailor_battle.png from the palette budgets and stopped tools/art/make_characters.py from
+    rebuilding it, but the drawing stayed in game/sprites_src/chars/ and this mirror reads that folder whole, so the
+    sheet was still an entry in game/datafiles/art/title_manifest.json and a GMIncludedFile in the project: 5376 px of
+    art in every build that nothing draws. The pair is deleted now, and this is the row that keeps it deleted: no
+    source, no mirrored PNG, no index entry and no Included File, while the four battle sheets the party does draw
+    stay in all four places.
+    """
+    retired = "sailor_battle"
+    source = os.path.join(ROOT, "game", "sprites_src", "chars", retired)
+    assert not os.path.exists(source + ".png"), "the retired drawing is back in the authored tree"
+    assert not os.path.exists(source + ".json"), "the retired sidecar is back in the authored tree"
+    assert not os.path.exists(os.path.join(MIRROR, "art", retired + ".png")), "the retired drawing is mirrored"
+
+    with open(os.path.join(MIRROR, "art", "title_manifest.json"), encoding="utf-8") as handle:
+        names = [entry["name"] for entry in json.load(handle)["animations"]]
+    assert retired not in names, "the art index still carries the retired sheet"
+    assert "datafiles/art/%s.png" % retired not in _listed_included_files("datafiles/art"), \
+        "the project still lists the retired sheet as an Included File"
+
+    # The party's own battle sheets are the ones the slots draw, and they stay in the index and in the project.
+    listed = _listed_included_files("datafiles/art")
+    for hero in ("hadrian_battle", "percy_battle", "zander_battle", "konrad_battle"):
+        assert hero in names, "%s left the art index" % hero
+        assert "datafiles/art/%s.png" % hero in listed, "%s left the project" % hero
+
+
 def test_the_project_lists_the_title_theme_stream():
     """The committed .yyp lists the title theme stream, so the mirror must carry it.
 

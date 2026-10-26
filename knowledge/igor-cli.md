@@ -75,6 +75,16 @@ checker reads. That keeps the unit gate runnable on a machine with no GPU window
    window is the only thing he sees.
 5. On failure, print the last 20 lines of the Igor output and the path to the full log.
 
-Verification status: UNVERIFIED. No Igor, no runtime and no licence exists on this PC as of 2026-10-19, so the script
-is written from this page and cannot be run until Nayil installs GameMaker. That will be stated in DEVLOG.md and on
-the P1-B card.
+Verification status: VERIFIED 2026-10-25. GameMaker LTS2026 is installed on this PC (card t_4848159e measured it):
+`C:\Program Files\GameMaker-LTS2026` is version 2026.0.0.23, the runtime is
+`C:\ProgramData\GameMakerStudio2-LTS2026\Cache\runtimes\runtime-2026.0.0.23` with `Igor.exe` under
+`bin\igor\windows\x64\`, and the licence folder `tools\run.ps1` resolves is
+`%APPDATA%\GameMakerStudio2-LTS2026` (the product folder that holds `um.json`, because the LTS line keeps no named
+account folder). Measured that day: `tools\run.ps1 -SkipChecks -Compile` returned 0 with `Igor complete.` and wrote
+`output\PrimordialParadox\PrimordialParadox.win`, and `python tools\integration_build.py` printed
+`BUILD PASS: Igor compiled the project and launched the game`, exit 0.
+
+One measured detail for the Run command: Igor WAITS for the launched game to exit, so `-- Windows Run` does not return
+while the window is open, and `tools\integration_build.py` (which calls run.ps1 without `-Compile`) therefore blocks
+until the game closes. The window title is `Primordial Paradox` and the process is `Runner.exe`. A command line check
+that only wants "did it compile and launch" can either pass `-Compile` or close the window when it is up.
