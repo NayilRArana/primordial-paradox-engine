@@ -136,11 +136,11 @@
       ]
     }
   ],
-  "unique_tiles": 41,
+  "unique_tiles": 42,
   "unique_tile_budget": 128,
   "tiles_used_once": 17,
   "tile_reuse": {
-    "max_times_a_tile_repeats": 58,
+    "max_times_a_tile_repeats": 52,
     "total_tile_slots": 448
   },
   "colours_used": [
@@ -294,5 +294,32 @@
     "bg0 the sky, bg1 the quay stone, bg2 the water, bg3 the silhouettes, which put the sky colour in role 2 so the crane reads as a hole in the sky",
     "the crane is a 64x32 block, so its four cells are quadrants of one shape",
     "NO cast and NO judged row, by gamedev ruling on card t_4f18c0ac (knowledge/PALETTE-RULINGS-2026-10-24.md): nothing in play draws this strip. No encounter row names it (no bg_battle or background key exists in data/encounters/all.json), pp_battle_bg_for_room in game/scripts/pp_battle_director/pp_battle_director.gml maps only lower_deck, ship_cabin and deck_day, so a fight on southampton_town_quay (room_palette quay_night) falls back to the corridor strip, and the slice's two fights are both on the ship. The pier cast lands with the card that authorises a pier fight, and it is the Navy pair: navy_sailor plus petty_officer, which both need $02 $0F $30, so that card moves sp2's $12 to $0F (the same move the deck made on 2026-10-24) and adds the judged row in the same edit"
-  ]
+  ],
+  "party_floor": {
+    "role": "3 (the shared backdrop)",
+    "hex": "#000000",
+    "source": "data/ui_layouts.json, the battle screen's sprites with role party",
+    "rects": [
+      [
+        224,
+        32,
+        24,
+        32
+      ],
+      [
+        224,
+        64,
+        24,
+        32
+      ],
+      [
+        224,
+        96,
+        24,
+        16
+      ]
+    ],
+    "pixels": 1920,
+    "reason": "the four party bodies are the light entry of each hero triple and clear RULE 0 point 2 on the backdrop and not on this strip's mixed floor; PALETTE-RULINGS-2026-10-25.md section 7.4 point 2, card t_d64eb2a9; this strip was scoped out of card t_d64eb2a9 and its block floor measured as not $0F under the hero four; card t_0949bd4e ruled it in with the deck so the four strips cannot disagree, and card t_12c9b18f drew it"
+  }
 }

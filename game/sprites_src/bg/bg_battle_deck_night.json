@@ -136,11 +136,11 @@
       ]
     }
   ],
-  "unique_tiles": 29,
+  "unique_tiles": 30,
   "unique_tile_budget": 128,
   "tiles_used_once": 4,
   "tile_reuse": {
-    "max_times_a_tile_repeats": 32,
+    "max_times_a_tile_repeats": 30,
     "total_tile_slots": 448
   },
   "colours_used": [
@@ -293,5 +293,32 @@
     "the sea horizon is one flat row of tiles so the far water stays a straight band, as it must at 256 px",
     "bg2 $00 $30 $02 is also the triple the enemy is drawn from: both enemy slots in data/ui_layouts.json (tile 3,8 and 12,11, 32x32) fall on bg2 cells, and the third entry is $30 rather than $10 so navy_sailor.png's own triple $02 $0F $30 fits whole, $0F coming from the shared backdrop (knowledge/PALETTE-RULINGS-2026-10-25.md section 15, card t_34b1d96a)",
     "sprite palettes are declared for the battle cast the scene draws: solved 2026-10-24 (card t_cc0c5bd5, ruling knowledge/PALETTE-RULINGS-2026-10-24.md) against sailor_battle.png (168x32, seven 24x32 frames) and navy_sailor.png (96x32, three 32x32 frames), the strip's fight cast; the walking cast keeps its own grounds (ship sp1 for sailor and percy, sp1 of the other three battle strips and the three towns for konrad), so those 16x16 sheets are not carried here and are not judged here; since card t_0949bd4e this strip is party_cast, so these four rows are the declaration and not the spend (tools/scene_palette_set.py allowed_sprite_rows returns the four reserved hero triples for this scene, and the rows are spent on nothing but the scene's own 25 colour count), kept because they are the only set ever measured for this strip's own slots: a deck that stops being party_cast re-measures them rather than resurrects them (card t_8ebcb489)"
-  ]
+  ],
+  "party_floor": {
+    "role": "3 (the shared backdrop)",
+    "hex": "#000000",
+    "source": "data/ui_layouts.json, the battle screen's sprites with role party",
+    "rects": [
+      [
+        224,
+        32,
+        24,
+        32
+      ],
+      [
+        224,
+        64,
+        24,
+        32
+      ],
+      [
+        224,
+        96,
+        24,
+        16
+      ]
+    ],
+    "pixels": 1920,
+    "reason": "the four party bodies are the light entry of each hero triple and clear RULE 0 point 2 on the backdrop and not on this strip's mixed floor; PALETTE-RULINGS-2026-10-25.md section 7.4 point 2, card t_d64eb2a9; this strip was scoped out of card t_d64eb2a9 and its block floor measured as not $0F under the hero four; card t_0949bd4e ruled it in with the corridor and the wardroom so the four strips cannot disagree, and card t_12c9b18f drew it"
+  }
 }

@@ -23,13 +23,15 @@ How the NES rules are kept, by construction rather than by hope
 4. Tiles repeat. The layout is a grid of cell letters, so the same 8x8 tile bitmap is reused wherever a
    letter repeats, the way a real NES background is built. The script counts the distinct 8x8 tiles and
    writes the count into the JSON beside each PNG (budget: 128).
-5. The floor under the party block is the shared backdrop on the strips that declare `party_floor`. The
-   block's placement is not typed here: it is read from data\\ui_layouts.json, the battle screen's four
-   sprites with role `party`, so a layout move moves the floor with it. The party bodies are the light entry
-   of each hero triple and those four clear RULE 0 point 2 on the backdrop $0F and not on the mixed floors
-   the corridor and wardroom carry, so both of those paint role 3 (the backdrop) over the block and leave
-   every other pixel of the strip alone (knowledge/PALETTE-RULINGS-2026-10-25.md section 7.4 point 2, card
-   t_d64eb2a9).
+5. The floor under the party block is the shared backdrop on the strips that declare `party_floor`, which is all
+   four of them. The block's placement is not typed here: it is read from data\\ui_layouts.json, the battle
+   screen's four sprites with role `party`, so a layout move moves the floor with it. The party bodies are the
+   light entry of each hero triple and those four clear RULE 0 point 2 on the backdrop $0F and not on the mixed
+   floors the corridor, the deck and the quay carried, so a strip that declares it paints role 3 (the backdrop)
+   over the block and leaves every other pixel of the strip alone. The corridor and the wardroom were landed by
+   card t_d64eb2a9 (section 7.4 point 2); the deck night and the quay dusk were scoped out of that card and were
+   ruled in by card t_0949bd4e, so the four strips cannot disagree (section 12 point 2, drawn by card
+   t_12c9b18f).
 
 6. The scene palette file keeps the audit rows it already carries. `data\\palettes\\scene_battle_<name>.json` is
    written whole, and the `judged` list in it is a cast decision plus the row that measures it (cards t_4f18c0ac
@@ -544,6 +546,14 @@ SCENES = [
         "name": "deck_night",
         "title": "open deck at night",
         "cell_count": 8,
+        "party_floor": True,
+        # The deck was scoped out of card t_d64eb2a9 and its floor was measured as not $0F; card t_0949bd4e ruled
+        # it in so the four strips cannot disagree (knowledge/PALETTE-RULINGS-2026-10-25.md section 12 point 2).
+        "party_floor_ruling": (
+            "this strip was scoped out of card t_d64eb2a9 and its block floor measured as not $0F under the hero "
+            "four; card t_0949bd4e ruled it in with the corridor and the wardroom so the four strips cannot "
+            "disagree, and card t_12c9b18f drew it"
+        ),
         "notes": [
             "night sky with stars and a moon, a sea horizon, rigging and a railing, steel deck plates",
             "bg0 the sky, bg1 the sea, bg2 the deck and railing, bg3 the rigging, which is why the rigging cells are black",
@@ -592,6 +602,14 @@ SCENES = [
         "name": "quay_dusk",
         "title": "Southampton quay at dusk",
         "cell_count": 16,
+        "party_floor": True,
+        # Same ruling as the deck: card t_d64eb2a9 left this floor alone and card t_0949bd4e ruled both in, so one
+        # of the four strips cannot carry a different party floor from the other three (section 12 point 2).
+        "party_floor_ruling": (
+            "this strip was scoped out of card t_d64eb2a9 and its block floor measured as not $0F under the hero "
+            "four; card t_0949bd4e ruled it in with the deck so the four strips cannot disagree, and card "
+            "t_12c9b18f drew it"
+        ),
         "notes": [
             "dusk sky in flat bands with a 2 px checker at each band edge, the town roofline, a crane silhouette, water, granite quay with bollards",
             "bg0 the sky, bg1 the quay stone, bg2 the water, bg3 the silhouettes, which put the sky colour in role 2 so the crane reads as a hole in the sky",
@@ -890,17 +908,22 @@ def scene_json(scene: dict, built: dict, entries: list, png_name: str, palette_f
     if built["party_floor"]:
         # Named in the sidecar rather than only in the pixels: the block's floor is a decision, and a
         # reader of this file should not have to diff the strip to learn what the right hand column does.
+        reason = (
+            "the four party bodies are the light entry of each hero triple and clear RULE 0 point 2 on "
+            "the backdrop and not on this strip's mixed floor; PALETTE-RULINGS-2026-10-25.md section 7.4 "
+            "point 2, card t_d64eb2a9"
+        )
+        # A strip that was scoped out of that card says so in its own record, so this file names the card that
+        # actually ruled ITS floor rather than only the one that ruled the first two (card t_12c9b18f).
+        if scene.get("party_floor_ruling"):
+            reason = "%s; %s" % (reason, scene["party_floor_ruling"])
         meta["party_floor"] = {
             "role": "3 (the shared backdrop)",
             "hex": entries[BACKDROP],
             "source": "data/ui_layouts.json, the battle screen's sprites with role party",
             "rects": built["party_floor"]["rects"],
             "pixels": built["party_floor"]["pixels"],
-            "reason": (
-                "the four party bodies are the light entry of each hero triple and clear RULE 0 point 2 on "
-                "the backdrop and not on this strip's mixed floor; PALETTE-RULINGS-2026-10-25.md section 7.4 "
-                "point 2, card t_d64eb2a9"
-            ),
+            "reason": reason,
         }
     return meta
 

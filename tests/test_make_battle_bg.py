@@ -4,13 +4,16 @@
 The ruling on card t_8c27208b (knowledge/PALETTE-RULINGS-2026-10-25.md section 7.4 point 2) decided the floor
 under the party block is the shared backdrop $0F on the battle strips, because the four party bodies are the
 light entry of each hero triple and those four clear RULE 0 point 2 on $0F and not on the mixed floors the
-corridor and wardroom carry. tools/art/make_battle_bg.py draws it. These tests hold down five things:
+corridor and wardroom carry. tools/art/make_battle_bg.py draws it. Card t_d64eb2a9 landed it on the corridor and
+the wardroom and left the deck night and the quay dusk named as a gamedev decision; card t_0949bd4e made that
+decision (section 12 point 2) and card t_12c9b18f extended the pass to both, so all four strips now declare it.
+These tests hold down six things:
 
   1. the block's placement is READ from data/ui_layouts.json rather than typed, and the layout's tile-unit
      party list and its pixel-unit sprites list agree, which is the one unit error the loader could make
      silently;
-  2. the corridor and the wardroom strip are $0F over the whole block inside the strip, and the deck night
-     and quay dusk strips are not, because no card decided their floor;
+  2. all FOUR strips are $0F over the whole block inside the strip, which is the change card t_12c9b18f made
+     on the two the earlier card was scoped out of;
   3. the party pass moves EXACTLY the block and nothing else: the pixel diff against the same scene built
      without the flag is the clipped block and its pixel count, no more, no less;
   4. the committed strip PNGs are what the generator writes now, so the shipped art and the code that owns
@@ -98,15 +101,16 @@ def test_the_loader_refuses_a_layout_whose_two_lists_disagree(tmp_path):
     assert "is not the sprite at pixel" in str(refused.value) or "party sprite" in str(refused.value)
 
 
-def test_only_the_corridor_and_the_wardroom_declare_the_floor():
+def test_all_four_strips_declare_the_floor():
+    """One floor for the room: card t_0949bd4e ruled the deck and the quay in (section 12 point 2)."""
     declared = sorted(entry["name"] for entry in mb.SCENES if entry.get("party_floor"))
-    assert declared == ["corridor", "wardroom"]
+    assert declared == ["corridor", "deck_night", "quay_dusk", "wardroom"]
 
 
-def test_the_block_is_the_backdrop_on_the_two_strips_that_declare_it(built):
+def test_the_block_is_the_backdrop_on_every_strip_the_screen_draws(built):
     entries, rects, table = built
     backdrop = entries[mb.BACKDROP]
-    for name in ("corridor", "wardroom"):
+    for name in ("corridor", "wardroom", "deck_night", "quay_dusk"):
         pixels = table[name][0]["pixels"]
         floor = table[name][0]["party_floor"]
         assert floor is not None, name
@@ -117,23 +121,28 @@ def test_the_block_is_the_backdrop_on_the_two_strips_that_declare_it(built):
                     assert pixels[py][px] == backdrop, "%s is not $0F at %d,%d" % (name, px, py)
 
 
-def test_the_other_two_strips_are_left_alone(built):
+def test_the_two_extended_strips_were_not_on_the_backdrop_before_the_flag(built):
+    """The change is the flag's, not the art's: without it the deck and the quay stand on their own floors.
+
+    This is the before half of card t_12c9b18f's pair fail column, measured on the pixels rather than quoted from
+    the card, and it fails loudly if the strips ever come out black with the flag off (which would mean the strip
+    was repainted rather than floored).
+    """
     entries, rects, table = built
     backdrop = entries[mb.BACKDROP]
     for name in ("deck_night", "quay_dusk"):
-        assert table[name][0]["party_floor"] is None, name
-        pixels = table[name][0]["pixels"]
+        assert table[name][0]["party_floor"] is not None, name
+        assert table[name][1]["party_floor"] is None, name
         not_black = 0
         for x, y, w, h in rects:
             for py in range(y, min(mb.H, y + h)):
                 for px in range(x, x + w):
-                    not_black += pixels[py][px] != backdrop
-        # Not a decision, a measurement: these floors were scoped out of the card, so they are not $0F.
-        assert not_black > 0, "%s already reads as a black block; re-measure before changing the card" % name
+                    not_black += table[name][1]["pixels"][py][px] != backdrop
+        assert not_black > 0, "%s already reads as a black block without the flag; re-measure the card" % name
 
 
 def test_the_pass_moves_the_block_and_nothing_else(built):
-    for name in ("corridor", "wardroom"):
+    for name in ("corridor", "wardroom", "deck_night", "quay_dusk"):
         with_flag, without = built[2][name]
         moved = set()
         for y in range(mb.H):
@@ -147,7 +156,7 @@ def test_the_pass_moves_the_block_and_nothing_else(built):
 
 def test_the_tile_count_describes_what_ships(built):
     """The pass runs before the tile count, so a counted tile is a shipped tile."""
-    for name in ("corridor", "wardroom"):
+    for name in ("corridor", "wardroom", "deck_night", "quay_dusk"):
         with_flag = built[2][name][0]
         rebuilt = {}
         for ty in range(mb.H // mb.TILE):
@@ -193,13 +202,16 @@ def test_the_sidecar_names_the_floor_where_it_applies(built):
     for name in ("corridor", "wardroom", "deck_night", "quay_dusk"):
         scene_dict = scene(name)
         meta = mb.scene_json(scene_dict, table[name][0], entries, "bg_battle_%s.png" % name, "x.json")
-        if scene_dict.get("party_floor"):
-            floor = meta["party_floor"]
-            assert floor["hex"] == entries[mb.BACKDROP]
-            assert floor["pixels"] == 1920
-            assert "t_d64eb2a9" in floor["reason"]
+        floor = meta["party_floor"]
+        assert floor["hex"] == entries[mb.BACKDROP]
+        assert floor["pixels"] == 1920
+        assert "t_d64eb2a9" in floor["reason"], "the ruling that set the floor is named on every record"
+        # The two strips that card t_d64eb2a9 was scoped out of name the card that ruled THEM, so a reader of the
+        # deck's sidecar does not learn only about the corridor (card t_12c9b18f).
+        if name in ("deck_night", "quay_dusk"):
+            assert "t_12c9b18f" in floor["reason"], name
         else:
-            assert "party_floor" not in meta, name
+            assert "t_12c9b18f" not in floor["reason"], "the two first strips are untouched by that card"
 
 
 # -----------------------------------------------------------------------------------------------------------------
