@@ -149,15 +149,35 @@ def test_a_solve_keeps_a_pinned_background_half(tmp_path):
     assert "background_pinned" not in unpinned
 
 
-def test_the_check_reports_its_numbers_so_a_reviewer_can_read_them():
-    """The card asks for the palette sets and the check output, so the report carries both as data."""
-    path = os.path.join(ROOT, "output", "scene_palettes.json")
-    code = check_scene_palettes.main(["--json", path, "--quiet"])
+def test_the_check_reports_its_numbers_so_a_reviewer_can_read_them(tmp_path):
+    """The card asks for the palette sets and the check output, so the report carries both as data.
+
+    Card t_8690e219: `output/scene_palettes.json` is COMMITTED (card t_933d8840), and this test used to write it
+    straight into the tree and assert nothing about the file it had just overwritten. So the suite rewrote a tracked
+    file on every run and could never notice when the committed copy stopped matching what the checker writes, which
+    is exactly how the report went stale on 17c3660 and stayed stale for five commits. The run now lands in a scratch
+    file and the committed copy has to equal it field for field, so a change to the ship's rows or cast that does not
+    come with a regenerated report is a red test instead of a silent rewrite.
+
+    Compared as parsed JSON and not as bytes on purpose: this file is committed with CRLF on Windows while the gate
+    also runs on Linux (see the TOWN-PALETTES-LF entry in DEVLOG.md), so bytes would fail on the machine, not the tree.
+    The content is what is pinned; the frame names in the report are basenames for the same reason.
+    """
+    fresh_path = tmp_path / "scene_palettes.json"
+    code = check_scene_palettes.main(["--json", str(fresh_path), "--quiet"])
     assert code == 0, code
-    with open(path, "r", encoding="utf-8") as handle:
+    with open(fresh_path, "r", encoding="utf-8") as handle:
         saved = json.load(handle)
     assert saved["failures"] == []
     assert set(saved["scenes"]) == {"title", "ship"}
+
+    committed_path = os.path.join(ROOT, "output", "scene_palettes.json")
+    with open(committed_path, "r", encoding="utf-8") as handle:
+        committed = json.load(handle)
+    assert committed == saved, (
+        "output/scene_palettes.json is stale: it is not what the checker writes today. Regenerate it with "
+        "`python tools/check_scene_palettes.py --json output/scene_palettes.json` and commit the result "
+        "(card t_8690e219).")
 
 
 WALKING_CAST = ("hadrian_ow_v2", "konrad_ow_v2", "zander_ow_v2", "percy_ow_v2", "sailor_ow_v2")

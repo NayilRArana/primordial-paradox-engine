@@ -77,7 +77,7 @@
       "distinct_colours": 13,
       "limit": 25,
       "scene": "ship",
-      "sprite_colours": 12,
+      "sprite_colours": 11,
       "sprite_palettes": [
         [
           [
@@ -91,9 +91,9 @@
             0
           ],
           [
-            188,
-            188,
-            188
+            252,
+            252,
+            252
           ]
         ],
         [
@@ -115,6 +115,23 @@
         ],
         [
           [
+            0,
+            0,
+            252
+          ],
+          [
+            0,
+            120,
+            248
+          ],
+          [
+            164,
+            228,
+            252
+          ]
+        ],
+        [
+          [
             136,
             20,
             0
@@ -123,23 +140,6 @@
             228,
             92,
             16
-          ],
-          [
-            240,
-            208,
-            176
-          ]
-        ],
-        [
-          [
-            80,
-            48,
-            0
-          ],
-          [
-            252,
-            160,
-            68
           ],
           [
             248,
@@ -329,18 +329,7 @@
     "tiles_outside_background_palettes": 0
   },
   "ship_sprites": {
-    "sailor_battle": {
-      "frame": [
-        24,
-        32
-      ],
-      "frames": 7,
-      "groups": 39,
-      "groups_outside_a_palette": 0,
-      "groups_over_three": 0,
-      "worst_colours": 3
-    },
-    "sailor_ow": {
+    "hadrian_ow_v2": {
       "frame": [
         16,
         16
@@ -349,7 +338,51 @@
       "groups": 16,
       "groups_outside_a_palette": 0,
       "groups_over_three": 0,
-      "worst_colours": 2
+      "worst_colours": 3
+    },
+    "konrad_ow_v2": {
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 8,
+      "groups": 16,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "worst_colours": 3
+    },
+    "percy_ow_v2": {
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 8,
+      "groups": 16,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "worst_colours": 3
+    },
+    "sailor_ow_v2": {
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 8,
+      "groups": 16,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "worst_colours": 3
+    },
+    "zander_ow_v2": {
+      "frame": [
+        16,
+        16
+      ],
+      "frames": 8,
+      "groups": 16,
+      "groups_outside_a_palette": 0,
+      "groups_over_three": 0,
+      "worst_colours": 3
     }
   },
   "title_car_frame": {
