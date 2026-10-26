@@ -341,3 +341,50 @@ def test_the_two_ruled_grounds_measure_clean_today():
                                          [sheet], at=(64, 64))
         assert result["ok"], (sheet, result["problems"])
         assert result["sprites"][0]["tiles"]["uncovered"] == 0, sheet
+
+
+
+def test_a_party_cast_strip_reads_the_hero_four_as_its_sprite_palettes():
+    """Card t_6e8ca42f: the tool reads the room, not the declaration, on the four battle strips.
+
+    On a battle strip the four RESERVED HERO PALETTES are the strip's four sprite palettes (ruling 7.1,
+    card t_c93a983f), so a Scene for one has to be assembled from allowed_sprite_rows() rather than from the
+    entry's own rows. Read the other way it measured the repainted party sheets against palettes the strip
+    does not spend: percy_battle.png as 73 palette_count failures on the corridor ground, every one of them
+    about a triple the chip draws with. And it is not a widening: the row count stays four, and a scene
+    without the flag still reads its own rows, which is what the ship and the title below check.
+    """
+    data = scene_palette_set.load(ROOT)
+    heroes = [list(map(int, scene_palette_set.hero(data, name)["colours"]))
+              for name in scene_palette_set.HEROES]
+    for scene_id in scene_palette_set.PARTY_CAST_SCENES:
+        assert scene_palette_set.find_scene(data, scene_id).get("party_cast") is True, scene_id
+        scene = scene_palette_set.scene(ROOT, scene_id)
+        assert scene.sprites == heroes, scene_id
+        assert [sorted(row) for row in scene.sprite_sets()] == [sorted(row) for row in heroes], scene_id
+        assert len(scene.sprites) == 4, "a strip has four sprite palettes, not eight: %s" % scene_id
+    for scene_id in ("ship", "title"):
+        entry = scene_palette_set.find_scene(data, scene_id)
+        scene = scene_palette_set.scene(ROOT, scene_id)
+        assert scene.sprites == [list(map(int, row["colours"])) for row in entry["sprites"]], scene_id
+
+
+def test_the_corridor_ground_carries_the_party_four_sheets():
+    """The measured half of card t_6e8ca42f, on the shipped art, one sheet at a time.
+
+    `--scene battle_corridor --background output/bg_battle_corridor_frame.png --frame-w 24 --frame-h 32`:
+    before the tool read the strip's four, percy_battle.png measured 73 failing pairs (all palette_count)
+    and hadrian_battle.png 86 (72 palette_count, 14 set_member on $03 and $23). Both are one reserved hero
+    triple each since card t_d5483a88, so on the ground they are drawn over they have to measure clean:
+    0 fails, 0 uncovered tiles, 7 frames of 24x32.
+    """
+    for name in scene_palette_set.HEROES:
+        sheet = "game/sprites_src/chars/%s_battle.png" % name
+        result = palette_synergy.analyse(ROOT, "battle_corridor", "output/bg_battle_corridor_frame.png",
+                                         [sheet], frame_w=24, frame_h=32)
+        assert result["ok"], (sheet, [(problem["rule"], problem["detail"]) for problem in result["problems"]][:4])
+        sprite = result["sprites"][0]
+        assert sprite["frame"] == [24, 32], sheet
+        assert len(sprite["frames"]) == 7, sheet
+        assert sprite["tiles"]["uncovered"] == 0, (sheet, sprite["tiles"])
+        assert sprite["tiles"]["inked"] >= 72, (sheet, sprite["tiles"])
