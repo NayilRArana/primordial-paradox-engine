@@ -68,12 +68,12 @@
       "colours": [
         0,
         15,
-        16
+        48
       ],
       "hex": [
         "#7c7c7c",
         "#000000",
-        "#bcbcbc"
+        "#fcfcfc"
       ]
     },
     {
@@ -92,14 +92,14 @@
     {
       "name": "sp2",
       "colours": [
-        9,
-        10,
-        42
+        1,
+        17,
+        49
       ],
       "hex": [
-        "#007800",
-        "#006800",
-        "#58d854"
+        "#0000fc",
+        "#0078f8",
+        "#a4e4fc"
       ]
     },
     {
@@ -119,6 +119,22 @@
   "notes": [
     "written by tools/art/make_exterior_maps.py because no NES-PALETTES scene file existed for this tileset; same format as data/palettes/scene_ship.json",
     "background palettes are the 4 groups the scene map actually spends, in tileset order",
-    "sprite palettes carry no art in this card: they are the same entries as the background set, reserved for the CHAR lane so a character cannot add a 14th colour to the frame"
+    "sprite palettes are the PLACEHOLDER char lane set, a copy of the background groups, so a character cannot add a 14th colour to the frame. A card that solves them for the cast that walks here writes its rows in this file and this generator keeps them: card t_dec4e92c solved southampton, westminster and winchester for the party's four walking sheets, and the same run keeps every judged row it finds"
+  ],
+  "judged": [
+    {
+      "background": "output/southampton_sample_frame.png",
+      "at": [
+        128,
+        112
+      ],
+      "sprites": [
+        "game/sprites_src/chars/percy_ow_v2.png",
+        "game/sprites_src/chars/konrad_ow_v2.png",
+        "game/sprites_src/chars/zander_ow_v2.png",
+        "game/sprites_src/chars/hadrian_ow_v2.png"
+      ],
+      "note": "card t_dec4e92c ruling 2026-10-25: the party's four walking sheets are judged on the frame tools/art/make_exterior_maps.py composes at this map's spawn, NOT on game/sprites_src/env/ts_exterior.png. The atlas spends FIVE background palettes (bg0_stone, bg1_brick, bg2_green, bg3_water, bg4_red) and a scene spends four, so as a ground it reports 7 palette_count problems here and can never measure clean, which is the one thing card t_1dc346b9 asks of a ground; the ship can use its tileset because ts_ship.png spends four and measures 0. This frame is built tile by tile from that atlas under the four group budget the generator enforces on itself, measures 0 background problems against this scene's four rows, is reproduced byte for byte by a rerun of the generator, and is the ground the party stands on at spawn tile 17,18 (256x240 crop x0 9, y0 11, spawn tile at 128,112). Measured 2026-10-25 at --at 128,112, after sp0 was solved to $00 $0F $30 (hadrian) and sp2 to $01 $11 $31 (zander): percy_ow_v2 PASS on cast (sp3), 8 white_blob; konrad_ow_v2 PASS on cast (sp1), 8 body_ground; zander_ow_v2 PASS on cast (sp2, solved here), 8 white_blob; hadrian_ow_v2 PASS on cast (sp0, solved here), 12 fails: white_blob 6, invisible 2, same_hue_row 2, body_ground 2. 36 failing pair(s) are the towns' light stone paving against the sheets' own bodies, not the cast: card t_454c1876 carries them (the walkable street surface is $10 #bcbcbc out of bg0_stone and the bodies are $30, $31 and $28)."
+    }
   ]
 }

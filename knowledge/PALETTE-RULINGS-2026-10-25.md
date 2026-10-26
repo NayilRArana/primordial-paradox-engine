@@ -759,3 +759,189 @@ Provenance for section 15: studied this repository's own files only (`data/ui_la
 the four battle strips and frames, and the sheets in `game/sprites_src/`). No decompiled material, and no
 expression from another game, is in this card. Copied expression: none.
 
+
+## 16. The party's four walking sheets are judged on the towns' own spawn frames, and the two homeless triples are bought back on the towns' two free rows
+
+Card `t_dec4e92c`, raised by section 14's last hazard. Measured 2026-10-25 on this tree. Section 15 is card
+`t_34b1d96a`'s deck background ruling and landed as e53a160 while this one was being written; the two sections are
+numbered against the file, not against either card's clock, and this one owns the party's walking sheets and nothing
+else.
+
+### 16.1 Q1: the ground is the frame `tools/art/make_exterior_maps.py` composes at the spawn, not `ts_exterior.png`
+
+The candidates were the three towns and the ship. The ship's worked example (card `t_1dc346b9`) is
+`game/sprites_src/env/ts_ship.png` at `--at 64,64`, and the reason it works is not that it is a tileset: it is that
+a ground has to measure clean, so only the sprite's own rules can fail on it. `ts_ship.png` spends four background
+palettes and reads 0. The exterior atlas cannot do that:
+
+| ground | what it measures |
+| --- | --- |
+| `game/sprites_src/env/ts_exterior.png` against southampton | **7** `palette_count` problems |
+| the same atlas against westminster | **4** |
+| the same atlas against winchester | **4** |
+| `game/sprites_src/env/ts_ship.png` against ship | **0** |
+
+The atlas spends FIVE groups (`bg0_stone`, `bg1_brick`, `bg2_green`, `bg3_water`, `bg4_red`, read off
+`ts_exterior.json`) and a scene spends four. So the atlas is a legal ground for no town at all, and judging a
+walking sheet on it would charge the atlas's own fifth-group areas to the sprite standing there: the exact defect
+card `t_1dc346b9` ruled out, in a different file.
+
+A screen capture is out for the reason that card gave: a composed capture carries colours off the 2C02 table and
+the tool charges them to the sprite. What replaces the atlas is not a capture but the other build product the same
+generator writes: `output/<place>_sample_frame.png`, the 256x240 viewport the PPU would show at the spawn, built
+tile by tile from that atlas under the four group budget `enforce_palette_budget()` refuses to break.
+
+| property | measurement |
+| --- | --- |
+| drawn inside the town's own four background rows | `background_report` 0 problems on all three, and 0 `set_member` on any pixel (3 scenes x 256x240 px) |
+| a file a clean checkout carries | committed by this card: three `.gitignore` exceptions after `output/*`, three `tools/check_test_inputs.py` FIXTURES entries |
+| reproducible, so a row measures art and not a capture | a probe root carrying only the inputs the generator opens (`ts_exterior.png/.json`, the three OSM drafts, `data/nes_palette.json`) rerun to **byte identical** on all three frames and all three scene files |
+| the ground the party actually stands on | spawn tiles southampton 17,18, westminster 16,20, winchester 16,19; crop origin 9,11 / 8,13 / 8,12, so the spawn tile is at **128,112** in every frame |
+
+So the rule that governs both maps is one sentence: the ground is the thing the room is built from, and it has to
+be drawn inside the scene's own four background rows. For the ship those are the same file. For the towns only the
+composed frame satisfies both halves, and that is the file the rows name.
+
+### 16.2 Q2: what the four sheets read there, and the fact that decided the answer
+
+Measured before this card's edits, at `--at 128,112`, on the towns' rows as they shipped
+(`sp0 $00 $0F $10`, `sp1 $07 $17 $28`, `sp2 $09 $0A $2A`, `sp3 $02 $12 $30`):
+
+| sheet | its triple | carried by | cast problems per town (S / W / W) |
+| --- | --- | --- | --- |
+| `percy_ow_v2` | `$02 $12 $30` | town `sp3`, ship `sp1` | 0 / 0 / 0 |
+| `konrad_ow_v2` | `$07 $17 $28` | town `sp1` (and `bg1` as a background row) | 0 / 0 / 0 |
+| `zander_ow_v2` | `$01 $11 $31` | **nothing in the twelve sets** | 32 / 32 / 32 |
+| `hadrian_ow_v2` | `$00 $0F $30` | **nothing in the twelve sets** | 8 / 8 / 8 |
+
+The two homeless sheets fail in two different ways, and the difference matters. Zander's three entries are in no
+town row at all, so he reads 24 `set_member` plus 8 `palette_count` per town. Hadrian reads 8 `palette_count` and
+**no** `set_member`: `$00` and `$0F` sit in `sp0`, `$30` sits in `sp3`, and no single row holds all three. A row
+check that only counted `set_member` would have called Hadrian legal.
+
+The tempting fix is to solve the towns' two placeholder rows to those two triples. That is what this card does, and
+the measurement that decided it is that the rows are free:
+
+- `data/palettes/scene_southampton.json`'s own note says the sprite rows were written as "the same entries as the
+  background set, reserved for the CHAR lane".
+- `sp0 {0,15,16}` is `bg0` and `sp2 {9,10,42}` is `bg2`, copied. Neither is a decision about a cast.
+- Measured across every one of the **78** PNGs in `game/sprites_src/`, exactly two fit a town row today:
+  `konrad_ow_v2` (`sp1`) and `percy_ow_v2`/`sailor_ow_v2` (`sp3`). **No sheet in the tree fits `sp0` or `sp2`.**
+- `tools/art/make_characters_v2.py` already wrote down where Zander's triple was to go: "the deck is the battle
+  strip and draws its fight cast, so Zander's walking triple is bought back on a ground he walks on, not here"
+  (card `t_cc0c5bd5`, on the zander entry). This is that ground.
+
+**Ruled: `sp0` becomes `$00 $0F $30` and `sp2` becomes `$01 $11 $31` in all three towns.** No pixel of any sheet
+changes for the cast.
+
+What that buys, measured through `tools/palette_synergy.py`'s own `frame_report` after the edit, on all three
+towns: **cast 0 for all four sheets**, each fitting exactly one row (`sp0` hadrian, `sp1` konrad, `sp2` zander,
+`sp3` percy), 32 inked 8x8 tiles per sheet and **0 uncovered**.
+
+The other fix, repainting the four walking sheets into their reserved hero triples, was measured and refused:
+
+| after the repaint (towns = hero four) | southampton | westminster | winchester |
+| --- | --- | --- | --- |
+| cast | 0 | 0 | 0 |
+| pair fails | 16 / 12 / 8 / 10 | 16 / 16 / 16 / 10 | 8 / 8 / 8 / 6 |
+
+It is not better on the pair column, it overwrites the four sheets the art lane drew "palette first" (the four
+battle sheets already ARE the hero triples, `percy_battle $0F $12 $28` and so on, so battle identity is intact),
+and it contradicts the project's own written plan for Zander quoted above. The walking sheet is a different drawing
+on a different ground; it gets a triple bought from that ground.
+
+### 16.3 Q3: the rows are `judged` lists in the town scene files, enforced, and here is when an exemption is the answer
+
+One row per town, in `data/palettes/scene_southampton.json`, `scene_westminster.json` and
+`scene_winchester.json`: `background` the town's own frame, `at [128, 112]`, `sprites` the four walking sheets,
+and no `exempt`. They are enforced from the day they land, because the cast is carried.
+
+An exemption is the bookkeeping while a card is open, never the answer to "this scene cannot carry the sheet"
+(section 10 and 12's shape: row landed, exempt with the reason and the card that ends it). Here it was not needed:
+the scene had two free rows, and the first move when a scene cannot carry a sheet is to check whether a row is
+free, which is a measurement and not a preference. If no row had been free, the answer would have been a repaint
+card with the row exempt until it landed.
+
+What the rows report beyond the cast is not a cast question and is not exempt:
+
+| town | pair fails | of which |
+| --- | --- | --- |
+| southampton | 36 | `white_blob` 22, `body_ground` 10, `invisible` 2, `same_hue_row` 2 |
+| westminster | 88 | `white_blob` 44, `body_ground` 26, `invisible` 16, `same_hue_row` 2 |
+| winchester | 32 | `white_blob` 22, `body_ground` 10 |
+
+Every one of them is the sheet's own body against the street surface under the spawn tile: `$10 #bcbcbc`, with
+`$30 #fcfcfc` on the westminster crop, out of `bg0_stone {0,16,48}`. The bodies are `$30` for percy and hadrian,
+`$31` for zander, `$28` for konrad. On westminster, hadrian's body IS the paving colour on 8 of the 8 frames of the
+walk cycle, which is what `invisible` names. Card **`t_454c1876`** (builder) carries it, with both prices named:
+move the walkable street off the light group, or repaint the four bodies, and if a repaint moves a triple it
+re-opens this card's row solve.
+
+### 16.4 The generator hazard is closed here, not carded
+
+`tools/art/make_exterior_maps.py` wrote each `scene_<place>.json` WHOLE and emitted neither `judged` nor a solved
+sprite half, so the rows and the row solve this card just wrote were one regeneration away from deletion: the
+identical defect card `t_5802ecdb` closed on `tools/art/make_battle_bg.py`. Fixed at the cause:
+
+- `judged_rows()` keeps any `judged` list it finds, verbatim.
+- `solved_sprites()` keeps a sprite half that DIFFERS from the generator's own placeholder, and does not carry an
+  identical one (a copy of the background groups is reproduced, not preserved), so a later background change is
+  not fought by a stale copy.
+- both are printed when they happen, so a run says what it kept.
+- `tests/test_make_exterior_maps.py` holds five behaviours: fresh file gets the placeholder and no `judged`; a
+  solved half survives; a judged row survives verbatim; a placeholder half is not carried; and the three shipped
+  town files are reproduced byte for byte by the generator in a scratch root.
+
+### 16.5 What landed, measured before and after
+
+| run | entries | gated | advisory failing | per entry fails |
+| --- | --- | --- | --- | --- |
+| before | 6 | 0 | 3 | corridor 0, corridor contact sheet 14, deck 0, ship tileset 0, ship title ground 242, title 135 = **391** |
+| after | 9 | 0 | 6 | corridor 0, contact sheet 16, deck 0, ship tileset 0, ship title ground 242, southampton 36, title 135, westminster 88, winchester 32 = **549** |
+
+The three new rows carry **0 cast problems between them** and 156 pair fails, all of them card `t_454c1876`'s. The
+contact sheet moved 14 to 16 without this card touching it: `output/sprites_v2_sheet.png` is a by-product two
+generators write and another lane regenerated it at 17:24, which is why section 8 made it advisory whatever it
+measures. `--gate` exits 0 before and after.
+
+Landed:
+
+- `data/palettes/scene_southampton.json`, `scene_westminster.json`, `scene_winchester.json`: `sp0` and `sp2`
+  solved to the party's walking triples, `sp1` and `sp3` unchanged, the placeholder note rewritten, one `judged`
+  row each.
+- `data/scene_palettes.json` rebuilt with `python tools/scene_palette_set.py build --write`: 60 insertions, 15
+  deletions, all of them the three town scene entries and the three new audit rows.
+- `.gitignore` and `tools/check_test_inputs.py`: the three frames committed and named as fixtures.
+- `tools/art/make_exterior_maps.py`: the carry-forward above.
+- `tests/test_scene_palette_set.py`: the three rows, the four rows, and each sheet's own colour set held against
+  them; `tests/test_make_exterior_maps.py` new.
+
+Checks on this tree, 2026-10-25:
+
+- `python tools/scene_palette_set.py build --write` then `validate`: **PASS, 12 scenes, 4 hero palettes**.
+- `python tools/palette_synergy.py --gate`: the table above, exit 0.
+- `python -m pytest tests/test_scene_palette_set.py tests/test_palette_synergy.py tests/test_scene_palettes.py
+  tests/test_make_exterior_maps.py tests/test_test_inputs.py -q`: 65 passed, and the two rows that read the
+  repository's own tracked file list (`test_every_judged_rows_ground_is_a_file_a_clean_checkout_carries`,
+  `test_test_inputs`) red until this commit lands, because the frames are staged by it.
+- The per sheet, per town and per state numbers are from `measure_frames.py`, `measure_carriers.py`,
+  `measure_states.py` and `simulate_rows.py` in this card's workspace, which call `palette_synergy`'s
+  `frame_report`, `Grid` and `background_report` rather than restating the arithmetic.
+
+### 16.6 What this does not decide
+
+- **The party inside the ship.** The ship's four rows are spent on `sailor_battle` and `sailor_ow_v2` (its row
+  measures 0 on `ts_ship.png`), and of the four walking sheets only Percy fits one of them. Card `t_a6a7a436`.
+- **The towns' paving against the party's bodies.** Card `t_454c1876`, with the numbers above.
+- **A town NPC.** The towns' four rows are now entirely the party, so a townsfolk sprite has no palette of its
+  own: it must be drawn inside one of the four, or a row has to be given up, and which is a card this one does not
+  write because no townsfolk sheet exists yet.
+- **One identity everywhere.** The walking sheets stay off the reserved hero triples, and that is now a written
+  fact rather than an oversight: battle sheets are the hero triples, walking sheets are triples bought from a
+  walking ground. A card that wants one identity on both would change `make_characters_v2.py` and the three towns'
+  rows together, and would have to beat the pair numbers in 16.2 to say why.
+
+Provenance: studied this repository's own files only (`data/palettes/scene_*.json`, `data/scene_palettes.json`,
+`tools/scene_palette_set.py`, `tools/palette_synergy.py`, `tools/art/make_exterior_maps.py`,
+`tools/art/make_characters_v2.py`, `tools/art/scene_palette.py`, `game/sprites_src/env/ts_exterior.json`, the four
+walking sheets, the three map frames and `data/maps/*.json`). Copied expression: none.

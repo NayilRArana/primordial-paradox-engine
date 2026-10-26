@@ -401,3 +401,98 @@ def test_the_committed_cloud_ground_is_the_crop_its_generator_builds():
         "output/cloud_sky_ground.png is not what tools/art/title_cloud_ground.py builds, so it is either stale "
         "or hand edited: rerun the tool")
 
+
+# -----------------------------------------------------------------------------------------------------------------
+# The party walking sheets (card t_dec4e92c). The towns are a ground the party walks on, so their four sprite
+# palettes are the party's four walking triples, and each town's judged row measures the four sheets on the frame
+# tools/art/make_exterior_maps.py composes at that map's spawn.
+
+WALKING_SHEETS = ("percy_ow_v2.png", "konrad_ow_v2.png", "zander_ow_v2.png", "hadrian_ow_v2.png")
+# The four rows in the order the towns declare them, then the sheet each row carries.
+WALKING_ROWS = ((0, 15, 48), (7, 23, 40), (1, 17, 49), (2, 18, 48))
+SHEET_TRIPLES = {"hadrian_ow_v2.png": (0, 15, 48), "konrad_ow_v2.png": (7, 23, 40),
+                 "zander_ow_v2.png": (1, 17, 49), "percy_ow_v2.png": (2, 18, 48)}
+TOWNS = ("southampton", "westminster", "winchester")
+
+
+def sheet_entries(name):
+    """The 2C02 entry set of one sheet's inked pixels, read through the tool's own Grid."""
+    from PIL import Image
+    import palette_synergy
+
+    grid = palette_synergy.Grid(ROOT)
+    image = Image.open(os.path.join(ROOT, "game", "sprites_src", "chars", name)).convert("RGBA")
+    pixels = image.load()
+    out = set()
+    for y in range(image.height):
+        for x in range(image.width):
+            r, g, b, a = pixels[x, y]
+            if a:
+                entry = grid.entry((r, g, b))
+                assert entry is not None, "%s has #%02x%02x%02x, off the 2C02 palette" % (name, r, g, b)
+                out.add(entry)
+    return out
+
+
+def test_the_towns_four_sprite_rows_are_the_party_that_walks_there():
+    """Card t_dec4e92c: sp0 and sp2 were copies of the background groups carrying no art at all.
+
+    Measured when this card started: only konrad_ow_v2 ($07 $17 $28) and percy_ow_v2 ($02 $12 $30) fitted a town
+    row; zander_ow_v2 ($01 $11 $31) and hadrian_ow_v2 ($00 $0F $30) fitted NO set in the project, and no sheet in
+    game/sprites_src fitted sp0 or sp2. So the two free rows were solved for the two homeless sheets rather than
+    leaving two of the four heroes with nowhere to be drawn on the map they walk.
+    """
+    payload = data()
+    for scene_id in TOWNS:
+        entry = scene_palette_set.find_scene(payload, scene_id)
+        rows = [list(row["colours"]) for row in entry["sprites"]]
+        assert rows == [list(triple) for triple in WALKING_ROWS], (scene_id, rows)
+    # And the sheets themselves say the same thing: each one's own colours fit exactly one of those four rows.
+    for name, triple in SHEET_TRIPLES.items():
+        entries = sheet_entries(name)
+        assert entries == set(triple), (name, sorted(entries), triple)
+        for scene_id in TOWNS:
+            rows = scene_palette_set.allowed_sprite_sets(data(), scene_id)
+            fits = [index for index, row in enumerate(rows) if entries <= set(row)]
+            assert len(fits) == 1, (scene_id, name, fits, rows)
+
+
+def test_each_town_judged_row_names_the_four_walking_sheets_on_its_own_frame():
+    """The row format, held: one row per town, the frame that town's map spawns in, at the spawn tile.
+
+    The ground is the composed frame and NOT game/sprites_src/env/ts_exterior.png, because that atlas spends
+    five background palettes and a scene spends four: measured 2026-10-25, it reports 7 palette_count problems
+    on southampton and 4 on each of the other two, so as a ground it can never be clean and would charge its own
+    background failures to the sprites standing on it (the defect card t_1dc346b9 ruled on).
+    """
+    rows = [row for row in judged_rows() if row["scene"] in TOWNS]
+    assert len(rows) == 3, rows
+    for row in rows:
+        assert row["background"] == "output/%s_sample_frame.png" % row["scene"], row["background"]
+        assert row["at"] == [128, 112], row["at"]
+        assert [os.path.basename(path) for path in row["sprites"]] == list(WALKING_SHEETS), row["sprites"]
+        assert not row.get("exempt"), "the three towns carry the cast, so the rows are enforced, not exempt"
+        assert not row.get("by_product"), row
+        assert "ts_exterior" in row["note"], "the row has to say why the atlas is not the ground"
+
+
+def test_the_towns_ground_is_the_frame_their_generator_writes():
+    """The three grounds are build products, not captures: the generator writes them, and the row names them.
+
+    A composed capture carries colours off the 2C02 table and the tool then charges those to the sprite standing
+    on it (card t_1dc346b9). These frames are built tile by tile from ts_exterior.png under the four group budget
+    tools/art/make_exterior_maps.py enforces on itself, so every pixel is a scene palette entry, and the
+    background half measures 0 against the town's own four rows.
+    """
+    import palette_synergy
+
+    grid = palette_synergy.Grid(ROOT)
+    for scene_id in TOWNS:
+        path = os.path.join(ROOT, "output", "%s_sample_frame.png" % scene_id)
+        assert os.path.isfile(path), path
+        scene = scene_palette_set.scene(ROOT, scene_id)
+        frame = palette_synergy.load_background(ROOT, "output/%s_sample_frame.png" % scene_id)
+        assert frame.size == (256, 240), (scene_id, frame.size)
+        assert palette_synergy.background_report(grid, scene, frame) == [], \
+            "%s: the ground is not drawn inside the scene's own four background palettes" % scene_id
+

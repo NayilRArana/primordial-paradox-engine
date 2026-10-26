@@ -471,6 +471,43 @@ def palette_entries(meta: dict) -> dict:
     return {name: [item["entry"] for item in items] for name, items in meta["palettes"].items()}
 
 
+def solved_sprites(path: str, placeholder: list) -> list:
+    """The sprite half a card solved in this file, or [] when the file carries only the placeholder.
+
+    The generator writes four PLACEHOLDER sprite palettes (a copy of the background groups), and it used to write
+    the whole file, so a card that solved them for the cast that walks here lost the decision on the next run.
+    Card t_dec4e92c solved the three towns for the party's four walking sheets and hit exactly that. The rule
+    below is mechanical rather than a flag: a sprite half IDENTICAL to the placeholder needs no carrying (the
+    generator reproduces it), and one that differs is a decision, kept and printed.
+    """
+    if not os.path.isfile(path):
+        return []
+    try:
+        with open(path, "r", encoding="utf-8-sig") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        return []
+    rows = payload.get("sprites") or []
+    return rows if rows and rows != placeholder else []
+
+
+def judged_rows(path: str) -> list:
+    """The audit rows cards wrote in this file, kept verbatim (card t_5802ecdb's rule, on this generator).
+
+    A judged row names the ground a cast is measured on; this generator writes no row and cannot answer for one,
+    so it must not delete one. tools/art/make_battle_bg.py had the same defect on the battle strips and card
+    t_5802ecdb fixed it there; card t_dec4e92c fixed it here, where the three towns now carry their own rows.
+    """
+    if not os.path.isfile(path):
+        return []
+    try:
+        with open(path, "r", encoding="utf-8-sig") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        return []
+    return list(payload.get("judged") or [])
+
+
 def write_scene_palette(root: str, place: dict, meta: dict, ts_meta: dict) -> str:
     entries = palette_entries(ts_meta)
     hexes = {entry["index"]: entry["hex"] for entry in json.load(
@@ -483,6 +520,12 @@ def write_scene_palette(root: str, place: dict, meta: dict, ts_meta: dict) -> st
             "colours": entries[name],
             "hex": [hexes[e] for e in entries[name]],
         })
+    placeholder = [
+        {"name": "sp0", "colours": [0, 15, 16], "hex": [hexes[0], hexes[15], hexes[16]]},
+        {"name": "sp1", "colours": [7, 23, 40], "hex": [hexes[7], hexes[23], hexes[40]]},
+        {"name": "sp2", "colours": [9, 10, 42], "hex": [hexes[9], hexes[10], hexes[42]]},
+        {"name": "sp3", "colours": [2, 18, 48], "hex": [hexes[2], hexes[18], hexes[48]]},
+    ]
     scene = {
         "format": 1,
         "kind": "scene_palette",
@@ -492,24 +535,30 @@ def write_scene_palette(root: str, place: dict, meta: dict, ts_meta: dict) -> st
                 "4 sprite palettes of 3 entries plus transparency on 8x8 tiles; every entry is a "
                 "data/nes_palette.json entry number",
         "background": background,
-        "sprites": [
-            {"name": "sp0", "colours": [0, 15, 16], "hex": [hexes[0], hexes[15], hexes[16]]},
-            {"name": "sp1", "colours": [7, 23, 40], "hex": [hexes[7], hexes[23], hexes[40]]},
-            {"name": "sp2", "colours": [9, 10, 42], "hex": [hexes[9], hexes[10], hexes[42]]},
-            {"name": "sp3", "colours": [2, 18, 48], "hex": [hexes[2], hexes[18], hexes[48]]},
-        ],
+        "sprites": placeholder,
         "notes": [
             "written by tools/art/make_exterior_maps.py because no NES-PALETTES scene file existed for this "
             "tileset; same format as data/palettes/scene_ship.json",
             "background palettes are the 4 groups the scene map actually spends, in tileset order",
-            "sprite palettes carry no art in this card: they are the same entries as the background set, "
-            "reserved for the CHAR lane so a character cannot add a 14th colour to the frame",
+            "sprite palettes are the PLACEHOLDER char lane set, a copy of the background groups, so a character "
+            "cannot add a 14th colour to the frame. A card that solves them for the cast that walks here writes "
+            "its rows in this file and this generator keeps them: card t_dec4e92c solved southampton, westminster "
+            "and winchester for the party's four walking sheets, and the same run keeps every judged row it finds",
         ],
     }
     path = os.path.join(root, "data", "palettes", "scene_%s.json" % place["scene"])
+    kept_sprites = solved_sprites(path, placeholder)
+    if kept_sprites:
+        scene["sprites"] = kept_sprites
+    kept_judged = judged_rows(path)
+    if kept_judged:
+        scene["judged"] = kept_judged
     with open(path, "w", encoding="utf-8") as handle:
         json.dump(scene, handle, indent=2)
         handle.write("\n")
+    if kept_sprites or kept_judged:
+        print("%-22s kept %d solved sprite row(s) and %d judged row(s) already in scene_%s.json"
+              % (place["id"], len(kept_sprites), len(kept_judged), place["scene"]))
     return path
 
 

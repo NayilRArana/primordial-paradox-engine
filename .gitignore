@@ -53,6 +53,19 @@ output/*
 !output/cloud_sky_ground.png
 !output/bg_battle_corridor_frame.png
 !output/bg_battle_deck_night_frame.png
+# The three exterior map frames, the ground the party's four walking sheets are judged on. Card t_dec4e92c,
+# 2026-10-25: the three towns' judged rows in data/palettes/scene_southampton.json, scene_westminster.json and
+# scene_winchester.json name these by path, and tools/palette_synergy.py --gate fails any row whose ground is not
+# on disk, so a clean checkout that lacks them is red with no art to blame. They are written by
+# tools/art/make_exterior_maps.py, one per place, and a rerun of that generator reproduces all three byte for
+# byte from the committed tileset and OSM drafts (measured on this card), so none of them is a pasted picture.
+# They are also named one by one in tools/check_test_inputs.py FIXTURES for the reason the block above gives.
+#   output/southampton_sample_frame.png   the 256x240 viewport at Town Quay, spawn tile 17,18
+#   output/westminster_sample_frame.png   the viewport at the street by Big Ben, spawn tile 16,20
+#   output/winchester_sample_frame.png    the viewport at Winchester High Street, spawn tile 16,19
+!output/southampton_sample_frame.png
+!output/westminster_sample_frame.png
+!output/winchester_sample_frame.png
 
 # The twelve drive captures tests/test_eye_drive.py samples. tools/eye_drive.py reads
 # output\drive\pp_drive_shot_01.png to _12.png, which the game writes from inside its own draw

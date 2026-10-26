@@ -63,6 +63,13 @@ FIXTURES = (
     "output/cloud_sky_ground.png",
     "output/bg_battle_corridor_frame.png",
     "output/bg_battle_deck_night_frame.png",
+    # Card t_dec4e92c: the three exterior map frames, one per town, the ground each town's judged row measures the
+    # party's four walking sheets on. Written by tools/art/make_exterior_maps.py, reproduced byte for byte by a
+    # rerun, and un-ignored one by one above, for the same reason as the three grounds. A clean checkout without
+    # them fails the gate on three rows whose art is fine.
+    "output/southampton_sample_frame.png",
+    "output/westminster_sample_frame.png",
+    "output/winchester_sample_frame.png",
     # The twelve drive captures tests/test_eye_drive.py samples. tools/eye_drive.py reads them by name from
     # output/drive and measures each frame's own pixels, so they are that test's input, not a preview: with
     # them absent a clean checkout reported twelve failed shots and three reds (card t_d2c52f15). They are

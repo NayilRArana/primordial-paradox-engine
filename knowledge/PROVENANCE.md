@@ -1516,3 +1516,79 @@ owner and a later run cannot drift from them; the spend is the minimum that reac
 the card first proposed; and the enemy's sheet is left untouched, because the ruling that sent it to the background
 also ruled that it keeps its own three colours.
 Copied expression: none
+
+## PARTY-WALK-GROUNDS, 2026-10-25: a walking sheet is judged on the room it walks in, and a scene's free sprite row is where a homeless triple goes (card t_dec4e92c)
+Studied: this repository's own files, read only: `data/palettes/scene_southampton.json`,
+`scene_westminster.json`, `scene_winchester.json` and `scene_ship.json` (the judged row format and the one worked
+example of a tileset ground), `data/scene_palettes.json` (the derived set, the hero four, `party_cast`),
+`tools/art/make_exterior_maps.py` (`render_frame`, `enforce_palette_budget`, `write_scene_palette` and the whole
+file write that drops `judged`), `tools/art/make_characters_v2.py` (how the four walking sheets chose their three
+entries, and the note on zander that named this card's answer in advance), `tools/palette_synergy.py` (`Grid`,
+`background_report`, `frame_report`, `tile_fails`, `pair_rules`, `cast_problems`, `gate`),
+`tools/scene_palette_set.py` (`judged_rows`, `audit_rows`, `allowed_sprite_sets`, `cast_problems`),
+`game/sprites_src/env/ts_exterior.json` (the five background groups), `data/maps/*.json` (the spawn tiles), the
+four walking sheets and the three map frames. No decompiled material was read for this card and no expression from
+any game is in it.
+Mechanics learned: three. One, a tileset atlas is not automatically a usable ground: an atlas that covers five
+background groups cannot be drawn inside any one scene's four, so measuring a sprite on it charges the atlas's own
+areas to the sprite, which is the same failure mode as measuring on a screen capture and has the same cure, namely
+to measure on the composed frame the generator builds under the four group budget. Two, the four sprite palettes
+are a property of the frame, and a scene file's placeholder rows are a copy of the background groups, so a sheet can
+be "in the set" entry by entry and still be carried by no single palette: hadrian's `$00 $0F $30` raises
+`palette_count` and no `set_member` at all, and a check that counted only the latter would have passed him. Three,
+a walking sheet and a battle sheet are drawn on different grounds, so the same character legitimately spends two
+different triples, and the way to give a walking triple a home is to spend a free sprite row on the ground the
+character walks, not to repaint the sheet to match the fight palette.
+Our implementation differs by: the ground is named as a file a generator writes and a row measures, with the file
+committed and held in a fixture list rather than a capture; each scene's cast lives in its own `judged` list at the
+spawn tile the map actually starts on; the two placeholder rows are solved for the two homeless walk triples rather
+than a repaint being ordered, because the rows carried no art at all (measured over every sheet in the tree); and
+the generator that owns those files now carries a `judged` list and a solved sprite half forward instead of
+rewriting the file whole, so the decision cannot be deleted by a rerun.
+Copied expression: none
+
+## DECK-ENEMY-TRIPLE, 2026-10-25: the deck's plate triple spends the enemy's white, because that is where the enemy stands (card t_34b1d96a)
+Studied: this repository's own files, read only: `data/ui_layouts.json` (screen `battle`, its `enemies` slots and
+its `party` slots), `data/encounters/all.json` (`tutorial_sailors`, `deck_hound`, `percy`), `data/palettes/
+scene_battle_deck_night.json` and `scene_ship.json` with their judged rows, `tools/art/make_battle_bg.py`
+(`build_scene`, `scene_palette_json`, the `deck_night` scene, the cell painters), `tools/scene_palette_set.py`,
+`tools/palette_synergy.py`, `tools/art/contrast_check.py`, the four battle strips and their frames, the sheets in
+`game/sprites_src/enemies/` and `game/sprites_src/chars/`, and `knowledge/PALETTE-RULINGS-2026-10-25.md` sections 7
+and 12. No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: three. One, a background-art enemy is not drawn from a palette set, it is drawn from the ONE
+palette of the 16x16 area it stands in, so a fit measured over the union of a strip's triples cannot say whether the
+enemy can be drawn: the placement has to be resolved to its attribute cells first, and on this strip the answer was
+a single triple for both slots. Two, the shared backdrop is an entry every area may spend, so the palette an enemy
+needs is two entries and not three, which is what turned a 12288 pixel palette replacement into a 2016 pixel one
+entry swap. Three, a cost measured in strip pixels and a cost measured in sheet pixels are not comparable until the
+figure is the subject: 2016 pixels of rivets leave the player's subject alone, while 37.5 percent of the enemy's
+own pixels rewrites the thing the fight is about.
+Our implementation differs by: the decision lives in the strip generator's own scene table, so the numbers keep one
+owner and a later run cannot drift from them; the spend is the minimum that reaches the enemy's cells (one entry of
+`bg2`, keeping the plate body `$00` and the seam `$02`), not the enemy's triple in full and not the rigging triple
+the card first proposed; and the enemy's sheet is left untouched, because the ruling that sent it to the background
+also ruled that it keeps its own three colours.
+Copied expression: none
+
+## DECK-ENEMY-TRIPLE, 2026-10-25: the deck's plate triple spends the enemy's white, because that is where the enemy stands (card t_34b1d96a)
+Studied: this repository's own files, read only: `data/ui_layouts.json` (screen `battle`, its `enemies` slots and
+its `party` slots), `data/encounters/all.json` (`tutorial_sailors`, `deck_hound`, `percy`), `data/palettes/
+scene_battle_deck_night.json` and `scene_ship.json` with their judged rows, `tools/art/make_battle_bg.py`
+(`build_scene`, `scene_palette_json`, the `deck_night` scene, the cell painters), `tools/scene_palette_set.py`,
+`tools/palette_synergy.py`, `tools/art/contrast_check.py`, the four battle strips and their frames, the sheets in
+`game/sprites_src/enemies/` and `game/sprites_src/chars/`, and `knowledge/PALETTE-RULINGS-2026-10-25.md` sections 7
+and 12. No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: three. One, a background-art enemy is not drawn from a palette set, it is drawn from the ONE
+palette of the 16x16 area it stands in, so a fit measured over the union of a strip's triples cannot say whether the
+enemy can be drawn: the placement has to be resolved to its attribute cells first, and on this strip the answer was
+a single triple for both slots. Two, the shared backdrop is an entry every area may spend, so the palette an enemy
+needs is two entries and not three, which is what turned a 12288 pixel palette replacement into a 2016 pixel one
+entry swap. Three, a cost measured in strip pixels and a cost measured in sheet pixels are not comparable until the
+figure is the subject: 2016 pixels of rivets leave the player's subject alone, while 37.5 percent of the enemy's
+own pixels rewrites the thing the fight is about.
+Our implementation differs by: the decision lives in the strip generator's own scene table, so the numbers keep one
+owner and a later run cannot drift from them; the spend is the minimum that reaches the enemy's cells (one entry of
+`bg2`, keeping the plate body `$00` and the seam `$02`), not the enemy's triple in full and not the rigging triple
+the card first proposed; and the enemy's sheet is left untouched, because the ruling that sent it to the background
+also ruled that it keeps its own three colours.
+Copied expression: none
