@@ -407,7 +407,8 @@ def tracked_paths():
     worktree) the set answers, and a broken git is still an error rather than a skip.
     """
     def git(*arguments):
-        return subprocess.run(["git", *arguments], cwd=ROOT, capture_output=True, text=True, timeout=120)
+        return subprocess.run(["git", *arguments], cwd=ROOT, stdin=subprocess.DEVNULL,
+                              capture_output=True, text=True, timeout=120)
 
     try:
         top = git("rev-parse", "--show-toplevel")

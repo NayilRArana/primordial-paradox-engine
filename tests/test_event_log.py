@@ -99,9 +99,11 @@ def test_an_empty_event_is_a_one_line_file():
 @pytest.mark.needs_git_checkout
 def test_the_real_tag_resolves_and_the_cli_prints_the_log():
     tag_sha = subprocess.run(["git", "rev-parse", "--short=7", event_log.TAG + "^{commit}"], cwd=ROOT,
+                             stdin=subprocess.DEVNULL,
                              capture_output=True, encoding="utf-8", errors="replace", timeout=120)
     assert tag_sha.returncode == 0, tag_sha.stderr
     proc = subprocess.run([sys.executable, os.path.join("tools", "event_log.py"), "--print"], cwd=ROOT,
+                          stdin=subprocess.DEVNULL,
                           capture_output=True, encoding="utf-8", errors="replace", timeout=180)
     assert proc.returncode == 0, (proc.stdout, proc.stderr)
     lines = proc.stdout.splitlines()

@@ -424,8 +424,12 @@ def test_the_room_table_and_the_scene_are_the_same_twelve_durations():
 # 5. The generator: the tree carries what it writes today, and it refuses a tree that lost the row.
 
 def run_tool(root: str, *flags: str) -> subprocess.CompletedProcess:
+    # stdin is given explicitly because this spawn must not inherit the parent's handles: when the suite runs with
+    # its stdout redirected to a log, the inherited stdin handle can already be dead and _make_inheritable raises
+    # OSError [WinError 6] before the child exists. 65 other call sites in this repo already pass it.
     return subprocess.run([sys.executable, os.path.join(ROOT, "tools", "art", "make_drive_map.py"),
                            "--root", root] + list(flags),
+                          stdin=subprocess.DEVNULL,
                           capture_output=True, text=True, encoding="utf-8", errors="replace")
 
 

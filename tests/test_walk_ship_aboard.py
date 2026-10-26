@@ -160,7 +160,8 @@ def test_the_page_tile_is_walkable_from_the_entry_spawn(quay):
 
 def test_the_walker_tool_passes_and_names_the_trigger():
     """The card's own proof, run as a tool: it has to exit 0 and print the tile, the kind and the id."""
-    result = subprocess.run([sys.executable, WALKER], cwd=ROOT, capture_output=True, text=True)
+    result = subprocess.run([sys.executable, WALKER], cwd=ROOT, stdin=subprocess.DEVNULL,
+                            capture_output=True, text=True)
     assert result.returncode == 0, "tools/walk_ship_aboard.py exited %d: %s%s" % (
         result.returncode, result.stdout, result.stderr)
     assert "trigger tile (%d, %d) kind 'say' id '%s'" % (17, 39, PAGE_ID) in result.stdout, (
