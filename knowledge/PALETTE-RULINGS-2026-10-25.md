@@ -576,4 +576,186 @@ Provenance: studied this repository's own files only (`data/ui_layouts.json`, `d
 the sheets in `game/sprites_src/`). No decompiled material, and no expression from another game, is in this
 card. Copied expression: none.
 
+## 15. Q1, Q2, Q3 on the deck: the enemy's three colours are spent on `bg2`, the one triple it actually stands on
+
+**Answer, three parts.** Q1: neither of the two routes the card names. The deck's plate and railing triple,
+`bg2`, changes from `$00 $10 $02` to `$00 $30 $02`, and that carries the enemy's `$02 $0F $30` whole, because
+`$0F` is the shared backdrop every attribute area may already spend. Q2: `sailor_battle.png` is not drawn on the
+deck at all, and it stays out of the deck's background budget. Q3: the walking sailor stays exactly where card
+`t_1dc346b9` put him, on the ship row against `ts_ship.png`, and this card does not touch that row.
+
+### 15.1 The fact the card did not have: where the enemy actually stands
+
+The card's two candidate routes were argued on a union reading of the four deck triples. Background art is not
+drawn from a union. It is drawn per 16x16 attribute area from that area's ONE triple, and both of the battle
+screen's enemy slots land on `bg2` cells and nothing else. `data/ui_layouts.json` `screens[battle].enemies` is two
+32x32 slots at tile 3,8 and tile 12,11:
+
+| slot | pixels | 16x16 areas it covers | triple that governs it |
+| --- | --- | --- | --- |
+| tile 3,8 | 24,64 to 55,95 | 6 (rows 4 and 5, columns 1 to 3) | `bg2` only |
+| tile 12,11 | 96,88 to 127,119 | 4 (rows 5 and 6, columns 6 and 7; 24 of the 32 rows fall inside the 112 px strip) | `bg2` only |
+
+So the only triple that can ever draw the tutorial enemy on this strip is `bg2`. A `$30` spent on `bg3` is a
+`$30` spent on cells no enemy stands on.
+
+### 15.2 The card's headline number is an artefact of not counting the backdrop
+
+The card quotes "27 of `navy_sailor.png`'s 37 inked tiles fit none of the deck's background triples". That is the
+union reading with the backdrop left out. `tools/art/make_battle_bg.py`'s own rule is that an area's pixels are
+"one of the palette's three colours plus the scene's one shared backdrop" (role 3, docstring point 1), so the right
+union reading counts `$0F`:
+
+| sheet, HEAD | union, backdrop not counted | union, backdrop counted | at the enemy's slots (backdrop counted) |
+| --- | --- | --- | --- |
+| `navy_sailor.png`, 36 inked tiles | 9 fit / 27 out | 36 fit / 0 out | 9 fit / 27 out, both slots |
+| `petty_officer.png`, 30 inked tiles | 0 fit / 30 out | 30 fit / 0 out | 0 fit / 30 out, both slots |
+
+`navy_sailor.png`'s `$02 $0F $30` is already carried by `bg0` (the sky, `$02 $01 $30`) the moment the backdrop
+counts. The union was never the problem, and that is why a union reading could not choose the route. The slot
+reading is the one that decides, and on the slot reading 27 of the 36 are uncovered.
+
+The card's 37 tile count is a sheet with one more inked pixel than HEAD's; `git show HEAD:` gives 36. Both readings
+are in the numbers above where they differ.
+
+### 15.3 The four routes, measured
+
+Strip cost is the pixel diff against the same scene built without the change, through `build_scene()` itself.
+The enemy column is the slot at tile 3,8, backdrop counted, HEAD's sheet.
+
+| route | strip pixels moved | 8x8 tiles changed | strip colours | enemy at tile 3,8 | enemy at tile 12,11 |
+| --- | --- | --- | --- | --- | --- |
+| as shipped | 0 | 0 | 8 | 9 fit / 27 out | 9 fit / 18 out |
+| A `bg3 $0F $02 $00` to `$0F $02 $30` (the card's route) | 104, in a 216x16 box at 18,16 | 16 | 8 | **9 / 27, unchanged** | **9 / 18, unchanged** |
+| B `bg2 $00 $10 $02` to `$00 $30 $02` | 2016, in a 256x46 box at 0,64 | 192 | 7 | **36 / 0** | **27 / 0** |
+| C `bg2` to the enemy's own `$02 $0F $30` | 12288, in a 256x48 box at 0,64 | 192 | 7 | 36 / 0 | 27 / 0 |
+| D `bg3` to the enemy's own `$02 $0F $30` | 200, in a 216x16 box at 18,16 | 16 | 8 | 9 / 27, unchanged | 9 / 18, unchanged |
+| E repaint the sheet into the shipped `bg2` | 0 | 0 | 8 | needs 375 of 1001 opaque pixels repainted (`$30` to `$10` or `$00`), 37.5 percent of the figure | same |
+
+Read down the enemy column. Route A and route D, the two that spend `bg3`, are the card's route and its literal
+version, and both leave every enemy tile exactly as uncovered as it was, because no enemy tile is drawn under a
+`bg3` cell. Routes B and C are the two that reach the slots. B and C draw the identical 36 of 36 and 27 of 27, so
+the choice between them is cost alone: B changes one entry of `bg2` and leaves the plate body `$00` and the seam
+`$02` where they are, C changes both and repaints the whole floor, 12288 pixels against 2016. E is the cheapest in
+pixels and is refused on the ruling rather than on the cost: section 7.5 ends "the enemy keeps its own three
+colours either way", and 7.5's quantise clause is about a strip drawing fewer than four heroes, which the deck
+does not.
+
+**Answer: B.** `bg2` becomes `$00 $30 $02`, and the deck's background row is rewritten by the generator that owns
+it rather than by hand.
+
+### 15.4 What the spend costs, exactly
+
+Every one of the 2016 moved pixels is a single step: `$10` `#bcbcbc` was there before and `$30` `#fcfcfc` is there
+after, and nothing else on the strip moves (`data/palettes/scene_battle_deck_night.json` records the same in its
+own words, and the pixel diff of the two frames agrees):
+
+- 128 px in the 32 `deck_plate` cells, which is the four rivet dots each cell carries;
+- 1888 px in the 16 `deck_rail` cells, which is the rail's two highlight bands and its two uprights;
+- attribute rows 4, 5 and 6 of 7, nothing in the sky, the horizon, the sea or the rigging;
+- 1817 of them outside the party block and 199 inside it, and the 199 are inside the region card `t_12c9b18f`
+  repaints to `$0F` anyway, so the two cards do not charge the player twice for the same pixels;
+- the strip keeps its 29 unique 8x8 tiles and drops from 8 colours to 7, because `$10` no longer appears anywhere
+  on the deck. That is a loss of one grey step on a night strip whose plate body stays `$00`; it is inside the
+  25-colour budget either way.
+
+The strip's own sidecar and its frame are both regenerated from the same build, so the shipped art and the record
+in `game/sprites_src/bg/bg_battle_deck_night.json` cannot disagree.
+
+### 15.5 Q2: `sailor_battle.png` is not drawn on the deck, and stays out of its budget
+
+No. Three measured reasons.
+
+1. **The encounter names one enemy and it is not that sheet.** `data/encounters/all.json` `tutorial_sailors` is
+   `"enemies": ["navy_sailor"]`. `sailor_battle.png` is a 168x32 seven frame battle sheet with no column in that
+   row.
+2. **Its home is already written down and it is the ship.** `data/palettes/scene_ship.json`'s judged row names
+   `sailor_battle.png` and `sailor_ow_v2.png` against `game/sprites_src/env/ts_ship.png` at 64,64 (card
+   `t_1dc346b9`), where it measures PASS, 0 failing pairs, 0 uncovered. Moving it onto the deck would judge it on a
+   ground it is not drawn on, which is the defect ruling 7.5 was written to stop.
+3. **The deck cannot carry it and should not try.** Even after this card's spend, `sailor_battle.png` reads 31 of
+   its 72 inked tiles inside the new `bg2` at the enemy slot, and the entries it needs and `bg2` does not have are
+   `$07`, `$08`, `$17`, `$27` and `$36`. Carrying those is a second and third background entry spent on a sheet
+   the room does not draw. It stays out of the deck's background budget, and out of the deck row.
+
+### 15.6 Q3: the walking sailor stays where card `t_1dc346b9` put him
+
+Yes, unchanged. `sailor_ow_v2.png` is judged on the ship row against `ts_ship.png` (measured there: PASS, 0 failing
+pairs, 32 inked tiles, 0 uncovered) and this card touches no ship palette, no ship strip and no ship row. The deck
+strip does not draw him and never did, which card `t_4f18c0ac` settled on 2026-10-24.
+
+### 15.7 What landed, and the numbers before and after
+
+**Landed.**
+
+- `tools/art/make_battle_bg.py`: the `deck_night` scene's `bg2` is `[0x00, 0x30, 0x02]`, and its `notes` carry a
+  fourth line saying why, so the generator owns the decision and a later run cannot quietly undo it.
+- `data/palettes/scene_battle_deck_night.json`: written through the generator's own `scene_palette_json()` but
+  assembled by hand at the keys the generator does not write (see 15.8), so `background` is the generator's
+  new row, `judged[0].note` names the enemy's new route, `judged[0].exempt` records that price one is paid and
+  price two is not, and the four sprite rows and notes 0 to 6 are byte for byte what they were.
+- `game/sprites_src/bg/bg_battle_deck_night.png` and `.json`, `output/bg_battle_deck_night_frame.png`: regenerated
+  from the same `build_scene()`, 976 B and 1072 B from 995 B and 1091 B, 2016 pixels each moved, all in the 256x46
+  box at 0,64.
+- `data/scene_palettes.json`: `python tools/scene_palette_set.py build --write`, 3 insertions and 3 deletions, all
+  of them the three lines this decision moves (the deck's `bg2` second entry `16` to `48`, and the two audit
+  strings). A second build is byte identical.
+
+**What did not move, and the check that says so.** The other three strips are pixel identical to HEAD
+(`bg_battle_corridor.png` 1237 B, `bg_battle_wardroom.png` 1421 B, `bg_battle_quay_dusk.png` 1178 B, all
+unchanged), and so is `output/bg_battle_corridor_frame.png`.
+
+**The deck row's own fail count does not move with this card, and that is the honest reading.** Under the tool as
+it ships at HEAD the deck reads 324 fails before and after, and under card `t_6e8ca42f`'s half it reads 0 before
+and after: all 324 are the four party sheets against the sprite half (289 `palette_count` plus 35 `set_member`),
+and the strip's background does not enter them. This card is a background decision and it moves the background.
+
+**The gate, this tree, 2026-10-25.**
+
+| run | entries | gated | advisory | per entry fails |
+| --- | --- | --- | --- | --- |
+| parent card `t_0949bd4e`, before this card | 6 | 0 | 5 | corridor 324, corridor contact sheet 11, deck 324, ship tileset 0, ship title 242, title 135 = 1036 |
+| this card | 6 | 0 | 3 | corridor 0, corridor contact sheet 16, deck 0, ship tileset 0, ship title 242, title 135 = 393 |
+
+Both readings are on this tree with `tools/scene_palette_set.py` as card `t_6e8ca42f` has it in the working tree,
+which is the half that makes a `party_cast` strip read the four hero triples. `python tools/scene_palette_set.py
+validate` prints PASS, 12 scenes, 4 hero palettes.
+
+**Checks run, and what they returned.**
+
+- `python -m pytest tests/test_make_battle_bg.py tests/test_scene_palette_set.py tests/test_scene_palettes.py -q`:
+  38 passed. `tests/test_make_battle_bg.py` includes "the committed strips are what the generator writes", so the
+  regenerated PNG is in the commit that claims it.
+- `python -m pytest tests/test_palette_synergy.py tests/test_kaggle_r7.py -q`: 32 passed.
+- `python tools/scene_palette_set.py build` twice: the second is byte identical to the file this card commits.
+- The measurements are in this card's workspace: `measure_deck_enemy.py` (the slots, the two union readings, all
+  four routes through `build_scene()`), `measure_cost.py` (the pixel accounting and every enemy sheet against the
+  new `bg2`), `measure_before_after.py` (before and after at the slots, HEAD's sheets), `measure_enemy_slots.py`
+  and `png_diff.py`. They call `palette_synergy.Grid`, `contrast_check.load_sheet`, `palette_synergy.frame_size`
+  and `make_battle_bg.build_scene` rather than restating the arithmetic.
+
+### 15.8 What this does not decide
+
+- **The draw.** Nothing on screen changes, because nothing draws the enemy or the strip yet: `pp_battle_director`
+  resolves `_battle.bg_name` at line 92 and no draw call reads it, and no draw call loads any enemy sheet, so
+  neither the strip nor the sailor reaches the screen. This card makes the palette able to carry the enemy; it
+  does not draw it. Card `t_4275136f` owns the drawing, and it is not an art card: no sheet and no strip has to be
+  redrawn for this ruling.
+- **The other enemy on the deck.** `data/encounters/all.json` also carries `deck_hound`, which has no sheet in
+  `game/sprites_src/enemies/` at all. When it gets one, its colours have to fit `bg2` or this decision reopens;
+  the coverage table in this card's `measure_cost.py` is the tool that would say so. `petty_officer.png` already
+  fits the new `bg2` whole, 30 of 30.
+- **The deck's palette file has two owners.** `tools/art/make_battle_bg.py` writes it whole and emits no `judged`
+  key (card `t_5802ecdb`), and its `SCENES` sprite rows for `deck_night` no longer match the four rows the file
+  ships, so a full run today would rewrite both. Card `t_8ebcb489` owns that half. This card therefore writes the
+  deck's file deck by deck and keeps the hand owned keys, which is the smallest move that does not lose another
+  card's work.
+- **The deck's party block floor** is still not `$0F`. Card `t_12c9b18f` owns it, and its 199 pixels of overlap
+  with this change are inside the region that card repaints.
+
+Provenance for section 15: studied this repository's own files only (`data/ui_layouts.json`,
+`data/encounters/all.json`, `data/palettes/scene_battle_deck_night.json`, `data/palettes/scene_ship.json`,
+`tools/art/make_battle_bg.py`, `tools/scene_palette_set.py`, `tools/palette_synergy.py`, `tools/art/contrast_check.py`,
+the four battle strips and frames, and the sheets in `game/sprites_src/`). No decompiled material, and no
+expression from another game, is in this card. Copied expression: none.
 

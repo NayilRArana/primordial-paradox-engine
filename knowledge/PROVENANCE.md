@@ -1493,3 +1493,26 @@ enemy route is recorded as a card with its own measurement instead of being quie
 fourth slot; and a row that cannot be measured honestly (this one, until the tool reads the hero four) carries an
 exemption that names the card that ends it, so the red state is a dated decision and not a silenced check.
 Copied expression: none
+
+## DECK-ENEMY-TRIPLE, 2026-10-25: the deck's plate triple spends the enemy's white, because that is where the enemy stands (card t_34b1d96a)
+Studied: this repository's own files, read only: `data/ui_layouts.json` (screen `battle`, its `enemies` slots and
+its `party` slots), `data/encounters/all.json` (`tutorial_sailors`, `deck_hound`, `percy`), `data/palettes/
+scene_battle_deck_night.json` and `scene_ship.json` with their judged rows, `tools/art/make_battle_bg.py`
+(`build_scene`, `scene_palette_json`, the `deck_night` scene, the cell painters), `tools/scene_palette_set.py`,
+`tools/palette_synergy.py`, `tools/art/contrast_check.py`, the four battle strips and their frames, the sheets in
+`game/sprites_src/enemies/` and `game/sprites_src/chars/`, and `knowledge/PALETTE-RULINGS-2026-10-25.md` sections 7
+and 12. No decompiled material was read for this card and no expression from any game is in it.
+Mechanics learned: three. One, a background-art enemy is not drawn from a palette set, it is drawn from the ONE
+palette of the 16x16 area it stands in, so a fit measured over the union of a strip's triples cannot say whether the
+enemy can be drawn: the placement has to be resolved to its attribute cells first, and on this strip the answer was
+a single triple for both slots. Two, the shared backdrop is an entry every area may spend, so the palette an enemy
+needs is two entries and not three, which is what turned a 12288 pixel palette replacement into a 2016 pixel one
+entry swap. Three, a cost measured in strip pixels and a cost measured in sheet pixels are not comparable until the
+figure is the subject: 2016 pixels of rivets leave the player's subject alone, while 37.5 percent of the enemy's
+own pixels rewrites the thing the fight is about.
+Our implementation differs by: the decision lives in the strip generator's own scene table, so the numbers keep one
+owner and a later run cannot drift from them; the spend is the minimum that reaches the enemy's cells (one entry of
+`bg2`, keeping the plate body `$00` and the seam `$02`), not the enemy's triple in full and not the rigging triple
+the card first proposed; and the enemy's sheet is left untouched, because the ruling that sent it to the background
+also ruled that it keeps its own three colours.
+Copied expression: none

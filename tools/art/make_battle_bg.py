@@ -535,11 +535,12 @@ SCENES = [
             "night sky with stars and a moon, a sea horizon, rigging and a railing, steel deck plates",
             "bg0 the sky, bg1 the sea, bg2 the deck and railing, bg3 the rigging, which is why the rigging cells are black",
             "the sea horizon is one flat row of tiles so the far water stays a straight band, as it must at 256 px",
+            "bg2 $00 $30 $02 is also the triple the enemy is drawn from: both enemy slots in data/ui_layouts.json (tile 3,8 and 12,11, 32x32) fall on bg2 cells, and the third entry is $30 rather than $10 so navy_sailor.png's own triple $02 $0F $30 fits whole, $0F coming from the shared backdrop (knowledge/PALETTE-RULINGS-2026-10-25.md section 15, card t_34b1d96a)",
         ],
         "background": [
             ("bg0", [0x02, 0x01, 0x30]),
             ("bg1", [0x01, 0x11, 0x21]),
-            ("bg2", [0x00, 0x10, 0x02]),
+            ("bg2", [0x00, 0x30, 0x02]),
             ("bg3", [0x0F, 0x02, 0x00]),
         ],
         "sprites": [
