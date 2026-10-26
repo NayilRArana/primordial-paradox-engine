@@ -93,6 +93,23 @@ def default_palette_path(root: str) -> str:
     return os.path.join(root, "data", "nes_palette.json")
 
 
+def shown_path(path: str, root: str) -> str:
+    """A path as this tool prints it: relative to the repo when it is inside it, always with forward slashes.
+
+    Why a separator is not free here: this tool's stdout is EMBEDDED in a committed report.
+    tools/check_scene_palettes.py runs it once per judged frame and stores the lines in
+    output/scene_palettes.json, and tests/test_scene_palettes.py refuses a committed report that a fresh run
+    no longer reproduces. os.path.relpath spends the local separator, so the Windows copy of that report said
+    `data\\nes_palette.json` while a Linux run of the same tree prints `data/nes_palette.json`: 1553 passes and
+    this one row red on the Pine gate (card t_8bb7bdea), with every measured number identical. A committed
+    record has to be readable the same way on every machine, so the printed form is POSIX everywhere.
+    """
+    path = os.path.abspath(path)
+    root = os.path.abspath(root)
+    inside = path == root or path.startswith(root + os.sep)
+    return (os.path.relpath(path, root) if inside else path).replace(os.sep, "/")
+
+
 def load_palette(path: str) -> dict:
     """Read a palette file into {"allowed": {rgb: (index, "#rrggbb")}, "count": n, "refused": {rgb: why}}."""
     with open(path, "r", encoding="utf-8-sig") as handle:
@@ -813,8 +830,7 @@ def main(argv=None) -> int:
 
     lines = describe(report, info)
     lines.append("  palette: %s (%d usable of %d entries)"
-                 % (os.path.relpath(palette_path, root) if palette_path.startswith(root) else palette_path,
-                    palette["count"], palette["raw_count"]))
+                 % (shown_path(palette_path, root), palette["count"], palette["raw_count"]))
     if not args.quiet or not report["ok"]:
         for line in lines:
             print(line)

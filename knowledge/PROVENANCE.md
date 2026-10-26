@@ -1842,3 +1842,22 @@ shipped note of `data/palettes/scene_ship.json` and in five docstrings of `tools
 `t_463cb8c1`. Only the identifier changed; the sheet was regenerated after the edit and is byte identical, and
 `pytest tests/test_make_env_ship.py tests/test_scene_palette_set.py tests/test_scene_palettes.py -q -> 59 passed`
 re-ran green.
+
+## PALETTE-REPORT-POSIX, 2026-10-26: a committed record may not carry a machine's path separator (card `t_8bb7bdea`)
+Studied: this repository's own files, read only: `tools/nes_composite_check.py`, `tools/check_scene_palettes.py`,
+`tests/test_scene_palettes.py`, `tests/test_nes_composite_check.py`, `output/scene_palettes.json`, and the separator
+convention already in `tools/art/make_drive_tiles.py`, `tools/art/make_quay_tiles.py`, `tools/art/make_font_row_v2.py`,
+`tools/art/make_dialogue_busts.py`, `tools/art/make_exterior_maps.py` and `tools/art/make_icons_nes.py`. No decompiled
+material was read for this card and no expression from any game is in it.
+Mechanics learned: two. One, a tool's stdout stops being ephemeral the moment a report embeds it, so every path that
+stdout prints is a committed byte: `os.path.relpath` is a display decision that a Windows run and a Linux run answer
+differently, and a gate that compares a committed report with a fresh run turns that difference into a permanent red row
+with no measured number out of place. Two, the guard has to be asserted on the separate axis, not only through equality:
+an equality check between two runs on the SAME platform reproduces the leak faithfully and stays green, so the report
+itself has to be refused for carrying a separator at all, which is the only assertion that fires on the machine that
+wrote it.
+Our implementation differs by: the normalization sits at the printer (`shown_path()` in `tools/nes_composite_check.py`)
+rather than at the embedder, so every consumer of this tool's stdout inherits the portable form, and it matches the
+`.replace(os.sep, "/")` spelling the art lane already uses instead of introducing a second convention. The row stays
+measured on Pine rather than being deselected there.
+Copied expression: none

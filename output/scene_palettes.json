@@ -311,7 +311,7 @@
       "    palette #881400 #e45c10 #f8b800",
       "  sprites: not checked (no --sprite-mask and no --sprites)",
       "  PASS: 0 block(s) violate the background rules, 0 sprite(s) violate the sprite rules",
-      "  palette: data\\nes_palette.json (55 usable of 64 entries)"
+      "  palette: data/nes_palette.json (55 usable of 64 entries)"
     ]
   },
   "ship_sheet": {
@@ -395,7 +395,7 @@
       "  sprites: 16, 1 palette(s), busiest scanline 31 carries 8, 8 per line and 64 total allowed",
       "    sprite palette #004058 #005800 #f8f8f8",
       "  PASS: 0 block(s) violate the background rules, 0 sprite(s) violate the sprite rules",
-      "  palette: data\\nes_palette.json (55 usable of 64 entries)"
+      "  palette: data/nes_palette.json (55 usable of 64 entries)"
     ]
   },
   "title_frame": {
@@ -411,7 +411,7 @@
       "    palette #004058 #0058f8 #7c7c7c",
       "  sprites: not checked (no --sprite-mask and no --sprites)",
       "  PASS: 0 block(s) violate the background rules, 0 sprite(s) violate the sprite rules",
-      "  palette: data\\nes_palette.json (55 usable of 64 entries)"
+      "  palette: data/nes_palette.json (55 usable of 64 entries)"
     ]
   },
   "title_sprites": {

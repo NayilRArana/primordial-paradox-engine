@@ -258,3 +258,30 @@ def test_enforce_output_is_stable_under_a_second_pass(tmp_path):
     assert code == 0, text
     with Image.open(first) as a, Image.open(second) as b:
         assert a.convert("RGB").tobytes() == b.convert("RGB").tobytes()
+
+
+def test_the_printed_palette_line_carries_no_local_separator(tmp_path):
+    """Card t_8bb7bdea: this tool's stdout is EMBEDDED in a committed report, so it may not spend an OS path.
+
+    tools/check_scene_palettes.py stores these lines in output/scene_palettes.json and
+    tests/test_scene_palettes.py refuses a committed copy that a fresh run does not reproduce. os.path.relpath
+    spends the local separator, so on 2026-10-26 the Windows-written report said `data\\nes_palette.json` and the
+    same tree on Pine printed `data/nes_palette.json`: one red row out of 1554 on the Pine gate, with every
+    measured number identical. The line is now POSIX on every machine, so the same bytes come out anywhere.
+    """
+    source = tmp_path / "legal.png"
+    build_legal_frame().save(source)
+    code, text = run(os.path.join("tools", "nes_composite_check.py"), str(source))
+    assert code == 0, text
+    lines = [line for line in text.splitlines() if line.startswith("  palette: ")]
+    assert len(lines) == 1, text
+    assert lines[0] == "  palette: data/nes_palette.json (55 usable of 64 entries)", lines[0]
+    assert "\\" not in lines[0], lines[0]
+
+    # The helper is where the rule lives, so measure it directly: inside the root it is relative and POSIX,
+    # outside the root it stays absolute and POSIX, and neither form carries the local separator.
+    root = nes_composite_check.repo_root()
+    inside = nes_composite_check.shown_path(os.path.join(root, "data", "nes_palette.json"), root)
+    assert inside == "data/nes_palette.json", inside
+    outside = nes_composite_check.shown_path(os.path.join(tmp_path, "elsewhere.json"), root)
+    assert "/" in outside and "\\" not in outside, outside

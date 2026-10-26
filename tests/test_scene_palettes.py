@@ -182,6 +182,17 @@ def test_the_check_reports_its_numbers_so_a_reviewer_can_read_them(tmp_path):
         "`python tools/check_scene_palettes.py --json output/scene_palettes.json` and commit the result "
         "(card t_8690e219).")
 
+    # Card t_8bb7bdea: the compared content has to be platform free, or the same tree cannot agree with itself.
+    # The report embeds the checker's stdout, and that stdout used to spend the local path separator in its
+    # palette line: `data\\nes_palette.json` on Windows against `data/nes_palette.json` on Linux, one red row on
+    # the Pine gate with every measured number identical. A committed record may not carry an OS path.
+    for key in ("title_frame", "title_car_frame", "ship_frame"):
+        for line in committed[key]["report"]:
+            assert "\\" not in line, (
+                "%s carries the local path separator, so the report cannot be reproduced on another platform: "
+                "%r (card t_8bb7bdea). Print it with tools/nes_composite_check.py's shown_path() and regenerate."
+                % (key, line))
+
 
 WALKING_CAST = ("hadrian_ow_v2", "konrad_ow_v2", "zander_ow_v2", "percy_ow_v2", "sailor_ow_v2")
 
