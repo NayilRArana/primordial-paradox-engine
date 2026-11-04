@@ -1,0 +1,2 @@
+#!/bin/sh
+python .githooks/check_readme.py

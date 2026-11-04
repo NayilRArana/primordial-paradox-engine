@@ -1,187 +1,110 @@
-# Primordial Paradox
+# Primordial Paradox: the engine (before the Meta hackathon kickoff)
 
-A 256 x 240 NES-style adventure built in GameMaker, with Meta's models doing the art, the art review and the
-dialogue judge, under a Python gate that enforces the drawing limits of the Ricoh 2C02 picture chip.
+This repository holds the **pre-existing engine** of Primordial Paradox. It is the core code that runs the game.
 
-Two Greek houses, Kronos and Zeus, reincarnated on the M3 at night: the drive down to Southampton, a ship waiting at
-the quay, and two encounters. The first is won with one command. The second is won by talking your way past a sailor,
-and a model judges the line.
+It holds the **real history of the engine**:
 
-**Where this stands, stated plainly (2026-10-22).** This is a vertical slice under construction, not a finished game.
-The title screen, the opening crawl, the ship room, the overworld walk and the dialogue box run today, from one build,
-captured in the screenshots below. The drive, the arrival map, boarding, the two fights, save and game over exist as
-specification, data and tests, and are scheduled in a fixed order (`ROADMAP-2026-10-23.md`). No Meta model call has
-been made from this repository yet, so every line of text the game prints today is the written fallback. No ROM is
-produced; this is a GameMaker build at native 256 x 240. The full audit, 22 subsystems scored out of 4 with the
-evidence for each score, is `knowledge/HACKATHON-AUDIT-2026-10-22.md` (mean 2.2).
+- 292 commits from 2026-10-19 to 2026-10-26 08:35 PT
+- each with its original date, author and message
 
-## What the demo shows
+It ends before the Meta Global AI Developer Hackathon kickoff finished (2026-10-26, 12:24 PM ET = 09:24 AM PT). **Nothing in this repository was built during the event.**
 
-One scripted run, the same order every night, so drift shows up as a diff:
+The tag `engine-before-kickoff-2026-10-26` marks the last pre-event commit. The one commit after it only adds this README, its screenshots and a check on the README.
 
-| Beat | State on 2026-10-22 | Evidence |
+It stays separate, as the organisers asked. The hackathon repository holds only event work. It is the stored project folder for event work.
+
+It uses this one as a dependency, outside code it loads.
+
+The hackathon entry that builds on it: https://github.com/NayilRArana/primordial-paradox-hackathon
+
+## How rudimentary it was
+
+This page is deliberately plain. At the cutoff the engine was a skeleton with a strict art gate, a thin set of rooms, and music that
+was drafted but unfinished. Everything a player would call "the game" (a story you can finish, fights, an ending, music that fits
+each room) was built in the event repository afterwards. The evidence is below, with the file for each claim.
+
+### What ran
+
+A 256 x 240 NES style adventure built in GameMaker. From one build you could see the title screen, the opening crawl, the ship room,
+an overworld walk and the dialogue box. Four rooms existed in `game/rooms`: `rm_pp_boot`, `rm_pp_title`, `rm_pp_ship` and
+`rm_pp_drive`. No Meta model had answered a call from this code. The original front page of 2026-10-22 is kept as
+`docs/README-as-written-2026-10-22.md`; it says "a vertical slice under construction, not a finished game".
+
+### Screenshots from this tree
+
+These are the images that exist in the snapshot, copied to `docs/screenshots/`. Most are committed preview frames, not captures of a
+finished game; each caption says which.
+
+| Image | What it shows | Origin |
 | --- | --- | --- |
-| Title attract, then PRESS START, then NEW GAME | runs | live capture `output/title_run_1.png` |
-| The opening crawl | runs, and hands off to the ship room | `output/crawl_mid.png`, log line "intro finished, starting the run in rm_pp_ship" |
-| The drive to Southampton | shot list and generator, no room yet | `knowledge/DRIVE-SHOT-LIST.md`, card R21 |
-| Arrival at the quay, the gate checkpoint | data and tests, no room yet | card ARRIVAL-MAP-2 |
-| Walking the deck, doors, the dialogue box with a typewriter and choices | runs | footstep and text blip cues in the recorded run |
-| Boarding, the first fight, the TALK fight | code and tests, no live capture yet | `tests/test_first_fight.py`, card R30 |
-| The log save, game over, CONTINUE | save is tested, game over does not exist yet | cards R26 and R27 |
+| ![title](docs/screenshots/title.png) | The title backdrop at native 256 x 240: a starfield sky over a night road, drawn to the palette gate. | `output/nes_title_frame.png` |
+| ![ship dialogue](docs/screenshots/ship-dialogue.png) | The ship deck with two sprites and the first dialogue box. The text is run together ("Youarenotonthelist") (the font and spacing were among the open items in the audit). | `output/ship_dialogue.png` |
+| ![ship tiles](docs/screenshots/ship-room.png) | The ship tile sheet and the assembled ship rooms: grey plates, crates, grates, brick. A tile preview sheet, not a capture of play. | `output/env_ship_preview.png` |
+| ![dialogue box](docs/screenshots/dialogue-box.png) | The dialogue window layout preview. | `output/ui_dialogue_preview.png` |
+| ![battle UI](docs/screenshots/battle-ui-preview.png) | The battle screen layout preview: command menu, party HP, and two flat yellow squares standing in for sprites. | `output/ui_battle_preview.png` |
+| ![quay map](docs/screenshots/quay-sample-map.png) | A map preview made from OpenStreetMap-derived data for Southampton, rendered as tiles. | `output/southampton_sample_frame.png` |
 
-A recorded run exists at `output/demo/run_001.mp4` (73.5 s, 768 x 720, 60 fps). Its strict verifier still calls 5 of 7
-sampled frames "not the game", so the recording is evidence, not yet the demo.
+No capture of the crawl or of a fight survives in this tree, so none is shown.
 
-## The AI pipeline: what it does, and what it does not
+### Gameplay loops and level design: almost none
 
-The rule is ruling D5 of `knowledge/GAMEDEV-DECISIONS-2026-10-22.md`, and it is the reason a judge can run this on a
-laptop with the wifi off.
+* **The route was data.** `data/slice.json` names nine steps (title, crawl, drive, arrival, gate checkpoint, boarding, first fight,
+  save, game over). The audit of 2026-10-22 found the steps were not yet one continuous run.
+* **Levels.** `data/maps/all.json` holds 5 maps: the small ship deck, the cabin, the Southampton Town Quay (53 x 56 tiles), the dock
+  office and the M3 drive corridor. They are tile grids with collision and triggers. There were no puzzles, no pacing and no
+  designed encounter spaces beyond a 20 x 15 deck.
+* **Combat.** `data/encounters/all.json` lists 3 encounters (`tutorial_sailors`, `deck_hound`, `percy`) and `data/scenes/all.json`
+  lists 15 scripted scenes. The battle director, dodge arena and talk command existed as code, specs (`specs/07-battle-director.md`,
+  `specs/08-dodge-arena.md`, `specs/16-talk-command.md`) and tests such as `tests/test_first_fight.py`. The audit saw no live fight.
+* **What was built afterwards** (a finished story on the quay, two boss fights, kill and spare outcomes, credits, new music) is listed in the hackathon repository's README; none of it is in this tree as a playable result.
+* **The self audit.** `knowledge/HACKATHON-AUDIT-2026-10-22.md` (kept in the hackathon repository) scores 22 subsystems from 0 to 4
+  with evidence, mean **2.2**, nothing at 4, eight at 3. Battle, enemies, party, save, ledger, maps and UI scored 2 (code or data,
+  unproven in the running game); the drive cutscene scored 1; docs scored 1. It was taken four days before the cutoff, so some rows
+  had moved by 2026-10-26 (a drive room and a drive corridor map exist in this snapshot), but no row had reached 4.
+* **Tests.** This tree has 94 test files with 1,480 `def test_` entries (counted with grep over `tests/`).
 
-**The shipped build makes no network call and holds no key.** No GML file in this project calls an HTTP, socket or URL
-function (the only URLs in the game code are manual links inside comments), and the build compiles and runs with an
-empty environment.
+### Music at the cutoff: six draft cues, not one theme
 
-**Model output is baked, not called.** That is ruling D5. The bake runs once, before a build, and its answer lands in
-`data/meta_bake.json` with the model name, the request hash, the creation time and the hand written fallback beside
-it. The game reads that file and nothing else, and a bake that is missing or stale is meant to stop the build rather
-than fall back quietly at runtime.
+It was more than a single title theme, and less than a score. `data/audio.json` lists 16 cue slots PP-01 to PP-16. **Six had a
+rendered file** (PP-01 title waltz, PP-02 drive, PP-03 harbor, PP-04 navy sailors, PP-05 small ship, PP-06 Percy). **Ten were not
+composed** (PP-07 to PP-16, among them the other bosses and both endings) and fell back to another cue. Every one of the 16 rows is
+flagged `"placeholder": true`. There are 45 rendered `.ogg` files outside `assets/audio/sfx/`, which are many versions of those six
+(for example title_theme v1 to v5, pp_03_harbor v1 to v4, pp_05_small_ship v1 to v5), plus 22 sound effects in `assets/audio/sfx/`.
 
-**Where it stands today, without rounding up.** The bake tool (card R29) does not exist yet, `data/meta_bake.json` is
-absent, `game/datafiles/ai_cache` is empty, and no Meta call has been made from this repository. Every line the game
-prints today is the written fallback. What is written and exercised against a mock backend is the client,
-`tools/meta_client.py`, with `chat`, `chat_structured`, `vision`, `generate_image`, `edit_image` and `segment`.
+How good were they, by the author's own ear critic? `assets/audio/EAR_SWEEP_2026-10-22.md` scored 9 masters on six 1 to 10 criteria
+with a model listener. Hook reached 7, structure 7, tension 6, drums 5, and **human feel never passed 4**. The ledger says the
+tracker renders were not yet musical in their phrasing: every master got the same advice (delayed vibrato on held notes, varied note
+lengths, a real drum fill, a moving bass, a rest before the reprise). The first title theme, `assets/audio/title_theme/NOTES.md`,
+was a mechanical rendering of a plan: A minor, 3/4, 84 bpm, 32 bars.
 
-| Job | Model | Entry point | Fallback when there is no bake |
-| --- | --- | --- | --- |
-| Concept art | muse-image-1.0 | `generate_image()` | a checked in concept |
-| Silhouette | sam-3.1 | `segment()` | a threshold silhouette |
-| Art review | muse-spark-1.3 with vision | `vision()` into `tools/eye_critic.py` | the checklist in `knowledge/ART-BIBLE.md` |
-| Dialogue judge for TALK | muse-spark-1.3, structured output | `chat_structured()` behind the battle director | a fixed verdict table, so the fight never stalls |
-| Ear review | any vision capable model on a spectrogram | `tools/ear_critic.py` | the scores in `assets/audio/` |
+### What the NES graphics gate already enforced
 
-Modes are environment only: `PP_AI_MODE` set to `record` (default), `replay` or `live`. Keys are read from the
-environment at call time and nowhere else, never printed, never written to a ledger, and a file whose name looks like
-a credential store (`.env`, `auth.json`, anything with token, secret or credential in the name) is refused as input
-instead of opened.
+This was the engine's real strength. `tools/nes_check.py` fails any PNG that breaks the Ricoh 2C02 rules: the 64 value PPU palette,
+an 8 x 8 tile grid, at most 3 opaque colours per sprite tile, at most 3 colours plus backdrop per 16 x 16 background area, and at
+most 25 colours on one screen. `tools/nes_audit_all.py` runs it over every asset and frame and writes `knowledge/NES-AUDIT.md`. At the
+cutoff that audit read: **127 of 127 shipped assets pass**, 15 of 25 finished frames pass (10 fail), and the advisory sheets and window
+captures mostly fail (they carry viewing scale, not art). The gate was strict enough to reject our own work, and that is why it was kept.
 
-**What it does not do.** No model runs while a player plays. Nothing is generated on the judge's machine. No model
-owns a pixel: whatever a model proposes still has to pass the palette and tiling checks before it can ship. The
-critics score and report; a person decides.
+## Using it
 
-## How to run
+You do not run this repository on its own.
 
-Windows, GameMaker LTS2026 (runtime 2026.0.0.23 tested), Python 3 with `jsonschema` (`tools/requirements.txt`), and
-pytest for the suite. The one command, from the repository root:
+Start with the hackathon repository's README. It gives the steps:
 
-    powershell -NoProfile -ExecutionPolicy Bypass -File tools\run.ps1
+- clone this repo at the tag `engine-before-kickoff-2026-10-26`, a named saved version
+- clone the hackathon repo
+- run `python apply_event.py <path to this checkout>`
 
-It copies the data mirrors, checks every data file against its schema, regenerates and checks the project file, runs
-the clean room and provenance gates, validates the scene palettes, then builds and launches with Igor. Exit codes: 0
-launched, 1 a gate failed and nothing was built, 2 GameMaker missing or unlicensed, 3 Igor returned an error. Flags:
-`-SkipChecks` skips the Python gates, `-Compile` builds and stops. `tools\run.vbs` runs the same script with no
-console window.
+To build this snapshot by itself, a saved copy of the code, you need:
 
-The gates on their own, in the order the roadmap runs them:
+- GameMaker (LTS runtime 2026.0.0.23, proprietary, from YoYo Games), the program that builds the game
+- Python 3.12 or newer with pytest, pillow, numpy, pyyaml, jsonschema and requests
+- then run `python tools/gen_project.py` and `tools/run.ps1 -Compile`.
 
-    python tools/check_data.py          content against data/schemas/
-    python tools/check_cleanroom.py     nothing traced, copied or decompiled from a published game
-    python -m pytest tests -q           the suite
-    python tools/nes_audit_all.py       every art file against the picture chip rules
+## Licence and dependencies
 
-**Landing a cue.** A cue is landed only when its source `.ogg` under `assets/audio/<asset>/` and the regenerated
-`game/PrimordialParadox.yyp` that names it are in ONE commit. Stage both, or stage neither. A commit that carries the
-source without the entry names no stream that a fresh checkout can build, and a commit that carries the entry without
-the source declares a stream it does not carry; six commits in the week of 2026-10-19 were one of those two shapes.
-The commit gate enforces this on every primordial-paradox commit, asset-only commits included, by running
-`python tools/check_build_inputs.py --staged`, which reads the INDEX rather than the working tree because a commit
-is the index. It refuses with one `UNPAIRED IN COMMIT` line per unpaired file. The same command run by hand prints
-the same thing, so there is no separate ritual to remember: `python tools/check_build_inputs.py` covers what is
-committed, `--staged` covers what this commit is about to carry.
+* See `LICENCE` in this repository for licence terms.
+* See `CREDITS.md` in this repository for credits.
+* See `knowledge/THIRD-PARTY-INVENTORY-2026-10-26.md` for third party pieces, meaning code from others, where present in this snapshot, meaning this saved copy.
 
-Run on this machine on 2026-10-22, pasted as they printed:
-
-    sync_data.py        exit 0  copied 0, removed 0, 65 unchanged
-    sync_art.py         exit 0  mirrored 21 sound effects, 101 animations, index current
-    check_data.py       exit 0  check_data: all files pass
-    gen_project.py      exit 0  wrote game/PrimordialParadox.yyp, 29 resources, 227 included files
-    check_project.py    exit 0  check_project: project graph and disk agree
-    check_cleanroom.py  exit 0  341 files, 26 names, 12 phrases, 35 GML modules, 0 awaiting review
-    check_provenance.py exit 0  26 modules, every one mapped to an entry
-    scene_palette_set.py validate   exit 0  PASS, 12 scenes, 4 hero palettes
-    palette_synergy.py --gate       exit 0  6 entries, 0 gated failures, 6 advisory
-    nes_audit_all.py    exit 0  PASS, 160 files, 24 failing (every one an advisory contact sheet or window capture)
-    Igor build          exit 0  "Igor complete.", sc=536, ob=3, ro=3, da=227, artifact rebuilt
-
-The suite is the one gate that is not green today: `python -m pytest tests -q` reports 905 passed, 15 failed and 1
-skipped in 363 s, run at 19:53 on 2026-10-22. All 15 are one class of red: a generated artefact (a sprite, a window
-layout, a palette set, the project file) does not match what the script that generates it produces right now, because
-other lanes are rebuilding that art today. The nine checks that gate a build are green, which is why the build above
-ran.
-
-On a machine short of memory, the suite and the checks run on a sandbox instead; the wrapper lives outside this
-repository.
-
-## The tools
-
-| Tool | What it does |
-| --- | --- |
-| `tools/check_data.py` | every JSON file against its schema in `data/schemas/`, with the failing field named |
-| `tools/check_project.py` | the GameMaker project graph against the files on disk |
-| `tools/check_cleanroom.py` | no study reference, no foreign name, no foreign phrase, every module reviewed |
-| `tools/check_provenance.py` | every GML module maps to a provenance entry with its sources |
-| `tools/nes_check.py` | palette membership, the 8 x 8 tile grid, 3 opaque colours a sprite tile, 4 a background area |
-| `tools/nes_audit_all.py` | every asset, sheet and capture, with a verdict and the pixel count of each fix |
-| `tools/palette_synergy.py` | whether a sprite separates from the ground it stands on, measured, not judged |
-| `tools/scene_palette_set.py` | one palette per scene, chosen and validated before anything is drawn |
-| `tools/meta_client.py` | the only file that knows the model HTTP shapes; the bake tool lands with card R29 |
-| `tools/eye_critic.py`, `tools/ear_critic.py` | the model critics that score a frame or a spectrogram |
-| `tools/render_chip.py`, `tools/arrange.py` | the chip audio renderer and the composition engine |
-| `tools/osm_to_map.py` | map geometry from OpenStreetMap, with the ODbL attribution kept in the build |
-
-## Screenshots
-
-Three frames that exist today, each from a real run of this build:
-
-- `output/title_run_1.png` (784 x 759, captured 19:13 on 2026-10-22): the title screen at three times scale, with the
-  menu open.
-- `output/crawl_mid.png` (768 x 720): the opening crawl mid run, four colours.
-- `output/bg_battle_deck_night_frame.png`: one of the four battle backgrounds, drawn and gated, waiting on the card
-  that wires the strips into the fight.
-
-## Licence
-
-The licence position for this repository is stated in `LICENCE` at the root: all rights reserved today, with the
-choice of an outbound grant left to the holder and still open.
-
-What does bind today, and is recorded rather than assumed:
-
-- **Engine.** GameMaker LTS2026 by YoYo Games, used under its own licence.
-- **Libraries.** None imported. The rule for any that is: MIT or Apache 2.0 only, no copyleft anywhere near the
-  game, and the licence file read before use, never a badge. `knowledge/LICENSES.md` records the ten repositories
-  considered with the exact copyright line found in each file, including the one where a detector said "unlicensed"
-  and the file said Apache 2.0.
-- **Font.** Press Start 2P by CodeMan38, SIL Open Font License 1.1 with a reserved font name, shipped with its
-  notice at `knowledge/licences/PressStart2P-OFL.txt` and byte for byte identical to upstream.
-- **Geography.** Map geometry from OpenStreetMap, ODbL, attribution kept inside the build.
-- **Music and sound.** Original, rendered from our own recipes. No sample pack, no soundbank, no commercial chip
-  instrument is redistributed.
-- **Credits.** `CREDITS.md` is the row per attribution obligation: engine, font, map data, our own work, and the ten
-  libraries that were read and not imported.
-- **Licence file.** `LICENCE` at the root, carrying the copyright notice, the terms that hold today, and the
-  third-party obligations a grant cannot override.
-
-## Provenance and clean room
-
-Everything here was written for this project. Published games were studied as behaviour and rules, never traced,
-transcribed or decompiled; `knowledge/PROVENANCE.md` says exactly what was studied and what was never copied, and
-`tools/check_cleanroom.py` enforces it on every commit. No third party code, art, dialogue or music was read,
-retyped or reused. Work on this repository was done by Nayil with his agent lanes (builder, testing, musician,
-research, audit, critics) under his direction, and every commit names the card that produced it.
-
-## Links
-
-- Build order and the gate: `ROADMAP-2026-10-23.md`
-- The decisions the build obeys: `knowledge/GAMEDEV-DECISIONS-2026-10-22.md`
-- What was built when, and what the hackathon window adds: `knowledge/BUILD-TIMELINE.md`
-- The whole project audit: `knowledge/HACKATHON-AUDIT-2026-10-22.md`
-- The art audit, regenerated by its own tool: `knowledge/NES-AUDIT.md`
+<!-- readme-author: muse-spark-1.3 body-sha256: a5f733d69da210d26820056b3d813614c27d33a37ae8735385d59567f97167cb -->
