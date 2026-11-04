@@ -1,17 +1,17 @@
 # Primordial Paradox: the engine (before the Meta hackathon kickoff)
 
-This repository holds the **pre-existing engine** of Primordial Paradox. It is the core code that runs the game.
+This repository holds the **pre-existing engine** of Primordial Paradox. It holds the core code that runs the game.
 
-It holds the **real history of the engine**:
+It keeps the **real history of the engine**:
 
 - 292 commits from 2026-10-19 to 2026-10-26 08:35 PT
 - each with its original date, author and message
 
-It ends before the Meta Global AI Developer Hackathon kickoff finished (2026-10-26, 12:24 PM ET = 09:24 AM PT). **Nothing in this repository was built during the event.**
+Work here ends before the Meta Global AI Developer Hackathon kickoff finished (2026-10-26, 12:24 PM ET = 09:24 AM PT). **Nothing in this repository was built during the event.**
 
 The tag `engine-before-kickoff-2026-10-26` marks the last pre-event commit. The one commit after it only adds this README, its screenshots and a check on the README.
 
-It stays separate, as the organisers asked. The hackathon repository holds only event work. It is the stored project folder for event work.
+It stays separate, as the organisers asked. The hackathon repository holds only event work. It serves as the stored project folder for event work.
 
 It uses this one as a dependency, outside code it loads.
 
@@ -65,11 +65,19 @@ No capture of the crawl or of a fight survives in this tree, so none is shown.
 
 ### Music at the cutoff: six draft cues, not one theme
 
-It was more than a single title theme, and less than a score. `data/audio.json` lists 16 cue slots PP-01 to PP-16. **Six had a
-rendered file** (PP-01 title waltz, PP-02 drive, PP-03 harbor, PP-04 navy sailors, PP-05 small ship, PP-06 Percy). **Ten were not
-composed** (PP-07 to PP-16, among them the other bosses and both endings) and fell back to another cue. Every one of the 16 rows is
-flagged `"placeholder": true`. There are 45 rendered `.ogg` files outside `assets/audio/sfx/`, which are many versions of those six
-(for example title_theme v1 to v5, pp_03_harbor v1 to v4, pp_05_small_ship v1 to v5), plus 22 sound effects in `assets/audio/sfx/`.
+It was more than a single title theme, and less than a score. `data/audio.json` lists 16 cue slots PP-01 to PP-16.
+
+**Six had a rendered file**:
+- PP-01 title waltz
+- PP-02 drive
+- PP-03 harbor
+- PP-04 navy sailors
+- PP-05 small ship
+- PP-06 Percy
+
+**Ten were not composed** (PP-07 to PP-16, among them the other bosses and both endings) and fell back to another cue. Every one of the 16 rows is flagged `"placeholder": true`.
+
+There are 45 rendered `.ogg` files outside `assets/audio/sfx/`. They hold many versions of those six (for example title_theme v1 to v5, pp_03_harbor v1 to v4, pp_05_small_ship v1 to v5). There are 22 sound effects in `assets/audio/sfx/`.
 
 How good were they, by the author's own ear critic? `assets/audio/EAR_SWEEP_2026-10-22.md` scored 9 masters on six 1 to 10 criteria
 with a model listener. Hook reached 7, structure 7, tension 6, drums 5, and **human feel never passed 4**. The ledger says the
@@ -79,17 +87,25 @@ was a mechanical rendering of a plan: A minor, 3/4, 84 bpm, 32 bars.
 
 ### What the NES graphics gate already enforced
 
-This was the engine's real strength. `tools/nes_check.py` fails any PNG that breaks the Ricoh 2C02 rules: the 64 value PPU palette,
-an 8 x 8 tile grid, at most 3 opaque colours per sprite tile, at most 3 colours plus backdrop per 16 x 16 background area, and at
-most 25 colours on one screen. `tools/nes_audit_all.py` runs it over every asset and frame and writes `knowledge/NES-AUDIT.md`. At the
-cutoff that audit read: **127 of 127 shipped assets pass**, 15 of 25 finished frames pass (10 fail), and the advisory sheets and window
-captures mostly fail (they carry viewing scale, not art). The gate was strict enough to reject our own work, and that is why it was kept.
+This was the engine's real strength.
+
+`tools/nes_check.py` fails any PNG that breaks the Ricoh 2C02 rules:
+
+* the 64 value PPU palette
+* an 8 x 8 tile grid
+* at most 3 opaque colours per sprite tile
+* at most 3 colours plus backdrop per 16 x 16 background area
+* at most 25 colours on one screen
+
+`tools/nes_audit_all.py` runs it over every asset and frame and writes `knowledge/NES-AUDIT.md`. At the cutoff that audit read: **127 of 127 shipped assets pass**, 15 of 25 finished frames pass (10 fail), and the advisory sheets and window captures mostly fail (they carry viewing scale, not art).
+
+The gate was strict enough to reject our own work, and that is why it was kept.
 
 ## Using it
 
 You do not run this repository on its own.
 
-Start with the hackathon repository's README. It gives the steps:
+Read the hackathon repository's README first. It gives the steps:
 
 - clone this repo at the tag `engine-before-kickoff-2026-10-26`, a named saved version
 - clone the hackathon repo
@@ -105,6 +121,6 @@ To build this snapshot by itself, a saved copy of the code, you need:
 
 * See `LICENCE` in this repository for licence terms.
 * See `CREDITS.md` in this repository for credits.
-* See `knowledge/THIRD-PARTY-INVENTORY-2026-10-26.md` for third party pieces, meaning code from others, where present in this snapshot, meaning this saved copy.
+* See `knowledge/THIRD-PARTY-INVENTORY-2026-10-26.md` for third party pieces, meaning code from others. See it for what is present in this snapshot, meaning this saved copy.
 
-<!-- readme-author: muse-spark-1.3 body-sha256: a5f733d69da210d26820056b3d813614c27d33a37ae8735385d59567f97167cb -->
+<!-- readme-author: muse-spark-1.3 body-sha256: 43c4ea57e0df2077b4e09302a87a28198777a2980030e78c4467f211aea533f9 -->
